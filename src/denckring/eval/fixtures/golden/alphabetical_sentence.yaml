@@ -1,0 +1,13 @@
+procedure: alphabetical_sentence
+lang: en
+cases:
+  - name: in-order
+    source: constructed example
+    text: all bad cats dance eagerly
+    params: {}
+    satisfied: true
+  - name: out-of-order
+    source: constructed counterexample
+    text: all cats bad dance
+    params: {}
+    satisfied: false

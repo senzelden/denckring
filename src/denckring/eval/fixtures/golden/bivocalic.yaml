@@ -1,0 +1,13 @@
+procedure: bivocalic
+lang: en
+cases:
+  - name: two-vowels-only
+    source: constructed example
+    text: a bad tea seat
+    params: { vowels: ae }
+    satisfied: true
+  - name: a-third-vowel
+    source: constructed counterexample
+    text: a bad tea sit
+    params: { vowels: ae }
+    satisfied: false
