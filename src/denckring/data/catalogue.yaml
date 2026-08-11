@@ -2183,3 +2183,280 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Leave the rejected wording struck through and visible beside what replaced it.
+
+  # ---------------------------------------------------------------------------
+  # families: translation and visual
+  # ---------------------------------------------------------------------------
+
+  - id: homophonic_translation
+    names: { en: Homophonic translation, de: Homophone Übersetzung, fr: Traduction homophonique }
+    definitions:
+      en: >-
+        A rendering that follows the sound of the source across a language barrier
+        rather than its sense, producing meaning from mishearing.
+      de: Eine Übertragung, die dem Klang des Originals folgt statt dem Sinn.
+      fr: Une traduction suivant le son de l'original plutôt que son sens.
+    source: Louis Zukofsky and Celia Zukofsky, Catullus (1969)
+    family: translation
+    attribution: primary
+    aliases: [sound translation]
+    kind: both
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: false
+    prompt_hints:
+      en: Render the source by its sound rather than its meaning, in the target language.
+
+  - id: antonymic_translation
+    names: { en: Antonymic translation, fr: Traduction antonymique }
+    definitions:
+      en: >-
+        A rendering in which each element of the source is replaced by its
+        opposite, the result standing as a translation of a kind.
+      fr: Une traduction remplaçant chaque élément par son contraire.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage into its opposite, term by term.
+
+  - id: definitional_translation
+    names: { en: Definitional translation }
+    definitions:
+      en: >-
+        A rendering in which each word of the source is replaced by its dictionary
+        definition in the target language.
+    source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: translation
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace each word of the source with its definition in the target language.
+
+  - id: lipogrammatic_translation
+    names: { en: Lipogrammatic translation }
+    definitions:
+      en: >-
+        A translation that observes a lipogram absent from the original, or
+        preserves one the original imposed.
+    source: Gilbert Adair's A Void (1994), translating Perec's La Disparition
+    family: translation
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage while never using the forbidden letter.
+
+  - id: univocalic_translation
+    names: { en: Univocalic translation }
+    definitions:
+      en: A translation restricted throughout to a single vowel in the target language.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage using only one vowel throughout.
+
+  - id: transduction
+    names: { en: Transduction, fr: Transduction }
+    definitions:
+      en: >-
+        A chain of successive translations through several languages and back, the
+        drift being the point of the exercise.
+      fr: Une chaîne de traductions successives dont la dérive fait l'intérêt.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Translate through several languages in turn and return to the first.
+
+  - id: back_translation
+    names: { en: Back translation, de: Rückübersetzung, fr: Rétrotraduction }
+    definitions:
+      en: >-
+        A rendering translated onward and then returned to its own language, so the
+        divergence from the original becomes the text.
+      de: Eine Übersetzung, die in die Ausgangssprache zurückgeführt wird.
+      fr: Une traduction ramenée dans sa langue d'origine.
+    source: Traditional; a standing exercise in translation studies
+    family: translation
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Translate out and back again, and present the return rather than the original.
+
+  - id: intralingual_translation
+    names: { en: Intralingual translation }
+    definitions:
+      en: >-
+        A rendering of a text into another register or period of its own language,
+        rather than into a different one.
+    source: Roman Jakobson, On Linguistic Aspects of Translation (1959)
+    family: translation
+    attribution: primary
+    aliases: [rewording]
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Recast the passage in a different register of the same language.
+
+  - id: calligram
+    names: { en: Calligram, de: Kalligramm, fr: Calligramme }
+    definitions:
+      en: >-
+        A poem whose lines are arranged to draw the shape of the thing it
+        describes.
+      de: Ein Gedicht, dessen Zeilen die Gestalt des Gegenstands nachzeichnen.
+      fr: Un poème dont la disposition dessine son sujet.
+    source: Guillaume Apollinaire, Calligrammes (1918)
+    family: visual
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Arrange the lines on the page so they draw the shape of the subject.
+
+  - id: pattern_poem
+    names: { en: Pattern poem, de: Figurengedicht, fr: Poème figuré }
+    definitions:
+      en: >-
+        A poem laid out in a figure — an egg, an axe, an altar — with the shape
+        fixed before the words.
+      de: Ein Gedicht in Gestalt einer Figur, etwa eines Eis oder einer Axt.
+      fr: Un poème disposé en figure, œuf, hache ou autel.
+    source: Simmias of Rhodes, 4th century BC; revived by George Herbert (1633)
+    family: visual
+    attribution: reference
+    aliases: [carmen figuratum, technopaegnion]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Fix the outline first and fit the poem into it.
+
+  - id: concrete_poetry
+    names: { en: Concrete poetry, de: Konkrete Poesie, fr: Poésie concrète }
+    definitions:
+      en: >-
+        A poem in which typography and spatial arrangement carry the meaning as
+        much as the words do.
+      de: Ein Gedicht, in dem Typographie und Anordnung mitbedeuten.
+      fr: Un poème où la typographie et l'espace font sens autant que les mots.
+    source: Eugen Gomringer, Konstellationen (1953)
+    family: visual
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Let the placement and typography of the words carry as much as the words themselves.
+
+  - id: boustrophedon
+    names: { en: Boustrophedon, de: Bustrophedon, fr: Boustrophédon }
+    definitions:
+      en: >-
+        A text whose lines alternate in direction, running left to right and then
+        right to left as an ox turns at the furrow's end.
+      de: Ein Text, dessen Zeilen die Richtung wechseln wie der Pflug am Feldende.
+      fr: Un texte dont les lignes alternent de sens, comme le bœuf au bout du sillon.
+    source: Traditional; archaic Greek inscriptions
+    family: visual
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write alternate lines in reverse direction, turning at each line end.
+
+  - id: sator_square
+    names: { en: Sator square, de: Sator-Quadrat, fr: Carré Sator }
+    definitions:
+      en: >-
+        A five-by-five word square reading identically in four directions, the
+        best-known instance of the palindromic grid.
+      de: Ein Fünf-mal-fünf-Wortquadrat, in vier Richtungen gleich lesbar.
+      fr: Un carré de cinq mots lisible identiquement dans quatre sens.
+    source: Traditional; attested at Pompeii before 79 AD
+    family: visual
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Build a five-by-five square reading the same forwards, backwards, down and up.
+
+  - id: spatial_poem
+    names: { en: Spatial poem }
+    definitions:
+      en: >-
+        A poem whose parts are distributed across a space larger than a page, the
+        distance between them being part of the reading.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: visual
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Distribute the parts across a space so the gaps between them count as reading.
+
+  - id: grid_poem
+    names: { en: Grid poem }
+    definitions:
+      en: >-
+        A poem set in a rectangular grid so that it can be read across, down, or
+        both, each direction yielding a text.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: visual
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Set the words in a grid that reads as a poem both across and down.
+
+  - id: typewriter_poem
+    names: { en: Typewriter poem }
+    definitions:
+      en: >-
+        A poem composed for the fixed grid of a typewriter, using monospacing and
+        overstrike as compositional means.
+    source: Traditional; a modern practice associated with concrete poetry
+    family: visual
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Compose for a fixed-width grid, using spacing and overstrike as material.

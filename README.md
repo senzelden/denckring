@@ -83,7 +83,30 @@ The *Fünffacher Denckring der Teutschen Sprache* (Harsdörffer, 1651) is one de
 the hundreds catalogued here, not the whole subject. Werkzeug is not only about tools
 either. Searching for `oulipy` will also find this package.
 
+## The catalogue as data
+
+The catalogue is 145 sourced procedures and is a contribution in its own right — useful
+to someone who will never install the package.
+
+```console
+denckring search rhopalic            # finds snowball by its alias
+denckring list --family form         # the prosodic and stanzaic entries
+denckring catalogue export --format json --output catalogue.json
+denckring catalogue export --format csv
+```
+
+Every entry records **how** its source was established, which is the field that makes
+the dataset trustworthy: `primary` names an author, work and year the catalogue stands
+behind; `reference` means the form is attested in a standard work — the *Oulipo
+Compendium*, Borgmann's *Language on Vacation*, *Word Ways* — rather than traced to an
+origin; `traditional` means no single origin exists to name. A `reference` row is not a
+weaker `primary`; it is an honest statement that the origin is not established.
+
+Entries are filed under one of eight families — `letter`, `word`, `syntax`, `form`,
+`permutation`, `procedural`, `translation`, `visual` — and carry the other names each
+form travels under, so a search for `isogram` finds `heterogram`.
+
 ## Licence
 
-Code is MIT. The catalogue in `src/denckring/data/catalogue.yaml` is CC BY 4.0, with
-per-entry source attribution, and is intended to be useful on its own.
+Code is MIT. The catalogue is CC BY 4.0 — see [LICENSE-DATA](LICENSE-DATA) for the
+attribution string and what the licence does and does not cover.

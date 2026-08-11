@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import sys
 from pathlib import Path
@@ -16,6 +18,12 @@ from denckring.core.registry import all_procedures, get
 from denckring.eval import harness
 
 app = typer.Typer(add_completion=False, help="Experimental writing procedures.")
+
+catalogue_app = typer.Typer(help="Work with the catalogue as data.")
+app.add_typer(catalogue_app, name="catalogue")
+
+CATALOGUE_LICENCE = "CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/"
+CATALOGUE_ATTRIBUTION = "denckring catalogue, https://github.com/senzelden/denckring"
 
 EXIT_UNSATISFIED = 1
 EXIT_ERROR = 2
@@ -241,3 +249,49 @@ def new_command(procedure_id: str, root: Path = Path(".")) -> None:
         typer.echo(str(exc))
         raise typer.Exit(EXIT_ERROR) from exc
     typer.echo(f"Now fill in the FILL IN markers, starting with {procedure_id}.py")
+
+
+@catalogue_app.command("export")
+def catalogue_export(
+    export_format: Annotated[str, typer.Option("--format")] = "json",
+    output: Annotated[Path | None, typer.Option("--output")] = None,
+) -> None:
+    """Emit the catalogue as a standalone dataset."""
+    rows = [catalogue.get(pid).model_dump() for pid in catalogue.ids()]
+    if export_format == "json":
+        text = json.dumps(
+            {
+                "licence": CATALOGUE_LICENCE,
+                "attribution": CATALOGUE_ATTRIBUTION,
+                "count": len(rows),
+                "procedures": rows,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    elif export_format == "csv":
+        buffer = io.StringIO()
+        columns = ["id", "family", "kind", "attribution", "source", "name_en", "definition_en"]
+        writer = csv.DictWriter(buffer, fieldnames=columns, lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(
+                {
+                    "id": row["id"],
+                    "family": row["family"],
+                    "kind": row["kind"],
+                    "attribution": row["attribution"],
+                    "source": row["source"],
+                    "name_en": row["names"].get("en", ""),
+                    "definition_en": row["definitions"].get("en", ""),
+                }
+            )
+        text = buffer.getvalue()
+    else:
+        typer.echo(f"Unknown format {export_format!r}. Use json or csv.")
+        raise typer.Exit(EXIT_ERROR)
+    if output is None:
+        typer.echo(text)
+    else:
+        output.write_text(text, encoding="utf-8")
+        typer.echo(f"wrote {output}")
