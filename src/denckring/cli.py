@@ -11,7 +11,7 @@ import typer
 
 from denckring.core import catalogue
 from denckring.core.errors import DenckringError, UnknownLanguage
-from denckring.core.protocol import Lang
+from denckring.core.protocol import FAMILIES, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.eval import harness
 
@@ -121,9 +121,13 @@ def apply_command(
 def list_command(
     lang: str | None = None,
     kind: str | None = None,
+    family: Annotated[str | None, typer.Option(help="|".join(FAMILIES))] = None,
     status: Annotated[str | None, typer.Option(help="catalogued|implemented|validated")] = None,
 ) -> None:
     """List catalogue entries."""
+    if family and family not in FAMILIES:
+        typer.echo(f"Unknown family {family!r}. Known families: {', '.join(FAMILIES)}")
+        raise typer.Exit(EXIT_ERROR)
     implemented = set(harness.implemented_ids())
     validated = set(harness.validated_ids())
     for procedure_id in catalogue.ids():
@@ -138,9 +142,30 @@ def list_command(
             continue
         if kind and meta.kind != kind:
             continue
+        if family and meta.family != family:
+            continue
         if status and entry_status != status:
             continue
         typer.echo(f"{procedure_id:24} {entry_status:12} {meta.names.get('en', '')}")
+
+
+@app.command("search")
+def search_command(term: str) -> None:
+    """Find procedures by id, name or alias. Exits 1 when nothing matches."""
+    needle = term.casefold()
+    matches: list[str] = []
+    for procedure_id in catalogue.ids():
+        meta = catalogue.get(procedure_id)
+        haystack = [procedure_id, *meta.names.values(), *meta.aliases]
+        if any(needle in field.casefold() for field in haystack):
+            matches.append(procedure_id)
+    if not matches:
+        typer.echo(f"No procedure matches {term!r}.")
+        raise typer.Exit(EXIT_UNSATISFIED)
+    for procedure_id in matches:
+        meta = catalogue.get(procedure_id)
+        alias_note = f"  (also: {', '.join(meta.aliases)})" if meta.aliases else ""
+        typer.echo(f"{procedure_id:24} {meta.family:12} {meta.names.get('en', '')}{alias_note}")
 
 
 @app.command("show")
