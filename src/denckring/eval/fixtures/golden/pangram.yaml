@@ -1,0 +1,18 @@
+procedure: pangram
+lang: en
+cases:
+  - name: quick-brown-fox
+    source: Traditional typing exercise, in use by 1885
+    text: The quick brown fox jumps over the lazy dog.
+    params: {}
+    satisfied: true
+  - name: perfect-pangram
+    source: Traditional perfect pangram
+    text: Mr Jock, TV quiz PhD, bags few lynx
+    params: { perfect: true }
+    satisfied: true
+  - name: not-a-pangram
+    source: constructed counterexample
+    text: The quick brown fox.
+    params: {}
+    satisfied: false

@@ -1,0 +1,13 @@
+procedure: univocalic
+lang: en
+cases:
+  - name: bombaugh-e-univocalic
+    source: C. C. Bombaugh, Gleanings for the Curious (1867)
+    text: Persever, ye perfect men, ever keep these precepts ten.
+    params: { vowel: e }
+    satisfied: true
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: The cat sat on the mat.
+    params: { vowel: e }
+    satisfied: false
