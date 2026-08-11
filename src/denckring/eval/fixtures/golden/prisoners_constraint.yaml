@@ -1,0 +1,13 @@
+procedure: prisoners_constraint
+lang: en
+cases:
+  - name: within-x-height
+    source: constructed example; the constraint is Perec's, in Oulipo, Atlas (1981)
+    text: no one saw our man swim across, nor came near
+    params: {}
+    satisfied: true
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: the tall dog leapt
+    params: {}
+    satisfied: false

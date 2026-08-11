@@ -1,0 +1,13 @@
+procedure: heterogram
+lang: en
+cases:
+  - name: perfect-heterogram
+    source: Traditional perfect pangram, also a heterogram
+    text: Mr Jock, TV quiz PhD, bags few lynx
+    params: {}
+    satisfied: true
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: letters repeat here
+    params: {}
+    satisfied: false
