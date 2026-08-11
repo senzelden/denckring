@@ -26,8 +26,13 @@ and only meaningful for the constructive ones.
 
 ```console
 pip install denckring          # English and German, no data files
+pip install denckring[en]      # + exact syllable counts from a pronouncing dictionary
 pip install denckring[fr]      # French (not yet released)
 ```
+
+The `[en]` extra improves existing procedures rather than enabling new ones. Without it
+syllables are estimated from spelling and every report says how many words were guessed;
+with it, that number goes to zero for words the dictionary knows.
 
 German ships in core because the twelve procedures below need no lexicon. It registers
 through the `denckring.lang` entry-point group — the same path a third-party pack takes.

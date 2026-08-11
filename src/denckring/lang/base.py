@@ -15,7 +15,12 @@ ALPHABET = "alphabet"
 FOLD_DIACRITICS = "fold_diacritics"
 LETTER_SHAPES = "letter_shapes"
 SYLLABLES = "syllables"
+#: An estimate from spelling alone, available with no data.
+SYLLABLES_HEURISTIC = "syllables.heuristic"
+#: Exact counts from a pronouncing dictionary.
+SYLLABLES_DICTIONARY = "syllables.dictionary"
 NOUNS = "lexicon.nouns"
+PHONEMES = "phonemes"
 
 # Both apostrophes are intentional: real text uses the typographic one.
 WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)  # noqa: RUF001
@@ -75,8 +80,20 @@ class BasePack:
             return True
         return any(unicodedata.combining(c) for c in unicodedata.normalize("NFD", lowered))
 
+    def syllable_count(self, word: str) -> tuple[int, bool]:
+        """The word's syllable count, and whether it was looked up or estimated.
+
+        The second element is what keeps an estimate honest: a caller that needs
+        certainty checks it, and every syllabic procedure reports how many of its
+        words were guessed.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES_HEURISTIC)
+
     def syllables(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES)
+
+    def phonemes(self, word: str) -> list[str]:
+        raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
 
     def nouns(self) -> Iterable[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
