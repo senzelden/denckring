@@ -1,0 +1,13 @@
+procedure: letter_bank
+lang: en
+cases:
+  - name: drawn-from-the-bank
+    source: constructed example; the form is described in Word Ways
+    text: meander named
+    params: { bank: meander }
+    satisfied: true
+  - name: strays-outside-the-bank
+    source: constructed counterexample
+    text: meander zoo
+    params: { bank: meander }
+    satisfied: false
