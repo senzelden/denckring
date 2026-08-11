@@ -1,0 +1,25 @@
+"""$class — FILL IN a one-line description."""
+
+from __future__ import annotations
+
+from pydantic import BaseModel
+
+from denckring.core.base import BaseProcedure
+from denckring.core.protocol import LanguagePack, Report
+from denckring.core.registry import register
+
+
+class ${class}Params(BaseModel):
+    pass
+
+
+@register
+class $class(BaseProcedure[${class}Params]):
+    id = "$id"
+
+    @classmethod
+    def params_model(cls) -> type[${class}Params]:
+        return ${class}Params
+
+    def _check(self, text: str, pack: LanguagePack, params: ${class}Params) -> Report:
+        raise NotImplementedError("FILL IN the checker for $id")

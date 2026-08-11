@@ -1,0 +1,13 @@
+procedure: beau_present
+lang: en
+cases:
+  - name: dedication-within-the-name
+    source: constructed example; the form is Perec's, in Oulipo, Atlas (1981)
+    text: a calm camel came
+    params: { name: Marcel }
+    satisfied: true
+  - name: strays-outside-the-name
+    source: constructed counterexample
+    text: a zebra came
+    params: { name: Marcel }
+    satisfied: false
