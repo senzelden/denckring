@@ -1,0 +1,13 @@
+procedure: cut_up
+lang: en
+cases:
+  - name: reassembled-from-the-source
+    source: Brion Gysin and William S. Burroughs, Minutes to Go (1960)
+    text: fox the jumps
+    params: { source: the quick brown fox jumps }
+    satisfied: true
+  - name: an-invented-word
+    source: constructed counterexample
+    text: zebra the jumps
+    params: { source: the quick brown fox jumps }
+    satisfied: false
