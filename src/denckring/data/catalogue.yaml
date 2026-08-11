@@ -662,7 +662,8 @@ procedures:
     definitions:
       en: >-
         A grid of words of equal length reading the same across as down, so that
-        row and column of the same index are identical.
+        row and column of the same index are identical. Verifying that the rows
+        are words needs a lexicon, which is why this entry waits on one.
       de: Ein Quadrat gleich langer Wörter, waagerecht wie senkrecht identisch lesbar.
       fr: Un carré de mots se lisant identiquement en lignes et en colonnes.
     source: Traditional; the Sator square is attested at Pompeii before 79 AD
@@ -922,7 +923,8 @@ procedures:
     definitions:
       en: >-
         A word whose letters, read as the edges of a graph, trace a closed figure
-        crossing every edge once.
+        crossing every edge once. The checker verifies the closed walk and the
+        unrepeated edges, not the non-planarity of Borgmann's stricter reading.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
@@ -1426,7 +1428,8 @@ procedures:
     definitions:
       en: >-
         Six sestets and a tercet in which the same six end-words recur in a fixed
-        rotating order rather than rhyming.
+        rotating order rather than rhyming. The checker verifies the end-word
+        rotation only, not metre.
       de: Sechs Sechszeiler und ein Dreizeiler mit sechs rotierenden Schlusswörtern.
       fr: Six sizains et un tercet aux six mots-rimes permutés.
     source: Attributed to Arnaut Daniel, 12th century; the attribution is conventional
@@ -1445,7 +1448,8 @@ procedures:
     definitions:
       en: >-
         The sestina generalised to any number of end-words for which the rotation
-        exhausts every position before returning to the start.
+        exhausts every position before returning to the start. The checker
+        verifies the end-word rotation only, not metre.
       fr: La sextine généralisée à tout nombre de mots-rimes admissible.
     source: Raymond Queneau and Jacques Roubaud, in Oulipo, La Littérature potentielle (1973)
     family: form
@@ -1464,7 +1468,8 @@ procedures:
     definitions:
       en: >-
         Interlocking quatrains in which the second and fourth lines of each stanza
-        become the first and third of the next.
+        become the first and third of the next. The checker verifies the line
+        interlocking only, not metre or rhyme.
       de: Verschränkte Vierzeiler, deren zweite und vierte Zeile in der nächsten Strophe wiederkehren.
       fr: Des quatrains enchaînés dont les vers deux et quatre ouvrent la strophe suivante.
     source: Traditional; adapted into French from the Malay pantun in the 19th century
