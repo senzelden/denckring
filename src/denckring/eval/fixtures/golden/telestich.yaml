@@ -1,0 +1,18 @@
+procedure: telestich
+lang: en
+cases:
+  - name: final-letters-spell-aon
+    source: constructed example; the form is described in Puttenham (1589)
+    text: |-
+      beta
+      zero
+      omen
+    params: { target: aon }
+    satisfied: true
+  - name: wrong-finals
+    source: constructed counterexample
+    text: |-
+      beta
+      zero
+    params: { target: ab }
+    satisfied: false
