@@ -432,7 +432,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write unrhymed lines of five iambic feet each.
@@ -1575,7 +1575,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write five lines rhyming AABBA with the middle two lines shorter.
@@ -1731,7 +1731,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
@@ -1768,7 +1768,7 @@ procedures:
     aliases: [italian sonnet]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write an octave rhyming ABBAABBA, then a sestet that answers it.
@@ -1788,7 +1788,7 @@ procedures:
     aliases: [english sonnet]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write three quatrains and a closing couplet in iambic pentameter.
@@ -1820,7 +1820,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress]
     deterministic: true
     prompt_hints:
       en: Write in rhyming pairs of ten-syllable iambic lines.
@@ -1899,14 +1899,17 @@ procedures:
   - id: iambic_pentameter
     names: { en: Iambic pentameter }
     definitions:
-      en: Lines of five iambic feet, the commonest measure of English verse.
+      en: >-
+        Lines of five iambic feet, the commonest measure of English verse. The
+        checker verifies strict stress; the substitutions real verse uses — an
+        inverted first foot, a weak final syllable — are not accepted.
     source: Traditional; the dominant English metre since Chaucer
     family: form
     attribution: traditional
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, stress]
     deterministic: true
     prompt_hints:
       en: Write lines of five iambic feet, ten syllables alternating unstressed and stressed.
@@ -1921,7 +1924,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, stress]
     deterministic: true
     prompt_hints:
       en: Write lines of four trochees, each foot stressed then unstressed.

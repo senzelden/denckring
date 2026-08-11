@@ -69,6 +69,16 @@ All notable changes to this project are documented here. The format follows
   `monosyllabic_prose`, `hendecasyllable`, `alexandrine`.
 - ADRs 0012 and 0013 on the two syllable capabilities and on data as separate
   distributions.
+- Rhyme and metre: `rhyme_key`, `rhyme_keys`, `stress_pattern` and `stress_patterns` on
+  the data pack, plus the `stress` capability. Twelve procedures — `rhyme_scheme`,
+  `iambic_pentameter`, `trochaic_tetrameter`, `blank_verse`, `heroic_couplet`,
+  `terza_rima`, `villanelle`, `triolet`, `limerick`, `shakespearean_sonnet`,
+  `petrarchan_sonnet`, `rhyme_royal`.
+- Metre is checked as a satisfiability question: polysyllabic stress is fixed,
+  monosyllabic stress is free, and every listed pronunciation is searched. These are
+  the first procedures a core-only install genuinely cannot run — without
+  `denckring[en]` they raise `MissingCapability` naming the extra.
+- ADR 0014 on metre as satisfiability, and on what strict scansion does not accept.
 
 ### Fixed
 
