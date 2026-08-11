@@ -325,7 +325,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
-    kind: constructive
+    kind: both
     languages: [en]
     requires: [tokens]
     deterministic: false
@@ -872,7 +872,9 @@ procedures:
     definitions:
       en: >-
         An anagram whose rearrangement means the opposite of its source, so the
-        letters contradict themselves.
+        letters contradict themselves. The checker verifies the anagram and that
+        the text differs from its source; whether the sense is genuinely opposite
+        is a judgement no program makes.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference

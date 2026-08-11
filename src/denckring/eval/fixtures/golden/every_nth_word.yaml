@@ -1,0 +1,13 @@
+procedure: every_nth_word
+lang: en
+cases:
+  - name: every-second-word
+    source: constructed example; the procedure is Oulipian
+    text: two four six eight
+    params: { source: one two three four five six seven eight, n: 2 }
+    satisfied: true
+  - name: the-other-words
+    source: constructed counterexample
+    text: one three five seven
+    params: { source: one two three four five six seven eight, n: 2 }
+    satisfied: false
