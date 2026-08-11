@@ -40,6 +40,16 @@ Batch 1 implements the twelve procedures that need no lexicon: `lipogram`,
 The catalogue lists many more, sourced and awaiting implementation — see
 `denckring list --status catalogued`.
 
+## What can be checked
+
+Not every procedure in the catalogue can be graded by a program, and the catalogue says
+which. `checkability: self` means decidable from the text alone; `source` means it needs
+the text it was made from, supplied as `--source`; `none` means no computable acceptance
+criterion exists — `canada_dry` is *defined* as having no operative constraint, and a
+calligram's shape is not something code judges. Those rows are catalogued because the
+forms belong in an honest survey, and `denckring status` counts them separately rather
+than reporting a gap that can never close.
+
 ## Reports
 
 `check` returns a `Report`: `satisfied`, a continuous `score` in `[0, 1]`, a list of

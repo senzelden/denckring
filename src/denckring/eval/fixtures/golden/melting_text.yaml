@@ -1,0 +1,13 @@
+procedure: melting_text
+lang: en
+cases:
+  - name: words-dropped
+    source: constructed example; the procedure is Oulipian
+    text: a c
+    params: { source: a b c }
+    satisfied: true
+  - name: reordered
+    source: constructed counterexample
+    text: c a
+    params: { source: a b c }
+    satisfied: false
