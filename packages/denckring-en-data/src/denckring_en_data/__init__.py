@@ -18,6 +18,7 @@ from denckring.lang.base import (
     FOLD_DIACRITICS,
     LETTER_SHAPES,
     PHONEMES,
+    STRESS,
     SYLLABLES,
     SYLLABLES_DICTIONARY,
     SYLLABLES_HEURISTIC,
@@ -31,20 +32,27 @@ __version__ = "0.1.0"
 
 
 @lru_cache(maxsize=1)
-def pronunciations() -> dict[str, list[str]]:
-    """Word to phonemes, first pronunciation only.
+def variants() -> dict[str, list[list[str]]]:
+    """Word to every pronunciation CMUdict lists for it.
 
-    CMUdict lists variants as `word(2)`, `word(3)` and so on. The first entry is
-    the one taken, so a count is deterministic; the alternatives matter for rhyme
-    and are left for that chapter.
+    Variants are written `word(2)`, `word(3)` and so on. They matter: Shakespeare
+    needs the three-syllable `tem-per-ate`, which CMUdict lists second because the
+    compressed modern form comes first.
     """
-    entries: dict[str, list[str]] = {}
+    entries: dict[str, list[list[str]]] = {}
     for line in DICTIONARY_PATH.read_text(encoding="utf-8").splitlines():
         head, _, rest = line.partition(" ")
-        if not rest or head.endswith(")"):
+        if not rest:
             continue
-        entries.setdefault(head.lower(), rest.split())
+        word = head.split("(")[0].lower()
+        entries.setdefault(word, []).append(rest.split())
     return entries
+
+
+@lru_cache(maxsize=1)
+def pronunciations() -> dict[str, list[str]]:
+    """Word to its first listed pronunciation, for callers wanting one answer."""
+    return {word: forms[0] for word, forms in variants().items()}
 
 
 class EnglishDataPack(EnglishPack):
@@ -61,6 +69,7 @@ class EnglishDataPack(EnglishPack):
             SYLLABLES_DICTIONARY,
             SYLLABLES,
             PHONEMES,
+            STRESS,
         }
     )
 
@@ -74,13 +83,59 @@ class EnglishDataPack(EnglishPack):
 
     def phonemes(self, word: str) -> list[str]:
         """The word's phonemes, or raise if the dictionary does not know it."""
-        from denckring.core.errors import MissingCapability
+        return _phones_or_raise(self, word)
 
-        letters = "".join(ch for ch in self.fold_diacritics(word) if ch.isalpha())
-        phones = pronunciations().get(letters)
-        if phones is None:
-            raise MissingCapability(f"<word {word!r}>", self.lang, PHONEMES)
-        return phones
+    def rhyme_key(self, word: str) -> str:
+        """The first pronunciation's rhyme key."""
+        return _rhyme_of(_phones_or_raise(self, word))
+
+    def rhyme_keys(self, word: str) -> list[str]:
+        """Every pronunciation's rhyme key. Two words rhyme if any pair matches."""
+        return list(dict.fromkeys(_rhyme_of(f) for f in _forms_or_raise(self, word)))
+
+    def stress_pattern(self, word: str) -> str:
+        """The first pronunciation's stress pattern."""
+        return _stress_of(_phones_or_raise(self, word))
+
+    def stress_patterns(self, word: str) -> list[str]:
+        """Every pronunciation's stress pattern, longest first.
+
+        A line scans if some combination of listed pronunciations fits, which is
+        the same satisfiability principle the free monosyllable rests on.
+        """
+        found = dict.fromkeys(_stress_of(f) for f in _forms_or_raise(self, word))
+        return sorted(found, key=len, reverse=True)
+
+
+def _forms_or_raise(pack: EnglishDataPack, word: str) -> list[list[str]]:
+    from denckring.core.errors import MissingCapability
+
+    letters = "".join(ch for ch in pack.fold_diacritics(word) if ch.isalpha())
+    forms = variants().get(letters)
+    if not forms:
+        # Guessing a pronunciation is the silent wrongness ADR 0004 forbids.
+        raise MissingCapability(f"<word {word!r}>", pack.lang, PHONEMES)
+    return forms
+
+
+def _phones_or_raise(pack: EnglishDataPack, word: str) -> list[str]:
+    return _forms_or_raise(pack, word)[0]
+
+
+def _stress_of(phones: list[str]) -> str:
+    marks = [p[-1] for p in phones if p[-1].isdigit()]
+    if len(marks) <= 1:
+        return "?" * len(marks)
+    return "".join("?" if mark == "2" else mark for mark in marks)
+
+
+def _rhyme_of(phones: list[str]) -> str:
+    primary = [i for i, p in enumerate(phones) if p.endswith("1")]
+    if not primary:
+        primary = [i for i, p in enumerate(phones) if p[-1].isdigit()]
+    if not primary:
+        return " ".join(phones)
+    return " ".join(phones[primary[-1] :])
 
 
 __all__ = ["DICTIONARY_PATH", "EnglishDataPack", "pronunciations"]

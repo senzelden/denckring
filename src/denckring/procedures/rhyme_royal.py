@@ -1,0 +1,37 @@
+"""Rhyme royal — Seven lines of iambic pentameter rhyming ABABBCC."""
+
+from __future__ import annotations
+
+from pydantic import BaseModel
+
+from denckring.core.base import BaseProcedure
+from denckring.core.protocol import LanguagePack, Report
+from denckring.core.registry import register
+from denckring.procedures.rhyme_scheme import form_report
+
+
+class RhymeRoyalParams(BaseModel):
+    pass
+
+
+@register
+class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
+    """Assembled from the shared rhyme, metre and refrain checks."""
+
+    id = "rhyme_royal"
+
+    @classmethod
+    def params_model(cls) -> type[RhymeRoyalParams]:
+        return RhymeRoyalParams
+
+    def _check(self, text: str, pack: LanguagePack, params: RhymeRoyalParams) -> Report:
+        violations, good, total = form_report(
+            text,
+            pack,
+            scheme="ABABBCC",
+            metre="01" * 5,
+        )
+
+        return self._report(
+            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+        )
