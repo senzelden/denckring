@@ -8,6 +8,8 @@ procedures:
       de: Ein Text, der einen gewählten Buchstaben vollständig auslässt.
       fr: Un texte qui omet entièrement une lettre choisie.
     source: Georges Perec, La Disparition (1969)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -22,6 +24,9 @@ procedures:
       de: Ein Text, der nur einen einzigen Vokal verwendet.
       fr: Un texte n'employant qu'une seule voyelle.
     source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
+    family: letter
+    attribution: reference
+    aliases: [monovocalism]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -36,6 +41,8 @@ procedures:
       de: Ein Text, in dem jedes Wort mit demselben Buchstaben beginnt.
       fr: Un texte dont chaque mot commence par la même lettre.
     source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -52,6 +59,9 @@ procedures:
       de: Ein Text, der jeden Buchstaben des Alphabets mindestens einmal enthält.
       fr: Un texte contenant chaque lettre de l'alphabet au moins une fois.
     source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: traditional
+    aliases: [holalphabetic sentence]
     kind: restrictive
     languages: [en, de]
     requires: [alphabet, fold_diacritics]
@@ -66,6 +76,9 @@ procedures:
       de: Ein Text, in dem sich kein Buchstabe wiederholt.
       fr: Un texte dans lequel aucune lettre ne se répète.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    aliases: [isogram]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -82,6 +95,8 @@ procedures:
       de: Ein Text, der vorwärts wie rückwärts gleich lautet.
       fr: Un texte qui se lit identiquement dans les deux sens.
     source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
+    family: letter
+    attribution: traditional
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -96,6 +111,9 @@ procedures:
       de: Ein Text, in dem jedes Wort genau einen Buchstaben länger ist als das vorige.
       fr: Un texte dont chaque mot compte une lettre de plus que le précédent.
     source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
+    family: letter
+    attribution: reference
+    aliases: [rhopalic]
     kind: restrictive
     languages: [en, de]
     requires: [tokens]
@@ -110,6 +128,9 @@ procedures:
       de: Ein Text, in dem jedes Wort genau einen Buchstaben kürzer ist als das vorige.
       fr: Un texte dont chaque mot compte une lettre de moins que le précédent.
     source: Oulipo, La Littérature potentielle (1973), as fonte de neige
+    family: letter
+    attribution: reference
+    aliases: [melting snowball]
     kind: restrictive
     languages: [en, de]
     requires: [tokens]
@@ -127,6 +148,8 @@ procedures:
       de: Ein Text ohne Buchstaben mit Ober- oder Unterlänge.
       fr: Un texte sans lettre à hampe ni à jambage.
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, letter_shapes, fold_diacritics]
@@ -143,6 +166,9 @@ procedures:
       de: Ein Text, der nur die Buchstaben eines Widmungsnamens verwendet.
       fr: Un texte n'employant que les lettres du nom d'un dédicataire.
     source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
+    aliases: [beautiful present]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -157,6 +183,8 @@ procedures:
       de: Ein Text, dessen Anfangsbuchstaben ein Wort ergeben.
       fr: Un texte dont les initiales composent un mot.
     source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
+    family: letter
+    attribution: traditional
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -171,6 +199,9 @@ procedures:
       de: Ein Text, dessen Endbuchstaben ein Wort ergeben.
       fr: Un texte dont les lettres finales composent un mot.
     source: George Puttenham, The Arte of English Poesie (1589)
+    family: letter
+    attribution: traditional
+    aliases: [telestic]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -190,6 +221,9 @@ procedures:
       de: Jedes Substantiv wird durch das siebte folgende Substantiv im Wörterbuch ersetzt.
       fr: Remplacer chaque substantif par le septième qui le suit dans le dictionnaire.
     source: Jean Lescure, in Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: primary
+    aliases: [N+7]
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -204,6 +238,8 @@ procedures:
       de: N+7, verallgemeinert auf beliebige Wortarten.
       fr: S+7 généralisé à toute catégorie grammaticale.
     source: Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: reference
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -218,6 +254,8 @@ procedures:
       de: Ein Text aus genau den umgestellten Buchstaben eines anderen.
       fr: Un texte composé des lettres d'un autre, réordonnées.
     source: Attributed to Lycophron (3rd century BC); systematised by Oulipo
+    family: word
+    attribution: traditional
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -232,6 +270,8 @@ procedures:
       de: Zwischen je zwei Sätze wird ein neuer eingefügt, wiederholt.
       fr: Insérer une phrase nouvelle entre chaque paire de phrases, itérativement.
     source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
     kind: both
     languages: [en]
     requires: [tokens]
@@ -249,6 +289,8 @@ procedures:
       de: Jedes Inhaltswort wird durch seine Wörterbuchdefinition ersetzt, iterativ.
       fr: Remplacer chaque mot plein par sa définition, puis recommencer.
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: word
+    attribution: primary
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -263,6 +305,8 @@ procedures:
       de: Ein Text wird zerschnitten und neu zusammengesetzt.
       fr: Découper un texte et le recomposer dans un ordre nouveau.
     source: Brion Gysin and William S. Burroughs, Minutes to Go (1960)
+    family: procedural
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -277,6 +321,8 @@ procedures:
       de: Eine Seite wird längs auf eine andere gefaltet und über den Falz gelesen.
       fr: Plier une page sur une autre et lire à travers la jointure.
     source: William S. Burroughs, The Third Mind (1978)
+    family: procedural
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -291,6 +337,8 @@ procedures:
       de: Wörter, deren n-ter Buchstabe dem n-ten Buchstaben eines Saatworts entspricht.
       fr: Choisir les mots dont la n-ième lettre correspond à celle d'une phrase-germe.
     source: Jackson Mac Low, Stanzas for Iris Lezak (1972)
+    family: procedural
+    attribution: primary
     kind: both
     languages: [en]
     requires: [tokens]
@@ -305,6 +353,9 @@ procedures:
       de: Ein Wort läuft senkrecht durch die Mitte der Zeilen.
       fr: Un mot descend au milieu des vers plutôt qu'en marge.
     source: John Cage, Writing Through Finnegans Wake (1978)
+    family: procedural
+    attribution: primary
+    aliases: [mesostich]
     kind: both
     languages: [en]
     requires: [tokens]
@@ -319,6 +370,8 @@ procedures:
       de: Jede Zeile hat eine vorgeschriebene Silbenzahl.
       fr: Chaque vers compte un nombre de syllabes prescrit.
     source: Traditional prosody
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -333,6 +386,8 @@ procedures:
       de: Ein zwölfsilbiger Vers mit Zäsur nach der sechsten Silbe.
       fr: Un vers de douze syllabes avec césure à l'hémistiche.
     source: French classical prosody; Jean Racine
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [fr]
     requires: [tokens, syllables]
@@ -343,10 +398,14 @@ procedures:
   - id: blank_verse
     names: { en: Blank verse, de: Blankvers, fr: Vers blanc }
     definitions:
-      en: Unrhymed iambic pentameter.
-      de: Reimloser fünfhebiger Jambus.
-      fr: Pentamètre iambique non rimé.
+      en: >-
+        Verse in unrhymed iambic pentameter, holding the metre while dispensing
+        with the rhyme that would otherwise mark the line ends.
+      de: Reimloser fünfhebiger Jambus, der das Metrum ohne Reim trägt.
+      fr: Vers en pentamètre iambique sans rime.
     source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -361,6 +420,8 @@ procedures:
       de: Die Zeilenenden folgen einem vorgegebenen Reimmuster.
       fr: Les fins de vers suivent un schéma de rimes prescrit.
     source: Traditional prosody
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -375,6 +436,8 @@ procedures:
       de: Vierzehn Zeilen in festem Metrum und Reimschema.
       fr: Quatorze vers de mètre et de rimes fixés.
     source: Giacomo da Lentini, Sicilian School (c. 1230)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -389,6 +452,8 @@ procedures:
       de: Drei Zeilen mit fünf, sieben und fünf Silben.
       fr: Trois vers de cinq, sept et cinq syllabes.
     source: Matsuo Bashō (17th century); named as haiku by Masaoka Shiki (1892)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -403,6 +468,8 @@ procedures:
       de: Verschränkte Terzinen mit dem Reimschema ABA BCB CDC.
       fr: Tercets enchaînés rimant ABA BCB CDC.
     source: Dante Alighieri, Commedia (c. 1320)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -420,6 +487,8 @@ procedures:
       de: Fünf konzentrische Scheiben mit Wortteilen, die durch Drehung Wörter bilden.
       fr: Cinq disques concentriques de fragments, combinés par rotation.
     source: Georg Philipp Harsdörffer, Fünffacher Denckring der Teutschen Sprache (1651)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [de]
     requires: [tokens, lexicon.syllables]
@@ -434,6 +503,8 @@ procedures:
       de: Ein Vers, dessen Wörter zu vielen metrisch gültigen Varianten permutierbar sind.
       fr: Un vers dont les mots se permutent en de multiples variantes métriques.
     source: Julius Caesar Scaliger, Poetices libri septem (1561)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -448,9 +519,1944 @@ procedures:
       de: Ein Permutationsgedicht, dessen austauschbare Wörter Millionen Varianten ergeben.
       fr: Un poème permutatif aux millions de variantes.
     source: Quirinus Kuhlmann, Der Wechsel Menschlicher Sachen (1671)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
       en: Write lines of interchangeable nouns and verbs that stay grammatical in any permutation.
+
+  # ---------------------------------------------------------------------------
+  # family: letter — procedures operating on individual characters
+  # ---------------------------------------------------------------------------
+
+  - id: belle_absente
+    names: { en: Belle absente, fr: Belle absente }
+    definitions:
+      en: >-
+        A poem with one line per letter of a dedicatee's name, each line omitting
+        exactly that letter while using every other letter of the alphabet.
+      fr: Un poème dont chaque vers omet une lettre du nom du dédicataire.
+    source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
+    aliases: [beautiful absent]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write one line per letter of the name; each line omits that letter and uses all the others.
+
+  - id: abecedarian
+    names: { en: Abecedarian, de: Abecedarium, fr: Abécédaire }
+    definitions:
+      en: >-
+        A text whose successive lines or words begin with successive letters of
+        the alphabet, from A through to Z.
+      de: Ein Text, dessen Zeilen mit aufeinanderfolgenden Buchstaben des Alphabets beginnen.
+      fr: Un texte dont les vers commencent par les lettres successives de l'alphabet.
+    source: Ancient Hebrew acrostic psalms; Lamentations
+    family: letter
+    attribution: traditional
+    aliases: [abecedarius]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write lines beginning with A, then B, then C, and so on to Z.
+
+  - id: double_acrostic
+    names: { en: Double acrostic }
+    definitions:
+      en: >-
+        A text whose first and last letters each spell out a word when read down
+        the lines, so the poem is bounded by two hidden strings.
+    source: Traditional; described in the Renaissance rhetorical handbooks
+    family: letter
+    attribution: traditional
+    aliases: [acrostic-telestich]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write lines whose initials spell one word and whose final letters spell another.
+
+  - id: chronogram
+    names: { en: Chronogram, de: Chronogramm, fr: Chronogramme }
+    definitions:
+      en: >-
+        A phrase in which the letters that are also Roman numerals, read in order,
+        sum to a significant date.
+      de: Ein Satz, dessen als römische Ziffern lesbare Buchstaben eine Jahreszahl ergeben.
+      fr: Une phrase dont les lettres-chiffres romains totalisent une date.
+    source: Traditional; widespread in Latin inscriptions from the 15th century
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a phrase whose Roman-numeral letters add up to the target year.
+
+  - id: semordnilap
+    names: { en: Semordnilap }
+    definitions:
+      en: >-
+        A word or text that spells a different word when reversed, unlike a
+        palindrome, which spells the same one.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    aliases: [emordnilap, reversible word]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words that read as a different word backwards, such as stressed and desserts.
+
+  - id: word_square
+    names: { en: Word square, de: Wortquadrat, fr: Carré de mots }
+    definitions:
+      en: >-
+        A grid of words of equal length reading the same across as down, so that
+        row and column of the same index are identical.
+      de: Ein Quadrat gleich langer Wörter, waagerecht wie senkrecht identisch lesbar.
+      fr: Un carré de mots se lisant identiquement en lignes et en colonnes.
+    source: Traditional; the Sator square is attested at Pompeii before 79 AD
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Build a square of words that reads the same across each row as down each column.
+
+  - id: pangrammatic_window
+    names: { en: Pangrammatic window }
+    definitions:
+      en: >-
+        A stretch of naturally occurring text, as short as possible, that happens
+        to contain every letter of the alphabet.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find the shortest run of ordinary prose containing all twenty-six letters.
+
+  - id: supervocalic
+    names: { en: Supervocalic }
+    definitions:
+      en: >-
+        A word or text containing each of the five vowels exactly once, in any
+        order.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Use words containing a, e, i, o and u exactly once each.
+
+  - id: monoconsonantal
+    names: { en: Monoconsonantal }
+    definitions:
+      en: >-
+        A text using only one consonant throughout, the vowels being left
+        unconstrained — the mirror image of the univocalic.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which the only consonant that appears is "n".
+
+  - id: consonantal_lipogram
+    names: { en: Consonantal lipogram }
+    definitions:
+      en: >-
+        A lipogram whose forbidden set is a group of consonants rather than a
+        single letter.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage avoiding every one of a named group of consonants.
+
+  - id: liponym
+    names: { en: Liponym }
+    definitions:
+      en: >-
+        A text that omits a chosen word entirely, especially one the subject makes
+        almost unavoidable.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Describe the subject at length without ever using its most obvious word.
+
+  - id: charade
+    names: { en: Charade, de: Scharade, fr: Charade }
+    definitions:
+      en: >-
+        A word that divides into two or more shorter words, used as the hinge of a
+        riddle or a line.
+      de: Ein Wort, das sich in kürzere Wörter zerlegen lässt.
+      fr: Un mot qui se décompose en plusieurs mots plus courts.
+    source: Traditional; a staple of 18th-century French and English parlour verse
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Choose words that split cleanly into smaller words and build the line around them.
+
+  - id: kangaroo_word
+    names: { en: Kangaroo word }
+    definitions:
+      en: >-
+        A word containing the letters of a synonym of itself, in order but not
+        necessarily adjacent.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    aliases: [marsupial word]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words that carry a synonym of themselves inside their own letters, in order.
+
+  - id: tautonym
+    names: { en: Tautonym }
+    definitions:
+      en: >-
+        A word made of the same sequence of letters repeated twice, such as
+        tartar or couscous.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Use words built from one syllable-string written twice over.
+
+  - id: paragram
+    names: { en: Paragram, de: Paragramm, fr: Paragramme }
+    definitions:
+      en: >-
+        A text built by changing a single letter of a word to produce another,
+        turning the alteration into the point of the line.
+      de: Ein Text, der durch Austausch eines einzigen Buchstabens neue Wörter gewinnt.
+      fr: Un texte jouant sur le changement d'une seule lettre.
+    source: Traditional; a classical rhetorical figure
+    family: letter
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Change one letter of a word to make another, and build the sentence on the swap.
+
+  - id: pangrammatic_lipogram
+    names: { en: Pangrammatic lipogram }
+    definitions:
+      en: >-
+        A text using every letter of the alphabet except one, which is omitted
+        entirely — a pangram and a lipogram at once.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence using all twenty-five letters other than the one you have banned.
+
+  - id: bivocalic
+    names: { en: Bivocalic }
+    definitions:
+      en: A text restricted to two of the vowels, the rest being excluded throughout.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage using only the vowels "a" and "e".
+
+  - id: antigram
+    names: { en: Antigram }
+    definitions:
+      en: >-
+        An anagram whose rearrangement means the opposite of its source, so the
+        letters contradict themselves.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Rearrange the phrase into one that means its opposite, using every letter once.
+
+  - id: letter_bank
+    names: { en: Letter bank }
+    definitions:
+      en: >-
+        A text drawing only on the letters of a chosen source word, each of which
+        must appear at least once and may repeat freely.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write using only the letters of the source word, using every one of them at least once.
+
+  - id: transposal
+    names: { en: Transposal }
+    definitions:
+      en: >-
+        A pair of words using exactly the same letters in a different order,
+        treated as a unit of composition rather than a puzzle.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Pair each word with another built from exactly its letters, reordered.
+
+  - id: eodermdrome
+    names: { en: Eodermdrome }
+    definitions:
+      en: >-
+        A word whose letters, read as the edges of a graph, trace a closed figure
+        crossing every edge once.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words whose letter pairs trace a closed graph without repeating an edge.
+
+  - id: homoteleuton
+    names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
+    definitions:
+      en: >-
+        A passage in which successive words or clauses end with the same letter or
+        syllable, the mirror of the tautogram's shared initials.
+      de: Ein Text, dessen aufeinanderfolgende Wörter gleich enden.
+      fr: Un texte dont les mots successifs se terminent de la même façon.
+    source: Traditional; a classical rhetorical figure described by Quintilian
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which every word ends with the same letter.
+
+  - id: alphabetical_sentence
+    names: { en: Alphabetical sentence }
+    definitions:
+      en: >-
+        A sentence whose words appear in alphabetical order from first to last,
+        without rearrangement.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words run in alphabetical order.
+
+  # ---------------------------------------------------------------------------
+  # families: word and syntax — procedures operating on words and on structure
+  # ---------------------------------------------------------------------------
+
+  - id: homoconsonantism
+    names: { en: Homoconsonantism, fr: Homoconsonantisme }
+    definitions:
+      en: >-
+        A rewriting that keeps the consonants of the source text in their original
+        order while replacing every vowel, producing a new sense from the same skeleton.
+      fr: Une réécriture conservant les consonnes du texte source et changeant les voyelles.
+    source: Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Keep the consonants of the source in order and choose new vowels to make new words.
+
+  - id: homovocalism
+    names: { en: Homovocalism, fr: Homovocalisme }
+    definitions:
+      en: >-
+        The mirror of homoconsonantism: the vowels of the source are preserved in
+        order and the consonants are replaced.
+      fr: Une réécriture conservant les voyelles du texte source.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Keep the vowels of the source in order and choose new consonants around them.
+
+  - id: homosyntaxism
+    names: { en: Homosyntaxism, fr: Homosyntaxisme }
+    definitions:
+      en: >-
+        A rewriting that keeps the grammatical structure of the source intact,
+        substituting new words of the same part of speech throughout.
+      fr: Une réécriture conservant la syntaxe du texte source.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Keep the sentence structure exactly and replace each word with another of the same class.
+
+  - id: perverb
+    names: { en: Perverb }
+    definitions:
+      en: >-
+        A proverb formed by grafting the first half of one saying onto the second
+        half of another, and the writing that follows from it.
+    source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Cross two proverbs at the midpoint and write the passage the hybrid implies.
+
+  - id: mathews_algorithm
+    names: { en: Mathews's algorithm }
+    definitions:
+      en: >-
+        A permutation in which elements of several texts are arranged in a table
+        and each column is rotated by a different amount before being read across.
+    source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Arrange the texts in a grid, rotate each column by one more step, and read across.
+
+  - id: chimera
+    names: { en: Chimera, fr: Chimère }
+    definitions:
+      en: >-
+        A text whose nouns, verbs and adjectives are stripped out and replaced by
+        those of three different source texts.
+      fr: Un texte dont les substantifs, verbes et adjectifs viennent de trois sources différentes.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
+
+  - id: canada_dry
+    names: { en: Canada Dry }
+    definitions:
+      en: >-
+        A text with the manner of a constrained work but no constraint actually
+        operating — it looks like the thing without being it.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Write something that reads as though a strict rule governs it, while following none.
+
+  - id: slenderizing
+    names: { en: Slenderizing }
+    definitions:
+      en: >-
+        A rewriting in which every instance of one letter is deleted, the
+        surviving letters closing up into new words.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    aliases: [elementary morphological deletion]
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Delete every "r" from the passage and read what the remaining letters now say.
+
+  - id: haikuization
+    names: { en: Haikuization, fr: Haïkuisation }
+    definitions:
+      en: >-
+        A reduction that keeps only the rhyme-words or line ends of an existing
+        poem, leaving a shorter poem inside the longer one.
+      fr: Une réduction ne gardant que les rimes d'un poème existant.
+    source: Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Keep only the rhyming words of each line and present what remains as the poem.
+
+  - id: word_ladder
+    names: { en: Word ladder, de: Wortleiter, fr: Échelle de mots }
+    definitions:
+      en: >-
+        A chain of words in which each step changes exactly one letter of the word
+        before it, every step being itself a word.
+      de: Eine Kette von Wörtern, die sich jeweils um einen Buchstaben unterscheiden.
+      fr: Une chaîne de mots différant chacun d'une seule lettre du précédent.
+    source: Lewis Carroll, Doublets, a Word Puzzle (1879)
+    family: word
+    attribution: primary
+    aliases: [doublets, word golf]
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Move from the first word to the last, changing one letter at a time, each step a real word.
+
+  - id: snowball_sentence
+    names: { en: Snowball sentence }
+    definitions:
+      en: >-
+        A snowball extended to whole sentences, each one carrying exactly one more
+        word than the sentence before it.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: word
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write sentences of one word, then two, then three, and so on.
+
+  - id: monosyllabic_prose
+    names: { en: Monosyllabic prose, de: Einsilbige Prosa }
+    definitions:
+      en: A text in which every word is of one syllable, from first to last.
+      de: Ein Text, in dem jedes Wort einsilbig ist.
+    source: Traditional; a standing exercise in English rhetorical instruction
+    family: word
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which no word has more than one syllable.
+
+  - id: verbless_prose
+    names: { en: Verbless prose }
+    definitions:
+      en: >-
+        A text written without any finite verb, so that everything must be carried
+        by nouns, participles and apposition.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Describe the scene without using a single finite verb.
+
+  - id: single_sentence
+    names: { en: Single sentence }
+    definitions:
+      en: >-
+        A work consisting of exactly one sentence, however long, with no full stop
+        until the end.
+    source: Traditional; the form of Gertrude Stein's and Thomas Bernhard's long prose
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write the whole piece as one unbroken sentence.
+
+  - id: sentence_length_constraint
+    names: { en: Sentence length constraint }
+    definitions:
+      en: >-
+        A text whose sentences must each fall within a prescribed number of words,
+        exactly or as a bound.
+    source: Traditional; standard in style manuals and readability work
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write so that every sentence contains exactly the given number of words.
+
+  - id: anaphora
+    names: { en: Anaphora, de: Anapher, fr: Anaphore }
+    definitions:
+      en: >-
+        A text in which successive clauses or lines open with the same word or
+        phrase, the repetition carrying the structure.
+      de: Ein Text, dessen Sätze mit demselben Wort beginnen.
+      fr: Un texte dont les propositions commencent par le même mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Begin every clause with the same word or phrase.
+
+  - id: epistrophe
+    names: { en: Epistrophe, de: Epipher, fr: Épiphore }
+    definitions:
+      en: >-
+        The counterpart of anaphora: successive clauses or lines all close with the
+        same word or phrase.
+      de: Ein Text, dessen Sätze mit demselben Wort enden.
+      fr: Un texte dont les propositions se terminent par le même mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: End every clause with the same word or phrase.
+
+  - id: antonymic_substitution
+    names: { en: Antonymic substitution }
+    definitions:
+      en: >-
+        A rewriting in which every substantive word is replaced by its opposite,
+        turning the text inside out while keeping its shape.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Replace every meaningful word with its opposite and keep the grammar unchanged.
+
+  - id: synonymic_substitution
+    names: { en: Synonymic substitution }
+    definitions:
+      en: >-
+        A rewriting in which every substantive word is replaced by a synonym,
+        repeated until the source is unrecognisable.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Replace each meaningful word with a synonym, then do it again to the result.
+
+  - id: tmesis
+    names: { en: Tmesis, de: Tmesis, fr: Tmèse }
+    definitions:
+      en: >-
+        A text that splits a word in two and inserts other material between the
+        halves, as in "abso-bloody-lutely".
+      de: Ein Text, der Wörter aufspaltet und Material dazwischenschiebt.
+      fr: Un texte insérant un élément à l'intérieur d'un mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Split words apart and wedge other words inside them.
+
+  - id: melting_text
+    names: { en: Melting text }
+    definitions:
+      en: >-
+        A text that loses one word, letter or line at each repetition until nothing
+        of it is left.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Repeat the passage, dropping one word each time, until it disappears.
+
+  - id: spoonerism
+    names: { en: Spoonerism, de: Schüttelreim, fr: Contrepèterie }
+    definitions:
+      en: >-
+        A text built on the exchange of initial sounds between two words, so that
+        the swap produces a second, usually comic, reading.
+      de: Ein Text, der die Anfangslaute zweier Wörter vertauscht.
+      fr: Un texte fondé sur l'échange des sons initiaux de deux mots.
+    source: Named for William Archibald Spooner; documented from the 1890s
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Exchange the opening sounds of two words so that both results are words.
+
+  - id: univocalic_lipogram_pair
+    names: { en: Compound constraint }
+    definitions:
+      en: >-
+        A text satisfying two or more named constraints at once, the difficulty
+        rising far faster than the count of rules.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Satisfy both named constraints in the same passage, without relaxing either.
+
+  - id: definitional_expansion
+    names: { en: Definitional expansion }
+    definitions:
+      en: >-
+        A single iteration of definitional literature, in which each substantive
+        word is replaced once by its dictionary definition.
+    source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace each meaningful word once with its dictionary definition.
+
+  # ---------------------------------------------------------------------------
+  # family: form — metre, rhyme and stanza
+  # ---------------------------------------------------------------------------
+
+  - id: villanelle
+    names: { en: Villanelle, de: Villanelle, fr: Villanelle }
+    definitions:
+      en: >-
+        Nineteen lines in five tercets and a quatrain, on two rhymes, with two
+        refrain lines alternating and closing as a couplet.
+      de: Neunzehn Zeilen auf zwei Reimen mit zwei wiederkehrenden Refrainzeilen.
+      fr: Dix-neuf vers sur deux rimes avec deux refrains alternés.
+    source: Traditional; fixed in its modern shape by Jean Passerat (1606)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write nineteen lines on two rhymes, alternating two refrains and pairing them at the end.
+
+  - id: sestina
+    names: { en: Sestina, de: Sestine, fr: Sextine }
+    definitions:
+      en: >-
+        Six sestets and a tercet in which the same six end-words recur in a fixed
+        rotating order rather than rhyming.
+      de: Sechs Sechszeiler und ein Dreizeiler mit sechs rotierenden Schlusswörtern.
+      fr: Six sizains et un tercet aux six mots-rimes permutés.
+    source: Attributed to Arnaut Daniel, 12th century; the attribution is conventional
+    family: form
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Use the same six end-words in every stanza, rotating them in the fixed order.
+
+  - id: quenina
+    names: { en: Quenina, fr: Quenine }
+    definitions:
+      en: >-
+        The sestina generalised to any number of end-words for which the rotation
+        exhausts every position before returning to the start.
+      fr: La sextine généralisée à tout nombre de mots-rimes admissible.
+    source: Raymond Queneau and Jacques Roubaud, in Oulipo, La Littérature potentielle (1973)
+    family: form
+    attribution: primary
+    aliases: [n-ine]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Choose a workable number of end-words and rotate them until every position is used.
+
+  - id: pantoum
+    names: { en: Pantoum, de: Pantun, fr: Pantoum }
+    definitions:
+      en: >-
+        Interlocking quatrains in which the second and fourth lines of each stanza
+        become the first and third of the next.
+      de: Verschränkte Vierzeiler, deren zweite und vierte Zeile in der nächsten Strophe wiederkehren.
+      fr: Des quatrains enchaînés dont les vers deux et quatre ouvrent la strophe suivante.
+    source: Traditional; adapted into French from the Malay pantun in the 19th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Carry the second and fourth lines of each quatrain into the next as its first and third.
+
+  - id: ghazal
+    names: { en: Ghazal, de: Ghasel, fr: Ghazel }
+    definitions:
+      en: >-
+        Autonomous couplets sharing a refrain word and the rhyme preceding it, with
+        the poet often named in the closing couplet.
+      de: Selbständige Doppelverse mit gemeinsamem Refrainwort und Reim.
+      fr: Des distiques autonomes partageant un refrain et sa rime.
+    source: Traditional; classical Persian and Urdu poetry
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write self-contained couplets that all end on the same refrain word and rhyme.
+
+  - id: rondeau
+    names: { en: Rondeau, de: Rondeau, fr: Rondeau }
+    definitions:
+      en: >-
+        Fifteen lines on two rhymes in which the opening words return unrhymed as a
+        short refrain twice over.
+      de: Fünfzehn Zeilen auf zwei Reimen mit zweimal wiederkehrendem Kurzrefrain.
+      fr: Quinze vers sur deux rimes avec rentrement répété.
+    source: Traditional; French fixed form of the 14th and 15th centuries
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write fifteen lines on two rhymes, returning the opening words as a refrain twice.
+
+  - id: triolet
+    names: { en: Triolet, de: Triolett, fr: Triolet }
+    definitions:
+      en: >-
+        Eight lines on two rhymes in which the first line returns as the fourth and
+        seventh and the second as the eighth.
+      de: Acht Zeilen auf zwei Reimen mit wiederkehrender erster und zweiter Zeile.
+      fr: Huit vers sur deux rimes à refrains repris.
+    source: Traditional; French fixed form of the 13th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eight lines on two rhymes, repeating the first line twice and the second once.
+
+  - id: ballade
+    names: { en: Ballade, de: Ballade, fr: Ballade }
+    definitions:
+      en: >-
+        Three stanzas and a shorter envoi, all on the same rhymes and all closing
+        on the same refrain line.
+      de: Drei Strophen und ein Geleit auf denselben Reimen mit gleichem Refrain.
+      fr: Trois strophes et un envoi sur les mêmes rimes et le même refrain.
+    source: Traditional; the form of François Villon's Grand Testament (1461)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write three stanzas and an envoi, all sharing rhymes and ending on one refrain.
+
+  - id: limerick
+    names: { en: Limerick, de: Limerick, fr: Limerick }
+    definitions:
+      en: >-
+        Five lines rhyming AABBA, the third and fourth notably shorter than the
+        other three, usually comic in register.
+      de: Fünf Zeilen im Reimschema AABBA mit zwei kürzeren Mittelzeilen.
+      fr: Cinq vers rimant AABBA, les troisième et quatrième plus courts.
+    source: Traditional; popularised by Edward Lear, A Book of Nonsense (1846)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines rhyming AABBA with the middle two lines shorter.
+
+  - id: clerihew
+    names: { en: Clerihew }
+    definitions:
+      en: >-
+        Four lines of irregular length rhyming AABB, the first line being the name
+        of the person the verse describes.
+    source: Edmund Clerihew Bentley, Biography for Beginners (1905)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write four uneven lines rhyming AABB whose first line is simply a person's name.
+
+  - id: double_dactyl
+    names: { en: Double dactyl }
+    definitions:
+      en: >-
+        Two quatrains of dactylic lines opening on a nonsense phrase, naming a
+        person in the second line, one line being a single double-dactylic word.
+    source: Anthony Hecht and Paul Pascal, Jiggery-Pokery (1966)
+    family: form
+    attribution: primary
+    aliases: [higgledy-piggledy]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Open on a nonsense phrase, name someone in line two, and spend one whole line on one long word.
+
+  - id: cinquain
+    names: { en: Cinquain, fr: Cinquain }
+    definitions:
+      en: >-
+        Five unrhymed lines of two, four, six, eight and two syllables, rising and
+        then falling away.
+      fr: Cinq vers non rimés de deux, quatre, six, huit et deux syllabes.
+    source: Adelaide Crapsey, Verse (1915)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines of two, four, six, eight and two syllables.
+
+  - id: tanka
+    names: { en: Tanka, de: Tanka, fr: Tanka }
+    definitions:
+      en: Five lines of five, seven, five, seven and seven syllables.
+      de: Fünf Zeilen mit fünf, sieben, fünf, sieben und sieben Silben.
+      fr: Cinq vers de cinq, sept, cinq, sept et sept syllabes.
+    source: Traditional; classical Japanese court poetry
+    family: form
+    attribution: traditional
+    aliases: [waka]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines of five, seven, five, seven and seven syllables.
+
+  - id: renga
+    names: { en: Renga, de: Renga, fr: Renga }
+    definitions:
+      en: >-
+        A linked chain of alternating three-line and two-line stanzas, composed
+        collaboratively so each link joins only to its neighbour.
+      de: Eine Kette abwechselnd drei- und zweizeiliger Strophen, gemeinsam verfasst.
+      fr: Une chaîne de strophes de trois et deux vers, composée à plusieurs.
+    source: Traditional; Japanese linked verse, formalised by the 13th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Alternate three-line and two-line stanzas, each linking only to the one before.
+
+  - id: senryu
+    names: { en: Senryū }
+    definitions:
+      en: >-
+        A haiku in form but human and satirical in subject, dispensing with the
+        seasonal reference.
+    source: Named for Karai Senryū, 18th-century Japan
+    family: form
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five, seven and five syllables on human folly rather than on nature.
+
+  - id: haibun
+    names: { en: Haibun }
+    definitions:
+      en: >-
+        Prose and haiku alternating in one work, the verse condensing rather than
+        continuing the passage before it.
+    source: Matsuo Bashō, Oku no Hosomichi (1702)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Alternate short prose passages with haiku that distil rather than continue them.
+
+  - id: ottava_rima
+    names: { en: Ottava rima, de: Stanze, fr: Ottava rima }
+    definitions:
+      en: Eight-line stanzas rhyming ABABABCC, the closing couplet turning the stanza.
+      de: Achtzeilige Strophen im Reimschema ABABABCC.
+      fr: Des huitains rimant ABABABCC.
+    source: Traditional; Giovanni Boccaccio's Teseida (c. 1340)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eight-line stanzas rhyming ABABABCC.
+
+  - id: rhyme_royal
+    names: { en: Rhyme royal }
+    definitions:
+      en: Seven-line stanzas of iambic pentameter rhyming ABABBCC.
+    source: Geoffrey Chaucer, Troilus and Criseyde (c. 1385)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
+
+  - id: spenserian_stanza
+    names: { en: Spenserian stanza }
+    definitions:
+      en: >-
+        Nine lines rhyming ABABBCBCC, the first eight in pentameter and the last
+        an alexandrine.
+    source: Edmund Spenser, The Faerie Queene (1590)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write nine lines rhyming ABABBCBCC, closing with a six-foot line.
+
+  - id: petrarchan_sonnet
+    names: { en: Petrarchan sonnet, de: Italienisches Sonett, fr: Sonnet italien }
+    definitions:
+      en: >-
+        A sonnet of an octave rhyming ABBAABBA and a sestet, hinged on a turn
+        between the two.
+      de: Ein Sonett aus Oktett ABBAABBA und Sextett mit Wendepunkt.
+      fr: Un sonnet en octave ABBAABBA et sizain, articulé par une volte.
+    source: Francesco Petrarca, Canzoniere (14th century)
+    family: form
+    attribution: primary
+    aliases: [italian sonnet]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write an octave rhyming ABBAABBA, then a sestet that answers it.
+
+  - id: shakespearean_sonnet
+    names: { en: Shakespearean sonnet, de: Englisches Sonett, fr: Sonnet anglais }
+    definitions:
+      en: >-
+        Three quatrains and a couplet rhyming ABAB CDCD EFEF GG, in iambic
+        pentameter.
+      de: Drei Quartette und ein Reimpaar im Schema ABAB CDCD EFEF GG.
+      fr: Trois quatrains et un distique rimant ABAB CDCD EFEF GG.
+    source: William Shakespeare, Sonnets (1609)
+    family: form
+    attribution: primary
+    aliases: [english sonnet]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write three quatrains and a closing couplet in iambic pentameter.
+
+  - id: curtal_sonnet
+    names: { en: Curtal sonnet }
+    definitions:
+      en: >-
+        A sonnet contracted to eleven lines in the proportion six to four and a
+        half, keeping the sonnet's proportions in miniature.
+    source: Gerard Manley Hopkins, Poems (1918)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
+
+  - id: heroic_couplet
+    names: { en: Heroic couplet }
+    definitions:
+      en: Rhyming pairs of iambic pentameter lines, usually end-stopped.
+    source: Traditional; the dominant English verse form of the 17th and 18th centuries
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write in rhyming pairs of ten-syllable iambic lines.
+
+  - id: sapphic_stanza
+    names: { en: Sapphic stanza, de: Sapphische Strophe, fr: Strophe saphique }
+    definitions:
+      en: >-
+        Three hendecasyllabic lines followed by a short fifth-syllable line, in a
+        fixed quantitative pattern.
+      de: Drei elfsilbige Zeilen und ein kurzer Adoneus.
+      fr: Trois hendécasyllabes suivis d'un adonique.
+    source: Traditional; the stanza of Sappho, 7th century BC
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write three eleven-syllable lines and close on a five-syllable one.
+
+  - id: alcaic_stanza
+    names: { en: Alcaic stanza, de: Alkäische Strophe, fr: Strophe alcaïque }
+    definitions:
+      en: A four-line quantitative stanza of two hendecasyllables, an enneasyllable and a decasyllable.
+      de: Eine vierzeilige Strophe aus zwei Elfsilblern, einem Neun- und einem Zehnsilbler.
+      fr: Une strophe de deux hendécasyllabes, un ennéasyllabe et un décasyllabe.
+    source: Traditional; the stanza of Alcaeus, 6th century BC
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write two eleven-syllable lines, then one of nine and one of ten.
+
+  - id: elegiac_couplet
+    names: { en: Elegiac couplet, de: Elegisches Distichon, fr: Distique élégiaque }
+    definitions:
+      en: A dactylic hexameter followed by a pentameter, the pair forming one unit of sense.
+      de: Ein daktylischer Hexameter gefolgt von einem Pentameter.
+      fr: Un hexamètre dactylique suivi d'un pentamètre.
+    source: Traditional; classical Greek and Latin elegy
+    family: form
+    attribution: traditional
+    aliases: [distich]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Pair a six-foot line with a shorter one, each pair complete in itself.
+
+  - id: hendecasyllable
+    names: { en: Hendecasyllable, de: Elfsilbler, fr: Hendécasyllabe }
+    definitions:
+      en: A line of exactly eleven syllables, used as the governing measure of a poem.
+      de: Eine Zeile von genau elf Silben.
+      fr: Un vers de onze syllabes exactement.
+    source: Traditional; classical Latin and Italian prosody
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write every line to exactly eleven syllables.
+
+  - id: iambic_pentameter
+    names: { en: Iambic pentameter }
+    definitions:
+      en: Lines of five iambic feet, the commonest measure of English verse.
+    source: Traditional; the dominant English metre since Chaucer
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of five iambic feet, ten syllables alternating unstressed and stressed.
+
+  - id: trochaic_tetrameter
+    names: { en: Trochaic tetrameter }
+    definitions:
+      en: Lines of four trochaic feet, falling rather than rising in stress.
+    source: Traditional; the metre of the Kalevala and of Hiawatha
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of four trochees, each foot stressed then unstressed.
+
+  - id: dactylic_hexameter
+    names: { en: Dactylic hexameter, de: Hexameter, fr: Hexamètre dactylique }
+    definitions:
+      en: Six feet, each a dactyl or a spondee, the fifth almost always a dactyl.
+      de: Sechs Versfüße aus Daktylen und Spondeen.
+      fr: Six pieds, dactyles ou spondées, le cinquième presque toujours dactyle.
+    source: Traditional; the metre of Homer and Virgil
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write six-foot lines of dactyls and spondees, with a dactyl in the fifth foot.
+
+  - id: alliterative_verse
+    names: { en: Alliterative verse, de: Stabreimvers, fr: Vers allitératif }
+    definitions:
+      en: >-
+        Lines split by a caesura in which the stressed syllables of both halves
+        alliterate, rather than rhyming at the end.
+      de: Verse mit Zäsur, deren Hebungen stabreimen statt zu reimen.
+      fr: Des vers à césure dont les syllabes accentuées allitèrent.
+    source: Traditional; the metre of Beowulf and the Old Norse Eddas
+    family: form
+    attribution: traditional
+    aliases: [stabreim]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Break each line at a caesura and alliterate the stressed syllables across the break.
+
+  - id: assonance_constraint
+    names: { en: Assonance constraint }
+    definitions:
+      en: >-
+        A text bound by repeated vowel sounds rather than by full rhyme, the
+        agreement falling inside words as well as at line ends.
+    source: Traditional; the binding device of Old French and Spanish epic
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Bind the lines by repeating vowel sounds rather than by rhyming.
+
+  - id: englyn
+    names: { en: Englyn }
+    definitions:
+      en: >-
+        A short Welsh stanza in strict metre, its lines governed by syllable count
+        and by the consonantal chiming of cynghanedd.
+    source: Traditional; Welsh strict-metre poetry
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write a short strict-metre stanza binding the lines by consonant patterning.
+
+  # ---------------------------------------------------------------------------
+  # families: permutation and procedural
+  # ---------------------------------------------------------------------------
+
+  - id: cent_mille_milliards
+    names: { en: Hundred thousand billion poems, fr: Cent mille milliards de poèmes }
+    definitions:
+      en: >-
+        Ten sonnets sharing one rhyme scheme and syntax, printed on cut strips so
+        any line may follow any other, yielding ten to the fourteenth poems.
+      fr: Dix sonnets interchangeables vers par vers, soit dix puissance quatorze poèmes.
+    source: Raymond Queneau, Cent mille milliards de poèmes (1961)
+    family: permutation
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write ten sonnets whose lines are interchangeable position by position.
+
+  - id: combinatorial_sonnet
+    names: { en: Combinatorial sonnet }
+    definitions:
+      en: >-
+        A sonnet whose lines are drawn from interchangeable sets, so the single
+        printed poem stands for a much larger family of them.
+    source: Oulipo, La Littérature potentielle (1973)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write each line so that any of its alternatives would fit the poem equally well.
+
+  - id: line_permutation
+    names: { en: Line permutation }
+    definitions:
+      en: >-
+        A poem whose lines may be read in any order, each ordering intended to hold
+        as a finished text.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write lines that make sense in any sequence, with no line depending on another.
+
+  - id: word_permutation
+    names: { en: Word permutation }
+    definitions:
+      en: >-
+        A sentence whose words can be reordered freely while remaining grammatical,
+        each permutation a different statement.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words stay grammatical in any order.
+
+  - id: stanza_permutation
+    names: { en: Stanza permutation }
+    definitions:
+      en: >-
+        A poem built so that its stanzas may be read in any order, the sequence
+        being left to the reader.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write stanzas that hold in any order, none referring back to another.
+
+  - id: erasure
+    names: { en: Erasure, de: Auslöschung, fr: Effacement }
+    definitions:
+      en: >-
+        A new text made by deleting most of an existing one, the survivors reading
+        as a work in their own right.
+      de: Ein Text, der durch Streichung aus einem bestehenden Text gewonnen wird.
+      fr: Un texte obtenu en effaçant l'essentiel d'un texte existant.
+    source: Tom Phillips, A Humument (1970)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Delete most of the source page and let what remains stand as the poem.
+
+  - id: blackout_poetry
+    names: { en: Blackout poetry }
+    definitions:
+      en: >-
+        An erasure in which the deleted material is inked out rather than removed,
+        so the excision stays visible on the page.
+    source: Traditional; a modern popular practice with no single originator
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Black out most of the page and leave a poem in the words that survive.
+
+  - id: cento
+    names: { en: Cento, de: Cento, fr: Centon }
+    definitions:
+      en: >-
+        A poem assembled entirely from lines taken from other poets, with nothing
+        of the compiler's own wording.
+      de: Ein Gedicht ausschließlich aus Zeilen anderer Dichter.
+      fr: Un poème entièrement composé de vers empruntés.
+    source: Traditional; Ausonius, Cento Nuptialis, 4th century
+    family: procedural
+    attribution: traditional
+    aliases: [patchwork poem]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Build the poem entirely from lines borrowed from other poets.
+
+  - id: found_poem
+    names: { en: Found poem, de: Fundstück, fr: Poème trouvé }
+    definitions:
+      en: >-
+        A text lifted whole from non-literary material and presented as verse, the
+        framing doing all the work.
+      de: Ein unverändert übernommener Sachtext, als Gedicht präsentiert.
+      fr: Un texte non littéraire présenté tel quel comme poème.
+    source: Traditional; a modern practice with no single originator
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Take an unaltered passage of ordinary prose and set it as a poem.
+
+  - id: dada_poem
+    names: { en: Dada poem, de: Dada-Gedicht, fr: Poème dadaïste }
+    definitions:
+      en: >-
+        A poem made by cutting a newspaper article into single words, drawing them
+        from a bag at random and copying them in the order drawn.
+      de: Ein Gedicht aus zufällig gezogenen, ausgeschnittenen Zeitungswörtern.
+      fr: Un poème fait de mots découpés et tirés au hasard.
+    source: Tristan Tzara, Pour faire un poème dadaïste (1920)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Cut the article into words, draw them at random, and write them down in that order.
+
+  - id: chance_operation
+    names: { en: Chance operation }
+    definitions:
+      en: >-
+        A composition whose choices are settled by an external random source rather
+        than by the writer's judgement.
+    source: John Cage, Silence (1961)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Let a random source decide each choice, and record the result without editing.
+
+  - id: every_nth_word
+    names: { en: Every nth word }
+    definitions:
+      en: >-
+        A text produced by keeping only every nth word of a source and discarding
+        the rest.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Keep every seventh word of the source and read what results.
+
+  - id: column_reading
+    names: { en: Column reading }
+    definitions:
+      en: >-
+        A reading that takes a printed page vertically rather than horizontally,
+        so the column rather than the line becomes the unit.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Read the page down its columns instead of across its lines.
+
+  - id: palimpsest
+    names: { en: Palimpsest, de: Palimpsest, fr: Palimpseste }
+    definitions:
+      en: >-
+        A text written over another so that both remain partly legible, the older
+        showing through the newer.
+      de: Ein Text, der über einen anderen geschrieben ist und ihn durchscheinen lässt.
+      fr: Un texte écrit par-dessus un autre qui transparaît encore.
+    source: Traditional; the practice of reused medieval manuscript vellum
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Write over the source so that both texts remain partly readable at once.
+
+  - id: recombination
+    names: { en: Recombination }
+    definitions:
+      en: >-
+        A text built by redistributing the sentences of one or more sources into a
+        new order without altering their wording.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Redistribute the source sentences into a new order, changing none of them.
+
+  - id: text_folding
+    names: { en: Text folding }
+    definitions:
+      en: >-
+        A text produced by folding a page so that non-adjacent passages meet and
+        are read as continuous.
+    source: William S. Burroughs, The Third Mind (1978)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Fold the page so distant passages touch, and read across the fold.
+
+  - id: oracle_reading
+    names: { en: Oracle reading }
+    definitions:
+      en: >-
+        A text assembled from passages arrived at by opening a book at random and
+        taking what the page offers.
+    source: Traditional; the practice of the sortes Virgilianae
+    family: procedural
+    attribution: traditional
+    aliases: [bibliomancy]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Open the book at random and take the line your finger falls on, repeatedly.
+
+  - id: strikethrough
+    names: { en: Strikethrough }
+    definitions:
+      en: >-
+        A text whose deletions are struck through rather than removed, so the
+        reader sees both what was written and what was rejected.
+    source: Traditional; a modern typographic practice
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Leave the rejected wording struck through and visible beside what replaced it.
+
+  # ---------------------------------------------------------------------------
+  # families: translation and visual
+  # ---------------------------------------------------------------------------
+
+  - id: homophonic_translation
+    names: { en: Homophonic translation, de: Homophone Übersetzung, fr: Traduction homophonique }
+    definitions:
+      en: >-
+        A rendering that follows the sound of the source across a language barrier
+        rather than its sense, producing meaning from mishearing.
+      de: Eine Übertragung, die dem Klang des Originals folgt statt dem Sinn.
+      fr: Une traduction suivant le son de l'original plutôt que son sens.
+    source: Louis Zukofsky and Celia Zukofsky, Catullus (1969)
+    family: translation
+    attribution: primary
+    aliases: [sound translation]
+    kind: both
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: false
+    prompt_hints:
+      en: Render the source by its sound rather than its meaning, in the target language.
+
+  - id: antonymic_translation
+    names: { en: Antonymic translation, fr: Traduction antonymique }
+    definitions:
+      en: >-
+        A rendering in which each element of the source is replaced by its
+        opposite, the result standing as a translation of a kind.
+      fr: Une traduction remplaçant chaque élément par son contraire.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage into its opposite, term by term.
+
+  - id: definitional_translation
+    names: { en: Definitional translation }
+    definitions:
+      en: >-
+        A rendering in which each word of the source is replaced by its dictionary
+        definition in the target language.
+    source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: translation
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace each word of the source with its definition in the target language.
+
+  - id: lipogrammatic_translation
+    names: { en: Lipogrammatic translation }
+    definitions:
+      en: >-
+        A translation that observes a lipogram absent from the original, or
+        preserves one the original imposed.
+    source: Gilbert Adair's A Void (1994), translating Perec's La Disparition
+    family: translation
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage while never using the forbidden letter.
+
+  - id: univocalic_translation
+    names: { en: Univocalic translation }
+    definitions:
+      en: A translation restricted throughout to a single vowel in the target language.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Translate the passage using only one vowel throughout.
+
+  - id: transduction
+    names: { en: Transduction, fr: Transduction }
+    definitions:
+      en: >-
+        A chain of successive translations through several languages and back, the
+        drift being the point of the exercise.
+      fr: Une chaîne de traductions successives dont la dérive fait l'intérêt.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: translation
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Translate through several languages in turn and return to the first.
+
+  - id: back_translation
+    names: { en: Back translation, de: Rückübersetzung, fr: Rétrotraduction }
+    definitions:
+      en: >-
+        A rendering translated onward and then returned to its own language, so the
+        divergence from the original becomes the text.
+      de: Eine Übersetzung, die in die Ausgangssprache zurückgeführt wird.
+      fr: Une traduction ramenée dans sa langue d'origine.
+    source: Traditional; a standing exercise in translation studies
+    family: translation
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Translate out and back again, and present the return rather than the original.
+
+  - id: intralingual_translation
+    names: { en: Intralingual translation }
+    definitions:
+      en: >-
+        A rendering of a text into another register or period of its own language,
+        rather than into a different one.
+    source: Roman Jakobson, On Linguistic Aspects of Translation (1959)
+    family: translation
+    attribution: primary
+    aliases: [rewording]
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Recast the passage in a different register of the same language.
+
+  - id: calligram
+    names: { en: Calligram, de: Kalligramm, fr: Calligramme }
+    definitions:
+      en: >-
+        A poem whose lines are arranged to draw the shape of the thing it
+        describes.
+      de: Ein Gedicht, dessen Zeilen die Gestalt des Gegenstands nachzeichnen.
+      fr: Un poème dont la disposition dessine son sujet.
+    source: Guillaume Apollinaire, Calligrammes (1918)
+    family: visual
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Arrange the lines on the page so they draw the shape of the subject.
+
+  - id: pattern_poem
+    names: { en: Pattern poem, de: Figurengedicht, fr: Poème figuré }
+    definitions:
+      en: >-
+        A poem laid out in a figure — an egg, an axe, an altar — with the shape
+        fixed before the words.
+      de: Ein Gedicht in Gestalt einer Figur, etwa eines Eis oder einer Axt.
+      fr: Un poème disposé en figure, œuf, hache ou autel.
+    source: Simmias of Rhodes, 4th century BC; revived by George Herbert (1633)
+    family: visual
+    attribution: reference
+    aliases: [carmen figuratum, technopaegnion]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Fix the outline first and fit the poem into it.
+
+  - id: concrete_poetry
+    names: { en: Concrete poetry, de: Konkrete Poesie, fr: Poésie concrète }
+    definitions:
+      en: >-
+        A poem in which typography and spatial arrangement carry the meaning as
+        much as the words do.
+      de: Ein Gedicht, in dem Typographie und Anordnung mitbedeuten.
+      fr: Un poème où la typographie et l'espace font sens autant que les mots.
+    source: Eugen Gomringer, Konstellationen (1953)
+    family: visual
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Let the placement and typography of the words carry as much as the words themselves.
+
+  - id: boustrophedon
+    names: { en: Boustrophedon, de: Bustrophedon, fr: Boustrophédon }
+    definitions:
+      en: >-
+        A text whose lines alternate in direction, running left to right and then
+        right to left as an ox turns at the furrow's end.
+      de: Ein Text, dessen Zeilen die Richtung wechseln wie der Pflug am Feldende.
+      fr: Un texte dont les lignes alternent de sens, comme le bœuf au bout du sillon.
+    source: Traditional; archaic Greek inscriptions
+    family: visual
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write alternate lines in reverse direction, turning at each line end.
+
+  - id: sator_square
+    names: { en: Sator square, de: Sator-Quadrat, fr: Carré Sator }
+    definitions:
+      en: >-
+        A five-by-five word square reading identically in four directions, the
+        best-known instance of the palindromic grid.
+      de: Ein Fünf-mal-fünf-Wortquadrat, in vier Richtungen gleich lesbar.
+      fr: Un carré de cinq mots lisible identiquement dans quatre sens.
+    source: Traditional; attested at Pompeii before 79 AD
+    family: visual
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Build a five-by-five square reading the same forwards, backwards, down and up.
+
+  - id: spatial_poem
+    names: { en: Spatial poem }
+    definitions:
+      en: >-
+        A poem whose parts are distributed across a space larger than a page, the
+        distance between them being part of the reading.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: visual
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Distribute the parts across a space so the gaps between them count as reading.
+
+  - id: grid_poem
+    names: { en: Grid poem }
+    definitions:
+      en: >-
+        A poem set in a rectangular grid so that it can be read across, down, or
+        both, each direction yielding a text.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: visual
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Set the words in a grid that reads as a poem both across and down.
+
+  - id: typewriter_poem
+    names: { en: Typewriter poem }
+    definitions:
+      en: >-
+        A poem composed for the fixed grid of a typewriter, using monospacing and
+        overstrike as compositional means.
+    source: Traditional; a modern practice associated with concrete poetry
+    family: visual
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Compose for a fixed-width grid, using spacing and overstrike as material.
