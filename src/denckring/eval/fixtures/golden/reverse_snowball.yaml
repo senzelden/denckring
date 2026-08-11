@@ -1,0 +1,13 @@
+procedure: reverse_snowball
+lang: en
+cases:
+  - name: borgmann-rhopalic-reversed
+    source: Dmitri A. Borgmann, Language on Vacation (1965), read backwards
+    text: handwriting perplexing illegibly acquired doctors family where know not do I
+    params: {}
+    satisfied: true
+  - name: growing-instead
+    source: constructed counterexample
+    text: I do not know
+    params: {}
+    satisfied: false
