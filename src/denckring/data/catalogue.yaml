@@ -1,0 +1,179 @@
+# Catalogue of experimental writing procedures.
+# Licence: CC BY 4.0. Each row carries its own source attribution.
+procedures:
+  - id: lipogram
+    names: { en: Lipogram, de: Lipogramm, fr: Lipogramme }
+    definitions:
+      en: A text that omits a chosen letter of the alphabet entirely.
+      de: Ein Text, der einen gewählten Buchstaben vollständig auslässt.
+      fr: Un texte qui omet entièrement une lettre choisie.
+    source: Georges Perec, La Disparition (1969)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage that never uses the letter "e", in any case or accented form.
+
+  - id: univocalic
+    names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
+    definitions:
+      en: A text using only one of the vowels.
+      de: Ein Text, der nur einen einzigen Vokal verwendet.
+      fr: Un texte n'employant qu'une seule voyelle.
+    source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which "e" is the only vowel that appears.
+
+  - id: tautogram
+    names: { en: Tautogram, de: Tautogramm, fr: Tautogramme }
+    definitions:
+      en: A text in which every word begins with the same letter.
+      de: Ein Text, in dem jedes Wort mit demselben Buchstaben beginnt.
+      fr: Un texte dont chaque mot commence par la même lettre.
+    source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which every single word begins with the letter "p".
+
+  - id: pangram
+    names: { en: Pangram, de: Pangramm, fr: Pangramme }
+    definitions:
+      en: >-
+        A text containing every letter of the alphabet at least once; a perfect
+        pangram uses each exactly once.
+      de: Ein Text, der jeden Buchstaben des Alphabets mindestens einmal enthält.
+      fr: Un texte contenant chaque lettre de l'alphabet au moins une fois.
+    source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write one sentence that uses every letter of the alphabet at least once.
+
+  - id: heterogram
+    names: { en: Heterogram, de: Heterogramm, fr: Hétérogramme }
+    definitions:
+      en: A text in which no letter is repeated.
+      de: Ein Text, in dem sich kein Buchstabe wiederholt.
+      fr: Un texte dans lequel aucune lettre ne se répète.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a phrase in which no letter of the alphabet appears more than once.
+
+  - id: palindrome
+    names: { en: Palindrome, de: Palindrom, fr: Palindrome }
+    definitions:
+      en: >-
+        A text that reads identically forwards and backwards, ignoring case,
+        spacing and punctuation.
+      de: Ein Text, der vorwärts wie rückwärts gleich lautet.
+      fr: Un texte qui se lit identiquement dans les deux sens.
+    source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence that reads the same backwards as forwards, letter by letter.
+
+  - id: snowball
+    names: { en: Snowball, de: Schneeball, fr: Boule de neige }
+    definitions:
+      en: A text in which each word is exactly one letter longer than the word before it.
+      de: Ein Text, in dem jedes Wort genau einen Buchstaben länger ist als das vorige.
+      fr: Un texte dont chaque mot compte une lettre de plus que le précédent.
+    source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose first word has one letter, the next two, the next three, and so on.
+
+  - id: reverse_snowball
+    names: { en: Reverse snowball, de: Umgekehrter Schneeball, fr: Boule de neige fondante }
+    definitions:
+      en: A text in which each word is exactly one letter shorter than the word before it.
+      de: Ein Text, in dem jedes Wort genau einen Buchstaben kürzer ist als das vorige.
+      fr: Un texte dont chaque mot compte une lettre de moins que le précédent.
+    source: Oulipo, La Littérature potentielle (1973), as fonte de neige
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words shrink by exactly one letter each, ending in a single letter.
+
+  - id: prisoners_constraint
+    names:
+      en: Prisoner's constraint
+      de: Gefangenenbeschränkung
+      fr: Contrainte du prisonnier
+    definitions:
+      en: A text using no letter with an ascender or a descender, as though saving paper.
+      de: Ein Text ohne Buchstaben mit Ober- oder Unterlänge.
+      fr: Un texte sans lettre à hampe ni à jambage.
+    source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, letter_shapes, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Write using only letters that stay within the x-height — avoid b, d, f, g,
+        h, j, k, l, p, q, t and y.
+
+  - id: beau_present
+    names: { en: Beau présent, de: Schönes Geschenk, fr: Beau présent }
+    definitions:
+      en: A text written using only the letters contained in a dedicatee's name.
+      de: Ein Text, der nur die Buchstaben eines Widmungsnamens verwendet.
+      fr: Un texte n'employant que les lettres du nom d'un dédicataire.
+    source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a dedication using only the letters that appear in the dedicatee's name.
+
+  - id: acrostic
+    names: { en: Acrostic, de: Akrostichon, fr: Acrostiche }
+    definitions:
+      en: A text whose initial letters, read down the lines, spell out a target word or phrase.
+      de: Ein Text, dessen Anfangsbuchstaben ein Wort ergeben.
+      fr: Un texte dont les initiales composent un mot.
+    source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a poem whose lines begin with the letters of the target word, in order.
+
+  - id: telestich
+    names: { en: Telestich, de: Telestichon, fr: Télestiche }
+    definitions:
+      en: A text whose final letters, read down the lines, spell out a target word or phrase.
+      de: Ein Text, dessen Endbuchstaben ein Wort ergeben.
+      fr: Un texte dont les lettres finales composent un mot.
+    source: George Puttenham, The Arte of English Poesie (1589)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a poem whose lines end with the letters of the target word, in order.
