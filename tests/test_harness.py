@@ -16,3 +16,19 @@ def test_status_counts_are_consistent() -> None:
 
 def test_scoreboard_serialises_to_json() -> None:
     harness.run().model_dump_json()
+
+
+def test_coverage_separates_implementable_from_unreachable() -> None:
+    coverage = harness.status()
+    assert coverage.implementable < coverage.catalogued
+    assert coverage.unreachable > 0
+    assert coverage.implementable + coverage.unreachable == coverage.catalogued
+
+
+def test_implemented_never_exceeds_implementable() -> None:
+    coverage = harness.status()
+    assert coverage.implemented <= coverage.implementable
+
+
+def test_coverage_line_names_the_unreachable_rows() -> None:
+    assert "not mechanically checkable" in harness.status().line()

@@ -1,0 +1,13 @@
+procedure: pangrammatic_lipogram
+lang: en
+cases:
+  - name: all-but-e
+    source: constructed example
+    text: abcdfghijklmnopqrstuvwxyz
+    params: { forbidden: e }
+    satisfied: true
+  - name: contains-the-forbidden-letter
+    source: constructed counterexample
+    text: the quick brown fox jumps over the lazy dog
+    params: { forbidden: e }
+    satisfied: false

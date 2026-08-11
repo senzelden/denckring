@@ -1,0 +1,61 @@
+procedure: sestina
+lang: en
+cases:
+  - name: true-rotation
+    source: constructed example; the rotation is the classical 6-1-5-2-4-3
+    text: |-
+      x one
+      x two
+      x three
+      x four
+      x five
+      x six
+      x six
+      x one
+      x five
+      x two
+      x four
+      x three
+      x three
+      x six
+      x four
+      x one
+      x two
+      x five
+      x five
+      x three
+      x two
+      x six
+      x one
+      x four
+      x four
+      x five
+      x one
+      x three
+      x six
+      x two
+      x two
+      x four
+      x six
+      x five
+      x three
+      x one
+    params: {}
+    satisfied: true
+  - name: repeated-stanza
+    source: constructed counterexample
+    text: |-
+      x one
+      x two
+      x three
+      x four
+      x five
+      x six
+      x one
+      x two
+      x three
+      x four
+      x five
+      x six
+    params: {}
+    satisfied: false

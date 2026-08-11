@@ -1,0 +1,18 @@
+procedure: anaphora
+lang: en
+cases:
+  - name: shared-opening
+    source: constructed example; the figure is classical
+    text: |-
+      I came
+      I saw
+      I won
+    params: { opening: I }
+    satisfied: true
+  - name: broken-opening
+    source: constructed counterexample
+    text: |-
+      I came
+      We saw
+    params: { opening: I }
+    satisfied: false
