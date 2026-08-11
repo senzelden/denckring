@@ -1319,3 +1319,562 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Replace each meaningful word once with its dictionary definition.
+
+  # ---------------------------------------------------------------------------
+  # family: form — metre, rhyme and stanza
+  # ---------------------------------------------------------------------------
+
+  - id: villanelle
+    names: { en: Villanelle, de: Villanelle, fr: Villanelle }
+    definitions:
+      en: >-
+        Nineteen lines in five tercets and a quatrain, on two rhymes, with two
+        refrain lines alternating and closing as a couplet.
+      de: Neunzehn Zeilen auf zwei Reimen mit zwei wiederkehrenden Refrainzeilen.
+      fr: Dix-neuf vers sur deux rimes avec deux refrains alternés.
+    source: Traditional; fixed in its modern shape by Jean Passerat (1606)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write nineteen lines on two rhymes, alternating two refrains and pairing them at the end.
+
+  - id: sestina
+    names: { en: Sestina, de: Sestine, fr: Sextine }
+    definitions:
+      en: >-
+        Six sestets and a tercet in which the same six end-words recur in a fixed
+        rotating order rather than rhyming.
+      de: Sechs Sechszeiler und ein Dreizeiler mit sechs rotierenden Schlusswörtern.
+      fr: Six sizains et un tercet aux six mots-rimes permutés.
+    source: Attributed to Arnaut Daniel, 12th century; the attribution is conventional
+    family: form
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Use the same six end-words in every stanza, rotating them in the fixed order.
+
+  - id: quenina
+    names: { en: Quenina, fr: Quenine }
+    definitions:
+      en: >-
+        The sestina generalised to any number of end-words for which the rotation
+        exhausts every position before returning to the start.
+      fr: La sextine généralisée à tout nombre de mots-rimes admissible.
+    source: Raymond Queneau and Jacques Roubaud, in Oulipo, La Littérature potentielle (1973)
+    family: form
+    attribution: primary
+    aliases: [n-ine]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Choose a workable number of end-words and rotate them until every position is used.
+
+  - id: pantoum
+    names: { en: Pantoum, de: Pantun, fr: Pantoum }
+    definitions:
+      en: >-
+        Interlocking quatrains in which the second and fourth lines of each stanza
+        become the first and third of the next.
+      de: Verschränkte Vierzeiler, deren zweite und vierte Zeile in der nächsten Strophe wiederkehren.
+      fr: Des quatrains enchaînés dont les vers deux et quatre ouvrent la strophe suivante.
+    source: Traditional; adapted into French from the Malay pantun in the 19th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Carry the second and fourth lines of each quatrain into the next as its first and third.
+
+  - id: ghazal
+    names: { en: Ghazal, de: Ghasel, fr: Ghazel }
+    definitions:
+      en: >-
+        Autonomous couplets sharing a refrain word and the rhyme preceding it, with
+        the poet often named in the closing couplet.
+      de: Selbständige Doppelverse mit gemeinsamem Refrainwort und Reim.
+      fr: Des distiques autonomes partageant un refrain et sa rime.
+    source: Traditional; classical Persian and Urdu poetry
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write self-contained couplets that all end on the same refrain word and rhyme.
+
+  - id: rondeau
+    names: { en: Rondeau, de: Rondeau, fr: Rondeau }
+    definitions:
+      en: >-
+        Fifteen lines on two rhymes in which the opening words return unrhymed as a
+        short refrain twice over.
+      de: Fünfzehn Zeilen auf zwei Reimen mit zweimal wiederkehrendem Kurzrefrain.
+      fr: Quinze vers sur deux rimes avec rentrement répété.
+    source: Traditional; French fixed form of the 14th and 15th centuries
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write fifteen lines on two rhymes, returning the opening words as a refrain twice.
+
+  - id: triolet
+    names: { en: Triolet, de: Triolett, fr: Triolet }
+    definitions:
+      en: >-
+        Eight lines on two rhymes in which the first line returns as the fourth and
+        seventh and the second as the eighth.
+      de: Acht Zeilen auf zwei Reimen mit wiederkehrender erster und zweiter Zeile.
+      fr: Huit vers sur deux rimes à refrains repris.
+    source: Traditional; French fixed form of the 13th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eight lines on two rhymes, repeating the first line twice and the second once.
+
+  - id: ballade
+    names: { en: Ballade, de: Ballade, fr: Ballade }
+    definitions:
+      en: >-
+        Three stanzas and a shorter envoi, all on the same rhymes and all closing
+        on the same refrain line.
+      de: Drei Strophen und ein Geleit auf denselben Reimen mit gleichem Refrain.
+      fr: Trois strophes et un envoi sur les mêmes rimes et le même refrain.
+    source: Traditional; the form of François Villon's Grand Testament (1461)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write three stanzas and an envoi, all sharing rhymes and ending on one refrain.
+
+  - id: limerick
+    names: { en: Limerick, de: Limerick, fr: Limerick }
+    definitions:
+      en: >-
+        Five lines rhyming AABBA, the third and fourth notably shorter than the
+        other three, usually comic in register.
+      de: Fünf Zeilen im Reimschema AABBA mit zwei kürzeren Mittelzeilen.
+      fr: Cinq vers rimant AABBA, les troisième et quatrième plus courts.
+    source: Traditional; popularised by Edward Lear, A Book of Nonsense (1846)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines rhyming AABBA with the middle two lines shorter.
+
+  - id: clerihew
+    names: { en: Clerihew }
+    definitions:
+      en: >-
+        Four lines of irregular length rhyming AABB, the first line being the name
+        of the person the verse describes.
+    source: Edmund Clerihew Bentley, Biography for Beginners (1905)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write four uneven lines rhyming AABB whose first line is simply a person's name.
+
+  - id: double_dactyl
+    names: { en: Double dactyl }
+    definitions:
+      en: >-
+        Two quatrains of dactylic lines opening on a nonsense phrase, naming a
+        person in the second line, one line being a single double-dactylic word.
+    source: Anthony Hecht and Paul Pascal, Jiggery-Pokery (1966)
+    family: form
+    attribution: primary
+    aliases: [higgledy-piggledy]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Open on a nonsense phrase, name someone in line two, and spend one whole line on one long word.
+
+  - id: cinquain
+    names: { en: Cinquain, fr: Cinquain }
+    definitions:
+      en: >-
+        Five unrhymed lines of two, four, six, eight and two syllables, rising and
+        then falling away.
+      fr: Cinq vers non rimés de deux, quatre, six, huit et deux syllabes.
+    source: Adelaide Crapsey, Verse (1915)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines of two, four, six, eight and two syllables.
+
+  - id: tanka
+    names: { en: Tanka, de: Tanka, fr: Tanka }
+    definitions:
+      en: Five lines of five, seven, five, seven and seven syllables.
+      de: Fünf Zeilen mit fünf, sieben, fünf, sieben und sieben Silben.
+      fr: Cinq vers de cinq, sept, cinq, sept et sept syllabes.
+    source: Traditional; classical Japanese court poetry
+    family: form
+    attribution: traditional
+    aliases: [waka]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five lines of five, seven, five, seven and seven syllables.
+
+  - id: renga
+    names: { en: Renga, de: Renga, fr: Renga }
+    definitions:
+      en: >-
+        A linked chain of alternating three-line and two-line stanzas, composed
+        collaboratively so each link joins only to its neighbour.
+      de: Eine Kette abwechselnd drei- und zweizeiliger Strophen, gemeinsam verfasst.
+      fr: Une chaîne de strophes de trois et deux vers, composée à plusieurs.
+    source: Traditional; Japanese linked verse, formalised by the 13th century
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Alternate three-line and two-line stanzas, each linking only to the one before.
+
+  - id: senryu
+    names: { en: Senryū }
+    definitions:
+      en: >-
+        A haiku in form but human and satirical in subject, dispensing with the
+        seasonal reference.
+    source: Named for Karai Senryū, 18th-century Japan
+    family: form
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write five, seven and five syllables on human folly rather than on nature.
+
+  - id: haibun
+    names: { en: Haibun }
+    definitions:
+      en: >-
+        Prose and haiku alternating in one work, the verse condensing rather than
+        continuing the passage before it.
+    source: Matsuo Bashō, Oku no Hosomichi (1702)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Alternate short prose passages with haiku that distil rather than continue them.
+
+  - id: ottava_rima
+    names: { en: Ottava rima, de: Stanze, fr: Ottava rima }
+    definitions:
+      en: Eight-line stanzas rhyming ABABABCC, the closing couplet turning the stanza.
+      de: Achtzeilige Strophen im Reimschema ABABABCC.
+      fr: Des huitains rimant ABABABCC.
+    source: Traditional; Giovanni Boccaccio's Teseida (c. 1340)
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eight-line stanzas rhyming ABABABCC.
+
+  - id: rhyme_royal
+    names: { en: Rhyme royal }
+    definitions:
+      en: Seven-line stanzas of iambic pentameter rhyming ABABBCC.
+    source: Geoffrey Chaucer, Troilus and Criseyde (c. 1385)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
+
+  - id: spenserian_stanza
+    names: { en: Spenserian stanza }
+    definitions:
+      en: >-
+        Nine lines rhyming ABABBCBCC, the first eight in pentameter and the last
+        an alexandrine.
+    source: Edmund Spenser, The Faerie Queene (1590)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write nine lines rhyming ABABBCBCC, closing with a six-foot line.
+
+  - id: petrarchan_sonnet
+    names: { en: Petrarchan sonnet, de: Italienisches Sonett, fr: Sonnet italien }
+    definitions:
+      en: >-
+        A sonnet of an octave rhyming ABBAABBA and a sestet, hinged on a turn
+        between the two.
+      de: Ein Sonett aus Oktett ABBAABBA und Sextett mit Wendepunkt.
+      fr: Un sonnet en octave ABBAABBA et sizain, articulé par une volte.
+    source: Francesco Petrarca, Canzoniere (14th century)
+    family: form
+    attribution: primary
+    aliases: [italian sonnet]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write an octave rhyming ABBAABBA, then a sestet that answers it.
+
+  - id: shakespearean_sonnet
+    names: { en: Shakespearean sonnet, de: Englisches Sonett, fr: Sonnet anglais }
+    definitions:
+      en: >-
+        Three quatrains and a couplet rhyming ABAB CDCD EFEF GG, in iambic
+        pentameter.
+      de: Drei Quartette und ein Reimpaar im Schema ABAB CDCD EFEF GG.
+      fr: Trois quatrains et un distique rimant ABAB CDCD EFEF GG.
+    source: William Shakespeare, Sonnets (1609)
+    family: form
+    attribution: primary
+    aliases: [english sonnet]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write three quatrains and a closing couplet in iambic pentameter.
+
+  - id: curtal_sonnet
+    names: { en: Curtal sonnet }
+    definitions:
+      en: >-
+        A sonnet contracted to eleven lines in the proportion six to four and a
+        half, keeping the sonnet's proportions in miniature.
+    source: Gerard Manley Hopkins, Poems (1918)
+    family: form
+    attribution: primary
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
+
+  - id: heroic_couplet
+    names: { en: Heroic couplet }
+    definitions:
+      en: Rhyming pairs of iambic pentameter lines, usually end-stopped.
+    source: Traditional; the dominant English verse form of the 17th and 18th centuries
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write in rhyming pairs of ten-syllable iambic lines.
+
+  - id: sapphic_stanza
+    names: { en: Sapphic stanza, de: Sapphische Strophe, fr: Strophe saphique }
+    definitions:
+      en: >-
+        Three hendecasyllabic lines followed by a short fifth-syllable line, in a
+        fixed quantitative pattern.
+      de: Drei elfsilbige Zeilen und ein kurzer Adoneus.
+      fr: Trois hendécasyllabes suivis d'un adonique.
+    source: Traditional; the stanza of Sappho, 7th century BC
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write three eleven-syllable lines and close on a five-syllable one.
+
+  - id: alcaic_stanza
+    names: { en: Alcaic stanza, de: Alkäische Strophe, fr: Strophe alcaïque }
+    definitions:
+      en: A four-line quantitative stanza of two hendecasyllables, an enneasyllable and a decasyllable.
+      de: Eine vierzeilige Strophe aus zwei Elfsilblern, einem Neun- und einem Zehnsilbler.
+      fr: Une strophe de deux hendécasyllabes, un ennéasyllabe et un décasyllabe.
+    source: Traditional; the stanza of Alcaeus, 6th century BC
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write two eleven-syllable lines, then one of nine and one of ten.
+
+  - id: elegiac_couplet
+    names: { en: Elegiac couplet, de: Elegisches Distichon, fr: Distique élégiaque }
+    definitions:
+      en: A dactylic hexameter followed by a pentameter, the pair forming one unit of sense.
+      de: Ein daktylischer Hexameter gefolgt von einem Pentameter.
+      fr: Un hexamètre dactylique suivi d'un pentamètre.
+    source: Traditional; classical Greek and Latin elegy
+    family: form
+    attribution: traditional
+    aliases: [distich]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Pair a six-foot line with a shorter one, each pair complete in itself.
+
+  - id: hendecasyllable
+    names: { en: Hendecasyllable, de: Elfsilbler, fr: Hendécasyllabe }
+    definitions:
+      en: A line of exactly eleven syllables, used as the governing measure of a poem.
+      de: Eine Zeile von genau elf Silben.
+      fr: Un vers de onze syllabes exactement.
+    source: Traditional; classical Latin and Italian prosody
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write every line to exactly eleven syllables.
+
+  - id: iambic_pentameter
+    names: { en: Iambic pentameter }
+    definitions:
+      en: Lines of five iambic feet, the commonest measure of English verse.
+    source: Traditional; the dominant English metre since Chaucer
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of five iambic feet, ten syllables alternating unstressed and stressed.
+
+  - id: trochaic_tetrameter
+    names: { en: Trochaic tetrameter }
+    definitions:
+      en: Lines of four trochaic feet, falling rather than rising in stress.
+    source: Traditional; the metre of the Kalevala and of Hiawatha
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of four trochees, each foot stressed then unstressed.
+
+  - id: dactylic_hexameter
+    names: { en: Dactylic hexameter, de: Hexameter, fr: Hexamètre dactylique }
+    definitions:
+      en: Six feet, each a dactyl or a spondee, the fifth almost always a dactyl.
+      de: Sechs Versfüße aus Daktylen und Spondeen.
+      fr: Six pieds, dactyles ou spondées, le cinquième presque toujours dactyle.
+    source: Traditional; the metre of Homer and Virgil
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write six-foot lines of dactyls and spondees, with a dactyl in the fifth foot.
+
+  - id: alliterative_verse
+    names: { en: Alliterative verse, de: Stabreimvers, fr: Vers allitératif }
+    definitions:
+      en: >-
+        Lines split by a caesura in which the stressed syllables of both halves
+        alliterate, rather than rhyming at the end.
+      de: Verse mit Zäsur, deren Hebungen stabreimen statt zu reimen.
+      fr: Des vers à césure dont les syllabes accentuées allitèrent.
+    source: Traditional; the metre of Beowulf and the Old Norse Eddas
+    family: form
+    attribution: traditional
+    aliases: [stabreim]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Break each line at a caesura and alliterate the stressed syllables across the break.
+
+  - id: assonance_constraint
+    names: { en: Assonance constraint }
+    definitions:
+      en: >-
+        A text bound by repeated vowel sounds rather than by full rhyme, the
+        agreement falling inside words as well as at line ends.
+    source: Traditional; the binding device of Old French and Spanish epic
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Bind the lines by repeating vowel sounds rather than by rhyming.
+
+  - id: englyn
+    names: { en: Englyn }
+    definitions:
+      en: >-
+        A short Welsh stanza in strict metre, its lines governed by syllable count
+        and by the consonantal chiming of cynghanedd.
+    source: Traditional; Welsh strict-metre poetry
+    family: form
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write a short strict-metre stanza binding the lines by consonant patterning.
