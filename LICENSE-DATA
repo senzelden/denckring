@@ -1,0 +1,56 @@
+Licence for the denckring catalogue
+===================================
+
+This licence covers the catalogue data only:
+
+    src/denckring/data/catalogue.yaml
+
+and anything exported from it, including the output of
+
+    denckring catalogue export
+
+It does NOT cover the source code in this repository, which is licensed under the
+MIT Licence — see LICENSE.
+
+
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+----------------------------------------------------------
+
+Human-readable summary:  https://creativecommons.org/licenses/by/4.0/
+Legal code:              https://creativecommons.org/licenses/by/4.0/legalcode
+
+You are free to share and adapt this data for any purpose, including commercially,
+provided you give appropriate credit, link to the licence, and indicate whether
+changes were made.
+
+
+Attribution
+-----------
+
+Attribution satisfying the BY term:
+
+    denckring catalogue, https://github.com/senzelden/denckring, CC BY 4.0
+
+When redistributing a modified version, say so, so that readers do not attribute
+your changes to this project.
+
+
+A note on the sources within the data
+-------------------------------------
+
+Each entry carries a `source` field and an `attribution` field recording how that
+source was established:
+
+    primary      a named author, work and year this catalogue stands behind
+    reference    attested in a standard reference work rather than traced to an
+                 origin — most often the Oulipo Compendium, Borgmann's Language on
+                 Vacation, or Word Ways
+    traditional  classical or folk, with no single origin to name
+
+The distinction matters for reuse. A `primary` row asserts an origin; a `reference`
+row asserts only that the form is documented somewhere reputable. Do not silently
+promote the second into the first.
+
+The works cited in `source` fields are themselves under their own copyright, which
+this licence does not affect. What is licensed here is the catalogue — the
+selection, description and arrangement — not the works it points at.

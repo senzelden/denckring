@@ -33,6 +33,16 @@ All notable changes to this project are documented here. The format follows
   deciding whether `ä` counts as `a` and `ß` as `ss`. Defaults to true.
 - `LanguagePack.exceeds_x_height`, and golden cases in German for all twelve procedures.
 - Two further ADRs, 0009 and 0010, on the fold parameter and entry-point discovery.
+- Catalogue grown from 31 to 145 sourced entries across eight families.
+- `family`, `aliases` and `attribution` on every catalogue entry. `attribution`
+  distinguishes a traced origin (`primary`) from a form documented in a standard
+  reference (`reference`) from one with no single origin (`traditional`).
+- `denckring search` matching ids, names and aliases; `denckring list --family`.
+- `denckring catalogue export --format json|csv` emitting the dataset as a standalone
+  file, and `LICENSE-DATA` carrying the CC BY 4.0 notice.
+- A catalogue quality suite: every row must have a source, an English name, definition
+  and prompt hint, a family and an attribution; aliases must be unique catalogue-wide
+  and must not collide with any procedure id.
 
 ### Fixed
 
