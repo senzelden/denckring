@@ -5,18 +5,19 @@ from __future__ import annotations
 from denckring.core.protocol import LanguagePack
 
 
-def letter_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
-    """Every alphabetic character as `(offset, folded lowercase letter)`.
+def letter_spans(text: str, pack: LanguagePack, *, fold: bool = True) -> list[tuple[int, str]]:
+    """Every alphabetic character as `(offset, letter)`, lower-cased.
 
-    Folding can expand one character into several — `ß` becomes `ss` — in which
-    case both share the original offset.
+    With `fold` set, diacritics are stripped and `ß` expands to `ss`, so one
+    source character can yield several letters sharing its offset. Without it,
+    only case is normalised — `ä` stays `ä`.
     """
     spans: list[tuple[int, str]] = []
     for offset, ch in enumerate(text):
         if not ch.isalpha():
             continue
-        folded = pack.fold_diacritics(ch)
-        spans.extend((offset, letter) for letter in folded if letter.isalpha())
+        letters = pack.fold_diacritics(ch) if fold else ch.lower()
+        spans.extend((offset, letter) for letter in letters if letter.isalpha())
     return spans
 
 
