@@ -527,3 +527,391 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write lines of interchangeable nouns and verbs that stay grammatical in any permutation.
+
+  # ---------------------------------------------------------------------------
+  # family: letter — procedures operating on individual characters
+  # ---------------------------------------------------------------------------
+
+  - id: belle_absente
+    names: { en: Belle absente, fr: Belle absente }
+    definitions:
+      en: >-
+        A poem with one line per letter of a dedicatee's name, each line omitting
+        exactly that letter while using every other letter of the alphabet.
+      fr: Un poème dont chaque vers omet une lettre du nom du dédicataire.
+    source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
+    aliases: [beautiful absent]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write one line per letter of the name; each line omits that letter and uses all the others.
+
+  - id: abecedarian
+    names: { en: Abecedarian, de: Abecedarium, fr: Abécédaire }
+    definitions:
+      en: >-
+        A text whose successive lines or words begin with successive letters of
+        the alphabet, from A through to Z.
+      de: Ein Text, dessen Zeilen mit aufeinanderfolgenden Buchstaben des Alphabets beginnen.
+      fr: Un texte dont les vers commencent par les lettres successives de l'alphabet.
+    source: Ancient Hebrew acrostic psalms; Lamentations
+    family: letter
+    attribution: traditional
+    aliases: [abecedarius]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write lines beginning with A, then B, then C, and so on to Z.
+
+  - id: double_acrostic
+    names: { en: Double acrostic }
+    definitions:
+      en: >-
+        A text whose first and last letters each spell out a word when read down
+        the lines, so the poem is bounded by two hidden strings.
+    source: Traditional; described in the Renaissance rhetorical handbooks
+    family: letter
+    attribution: traditional
+    aliases: [acrostic-telestich]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write lines whose initials spell one word and whose final letters spell another.
+
+  - id: chronogram
+    names: { en: Chronogram, de: Chronogramm, fr: Chronogramme }
+    definitions:
+      en: >-
+        A phrase in which the letters that are also Roman numerals, read in order,
+        sum to a significant date.
+      de: Ein Satz, dessen als römische Ziffern lesbare Buchstaben eine Jahreszahl ergeben.
+      fr: Une phrase dont les lettres-chiffres romains totalisent une date.
+    source: Traditional; widespread in Latin inscriptions from the 15th century
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a phrase whose Roman-numeral letters add up to the target year.
+
+  - id: semordnilap
+    names: { en: Semordnilap }
+    definitions:
+      en: >-
+        A word or text that spells a different word when reversed, unlike a
+        palindrome, which spells the same one.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    aliases: [emordnilap, reversible word]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words that read as a different word backwards, such as stressed and desserts.
+
+  - id: word_square
+    names: { en: Word square, de: Wortquadrat, fr: Carré de mots }
+    definitions:
+      en: >-
+        A grid of words of equal length reading the same across as down, so that
+        row and column of the same index are identical.
+      de: Ein Quadrat gleich langer Wörter, waagerecht wie senkrecht identisch lesbar.
+      fr: Un carré de mots se lisant identiquement en lignes et en colonnes.
+    source: Traditional; the Sator square is attested at Pompeii before 79 AD
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Build a square of words that reads the same across each row as down each column.
+
+  - id: pangrammatic_window
+    names: { en: Pangrammatic window }
+    definitions:
+      en: >-
+        A stretch of naturally occurring text, as short as possible, that happens
+        to contain every letter of the alphabet.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find the shortest run of ordinary prose containing all twenty-six letters.
+
+  - id: supervocalic
+    names: { en: Supervocalic }
+    definitions:
+      en: >-
+        A word or text containing each of the five vowels exactly once, in any
+        order.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Use words containing a, e, i, o and u exactly once each.
+
+  - id: monoconsonantal
+    names: { en: Monoconsonantal }
+    definitions:
+      en: >-
+        A text using only one consonant throughout, the vowels being left
+        unconstrained — the mirror image of the univocalic.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which the only consonant that appears is "n".
+
+  - id: consonantal_lipogram
+    names: { en: Consonantal lipogram }
+    definitions:
+      en: >-
+        A lipogram whose forbidden set is a group of consonants rather than a
+        single letter.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage avoiding every one of a named group of consonants.
+
+  - id: liponym
+    names: { en: Liponym }
+    definitions:
+      en: >-
+        A text that omits a chosen word entirely, especially one the subject makes
+        almost unavoidable.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Describe the subject at length without ever using its most obvious word.
+
+  - id: charade
+    names: { en: Charade, de: Scharade, fr: Charade }
+    definitions:
+      en: >-
+        A word that divides into two or more shorter words, used as the hinge of a
+        riddle or a line.
+      de: Ein Wort, das sich in kürzere Wörter zerlegen lässt.
+      fr: Un mot qui se décompose en plusieurs mots plus courts.
+    source: Traditional; a staple of 18th-century French and English parlour verse
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Choose words that split cleanly into smaller words and build the line around them.
+
+  - id: kangaroo_word
+    names: { en: Kangaroo word }
+    definitions:
+      en: >-
+        A word containing the letters of a synonym of itself, in order but not
+        necessarily adjacent.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    aliases: [marsupial word]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words that carry a synonym of themselves inside their own letters, in order.
+
+  - id: tautonym
+    names: { en: Tautonym }
+    definitions:
+      en: >-
+        A word made of the same sequence of letters repeated twice, such as
+        tartar or couscous.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Use words built from one syllable-string written twice over.
+
+  - id: paragram
+    names: { en: Paragram, de: Paragramm, fr: Paragramme }
+    definitions:
+      en: >-
+        A text built by changing a single letter of a word to produce another,
+        turning the alteration into the point of the line.
+      de: Ein Text, der durch Austausch eines einzigen Buchstabens neue Wörter gewinnt.
+      fr: Un texte jouant sur le changement d'une seule lettre.
+    source: Traditional; a classical rhetorical figure
+    family: letter
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Change one letter of a word to make another, and build the sentence on the swap.
+
+  - id: pangrammatic_lipogram
+    names: { en: Pangrammatic lipogram }
+    definitions:
+      en: >-
+        A text using every letter of the alphabet except one, which is omitted
+        entirely — a pangram and a lipogram at once.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence using all twenty-five letters other than the one you have banned.
+
+  - id: bivocalic
+    names: { en: Bivocalic }
+    definitions:
+      en: A text restricted to two of the vowels, the rest being excluded throughout.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage using only the vowels "a" and "e".
+
+  - id: antigram
+    names: { en: Antigram }
+    definitions:
+      en: >-
+        An anagram whose rearrangement means the opposite of its source, so the
+        letters contradict themselves.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Rearrange the phrase into one that means its opposite, using every letter once.
+
+  - id: letter_bank
+    names: { en: Letter bank }
+    definitions:
+      en: >-
+        A text drawing only on the letters of a chosen source word, each of which
+        must appear at least once and may repeat freely.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write using only the letters of the source word, using every one of them at least once.
+
+  - id: transposal
+    names: { en: Transposal }
+    definitions:
+      en: >-
+        A pair of words using exactly the same letters in a different order,
+        treated as a unit of composition rather than a puzzle.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Pair each word with another built from exactly its letters, reordered.
+
+  - id: eodermdrome
+    names: { en: Eodermdrome }
+    definitions:
+      en: >-
+        A word whose letters, read as the edges of a graph, trace a closed figure
+        crossing every edge once.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Find words whose letter pairs trace a closed graph without repeating an edge.
+
+  - id: homoteleuton
+    names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
+    definitions:
+      en: >-
+        A passage in which successive words or clauses end with the same letter or
+        syllable, the mirror of the tautogram's shared initials.
+      de: Ein Text, dessen aufeinanderfolgende Wörter gleich enden.
+      fr: Un texte dont les mots successifs se terminent de la même façon.
+    source: Traditional; a classical rhetorical figure described by Quintilian
+    family: letter
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which every word ends with the same letter.
+
+  - id: alphabetical_sentence
+    names: { en: Alphabetical sentence }
+    definitions:
+      en: >-
+        A sentence whose words appear in alphabetical order from first to last,
+        without rearrangement.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: letter
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words run in alphabetical order.
