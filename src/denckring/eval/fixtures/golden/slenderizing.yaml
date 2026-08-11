@@ -1,0 +1,13 @@
+procedure: slenderizing
+lang: en
+cases:
+  - name: r-removed
+    source: constructed example; the procedure is Oulipian
+    text: bat
+    params: { source: brat, deleted: r }
+    satisfied: true
+  - name: r-kept
+    source: constructed counterexample
+    text: brat
+    params: { source: brat, deleted: r }
+    satisfied: false

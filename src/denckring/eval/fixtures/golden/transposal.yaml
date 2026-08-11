@@ -1,0 +1,13 @@
+procedure: transposal
+lang: en
+cases:
+  - name: word-for-word
+    source: constructed example; the term is Borgmann's
+    text: silent tar
+    params: { source: listen rat }
+    satisfied: true
+  - name: one-word-wrong
+    source: constructed counterexample
+    text: silent cat
+    params: { source: listen rat }
+    satisfied: false
