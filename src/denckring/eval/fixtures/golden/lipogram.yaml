@@ -1,0 +1,16 @@
+procedure: lipogram
+lang: en
+cases:
+  - name: gadsby-opening
+    source: Ernest Vincent Wright, Gadsby (1939)
+    text: >-
+      If youth, throughout all history, had had a champion to stand up for it;
+      to show a doubting world that a child can think.
+    params: { forbidden: e }
+    satisfied: true
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: The letter appears here repeatedly.
+    params: { forbidden: e }
+    satisfied: false
+    max_score: 0.95
