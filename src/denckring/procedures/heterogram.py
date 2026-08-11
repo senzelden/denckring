@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
 
-class HeterogramParams(BaseModel):
+class HeterogramParams(DiacriticParams):
     scope: Literal["text", "word"] = Field(default="text", description="Where repeats are banned.")
 
 
@@ -29,10 +29,13 @@ class Heterogram(BaseProcedure[HeterogramParams]):
     def _check(self, text: str, pack: LanguagePack, params: HeterogramParams) -> Report:
         groups: list[list[tuple[int, str]]]
         if params.scope == "text":
-            groups = [letter_spans(text, pack)]
+            groups = [letter_spans(text, pack, fold=params.fold_diacritics)]
         else:
             groups = [
-                [(offset + local, ch) for local, ch in letter_spans(word, pack)]
+                [
+                    (offset + local, ch)
+                    for local, ch in letter_spans(word, pack, fold=params.fold_diacritics)
+                ]
                 for offset, word in word_spans(text, pack)
             ]
         violations: list[Violation] = []

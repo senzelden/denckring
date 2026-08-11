@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
 
-class PalindromeParams(BaseModel):
+class PalindromeParams(DiacriticParams):
     unit: Literal["letter", "word"] = Field(default="letter", description="What is mirrored.")
 
 
@@ -28,10 +28,13 @@ class Palindrome(BaseProcedure[PalindromeParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: PalindromeParams) -> Report:
         if params.unit == "letter":
-            spans = letter_spans(text, pack)
+            spans = letter_spans(text, pack, fold=params.fold_diacritics)
         else:
             spans = [
-                (offset, "".join(ch for _, ch in letter_spans(word, pack)))
+                (
+                    offset,
+                    "".join(ch for _, ch in letter_spans(word, pack, fold=params.fold_diacritics)),
+                )
                 for offset, word in word_spans(text, pack)
             ]
         values = [value for _, value in spans]
