@@ -76,10 +76,11 @@ def golden_cases() -> list[GoldenCase]:
     cases: list[GoldenCase] = []
     for path in sorted(GOLDEN_DIR.glob("*.yaml")):
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        default_lang = data.get("lang", "en")
         for row in data["cases"]:
-            cases.append(
-                GoldenCase(procedure=data["procedure"], lang=data.get("lang", "en"), **row)
-            )
+            # A case may override the file's language, so English and German
+            # examples of the same procedure live in one file.
+            cases.append(GoldenCase(procedure=data["procedure"], **{"lang": default_lang, **row}))
     return cases
 
 
