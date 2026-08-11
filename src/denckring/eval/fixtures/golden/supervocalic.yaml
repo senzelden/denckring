@@ -1,0 +1,13 @@
+procedure: supervocalic
+lang: en
+cases:
+  - name: facetious
+    source: Traditional; the canonical English supervocalic
+    text: facetious
+    params: {}
+    satisfied: true
+  - name: missing-a-vowel
+    source: constructed counterexample
+    text: ab ec id of
+    params: {}
+    satisfied: false

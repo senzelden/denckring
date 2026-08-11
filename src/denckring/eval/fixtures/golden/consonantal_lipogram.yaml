@@ -1,0 +1,13 @@
+procedure: consonantal_lipogram
+lang: en
+cases:
+  - name: avoids-the-set
+    source: constructed example
+    text: a real one
+    params: { forbidden: bcd }
+    satisfied: true
+  - name: uses-the-set
+    source: constructed counterexample
+    text: a bad one
+    params: { forbidden: bcd }
+    satisfied: false
