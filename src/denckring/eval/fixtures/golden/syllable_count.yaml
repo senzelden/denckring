@@ -1,0 +1,17 @@
+procedure: syllable_count
+lang: en
+cases:
+  - name: matches-the-pattern
+    source: constructed example
+    text: |-
+      the cat sat
+      the dog
+    params: { pattern: [3, 2] }
+    satisfied: true
+  - name: wrong-line
+    source: constructed counterexample
+    text: |-
+      the cat sat
+      the dog ran fast
+    params: { pattern: [3, 2] }
+    satisfied: false
