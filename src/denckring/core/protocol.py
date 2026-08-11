@@ -32,6 +32,14 @@ FAMILIES: tuple[str, ...] = get_args(Family)
 #: origin exists to name.
 Attribution = Literal["primary", "reference", "traditional"]
 
+#: Whether a procedure admits a mechanical check at all. `self` is decidable
+#: from the text and its parameters; `source` needs the text it was made from;
+#: `none` means no computable acceptance criterion exists — the row is
+#: catalogued because the form belongs in an honest survey of the field, not as
+#: a backlog item. ADR 0002 keeps `none` rows permanently unregistered.
+Checkability = Literal["self", "source", "none"]
+CHECKABILITIES: tuple[str, ...] = get_args(Checkability)
+
 
 class Violation(BaseModel):
     """One place where a text fails a procedure."""
@@ -62,6 +70,7 @@ class Meta(BaseModel):
     source: str
     family: Family
     attribution: Attribution
+    checkability: Checkability
     aliases: list[str] = Field(default_factory=list)
     kind: Kind
     languages: list[Lang]
