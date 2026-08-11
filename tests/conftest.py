@@ -30,18 +30,19 @@ class GoldenCase:
     max_score: float | None
 
     def __str__(self) -> str:
-        return f"{self.procedure}:{self.name}"
+        return f"{self.procedure}:{self.lang}:{self.name}"
 
 
 def load_golden_cases() -> list[GoldenCase]:
     cases: list[GoldenCase] = []
     for path in sorted(GOLDEN_DIR.glob("*.yaml")):
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        default_lang = data.get("lang", "en")
         for case in data["cases"]:
             cases.append(
                 GoldenCase(
                     procedure=data["procedure"],
-                    lang=data.get("lang", "en"),
+                    lang=case.get("lang", default_lang),
                     name=case["name"],
                     text=case["text"],
                     params=case.get("params", {}),
