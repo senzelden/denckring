@@ -27,6 +27,7 @@ def test_meta_round_trips_through_json() -> None:
         source="Georges Perec, La Disparition (1969)",
         family="letter",
         attribution="primary",
+        checkability="self",
         aliases=[],
         kind="restrictive",
         languages=["en"],

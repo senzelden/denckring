@@ -1,0 +1,13 @@
+procedure: homoteleuton
+lang: en
+cases:
+  - name: shared-ending
+    source: constructed example; the figure is described by Quintilian
+    text: many funny sunny
+    params: { final: y }
+    satisfied: true
+  - name: broken-ending
+    source: constructed counterexample
+    text: many funny cat
+    params: { final: y }
+    satisfied: false

@@ -1,0 +1,17 @@
+procedure: epistrophe
+lang: en
+cases:
+  - name: shared-closing
+    source: constructed example; the figure is classical
+    text: |-
+      we go home
+      they go home
+    params: { closing: home }
+    satisfied: true
+  - name: broken-closing
+    source: constructed counterexample
+    text: |-
+      we go home
+      they go away
+    params: { closing: home }
+    satisfied: false

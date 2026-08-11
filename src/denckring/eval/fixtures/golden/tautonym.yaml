@@ -1,0 +1,13 @@
+procedure: tautonym
+lang: en
+cases:
+  - name: doubled-words
+    source: constructed example; the term is Borgmann's
+    text: couscous tartar
+    params: {}
+    satisfied: true
+  - name: ordinary-word
+    source: constructed counterexample
+    text: couscous cat
+    params: {}
+    satisfied: false

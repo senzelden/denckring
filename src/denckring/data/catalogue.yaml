@@ -10,6 +10,7 @@ procedures:
     source: Georges Perec, La Disparition (1969)
     family: letter
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -26,6 +27,7 @@ procedures:
     source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
     family: letter
     attribution: reference
+    checkability: self
     aliases: [monovocalism]
     kind: restrictive
     languages: [en, de]
@@ -43,6 +45,7 @@ procedures:
     source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
     family: letter
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -61,6 +64,7 @@ procedures:
     source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: traditional
+    checkability: self
     aliases: [holalphabetic sentence]
     kind: restrictive
     languages: [en, de]
@@ -78,6 +82,7 @@ procedures:
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
+    checkability: self
     aliases: [isogram]
     kind: restrictive
     languages: [en, de]
@@ -97,6 +102,7 @@ procedures:
     source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -113,6 +119,7 @@ procedures:
     source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
     family: letter
     attribution: reference
+    checkability: self
     aliases: [rhopalic]
     kind: restrictive
     languages: [en, de]
@@ -130,6 +137,7 @@ procedures:
     source: Oulipo, La Littérature potentielle (1973), as fonte de neige
     family: letter
     attribution: reference
+    checkability: self
     aliases: [melting snowball]
     kind: restrictive
     languages: [en, de]
@@ -150,6 +158,7 @@ procedures:
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en, de]
     requires: [tokens, letter_shapes, fold_diacritics]
@@ -168,6 +177,7 @@ procedures:
     source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: primary
+    checkability: self
     aliases: [beautiful present]
     kind: restrictive
     languages: [en, de]
@@ -185,6 +195,7 @@ procedures:
     source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -201,6 +212,7 @@ procedures:
     source: George Puttenham, The Arte of English Poesie (1589)
     family: letter
     attribution: traditional
+    checkability: self
     aliases: [telestic]
     kind: restrictive
     languages: [en, de]
@@ -223,6 +235,7 @@ procedures:
     source: Jean Lescure, in Oulipo, La Littérature potentielle (1973)
     family: word
     attribution: primary
+    checkability: source
     aliases: [N+7]
     kind: both
     languages: [en]
@@ -240,6 +253,7 @@ procedures:
     source: Oulipo, La Littérature potentielle (1973)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -256,6 +270,7 @@ procedures:
     source: Attributed to Lycophron (3rd century BC); systematised by Oulipo
     family: word
     attribution: traditional
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -272,6 +287,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: syntax
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -291,6 +307,7 @@ procedures:
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
     family: word
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -307,6 +324,7 @@ procedures:
     source: Brion Gysin and William S. Burroughs, Minutes to Go (1960)
     family: procedural
     attribution: primary
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -323,6 +341,7 @@ procedures:
     source: William S. Burroughs, The Third Mind (1978)
     family: procedural
     attribution: primary
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -339,6 +358,7 @@ procedures:
     source: Jackson Mac Low, Stanzas for Iris Lezak (1972)
     family: procedural
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -355,6 +375,7 @@ procedures:
     source: John Cage, Writing Through Finnegans Wake (1978)
     family: procedural
     attribution: primary
+    checkability: source
     aliases: [mesostich]
     kind: both
     languages: [en]
@@ -372,6 +393,7 @@ procedures:
     source: Traditional prosody
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -388,6 +410,7 @@ procedures:
     source: French classical prosody; Jean Racine
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [fr]
     requires: [tokens, syllables]
@@ -406,6 +429,7 @@ procedures:
     source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -422,6 +446,7 @@ procedures:
     source: Traditional prosody
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -438,6 +463,7 @@ procedures:
     source: Giacomo da Lentini, Sicilian School (c. 1230)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -454,6 +480,7 @@ procedures:
     source: Matsuo Bashō (17th century); named as haiku by Masaoka Shiki (1892)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -470,6 +497,7 @@ procedures:
     source: Dante Alighieri, Commedia (c. 1320)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -489,6 +517,7 @@ procedures:
     source: Georg Philipp Harsdörffer, Fünffacher Denckring der Teutschen Sprache (1651)
     family: permutation
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [de]
     requires: [tokens, lexicon.syllables]
@@ -505,6 +534,7 @@ procedures:
     source: Julius Caesar Scaliger, Poetices libri septem (1561)
     family: permutation
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -521,6 +551,7 @@ procedures:
     source: Quirinus Kuhlmann, Der Wechsel Menschlicher Sachen (1671)
     family: permutation
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [de]
     requires: [tokens]
@@ -542,6 +573,7 @@ procedures:
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: primary
+    checkability: self
     aliases: [beautiful absent]
     kind: restrictive
     languages: [en]
@@ -561,6 +593,7 @@ procedures:
     source: Ancient Hebrew acrostic psalms; Lamentations
     family: letter
     attribution: traditional
+    checkability: self
     aliases: [abecedarius]
     kind: restrictive
     languages: [en]
@@ -578,6 +611,7 @@ procedures:
     source: Traditional; described in the Renaissance rhetorical handbooks
     family: letter
     attribution: traditional
+    checkability: self
     aliases: [acrostic-telestich]
     kind: restrictive
     languages: [en]
@@ -597,6 +631,7 @@ procedures:
     source: Traditional; widespread in Latin inscriptions from the 15th century
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -613,10 +648,11 @@ procedures:
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
+    checkability: self
     aliases: [emordnilap, reversible word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Find words that read as a different word backwards, such as stressed and desserts.
@@ -626,15 +662,17 @@ procedures:
     definitions:
       en: >-
         A grid of words of equal length reading the same across as down, so that
-        row and column of the same index are identical.
+        row and column of the same index are identical. Verifying that the rows
+        are words needs a lexicon, which is why this entry waits on one.
       de: Ein Quadrat gleich langer Wörter, waagerecht wie senkrecht identisch lesbar.
       fr: Un carré de mots se lisant identiquement en lignes et en colonnes.
     source: Traditional; the Sator square is attested at Pompeii before 79 AD
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Build a square of words that reads the same across each row as down each column.
@@ -648,6 +686,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [alphabet, fold_diacritics]
@@ -664,6 +703,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, alphabet, fold_diacritics]
@@ -680,6 +720,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -696,6 +737,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -712,6 +754,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -730,9 +773,10 @@ procedures:
     source: Traditional; a staple of 18th-century French and English parlour verse
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Choose words that split cleanly into smaller words and build the line around them.
@@ -746,10 +790,11 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     aliases: [marsupial word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Find words that carry a synonym of themselves inside their own letters, in order.
@@ -763,6 +808,7 @@ procedures:
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -781,6 +827,7 @@ procedures:
     source: Traditional; a classical rhetorical figure
     family: letter
     attribution: traditional
+    checkability: self
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -797,6 +844,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [alphabet, fold_diacritics]
@@ -811,6 +859,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -827,6 +876,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: source
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -843,6 +893,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -859,6 +910,7 @@ procedures:
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
+    checkability: source
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -871,10 +923,12 @@ procedures:
     definitions:
       en: >-
         A word whose letters, read as the edges of a graph, trace a closed figure
-        crossing every edge once.
+        crossing every edge once. The checker verifies the closed walk and the
+        unrepeated edges, not the non-planarity of Borgmann's stricter reading.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -893,6 +947,7 @@ procedures:
     source: Traditional; a classical rhetorical figure described by Quintilian
     family: letter
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -909,6 +964,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -930,6 +986,7 @@ procedures:
     source: Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -947,6 +1004,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -964,6 +1022,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: syntax
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -980,6 +1039,7 @@ procedures:
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -996,6 +1056,7 @@ procedures:
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1013,6 +1074,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -1029,6 +1091,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1045,6 +1108,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     aliases: [elementary morphological deletion]
     kind: both
     languages: [en]
@@ -1063,6 +1127,7 @@ procedures:
     source: Oulipo, La Littérature potentielle (1973)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1081,6 +1146,7 @@ procedures:
     source: Lewis Carroll, Doublets, a Word Puzzle (1879)
     family: word
     attribution: primary
+    checkability: self
     aliases: [doublets, word golf]
     kind: both
     languages: [en]
@@ -1098,6 +1164,7 @@ procedures:
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: word
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1113,6 +1180,7 @@ procedures:
     source: Traditional; a standing exercise in English rhetorical instruction
     family: word
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1129,6 +1197,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: syntax
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1145,6 +1214,7 @@ procedures:
     source: Traditional; the form of Gertrude Stein's and Thomas Bernhard's long prose
     family: syntax
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1161,6 +1231,7 @@ procedures:
     source: Traditional; standard in style manuals and readability work
     family: syntax
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1179,6 +1250,7 @@ procedures:
     source: Traditional; a classical rhetorical figure
     family: syntax
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1197,6 +1269,7 @@ procedures:
     source: Traditional; a classical rhetorical figure
     family: syntax
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1213,6 +1286,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -1229,6 +1303,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -1247,6 +1322,7 @@ procedures:
     source: Traditional; a classical rhetorical figure
     family: syntax
     attribution: traditional
+    checkability: self
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1263,6 +1339,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1281,6 +1358,7 @@ procedures:
     source: Named for William Archibald Spooner; documented from the 1890s
     family: word
     attribution: reference
+    checkability: self
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -1297,6 +1375,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1313,6 +1392,7 @@ procedures:
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
     family: word
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -1335,6 +1415,7 @@ procedures:
     source: Traditional; fixed in its modern shape by Jean Passerat (1606)
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1347,12 +1428,14 @@ procedures:
     definitions:
       en: >-
         Six sestets and a tercet in which the same six end-words recur in a fixed
-        rotating order rather than rhyming.
+        rotating order rather than rhyming. The checker verifies the end-word
+        rotation only, not metre.
       de: Sechs Sechszeiler und ein Dreizeiler mit sechs rotierenden Schlusswörtern.
       fr: Six sizains et un tercet aux six mots-rimes permutés.
     source: Attributed to Arnaut Daniel, 12th century; the attribution is conventional
     family: form
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1365,11 +1448,13 @@ procedures:
     definitions:
       en: >-
         The sestina generalised to any number of end-words for which the rotation
-        exhausts every position before returning to the start.
+        exhausts every position before returning to the start. The checker
+        verifies the end-word rotation only, not metre.
       fr: La sextine généralisée à tout nombre de mots-rimes admissible.
     source: Raymond Queneau and Jacques Roubaud, in Oulipo, La Littérature potentielle (1973)
     family: form
     attribution: primary
+    checkability: self
     aliases: [n-ine]
     kind: restrictive
     languages: [en]
@@ -1383,12 +1468,14 @@ procedures:
     definitions:
       en: >-
         Interlocking quatrains in which the second and fourth lines of each stanza
-        become the first and third of the next.
+        become the first and third of the next. The checker verifies the line
+        interlocking only, not metre or rhyme.
       de: Verschränkte Vierzeiler, deren zweite und vierte Zeile in der nächsten Strophe wiederkehren.
       fr: Des quatrains enchaînés dont les vers deux et quatre ouvrent la strophe suivante.
     source: Traditional; adapted into French from the Malay pantun in the 19th century
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1407,6 +1494,7 @@ procedures:
     source: Traditional; classical Persian and Urdu poetry
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1425,6 +1513,7 @@ procedures:
     source: Traditional; French fixed form of the 14th and 15th centuries
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1443,6 +1532,7 @@ procedures:
     source: Traditional; French fixed form of the 13th century
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1461,6 +1551,7 @@ procedures:
     source: Traditional; the form of François Villon's Grand Testament (1461)
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1479,6 +1570,7 @@ procedures:
     source: Traditional; popularised by Edward Lear, A Book of Nonsense (1846)
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1495,6 +1587,7 @@ procedures:
     source: Edmund Clerihew Bentley, Biography for Beginners (1905)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1511,6 +1604,7 @@ procedures:
     source: Anthony Hecht and Paul Pascal, Jiggery-Pokery (1966)
     family: form
     attribution: primary
+    checkability: self
     aliases: [higgledy-piggledy]
     kind: restrictive
     languages: [en]
@@ -1529,6 +1623,7 @@ procedures:
     source: Adelaide Crapsey, Verse (1915)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1545,6 +1640,7 @@ procedures:
     source: Traditional; classical Japanese court poetry
     family: form
     attribution: traditional
+    checkability: self
     aliases: [waka]
     kind: restrictive
     languages: [en]
@@ -1564,6 +1660,7 @@ procedures:
     source: Traditional; Japanese linked verse, formalised by the 13th century
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1580,6 +1677,7 @@ procedures:
     source: Named for Karai Senryū, 18th-century Japan
     family: form
     attribution: reference
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1596,6 +1694,7 @@ procedures:
     source: Matsuo Bashō, Oku no Hosomichi (1702)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1612,6 +1711,7 @@ procedures:
     source: Traditional; Giovanni Boccaccio's Teseida (c. 1340)
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1626,6 +1726,7 @@ procedures:
     source: Geoffrey Chaucer, Troilus and Criseyde (c. 1385)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1642,6 +1743,7 @@ procedures:
     source: Edmund Spenser, The Faerie Queene (1590)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1660,6 +1762,7 @@ procedures:
     source: Francesco Petrarca, Canzoniere (14th century)
     family: form
     attribution: primary
+    checkability: self
     aliases: [italian sonnet]
     kind: restrictive
     languages: [en]
@@ -1679,6 +1782,7 @@ procedures:
     source: William Shakespeare, Sonnets (1609)
     family: form
     attribution: primary
+    checkability: self
     aliases: [english sonnet]
     kind: restrictive
     languages: [en]
@@ -1696,6 +1800,7 @@ procedures:
     source: Gerard Manley Hopkins, Poems (1918)
     family: form
     attribution: primary
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1710,6 +1815,7 @@ procedures:
     source: Traditional; the dominant English verse form of the 17th and 18th centuries
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1728,6 +1834,7 @@ procedures:
     source: Traditional; the stanza of Sappho, 7th century BC
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1744,6 +1851,7 @@ procedures:
     source: Traditional; the stanza of Alcaeus, 6th century BC
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1760,6 +1868,7 @@ procedures:
     source: Traditional; classical Greek and Latin elegy
     family: form
     attribution: traditional
+    checkability: self
     aliases: [distich]
     kind: restrictive
     languages: [en]
@@ -1777,6 +1886,7 @@ procedures:
     source: Traditional; classical Latin and Italian prosody
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1791,6 +1901,7 @@ procedures:
     source: Traditional; the dominant English metre since Chaucer
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1805,6 +1916,7 @@ procedures:
     source: Traditional; the metre of the Kalevala and of Hiawatha
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1821,6 +1933,7 @@ procedures:
     source: Traditional; the metre of Homer and Virgil
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1839,6 +1952,7 @@ procedures:
     source: Traditional; the metre of Beowulf and the Old Norse Eddas
     family: form
     attribution: traditional
+    checkability: self
     aliases: [stabreim]
     kind: restrictive
     languages: [en]
@@ -1856,6 +1970,7 @@ procedures:
     source: Traditional; the binding device of Old French and Spanish epic
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1872,6 +1987,7 @@ procedures:
     source: Traditional; Welsh strict-metre poetry
     family: form
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1893,6 +2009,7 @@ procedures:
     source: Raymond Queneau, Cent mille milliards de poèmes (1961)
     family: permutation
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1909,6 +2026,7 @@ procedures:
     source: Oulipo, La Littérature potentielle (1973)
     family: permutation
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1925,6 +2043,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: permutation
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1941,6 +2060,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: permutation
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1957,6 +2077,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: permutation
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1975,6 +2096,7 @@ procedures:
     source: Tom Phillips, A Humument (1970)
     family: procedural
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1991,6 +2113,7 @@ procedures:
     source: Traditional; a modern popular practice with no single originator
     family: procedural
     attribution: traditional
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2009,6 +2132,7 @@ procedures:
     source: Traditional; Ausonius, Cento Nuptialis, 4th century
     family: procedural
     attribution: traditional
+    checkability: none
     aliases: [patchwork poem]
     kind: constructive
     languages: [en]
@@ -2028,6 +2152,7 @@ procedures:
     source: Traditional; a modern practice with no single originator
     family: procedural
     attribution: traditional
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2046,6 +2171,7 @@ procedures:
     source: Tristan Tzara, Pour faire un poème dadaïste (1920)
     family: procedural
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2062,6 +2188,7 @@ procedures:
     source: John Cage, Silence (1961)
     family: procedural
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2078,6 +2205,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2094,6 +2222,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2112,6 +2241,7 @@ procedures:
     source: Traditional; the practice of reused medieval manuscript vellum
     family: procedural
     attribution: traditional
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2128,6 +2258,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2144,6 +2275,7 @@ procedures:
     source: William S. Burroughs, The Third Mind (1978)
     family: procedural
     attribution: primary
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2160,6 +2292,7 @@ procedures:
     source: Traditional; the practice of the sortes Virgilianae
     family: procedural
     attribution: traditional
+    checkability: none
     aliases: [bibliomancy]
     kind: constructive
     languages: [en]
@@ -2177,6 +2310,7 @@ procedures:
     source: Traditional; a modern typographic practice
     family: procedural
     attribution: traditional
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2199,6 +2333,7 @@ procedures:
     source: Louis Zukofsky and Celia Zukofsky, Catullus (1969)
     family: translation
     attribution: primary
+    checkability: source
     aliases: [sound translation]
     kind: both
     languages: [en]
@@ -2217,6 +2352,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -2233,6 +2369,7 @@ procedures:
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
     family: translation
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -2249,6 +2386,7 @@ procedures:
     source: Gilbert Adair's A Void (1994), translating Perec's La Disparition
     family: translation
     attribution: primary
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2263,6 +2401,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2280,6 +2419,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2298,6 +2438,7 @@ procedures:
     source: Traditional; a standing exercise in translation studies
     family: translation
     attribution: traditional
+    checkability: source
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2314,6 +2455,7 @@ procedures:
     source: Roman Jakobson, On Linguistic Aspects of Translation (1959)
     family: translation
     attribution: primary
+    checkability: source
     aliases: [rewording]
     kind: both
     languages: [en]
@@ -2333,6 +2475,7 @@ procedures:
     source: Guillaume Apollinaire, Calligrammes (1918)
     family: visual
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2351,6 +2494,7 @@ procedures:
     source: Simmias of Rhodes, 4th century BC; revived by George Herbert (1633)
     family: visual
     attribution: reference
+    checkability: none
     aliases: [carmen figuratum, technopaegnion]
     kind: constructive
     languages: [en]
@@ -2370,6 +2514,7 @@ procedures:
     source: Eugen Gomringer, Konstellationen (1953)
     family: visual
     attribution: primary
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2388,6 +2533,7 @@ procedures:
     source: Traditional; archaic Greek inscriptions
     family: visual
     attribution: traditional
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2406,6 +2552,7 @@ procedures:
     source: Traditional; attested at Pompeii before 79 AD
     family: visual
     attribution: traditional
+    checkability: self
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2422,6 +2569,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: visual
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2438,6 +2586,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: visual
     attribution: reference
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2454,6 +2603,7 @@ procedures:
     source: Traditional; a modern practice associated with concrete poetry
     family: visual
     attribution: traditional
+    checkability: none
     kind: constructive
     languages: [en]
     requires: [tokens]

@@ -1,0 +1,13 @@
+procedure: monoconsonantal
+lang: en
+cases:
+  - name: one-consonant
+    source: constructed example
+    text: no one anon
+    params: { consonant: n }
+    satisfied: true
+  - name: a-second-consonant
+    source: constructed counterexample
+    text: no one atom
+    params: { consonant: n }
+    satisfied: false

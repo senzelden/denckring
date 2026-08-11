@@ -1,0 +1,20 @@
+procedure: abecedarian
+lang: en
+cases:
+  - name: alphabet-of-lines
+    source: constructed example; the form is ancient, see the catalogue entry
+    text: |-
+      Ash falls
+      Birds go
+      Cold comes
+      Dusk stays
+    params: { start: a }
+    satisfied: true
+  - name: out-of-order
+    source: constructed counterexample
+    text: |-
+      Ash falls
+      Cold comes
+      Birds go
+    params: { start: a }
+    satisfied: false

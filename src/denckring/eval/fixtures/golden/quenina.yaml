@@ -1,0 +1,28 @@
+procedure: quenina
+lang: en
+cases:
+  - name: three-word-quenina
+    source: constructed example; the generalisation is Queneau and Roubaud's
+    text: |-
+      x a
+      x b
+      x c
+      x c
+      x a
+      x b
+      x b
+      x c
+      x a
+    params: { n: 3 }
+    satisfied: true
+  - name: no-rotation
+    source: constructed counterexample
+    text: |-
+      x a
+      x b
+      x c
+      x a
+      x b
+      x c
+    params: { n: 3 }
+    satisfied: false
