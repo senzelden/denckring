@@ -21,6 +21,7 @@ SYLLABLES_HEURISTIC = "syllables.heuristic"
 SYLLABLES_DICTIONARY = "syllables.dictionary"
 NOUNS = "lexicon.nouns"
 PHONEMES = "phonemes"
+STRESS = "stress"
 
 # Both apostrophes are intentional: real text uses the typographic one.
 WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)  # noqa: RUF001
@@ -94,6 +95,26 @@ class BasePack:
 
     def phonemes(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
+
+    def rhyme_key(self, word: str) -> str:
+        """Phonemes from the last primary-stressed vowel to the end of the word."""
+        raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
+
+    def rhyme_keys(self, word: str) -> list[str]:
+        """Every pronunciation's rhyme key."""
+        raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
+
+    def stress_patterns(self, word: str) -> list[str]:
+        """Every pronunciation's stress pattern."""
+        raise MissingCapability(DIRECT_CALL, self.lang, STRESS)
+
+    def stress_pattern(self, word: str) -> str:
+        """One character per syllable: '0', '1', or '?' where either will do.
+
+        A monosyllable is always '?': English gives it whatever stress the line
+        needs. Secondary stress is '?' for the same reason.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, STRESS)
 
     def nouns(self) -> Iterable[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
