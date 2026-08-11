@@ -1,0 +1,13 @@
+procedure: liponym
+lang: en
+cases:
+  - name: avoids-the-word
+    source: constructed example
+    text: a cat sat on the mat
+    params: { forbidden: dog }
+    satisfied: true
+  - name: uses-the-word
+    source: constructed counterexample
+    text: a dog sat on the mat
+    params: { forbidden: dog }
+    satisfied: false

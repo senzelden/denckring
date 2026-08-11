@@ -1,0 +1,23 @@
+procedure: sator_square
+lang: en
+cases:
+  - name: pompeii-square
+    source: Traditional; attested at Pompeii before 79 AD
+    text: |-
+      sator
+      arepo
+      tenet
+      opera
+      rotas
+    params: {}
+    satisfied: true
+  - name: broken-square
+    source: constructed counterexample
+    text: |-
+      sator
+      arepo
+      tenet
+      opera
+      rotax
+    params: {}
+    satisfied: false

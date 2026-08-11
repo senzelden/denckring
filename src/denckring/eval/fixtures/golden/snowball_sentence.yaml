@@ -1,0 +1,13 @@
+procedure: snowball_sentence
+lang: en
+cases:
+  - name: growing-sentences
+    source: constructed example; the form is described in Word Ways
+    text: Go. We go. We can go.
+    params: {}
+    satisfied: true
+  - name: out-of-order
+    source: constructed counterexample
+    text: Go. We can go. We go.
+    params: {}
+    satisfied: false
