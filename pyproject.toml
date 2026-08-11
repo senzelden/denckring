@@ -64,3 +64,6 @@ addopts = "-q"
 
 [tool.ruff.lint.isort]
 known-first-party = ["denckring"]
+
+[tool.hatch.build]
+artifacts = ["src/denckring/scaffold/templates/*.tmpl"]

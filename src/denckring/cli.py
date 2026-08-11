@@ -1,0 +1,218 @@
+"""The command line. `check` exits 1 when unsatisfied, so it composes in pipelines."""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+from typing import Annotated, Any, cast, get_args
+
+import typer
+
+from denckring.core import catalogue
+from denckring.core.errors import DenckringError, UnknownLanguage
+from denckring.core.protocol import Lang
+from denckring.core.registry import all_procedures, get
+from denckring.eval import harness
+
+app = typer.Typer(add_completion=False, help="Experimental writing procedures.")
+
+EXIT_UNSATISFIED = 1
+EXIT_ERROR = 2
+
+MAX_SHOWN_VIOLATIONS = 20
+
+
+def _lang(value: str) -> Lang:
+    """Narrow a command-line string to a supported language, or fail loudly."""
+    if value not in get_args(Lang):
+        raise UnknownLanguage(value)
+    return cast(Lang, value)
+
+
+def _read(source: str | None) -> str:
+    if source is None or source == "-":
+        return sys.stdin.read()
+    return Path(source).read_text(encoding="utf-8")
+
+
+def _coerce(value: str) -> Any:
+    lowered = value.lower()
+    if lowered in {"true", "false"}:
+        return lowered == "true"
+    try:
+        return int(value)
+    except ValueError:
+        return value
+
+
+def _parse_params(pairs: list[str]) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+    for pair in pairs:
+        key, separator, value = pair.partition("=")
+        if not separator:
+            raise typer.BadParameter(f"--param expects key=value, got {pair!r}")
+        params[key] = _coerce(value)
+    return params
+
+
+def _fail(exc: DenckringError) -> None:
+    typer.echo(str(exc))
+    raise typer.Exit(EXIT_ERROR)
+
+
+@app.command("check")
+def check_command(
+    procedure_id: str,
+    file: Annotated[str | None, typer.Argument(help="Path, or - for stdin")] = None,
+    lang: str = "en",
+    param: Annotated[list[str] | None, typer.Option("--param", "-p")] = None,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Validate a text. Exits 1 when the text does not satisfy the procedure."""
+    try:
+        procedure = get(procedure_id)
+        report = procedure.check(_read(file), lang=_lang(lang), **_parse_params(param or []))
+    except DenckringError as exc:
+        _fail(exc)
+        return
+    if as_json:
+        typer.echo(report.model_dump_json(indent=2))
+    else:
+        mark = "satisfied" if report.satisfied else "not satisfied"
+        typer.echo(f"{procedure_id}: {mark} (score {report.score:.3f})")
+        for violation in report.violations[:MAX_SHOWN_VIOLATIONS]:
+            where = "" if violation.offset is None else f" at {violation.offset}"
+            typer.echo(f"  {violation.rule}{where}: found {violation.found!r}")
+        if len(report.violations) > MAX_SHOWN_VIOLATIONS:
+            typer.echo(f"  … and {len(report.violations) - MAX_SHOWN_VIOLATIONS} more")
+    if not report.satisfied:
+        raise typer.Exit(EXIT_UNSATISFIED)
+
+
+@app.command("apply")
+def apply_command(
+    procedure_id: str,
+    file: Annotated[str | None, typer.Argument(help="Path, or - for stdin")] = None,
+    lang: str = "en",
+    seed: int | None = None,
+    param: Annotated[list[str] | None, typer.Option("--param", "-p")] = None,
+) -> None:
+    """Generate text with a procedure, where the procedure supports it."""
+    try:
+        procedure = get(procedure_id)
+    except DenckringError as exc:
+        _fail(exc)
+        return
+    generate = getattr(procedure, "apply", None)
+    if generate is None:
+        typer.echo(
+            f"Procedure {procedure_id!r} is {procedure.meta.kind} and has no apply(). "
+            f"Only constructive procedures can generate text."
+        )
+        raise typer.Exit(EXIT_ERROR)
+    try:
+        typer.echo(generate(_read(file), lang=_lang(lang), seed=seed, **_parse_params(param or [])))
+    except DenckringError as exc:
+        _fail(exc)
+
+
+@app.command("list")
+def list_command(
+    lang: str | None = None,
+    kind: str | None = None,
+    status: Annotated[str | None, typer.Option(help="catalogued|implemented|validated")] = None,
+) -> None:
+    """List catalogue entries."""
+    implemented = set(harness.implemented_ids())
+    validated = set(harness.validated_ids())
+    for procedure_id in catalogue.ids():
+        meta = catalogue.get(procedure_id)
+        if procedure_id in validated:
+            entry_status = "validated"
+        elif procedure_id in implemented:
+            entry_status = "implemented"
+        else:
+            entry_status = "catalogued"
+        if lang and lang not in meta.languages:
+            continue
+        if kind and meta.kind != kind:
+            continue
+        if status and entry_status != status:
+            continue
+        typer.echo(f"{procedure_id:24} {entry_status:12} {meta.names.get('en', '')}")
+
+
+@app.command("show")
+def show_command(
+    procedure_id: str,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Show a procedure's metadata, parameters and golden examples."""
+    try:
+        meta = catalogue.get(procedure_id)
+    except DenckringError as exc:
+        _fail(exc)
+        return
+    examples = [c.model_dump() for c in harness.golden_cases() if c.procedure == procedure_id]
+    schema: dict[str, Any] = {}
+    if procedure_id in all_procedures():
+        schema = get(procedure_id).params_schema()
+    if as_json:
+        typer.echo(
+            json.dumps(
+                {"meta": meta.model_dump(), "params_schema": schema, "examples": examples},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return
+    typer.echo(f"{meta.names.get('en', procedure_id)} ({meta.id})")
+    typer.echo(f"  {meta.definitions.get('en', '')}")
+    typer.echo(f"  source: {meta.source}")
+    typer.echo(f"  kind: {meta.kind}   languages: {', '.join(meta.languages)}")
+    typer.echo(f"  requires: {', '.join(meta.requires) or '—'}")
+    for example in examples:
+        typer.echo(f"  example [{example['name']}] satisfied={example['satisfied']}")
+
+
+@app.command("status")
+def status_command(as_json: Annotated[bool, typer.Option("--json")] = False) -> None:
+    """Print catalogue coverage — the project metric."""
+    coverage = harness.status()
+    typer.echo(coverage.model_dump_json(indent=2) if as_json else coverage.line())
+
+
+@app.command("eval")
+def eval_command(
+    run_all: Annotated[bool, typer.Option("--all")] = True,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Run every golden example. Exits non-zero on regression."""
+    board = harness.run()
+    if as_json:
+        typer.echo(board.model_dump_json(indent=2))
+    else:
+        for result in board.results:
+            mark = "ok  " if result.passed else "FAIL"
+            detail = f"  — {result.detail}" if result.detail else ""
+            typer.echo(f"{mark} {result.procedure:24} {result.case}{detail}")
+        procedures = len({r.procedure for r in board.results})
+        typer.echo(f"{procedures} procedures · {board.passed} passed · {board.failed} failed")
+        typer.echo(board.coverage.line())
+    if not board.ok:
+        raise typer.Exit(EXIT_UNSATISFIED)
+
+
+@app.command("new")
+def new_command(procedure_id: str, root: Path = Path(".")) -> None:
+    """Scaffold a new procedure: module, test, strategy, fixture and catalogue row."""
+    from denckring.scaffold.generator import scaffold
+
+    try:
+        for path in scaffold(procedure_id, root):
+            typer.echo(f"wrote {path}")
+    except FileExistsError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(EXIT_ERROR) from exc
+    typer.echo(f"Now fill in the FILL IN markers, starting with {procedure_id}.py")
