@@ -27,5 +27,19 @@ All notable changes to this project are documented here. The format follows
 - `denckring new <id>`, which scaffolds module, test, strategy, fixture and catalogue
   row from templates.
 - Eight architecture decision records under `docs/adr/`.
+- German language pack, shipping in core with no data files and discovered through the
+  `denckring.lang` entry-point group — the same path a third-party pack takes.
+- `fold_diacritics`, a per-call parameter on the nine letter-comparing procedures,
+  deciding whether `ä` counts as `a` and `ß` as `ss`. Defaults to true.
+- `LanguagePack.exceeds_x_height`, and golden cases in German for all twelve procedures.
+- Two further ADRs, 0009 and 0010, on the fold parameter and entry-point discovery.
+
+### Fixed
+
+- `prisoners_constraint` compared folded letters, so it read `ß` as `ss` and `ä` as `a`
+  and wrongly accepted *groß*, *Maße* and *Mädchen* — and English *naïve* with them. An
+  ascender is a property of the written glyph, and folding destroys it. The checker now
+  reads raw characters. **This changes existing English results:** text containing
+  accented letters that previously satisfied the constraint no longer does.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main
