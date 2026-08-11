@@ -1,0 +1,16 @@
+procedure: trochaic_tetrameter
+lang: en
+cases:
+  - name: falling-metre
+    source: constructed example; the metre of the Kalevala
+    text: |-
+      never having any water
+      seldom eating apple butter
+    params: {}
+    satisfied: true
+  - name: rising-metre
+    source: constructed counterexample; this is iambic
+    text: |-
+      the cat can see the moon above the tree
+    params: {}
+    satisfied: false
