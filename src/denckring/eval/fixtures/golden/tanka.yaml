@@ -1,0 +1,21 @@
+procedure: tanka
+lang: en
+cases:
+  - name: five-lines
+    source: constructed example; the 5-7-5-7-7 measure is the form's
+    text: |-
+      an old silent pond
+      a frog jumps into the pond
+      splash silence again
+      a frog jumps into the pond
+      a frog jumps into the pond
+    params: {}
+    satisfied: true
+  - name: only-three-lines
+    source: constructed counterexample
+    text: |-
+      an old silent pond
+      a frog jumps into the pond
+      splash silence again
+    params: {}
+    satisfied: false

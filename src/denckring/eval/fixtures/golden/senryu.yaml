@@ -1,0 +1,19 @@
+procedure: senryu
+lang: en
+cases:
+  - name: haiku-measure
+    source: constructed example; the measure is the haiku's, the subject is not
+    text: |-
+      an old silent pond
+      a frog jumps into the pond
+      splash silence again
+    params: {}
+    satisfied: true
+  - name: wrong-measure
+    source: constructed counterexample
+    text: |-
+      an old silent pond
+      a frog jumps in
+      splash
+    params: {}
+    satisfied: false
