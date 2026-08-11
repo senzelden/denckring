@@ -652,7 +652,7 @@ procedures:
     aliases: [emordnilap, reversible word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Find words that read as a different word backwards, such as stressed and desserts.
@@ -671,7 +671,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Build a square of words that reads the same across each row as down each column.
@@ -775,7 +775,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Choose words that split cleanly into smaller words and build the line around them.
@@ -793,7 +793,7 @@ procedures:
     aliases: [marsupial word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.nouns]
     deterministic: true
     prompt_hints:
       en: Find words that carry a synonym of themselves inside their own letters, in order.
@@ -2528,7 +2528,7 @@ procedures:
     source: Traditional; archaic Greek inscriptions
     family: visual
     attribution: traditional
-    checkability: self
+    checkability: source
     kind: constructive
     languages: [en]
     requires: [tokens]

@@ -1,0 +1,13 @@
+procedure: chronogram
+lang: en
+cases:
+  - name: numerals-total-the-year
+    source: constructed example; the form is described in the catalogue entry
+    text: LVX
+    params: { year: 65 }
+    satisfied: true
+  - name: wrong-total
+    source: constructed counterexample
+    text: LVX
+    params: { year: 100 }
+    satisfied: false
