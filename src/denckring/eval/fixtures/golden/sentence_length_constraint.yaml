@@ -1,0 +1,13 @@
+procedure: sentence_length_constraint
+lang: en
+cases:
+  - name: three-word-sentences
+    source: constructed example
+    text: one two three. four five six.
+    params: { words: 3 }
+    satisfied: true
+  - name: a-long-sentence
+    source: constructed counterexample
+    text: one two three. four five six seven.
+    params: { words: 3 }
+    satisfied: false
