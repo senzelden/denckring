@@ -1,0 +1,456 @@
+# Catalogue of experimental writing procedures.
+# Licence: CC BY 4.0. Each row carries its own source attribution.
+procedures:
+  - id: lipogram
+    names: { en: Lipogram, de: Lipogramm, fr: Lipogramme }
+    definitions:
+      en: A text that omits a chosen letter of the alphabet entirely.
+      de: Ein Text, der einen gewählten Buchstaben vollständig auslässt.
+      fr: Un texte qui omet entièrement une lettre choisie.
+    source: Georges Perec, La Disparition (1969)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage that never uses the letter "e", in any case or accented form.
+
+  - id: univocalic
+    names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
+    definitions:
+      en: A text using only one of the vowels.
+      de: Ein Text, der nur einen einzigen Vokal verwendet.
+      fr: Un texte n'employant qu'une seule voyelle.
+    source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which "e" is the only vowel that appears.
+
+  - id: tautogram
+    names: { en: Tautogram, de: Tautogramm, fr: Tautogramme }
+    definitions:
+      en: A text in which every word begins with the same letter.
+      de: Ein Text, in dem jedes Wort mit demselben Buchstaben beginnt.
+      fr: Un texte dont chaque mot commence par la même lettre.
+    source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which every single word begins with the letter "p".
+
+  - id: pangram
+    names: { en: Pangram, de: Pangramm, fr: Pangramme }
+    definitions:
+      en: >-
+        A text containing every letter of the alphabet at least once; a perfect
+        pangram uses each exactly once.
+      de: Ein Text, der jeden Buchstaben des Alphabets mindestens einmal enthält.
+      fr: Un texte contenant chaque lettre de l'alphabet au moins une fois.
+    source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write one sentence that uses every letter of the alphabet at least once.
+
+  - id: heterogram
+    names: { en: Heterogram, de: Heterogramm, fr: Hétérogramme }
+    definitions:
+      en: A text in which no letter is repeated.
+      de: Ein Text, in dem sich kein Buchstabe wiederholt.
+      fr: Un texte dans lequel aucune lettre ne se répète.
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a phrase in which no letter of the alphabet appears more than once.
+
+  - id: palindrome
+    names: { en: Palindrome, de: Palindrom, fr: Palindrome }
+    definitions:
+      en: >-
+        A text that reads identically forwards and backwards, ignoring case,
+        spacing and punctuation.
+      de: Ein Text, der vorwärts wie rückwärts gleich lautet.
+      fr: Un texte qui se lit identiquement dans les deux sens.
+    source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence that reads the same backwards as forwards, letter by letter.
+
+  - id: snowball
+    names: { en: Snowball, de: Schneeball, fr: Boule de neige }
+    definitions:
+      en: A text in which each word is exactly one letter longer than the word before it.
+      de: Ein Text, in dem jedes Wort genau einen Buchstaben länger ist als das vorige.
+      fr: Un texte dont chaque mot compte une lettre de plus que le précédent.
+    source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose first word has one letter, the next two, the next three, and so on.
+
+  - id: reverse_snowball
+    names: { en: Reverse snowball, de: Umgekehrter Schneeball, fr: Boule de neige fondante }
+    definitions:
+      en: A text in which each word is exactly one letter shorter than the word before it.
+      de: Ein Text, in dem jedes Wort genau einen Buchstaben kürzer ist als das vorige.
+      fr: Un texte dont chaque mot compte une lettre de moins que le précédent.
+    source: Oulipo, La Littérature potentielle (1973), as fonte de neige
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words shrink by exactly one letter each, ending in a single letter.
+
+  - id: prisoners_constraint
+    names:
+      en: Prisoner's constraint
+      de: Gefangenenbeschränkung
+      fr: Contrainte du prisonnier
+    definitions:
+      en: A text using no letter with an ascender or a descender, as though saving paper.
+      de: Ein Text ohne Buchstaben mit Ober- oder Unterlänge.
+      fr: Un texte sans lettre à hampe ni à jambage.
+    source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, letter_shapes, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Write using only letters that stay within the x-height — avoid b, d, f, g,
+        h, j, k, l, p, q, t and y.
+
+  - id: beau_present
+    names: { en: Beau présent, de: Schönes Geschenk, fr: Beau présent }
+    definitions:
+      en: A text written using only the letters contained in a dedicatee's name.
+      de: Ein Text, der nur die Buchstaben eines Widmungsnamens verwendet.
+      fr: Un texte n'employant que les lettres du nom d'un dédicataire.
+    source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a dedication using only the letters that appear in the dedicatee's name.
+
+  - id: acrostic
+    names: { en: Acrostic, de: Akrostichon, fr: Acrostiche }
+    definitions:
+      en: A text whose initial letters, read down the lines, spell out a target word or phrase.
+      de: Ein Text, dessen Anfangsbuchstaben ein Wort ergeben.
+      fr: Un texte dont les initiales composent un mot.
+    source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a poem whose lines begin with the letters of the target word, in order.
+
+  - id: telestich
+    names: { en: Telestich, de: Telestichon, fr: Télestiche }
+    definitions:
+      en: A text whose final letters, read down the lines, spell out a target word or phrase.
+      de: Ein Text, dessen Endbuchstaben ein Wort ergeben.
+      fr: Un texte dont les lettres finales composent un mot.
+    source: George Puttenham, The Arte of English Poesie (1589)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write a poem whose lines end with the letters of the target word, in order.
+
+  # ---------------------------------------------------------------------------
+  # Catalogued only: sourced, described, not yet implemented. These are what
+  # `denckring status` counts against, so the coverage metric measures a real gap.
+  # ---------------------------------------------------------------------------
+
+  - id: n_plus_7
+    names: { en: N+7, de: N+7, fr: S+7 }
+    definitions:
+      en: Replace every noun with the seventh noun following it in a chosen dictionary.
+      de: Jedes Substantiv wird durch das siebte folgende Substantiv im Wörterbuch ersetzt.
+      fr: Remplacer chaque substantif par le septième qui le suit dans le dictionnaire.
+    source: Jean Lescure, in Oulipo, La Littérature potentielle (1973)
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace each noun with the seventh noun after it in the dictionary, keeping everything else.
+
+  - id: s_plus_7
+    names: { en: S+7, de: S+7, fr: S+7 }
+    definitions:
+      en: N+7 generalised to any part of speech, displacing each by a fixed offset.
+      de: N+7, verallgemeinert auf beliebige Wortarten.
+      fr: S+7 généralisé à toute catégorie grammaticale.
+    source: Oulipo, La Littérature potentielle (1973)
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Displace every word of the chosen part of speech by a fixed number of dictionary entries.
+
+  - id: anagram
+    names: { en: Anagram, de: Anagramm, fr: Anagramme }
+    definitions:
+      en: A text using exactly the letters of another, rearranged.
+      de: Ein Text aus genau den umgestellten Buchstaben eines anderen.
+      fr: Un texte composé des lettres d'un autre, réordonnées.
+    source: Attributed to Lycophron (3rd century BC); systematised by Oulipo
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
+
+  - id: larding
+    names: { en: Larding, de: Spicken, fr: Lardage }
+    definitions:
+      en: Insert a new sentence between every pair of existing sentences, repeatedly.
+      de: Zwischen je zwei Sätze wird ein neuer eingefügt, wiederholt.
+      fr: Insérer une phrase nouvelle entre chaque paire de phrases, itérativement.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Between each pair of consecutive sentences, write a new sentence that connects them.
+
+  - id: definitional_literature
+    names:
+      en: Definitional literature
+      de: Definitionsliteratur
+      fr: Littérature définitionnelle
+    definitions:
+      en: Replace each substantive word by its dictionary definition, and repeat.
+      de: Jedes Inhaltswort wird durch seine Wörterbuchdefinition ersetzt, iterativ.
+      fr: Remplacer chaque mot plein par sa définition, puis recommencer.
+    source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace every meaningful word with its dictionary definition, then do it again.
+
+  - id: cut_up
+    names: { en: Cut-up, de: Cut-up, fr: Cut-up }
+    definitions:
+      en: Cut a text into fragments and reassemble them in a new order.
+      de: Ein Text wird zerschnitten und neu zusammengesetzt.
+      fr: Découper un texte et le recomposer dans un ordre nouveau.
+    source: Brion Gysin and William S. Burroughs, Minutes to Go (1960)
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Cut the passage into fragments and reassemble them in a different order.
+
+  - id: fold_in
+    names: { en: Fold-in, de: Fold-in, fr: Fold-in }
+    definitions:
+      en: Fold one page lengthwise onto another and read across the join.
+      de: Eine Seite wird längs auf eine andere gefaltet und über den Falz gelesen.
+      fr: Plier une page sur une autre et lire à travers la jointure.
+    source: William S. Burroughs, The Third Mind (1978)
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Interleave the left half of one passage with the right half of another, line by line.
+
+  - id: diastic
+    names: { en: Diastic reading, de: Diastische Lesung, fr: Lecture diastique }
+    definitions:
+      en: Select words from a source whose nth letter matches the nth letter of a seed phrase.
+      de: Wörter, deren n-ter Buchstabe dem n-ten Buchstaben eines Saatworts entspricht.
+      fr: Choisir les mots dont la n-ième lettre correspond à celle d'une phrase-germe.
+    source: Jackson Mac Low, Stanzas for Iris Lezak (1972)
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Walk the source text picking words whose nth letter matches the nth letter of the seed.
+
+  - id: mesostic
+    names: { en: Mesostic, de: Mesostichon, fr: Mésostiche }
+    definitions:
+      en: A spine word runs down the middle of the lines rather than the margin.
+      de: Ein Wort läuft senkrecht durch die Mitte der Zeilen.
+      fr: Un mot descend au milieu des vers plutôt qu'en marge.
+    source: John Cage, Writing Through Finnegans Wake (1978)
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Arrange the lines so that the target word reads vertically down their middles.
+
+  - id: syllable_count
+    names: { en: Syllable count, de: Silbenzahl, fr: Compte syllabique }
+    definitions:
+      en: Every line has a prescribed number of syllables.
+      de: Jede Zeile hat eine vorgeschriebene Silbenzahl.
+      fr: Chaque vers compte un nombre de syllabes prescrit.
+    source: Traditional prosody
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of exactly the given number of syllables each.
+
+  - id: alexandrine
+    names: { en: Alexandrine, de: Alexandriner, fr: Alexandrin }
+    definitions:
+      en: A twelve-syllable line with a caesura after the sixth.
+      de: Ein zwölfsilbiger Vers mit Zäsur nach der sechsten Silbe.
+      fr: Un vers de douze syllabes avec césure à l'hémistiche.
+    source: French classical prosody; Jean Racine
+    kind: restrictive
+    languages: [fr]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write twelve-syllable lines that break cleanly after the sixth syllable.
+
+  - id: blank_verse
+    names: { en: Blank verse, de: Blankvers, fr: Vers blanc }
+    definitions:
+      en: Unrhymed iambic pentameter.
+      de: Reimloser fünfhebiger Jambus.
+      fr: Pentamètre iambique non rimé.
+    source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write unrhymed lines of five iambic feet each.
+
+  - id: rhyme_scheme
+    names: { en: Rhyme scheme, de: Reimschema, fr: Schéma de rimes }
+    definitions:
+      en: Line endings follow a prescribed pattern of rhymes.
+      de: Die Zeilenenden folgen einem vorgegebenen Reimmuster.
+      fr: Les fins de vers suivent un schéma de rimes prescrit.
+    source: Traditional prosody
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write lines whose endings rhyme in the given pattern, for example ABAB.
+
+  - id: sonnet
+    names: { en: Sonnet, de: Sonett, fr: Sonnet }
+    definitions:
+      en: Fourteen lines in a fixed metre and rhyme scheme.
+      de: Vierzehn Zeilen in festem Metrum und Reimschema.
+      fr: Quatorze vers de mètre et de rimes fixés.
+    source: Giacomo da Lentini, Sicilian School (c. 1230)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write fourteen lines in the given rhyme scheme and metre.
+
+  - id: haiku
+    names: { en: Haiku, de: Haiku, fr: Haïku }
+    definitions:
+      en: Three lines of five, seven and five syllables.
+      de: Drei Zeilen mit fünf, sieben und fünf Silben.
+      fr: Trois vers de cinq, sept et cinq syllabes.
+    source: Matsuo Bashō (17th century); named as haiku by Masaoka Shiki (1892)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write three lines of five, seven and five syllables.
+
+  - id: terza_rima
+    names: { en: Terza rima, de: Terzine, fr: Terza rima }
+    definitions:
+      en: Interlocking tercets rhyming ABA BCB CDC and so on.
+      de: Verschränkte Terzinen mit dem Reimschema ABA BCB CDC.
+      fr: Tercets enchaînés rimant ABA BCB CDC.
+    source: Dante Alighieri, Commedia (c. 1320)
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Write three-line stanzas whose middle rhyme becomes the outer rhyme of the next.
+
+  - id: denckring
+    names:
+      en: Denckring
+      de: Fünffacher Denckring der Teutschen Sprache
+      fr: Anneau combinatoire de Harsdörffer
+    definitions:
+      en: Five concentric rotating discs of word parts, combined into words by rotation.
+      de: Fünf konzentrische Scheiben mit Wortteilen, die durch Drehung Wörter bilden.
+      fr: Cinq disques concentriques de fragments, combinés par rotation.
+    source: Georg Philipp Harsdörffer, Fünffacher Denckring der Teutschen Sprache (1651)
+    kind: constructive
+    languages: [de]
+    requires: [tokens, lexicon.syllables]
+    deterministic: true
+    prompt_hints:
+      en: Combine a prefix, an initial, a medial, a final and a suffix into a candidate word.
+
+  - id: proteus_verse
+    names: { en: Proteus verse, de: Proteusvers, fr: Vers protée }
+    definitions:
+      en: A line whose words can be permuted into many metrically valid variants.
+      de: Ein Vers, dessen Wörter zu vielen metrisch gültigen Varianten permutierbar sind.
+      fr: Un vers dont les mots se permutent en de multiples variantes métriques.
+    source: Julius Caesar Scaliger, Poetices libri septem (1561)
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a line whose words can be reordered freely while the metre still holds.
+
+  - id: wechselsatz
+    names: { en: Wechselsatz, de: Wechselsatz, fr: Vers permutatif }
+    definitions:
+      en: A permutational poem whose interchangeable words yield millions of variants.
+      de: Ein Permutationsgedicht, dessen austauschbare Wörter Millionen Varianten ergeben.
+      fr: Un poème permutatif aux millions de variantes.
+    source: Quirinus Kuhlmann, Der Wechsel Menschlicher Sachen (1671)
+    kind: constructive
+    languages: [de]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write lines of interchangeable nouns and verbs that stay grammatical in any permutation.

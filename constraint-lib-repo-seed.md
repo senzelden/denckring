@@ -64,34 +64,39 @@ from pydantic import BaseModel
 Lang = Literal["en", "de", "fr"]
 Kind = Literal["constructive", "restrictive", "both"]
 
+
 class Violation(BaseModel):
-    rule: str                     # "forbidden_letter", "syllable_count"
-    offset: int | None            # character offset when localisable
+    rule: str  # "forbidden_letter", "syllable_count"
+    offset: int | None  # character offset when localisable
     found: str
     expected: str
     note: str | None = None
 
+
 class Report(BaseModel):
     procedure: str
     satisfied: bool
-    score: float                  # 0.0–1.0, monotone — not merely binary
+    score: float  # 0.0–1.0, monotone — not merely binary
     violations: list[Violation]
-    metrics: dict[str, float]     # free-form, e.g. {"mean_syllables": 12.04}
+    metrics: dict[str, float]  # free-form, e.g. {"mean_syllables": 12.04}
+
 
 class Meta(BaseModel):
-    id: str                       # "lipogram", "n_plus_7", "denckring"
+    id: str  # "lipogram", "n_plus_7", "denckring"
     names: dict[Lang, str]
     definitions: dict[Lang, str]
-    source: str                   # Perec, La Disparition (1969)
+    source: str  # Perec, La Disparition (1969)
     kind: Kind
-    languages: list[Lang]         # which languages the procedure supports
-    requires: list[str]           # language-pack capabilities, see §4
+    languages: list[Lang]  # which languages the procedure supports
+    requires: list[str]  # language-pack capabilities, see §4
     deterministic: bool
     prompt_hints: dict[Lang, str]
+
 
 @runtime_checkable
 class Procedure(Protocol):
     meta: Meta
+
     def check(self, text: str, *, lang: Lang = "en", **params) -> Report: ...
     # optional, only when kind in {"constructive", "both"}
     def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params) -> str: ...
@@ -119,7 +124,8 @@ So the language layer is an interface, not a dictionary:
 ```python
 class LanguagePack(Protocol):
     lang: Lang
-    capabilities: frozenset[str]      # {"tokens", "syllables", "lexicon.nouns", "phonemes"}
+    capabilities: frozenset[str]  # {"tokens", "syllables", "lexicon.nouns", "phonemes"}
+
     def tokenize(self, text: str) -> list[str]: ...
     def syllables(self, word: str) -> list[str]: ...
     def nouns(self) -> Iterable[str]: ...
