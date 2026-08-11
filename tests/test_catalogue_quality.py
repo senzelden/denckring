@@ -3,7 +3,7 @@
 import pytest
 
 from denckring.core import catalogue
-from denckring.core.protocol import FAMILIES, Meta
+from denckring.core.protocol import CHECKABILITIES, FAMILIES, Meta
 
 ENTRIES = catalogue.load()
 
@@ -46,4 +46,20 @@ def test_primary_attributions_name_a_year() -> None:
             assert any(ch.isdigit() for ch in meta.source), (
                 f"{meta.id} claims a primary attribution but its source names no year: "
                 f"{meta.source!r} — use 'reference' if the origin is not established"
+            )
+
+
+def test_every_row_declares_checkability() -> None:
+    for meta in ENTRIES.values():
+        assert meta.checkability in CHECKABILITIES, f"{meta.id} has {meta.checkability!r}"
+
+
+def test_source_relative_rows_are_not_marked_self() -> None:
+    """A row whose definition says 'of a source' cannot be decidable alone."""
+    for meta in ENTRIES.values():
+        definition = meta.definitions["en"].casefold()
+        if "of a source" in definition or "of an existing" in definition:
+            assert meta.checkability != "self", (
+                f"{meta.id} is defined against a source text but claims to be "
+                f"decidable from the text alone"
             )
