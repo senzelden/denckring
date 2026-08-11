@@ -40,17 +40,25 @@ class CaseResult(BaseModel):
 
 
 class Coverage(BaseModel):
-    """The project metric."""
+    """The project metric.
+
+    `implementable` excludes rows that can never have a checker, so the gap
+    between it and `implemented` describes work that can actually be done.
+    """
 
     catalogued: int
+    implementable: int
     implemented: int
     validated: int
+    unreachable: int
 
     def line(self) -> str:
         return (
             f"{self.catalogued} catalogued · "
+            f"{self.implementable} implementable · "
             f"{self.implemented} implemented · "
-            f"{self.validated} validated"
+            f"{self.validated} validated · "
+            f"{self.unreachable} not mechanically checkable"
         )
 
 
@@ -95,12 +103,21 @@ def validated_ids() -> list[str]:
     return sorted(with_fixtures & set(implemented_ids()))
 
 
+def implementable_ids() -> list[str]:
+    """Catalogued procedures that could have a checker, whether or not they do."""
+    return sorted(pid for pid in catalogue.ids() if catalogue.get(pid).checkability != "none")
+
+
 def status() -> Coverage:
-    """Count the catalogue against what is implemented and validated."""
+    """Count the catalogue against what is implementable, implemented and validated."""
+    catalogued = catalogue.ids()
+    implementable = implementable_ids()
     return Coverage(
-        catalogued=len(catalogue.ids()),
+        catalogued=len(catalogued),
+        implementable=len(implementable),
         implemented=len(implemented_ids()),
         validated=len(validated_ids()),
+        unreachable=len(catalogued) - len(implementable),
     )
 
 
