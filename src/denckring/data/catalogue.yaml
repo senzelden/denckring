@@ -8,6 +8,8 @@ procedures:
       de: Ein Text, der einen gewählten Buchstaben vollständig auslässt.
       fr: Un texte qui omet entièrement une lettre choisie.
     source: Georges Perec, La Disparition (1969)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -22,6 +24,9 @@ procedures:
       de: Ein Text, der nur einen einzigen Vokal verwendet.
       fr: Un texte n'employant qu'une seule voyelle.
     source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
+    family: letter
+    attribution: reference
+    aliases: [monovocalism]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -36,6 +41,8 @@ procedures:
       de: Ein Text, in dem jedes Wort mit demselben Buchstaben beginnt.
       fr: Un texte dont chaque mot commence par la même lettre.
     source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -52,6 +59,9 @@ procedures:
       de: Ein Text, der jeden Buchstaben des Alphabets mindestens einmal enthält.
       fr: Un texte contenant chaque lettre de l'alphabet au moins une fois.
     source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: traditional
+    aliases: [holalphabetic sentence]
     kind: restrictive
     languages: [en, de]
     requires: [alphabet, fold_diacritics]
@@ -66,6 +76,9 @@ procedures:
       de: Ein Text, in dem sich kein Buchstabe wiederholt.
       fr: Un texte dans lequel aucune lettre ne se répète.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
+    family: letter
+    attribution: reference
+    aliases: [isogram]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -82,6 +95,8 @@ procedures:
       de: Ein Text, der vorwärts wie rückwärts gleich lautet.
       fr: Un texte qui se lit identiquement dans les deux sens.
     source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
+    family: letter
+    attribution: traditional
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -96,6 +111,9 @@ procedures:
       de: Ein Text, in dem jedes Wort genau einen Buchstaben länger ist als das vorige.
       fr: Un texte dont chaque mot compte une lettre de plus que le précédent.
     source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
+    family: letter
+    attribution: reference
+    aliases: [rhopalic]
     kind: restrictive
     languages: [en, de]
     requires: [tokens]
@@ -110,6 +128,9 @@ procedures:
       de: Ein Text, in dem jedes Wort genau einen Buchstaben kürzer ist als das vorige.
       fr: Un texte dont chaque mot compte une lettre de moins que le précédent.
     source: Oulipo, La Littérature potentielle (1973), as fonte de neige
+    family: letter
+    attribution: reference
+    aliases: [melting snowball]
     kind: restrictive
     languages: [en, de]
     requires: [tokens]
@@ -127,6 +148,8 @@ procedures:
       de: Ein Text ohne Buchstaben mit Ober- oder Unterlänge.
       fr: Un texte sans lettre à hampe ni à jambage.
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
     kind: restrictive
     languages: [en, de]
     requires: [tokens, letter_shapes, fold_diacritics]
@@ -143,6 +166,9 @@ procedures:
       de: Ein Text, der nur die Buchstaben eines Widmungsnamens verwendet.
       fr: Un texte n'employant que les lettres du nom d'un dédicataire.
     source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    family: letter
+    attribution: primary
+    aliases: [beautiful present]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -157,6 +183,8 @@ procedures:
       de: Ein Text, dessen Anfangsbuchstaben ein Wort ergeben.
       fr: Un texte dont les initiales composent un mot.
     source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
+    family: letter
+    attribution: traditional
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -171,6 +199,9 @@ procedures:
       de: Ein Text, dessen Endbuchstaben ein Wort ergeben.
       fr: Un texte dont les lettres finales composent un mot.
     source: George Puttenham, The Arte of English Poesie (1589)
+    family: letter
+    attribution: traditional
+    aliases: [telestic]
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -190,6 +221,9 @@ procedures:
       de: Jedes Substantiv wird durch das siebte folgende Substantiv im Wörterbuch ersetzt.
       fr: Remplacer chaque substantif par le septième qui le suit dans le dictionnaire.
     source: Jean Lescure, in Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: primary
+    aliases: [N+7]
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -204,6 +238,8 @@ procedures:
       de: N+7, verallgemeinert auf beliebige Wortarten.
       fr: S+7 généralisé à toute catégorie grammaticale.
     source: Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: reference
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -218,6 +254,8 @@ procedures:
       de: Ein Text aus genau den umgestellten Buchstaben eines anderen.
       fr: Un texte composé des lettres d'un autre, réordonnées.
     source: Attributed to Lycophron (3rd century BC); systematised by Oulipo
+    family: word
+    attribution: traditional
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -232,6 +270,8 @@ procedures:
       de: Zwischen je zwei Sätze wird ein neuer eingefügt, wiederholt.
       fr: Insérer une phrase nouvelle entre chaque paire de phrases, itérativement.
     source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
     kind: both
     languages: [en]
     requires: [tokens]
@@ -249,6 +289,8 @@ procedures:
       de: Jedes Inhaltswort wird durch seine Wörterbuchdefinition ersetzt, iterativ.
       fr: Remplacer chaque mot plein par sa définition, puis recommencer.
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: word
+    attribution: primary
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -263,6 +305,8 @@ procedures:
       de: Ein Text wird zerschnitten und neu zusammengesetzt.
       fr: Découper un texte et le recomposer dans un ordre nouveau.
     source: Brion Gysin and William S. Burroughs, Minutes to Go (1960)
+    family: procedural
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -277,6 +321,8 @@ procedures:
       de: Eine Seite wird längs auf eine andere gefaltet und über den Falz gelesen.
       fr: Plier une page sur une autre et lire à travers la jointure.
     source: William S. Burroughs, The Third Mind (1978)
+    family: procedural
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -291,6 +337,8 @@ procedures:
       de: Wörter, deren n-ter Buchstabe dem n-ten Buchstaben eines Saatworts entspricht.
       fr: Choisir les mots dont la n-ième lettre correspond à celle d'une phrase-germe.
     source: Jackson Mac Low, Stanzas for Iris Lezak (1972)
+    family: procedural
+    attribution: primary
     kind: both
     languages: [en]
     requires: [tokens]
@@ -305,6 +353,9 @@ procedures:
       de: Ein Wort läuft senkrecht durch die Mitte der Zeilen.
       fr: Un mot descend au milieu des vers plutôt qu'en marge.
     source: John Cage, Writing Through Finnegans Wake (1978)
+    family: procedural
+    attribution: primary
+    aliases: [mesostich]
     kind: both
     languages: [en]
     requires: [tokens]
@@ -319,6 +370,8 @@ procedures:
       de: Jede Zeile hat eine vorgeschriebene Silbenzahl.
       fr: Chaque vers compte un nombre de syllabes prescrit.
     source: Traditional prosody
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -333,6 +386,8 @@ procedures:
       de: Ein zwölfsilbiger Vers mit Zäsur nach der sechsten Silbe.
       fr: Un vers de douze syllabes avec césure à l'hémistiche.
     source: French classical prosody; Jean Racine
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [fr]
     requires: [tokens, syllables]
@@ -343,10 +398,14 @@ procedures:
   - id: blank_verse
     names: { en: Blank verse, de: Blankvers, fr: Vers blanc }
     definitions:
-      en: Unrhymed iambic pentameter.
-      de: Reimloser fünfhebiger Jambus.
-      fr: Pentamètre iambique non rimé.
+      en: >-
+        Verse in unrhymed iambic pentameter, holding the metre while dispensing
+        with the rhyme that would otherwise mark the line ends.
+      de: Reimloser fünfhebiger Jambus, der das Metrum ohne Reim trägt.
+      fr: Vers en pentamètre iambique sans rime.
     source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -361,6 +420,8 @@ procedures:
       de: Die Zeilenenden folgen einem vorgegebenen Reimmuster.
       fr: Les fins de vers suivent un schéma de rimes prescrit.
     source: Traditional prosody
+    family: form
+    attribution: traditional
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -375,6 +436,8 @@ procedures:
       de: Vierzehn Zeilen in festem Metrum und Reimschema.
       fr: Quatorze vers de mètre et de rimes fixés.
     source: Giacomo da Lentini, Sicilian School (c. 1230)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -389,6 +452,8 @@ procedures:
       de: Drei Zeilen mit fünf, sieben und fünf Silben.
       fr: Trois vers de cinq, sept et cinq syllabes.
     source: Matsuo Bashō (17th century); named as haiku by Masaoka Shiki (1892)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -403,6 +468,8 @@ procedures:
       de: Verschränkte Terzinen mit dem Reimschema ABA BCB CDC.
       fr: Tercets enchaînés rimant ABA BCB CDC.
     source: Dante Alighieri, Commedia (c. 1320)
+    family: form
+    attribution: primary
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -420,6 +487,8 @@ procedures:
       de: Fünf konzentrische Scheiben mit Wortteilen, die durch Drehung Wörter bilden.
       fr: Cinq disques concentriques de fragments, combinés par rotation.
     source: Georg Philipp Harsdörffer, Fünffacher Denckring der Teutschen Sprache (1651)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [de]
     requires: [tokens, lexicon.syllables]
@@ -434,6 +503,8 @@ procedures:
       de: Ein Vers, dessen Wörter zu vielen metrisch gültigen Varianten permutierbar sind.
       fr: Un vers dont les mots se permutent en de multiples variantes métriques.
     source: Julius Caesar Scaliger, Poetices libri septem (1561)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -448,6 +519,8 @@ procedures:
       de: Ein Permutationsgedicht, dessen austauschbare Wörter Millionen Varianten ergeben.
       fr: Un poème permutatif aux millions de variantes.
     source: Quirinus Kuhlmann, Der Wechsel Menschlicher Sachen (1671)
+    family: permutation
+    attribution: primary
     kind: constructive
     languages: [de]
     requires: [tokens]

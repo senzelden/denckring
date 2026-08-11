@@ -4,12 +4,33 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from typing import ClassVar, Literal, Protocol, runtime_checkable
+from typing import ClassVar, Literal, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, Field
 
 Lang = Literal["en", "de", "fr"]
 Kind = Literal["constructive", "restrictive", "both"]
+
+#: What a procedure operates on. Closed, so an invalid family is a validation
+#: error rather than a typo that silently creates a ninth group.
+Family = Literal[
+    "letter",
+    "word",
+    "syntax",
+    "form",
+    "permutation",
+    "procedural",
+    "translation",
+    "visual",
+]
+#: Runtime view of `Family`, for validation messages and the CLI.
+FAMILIES: tuple[str, ...] = get_args(Family)
+
+#: How an entry's source was established. `primary` names an author, work and
+#: year the entry stands behind; `reference` means the form is attested in a
+#: standard work rather than traced to an origin; `traditional` means no single
+#: origin exists to name.
+Attribution = Literal["primary", "reference", "traditional"]
 
 
 class Violation(BaseModel):
@@ -39,6 +60,9 @@ class Meta(BaseModel):
     names: dict[Lang, str]
     definitions: dict[Lang, str]
     source: str
+    family: Family
+    attribution: Attribution
+    aliases: list[str] = Field(default_factory=list)
     kind: Kind
     languages: list[Lang]
     requires: list[str] = Field(default_factory=list)
