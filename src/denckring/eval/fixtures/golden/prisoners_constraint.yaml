@@ -11,3 +11,21 @@ cases:
     text: the tall dog leapt
     params: {}
     satisfied: false
+  - name: innerhalb-der-x-hoehe
+    lang: de
+    source: constructed example
+    text: Wir waren immer nur am Meer
+    params: {}
+    satisfied: true
+  - name: eszett-bricht-die-x-hoehe
+    lang: de
+    source: constructed counterexample; Masse passes where Maße does not
+    text: Maße
+    params: {}
+    satisfied: false
+  - name: umlaut-bricht-die-x-hoehe
+    lang: de
+    source: constructed counterexample
+    text: Mädchen
+    params: {}
+    satisfied: false
