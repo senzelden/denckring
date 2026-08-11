@@ -16,3 +16,15 @@ cases:
     text: The quick brown fox.
     params: {}
     satisfied: false
+  - name: victor-jagt
+    lang: de
+    source: Traditional German font-test sentence
+    text: Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich
+    params: {}
+    satisfied: true
+  - name: kein-pangramm
+    lang: de
+    source: constructed counterexample
+    text: Der Wind weht über den Deich.
+    params: {}
+    satisfied: false

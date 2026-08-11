@@ -11,3 +11,15 @@ cases:
     text: The cat sat on the mat.
     params: { vowel: e }
     satisfied: false
+  - name: nur-e
+    lang: de
+    source: constructed example
+    text: Der Retter der Fremden erkennt jeden Wert.
+    params: { vowel: e }
+    satisfied: true
+  - name: gemischte-vokale
+    lang: de
+    source: constructed counterexample
+    text: Der Wind trug die Blumen fort.
+    params: { vowel: e }
+    satisfied: false

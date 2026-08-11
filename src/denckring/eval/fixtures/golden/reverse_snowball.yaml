@@ -11,3 +11,15 @@ cases:
     text: I do not know
     params: {}
     satisfied: false
+  - name: schrumpfende-woerter
+    lang: de
+    source: constructed example
+    text: Wesens allen Herr der du O
+    params: {}
+    satisfied: true
+  - name: waechst-stattdessen
+    lang: de
+    source: constructed counterexample
+    text: O du der Herr
+    params: {}
+    satisfied: false

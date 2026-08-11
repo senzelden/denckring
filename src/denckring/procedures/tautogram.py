@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
-class TautogramParams(BaseModel):
+class TautogramParams(DiacriticParams):
     initial: str | None = Field(default=None, description="Shared initial; inferred if unset.")
 
     @field_validator("initial")
@@ -33,9 +33,16 @@ class Tautogram(BaseProcedure[TautogramParams]):
     def params_model(cls) -> type[TautogramParams]:
         return TautogramParams
 
+    def _initial(self, word: str, pack: LanguagePack, fold: bool) -> str:
+        """The word's first letter, folded or merely lower-cased."""
+        return pack.fold_diacritics(word[0])[:1] if fold else word[0].lower()
+
     def _check(self, text: str, pack: LanguagePack, params: TautogramParams) -> Report:
         words = word_spans(text, pack)
-        initials = [(offset, word, pack.fold_diacritics(word[0])[:1]) for offset, word in words]
+        initials = [
+            (offset, word, self._initial(word, pack, params.fold_diacritics))
+            for offset, word in words
+        ]
         expected = params.initial
         if expected is None and initials:
             expected = initials[0][2]

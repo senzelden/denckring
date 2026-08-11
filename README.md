@@ -12,6 +12,7 @@ print(report.satisfied, report.score)
 
 ```console
 $ denckring check snowball poem.txt
+$ denckring check lipogram --lang de gedicht.txt
 $ denckring status
 31 catalogued · 12 implemented · 12 validated
 ```
@@ -24,10 +25,12 @@ and only meaningful for the constructive ones.
 ## Install
 
 ```console
-pip install denckring          # English, no data files
-pip install denckring[de]      # German (not yet released)
+pip install denckring          # English and German, no data files
 pip install denckring[fr]      # French (not yet released)
 ```
+
+German ships in core because the twelve procedures below need no lexicon. It registers
+through the `denckring.lang` entry-point group — the same path a third-party pack takes.
 
 ## What's here
 
@@ -49,6 +52,11 @@ loop can tell whether a text missed by one word or by fifty.
 Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
 not meet, raises rather than quietly returning an approximate answer.
+
+Whether `ä` counts as `a` is an editorial decision rather than a library constant, so it
+is a parameter: `fold_diacritics` defaults to true and can be turned off per call. Glyph
+questions never fold — *Masse* satisfies the prisoner's constraint and *Maße* does not,
+because a written `ß` carries an ascender.
 
 ## Three ways in
 

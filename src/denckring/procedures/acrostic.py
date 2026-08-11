@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from typing import ClassVar, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, line_spans, word_spans
 
 
-class AcrosticParams(BaseModel):
+class AcrosticParams(DiacriticParams):
     target: str = Field(description="The word or phrase the unit letters must spell.")
     unit: Literal["line", "word"] = Field(default="line", description="What carries a letter.")
 
@@ -45,10 +45,14 @@ class Acrostic(BaseProcedure[AcrosticParams]):
         return line_spans(text) if unit == "line" else word_spans(text, pack)
 
     def _check(self, text: str, pack: LanguagePack, params: AcrosticParams) -> Report:
-        expected = [pack.fold_diacritics(ch) for ch in params.target if ch.isalpha()]
+        expected = [
+            pack.fold_diacritics(ch) if params.fold_diacritics else ch.lower()
+            for ch in params.target
+            if ch.isalpha()
+        ]
         actual: list[tuple[int, str]] = []
         for offset, unit_text in self._units(text, pack, params.unit):
-            letters = letter_spans(unit_text, pack)
+            letters = letter_spans(unit_text, pack, fold=params.fold_diacritics)
             if letters:
                 local_offset, letter = letters[self.letter_index]
                 actual.append((offset + local_offset, letter))

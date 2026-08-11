@@ -22,3 +22,15 @@ def test_capability_is_declared_in_the_catalogue() -> None:
 
 def test_empty_text_is_vacuously_satisfied() -> None:
     assert check("prisoners_constraint", "").satisfied
+
+
+def test_an_accented_letter_breaks_the_x_height() -> None:
+    # Every letter of "naive" stays within the x-height, so the diaeresis is the
+    # only thing that can make "naïve" fail. Folding would hide it.
+    assert check("prisoners_constraint", "naive").satisfied
+    assert not check("prisoners_constraint", "naïve").satisfied
+
+
+def test_shape_questions_are_asked_of_the_written_character() -> None:
+    report = check("prisoners_constraint", "naïve")
+    assert [v.found for v in report.violations] == ["ï"]

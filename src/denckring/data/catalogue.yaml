@@ -9,7 +9,7 @@ procedures:
       fr: Un texte qui omet entièrement une lettre choisie.
     source: Georges Perec, La Disparition (1969)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -23,7 +23,7 @@ procedures:
       fr: Un texte n'employant qu'une seule voyelle.
     source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature (1867)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -37,7 +37,7 @@ procedures:
       fr: Un texte dont chaque mot commence par la même lettre.
     source: Hucbald of Saint-Amand, Ecloga de Calvis (c. 890)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -53,7 +53,7 @@ procedures:
       fr: Un texte contenant chaque lettre de l'alphabet au moins une fois.
     source: Traditional; catalogued in Oulipo, Atlas de littérature potentielle (1981)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -67,7 +67,7 @@ procedures:
       fr: Un texte dans lequel aucune lettre ne se répète.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -83,7 +83,7 @@ procedures:
       fr: Un texte qui se lit identiquement dans les deux sens.
     source: Attributed to Sotades of Maroneia (3rd century BC); revived by Oulipo
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -97,7 +97,7 @@ procedures:
       fr: Un texte dont chaque mot compte une lettre de plus que le précédent.
     source: Ausonius, Technopaegnion (4th century); named in Oulipo, La Littérature potentielle (1973)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -111,7 +111,7 @@ procedures:
       fr: Un texte dont chaque mot compte une lettre de moins que le précédent.
     source: Oulipo, La Littérature potentielle (1973), as fonte de neige
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -128,7 +128,7 @@ procedures:
       fr: Un texte sans lettre à hampe ni à jambage.
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, letter_shapes, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -144,7 +144,7 @@ procedures:
       fr: Un texte n'employant que les lettres du nom d'un dédicataire.
     source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -158,7 +158,7 @@ procedures:
       fr: Un texte dont les initiales composent un mot.
     source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -172,7 +172,7 @@ procedures:
       fr: Un texte dont les lettres finales composent un mot.
     source: George Puttenham, The Arte of English Poesie (1589)
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:

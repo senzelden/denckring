@@ -11,3 +11,15 @@ cases:
     text: a zebra came
     params: { name: Marcel }
     satisfied: false
+  - name: nur-die-namensbuchstaben
+    lang: de
+    source: constructed example; the form is Perec's, in Oulipo, Atlas (1981)
+    text: Manns Seele
+    params: { name: Anselm }
+    satisfied: true
+  - name: ausserhalb-des-namens
+    lang: de
+    source: constructed counterexample
+    text: Manns Herz
+    params: { name: Anselm }
+    satisfied: false
