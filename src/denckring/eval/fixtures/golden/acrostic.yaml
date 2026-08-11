@@ -1,0 +1,20 @@
+procedure: acrostic
+lang: en
+cases:
+  - name: carroll-alice
+    source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871), opening stanza
+    text: |-
+      A boat beneath a sunny sky
+      Lingering onward dreamily
+      In an evening of July
+      Children three that nestle near
+      Eager eye and willing ear
+    params: { target: ALICE }
+    satisfied: true
+  - name: wrong-initials
+    source: constructed counterexample
+    text: |-
+      Apple
+      Zebra
+    params: { target: AB }
+    satisfied: false
