@@ -1,0 +1,13 @@
+procedure: single_sentence
+lang: en
+cases:
+  - name: one-sentence
+    source: constructed example; the form of Bernhard's and Stein's long prose
+    text: One long clause running on and on until at last it ends.
+    params: {}
+    satisfied: true
+  - name: two-sentences
+    source: constructed counterexample
+    text: One clause. Then another.
+    params: {}
+    satisfied: false
