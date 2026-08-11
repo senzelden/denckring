@@ -1,0 +1,37 @@
+"""Offset-preserving text helpers. Violations need character offsets."""
+
+from __future__ import annotations
+
+from denckring.core.protocol import LanguagePack
+
+
+def letter_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
+    """Every alphabetic character as `(offset, folded lowercase letter)`.
+
+    Folding can expand one character into several — `ß` becomes `ss` — in which
+    case both share the original offset.
+    """
+    spans: list[tuple[int, str]] = []
+    for offset, ch in enumerate(text):
+        if not ch.isalpha():
+            continue
+        folded = pack.fold_diacritics(ch)
+        spans.extend((offset, letter) for letter in folded if letter.isalpha())
+    return spans
+
+
+def word_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
+    """Every word as `(offset, word)`, unfolded."""
+    return pack.word_spans(text)
+
+
+def line_spans(text: str) -> list[tuple[int, str]]:
+    """Every non-blank line as `(offset, line)`, keeping the original text."""
+    spans: list[tuple[int, str]] = []
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.rstrip("\r\n")
+        if stripped.strip():
+            spans.append((offset, stripped))
+        offset += len(line)
+    return spans
