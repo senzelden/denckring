@@ -915,3 +915,407 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write a sentence whose words run in alphabetical order.
+
+  # ---------------------------------------------------------------------------
+  # families: word and syntax — procedures operating on words and on structure
+  # ---------------------------------------------------------------------------
+
+  - id: homoconsonantism
+    names: { en: Homoconsonantism, fr: Homoconsonantisme }
+    definitions:
+      en: >-
+        A rewriting that keeps the consonants of the source text in their original
+        order while replacing every vowel, producing a new sense from the same skeleton.
+      fr: Une réécriture conservant les consonnes du texte source et changeant les voyelles.
+    source: Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Keep the consonants of the source in order and choose new vowels to make new words.
+
+  - id: homovocalism
+    names: { en: Homovocalism, fr: Homovocalisme }
+    definitions:
+      en: >-
+        The mirror of homoconsonantism: the vowels of the source are preserved in
+        order and the consonants are replaced.
+      fr: Une réécriture conservant les voyelles du texte source.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: false
+    prompt_hints:
+      en: Keep the vowels of the source in order and choose new consonants around them.
+
+  - id: homosyntaxism
+    names: { en: Homosyntaxism, fr: Homosyntaxisme }
+    definitions:
+      en: >-
+        A rewriting that keeps the grammatical structure of the source intact,
+        substituting new words of the same part of speech throughout.
+      fr: Une réécriture conservant la syntaxe du texte source.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Keep the sentence structure exactly and replace each word with another of the same class.
+
+  - id: perverb
+    names: { en: Perverb }
+    definitions:
+      en: >-
+        A proverb formed by grafting the first half of one saying onto the second
+        half of another, and the writing that follows from it.
+    source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Cross two proverbs at the midpoint and write the passage the hybrid implies.
+
+  - id: mathews_algorithm
+    names: { en: Mathews's algorithm }
+    definitions:
+      en: >-
+        A permutation in which elements of several texts are arranged in a table
+        and each column is rotated by a different amount before being read across.
+    source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Arrange the texts in a grid, rotate each column by one more step, and read across.
+
+  - id: chimera
+    names: { en: Chimera, fr: Chimère }
+    definitions:
+      en: >-
+        A text whose nouns, verbs and adjectives are stripped out and replaced by
+        those of three different source texts.
+      fr: Un texte dont les substantifs, verbes et adjectifs viennent de trois sources différentes.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
+
+  - id: canada_dry
+    names: { en: Canada Dry }
+    definitions:
+      en: >-
+        A text with the manner of a constrained work but no constraint actually
+        operating — it looks like the thing without being it.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Write something that reads as though a strict rule governs it, while following none.
+
+  - id: slenderizing
+    names: { en: Slenderizing }
+    definitions:
+      en: >-
+        A rewriting in which every instance of one letter is deleted, the
+        surviving letters closing up into new words.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    aliases: [elementary morphological deletion]
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Delete every "r" from the passage and read what the remaining letters now say.
+
+  - id: haikuization
+    names: { en: Haikuization, fr: Haïkuisation }
+    definitions:
+      en: >-
+        A reduction that keeps only the rhyme-words or line ends of an existing
+        poem, leaving a shorter poem inside the longer one.
+      fr: Une réduction ne gardant que les rimes d'un poème existant.
+    source: Oulipo, La Littérature potentielle (1973)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Keep only the rhyming words of each line and present what remains as the poem.
+
+  - id: word_ladder
+    names: { en: Word ladder, de: Wortleiter, fr: Échelle de mots }
+    definitions:
+      en: >-
+        A chain of words in which each step changes exactly one letter of the word
+        before it, every step being itself a word.
+      de: Eine Kette von Wörtern, die sich jeweils um einen Buchstaben unterscheiden.
+      fr: Une chaîne de mots différant chacun d'une seule lettre du précédent.
+    source: Lewis Carroll, Doublets, a Word Puzzle (1879)
+    family: word
+    attribution: primary
+    aliases: [doublets, word golf]
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Move from the first word to the last, changing one letter at a time, each step a real word.
+
+  - id: snowball_sentence
+    names: { en: Snowball sentence }
+    definitions:
+      en: >-
+        A snowball extended to whole sentences, each one carrying exactly one more
+        word than the sentence before it.
+    source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
+    family: word
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write sentences of one word, then two, then three, and so on.
+
+  - id: monosyllabic_prose
+    names: { en: Monosyllabic prose, de: Einsilbige Prosa }
+    definitions:
+      en: A text in which every word is of one syllable, from first to last.
+      de: Ein Text, in dem jedes Wort einsilbig ist.
+    source: Traditional; a standing exercise in English rhetorical instruction
+    family: word
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, syllables]
+    deterministic: true
+    prompt_hints:
+      en: Write a passage in which no word has more than one syllable.
+
+  - id: verbless_prose
+    names: { en: Verbless prose }
+    definitions:
+      en: >-
+        A text written without any finite verb, so that everything must be carried
+        by nouns, participles and apposition.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: syntax
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Describe the scene without using a single finite verb.
+
+  - id: single_sentence
+    names: { en: Single sentence }
+    definitions:
+      en: >-
+        A work consisting of exactly one sentence, however long, with no full stop
+        until the end.
+    source: Traditional; the form of Gertrude Stein's and Thomas Bernhard's long prose
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write the whole piece as one unbroken sentence.
+
+  - id: sentence_length_constraint
+    names: { en: Sentence length constraint }
+    definitions:
+      en: >-
+        A text whose sentences must each fall within a prescribed number of words,
+        exactly or as a bound.
+    source: Traditional; standard in style manuals and readability work
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write so that every sentence contains exactly the given number of words.
+
+  - id: anaphora
+    names: { en: Anaphora, de: Anapher, fr: Anaphore }
+    definitions:
+      en: >-
+        A text in which successive clauses or lines open with the same word or
+        phrase, the repetition carrying the structure.
+      de: Ein Text, dessen Sätze mit demselben Wort beginnen.
+      fr: Un texte dont les propositions commencent par le même mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Begin every clause with the same word or phrase.
+
+  - id: epistrophe
+    names: { en: Epistrophe, de: Epipher, fr: Épiphore }
+    definitions:
+      en: >-
+        The counterpart of anaphora: successive clauses or lines all close with the
+        same word or phrase.
+      de: Ein Text, dessen Sätze mit demselben Wort enden.
+      fr: Un texte dont les propositions se terminent par le même mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: End every clause with the same word or phrase.
+
+  - id: antonymic_substitution
+    names: { en: Antonymic substitution }
+    definitions:
+      en: >-
+        A rewriting in which every substantive word is replaced by its opposite,
+        turning the text inside out while keeping its shape.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Replace every meaningful word with its opposite and keep the grammar unchanged.
+
+  - id: synonymic_substitution
+    names: { en: Synonymic substitution }
+    definitions:
+      en: >-
+        A rewriting in which every substantive word is replaced by a synonym,
+        repeated until the source is unrecognisable.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: false
+    prompt_hints:
+      en: Replace each meaningful word with a synonym, then do it again to the result.
+
+  - id: tmesis
+    names: { en: Tmesis, de: Tmesis, fr: Tmèse }
+    definitions:
+      en: >-
+        A text that splits a word in two and inserts other material between the
+        halves, as in "abso-bloody-lutely".
+      de: Ein Text, der Wörter aufspaltet und Material dazwischenschiebt.
+      fr: Un texte insérant un élément à l'intérieur d'un mot.
+    source: Traditional; a classical rhetorical figure
+    family: syntax
+    attribution: traditional
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Split words apart and wedge other words inside them.
+
+  - id: melting_text
+    names: { en: Melting text }
+    definitions:
+      en: >-
+        A text that loses one word, letter or line at each repetition until nothing
+        of it is left.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Repeat the passage, dropping one word each time, until it disappears.
+
+  - id: spoonerism
+    names: { en: Spoonerism, de: Schüttelreim, fr: Contrepèterie }
+    definitions:
+      en: >-
+        A text built on the exchange of initial sounds between two words, so that
+        the swap produces a second, usually comic, reading.
+      de: Ein Text, der die Anfangslaute zweier Wörter vertauscht.
+      fr: Un texte fondé sur l'échange des sons initiaux de deux mots.
+    source: Named for William Archibald Spooner; documented from the 1890s
+    family: word
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Exchange the opening sounds of two words so that both results are words.
+
+  - id: univocalic_lipogram_pair
+    names: { en: Compound constraint }
+    definitions:
+      en: >-
+        A text satisfying two or more named constraints at once, the difficulty
+        rising far faster than the count of rules.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: word
+    attribution: reference
+    kind: restrictive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Satisfy both named constraints in the same passage, without relaxing either.
+
+  - id: definitional_expansion
+    names: { en: Definitional expansion }
+    definitions:
+      en: >-
+        A single iteration of definitional literature, in which each substantive
+        word is replaced once by its dictionary definition.
+    source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
+    family: word
+    attribution: primary
+    kind: both
+    languages: [en]
+    requires: [tokens, lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: Replace each meaningful word once with its dictionary definition.
