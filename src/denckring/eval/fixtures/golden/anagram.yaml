@@ -1,0 +1,13 @@
+procedure: anagram
+lang: en
+cases:
+  - name: listen-silent
+    source: Traditional; the standard English example
+    text: silent
+    params: { source: listen }
+    satisfied: true
+  - name: not-an-anagram
+    source: constructed counterexample
+    text: silence
+    params: { source: listen }
+    satisfied: false

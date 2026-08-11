@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from typing import ClassVar, Literal, Protocol, get_args, runtime_checkable
+from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, Field
 
@@ -77,6 +77,20 @@ class Meta(BaseModel):
     requires: list[str] = Field(default_factory=list)
     deterministic: bool = True
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
+
+
+@runtime_checkable
+class Constructive(Protocol):
+    """A procedure that can generate, not merely validate.
+
+    `apply` is optional by ADR 0002, so it is not on `BaseProcedure`. This
+    protocol is how callers ask whether a given procedure has one, and it
+    narrows the type at the same time.
+    """
+
+    def apply(
+        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any
+    ) -> str: ...
 
 
 @runtime_checkable

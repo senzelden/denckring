@@ -32,6 +32,17 @@ class DiacriticParams(BaseModel):
     )
 
 
+class SourceParams(BaseModel):
+    """Mixed into procedures decidable only against the text they were made from.
+
+    Carried as a parameter rather than a second argument to `check`, so the
+    signature stays one-text and the requirement shows up in `params_schema()`
+    for callers that never touch Python.
+    """
+
+    source: str = Field(description="The text this one was made from.")
+
+
 class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
@@ -60,8 +71,18 @@ class BaseProcedure(ABC, Generic[P]):
         pack = get_pack(lang)
         for capability in self.meta.requires:
             require_capability(pack, capability, self.id)
+        model = self.params_model()
+        unknown = sorted(set(params) - set(model.model_fields))
+        if unknown:
+            # Silently dropping a mistyped parameter would let a caller believe
+            # a constraint was applied when it was not.
+            raise InvalidParams(
+                self.id,
+                f"unknown parameter(s) {unknown}; this procedure accepts "
+                f"{sorted(model.model_fields)}",
+            )
         try:
-            parsed = self.params_model().model_validate(params)
+            parsed = model.model_validate(params)
         except ValidationError as exc:
             raise InvalidParams(self.id, str(exc)) from exc
         return self._check(text, pack, parsed)

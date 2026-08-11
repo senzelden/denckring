@@ -13,7 +13,7 @@ import typer
 
 from denckring.core import catalogue
 from denckring.core.errors import DenckringError, UnknownLanguage
-from denckring.core.protocol import FAMILIES, Lang
+from denckring.core.protocol import FAMILIES, Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.eval import harness
 
@@ -75,12 +75,18 @@ def check_command(
     file: Annotated[str | None, typer.Argument(help="Path, or - for stdin")] = None,
     lang: str = "en",
     param: Annotated[list[str] | None, typer.Option("--param", "-p")] = None,
+    source: Annotated[
+        str | None, typer.Option("--source", help="File the text was made from")
+    ] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """Validate a text. Exits 1 when the text does not satisfy the procedure."""
     try:
         procedure = get(procedure_id)
-        report = procedure.check(_read(file), lang=_lang(lang), **_parse_params(param or []))
+        params = _parse_params(param or [])
+        if source is not None:
+            params["source"] = _read(source)
+        report = procedure.check(_read(file), lang=_lang(lang), **params)
     except DenckringError as exc:
         _fail(exc)
         return
@@ -112,15 +118,16 @@ def apply_command(
     except DenckringError as exc:
         _fail(exc)
         return
-    generate = getattr(procedure, "apply", None)
-    if generate is None:
+    if not isinstance(procedure, Constructive):
         typer.echo(
             f"Procedure {procedure_id!r} is {procedure.meta.kind} and has no apply(). "
             f"Only constructive procedures can generate text."
         )
         raise typer.Exit(EXIT_ERROR)
     try:
-        typer.echo(generate(_read(file), lang=_lang(lang), seed=seed, **_parse_params(param or [])))
+        typer.echo(
+            procedure.apply(_read(file), lang=_lang(lang), seed=seed, **_parse_params(param or []))
+        )
     except DenckringError as exc:
         _fail(exc)
 
