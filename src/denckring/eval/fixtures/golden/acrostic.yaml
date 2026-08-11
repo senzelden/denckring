@@ -18,3 +18,21 @@ cases:
       Zebra
     params: { target: AB }
     satisfied: false
+  - name: welt
+    lang: de
+    source: constructed example
+    text: |-
+      Wolken ziehen weit
+      Einsam steht der Baum
+      Leise fällt der Schnee
+      Traum und Nacht vergehn
+    params: { target: WELT }
+    satisfied: true
+  - name: falsche-initialen
+    lang: de
+    source: constructed counterexample
+    text: |-
+      Wolken ziehen weit
+      Nebel steht im Tal
+    params: { target: WE }
+    satisfied: false
