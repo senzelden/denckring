@@ -44,8 +44,29 @@ All notable changes to this project are documented here. The format follows
   and prompt hint, a family and an attribution; aliases must be unique catalogue-wide
   and must not collide with any procedure id.
 
+- `checkability` on every catalogue entry: `self`, `source`, or `none` for forms with
+  no computable acceptance criterion. Coverage is now measured against the
+  implementable subset, so `denckring status` no longer promises a gap that cannot
+  close.
+- 31 further procedures implemented, taking the total from 12 to 43 — letter and
+  alphabet constraints, position and repetition constraints, the end-word forms
+  (`sestina`, `quenina`, `pantoum`), and the source-relative procedures.
+- `SourceParams` and `denckring check --source FILE`, for procedures decidable only
+  against the text they were made from.
+- `apply()` on `cut_up` and `every_nth_word`, and a round-trip suite asserting that
+  `check(apply(text))` is satisfied — the seed's central property, deferred since the
+  Batch 1 spec for want of any constructive procedure.
+- `Constructive`, a runtime-checkable protocol for procedures that can generate.
+- ADR 0011 on checkability.
+
 ### Fixed
 
+- Unknown parameters passed to `check` were silently dropped, so a mistyped
+  `--param frobidden=e` looked like a constraint being applied when it was not. They
+  now raise `InvalidParams` naming the parameters the procedure actually accepts.
+- Four catalogue rows misdescribed what they need: `boustrophedon` is decidable only
+  against its source, and `semordnilap`, `kangaroo_word`, `word_square` and `charade`
+  cannot be decided without a lexicon.
 - `prisoners_constraint` compared folded letters, so it read `ß` as `ss` and `ä` as `a`
   and wrongly accepted *groß*, *Maße* and *Mädchen* — and English *naïve* with them. An
   ascender is a property of the written glyph, and folding destroys it. The checker now
