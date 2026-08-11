@@ -1,0 +1,13 @@
+procedure: antigram
+lang: en
+cases:
+  - name: rearranged
+    source: constructed example; the term is from Word Ways
+    text: silent
+    params: { source: listen }
+    satisfied: true
+  - name: unchanged
+    source: constructed counterexample
+    text: listen
+    params: { source: listen }
+    satisfied: false

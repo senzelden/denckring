@@ -1,0 +1,13 @@
+procedure: recombination
+lang: en
+cases:
+  - name: reordered-sentences
+    source: constructed example; the procedure is Oulipian
+    text: B. A.
+    params: { source: "A. B." }
+    satisfied: true
+  - name: a-sentence-dropped
+    source: constructed counterexample
+    text: A.
+    params: { source: "A. B." }
+    satisfied: false
