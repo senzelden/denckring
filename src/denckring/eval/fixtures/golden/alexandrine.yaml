@@ -1,0 +1,13 @@
+procedure: alexandrine
+lang: en
+cases:
+  - name: twelve-syllables
+    source: constructed example; the measure is French classical prosody's
+    text: the cat sat on the mat and thought of the wild mice
+    params: {}
+    satisfied: true
+  - name: too-short
+    source: constructed counterexample
+    text: the cat sat
+    params: {}
+    satisfied: false

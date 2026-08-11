@@ -1,0 +1,13 @@
+procedure: hendecasyllable
+lang: en
+cases:
+  - name: eleven-syllables
+    source: constructed example; the measure is classical
+    text: the cat sat on the mat and thought of the mice
+    params: {}
+    satisfied: true
+  - name: too-short
+    source: constructed counterexample
+    text: the cat sat
+    params: {}
+    satisfied: false

@@ -1,0 +1,19 @@
+procedure: haiku
+lang: en
+cases:
+  - name: basho-frog-pond
+    source: Matsuo Bashō (1686), in English translation; the 5-7-5 measure is the form's
+    text: |-
+      an old silent pond
+      a frog jumps into the pond
+      splash silence again
+    params: {}
+    satisfied: true
+  - name: wrong-middle-line
+    source: constructed counterexample
+    text: |-
+      an old silent pond
+      a frog jumps in
+      splash silence again
+    params: {}
+    satisfied: false

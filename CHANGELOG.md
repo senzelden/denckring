@@ -58,9 +58,23 @@ All notable changes to this project are documented here. The format follows
   Batch 1 spec for want of any constructive procedure.
 - `Constructive`, a runtime-checkable protocol for procedures that can generate.
 - ADR 0011 on checkability.
+- Syllable counting: `syllables.heuristic` in core, with `syllable_count` returning a
+  count and whether it was looked up or estimated. Every syllabic report carries
+  `metrics["estimated_words"]`.
+- `denckring-en-data`, installed by `pip install denckring[en]`, adding
+  `syllables.dictionary` from the CMU Pronouncing Dictionary (BSD-2-Clause, vendored).
+  On Bashō's frog-pond haiku, core alone estimates 13 words; with the data package,
+  none.
+- Eight syllabic procedures: `haiku`, `tanka`, `senryu`, `cinquain`, `syllable_count`,
+  `monosyllabic_prose`, `hendecasyllable`, `alexandrine`.
+- ADRs 0012 and 0013 on the two syllable capabilities and on data as separate
+  distributions.
 
 ### Fixed
 
+- Entry-point language packs were shadowed by the built-in English default, so an
+  installed data package had no effect. Precedence is now explicit registration, then
+  entry point, then built-in default.
 - Unknown parameters passed to `check` were silently dropped, so a mistyped
   `--param frobidden=e` looked like a constraint being applied when it was not. They
   now raise `InvalidParams` naming the parameters the procedure actually accepts.
