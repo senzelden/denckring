@@ -396,7 +396,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write lines of exactly the given number of syllables each.
@@ -412,8 +412,8 @@ procedures:
     attribution: traditional
     checkability: self
     kind: restrictive
-    languages: [fr]
-    requires: [tokens, syllables]
+    languages: [en]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write twelve-syllable lines that break cleanly after the sixth syllable.
@@ -483,7 +483,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write three lines of five, seven and five syllables.
@@ -1185,7 +1185,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write a passage in which no word has more than one syllable.
@@ -1628,7 +1628,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write five lines of two, four, six, eight and two syllables.
@@ -1646,7 +1646,7 @@ procedures:
     aliases: [waka]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write five lines of five, seven, five, seven and seven syllables.
@@ -1682,7 +1682,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write five, seven and five syllables on human folly rather than on nature.
@@ -1891,7 +1891,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write every line to exactly eleven syllables.

@@ -1,10 +1,14 @@
 """Language pack lookup.
 
-English is seeded directly so core never depends on its own installed metadata
-being readable in order to find its own language. Every other pack — including
-the German one that ships in this same wheel — arrives through the
-`denckring.lang` entry-point group, which is exactly how a third-party pack
-installs.
+English is available as a built-in *default* so core never depends on its own
+installed metadata being readable in order to find its own language. Everything
+else — including the German pack that ships in this same wheel, and the
+`denckring[en]` data package — arrives through the `denckring.lang` entry-point
+group, which is exactly how a third-party pack installs.
+
+Precedence runs: explicitly registered pack, then entry point, then built-in
+default. That ordering is what lets `denckring-en-data` upgrade English rather
+than be shadowed by it.
 """
 
 from __future__ import annotations
@@ -17,7 +21,10 @@ from denckring.lang.en import EnglishPack
 
 ENTRY_POINT_GROUP = "denckring.lang"
 
-_PACKS: dict[str, LanguagePack] = {"en": EnglishPack()}
+#: The floor: always present, never dependent on installed metadata.
+_DEFAULTS: dict[str, LanguagePack] = {"en": EnglishPack()}
+#: Discovered or explicitly registered packs, which take precedence.
+_PACKS: dict[str, LanguagePack] = {}
 _DISCOVERED = False
 
 
@@ -35,21 +42,21 @@ def _discover() -> None:
 def get_pack(lang: str) -> LanguagePack:
     """Return the installed pack for a language, or raise `UnknownLanguage`."""
     _discover()
-    try:
-        return _PACKS[lang]
-    except KeyError:
-        raise UnknownLanguage(str(lang)) from None
+    pack = _PACKS.get(lang) or _DEFAULTS.get(lang)
+    if pack is None:
+        raise UnknownLanguage(str(lang))
+    return pack
 
 
 def register_pack(pack: LanguagePack) -> None:
-    """Install a pack directly, bypassing entry-point discovery."""
+    """Install a pack directly. Takes precedence over entry-point discovery."""
     _PACKS[pack.lang] = pack
 
 
 def installed_languages() -> list[str]:
     """Every language with a loadable pack, sorted."""
     _discover()
-    return sorted(_PACKS)
+    return sorted(set(_PACKS) | set(_DEFAULTS))
 
 
 __all__ = ["ENTRY_POINT_GROUP", "get_pack", "installed_languages", "register_pack"]
