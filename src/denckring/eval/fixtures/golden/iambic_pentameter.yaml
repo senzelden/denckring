@@ -1,0 +1,18 @@
+procedure: iambic_pentameter
+lang: en
+cases:
+  - name: regular-lines
+    source: constructed example; strict scansion admits no substitutions
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+    params: {}
+    satisfied: true
+  - name: wrong-length
+    source: constructed counterexample
+    text: |-
+      the cat sat on the mat
+    params: {}
+    satisfied: false

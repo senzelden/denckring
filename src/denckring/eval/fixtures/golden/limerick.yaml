@@ -1,0 +1,23 @@
+procedure: limerick
+lang: en
+cases:
+  - name: lear-beard
+    source: Edward Lear, A Book of Nonsense (1846); Lear rhymes 'beard' with itself, which strict practice counts a fault
+    text: |-
+      there was an old man with a beard
+      who said it is just as i feared
+      two owls and a hen
+      four larks and a wren
+      have all built their nests in my beard
+    params: {}
+    satisfied: false
+  - name: distinct-rhymes
+    source: constructed example
+    text: |-
+      there was an old man with a beard
+      who said it is just as i feared
+      two owls and a hen
+      four larks and a wren
+      have all flown away and disappeared
+    params: {}
+    satisfied: true
