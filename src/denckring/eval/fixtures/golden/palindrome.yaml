@@ -11,3 +11,21 @@ cases:
     text: this sentence does not mirror
     params: {}
     satisfied: false
+  - name: ein-esel-lese-nie
+    lang: de
+    source: Traditional German palindrome
+    text: Ein Esel lese nie
+    params: {}
+    satisfied: true
+  - name: erika-feuert
+    lang: de
+    source: Traditional German palindrome
+    text: Erika feuert nur untreue Fakire
+    params: {}
+    satisfied: true
+  - name: kein-palindrom
+    lang: de
+    source: constructed counterexample
+    text: Dieser Satz spiegelt sich nicht
+    params: {}
+    satisfied: false

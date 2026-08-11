@@ -60,6 +60,21 @@ class BasePack:
     def descenders(self) -> frozenset[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, LETTER_SHAPES)
 
+    def exceeds_x_height(self, ch: str) -> bool:
+        """True when the written glyph rises above or drops below the x-height.
+
+        Two independent reasons a character can fail: its base letter is an
+        ascender or descender, or it carries a mark above. The second half is
+        orthography-general — it catches ä, ö, ü and é without any pack naming
+        them — so a pack only declares the letters its own alphabet adds.
+        """
+        if LETTER_SHAPES not in self.capabilities:
+            raise MissingCapability(DIRECT_CALL, self.lang, LETTER_SHAPES)
+        lowered = ch.lower()
+        if lowered in self.ascenders() | self.descenders():
+            return True
+        return any(unicodedata.combining(c) for c in unicodedata.normalize("NFD", lowered))
+
     def syllables(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES)
 

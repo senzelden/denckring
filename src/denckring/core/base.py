@@ -9,13 +9,27 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Generic, TypeVar
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, MissingCapability
 from denckring.core.protocol import Lang, LanguagePack, Meta, Report, Violation
 
 P = TypeVar("P", bound=BaseModel)
+
+
+class DiacriticParams(BaseModel):
+    """Mixed into every procedure that compares letters.
+
+    Whether `Mädchen` belongs in an a-lipogram is an editorial decision, not a
+    library constant — Perec's translators had to make it too. Carrying it as a
+    parameter puts it in `params_schema()` and on the command line for free.
+    """
+
+    fold_diacritics: bool = Field(
+        default=True,
+        description="Treat accented letters as their base letter, and ß as ss.",
+    )
 
 
 class BaseProcedure(ABC, Generic[P]):

@@ -11,3 +11,15 @@ cases:
     text: letters repeat here
     params: {}
     satisfied: false
+  - name: ohne-wiederholung
+    lang: de
+    source: constructed example
+    text: Boxkampf würdig
+    params: {}
+    satisfied: true
+  - name: mit-wiederholung
+    lang: de
+    source: constructed counterexample
+    text: Die Blumen blühen wieder
+    params: {}
+    satisfied: false

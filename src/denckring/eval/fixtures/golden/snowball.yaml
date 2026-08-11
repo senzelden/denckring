@@ -11,3 +11,15 @@ cases:
     text: the words here do not grow
     params: {}
     satisfied: false
+  - name: wachsende-woerter
+    lang: de
+    source: constructed example
+    text: O du der Herr allen Wesens
+    params: {}
+    satisfied: true
+  - name: gewoehnliche-prosa
+    lang: de
+    source: constructed counterexample
+    text: Die Wörter wachsen hier nicht
+    params: {}
+    satisfied: false

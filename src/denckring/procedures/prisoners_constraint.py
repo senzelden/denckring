@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
 
 
 class PrisonersConstraintParams(BaseModel):
@@ -30,8 +29,7 @@ class PrisonersConstraint(BaseProcedure[PrisonersConstraintParams]):
         return PrisonersConstraintParams
 
     def _check(self, text: str, pack: LanguagePack, params: PrisonersConstraintParams) -> Report:
-        forbidden = pack.ascenders() | pack.descenders()
-        letters = letter_spans(text, pack)
+        letters = [(offset, ch) for offset, ch in enumerate(text) if ch.isalpha()]
         violations = [
             Violation(
                 rule="tall_or_deep_letter",
@@ -40,7 +38,7 @@ class PrisonersConstraint(BaseProcedure[PrisonersConstraintParams]):
                 expected="a letter within the x-height",
             )
             for offset, ch in letters
-            if ch in forbidden
+            if pack.exceeds_x_height(ch)
         ]
         return self._report(
             good=len(letters) - len(violations),

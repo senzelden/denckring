@@ -68,3 +68,15 @@ def test_check_raises_nothing_but_denckring_error(procedure_id: str) -> None:
 
 def test_registry_is_not_empty() -> None:
     assert all_procedures()
+
+
+def test_every_declared_language_has_a_golden_case(procedure_id: str) -> None:
+    from conftest import load_golden_cases
+
+    proc = get(procedure_id)
+    covered = {c.lang for c in load_golden_cases() if c.procedure == procedure_id}
+    missing = set(proc.meta.languages) - covered
+    assert not missing, (
+        f"{procedure_id} declares {sorted(missing)} in its catalogue row "
+        f"but has no golden case in those languages"
+    )

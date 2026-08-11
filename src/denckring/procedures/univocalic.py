@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from collections import Counter
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
 
-class UnivocalicParams(BaseModel):
+class UnivocalicParams(DiacriticParams):
     vowel: str | None = Field(default=None, description="The permitted vowel; inferred if unset.")
 
     @field_validator("vowel")
@@ -37,7 +37,11 @@ class Univocalic(BaseProcedure[UnivocalicParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: UnivocalicParams) -> Report:
         vowel_set = pack.vowels()
-        found = [(offset, ch) for offset, ch in letter_spans(text, pack) if ch in vowel_set]
+        found = [
+            (offset, ch)
+            for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
+            if ch in vowel_set
+        ]
         permitted = params.vowel
         if permitted is None and found:
             permitted = Counter(ch for _, ch in found).most_common(1)[0][0]
