@@ -14,3 +14,15 @@ cases:
     params: { forbidden: e }
     satisfied: false
     max_score: 0.95
+  - name: ohne-e
+    lang: de
+    source: constructed example
+    text: Und so zog Wind durch kalt Rauch, ganz ohn Trost.
+    params: { forbidden: e }
+    satisfied: true
+  - name: gewoehnliche-prosa
+    lang: de
+    source: constructed counterexample
+    text: Der Wind weht heute wieder gegen jedes Fenster.
+    params: { forbidden: e }
+    satisfied: false

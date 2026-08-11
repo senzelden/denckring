@@ -11,3 +11,15 @@ cases:
     text: Peter Piper picked a peck
     params: { initial: p }
     satisfied: false
+  - name: berliner-b
+    lang: de
+    source: constructed example
+    text: Bunte Blumen blühen bei Berlin
+    params: { initial: b }
+    satisfied: true
+  - name: unterbrochen
+    lang: de
+    source: constructed counterexample
+    text: Bunte Blumen wachsen bei Berlin
+    params: { initial: b }
+    satisfied: false

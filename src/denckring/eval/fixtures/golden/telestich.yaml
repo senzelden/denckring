@@ -16,3 +16,20 @@ cases:
       zero
     params: { target: ab }
     satisfied: false
+  - name: ast
+    lang: de
+    source: constructed example; the form is described in Puttenham (1589)
+    text: |-
+      Es war einmal da
+      Der Wind war leis
+      Nun ist es Nacht
+    params: { target: ast }
+    satisfied: true
+  - name: falsche-endbuchstaben
+    lang: de
+    source: constructed counterexample
+    text: |-
+      Es war einmal da
+      Der Wind war kalt
+    params: { target: as }
+    satisfied: false
