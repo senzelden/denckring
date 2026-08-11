@@ -1,0 +1,13 @@
+procedure: palindrome
+lang: en
+cases:
+  - name: mercer-panama
+    source: Leigh Mercer, in Notes and Queries (1948)
+    text: "A man, a plan, a canal: Panama"
+    params: {}
+    satisfied: true
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: this sentence does not mirror
+    params: {}
+    satisfied: false
