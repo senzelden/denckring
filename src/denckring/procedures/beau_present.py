@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
 
-class BeauPresentParams(BaseModel):
+class BeauPresentParams(DiacriticParams):
     name: str = Field(description="The dedicatee's name, whose letters are the alphabet.")
     require_all: bool = Field(default=False, description="Every name letter must appear.")
 
@@ -26,8 +26,8 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
         return BeauPresentParams
 
     def _check(self, text: str, pack: LanguagePack, params: BeauPresentParams) -> Report:
-        allowed = {ch for _, ch in letter_spans(params.name, pack)}
-        letters = letter_spans(text, pack)
+        allowed = {ch for _, ch in letter_spans(params.name, pack, fold=params.fold_diacritics)}
+        letters = letter_spans(text, pack, fold=params.fold_diacritics)
         violations = [
             Violation(
                 rule="letter_outside_name",

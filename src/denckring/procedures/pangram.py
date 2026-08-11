@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from collections import Counter
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
 
-class PangramParams(BaseModel):
+class PangramParams(DiacriticParams):
     perfect: bool = Field(default=False, description="Require each letter exactly once.")
 
 
@@ -34,7 +34,9 @@ class Pangram(BaseProcedure[PangramParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: PangramParams) -> Report:
         alphabet = pack.alphabet()
-        counts = Counter(ch for _, ch in letter_spans(text, pack) if ch in alphabet)
+        counts = Counter(
+            ch for _, ch in letter_spans(text, pack, fold=params.fold_diacritics) if ch in alphabet
+        )
         missing = [ch for ch in alphabet if ch not in counts]
         violations = [
             Violation(rule="missing_letter", offset=None, found="", expected=ch) for ch in missing

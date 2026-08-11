@@ -71,6 +71,6 @@ def test_apply_on_a_restrictive_procedure_fails_informatively(tmp_path: Path) ->
 def test_unknown_language_is_reported_not_traced(tmp_path: Path) -> None:
     path = tmp_path / "t.txt"
     path.write_text("text", encoding="utf-8")
-    result = runner.invoke(app, ["check", "lipogram", str(path), "--lang", "de"])
+    result = runner.invoke(app, ["check", "lipogram", str(path), "--lang", "fr"])
     assert result.exit_code == 2
-    assert "denckring[de]" in result.stdout
+    assert "denckring[fr]" in result.stdout
