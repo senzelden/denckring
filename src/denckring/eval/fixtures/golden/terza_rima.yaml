@@ -1,0 +1,23 @@
+procedure: terza_rima
+lang: en
+cases:
+  - name: aba-bcb
+    source: constructed example; the form of Dante's Commedia
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the fox will hide beneath the fallen stone
+      the birds will sing before the break of day
+    params: {}
+    satisfied: true
+  - name: no-interlock
+    source: constructed counterexample
+    text: |-
+      the cat can see the moon above the tree
+      a bird can fly around the house at three
+      the cat can see the moon above the tree
+      a bird can fly around the house at three
+    params: {}
+    satisfied: false

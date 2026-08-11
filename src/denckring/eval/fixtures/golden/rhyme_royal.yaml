@@ -1,0 +1,24 @@
+procedure: rhyme_royal
+lang: en
+cases:
+  - name: ababbcc
+    source: constructed example; the form of Chaucer's Troilus
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the birds will sing before the break of day
+      the fox will hide beneath the fallen stone
+      the owl will call across the dark alone
+    params: {}
+    satisfied: true
+  - name: wrong-scheme
+    source: constructed counterexample
+    text: |-
+      the cat can see the moon above the tree
+      a bird can fly around the house at three
+      the cat can see the moon above the tree
+      a bird can fly around the house at three
+    params: {}
+    satisfied: false

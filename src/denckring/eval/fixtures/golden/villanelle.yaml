@@ -1,0 +1,38 @@
+procedure: villanelle
+lang: en
+cases:
+  - name: nineteen-lines
+    source: constructed example; two rhymes and two alternating refrains
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the cat can see the moon above the tree
+      the sun will set behind the hill in may
+      the cat can see the moon above the tree
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the cat can see the moon above the tree
+      the sun will set behind the hill in may
+      the cat can see the moon above the tree
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the cat can see the moon above the tree
+      the sun will set behind the hill in may
+      the cat can see the moon above the tree
+      a bird can fly around the house at three
+    params: {}
+    satisfied: true
+  - name: too-short
+    source: constructed counterexample
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the fox will hide beneath the fallen stone
+      the birds will sing before the break of day
+    params: {}
+    satisfied: false
