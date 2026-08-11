@@ -1,0 +1,12 @@
+"""Generators for $id. Both must yield (text, params) pairs."""
+
+from hypothesis import strategies as st
+from strategies import CaseStrategy
+
+
+def satisfying() -> CaseStrategy:
+    raise NotImplementedError("FILL IN a strategy producing texts that satisfy $id")
+
+
+def violating() -> CaseStrategy:
+    raise NotImplementedError("FILL IN a strategy producing texts that violate $id")
