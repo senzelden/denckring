@@ -1878,3 +1878,308 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write a short strict-metre stanza binding the lines by consonant patterning.
+
+  # ---------------------------------------------------------------------------
+  # families: permutation and procedural
+  # ---------------------------------------------------------------------------
+
+  - id: cent_mille_milliards
+    names: { en: Hundred thousand billion poems, fr: Cent mille milliards de poèmes }
+    definitions:
+      en: >-
+        Ten sonnets sharing one rhyme scheme and syntax, printed on cut strips so
+        any line may follow any other, yielding ten to the fourteenth poems.
+      fr: Dix sonnets interchangeables vers par vers, soit dix puissance quatorze poèmes.
+    source: Raymond Queneau, Cent mille milliards de poèmes (1961)
+    family: permutation
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write ten sonnets whose lines are interchangeable position by position.
+
+  - id: combinatorial_sonnet
+    names: { en: Combinatorial sonnet }
+    definitions:
+      en: >-
+        A sonnet whose lines are drawn from interchangeable sets, so the single
+        printed poem stands for a much larger family of them.
+    source: Oulipo, La Littérature potentielle (1973)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write each line so that any of its alternatives would fit the poem equally well.
+
+  - id: line_permutation
+    names: { en: Line permutation }
+    definitions:
+      en: >-
+        A poem whose lines may be read in any order, each ordering intended to hold
+        as a finished text.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write lines that make sense in any sequence, with no line depending on another.
+
+  - id: word_permutation
+    names: { en: Word permutation }
+    definitions:
+      en: >-
+        A sentence whose words can be reordered freely while remaining grammatical,
+        each permutation a different statement.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write a sentence whose words stay grammatical in any order.
+
+  - id: stanza_permutation
+    names: { en: Stanza permutation }
+    definitions:
+      en: >-
+        A poem built so that its stanzas may be read in any order, the sequence
+        being left to the reader.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: permutation
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Write stanzas that hold in any order, none referring back to another.
+
+  - id: erasure
+    names: { en: Erasure, de: Auslöschung, fr: Effacement }
+    definitions:
+      en: >-
+        A new text made by deleting most of an existing one, the survivors reading
+        as a work in their own right.
+      de: Ein Text, der durch Streichung aus einem bestehenden Text gewonnen wird.
+      fr: Un texte obtenu en effaçant l'essentiel d'un texte existant.
+    source: Tom Phillips, A Humument (1970)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Delete most of the source page and let what remains stand as the poem.
+
+  - id: blackout_poetry
+    names: { en: Blackout poetry }
+    definitions:
+      en: >-
+        An erasure in which the deleted material is inked out rather than removed,
+        so the excision stays visible on the page.
+    source: Traditional; a modern popular practice with no single originator
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Black out most of the page and leave a poem in the words that survive.
+
+  - id: cento
+    names: { en: Cento, de: Cento, fr: Centon }
+    definitions:
+      en: >-
+        A poem assembled entirely from lines taken from other poets, with nothing
+        of the compiler's own wording.
+      de: Ein Gedicht ausschließlich aus Zeilen anderer Dichter.
+      fr: Un poème entièrement composé de vers empruntés.
+    source: Traditional; Ausonius, Cento Nuptialis, 4th century
+    family: procedural
+    attribution: traditional
+    aliases: [patchwork poem]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Build the poem entirely from lines borrowed from other poets.
+
+  - id: found_poem
+    names: { en: Found poem, de: Fundstück, fr: Poème trouvé }
+    definitions:
+      en: >-
+        A text lifted whole from non-literary material and presented as verse, the
+        framing doing all the work.
+      de: Ein unverändert übernommener Sachtext, als Gedicht präsentiert.
+      fr: Un texte non littéraire présenté tel quel comme poème.
+    source: Traditional; a modern practice with no single originator
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Take an unaltered passage of ordinary prose and set it as a poem.
+
+  - id: dada_poem
+    names: { en: Dada poem, de: Dada-Gedicht, fr: Poème dadaïste }
+    definitions:
+      en: >-
+        A poem made by cutting a newspaper article into single words, drawing them
+        from a bag at random and copying them in the order drawn.
+      de: Ein Gedicht aus zufällig gezogenen, ausgeschnittenen Zeitungswörtern.
+      fr: Un poème fait de mots découpés et tirés au hasard.
+    source: Tristan Tzara, Pour faire un poème dadaïste (1920)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Cut the article into words, draw them at random, and write them down in that order.
+
+  - id: chance_operation
+    names: { en: Chance operation }
+    definitions:
+      en: >-
+        A composition whose choices are settled by an external random source rather
+        than by the writer's judgement.
+    source: John Cage, Silence (1961)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Let a random source decide each choice, and record the result without editing.
+
+  - id: every_nth_word
+    names: { en: Every nth word }
+    definitions:
+      en: >-
+        A text produced by keeping only every nth word of a source and discarding
+        the rest.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Keep every seventh word of the source and read what results.
+
+  - id: column_reading
+    names: { en: Column reading }
+    definitions:
+      en: >-
+        A reading that takes a printed page vertically rather than horizontally,
+        so the column rather than the line becomes the unit.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Read the page down its columns instead of across its lines.
+
+  - id: palimpsest
+    names: { en: Palimpsest, de: Palimpsest, fr: Palimpseste }
+    definitions:
+      en: >-
+        A text written over another so that both remain partly legible, the older
+        showing through the newer.
+      de: Ein Text, der über einen anderen geschrieben ist und ihn durchscheinen lässt.
+      fr: Un texte écrit par-dessus un autre qui transparaît encore.
+    source: Traditional; the practice of reused medieval manuscript vellum
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Write over the source so that both texts remain partly readable at once.
+
+  - id: recombination
+    names: { en: Recombination }
+    definitions:
+      en: >-
+        A text built by redistributing the sentences of one or more sources into a
+        new order without altering their wording.
+    source: Oulipo, Atlas de littérature potentielle (1981)
+    family: procedural
+    attribution: reference
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Redistribute the source sentences into a new order, changing none of them.
+
+  - id: text_folding
+    names: { en: Text folding }
+    definitions:
+      en: >-
+        A text produced by folding a page so that non-adjacent passages meet and
+        are read as continuous.
+    source: William S. Burroughs, The Third Mind (1978)
+    family: procedural
+    attribution: primary
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Fold the page so distant passages touch, and read across the fold.
+
+  - id: oracle_reading
+    names: { en: Oracle reading }
+    definitions:
+      en: >-
+        A text assembled from passages arrived at by opening a book at random and
+        taking what the page offers.
+    source: Traditional; the practice of the sortes Virgilianae
+    family: procedural
+    attribution: traditional
+    aliases: [bibliomancy]
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Open the book at random and take the line your finger falls on, repeatedly.
+
+  - id: strikethrough
+    names: { en: Strikethrough }
+    definitions:
+      en: >-
+        A text whose deletions are struck through rather than removed, so the
+        reader sees both what was written and what was rejected.
+    source: Traditional; a modern typographic practice
+    family: procedural
+    attribution: traditional
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Leave the rejected wording struck through and visible beside what replaced it.
