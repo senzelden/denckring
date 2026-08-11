@@ -80,3 +80,12 @@ def test_every_declared_language_has_a_golden_case(procedure_id: str) -> None:
         f"{procedure_id} declares {sorted(missing)} in its catalogue row "
         f"but has no golden case in those languages"
     )
+
+
+def test_registered_procedures_are_never_marked_unreachable(procedure_id: str) -> None:
+    """If a checker exists, the catalogue row was mis-filed."""
+    meta = get(procedure_id).meta
+    assert meta.checkability != "none", (
+        f"{procedure_id} is registered but its catalogue row says it cannot be "
+        f"mechanically checked — one of the two is wrong"
+    )

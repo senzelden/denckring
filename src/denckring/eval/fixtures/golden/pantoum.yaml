@@ -1,0 +1,29 @@
+procedure: pantoum
+lang: en
+cases:
+  - name: interlocked
+    source: constructed example; the form is adapted from the Malay pantun
+    text: |-
+      a
+      b
+      c
+      d
+      b
+      e
+      d
+      f
+    params: {}
+    satisfied: true
+  - name: broken-interlock
+    source: constructed counterexample
+    text: |-
+      a
+      b
+      c
+      d
+      z
+      e
+      d
+      f
+    params: {}
+    satisfied: false

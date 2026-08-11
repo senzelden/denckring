@@ -1,0 +1,13 @@
+procedure: eodermdrome
+lang: en
+cases:
+  - name: the-word-itself
+    source: Dmitri A. Borgmann, Language on Vacation (1965)
+    text: eodermdrome
+    params: {}
+    satisfied: true
+  - name: an-open-walk
+    source: constructed counterexample
+    text: abc
+    params: {}
+    satisfied: false

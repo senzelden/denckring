@@ -1,0 +1,17 @@
+procedure: double_acrostic
+lang: en
+cases:
+  - name: both-margins
+    source: constructed example
+    text: |-
+      Apple
+      Berry
+    params: { first: ab, last: ey }
+    satisfied: true
+  - name: wrong-final
+    source: constructed counterexample
+    text: |-
+      Apple
+      Berra
+    params: { first: ab, last: ey }
+    satisfied: false
