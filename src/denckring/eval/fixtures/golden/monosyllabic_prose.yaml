@@ -1,0 +1,13 @@
+procedure: monosyllabic_prose
+lang: en
+cases:
+  - name: all-one-syllable
+    source: constructed example; a standing exercise in English rhetoric
+    text: the cat sat on the mat and did not move
+    params: {}
+    satisfied: true
+  - name: a-longer-word
+    source: constructed counterexample
+    text: the water sat on the mat
+    params: {}
+    satisfied: false
