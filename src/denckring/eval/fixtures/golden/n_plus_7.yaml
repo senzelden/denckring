@@ -1,0 +1,15 @@
+procedure: n_plus_7
+lang: en
+cases:
+  - name: displaced-by-seven
+    source: constructed example; the procedure is Jean Lescure's (1961)
+    text: |-
+      the catafalque satchmo on the tablespoonful
+    params: { source: the cat sat on the table }
+    satisfied: true
+  - name: a-non-noun-changed
+    source: constructed counterexample
+    text: |-
+      a cat sat on the table
+    params: { source: the cat sat on the table }
+    satisfied: false
