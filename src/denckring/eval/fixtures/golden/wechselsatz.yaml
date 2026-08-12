@@ -1,0 +1,13 @@
+procedure: wechselsatz
+lang: de
+cases:
+  - name: drawn-from-the-template
+    source: constructed example; the form is Kuhlmann's, the template is not
+    text: Ab Tag geht
+    params: { source: "Auf|Ab Nacht|Tag kommt|geht" }
+    satisfied: true
+  - name: a-word-off-the-template
+    source: constructed counterexample
+    text: Ab Mond geht
+    params: { source: "Auf|Ab Nacht|Tag kommt|geht" }
+    satisfied: false
