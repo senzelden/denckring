@@ -37,6 +37,16 @@ Attribution = Literal["primary", "reference", "traditional"]
 #: `none` means no computable acceptance criterion exists — the row is
 #: catalogued because the form belongs in an honest survey of the field, not as
 #: a backlog item. ADR 0002 keeps `none` rows permanently unregistered.
+#: Whether anyone ever set the procedure down as a rule. Distinct from
+#: `Attribution`, which records how the *source* was established: Harsdörffer
+#: wrote instructions for his rings, the sonnet was codified by prosodists
+#: rather than declared by an author, and Jean Paul's Ideenwürfeln is a rule
+#: reconstructed from a notebook. Conservative by design — using a form is not
+#: stating it, so Perec writing La Disparition does not make the lipogram
+#: author-stated.
+Attestation = Literal["author-stated", "codified", "reconstruction"]
+ATTESTATIONS: tuple[str, ...] = get_args(Attestation)
+
 Checkability = Literal["self", "source", "none"]
 CHECKABILITIES: tuple[str, ...] = get_args(Checkability)
 
@@ -71,6 +81,7 @@ class Meta(BaseModel):
     family: Family
     attribution: Attribution
     checkability: Checkability
+    attested: Attestation = "codified"
     aliases: list[str] = Field(default_factory=list)
     kind: Kind
     languages: list[Lang]
