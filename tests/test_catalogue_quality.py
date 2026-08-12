@@ -3,7 +3,7 @@
 import pytest
 
 from denckring.core import catalogue
-from denckring.core.protocol import CHECKABILITIES, FAMILIES, Meta
+from denckring.core.protocol import ATTESTATIONS, CHECKABILITIES, FAMILIES, Meta
 
 ENTRIES = catalogue.load()
 
@@ -62,4 +62,19 @@ def test_source_relative_rows_are_not_marked_self() -> None:
             assert meta.checkability != "self", (
                 f"{meta.id} is defined against a source text but claims to be "
                 f"decidable from the text alone"
+            )
+
+
+def test_every_row_declares_attestation() -> None:
+    for meta in ENTRIES.values():
+        assert meta.attested in ATTESTATIONS, f"{meta.id} has {meta.attested!r}"
+
+
+def test_author_stated_rows_name_a_source_with_a_year() -> None:
+    """Claiming the author set the rule down means pointing at where."""
+    for meta in ENTRIES.values():
+        if meta.attested == "author-stated":
+            assert any(ch.isdigit() for ch in meta.source), (
+                f"{meta.id} says the author stated the rule but its source names no "
+                f"year: {meta.source!r}"
             )
