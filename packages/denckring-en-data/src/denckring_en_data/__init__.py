@@ -17,16 +17,19 @@ from denckring.lang.base import (
     ALPHABET,
     FOLD_DIACRITICS,
     LETTER_SHAPES,
+    NOUNS,
     PHONEMES,
     STRESS,
     SYLLABLES,
     SYLLABLES_DICTIONARY,
     SYLLABLES_HEURISTIC,
     TOKENS,
+    WORDS,
 )
 from denckring.lang.en import EnglishPack
 
 DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict"))
+NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 
 __version__ = "0.1.0"
 
@@ -55,6 +58,39 @@ def pronunciations() -> dict[str, list[str]]:
     return {word: forms[0] for word, forms in variants().items()}
 
 
+@lru_cache(maxsize=1)
+def noun_list() -> tuple[str, ...]:
+    """WordNet's single-word noun lemmas, in dictionary order.
+
+    Order is the point: N+7 walks this list, so the seventh noun after a given
+    one has to be well defined. Restricted to purely alphabetic lemmas, because
+    a displacement must be a word the tokeniser gives back whole — `cat's-paw`
+    comes back as three tokens and would break the correspondence.
+    """
+    return tuple(NOUNS_PATH.read_text(encoding="utf-8").split())
+
+
+@lru_cache(maxsize=1)
+def noun_positions() -> dict[str, int]:
+    return {word: index for index, word in enumerate(noun_list())}
+
+
+@lru_cache(maxsize=1)
+def known_words() -> frozenset[str]:
+    """Word membership, from the nouns and the pronouncing dictionary together.
+
+    Neither alone is a general English word list: WordNet has no inflections of
+    the kind CMUdict carries, and CMUdict has proper nouns and abbreviations
+    WordNet omits.
+
+    The union is deliberately broad, and broad in a way callers should know
+    about: CMUdict lists `tac`, so `cat` reverses into something this oracle
+    calls a word. It answers "could this be a word" rather than "is this in a
+    dictionary of standard English", and procedures resting on it inherit that.
+    """
+    return frozenset(noun_list()) | frozenset(pronunciations())
+
+
 class EnglishDataPack(EnglishPack):
     """English with a pronouncing dictionary behind it."""
 
@@ -70,6 +106,8 @@ class EnglishDataPack(EnglishPack):
             SYLLABLES,
             PHONEMES,
             STRESS,
+            NOUNS,
+            WORDS,
         }
     )
 
@@ -80,6 +118,19 @@ class EnglishDataPack(EnglishPack):
         if phones is None:
             return super().syllable_count(word)
         return sum(1 for phone in phones if phone[-1].isdigit()), True
+
+    def is_word(self, word: str) -> bool:
+        return self._lemma(word) in known_words()
+
+    def nouns(self) -> tuple[str, ...]:
+        return noun_list()
+
+    def noun_index(self, word: str) -> int | None:
+        return noun_positions().get(self._lemma(word))
+
+    @staticmethod
+    def _lemma(word: str) -> str:
+        return "".join(ch for ch in word.lower() if ch.isalpha())
 
     def phonemes(self, word: str) -> list[str]:
         """The word's phonemes, or raise if the dictionary does not know it."""
@@ -138,4 +189,12 @@ def _rhyme_of(phones: list[str]) -> str:
     return " ".join(phones[primary[-1] :])
 
 
-__all__ = ["DICTIONARY_PATH", "EnglishDataPack", "pronunciations"]
+__all__ = [
+    "DICTIONARY_PATH",
+    "NOUNS_PATH",
+    "EnglishDataPack",
+    "known_words",
+    "noun_list",
+    "pronunciations",
+    "variants",
+]

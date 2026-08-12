@@ -87,9 +87,20 @@ All notable changes to this project are documented here. The format follows
   enforces.
 - `CITATION.cff`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue and pull request templates,
   and a `.pre-commit-config.yaml` mirroring the CI lint and typecheck jobs.
+- `lexicon.words` and `lexicon.nouns` capabilities, backed by WordNet's 55,239
+  single-word noun lemmas (Princeton licence) added to `denckring-en-data`.
+- Five procedures: `n_plus_7`, `s_plus_7`, `charade`, `semordnilap`, `word_square`.
+  N+7 reports `ambiguous_words`, because a word list cannot tell you that *run* is a
+  verb in this sentence.
+- ADRs 0015 and 0016 on lexicon capabilities and on one data pack per language.
 
 ### Fixed
 
+- Two language packs claiming one language were resolved silently by load order. They
+  now raise `DuplicatePack` naming both, since answers that depend on installation
+  order are the failure ADR 0004 exists to prevent.
+- Thirteen catalogue rows declared `lexicon.nouns` when they wanted word membership,
+  synonyms, antonyms or glosses. Each now names what it actually needs.
 - Entry-point language packs were shadowed by the built-in English default, so an
   installed data package had no effect. Precedence is now explicit registration, then
   entry point, then built-in default.
