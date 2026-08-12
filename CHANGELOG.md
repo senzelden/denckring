@@ -124,14 +124,22 @@ All notable changes to this project are documented here. The format follows
   vocabulary, with the losses counted rather than smoothed — words with no number,
   numbers with no entry at the far end, and words reachable from several numbers,
   where two distinct things arrive as one. The vocabulary is supplied by the caller.
-- `arca_musarithmica` catalogued, with a note on which part of it is a writing
-  procedure rather than a musical one.
+- `arca_musarithmica`: a phrase is measured, the tablet for that length is found, and
+  the chosen pattern must be one that tablet offers. The patterns are never read, so
+  Kircher's pitch numbers and a set of stress patterns work equally well in the same
+  table. No tablet ships.
+- ADR 0021 on implementing the transferable part of a procedure rather than the
+  artefact.
 
 ### Fixed
 
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
+- A report could say satisfied and still list violations, when a violation was appended
+  without being counted in the score. The invariant suite asserted
+  `satisfied == (score == 1.0)` from the start but never that a satisfied report is
+  silent; it does now, and the Arca's tone check was the case that showed the gap.
 - `apply` let Pydantic's validation error escape where `check` wrapped it in
   `InvalidParams`, so one kind of mistake raised two kinds of failure depending on
   which method you called. Both now go through one door.
