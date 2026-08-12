@@ -120,12 +120,21 @@ All notable changes to this project are documented here. The format follows
   `witz_metaphor` catalogued as the step it stops short of. The first entries to carry
   `attested: reconstruction`.
 - ADR 0020 on corpora not being shipped.
+- `pasigraphy`, Kircher's universal writing: a sentence sent across a numbered
+  vocabulary, with the losses counted rather than smoothed — words with no number,
+  numbers with no entry at the far end, and words reachable from several numbers,
+  where two distinct things arrive as one. The vocabulary is supplied by the caller.
+- `arca_musarithmica` catalogued, with a note on which part of it is a writing
+  procedure rather than a musical one.
 
 ### Fixed
 
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
+- `apply` let Pydantic's validation error escape where `check` wrapped it in
+  `InvalidParams`, so one kind of mistake raised two kinds of failure depending on
+  which method you called. Both now go through one door.
 - Three catalogue edits in earlier releases silently did nothing, because a string
   replacement that matches nothing succeeds quietly. The Denckring, Wechselsatz and
   Proteus-verse rows never received the text they were reported as having. All three
