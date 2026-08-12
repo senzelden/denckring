@@ -86,6 +86,17 @@ denckring check lipogram --json text.txt          # 2. CLI, exits 1 when unsatis
 denckring show lipogram --json                    # 3. stable JSON for non-Python callers
 ```
 
+## Documentation
+
+The [gallery](https://senzelden.github.io/denckring/gallery/) has a page per catalogued
+procedure, generated from the catalogue and the golden fixtures — so every worked
+example on it is one the test suite enforces, and none of it can drift. Build it
+locally with:
+
+```console
+uv run python scripts/build_gallery.py && uv run mkdocs serve
+```
+
 ## Contributing
 
 One module per procedure, `check` mandatory. Start with `denckring new <id>`, which

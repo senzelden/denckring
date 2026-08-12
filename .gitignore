@@ -8,3 +8,10 @@ __pycache__/
 dist/
 *.egg-info/
 dist/
+
+# Generated docs and site build
+docs/gallery/
+docs/index.md
+docs/contributing.md
+docs/changelog.md
+site/

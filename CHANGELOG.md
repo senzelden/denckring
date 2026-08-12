@@ -79,6 +79,14 @@ All notable changes to this project are documented here. The format follows
   the first procedures a core-only install genuinely cannot run — without
   `denckring[en]` they raise `MissingCapability` naming the extra.
 - ADR 0014 on metre as satisfiability, and on what strict scansion does not accept.
+- Release machinery: GitHub Actions CI (lint, typecheck, a 3×3 test matrix, a separate
+  `denckring eval --all` gate, a core-only install job, a docs build and a distribution
+  build), tag-triggered Trusted Publishing with attestations, and Dependabot.
+- A generated documentation gallery: one page per catalogued procedure, built from the
+  catalogue and the golden fixtures, so every worked example is one the test suite
+  enforces.
+- `CITATION.cff`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue and pull request templates,
+  and a `.pre-commit-config.yaml` mirroring the CI lint and typecheck jobs.
 
 ### Fixed
 
