@@ -1,0 +1,19 @@
+procedure: denckring
+lang: de
+cases:
+  - name: verlangen
+    source: constructed example; a real German word the 1651 rings can spell
+    text: verlangen
+    params: {}
+    satisfied: true
+  - name: das-wort-denckring-selbst
+    source: >-
+      constructed counterexample; Harsdörffer's device cannot spell its own name
+    text: Denckring
+    params: {}
+    satisfied: false
+  - name: gedreht
+    source: constructed example; produced by turning the rings, then checked
+    text: darquaelber
+    params: {}
+    satisfied: true
