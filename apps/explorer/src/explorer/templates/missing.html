@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% set page_id = 'missing' %}
+{% block chrome %}
+<p class="strapline">
+  Two different kinds of absence. Most of what is missing is waiting on a capability
+  nobody has written yet; the rest can never be written at all, and is here because
+  the catalogue is a survey of the field rather than a to-do list.
+</p>
+{% endblock %}
+{% block main %}
+<section class="sheet">
+  <h2>Waiting on something</h2>
+  <p>{{ coverage.remaining }} procedures could have a checker and do not yet. Grouped by what
+  stands in the way.</p>
+  {% for key, count, rows in gaps %}
+  <div class="gap">
+    <div class="gap-head">
+      <span class="gap-key">{{ key }}</span>
+      <span class="gap-count">{{ count }} procedure{{ '' if count == 1 else 's' }}</span>
+    </div>
+    <div class="chips">
+      {% for s in rows %}<a class="chip" href="/p/{{ s.id }}">{{ s.name }}</a>{% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+<section class="sheet">
+  <h2>Beyond checking</h2>
+  <p>{{ unreachable | length }} entries have no computable acceptance criterion. Canada Dry is
+  <em>defined</em> as having the manner of a constrained work with no constraint operating;
+  a calligram's shape is not something code judges. These are not a backlog, and the
+  coverage figure counts them separately so it never promises a gap that cannot close.</p>
+  <div class="chips">
+    {% for s in unreachable %}<a class="chip" href="/p/{{ s.id }}">{{ s.name }}</a>{% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ meta.names.get('en', meta.id) }} · denckring{% endblock %}
+{% block main %}
+<a class="crumb" href="/">← The case</a>
+<h1 class="title">{{ meta.names.get('en', meta.id) }}</h1>
+<p class="byline">
+  {{ meta.id }} · {{ meta.family }} ·
+  {% if implemented %}implemented{% elif meta.checkability == 'none' %}beyond checking{% else %}catalogued{% endif %}
+  {%- if meta.aliases %} · also {{ meta.aliases | join(', ') }}{% endif %}
+</p>
+<p class="definition">{{ meta.definitions.get('en', '') }}</p>
+
+<dl class="facts">
+  <div class="fact"><dt>Source</dt><dd>{{ meta.source }}</dd></div>
+  <div class="fact"><dt>Attribution</dt><dd>{{ meta.attribution }}</dd></div>
+  <div class="fact"><dt>Checkability</dt><dd>{{ meta.checkability }}</dd></div>
+  <div class="fact"><dt>Kind</dt><dd>{{ meta.kind }}</dd></div>
+  <div class="fact"><dt>Languages</dt><dd>{{ meta.languages | join(', ') }}</dd></div>
+  <div class="fact"><dt>Requires</dt><dd>{{ meta.requires | join(', ') if meta.requires else '—' }}</dd></div>
+</dl>
+
+{% if implemented %}
+<div class="bench">
+  <div>
+    <section class="sheet">
+      <h2>Try it</h2>
+      <div id="bench">{% include "_bench.html" %}</div>
+    </section>
+    <section class="sheet" id="proof-sheet">
+      <h2>The proof</h2>
+      <div id="proof">
+        <p class="hint">Nothing pulled yet. Enter a text and check it, or load one of the
+        recorded examples.</p>
+      </div>
+    </section>
+  </div>
+  <aside class="rail">
+    <section class="sheet">
+      <h3>Recorded examples</h3>
+      <p class="hint" style="margin-bottom:0.8rem">Each one is a golden fixture the test
+      suite enforces, so it behaves here exactly as it does in CI.</p>
+      {% for ex in examples %}
+      <button class="example" hx-post="/p/{{ meta.id }}/example" hx-target="#bench"
+              hx-swap="innerHTML" hx-vals='{"index": {{ loop.index0 }}}'>
+        <span class="verdict-chip {{ 'yes' if ex.satisfied else 'no' }}">
+          {{ 'satisfies' if ex.satisfied else 'does not satisfy' }} · {{ ex.lang }}
+        </span>
+        {{ ex.name }}
+        {% if ex.source %}<span class="cite">{{ ex.source }}</span>{% endif %}
+      </button>
+      {% endfor %}
+      {% if meta.prompt_hints.get('en') %}
+      <h3>Prompt hint</h3>
+      <p class="hint">{{ meta.prompt_hints['en'] }}</p>
+      {% endif %}
+    </section>
+  </aside>
+</div>
+{% else %}
+<section class="sheet">
+  {% if meta.checkability == 'none' %}
+  <h2>This one cannot be checked</h2>
+  <p>There is no computable acceptance criterion for it, so it will never be implemented.
+  It is catalogued because the form belongs in an honest survey of the field, and the
+  coverage figure counts it separately rather than reporting a gap that cannot close.</p>
+  {% else %}
+  <h2>Not written yet</h2>
+  {% if missing %}
+  <p>It waits on {{ missing | join(', ') }} — a capability no installed language pack
+  provides. Until something does, there is no honest way to check it.</p>
+  {% else %}
+  <p>Everything it needs is available. The checker is simply unwritten.</p>
+  {% endif %}
+  {% endif %}
+  {% if meta.prompt_hints.get('en') %}
+  <h3>Prompt hint</h3>
+  <p>{{ meta.prompt_hints['en'] }}</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

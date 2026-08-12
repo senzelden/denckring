@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% set page_id = 'case' %}
+{% from "_sort.html" import sort %}
+{% block chrome %}
+<p class="strapline">
+  Every procedure in the catalogue, laid out as a compositor would lay out type:
+  one compartment each, filled where a checker exists.
+</p>
+<div class="tally">
+  <span><b>{{ coverage.implemented }}</b> of <b>{{ coverage.implementable }}</b> compartments set</span>
+  <span class="key set"><i></i> implemented</span>
+  <span class="key uncut"><i></i> catalogued, {{ coverage.remaining }} to go</span>
+  <span class="key blocked"><i></i> {{ coverage.unreachable }} that no program can judge</span>
+</div>
+<div class="search">
+  <label for="q">Find a procedure</label>
+  <input type="search" id="q" name="q" placeholder="lipogram, isogram, rhopalic…"
+         hx-get="/search" hx-trigger="input changed delay:200ms, search"
+         hx-target="#results" autocomplete="off">
+</div>
+<div class="results" id="results"></div>
+{% endblock %}
+{% block main %}
+{% for family, sorts in drawers %}
+<section class="drawer">
+  <div class="drawer-head">
+    <h2 class="drawer-name">{{ family }}</h2>
+    <span class="drawer-tally">{{ sorts | selectattr('state', 'equalto', 'set') | list | length }}/{{ sorts | length }}</span>
+    <p class="drawer-note">{{ notes[family] }}</p>
+  </div>
+  <div class="case-grid">
+    {% for s in sorts %}{{ sort(s) }}{% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
