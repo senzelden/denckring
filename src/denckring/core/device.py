@@ -15,13 +15,14 @@ from __future__ import annotations
 import random
 from functools import lru_cache
 from importlib.resources import files
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field
 
-from denckring.core.errors import UnknownDevice
+from denckring.core.errors import UnknownDevice, UnknownFigure, UnknownLevel
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
 
@@ -121,3 +122,60 @@ class DeviceParams(BaseModel):
         default="harsdoerffer_1651",
         description="Which device to read the slots from.",
     )
+
+
+FIGURE_DIR = Path(str(files("denckring") / "data" / "figures"))
+
+
+class Figure(BaseModel):
+    """An alphabet read at several levels at once.
+
+    Llull's ternary Ars letters nine principles B to K — J is not used — and the
+    same letter names a dignity, a relation, a question, a subject, a virtue or a
+    vice depending on the table it is read against. Turning the concentric wheels
+    produces chambers of letters; what a chamber *says* depends on the level.
+
+    Unlike a `Device`, whose slots are different sets, a figure draws every
+    position from one alphabet, and a chamber is a combination rather than a
+    product.
+    """
+
+    id: str
+    name: str
+    source: str
+    letters: list[str]
+    levels: dict[str, dict[str, str]]
+
+    def level_names(self) -> list[str]:
+        return sorted(self.levels)
+
+    def read(self, chamber: str, level: str = "absolute") -> list[str]:
+        """Spell a chamber out at one level, or raise if the level is unknown."""
+        if level not in self.levels:
+            raise UnknownLevel(self.id, level, self.level_names())
+        table = self.levels[level]
+        return [table[letter] for letter in chamber if letter in table]
+
+    def chambers(self, arity: int = 3) -> list[str]:
+        """Every combination of `arity` distinct letters, in alphabet order.
+
+        Computed, never quoted: the count of the printed tabula has not been
+        checked against a facsimile, and a figure derived from the letters is
+        worth more than one taken from the literature.
+        """
+        return ["".join(combo) for combo in combinations(self.letters, arity)]
+
+
+@lru_cache(maxsize=8)
+def load_figure(figure_id: str) -> Figure:
+    """Read a figure by id from the shipped data."""
+    path = FIGURE_DIR / f"{figure_id}.yaml"
+    if not path.is_file():
+        raise UnknownFigure(figure_id, sorted(p.stem for p in FIGURE_DIR.glob("*.yaml")))
+    raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
+    # `label` sits alongside the letters in each level; it documents, it does not map.
+    raw["levels"] = {
+        name: {k: v for k, v in table.items() if k != "label"}
+        for name, table in raw["levels"].items()
+    }
+    return Figure.model_validate(raw)

@@ -88,6 +88,10 @@ class Meta(BaseModel):
     requires: list[str] = Field(default_factory=list)
     deterministic: bool = True
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
+    #: Contested figures, reception history and caveats — anything true about the
+    #: entry that is not part of what the procedure *is*. Keeping it out of
+    #: `definitions` is what lets a definition stay a definition.
+    notes: str | None = None
 
 
 @runtime_checkable

@@ -122,6 +122,9 @@ def render_procedure(meta: Meta, implemented: set[str], validated: set[str]) -> 
         rendered = ", ".join(f"{v} (*{k}*)" for k, v in sorted(other_names.items()))
         lines.append(f"- **In other languages:** {rendered}")
 
+    if meta.notes:
+        lines += ["", "## Notes", "", meta.notes]
+
     if hint := meta.prompt_hints.get("en"):
         lines += ["", "## Prompt hint", "", f"> {hint}"]
 
