@@ -1,0 +1,8 @@
+{% from "_sort.html" import sort %}
+{% if term %}
+  {% if results %}
+  <div class="case-grid">{% for s in results %}{{ sort(s) }}{% endfor %}</div>
+  {% else %}
+  <p class="strapline">Nothing matches “{{ term }}”. Names, ids and aliases are all searched.</p>
+  {% endif %}
+{% endif %}

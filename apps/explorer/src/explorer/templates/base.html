@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}denckring explorer{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/explorer.css">
+<script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+<header class="masthead">
+  <a class="wordmark" href="/">denck<span>ring</span></a>
+  <nav>
+    <a href="/" {% if page_id == 'case' %}aria-current="page"{% endif %}>The case</a>
+    <a href="/missing" {% if page_id == 'missing' %}aria-current="page"{% endif %}>What's missing</a>
+  </nav>
+</header>
+{% block chrome %}{% endblock %}
+<main>
+{% block main %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{% macro sort(s) -%}
+<a class="sort is-{{ s.state }}" href="/p/{{ s.id }}"
+   title="{{ s.name }} — {% if s.state == 'set' %}implemented{% elif s.state == 'blocked' %}no computable acceptance criterion{% else %}catalogued{% endif %}{% if s.missing %}, waiting on {{ s.blocked_on }}{% endif %}">
+  {%- if s.state == 'set' and s.checkability == 'source' %}<span class="sort-flag">src</span>{% endif -%}
+  <span class="sort-face">{{ s.initial }}</span>
+  <span class="sort-name">{{ s.name }}</span>
+</a>
+{%- endmacro %}

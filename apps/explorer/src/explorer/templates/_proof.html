@@ -1,0 +1,40 @@
+{% if problem %}
+<p class="notice">{{ problem }}</p>
+{% elif report %}
+<div class="verdict {{ 'pass' if report.satisfied else 'fail' }}">
+  <span class="verdict-word">{{ 'Satisfied' if report.satisfied else 'Not satisfied' }}</span>
+  <span class="score">score {{ '%.3f' | format(report.score) }}</span>
+</div>
+<span class="gauge {{ '' if report.satisfied else 'fail' }}"><i style="width: {{ (report.score * 100) | round(1) }}%"></i></span>
+
+<h3>The text</h3>
+<div class="proof-text">{{ marked | safe }}</div>
+
+{% if report.violations %}
+<h3>{{ report.violations | length }} mark{{ '' if report.violations | length == 1 else 's' }}</h3>
+<ul class="marks">
+  {% for v in report.violations[:60] %}
+  <li>
+    <span class="at">{% if v.offset is not none %}{{ v.offset }}{% else %}—{% endif %}</span>
+    <span>
+      <span class="rule-name">{{ v.rule.replace('_', ' ') }}</span>
+      {% if v.found %}found <b>{{ v.found }}</b>{% endif %}
+      {% if v.expected %}{% if v.found %} · {% endif %}expected {{ v.expected }}{% endif %}
+      {% if v.note %}<br><em>{{ v.note }}</em>{% endif %}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% if report.violations | length > 60 %}
+<p class="hint">and {{ report.violations | length - 60 }} more.</p>
+{% endif %}
+{% endif %}
+
+{% if report.metrics %}
+<div class="metrics">
+  {% for key, value in report.metrics.items() %}
+  <span>{{ key.replace('_', ' ') }} <b>{{ value | round(3) | int if value == value | int else value | round(3) }}</b></span>
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}

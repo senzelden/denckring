@@ -1,0 +1,61 @@
+<form class="bench-form" hx-post="/p/{{ meta.id }}/check" hx-target="#proof" hx-swap="innerHTML">
+  <div class="field">
+    <label for="text">Your text</label>
+    <textarea id="text" name="text" spellcheck="false"
+              placeholder="Type or paste the text to check.">{{ example.text if example else '' }}</textarea>
+  </div>
+
+  {% if languages | length > 1 %}
+  <div class="field inline">
+    <label for="lang">Language</label>
+    <select id="lang" name="lang" style="width:auto">
+      {% for code in languages %}
+      <option value="{{ code }}" {% if example and example.lang == code %}selected{% endif %}>{{ code }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% else %}
+  <input type="hidden" name="lang" value="{{ languages[0] }}">
+  {% endif %}
+
+  {% for f in fields %}
+  <div class="field {% if f.control == 'checkbox' %}inline{% endif %}">
+    {% if f.control == 'checkbox' %}
+      <input type="checkbox" id="{{ f.name }}" name="{{ f.name }}"
+             {% if (example.params[f.name] if example and f.name in example.params else f.default) %}checked{% endif %}>
+      <label for="{{ f.name }}">{{ f.name.replace('_', ' ') }}</label>
+    {% else %}
+      <label for="{{ f.name }}">
+        {{ f.name.replace('_', ' ') }}{% if f.required %} <span style="color:#b3121d">required</span>{% endif %}
+      </label>
+      {% set value = example.params[f.name] if example and f.name in example.params else (f.default if f.default is not none else '') %}
+      {% if f.control == 'select' %}
+        <select id="{{ f.name }}" name="{{ f.name }}">
+          {% for choice in f.choices %}
+          <option value="{{ choice }}" {% if choice == value | string %}selected{% endif %}>{{ choice }}</option>
+          {% endfor %}
+        </select>
+      {% elif f.control == 'textarea' %}
+        <textarea id="{{ f.name }}" name="{{ f.name }}" spellcheck="false"
+                  style="min-height:6rem">{{ value }}</textarea>
+      {% elif f.control == 'number' %}
+        <input type="number" id="{{ f.name }}" name="{{ f.name }}" value="{{ value }}">
+      {% else %}
+        <input type="text" id="{{ f.name }}" name="{{ f.name }}"
+               value="{% if value is iterable and value is not string %}{{ value | join(' ') }}{% else %}{{ value }}{% endif %}">
+      {% endif %}
+    {% endif %}
+    {% if f.description %}<p class="hint">{{ f.description }}</p>{% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="actions">
+    <button type="submit">Check the text</button>
+    {% if can_apply %}
+    <button type="submit" class="quiet"
+            hx-post="/p/{{ meta.id }}/apply" hx-target="#proof" hx-swap="innerHTML">
+      Generate from it
+    </button>
+    {% endif %}
+  </div>
+</form>

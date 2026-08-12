@@ -1,0 +1,9 @@
+{% if problem %}
+<p class="notice">{{ problem }}</p>
+{% else %}
+<div class="verdict pass"><span class="verdict-word">Generated</span></div>
+<h3>The result</h3>
+<div class="proof-text">{{ produced }}</div>
+<p class="hint">Paste this back into the text box and check it — a constructive procedure
+should satisfy its own checker.</p>
+{% endif %}

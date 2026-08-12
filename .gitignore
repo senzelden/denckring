@@ -15,3 +15,6 @@ docs/index.md
 docs/contributing.md
 docs/changelog.md
 site/
+
+# The explorer keeps its own environment
+apps/explorer/.venv/

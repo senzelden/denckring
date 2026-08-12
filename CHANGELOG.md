@@ -93,6 +93,8 @@ All notable changes to this project are documented here. The format follows
   N+7 reports `ambiguous_words`, because a word list cannot tell you that *run* is a
   verb in this sentence.
 - ADRs 0015 and 0016 on lexicon capabilities and on one data pack per language.
+- `apps/explorer`, a local FastAPI browser for the catalogue and bench for the
+  procedures. Outside the distribution: nothing published depends on it.
 
 ### Fixed
 
