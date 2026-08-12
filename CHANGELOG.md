@@ -114,6 +114,12 @@ All notable changes to this project are documented here. The format follows
   ships with all six of its tables, and Kircher's Ars Magna Sciendi as a preset of the
   same mechanism. `llull_figure` checks and generates chambers; counts are computed
   from the letters (84 ternary chambers, 36 pairs) rather than quoted.
+- A corpus layer: `Corpus`, `Entry` and a parser reading JSON or plain text. No corpus
+  ships with the package — the loader is here, the reading is the reader's.
+- `ideenwuerfeln`, reconstructed from Jean Paul's notebook of February 1795, and
+  `witz_metaphor` catalogued as the step it stops short of. The first entries to carry
+  `attested: reconstruction`.
+- ADR 0020 on corpora not being shipped.
 
 ### Fixed
 

@@ -53,6 +53,11 @@ class UnknownDevice(DenckringError):
         super().__init__(f"No combinatorial device called {device_id!r}. Available: {known}.")
 
 
+class MalformedCorpus(DenckringError):
+    def __init__(self, reason: str) -> None:
+        super().__init__(f"That corpus cannot be read: {reason}")
+
+
 class UnknownFigure(DenckringError):
     def __init__(self, figure_id: str, available: list[str] | None = None) -> None:
         self.figure_id = figure_id
