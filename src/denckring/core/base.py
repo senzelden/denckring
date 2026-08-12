@@ -60,6 +60,26 @@ class BaseProcedure(ABC, Generic[P]):
     def _check(self, text: str, pack: LanguagePack, params: P) -> Report:
         """Procedure-specific checking. Language and parameters are already valid."""
 
+    def parse_params(self, params: dict[str, Any]) -> P:
+        """Validate parameters, raising `InvalidParams` like `check` does.
+
+        `apply` used to call `model_validate` directly, so a missing parameter
+        escaped as a Pydantic error rather than a DenckringError — which meant
+        callers had to catch two kinds of failure for one kind of mistake.
+        """
+        model = self.params_model()
+        unknown = sorted(set(params) - set(model.model_fields))
+        if unknown:
+            raise InvalidParams(
+                self.id,
+                f"unknown parameter(s) {unknown}; this procedure accepts "
+                f"{sorted(model.model_fields)}",
+            )
+        try:
+            return model.model_validate(params)
+        except ValidationError as exc:
+            raise InvalidParams(self.id, str(exc)) from exc
+
     def params_schema(self) -> dict[str, Any]:
         """JSON Schema for the parameters, for non-Python callers."""
         return self.params_model().model_json_schema()
@@ -71,21 +91,9 @@ class BaseProcedure(ABC, Generic[P]):
         pack = get_pack(lang)
         for capability in self.meta.requires:
             require_capability(pack, capability, self.id)
-        model = self.params_model()
-        unknown = sorted(set(params) - set(model.model_fields))
-        if unknown:
-            # Silently dropping a mistyped parameter would let a caller believe
-            # a constraint was applied when it was not.
-            raise InvalidParams(
-                self.id,
-                f"unknown parameter(s) {unknown}; this procedure accepts "
-                f"{sorted(model.model_fields)}",
-            )
-        try:
-            parsed = model.model_validate(params)
-        except ValidationError as exc:
-            raise InvalidParams(self.id, str(exc)) from exc
-        return self._check(text, pack, parsed)
+        # Silently dropping a mistyped parameter would let a caller believe a
+        # constraint was applied when it was not, so parse_params refuses it.
+        return self._check(text, pack, self.parse_params(params))
 
     def _report(
         self,
