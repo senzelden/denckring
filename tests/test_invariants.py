@@ -89,3 +89,26 @@ def test_registered_procedures_are_never_marked_unreachable(procedure_id: str) -
         f"{procedure_id} is registered but its catalogue row says it cannot be "
         f"mechanically checked — one of the two is wrong"
     )
+
+
+def test_a_satisfied_report_carries_no_violations(procedure_id: str) -> None:
+    """Saying yes while listing faults is a contradiction.
+
+    `satisfied == (score == 1.0)` was asserted from the start, but a violation
+    that the score never counted could slip past it — the report would say the
+    text passed and then list what was wrong with it.
+    """
+    proc = get(procedure_id)
+
+    @SETTINGS
+    @given(st.text(max_size=120))
+    def run(text: str) -> None:
+        with contextlib.suppress(DenckringError):
+            report = proc.check(text)
+            if report.satisfied:
+                assert not report.violations, (
+                    f"{procedure_id} says satisfied but reports "
+                    f"{[v.rule for v in report.violations]}"
+                )
+
+    run()
