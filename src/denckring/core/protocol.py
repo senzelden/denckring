@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, Field
@@ -138,4 +138,8 @@ class LanguagePack(Protocol):
 
     def stress_patterns(self, word: str) -> list[str]: ...
 
-    def nouns(self) -> Iterable[str]: ...
+    def is_word(self, word: str) -> bool: ...
+
+    def nouns(self) -> Sequence[str]: ...
+
+    def noun_index(self, word: str) -> int | None: ...

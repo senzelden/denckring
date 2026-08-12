@@ -1,0 +1,15 @@
+procedure: semordnilap
+lang: en
+cases:
+  - name: stressed-desserts
+    source: Traditional; the standard English example
+    text: |-
+      stressed
+    params: {}
+    satisfied: true
+  - name: a-palindrome
+    source: constructed counterexample; a palindrome reverses to itself
+    text: |-
+      level
+    params: {}
+    satisfied: false
