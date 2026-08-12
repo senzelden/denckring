@@ -11,6 +11,7 @@ procedures:
     family: letter
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -28,6 +29,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [monovocalism]
     kind: restrictive
     languages: [en, de]
@@ -46,6 +48,7 @@ procedures:
     family: letter
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -65,6 +68,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [holalphabetic sentence]
     kind: restrictive
     languages: [en, de]
@@ -83,6 +87,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [isogram]
     kind: restrictive
     languages: [en, de]
@@ -103,6 +108,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -120,6 +126,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [rhopalic]
     kind: restrictive
     languages: [en, de]
@@ -138,6 +145,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [melting snowball]
     kind: restrictive
     languages: [en, de]
@@ -159,6 +167,7 @@ procedures:
     family: letter
     attribution: primary
     checkability: self
+    attested: author-stated
     kind: restrictive
     languages: [en, de]
     requires: [tokens, letter_shapes, fold_diacritics]
@@ -178,6 +187,7 @@ procedures:
     family: letter
     attribution: primary
     checkability: self
+    attested: author-stated
     aliases: [beautiful present]
     kind: restrictive
     languages: [en, de]
@@ -196,6 +206,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en, de]
     requires: [tokens, fold_diacritics]
@@ -213,6 +224,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [telestic]
     kind: restrictive
     languages: [en, de]
@@ -236,6 +248,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [N+7]
     kind: both
     languages: [en]
@@ -254,6 +267,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, lexicon.nouns]
@@ -271,6 +285,7 @@ procedures:
     family: word
     attribution: traditional
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -288,6 +303,7 @@ procedures:
     family: syntax
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -308,6 +324,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens, lexicon.glosses]
@@ -325,6 +342,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens]
@@ -342,6 +360,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -359,6 +378,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens]
@@ -376,6 +396,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [mesostich]
     kind: both
     languages: [en]
@@ -394,6 +415,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -411,6 +433,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -430,6 +453,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes, stress]
@@ -447,6 +471,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -464,6 +489,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -481,6 +507,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -498,6 +525,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -514,10 +542,14 @@ procedures:
       en: Five concentric rotating discs of word parts, combined into words by rotation.
       de: Fünf konzentrische Scheiben mit Wortteilen, die durch Drehung Wörter bilden.
       fr: Cinq disques concentriques de fragments, combinés par rotation.
-    source: Georg Philipp Harsdörffer, Fünffacher Denckring der Teutschen Sprache (1651)
+    source: >-
+      Georg Philipp Harsdörffer, Deliciae Physico-Mathematicae (Erquickstunden),
+      part two, Nürnberg 1651, p. 517 — not the Poetischer Trichter, where it is
+      often placed
     family: permutation
     attribution: primary
     checkability: self
+    attested: author-stated
     kind: both
     languages: [de]
     requires: [tokens]
@@ -535,6 +567,7 @@ procedures:
     family: permutation
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -552,6 +585,7 @@ procedures:
     family: permutation
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [de]
     requires: [tokens]
@@ -574,6 +608,7 @@ procedures:
     family: letter
     attribution: primary
     checkability: self
+    attested: author-stated
     aliases: [beautiful absent]
     kind: restrictive
     languages: [en]
@@ -594,6 +629,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [abecedarius]
     kind: restrictive
     languages: [en]
@@ -612,6 +648,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [acrostic-telestich]
     kind: restrictive
     languages: [en]
@@ -632,6 +669,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -649,6 +687,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [emordnilap, reversible word]
     kind: restrictive
     languages: [en]
@@ -670,6 +709,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics, lexicon.words]
@@ -687,6 +727,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [alphabet, fold_diacritics]
@@ -704,6 +745,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, alphabet, fold_diacritics]
@@ -721,6 +763,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -738,6 +781,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -755,6 +799,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -774,6 +819,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, lexicon.words]
@@ -791,6 +837,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     aliases: [marsupial word]
     kind: restrictive
     languages: [en]
@@ -809,6 +856,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -828,6 +876,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -845,6 +894,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [alphabet, fold_diacritics]
@@ -860,6 +910,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -879,6 +930,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: source
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -896,6 +948,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -913,6 +966,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: source
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -931,6 +985,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -950,6 +1005,7 @@ procedures:
     family: letter
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -967,6 +1023,7 @@ procedures:
     family: letter
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -989,6 +1046,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -1007,6 +1065,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -1025,6 +1084,7 @@ procedures:
     family: syntax
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1042,6 +1102,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1059,6 +1120,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1077,6 +1139,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens, lexicon.synonyms]
@@ -1094,6 +1157,7 @@ procedures:
     family: word
     attribution: reference
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -1111,6 +1175,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: author-stated
     aliases: [elementary morphological deletion]
     kind: both
     languages: [en]
@@ -1130,6 +1195,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1149,6 +1215,7 @@ procedures:
     family: word
     attribution: primary
     checkability: self
+    attested: author-stated
     aliases: [doublets, word golf]
     kind: both
     languages: [en]
@@ -1167,6 +1234,7 @@ procedures:
     family: word
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1183,6 +1251,7 @@ procedures:
     family: word
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -1200,6 +1269,7 @@ procedures:
     family: syntax
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1217,6 +1287,7 @@ procedures:
     family: syntax
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1234,6 +1305,7 @@ procedures:
     family: syntax
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1253,6 +1325,7 @@ procedures:
     family: syntax
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1272,6 +1345,7 @@ procedures:
     family: syntax
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1289,6 +1363,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, lexicon.antonyms]
@@ -1306,6 +1381,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, lexicon.synonyms]
@@ -1325,6 +1401,7 @@ procedures:
     family: syntax
     attribution: traditional
     checkability: self
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1342,6 +1419,7 @@ procedures:
     family: word
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -1361,6 +1439,7 @@ procedures:
     family: word
     attribution: reference
     checkability: self
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -1378,6 +1457,7 @@ procedures:
     family: word
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1395,6 +1475,7 @@ procedures:
     family: word
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens, lexicon.glosses]
@@ -1418,6 +1499,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1438,6 +1520,7 @@ procedures:
     family: form
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1457,6 +1540,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: author-stated
     aliases: [n-ine]
     kind: restrictive
     languages: [en]
@@ -1478,6 +1562,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1497,6 +1582,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1516,6 +1602,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1535,6 +1622,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1554,6 +1642,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1573,6 +1662,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes, stress]
@@ -1590,6 +1680,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: author-stated
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1607,6 +1698,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: author-stated
     aliases: [higgledy-piggledy]
     kind: restrictive
     languages: [en]
@@ -1626,6 +1718,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: author-stated
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -1643,6 +1736,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [waka]
     kind: restrictive
     languages: [en]
@@ -1663,6 +1757,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1680,6 +1775,7 @@ procedures:
     family: form
     attribution: reference
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -1697,6 +1793,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1714,6 +1811,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1729,6 +1827,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes, stress]
@@ -1746,6 +1845,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1765,6 +1865,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     aliases: [italian sonnet]
     kind: restrictive
     languages: [en]
@@ -1785,6 +1886,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: codified
     aliases: [english sonnet]
     kind: restrictive
     languages: [en]
@@ -1803,6 +1905,7 @@ procedures:
     family: form
     attribution: primary
     checkability: self
+    attested: author-stated
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -1818,6 +1921,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes, stress]
@@ -1837,6 +1941,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1854,6 +1959,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1871,6 +1977,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [distich]
     kind: restrictive
     languages: [en]
@@ -1889,6 +1996,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables.heuristic]
@@ -1907,6 +2015,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, stress]
@@ -1922,6 +2031,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, stress]
@@ -1939,6 +2049,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables]
@@ -1958,6 +2069,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     aliases: [stabreim]
     kind: restrictive
     languages: [en]
@@ -1976,6 +2088,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, phonemes]
@@ -1993,6 +2106,7 @@ procedures:
     family: form
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, syllables, phonemes]
@@ -2018,6 +2132,7 @@ procedures:
     family: permutation
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2035,6 +2150,7 @@ procedures:
     family: permutation
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2052,6 +2168,7 @@ procedures:
     family: permutation
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2069,6 +2186,7 @@ procedures:
     family: permutation
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2086,6 +2204,7 @@ procedures:
     family: permutation
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2105,6 +2224,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2122,6 +2242,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2141,6 +2262,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     aliases: [patchwork poem]
     kind: constructive
     languages: [en]
@@ -2161,6 +2283,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2180,6 +2303,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2197,6 +2321,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2214,6 +2339,7 @@ procedures:
     family: procedural
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2231,6 +2357,7 @@ procedures:
     family: procedural
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2250,6 +2377,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2267,6 +2395,7 @@ procedures:
     family: procedural
     attribution: reference
     checkability: source
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2284,6 +2413,7 @@ procedures:
     family: procedural
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2301,6 +2431,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     aliases: [bibliomancy]
     kind: constructive
     languages: [en]
@@ -2319,6 +2450,7 @@ procedures:
     family: procedural
     attribution: traditional
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2342,6 +2474,7 @@ procedures:
     family: translation
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [sound translation]
     kind: both
     languages: [en]
@@ -2361,6 +2494,7 @@ procedures:
     family: translation
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, lexicon.antonyms]
@@ -2378,6 +2512,7 @@ procedures:
     family: translation
     attribution: primary
     checkability: source
+    attested: author-stated
     kind: both
     languages: [en]
     requires: [tokens, lexicon.glosses]
@@ -2395,6 +2530,7 @@ procedures:
     family: translation
     attribution: primary
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2410,6 +2546,7 @@ procedures:
     family: translation
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2428,6 +2565,7 @@ procedures:
     family: translation
     attribution: reference
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2447,6 +2585,7 @@ procedures:
     family: translation
     attribution: traditional
     checkability: source
+    attested: codified
     kind: both
     languages: [en]
     requires: [tokens]
@@ -2464,6 +2603,7 @@ procedures:
     family: translation
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [rewording]
     kind: both
     languages: [en]
@@ -2484,6 +2624,7 @@ procedures:
     family: visual
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2503,6 +2644,7 @@ procedures:
     family: visual
     attribution: reference
     checkability: none
+    attested: codified
     aliases: [carmen figuratum, technopaegnion]
     kind: constructive
     languages: [en]
@@ -2523,6 +2665,7 @@ procedures:
     family: visual
     attribution: primary
     checkability: none
+    attested: author-stated
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2542,6 +2685,7 @@ procedures:
     family: visual
     attribution: traditional
     checkability: source
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2561,6 +2705,7 @@ procedures:
     family: visual
     attribution: traditional
     checkability: self
+    attested: codified
     kind: restrictive
     languages: [en]
     requires: [tokens, fold_diacritics]
@@ -2578,6 +2723,7 @@ procedures:
     family: visual
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2595,6 +2741,7 @@ procedures:
     family: visual
     attribution: reference
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2612,6 +2759,7 @@ procedures:
     family: visual
     attribution: traditional
     checkability: none
+    attested: codified
     kind: constructive
     languages: [en]
     requires: [tokens]
@@ -2642,6 +2790,7 @@ procedures:
     family: permutation
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [combinatory art]
     kind: constructive
     languages: [en]
@@ -2665,6 +2814,7 @@ procedures:
     family: permutation
     attribution: primary
     checkability: source
+    attested: author-stated
     aliases: [figura universalis, volvelle]
     kind: constructive
     languages: [en]
@@ -2672,3 +2822,31 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Take the nine dignities and write out each pairing the wheels bring together.
+
+  - id: serial_lipogram
+    names: { en: Serial lipogram, de: Serielles Lipogramm, fr: Lipogramme sériel }
+    definitions:
+      en: >-
+        A work in as many parts as the alphabet has letters, each part omitting a
+        different one, so that the constraint moves through the alphabet across the
+        whole rather than holding to one letter throughout.
+      de: >-
+        Ein Werk in so vielen Teilen wie das Alphabet Buchstaben hat, deren jeder
+        einen anderen auslässt.
+      fr: >-
+        Une œuvre en autant de parties que l'alphabet a de lettres, chacune en
+        omettant une différente.
+    source: >-
+      Attributed to Tryphiodorus, whose Odyssey in 24 books each omitted one letter;
+      excerpted by Jean Paul in 1783 (Exzerpte, Fasz. IIa vol. 2, IIa-02-1783-0130)
+    family: letter
+    attribution: reference
+    checkability: self
+    attested: codified
+    aliases: [lipogrammatic cycle]
+    kind: restrictive
+    languages: [en]
+    requires: [tokens, alphabet, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: Write one section per letter of the alphabet, each omitting the letter it is assigned.
