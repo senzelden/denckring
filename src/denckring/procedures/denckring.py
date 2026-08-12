@@ -82,7 +82,7 @@ class Denckring(BaseProcedure[DenckringParams]):
 
     def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
         """Turn the rings. `text` is ignored: the device supplies everything."""
-        parsed = self.params_model().model_validate(params)
+        parsed = self.parse_params(params)
         machine = devices.load(parsed.device)
         while True:
             turned = devices.spin(machine, seed)

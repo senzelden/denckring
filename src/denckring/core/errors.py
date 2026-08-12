@@ -53,6 +53,11 @@ class UnknownDevice(DenckringError):
         super().__init__(f"No combinatorial device called {device_id!r}. Available: {known}.")
 
 
+class MalformedTable(DenckringError):
+    def __init__(self, reason: str) -> None:
+        super().__init__(f"That numbered vocabulary cannot be read: {reason}")
+
+
 class MalformedCorpus(DenckringError):
     def __init__(self, reason: str) -> None:
         super().__init__(f"That corpus cannot be read: {reason}")

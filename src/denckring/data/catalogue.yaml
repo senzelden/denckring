@@ -2955,3 +2955,72 @@ procedures:
       computable acceptance criterion: whether a likeness is found is the judgement the
       whole procedure exists to provoke.
 
+  # ---------------------------------------------------------------------------
+  # Athanasius Kircher
+  # ---------------------------------------------------------------------------
+
+  - id: pasigraphy
+    names: { en: Pasigraphy, de: Pasigraphie, fr: Pasigraphie }
+    definitions:
+      en: >-
+        A sentence carried into another language by way of a numbered vocabulary: each
+        word becomes its number and the number becomes a word again at the far end. The
+        checker verifies the rendering against the table and counts what the crossing
+        cost — words with no number, numbers with no entry in the target, and numbers
+        carrying more than one word, where two distinct things arrive as one.
+      de: >-
+        Ein Satz, der über ein nummeriertes Wörterbuch in eine andere Sprache
+        übertragen wird: jedes Wort wird zur Zahl und die Zahl wieder zum Wort.
+      fr: >-
+        Une phrase portée dans une autre langue par un vocabulaire numéroté.
+    source: >-
+      Athanasius Kircher, Polygraphia Nova et Universalis ex combinatoria arte detecta
+      (Rome, 1663), book I
+    family: translation
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    aliases: [polygraphia, universal writing]
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: true
+    prompt_hints:
+      en: Number a small vocabulary in two languages, then send a sentence across it.
+    notes: >-
+      No vocabulary travels with this package. Kircher's own has not been transcribed
+      into anything machine-readable this project could verify, and a checker measuring
+      against an invented table would be measuring nothing — so the table is supplied by
+      the caller, as the corpus is for Ideenwürfeln. Books II and III of the Polygraphia
+      are cipher systems rather than writing procedures and are not catalogued.
+
+  - id: arca_musarithmica
+    names: { en: Arca musarithmica, de: Arca musarithmica, fr: Arca musarithmica }
+    definitions:
+      en: >-
+        A box of tablets bearing numbered patterns, chosen by the syllable count and
+        prosodic shape of a phrase, from which a setting is composed. Kircher's own use
+        was musical; the transferable procedure is the one underneath — give a passage
+        its prosodic profile, then draw from a pattern table indexed by that profile.
+      de: >-
+        Ein Kasten mit Stäbchen voller nummerierter Muster, nach Silbenzahl und Prosodie
+        einer Phrase gewählt.
+    source: Athanasius Kircher, Musurgia Universalis (Rome, 1650), book VIII
+    family: procedural
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    aliases: [musarithmic ark]
+    kind: constructive
+    languages: [en]
+    requires: [tokens, syllables.heuristic, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: Count the syllables of the phrase, then take a pattern from the table indexed by that count.
+    notes: >-
+      Catalogued rather than implemented. Kircher advertises that an amusos — someone
+      with no musical training — can produce correct four-part settings in any language,
+      which is the claim that makes the box interesting. What is worth taking here is the
+      indexing, not the counterpoint: the pattern table should be pluggable so verse
+      patterns can stand where note patterns did. How far to carry it is not yet settled.
+

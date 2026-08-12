@@ -1,0 +1,34 @@
+procedure: pasigraphy
+lang: en
+cases:
+  - name: latin-to-english
+    source: >-
+      constructed example with a synthetic vocabulary; the mechanism is Kircher's
+      Polygraphia Nova (1663), the words are not his
+    text: god light word
+    params:
+      source: deus lux verbum
+      table: '{"1": {"la": "deus", "en": "god"}, "2": {"la": "lux", "en": "light"}, "3": {"la": "verbum", "en": "word"}, "4": {"la": "sermo", "en": "word"}}'
+      from_language: la
+      to_language: en
+    satisfied: true
+  - name: two-words-arriving-as-one
+    source: >-
+      constructed example; verbum and sermo are distinct in Latin and the same word
+      in English, which is the loss the numbering takes on
+    text: word word
+    params:
+      source: verbum sermo
+      table: '{"1": {"la": "deus", "en": "god"}, "2": {"la": "lux", "en": "light"}, "3": {"la": "verbum", "en": "word"}, "4": {"la": "sermo", "en": "word"}}'
+      from_language: la
+      to_language: en
+    satisfied: true
+  - name: a-word-the-table-does-not-hold
+    source: constructed counterexample
+    text: god stone
+    params:
+      source: deus lux
+      table: '{"1": {"la": "deus", "en": "god"}, "2": {"la": "lux", "en": "light"}, "3": {"la": "verbum", "en": "word"}, "4": {"la": "sermo", "en": "word"}}'
+      from_language: la
+      to_language: en
+    satisfied: false
