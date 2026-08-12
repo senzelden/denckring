@@ -16,13 +16,35 @@ def test_the_rings_are_the_shape_harsdoerffer_describes() -> None:
 
 
 def test_the_transcribed_rings_give_their_own_product() -> None:
-    """Not Harsdörffer's stated 82,944,000, and not the literature's figure either."""
     product = 1
     for slot in RINGS.slots:
         product *= len(slot.alternatives)
     assert product == 97_372_800
-    # The number the literature repeats cannot be a product of rings of 12 and 120.
-    assert 97_209_600 % 144 != 0
+
+
+def test_both_counts_of_the_parts_come_to_the_same_total() -> None:
+    """Two independent counts disagree on a boundary, not on how many parts there are.
+
+    The transcription reads 49/60/12/120/23; the other count reads 48/60/12/120/24.
+    Both come to 264, so what is disputed is where the prefix ring ends and the
+    suffix ring begins.
+    """
+    transcribed = [len(slot.alternatives) for slot in RINGS.slots]
+    assert sum(transcribed) == 264
+    assert sum([48, 60, 12, 120, 24]) == 264
+
+
+def test_the_literatures_figure_cannot_be_a_product_of_any_rings() -> None:
+    """97,209,600 factors as 2^8 x 3 x 5^2 x 61 x 83.
+
+    Both 61 and 83 are prime and neither divides any ring size on either count, so
+    the figure is not a product of any subset of the rings — a stronger statement
+    than merely noting it is not divisible by 144.
+    """
+    assert 61 * 83 * 19_200 == 97_209_600
+    every_count = {48, 49, 50, 60, 12, 120, 23, 24}
+    for prime in (61, 83):
+        assert all(size % prime for size in every_count)
 
 
 def test_real_german_words_come_off_the_rings() -> None:
