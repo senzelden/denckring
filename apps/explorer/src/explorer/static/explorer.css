@@ -1,0 +1,866 @@
+/* denckring explorer
+ *
+ * The composing room. The catalogue is a compositor's type case: every
+ * procedure is a compartment, and whether it holds a sort is the whole point
+ * of the first screen. Results come back as a pulled proof, marked where the
+ * text breaks the rule.
+ *
+ * The ground is the case, not the page — type sits in a dark wooden drawer and
+ * paper is what you pull off it, so paper appears here as panels rather than
+ * as the background.
+ */
+
+:root {
+  --case: #2a2622;
+  --case-deep: #1e1b18;
+  --case-lip: #3a342e;
+  --rule: #4a443e;
+  --lead: #8c8a85;
+  --lead-bright: #b8b5ae;
+  --paper: #f7f5f0;
+  --paper-shade: #e8e3d9;
+  --ink: #14110f;
+  --rubric: #b3121d;
+  --rubric-soft: #d9705a;
+
+  --display: "Fraunces", "Hoefler Text", "Iowan Old Style", Georgia, serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --gutter: clamp(1rem, 3vw, 2.5rem);
+  --measure: 68ch;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--case);
+  /* The grain of the drawer: two very low-contrast washes, no image. */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.012) 0 2px,
+      transparent 2px 7px
+    ),
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.05), transparent 60%);
+  color: var(--lead-bright);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+/* ── masthead ─────────────────────────────────────────────────────────── */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem) var(--gutter) 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  font-weight: 600;
+  font-variation-settings: "SOFT" 20, "WONK" 1;
+  letter-spacing: -0.015em;
+  color: var(--paper);
+  margin: 0;
+  text-decoration: none;
+}
+
+.wordmark span {
+  color: var(--rubric-soft);
+}
+
+.masthead nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.masthead nav a {
+  color: var(--lead);
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.masthead nav a:hover,
+.masthead nav a[aria-current="page"] {
+  color: var(--paper);
+  border-bottom-color: var(--rubric);
+}
+
+.strapline {
+  padding: 0 var(--gutter);
+  margin: 1.1rem 0 0;
+  max-width: var(--measure);
+  color: var(--lead);
+  font-size: 0.95rem;
+}
+
+main {
+  padding: clamp(1.5rem, 4vw, 2.75rem) var(--gutter) 5rem;
+}
+
+/* ── the case ─────────────────────────────────────────────────────────── */
+
+.drawer {
+  margin: 0 0 2.5rem;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.drawer-name {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  color: var(--paper);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.drawer-tally {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--lead);
+  letter-spacing: 0.05em;
+}
+
+.drawer-note {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--lead);
+  max-width: 42ch;
+  text-align: right;
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: 6px;
+}
+
+/* A compartment. The well is routed into the case; a set sort sits proud of
+   it, an empty one does not. */
+.sort {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 92px;
+  padding: 0.5rem 0.55rem;
+  text-decoration: none;
+  border: 1px solid var(--case-lip);
+  border-radius: 2px;
+  background: var(--case-deep);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.sort:focus-visible {
+  outline: 2px solid var(--rubric-soft);
+  outline-offset: 2px;
+}
+
+/* The face is the index letter of the compartment, as a case is ordered. It
+   labels; the name is what you read. */
+.sort-face {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "WONK" 1;
+  color: #4f4841;
+}
+
+.sort-name {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  font-weight: 500;
+  color: var(--lead);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Set: the compartment holds type. Paper-white face, raised. */
+.sort.is-set {
+  background: linear-gradient(180deg, #f9f7f2 0%, #ddd8cd 100%);
+  border-color: #cbc4b6;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.sort.is-set .sort-face {
+  color: #9a8f7e;
+}
+
+.sort.is-set .sort-name {
+  color: #2c2721;
+}
+
+.sort.is-set:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* Uncut: an empty compartment, waiting. */
+.sort.is-uncut:hover {
+  background: #262220;
+  border-color: var(--rule);
+}
+
+.sort.is-uncut .sort-face {
+  color: #433d37;
+}
+
+.sort.is-uncut .sort-name {
+  color: #7d766d;
+}
+
+/* Blocked: ruled through. Nothing will ever be set here. */
+.sort.is-blocked {
+  background: var(--case-deep);
+  border-style: dashed;
+  border-color: #3a332d;
+}
+
+.sort.is-blocked .sort-face,
+.sort.is-blocked .sort-name {
+  color: #453f39;
+}
+
+.sort.is-blocked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 9px,
+    rgba(255, 255, 255, 0.035) 9px 10px
+  );
+  pointer-events: none;
+}
+
+.sort-flag {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--rubric-soft);
+  text-transform: uppercase;
+}
+
+/* ── legend and tally ─────────────────────────────────────────────────── */
+
+.tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 2rem;
+  align-items: center;
+  padding: 0 var(--gutter);
+  margin-top: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--lead);
+}
+
+.tally b {
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.key i {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid var(--case-lip);
+  background: var(--case-deep);
+}
+
+.key.set i {
+  background: linear-gradient(180deg, #f9f7f2, #ddd8cd);
+  border-color: #cbc4b6;
+}
+
+.key.blocked i {
+  border-style: dashed;
+}
+
+/* ── paper panels ─────────────────────────────────────────────────────── */
+
+.sheet {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 2px;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+}
+
+.sheet + .sheet {
+  margin-top: 1.5rem;
+}
+
+.sheet h2 {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  margin: 0 0 0.9rem;
+}
+
+.sheet h3 {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a7166;
+  margin: 1.6rem 0 0.6rem;
+}
+
+.sheet p {
+  max-width: var(--measure);
+}
+
+/* ── procedure header ─────────────────────────────────────────────────── */
+
+.title {
+  font-family: var(--display);
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  font-weight: 600;
+  font-variation-settings: "SOFT" 25, "WONK" 1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  margin: 0 0 0.4rem;
+}
+
+.byline {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--lead);
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+
+.definition {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-variation-settings: "SOFT" 10, "WONK" 0;
+  line-height: 1.5;
+  color: var(--paper-shade);
+  max-width: var(--measure);
+  margin: 0 0 2rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 0 0 2rem;
+}
+
+.fact {
+  background: var(--case);
+  padding: 0.7rem 0.85rem;
+}
+
+.fact dt {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6f6a63;
+  margin-bottom: 0.25rem;
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--paper-shade);
+}
+
+/* ── the bench ────────────────────────────────────────────────────────── */
+
+.bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.65fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7a7166;
+  margin-bottom: 0.3rem;
+}
+
+.hint {
+  font-family: var(--body);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #8a8175;
+  margin: 0.25rem 0 0;
+}
+
+textarea,
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: #fffefb;
+  border: 1px solid #cfc8ba;
+  border-radius: 2px;
+  padding: 0.65rem 0.75rem;
+}
+
+textarea {
+  min-height: 11rem;
+  resize: vertical;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  outline: 2px solid var(--rubric);
+  outline-offset: 0;
+  border-color: var(--rubric);
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field.inline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.field.inline label {
+  margin-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+button {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 0.68rem 1.15rem;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+button:hover {
+  background: var(--rubric);
+  border-color: var(--rubric);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--rubric);
+  outline-offset: 2px;
+}
+
+button.quiet {
+  background: transparent;
+  color: #574f45;
+  border-color: #cfc8ba;
+}
+
+button.quiet:hover {
+  background: var(--paper-shade);
+  color: var(--ink);
+  border-color: #a89e8e;
+}
+
+/* ── the proof ────────────────────────────────────────────────────────── */
+
+.verdict {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.verdict-word {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 20, "WONK" 1;
+}
+
+.verdict.pass .verdict-word {
+  color: var(--ink);
+}
+
+.verdict.fail .verdict-word {
+  color: var(--rubric);
+}
+
+.score {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: #7a7166;
+  margin-left: auto;
+}
+
+.gauge {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: 0.5rem;
+  background: var(--paper-shade);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.gauge i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+.verdict.fail + .gauge i,
+.gauge.fail i {
+  background: var(--rubric);
+}
+
+.proof-text {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 1rem 1.1rem;
+  background: #fffefb;
+  border: 1px solid #e0d9cb;
+  border-left: 3px solid var(--ink);
+}
+
+mark.hit {
+  background: transparent;
+  color: var(--rubric);
+  font-weight: 700;
+  box-shadow: inset 0 -0.45em 0 rgba(179, 18, 29, 0.14);
+  border-bottom: 2px solid var(--rubric);
+}
+
+.marks {
+  list-style: none;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  border-top: 1px solid #e0d9cb;
+}
+
+.marks li {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #eee8dc;
+  font-size: 0.87rem;
+}
+
+.marks .at {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--rubric);
+  padding-top: 0.15rem;
+}
+
+.marks .rule-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #7a7166;
+  display: block;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: #7a7166;
+  margin-top: 1rem;
+}
+
+.metrics b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.notice {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  padding: 0.9rem 1rem;
+  background: #fdf2f1;
+  border: 1px solid #e8c3bd;
+  border-left: 3px solid var(--rubric);
+  color: #6d1219;
+}
+
+/* ── examples rail ────────────────────────────────────────────────────── */
+
+.rail {
+  position: sticky;
+  top: 1rem;
+}
+
+.rail h3 {
+  margin-top: 0;
+}
+
+.example {
+  width: 100%;
+  text-align: left;
+  display: block;
+  font-family: var(--body);
+  font-size: 0.84rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid #ddd5c6;
+  padding: 0.6rem 0.7rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.example:hover {
+  background: var(--paper-shade);
+  border-color: #a89e8e;
+}
+
+.example .verdict-chip {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.example .yes {
+  color: #3f6b3a;
+}
+
+.example .no {
+  color: var(--rubric);
+}
+
+.example .cite {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.74rem;
+  color: #857b6e;
+}
+
+/* ── missing ──────────────────────────────────────────────────────────── */
+
+.gap {
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.3rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.gap:last-child {
+  border-bottom: 0;
+}
+
+.gap-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.gap-key {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--paper);
+}
+
+.gap-count {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--rubric-soft);
+  letter-spacing: 0.06em;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+.chip {
+  font-size: 0.8rem;
+  color: var(--lead-bright);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.22rem 0.55rem;
+}
+
+.chip:hover {
+  border-color: var(--rubric-soft);
+  color: var(--paper);
+}
+
+/* On paper, the same devices invert. */
+.sheet .gap {
+  border-bottom-color: #e0d9cb;
+}
+
+.sheet .gap-key {
+  color: var(--ink);
+}
+
+.sheet .gap-count {
+  color: var(--rubric);
+}
+
+.sheet .chip {
+  color: #574f45;
+  border-color: #cfc8ba;
+}
+
+.sheet .chip:hover {
+  color: var(--ink);
+  border-color: #a89e8e;
+  background: var(--paper-shade);
+}
+
+/* ── search ───────────────────────────────────────────────────────────── */
+
+.search {
+  padding: 1.25rem var(--gutter) 0;
+}
+
+.search input {
+  max-width: 28rem;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--case-deep);
+  color: var(--paper);
+  border-color: var(--rule);
+}
+
+.search input::placeholder {
+  color: #6b645c;
+}
+
+.results {
+  padding: 0.75rem var(--gutter) 0;
+}
+
+.crumb {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lead);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1.1rem;
+}
+
+.crumb:hover {
+  color: var(--paper);
+}
+
+/* ── responsive and preferences ───────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .bench {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    position: static;
+  }
+
+  .drawer-note {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .sort.is-set:hover {
+    transform: none;
+  }
+}

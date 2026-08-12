@@ -97,6 +97,20 @@ locally with:
 uv run python scripts/build_gallery.py && uv run mkdocs serve
 ```
 
+## The explorer
+
+A local browser for the catalogue and a bench for trying procedures on your own text,
+kept outside the distribution in [`apps/explorer`](apps/explorer):
+
+```console
+uv run --project apps/explorer explorer
+```
+
+It lays the catalogue out as a compositor's type case — one compartment per procedure,
+filled where a checker exists — builds each parameter form from that procedure's own
+`params_schema()`, and marks the offending characters inline using the offsets every
+`Violation` carries.
+
 ## Contributing
 
 One module per procedure, `check` mandatory. Start with `denckring new <id>`, which
