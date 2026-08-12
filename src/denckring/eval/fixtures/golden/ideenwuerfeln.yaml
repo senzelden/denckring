@@ -1,0 +1,25 @@
+procedure: ideenwuerfeln
+lang: en
+cases:
+  - name: three-fields-under-one-word
+    source: >-
+      constructed example with a synthetic corpus; the procedure is reconstructed
+      from Jean Paul's notebook of February 1795, and no transcribed excerpt travels
+      with this package
+    text: |-
+      The Roman legions carried a portable sundial.
+      The heart's left ventricle is the thickest chamber.
+      A mayfly lives one day as an adult.
+    params:
+      source: '{"entries": [{"text": "The Roman legions carried a portable sundial.", "domain": "antiquity", "headwords": ["Zeit"]}, {"text": "The heart''s left ventricle is the thickest chamber.", "domain": "anatomy", "headwords": ["Herz", "Zeit"]}, {"text": "A mayfly lives one day as an adult.", "domain": "entomology", "headwords": ["Zeit"]}]}'
+      distinct_domains: true
+    satisfied: true
+  - name: an-excerpt-nobody-wrote-down
+    source: constructed counterexample
+    text: |-
+      The Roman legions carried a portable sundial.
+      The heart's left ventricle is the thickest chamber.
+      Something nobody excerpted.
+    params:
+      source: '{"entries": [{"text": "The Roman legions carried a portable sundial.", "domain": "antiquity", "headwords": ["Zeit"]}, {"text": "The heart''s left ventricle is the thickest chamber.", "domain": "anatomy", "headwords": ["Herz", "Zeit"]}, {"text": "A mayfly lives one day as an adult.", "domain": "entomology", "headwords": ["Zeit"]}]}'
+    satisfied: false

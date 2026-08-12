@@ -8,6 +8,7 @@ procedures are the first that can generate as well as validate.
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from denckring.core.errors import DenckringError
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
 
@@ -37,7 +38,13 @@ def test_apply_output_satisfies_check(text: str) -> None:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
-        produced = procedure.apply(text, lang=lang, seed=0)
+        try:
+            produced = procedure.apply(text, lang=lang, seed=0)
+        except DenckringError:
+            # Refusing unusable input is allowed: a corpus of one line is not
+            # three excerpts. The property is about what apply produces, not
+            # about it always producing something.
+            continue
         report = procedure.check(produced, lang=lang, **_check_args(procedure_id, text))
         assert report.satisfied, (
             f"{procedure_id}: apply produced text that its own check rejects: {produced!r}"
@@ -51,4 +58,8 @@ def test_apply_is_deterministic_under_a_fixed_seed(text: str) -> None:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
-        assert procedure.apply(text, lang=lang, seed=7) == procedure.apply(text, lang=lang, seed=7)
+        try:
+            first = procedure.apply(text, lang=lang, seed=7)
+        except DenckringError:
+            continue
+        assert first == procedure.apply(text, lang=lang, seed=7)

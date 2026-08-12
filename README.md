@@ -97,6 +97,18 @@ locally with:
 uv run python scripts/build_gallery.py && uv run mkdocs serve
 ```
 
+## Where the data lives
+
+Three kinds of thing a procedure can need, and they are handled differently. A **device**
+— Harsdörffer's five rings — is the procedure, so it ships with it. A **language pack**
+describes a language and ships separately when it carries weight: `denckring[en]` adds a
+pronouncing dictionary and a noun lexicon. A **corpus** is somebody's collection, so the
+package carries the loader and you supply the reading:
+
+```console
+denckring check ideenwuerfeln throw.txt --source my-excerpts.json
+```
+
 ## The explorer
 
 A local browser for the catalogue and a bench for trying procedures on your own text,
