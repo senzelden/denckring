@@ -51,6 +51,8 @@ nav:
       - "12. Two syllable capabilities, with the weaker one as the floor": adr/0012-syllable-capabilities.md
       - "13. Linguistic data ships as separate distributions": adr/0013-data-as-a-separate-distribution.md
       - "14. Metre is a satisfiability question, not a comparison": adr/0014-metre-as-satisfiability.md
+      - "15. One capability per question the lexicon is asked": adr/0015-lexicon-capabilities.md
+      - "16. One data pack per language, and a collision is an error": adr/0016-one-pack-per-language.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

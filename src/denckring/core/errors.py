@@ -44,3 +44,13 @@ class DuplicateProcedure(DenckringError):
     def __init__(self, procedure_id: str) -> None:
         self.procedure_id = procedure_id
         super().__init__(f"A procedure with id {procedure_id!r} is already registered.")
+
+
+class DuplicatePack(DenckringError):
+    def __init__(self, lang: str, first: str, second: str) -> None:
+        self.lang = lang
+        super().__init__(
+            f"Two language packs claim {lang!r}: {first} and {second}. "
+            f"Uninstall one — silently choosing between them would make the "
+            f"answers depend on installation order."
+        )

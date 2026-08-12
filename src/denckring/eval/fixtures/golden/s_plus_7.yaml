@@ -1,0 +1,15 @@
+procedure: s_plus_7
+lang: en
+cases:
+  - name: displaced-by-three
+    source: constructed example; N+7 with the step left to the writer
+    text: |-
+      the catacala satanism on the tablefork
+    params: { source: the cat sat on the table, offset: 3 }
+    satisfied: true
+  - name: wrong-offset
+    source: constructed counterexample
+    text: |-
+      the catacala satanism on the tablefork
+    params: { source: the cat sat on the table, offset: 7 }
+    satisfied: false
