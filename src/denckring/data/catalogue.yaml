@@ -556,6 +556,15 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Combine a prefix, an initial, a medial, a final and a suffix into a candidate word.
+    notes: >-
+      Harsdörffer labels the rings 48, 50, 12, 120 and 24 but states no total. Two
+      independent counts of the parts disagree about where the boundary between the
+      prefix and suffix rings falls — 49/60/12/120/23 against 48/60/12/120/24 — and
+      both come to 264 parts; both also find 60 on the ring the print labels 50. The
+      97,209,600 combinations the literature repeats, which go back to Trettien, cannot
+      be right on any of these counts: the figure factors as 2^8 x 3 x 5^2 x 61 x 83,
+      and neither 61 nor 83 divides any ring size. Figures given here are computed from
+      the parts rather than quoted.
 
   - id: proteus_verse
     names: { en: Proteus verse, de: Proteusvers, fr: Vers protée }
@@ -574,11 +583,19 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write a line whose words can be reordered freely while the metre still holds.
+    notes: >-
+      Harsdörffer states 39,916,800 permutations for an eleven-word line, which is 11!
+      exactly, and Leibniz takes the figure up in De Arte Combinatoria (1666). It is one
+      of the few counts in this field that can be recomputed from the elements and comes
+      out right.
 
   - id: wechselsatz
     names: { en: Wechselsatz, de: Wechselsatz, fr: Vers permutatif }
     definitions:
-      en: A permutational poem whose interchangeable words yield millions of variants.
+      en: >-
+        A permutational poem whose interchangeable words yield millions of variants.
+        The checker asks whether each word of a given line is one the template offers
+        for that position.
       de: Ein Permutationsgedicht, dessen austauschbare Wörter Millionen Varianten ergeben.
       fr: Un poème permutatif aux millions de variantes.
     source: Quirinus Kuhlmann, Der Wechsel Menschlicher Sachen (1671)
@@ -2789,7 +2806,7 @@ procedures:
     source: Ramon Llull, Ars Generalis Ultima (1305); named as such by Leibniz (1666)
     family: permutation
     attribution: primary
-    checkability: source
+    checkability: none
     attested: author-stated
     aliases: [combinatory art]
     kind: constructive
@@ -2798,6 +2815,11 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Combine one term from each set, in order, and write out what the combination asserts.
+    notes: >-
+      This names a tradition rather than a single procedure: what counts as a valid
+      combination is whatever the particular device specifies, so there is no criterion
+      to check at this level. Its instances are checkable and are catalogued separately
+      — llull_figure, denckring, cent_mille_milliards, wechselsatz.
 
   - id: llull_figure
     names: { en: Llullian figure, de: Lullische Figur, fr: Figure lullienne }
@@ -2813,15 +2835,24 @@ procedures:
     source: Ramon Llull, Ars Generalis Ultima (1305)
     family: permutation
     attribution: primary
-    checkability: source
+    checkability: self
     attested: author-stated
     aliases: [figura universalis, volvelle]
-    kind: constructive
+    kind: both
     languages: [en]
     requires: [tokens]
     deterministic: true
     prompt_hints:
       en: Take the nine dignities and write out each pairing the wheels bring together.
+    notes: >-
+      The ternary Ars is implemented; the earlier quaternary phase carries sixteen
+      dignities rather than nine. Counts here are computed from the letters — 84
+      chambers of three, 36 pairs for Figura A — because the number of entries in the
+      printed tabula has not been checked against a facsimile. Eco's point is worth
+      keeping in view: the wheels do not freely generate new truths, since the stock of
+      principles is fixed and heterodox combinations are excluded elsewhere in the Ars.
+      The reading of the figure as a first computer (Künzel and Bexte, 1989) is
+      reception, not a finding about the object.
 
   - id: serial_lipogram
     names: { en: Serial lipogram, de: Serielles Lipogramm, fr: Lipogramme sériel }

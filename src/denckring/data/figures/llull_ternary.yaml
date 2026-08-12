@@ -1,0 +1,80 @@
+# Ramon Llull's ternary Ars, as set out in the Ars generalis ultima (1305–1308)
+# and its short form the Ars brevis (1308).
+#
+# The early quaternary phase carries sixteen dignities; the ternary phase reduces
+# to nine, and it is the ternary figure implemented here.
+#
+# Nine letters, B to K — J is not used. Each letter is read at several levels at
+# once: that is the whole device. The same chamber says something different
+# depending on which table you read it against.
+id: llull_ternary
+name: Ars generalis ultima, ternary figure
+source: Ramon Llull, Ars generalis ultima (1305–1308); Ars brevis (1308)
+letters: [B, C, D, E, F, G, H, I, K]
+levels:
+  absolute:
+    label: absolute principles (the dignities)
+    B: Bonitas
+    C: Magnitudo
+    D: Aeternitas
+    E: Potestas
+    F: Sapientia
+    G: Voluntas
+    H: Virtus
+    I: Veritas
+    K: Gloria
+  relative:
+    label: relative principles
+    B: Differentia
+    C: Concordantia
+    D: Contrarietas
+    E: Principium
+    F: Medium
+    G: Finis
+    H: Maioritas
+    I: Aequalitas
+    K: Minoritas
+  questions:
+    label: questions (the regulae)
+    B: Utrum
+    C: Quid
+    D: De quo
+    E: Quare
+    F: Quantum
+    G: Quale
+    H: Quando
+    I: Ubi
+    K: Quomodo et cum quo
+  subjects:
+    label: subjects
+    B: Deus
+    C: Angelus
+    D: Caelum
+    E: Homo
+    F: Imaginativa
+    G: Sensitiva
+    H: Vegetativa
+    I: Elementativa
+    K: Instrumentativa
+  virtues:
+    label: virtues
+    B: Iustitia
+    C: Prudentia
+    D: Fortitudo
+    E: Temperantia
+    F: Fides
+    G: Spes
+    H: Caritas
+    I: Patientia
+    K: Pietas
+  vices:
+    label: vices
+    B: Avaritia
+    C: Gula
+    D: Luxuria
+    E: Superbia
+    F: Accidia
+    G: Invidia
+    H: Ira
+    I: Mendacium
+    K: Inconstantia

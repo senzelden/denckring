@@ -1,0 +1,28 @@
+procedure: llull_figure
+lang: en
+cases:
+  - name: chamber-as-letters
+    source: Ramon Llull, Ars generalis ultima (1305–1308); the fourth figure's chambers
+    text: BCD
+    params: {}
+    satisfied: true
+  - name: chamber-spelled-at-the-absolute-level
+    source: constructed example; the dignities as the Ars brevis (1308) names them
+    text: Bonitas Magnitudo Aeternitas
+    params: {}
+    satisfied: true
+  - name: same-letters-read-as-relations
+    source: constructed example; the multiple assignment is the device
+    text: Differentia Concordantia Contrarietas
+    params: {}
+    satisfied: true
+  - name: not-a-principle
+    source: constructed counterexample
+    text: Bonitas Magnitudo Zebra
+    params: {}
+    satisfied: false
+  - name: a-principle-twice
+    source: constructed counterexample; a chamber holds distinct principles
+    text: BB
+    params: {}
+    satisfied: false

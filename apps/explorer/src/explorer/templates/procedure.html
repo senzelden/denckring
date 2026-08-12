@@ -20,6 +20,13 @@
   <div class="fact"><dt>Requires</dt><dd>{{ meta.requires | join(', ') if meta.requires else '—' }}</dd></div>
 </dl>
 
+{% if meta.notes %}
+<section class="sheet" style="margin-bottom:1.5rem">
+  <h3>Notes</h3>
+  <p>{{ meta.notes }}</p>
+</section>
+{% endif %}
+
 {% if implemented %}
 <div class="bench">
   <div>

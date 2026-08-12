@@ -55,6 +55,7 @@ nav:
       - "16. One data pack per language, and a collision is an error": adr/0016-one-pack-per-language.md
       - "17. A device's own data ships with its procedure": adr/0017-devices-ship-with-their-procedures.md
       - "18. Whether the author stated the rule is its own field": adr/0018-attestation.md
+      - "19. Figures are alphabets read at several levels": adr/0019-figures.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 
