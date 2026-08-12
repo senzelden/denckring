@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import ClassVar
 
 from denckring.core.errors import MissingCapability
@@ -20,6 +20,7 @@ SYLLABLES_HEURISTIC = "syllables.heuristic"
 #: Exact counts from a pronouncing dictionary.
 SYLLABLES_DICTIONARY = "syllables.dictionary"
 NOUNS = "lexicon.nouns"
+WORDS = "lexicon.words"
 PHONEMES = "phonemes"
 STRESS = "stress"
 
@@ -116,5 +117,17 @@ class BasePack:
         """
         raise MissingCapability(DIRECT_CALL, self.lang, STRESS)
 
-    def nouns(self) -> Iterable[str]:
+    def is_word(self, word: str) -> bool:
+        """Whether the lexicon knows this word at all."""
+        raise MissingCapability(DIRECT_CALL, self.lang, WORDS)
+
+    def nouns(self) -> Sequence[str]:
+        """Every noun the lexicon knows, in dictionary order.
+
+        A sequence rather than an iterable because N+7 indexes into it.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
+
+    def noun_index(self, word: str) -> int | None:
+        """The word's position in `nouns()`, or None if it is not a noun."""
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)

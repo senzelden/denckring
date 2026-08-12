@@ -15,9 +15,11 @@ from __future__ import annotations
 
 from importlib.metadata import entry_points
 
-from denckring.core.errors import UnknownLanguage
+from denckring.core.errors import DuplicatePack, UnknownLanguage
 from denckring.core.protocol import LanguagePack
 from denckring.lang.en import EnglishPack
+
+DuplicatePack = DuplicatePack
 
 ENTRY_POINT_GROUP = "denckring.lang"
 
@@ -28,15 +30,25 @@ _PACKS: dict[str, LanguagePack] = {}
 _DISCOVERED = False
 
 
+#: Where each installed pack came from, so a collision can name both.
+_SOURCES: dict[str, str] = {}
+
+
+def _install(packs: dict[str, LanguagePack], lang: str, pack: LanguagePack, *, source: str) -> None:
+    """Install a pack, refusing to choose between two claiming one language."""
+    if lang in packs:
+        raise DuplicatePack(lang, _SOURCES.get(lang, "an installed pack"), source)
+    packs[lang] = pack
+    _SOURCES[lang] = source
+
+
 def _discover() -> None:
     global _DISCOVERED
     if _DISCOVERED:
         return
     _DISCOVERED = True
     for entry in entry_points(group=ENTRY_POINT_GROUP):
-        if entry.name in _PACKS:
-            continue
-        _PACKS[entry.name] = entry.load()()
+        _install(_PACKS, entry.name, entry.load()(), source=entry.value)
 
 
 def get_pack(lang: str) -> LanguagePack:
@@ -49,8 +61,9 @@ def get_pack(lang: str) -> LanguagePack:
 
 
 def register_pack(pack: LanguagePack) -> None:
-    """Install a pack directly. Takes precedence over entry-point discovery."""
+    """Install a pack directly, replacing any already registered for its language."""
     _PACKS[pack.lang] = pack
+    _SOURCES[pack.lang] = f"{type(pack).__module__}.{type(pack).__qualname__}"
 
 
 def installed_languages() -> list[str]:
@@ -59,4 +72,10 @@ def installed_languages() -> list[str]:
     return sorted(set(_PACKS) | set(_DEFAULTS))
 
 
-__all__ = ["ENTRY_POINT_GROUP", "get_pack", "installed_languages", "register_pack"]
+__all__ = [
+    "ENTRY_POINT_GROUP",
+    "DuplicatePack",
+    "get_pack",
+    "installed_languages",
+    "register_pack",
+]

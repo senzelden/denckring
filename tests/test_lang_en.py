@@ -3,6 +3,7 @@ import pytest
 from denckring.core.errors import MissingCapability, UnknownLanguage
 from denckring.lang import get_pack
 from denckring.lang.base import ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, TOKENS
+from denckring.lang.en import EnglishPack
 
 
 def test_english_pack_declares_the_batch_one_capabilities() -> None:
@@ -17,7 +18,9 @@ def test_unknown_language_raises_with_install_hint() -> None:
 
 
 def test_undeclared_capability_raises_rather_than_approximating() -> None:
-    pack = get_pack("en")
+    # The core pack specifically: get_pack("en") resolves to the data pack when
+    # denckring[en] is installed, and that one does provide these.
+    pack = EnglishPack()
     with pytest.raises(MissingCapability):
         pack.syllables("potato")
     with pytest.raises(MissingCapability):

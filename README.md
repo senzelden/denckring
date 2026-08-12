@@ -26,7 +26,7 @@ and only meaningful for the constructive ones.
 
 ```console
 pip install denckring          # English and German, no data files
-pip install denckring[en]      # + exact syllable counts from a pronouncing dictionary
+pip install denckring[en]      # + a pronouncing dictionary and a noun lexicon
 pip install denckring[fr]      # French (not yet released)
 ```
 

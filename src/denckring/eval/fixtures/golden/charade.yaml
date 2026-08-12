@@ -1,0 +1,15 @@
+procedure: charade
+lang: en
+cases:
+  - name: carpet
+    source: constructed example; the form is traditional
+    text: |-
+      carpet
+    params: {}
+    satisfied: true
+  - name: indivisible
+    source: constructed counterexample
+    text: |-
+      zzzq
+    params: {}
+    satisfied: false

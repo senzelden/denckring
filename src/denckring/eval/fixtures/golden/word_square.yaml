@@ -1,0 +1,23 @@
+procedure: word_square
+lang: en
+cases:
+  - name: heart-ember-abuse-resin-trend
+    source: Traditional; a classic five-by-five word square
+    text: |-
+      heart
+      ember
+      abuse
+      resin
+      trend
+    params: {}
+    satisfied: true
+  - name: symmetric-but-not-words
+    source: constructed counterexample; the Sator square passes sator_square but its rows are not English words
+    text: |-
+      sator
+      arepo
+      tenet
+      opera
+      rotas
+    params: {}
+    satisfied: false
