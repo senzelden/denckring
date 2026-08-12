@@ -1,0 +1,19 @@
+procedure: cent_mille_milliards
+lang: en
+cases:
+  - name: one-of-the-poems
+    source: constructed example; the machine is Queneau's, the strips are not
+    text: |-
+      Ab
+      Tag
+      geht
+    params: { source: "Auf | Ab\nNacht | Tag\nkommt | geht" }
+    satisfied: true
+  - name: a-line-not-on-the-strips
+    source: constructed counterexample
+    text: |-
+      Ab
+      Mond
+      geht
+    params: { source: "Auf | Ab\nNacht | Tag\nkommt | geht" }
+    satisfied: false

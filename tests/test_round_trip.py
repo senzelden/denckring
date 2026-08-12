@@ -20,14 +20,25 @@ def test_there_is_something_to_round_trip() -> None:
     assert CONSTRUCTIVE, "no procedure defines apply(); the round-trip property is vacuous"
 
 
+def _check_args(procedure_id: str, text: str) -> dict[str, str]:
+    """Source-relative procedures need the text they were made from; others do not.
+
+    `denckring` is constructive and self-checkable at once — it spins its own
+    rings — so the suite cannot assume every generator takes a source.
+    """
+    fields = all_procedures()[procedure_id].params_model().model_fields
+    return {"source": text} if "source" in fields else {}
+
+
 @settings(max_examples=50, deadline=None)
 @given(TEXT)
 def test_apply_output_satisfies_check(text: str) -> None:
     for procedure_id in CONSTRUCTIVE:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
-        produced = procedure.apply(text, seed=0)
-        report = procedure.check(produced, source=text)
+        lang = procedure.meta.languages[0]
+        produced = procedure.apply(text, lang=lang, seed=0)
+        report = procedure.check(produced, lang=lang, **_check_args(procedure_id, text))
         assert report.satisfied, (
             f"{procedure_id}: apply produced text that its own check rejects: {produced!r}"
         )
@@ -39,4 +50,5 @@ def test_apply_is_deterministic_under_a_fixed_seed(text: str) -> None:
     for procedure_id in CONSTRUCTIVE:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
-        assert procedure.apply(text, seed=7) == procedure.apply(text, seed=7)
+        lang = procedure.meta.languages[0]
+        assert procedure.apply(text, lang=lang, seed=7) == procedure.apply(text, lang=lang, seed=7)
