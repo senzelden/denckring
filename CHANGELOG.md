@@ -108,12 +108,22 @@ All notable changes to this project are documented here. The format follows
 - `serial_lipogram`, the whole-work form attributed to Tryphiodorus and excerpted by
   Jean Paul in 1783.
 - ADR 0018 on attestation.
+- `notes` on catalogue entries, for contested figures, reception history and caveats —
+  so a definition can go back to being a definition.
+- Combinatory figures: an alphabet read at several levels at once. Llull's ternary Ars
+  ships with all six of its tables, and Kircher's Ars Magna Sciendi as a preset of the
+  same mechanism. `llull_figure` checks and generates chambers; counts are computed
+  from the letters (84 ternary chambers, 36 pairs) rather than quoted.
 
 ### Fixed
 
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
+- Three catalogue edits in earlier releases silently did nothing, because a string
+  replacement that matches nothing succeeds quietly. The Denckring, Wechselsatz and
+  Proteus-verse rows never received the text they were reported as having. All three
+  are now written, and catalogue edits assert that they applied.
 - The Denckring row overstated Harsdörffer, who labels the rings but states no total,
   and understated the case against the 97,209,600 the literature repeats. That figure
   factors as 2^8 x 3 x 5^2 x 61 x 83, and neither 61 nor 83 divides any ring size on

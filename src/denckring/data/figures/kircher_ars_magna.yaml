@@ -1,0 +1,22 @@
+# Athanasius Kircher's neo-Lullian figure, from the Ars Magna Sciendi sive
+# Combinatoria (Amsterdam 1669).
+#
+# Kircher takes Llull's apparatus and re-letters it for his own ordering of the
+# divine attributes. Same mechanism, different stock — which is why it is a
+# preset here rather than an implementation of its own.
+id: kircher_ars_magna
+name: Ars Magna Sciendi, combinatory figure
+source: Athanasius Kircher, Ars Magna Sciendi sive Combinatoria (Amsterdam, 1669)
+letters: [B, C, D, E, F, G, H, I, K]
+levels:
+  absolute:
+    label: divine attributes
+    B: Bonitas
+    C: Magnitudo
+    D: Duratio
+    E: Potestas
+    F: Sapientia
+    G: Voluntas
+    H: Virtus
+    I: Veritas
+    K: Gloria
