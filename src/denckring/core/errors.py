@@ -53,6 +53,21 @@ class UnknownDevice(DenckringError):
         super().__init__(f"No combinatorial device called {device_id!r}. Available: {known}.")
 
 
+class UnknownFigure(DenckringError):
+    def __init__(self, figure_id: str, available: list[str] | None = None) -> None:
+        self.figure_id = figure_id
+        known = ", ".join(available or []) or "none"
+        super().__init__(f"No combinatory figure called {figure_id!r}. Available: {known}.")
+
+
+class UnknownLevel(DenckringError):
+    def __init__(self, figure_id: str, level: str, available: list[str]) -> None:
+        self.level = level
+        super().__init__(
+            f"Figure {figure_id!r} has no level {level!r}. It reads at: {', '.join(available)}."
+        )
+
+
 class DuplicatePack(DenckringError):
     def __init__(self, lang: str, first: str, second: str) -> None:
         self.lang = lang
