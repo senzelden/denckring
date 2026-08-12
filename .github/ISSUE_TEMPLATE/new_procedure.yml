@@ -1,0 +1,49 @@
+name: New procedure
+description: Propose a writing procedure for the catalogue
+labels: [catalogue]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The catalogue's value is that its entries are sourced. An entry with no source
+        is not one we can add.
+  - type: input
+    id: name
+    attributes:
+      label: Name of the procedure
+    validations:
+      required: true
+  - type: textarea
+    id: definition
+    attributes:
+      label: Definition
+      description: One or two sentences. What must a text do to satisfy it?
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: "Author, work and year, or the reference work that documents it."
+    validations:
+      required: true
+  - type: dropdown
+    id: attribution
+    attributes:
+      label: How is that source established?
+      options:
+        - primary — a named author, work and year
+        - reference — attested in a standard reference, origin not traced
+        - traditional — classical or folk, no single origin
+    validations:
+      required: true
+  - type: dropdown
+    id: checkability
+    attributes:
+      label: Can a program decide it?
+      options:
+        - self — from the text and its parameters alone
+        - source — only against the text it was made from
+        - none — no computable acceptance criterion exists
+    validations:
+      required: true

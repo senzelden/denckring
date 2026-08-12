@@ -51,6 +51,21 @@ edit them.
   input, including arbitrary Unicode.
 - Every capability the procedure uses appears in its catalogue `requires`.
 
+## Before you open a pull request
+
+```console
+uv run --with pre-commit pre-commit install
+```
+
+That mirrors the lint and typecheck jobs in CI, so a failure locally is a failure there.
+The rest of CI — the test matrix, the eval gate, the core-only install and the docs
+build — runs on the pull request.
+
+The **core-only** job is worth knowing about: it installs `denckring` without the data
+package and asserts that a procedure needing a pronouncing dictionary raises rather than
+guessing. If you add a procedure that quietly depends on a capability the core pack does
+not have, that job is what catches it.
+
 ## Licensing
 
 Code contributions are MIT. Catalogue rows are CC BY 4.0 and need a real source. Do not
