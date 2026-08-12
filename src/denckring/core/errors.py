@@ -46,6 +46,13 @@ class DuplicateProcedure(DenckringError):
         super().__init__(f"A procedure with id {procedure_id!r} is already registered.")
 
 
+class UnknownDevice(DenckringError):
+    def __init__(self, device_id: str, available: list[str] | None = None) -> None:
+        self.device_id = device_id
+        known = ", ".join(available or []) or "none"
+        super().__init__(f"No combinatorial device called {device_id!r}. Available: {known}.")
+
+
 class DuplicatePack(DenckringError):
     def __init__(self, lang: str, first: str, second: str) -> None:
         self.lang = lang
