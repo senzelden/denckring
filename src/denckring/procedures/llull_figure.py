@@ -142,7 +142,7 @@ class LlullFigure(BaseProcedure[LlullFigureParams]):
         """Turn the wheels to a chamber, spelled out at the chosen level."""
         import random
 
-        parsed = self.params_model().model_validate(params)
+        parsed = self.parse_params(params)
         figure = devices.load_figure(parsed.figure)
         chamber = random.Random(seed).choice(figure.chambers(parsed.arity))
         level = parsed.level or "absolute"

@@ -143,7 +143,7 @@ class Ideenwuerfeln(BaseProcedure[IdeenwuerfelnParams]):
         number of slots, and there is no way to signal that through a string
         return — so a caller who needs to know should check the pool size first.
         """
-        parsed = self.params_model().model_validate({"source": text, **params})
+        parsed = self.parse_params({"source": text, **params})
         corpus = corpora.parse(parsed.source)
         pool = corpus.entries(parsed.headword)
         if len(pool) < parsed.slots:

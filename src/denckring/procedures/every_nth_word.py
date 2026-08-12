@@ -70,5 +70,5 @@ class EveryNthWord(BaseProcedure[EveryNthWordParams]):
         """Produce the selection from `text`, which serves as the source."""
         from denckring.lang import get_pack
 
-        parsed = self.params_model().model_validate({"source": text, **params})
+        parsed = self.parse_params({"source": text, **params})
         return " ".join(self._select(text, get_pack(lang), parsed.n))
