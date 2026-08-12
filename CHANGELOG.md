@@ -95,12 +95,25 @@ All notable changes to this project are documented here. The format follows
 - ADRs 0015 and 0016 on lexicon capabilities and on one data pack per language.
 - `apps/explorer`, a local FastAPI browser for the catalogue and bench for the
   procedures. Outside the distribution: nothing published depends on it.
+- Combinatorial devices: ordered slots of alternatives, asked either to segment a word
+  or to select one alternative per position. `denckring`, `cent_mille_milliards` and
+  `wechselsatz` implemented on it, with Harsdörffer's 1651 rings shipped in core.
+  `denckring` also generates, so spinning the rings round-trips through its own checker.
+- Catalogue rows for `ars_combinatoria` and `llull_figure`, the tradition the Denckring
+  descends from.
+- ADR 0017 on a device's data shipping with its procedure.
 
 ### Fixed
 
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
+- `denckring`, `cent_mille_milliards` and `wechselsatz` were filed as having no
+  computable acceptance criterion. Asking whether a word is producible by five rings is
+  a segmentation question, and asking whether a poem is one of Queneau's is a selection
+  check; both are decidable. `line_permutation`, `stanza_permutation` and
+  `word_permutation` keep their classification, because their definitions claim every
+  ordering reads as a finished text and a permutation check does not verify that.
 - Thirteen catalogue rows declared `lexicon.nouns` when they wanted word membership,
   synonyms, antonyms or glosses. Each now names what it actually needs.
 - Entry-point language packs were shadowed by the built-in English default, so an
