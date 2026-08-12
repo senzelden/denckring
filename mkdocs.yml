@@ -56,6 +56,7 @@ nav:
       - "17. A device's own data ships with its procedure": adr/0017-devices-ship-with-their-procedures.md
       - "18. Whether the author stated the rule is its own field": adr/0018-attestation.md
       - "19. Figures are alphabets read at several levels": adr/0019-figures.md
+      - "20. A corpus is supplied by the reader, never by the package": adr/0020-corpora-are-not-shipped.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

@@ -2881,3 +2881,77 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write one section per letter of the alphabet, each omitting the letter it is assigned.
+
+  # ---------------------------------------------------------------------------
+  # Jean Paul — reconstructed from the notebooks, and marked as such
+  # ---------------------------------------------------------------------------
+
+  - id: ideenwuerfeln
+    names: { en: Idea-dicing, de: Ideenwürfeln, fr: Dés à idées }
+    definitions:
+      en: >-
+        Draw several excerpts from distant fields, filed under one headword, and set
+        them side by side so that a likeness has to be found between them. The checker
+        verifies that the excerpts come from the corpus, that they are filed under the
+        headword asked for, and that they come from different fields when that is
+        required. Whether the collision produced anything is not a question code
+        answers.
+      de: >-
+        Mehrere Exzerpte aus entlegenen Fächern unter einem Stichwort zusammenzwingen,
+        bis eine Ähnlichkeit entsteht.
+      fr: >-
+        Tirer plusieurs extraits de domaines éloignés sous un même mot-clef, et les
+        confronter jusqu'à ce qu'une ressemblance apparaisse.
+    source: >-
+      Jean Paul, notebook titled Ideenwürfeln, February 1795 (Staatsbibliothek zu
+      Berlin, Nachl. Jean Paul, Fasz. IX, Konv. 7); the practice reconstructed from
+      the excerpt books, and the Witz it serves described in the Vorschule der
+      Ästhetik (1804)
+    family: procedural
+    attribution: primary
+    checkability: source
+    attested: reconstruction
+    aliases: [idea dice]
+    kind: both
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Put three excerpts from unrelated fields under one word and find what they share.
+    notes: >-
+      Jean Paul named the notebook but never wrote the rule down: unlike Harsdörffer,
+      Llull and Kircher, who set out their own procedures, everything here is inferred
+      from the object, and the entry carries `reconstruction` for that reason. The
+      notebook's numbered sections give way to an alphabetical run of headwords, under
+      which sit remote materials — Roman antiquity, anatomy, entomology, bare aphorisms
+      — with fractional numbers pointing back into the excerpt books, and an occasional
+      mark against what deserved working up. No corpus travels with this package: the
+      manuscripts are public domain, but the transcriptions that make them usable are
+      scholarly editions with their own rights.
+
+  - id: witz_metaphor
+    names: { en: Witz, de: Witz, fr: Esprit }
+    definitions:
+      en: >-
+        Find the likeness between two things far enough apart that no one has yet put
+        them together, and make the likeness carry the sentence.
+      de: >-
+        Die Ähnlichkeit zwischen entfernten Gliedern finden und sie den Satz tragen
+        lassen.
+    source: Jean Paul, Vorschule der Ästhetik (1804), on Witz as the disguised priest who marries every pair
+    family: word
+    attribution: primary
+    checkability: none
+    attested: reconstruction
+    kind: constructive
+    languages: [en]
+    requires: [tokens]
+    deterministic: false
+    prompt_hints:
+      en: Take two things nobody would pair and write the sentence that makes them one.
+    notes: >-
+      Catalogued because it is the step Ideenwürfeln stops short of, and because saying
+      where the mechanisable part ends is more useful than pretending it does not. No
+      computable acceptance criterion: whether a likeness is found is the judgement the
+      whole procedure exists to provoke.
+
