@@ -310,7 +310,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.glosses]
     deterministic: true
     prompt_hints:
       en: Replace every meaningful word with its dictionary definition, then do it again.
@@ -652,7 +652,7 @@ procedures:
     aliases: [emordnilap, reversible word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.nouns]
+    requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Find words that read as a different word backwards, such as stressed and desserts.
@@ -672,7 +672,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.nouns]
+    requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Build a square of words that reads the same across each row as down each column.
@@ -776,7 +776,7 @@ procedures:
     checkability: self
     kind: restrictive
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Choose words that split cleanly into smaller words and build the line around them.
@@ -794,7 +794,7 @@ procedures:
     aliases: [marsupial word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.nouns]
+    requires: [tokens, fold_diacritics, lexicon.synonyms]
     deterministic: true
     prompt_hints:
       en: Find words that carry a synonym of themselves inside their own letters, in order.
@@ -1079,7 +1079,7 @@ procedures:
     checkability: source
     kind: constructive
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.synonyms]
     deterministic: false
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
@@ -1291,7 +1291,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.antonyms]
     deterministic: false
     prompt_hints:
       en: Replace every meaningful word with its opposite and keep the grammar unchanged.
@@ -1308,7 +1308,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.synonyms]
     deterministic: false
     prompt_hints:
       en: Replace each meaningful word with a synonym, then do it again to the result.
@@ -1397,7 +1397,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.glosses]
     deterministic: true
     prompt_hints:
       en: Replace each meaningful word once with its dictionary definition.
@@ -2360,7 +2360,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.antonyms]
     deterministic: false
     prompt_hints:
       en: Translate the passage into its opposite, term by term.
@@ -2377,7 +2377,7 @@ procedures:
     checkability: source
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.nouns]
+    requires: [tokens, lexicon.glosses]
     deterministic: true
     prompt_hints:
       en: Replace each word of the source with its definition in the target language.
