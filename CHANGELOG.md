@@ -102,12 +102,25 @@ All notable changes to this project are documented here. The format follows
 - Catalogue rows for `ars_combinatoria` and `llull_figure`, the tradition the Denckring
   descends from.
 - ADR 0017 on a device's data shipping with its procedure.
+- `attested` on every catalogue entry: `author-stated`, `codified` or `reconstruction`.
+  It records whether anyone ever set the procedure down as a rule, which `attribution`
+  — about how the source was established — does not answer.
+- `serial_lipogram`, the whole-work form attributed to Tryphiodorus and excerpted by
+  Jean Paul in 1783.
+- ADR 0018 on attestation.
 
 ### Fixed
 
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
+- The Denckring row overstated Harsdörffer, who labels the rings but states no total,
+  and understated the case against the 97,209,600 the literature repeats. That figure
+  factors as 2^8 x 3 x 5^2 x 61 x 83, and neither 61 nor 83 divides any ring size on
+  any count — a stronger refutation than the divisibility argument it replaces. The row
+  now also records that two independent counts of the parts disagree about one boundary
+  while both coming to 264, and cites the Erquickstunden rather than the Poetischer
+  Trichter, where the device is often wrongly placed.
 - `denckring`, `cent_mille_milliards` and `wechselsatz` were filed as having no
   computable acceptance criterion. Asking whether a word is producible by five rings is
   a segmentation question, and asking whether a poem is one of Queneau's is a selection

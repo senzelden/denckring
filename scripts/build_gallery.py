@@ -40,6 +40,12 @@ CHECKABILITY_BLURB = {
     "none": "no computable acceptance criterion exists",
 }
 
+ATTESTATION_BLURB = {
+    "author-stated": "the originator set this rule down",
+    "codified": "formulated as a rule by a tradition rather than declared by an author",
+    "reconstruction": "the rule is inferred from practice, not stated by anyone",
+}
+
 ATTRIBUTION_BLURB = {
     "primary": "a named author, work and year this catalogue stands behind",
     "reference": "attested in a standard reference rather than traced to an origin",
@@ -99,6 +105,7 @@ def render_procedure(meta: Meta, implemented: set[str], validated: set[str]) -> 
         f"- **Attribution:** `{meta.attribution}` — {ATTRIBUTION_BLURB.get(meta.attribution, '')}",
         f"- **Checkability:** `{meta.checkability}` — "
         f"{CHECKABILITY_BLURB.get(meta.checkability, '')}",
+        f"- **Attested:** `{meta.attested}` — {ATTESTATION_BLURB.get(meta.attested, '')}",
         "",
         "## Details",
         "",
