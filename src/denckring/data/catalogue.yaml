@@ -3011,16 +3011,19 @@ procedures:
     checkability: source
     attested: author-stated
     aliases: [musarithmic ark]
-    kind: constructive
+    kind: both
     languages: [en]
-    requires: [tokens, syllables.heuristic, phonemes]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Count the syllables of the phrase, then take a pattern from the table indexed by that count.
     notes: >-
-      Catalogued rather than implemented. Kircher advertises that an amusos — someone
-      with no musical training — can produce correct four-part settings in any language,
-      which is the claim that makes the box interesting. What is worth taking here is the
-      indexing, not the counterpoint: the pattern table should be pluggable so verse
-      patterns can stand where note patterns did. How far to carry it is not yet settled.
+      Kircher advertises that an amusos — someone with no musical training — can produce
+      correct four-part settings in any language, which is the claim that makes the box
+      interesting. What is implemented here is the indexing, not the counterpoint: a
+      phrase is measured and a pattern drawn from the tablet for its length, and the
+      patterns themselves are never read. Put Kircher's pitch numbers in and you get his
+      machine; put stress patterns or rhyme schemes in and the same bones carry those.
+      No tablet ships. Kircher's own runs to many pages of Musurgia Universalis book
+      VIII and has not been transcribed into anything this project could verify.
 

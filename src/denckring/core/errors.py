@@ -53,6 +53,16 @@ class UnknownDevice(DenckringError):
         super().__init__(f"No combinatorial device called {device_id!r}. Available: {known}.")
 
 
+class UnsettablePhrase(DenckringError):
+    def __init__(self, syllables: int, covered: list[int]) -> None:
+        self.syllables = syllables
+        lengths = ", ".join(str(n) for n in covered) or "nothing"
+        super().__init__(
+            f"No tablet holds a pattern for a phrase of {syllables} syllables. "
+            f"This box covers: {lengths}."
+        )
+
+
 class MalformedTable(DenckringError):
     def __init__(self, reason: str) -> None:
         super().__init__(f"That numbered vocabulary cannot be read: {reason}")
