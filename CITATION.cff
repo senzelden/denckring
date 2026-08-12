@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "denckring: a library of experimental writing procedures"
+message: "If you use this software or its catalogue, please cite it."
+type: software
+authors:
+  - alias: senzelden
+    email: senzelden@gmail.com
+repository-code: "https://github.com/senzelden/denckring"
+url: "https://senzelden.github.io/denckring/"
+abstract: >-
+  A Python library of experimental writing procedures — lipograms, snowballs,
+  sestinas and several hundred more — in which every procedure pairs a generator
+  with a validator, so the acceptance criterion is intrinsic rather than
+  invented. Ships a catalogue of sourced procedures as CC BY 4.0 open data,
+  each entry recording how its attribution was established and whether the
+  procedure admits a mechanical check at all.
+keywords:
+  - oulipo
+  - constrained writing
+  - computational poetics
+  - digital humanities
+  - natural language processing
+license: MIT
+version: 0.1.0
