@@ -27,3 +27,27 @@ def test_two_packs_claiming_one_language_raise_rather_than_one_winning() -> None
     _install(installed, "en", EnglishPack(), source="first")
     with pytest.raises(DuplicatePack, match="first"):
         _install(installed, "en", EnglishPack(), source="second")
+
+
+def test_german_is_a_default_so_a_data_pack_can_override_it() -> None:
+    """A data distribution claiming `de` must win, not collide.
+
+    German shipped as an entry point (ADR 0010). Two entry points claiming one
+    language raise DuplicatePack, so `pip install denckring[de]` would have
+    broken on first use.
+    """
+    from denckring.lang import _DEFAULTS
+
+    assert "de" in _DEFAULTS, "German must be a default for a data pack to override it"
+
+
+def test_core_declares_no_language_entry_points() -> None:
+    import tomllib
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    manifest = tomllib.loads(root.read_text(encoding="utf-8"))
+    groups = manifest["project"].get("entry-points", {})
+    assert "denckring.lang" not in groups, (
+        "core must not claim a language by entry point; a data pack could not override it"
+    )
