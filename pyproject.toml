@@ -31,11 +31,6 @@ Issues = "https://github.com/senzelden/denckring/issues"
 [project.scripts]
 denckring = "denckring.cli:app"
 
-# The German pack ships inside this wheel but is discovered exactly the way a
-# third-party pack would be. See ADR 0010.
-[project.entry-points."denckring.lang"]
-de = "denckring.lang.de:GermanPack"
-
 [tool.uv.workspace]
 members = ["packages/*"]
 
