@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "denckring",
+    "denckring-de-data",
     "denckring-en-data",
 ]
 
@@ -263,6 +264,17 @@ dev = [
     { name = "ruff", specifier = ">=0.5" },
     { name = "types-pyyaml", specifier = ">=6" },
 ]
+
+[[package]]
+name = "denckring-de-data"
+version = "0.1.0"
+source = { editable = "packages/denckring-de-data" }
+dependencies = [
+    { name = "denckring" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring", editable = "." }]
 
 [[package]]
 name = "denckring-en-data"

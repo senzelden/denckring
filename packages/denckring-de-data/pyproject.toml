@@ -1,0 +1,26 @@
+[project]
+name = "denckring-de-data"
+version = "0.1.0"
+description = "German lexicon data for denckring: word membership and a noun list"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE-WIKIDATA"]
+authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: German",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = ["denckring"]
+
+[project.entry-points."denckring.lang"]
+de = "denckring_de_data:GermanDataPack"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denckring_de_data"]
