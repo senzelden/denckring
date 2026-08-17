@@ -23,3 +23,22 @@ cases:
     params:
       source: '{"entries": [{"text": "The Roman legions carried a portable sundial.", "domain": "antiquity", "headwords": ["Zeit"]}, {"text": "The heart''s left ventricle is the thickest chamber.", "domain": "anatomy", "headwords": ["Herz", "Zeit"]}, {"text": "A mayfly lives one day as an adult.", "domain": "entomology", "headwords": ["Zeit"]}]}'
     satisfied: false
+
+  # German is the language the excerpt books are actually in, so the row declares
+  # it and this case covers it. The corpus is synthetic like the others — the
+  # Würzburg transcriptions are not redistributable (ADR 0020), so these three
+  # sentences are written for the fixture, in the register's manner.
+  - name: drei-faecher-unter-einem-stichwort
+    lang: de
+    source: >-
+      konstruiertes Beispiel mit synthetischem Korpus; kein transkribiertes
+      Exzerpt reist mit diesem Paket
+    text: |-
+      Die römischen Legionen führten eine tragbare Sonnenuhr mit.
+      Die linke Herzkammer ist die dickste.
+      Die Eintagsfliege lebt als erwachsenes Tier einen Tag.
+    params:
+      source: '{"entries": [{"text": "Die römischen Legionen führten eine tragbare Sonnenuhr mit.", "domain": "Altertum", "headwords": ["Zeit"]}, {"text": "Die linke Herzkammer ist die dickste.", "domain": "Anatomie", "headwords": ["Herz", "Zeit"]}, {"text": "Die Eintagsfliege lebt als erwachsenes Tier einen Tag.", "domain": "Insektenkunde", "headwords": ["Zeit"]}]}'
+      distinct_domains: true
+      headword: Zeit
+    satisfied: true

@@ -2913,11 +2913,15 @@ procedures:
     attested: reconstruction
     aliases: [idea dice]
     kind: both
-    languages: [en]
+    # German belongs here as much as English: the procedure needs `tokens` and
+    # nothing else, the German pack declares it, and the excerpt books this was
+    # reconstructed from are German.
+    languages: [en, de]
     requires: [tokens]
     deterministic: false
     prompt_hints:
       en: Put three excerpts from unrelated fields under one word and find what they share.
+      de: Drei Exzerpte aus entlegenen Fächern unter ein Stichwort stellen und die Ähnlichkeit finden.
     notes: >-
       Jean Paul named the notebook but never wrote the rule down: unlike Harsdörffer,
       Llull and Kircher, who set out their own procedures, everything here is inferred

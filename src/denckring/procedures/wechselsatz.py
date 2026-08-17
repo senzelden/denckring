@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import random
+from typing import Any
+
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 from denckring.procedures.cent_mille_milliards import SEPARATOR
@@ -71,3 +74,18 @@ class Wechselsatz(BaseProcedure[WechselsatzParams]):
             violations=violations,
             metrics={"positions": float(len(offered)), "combinations": float(combinations)},
         )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """One turn of Kuhlmann's frame: a word drawn for each slot.
+
+        The alternatives are read here without folding case — the checker folds
+        when comparing, but a generator that lower-cased the whole line would be
+        answering a different question than the one the reader asked.
+        """
+        self.parse_params({"source": text, **params})
+        chooser = random.Random(seed)
+        slots = [
+            [part.strip() for part in slot.split(SEPARATOR) if part.strip()]
+            for slot in text.split()
+        ]
+        return " ".join(chooser.choice(options) for options in slots if options)

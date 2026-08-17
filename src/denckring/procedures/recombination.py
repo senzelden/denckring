@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import random
 import re
 from collections import Counter
+from typing import Any
 
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
@@ -62,3 +64,16 @@ class Recombination(BaseProcedure[RecombinationParams]):
             violations=violations,
             metrics={"sentences": float(sum(candidate.values()))},
         )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """The same sentences in another order, none rewritten.
+
+        A permutation and nothing else: the checker compares multisets, so
+        dropping or joining a sentence here would produce something its own
+        verdict rejects.
+        """
+        self.parse_params({"source": text, **params})
+        chooser = random.Random(seed)
+        parts = [s.strip() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
+        chooser.shuffle(parts)
+        return " ".join(parts)
