@@ -13,3 +13,17 @@ cases:
       level
     params: {}
     satisfied: false
+  - name: lager-regal
+    lang: de
+    source: constructed example; Lager and Regal are both nouns the lexicon knows, verified with is_word
+    text: |-
+      Lager
+    params: {}
+    satisfied: true
+  - name: a-german-palindrome
+    lang: de
+    source: constructed counterexample; Otto reverses to itself
+    text: |-
+      Otto
+    params: {}
+    satisfied: false

@@ -13,3 +13,10 @@ cases:
       zzzq
     params: {}
     satisfied: false
+  - name: bahnhof
+    lang: de
+    source: constructed example; Bahn and Hof are both nouns the lexicon knows, verified with is_word
+    text: |-
+      Bahnhof
+    params: {}
+    satisfied: true
