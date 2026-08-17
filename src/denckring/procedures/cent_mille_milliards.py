@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import random
+from typing import Any
+
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -80,3 +83,14 @@ class CentMilleMilliards(BaseProcedure[CentMilleMilliardsParams]):
             violations=violations,
             metrics={"positions": float(len(offered)), "combinations": float(combinations)},
         )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """One reading of the machine: a line drawn for each position.
+
+        `text` is the machine itself — the sheet of alternatives — not a poem to
+        transform. Queneau's book is ten sonnets cut into strips, and turning a
+        page is exactly this draw.
+        """
+        self.parse_params({"source": text, **params})
+        chooser = random.Random(seed)
+        return "\n".join(chooser.choice(options) for options in alternatives(text) if options)
