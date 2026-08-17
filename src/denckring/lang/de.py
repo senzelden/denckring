@@ -1,8 +1,10 @@
-"""German. Ships in core, discovered through the entry-point group.
+"""German. A built-in default, exactly like English (ADR 0022).
 
 Batch 1 needs no lexicon and no hyphenation, so this pack carries no data and
-core stays permissive. When German acquires a noun list, its licence decides
-whether the data — not this module — moves behind an extra.
+core stays permissive. `denckring-de-data` overrides this default with
+`lexicon.words` and `lexicon.nouns` the same way `denckring-en-data` overrides
+English — not through a separate registration path, but through the same
+default/override precedence English has always used.
 """
 
 from __future__ import annotations

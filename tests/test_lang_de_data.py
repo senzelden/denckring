@@ -8,12 +8,17 @@ later task) does not exist yet.
 """
 
 import gzip
+import json
 import re
 from pathlib import Path
 from types import ModuleType
 from typing import cast
 
 import pytest
+
+from denckring import check
+from denckring.lang import get_pack
+from denckring.procedures.charade import splits_into
 
 SINGLE_TOKEN = re.compile(r"[A-Za-zÄÖÜäöüß]{2,}")
 
@@ -46,6 +51,19 @@ def _de_data_fixture() -> ModuleType:
 
 def _read_gz(path: Path) -> list[str]:
     return gzip.decompress(path.read_bytes()).decode("utf-8").splitlines()
+
+
+def test_shipped_files_match_the_recorded_metadata_counts() -> None:
+    """ADR 0023 claims the vendored files are reproducible; `metadata.json`
+    records the entry counts alongside them so a silent corpus change (a
+    truncated download, a bad regeneration) fails this test loudly instead
+    of drifting unnoticed, since the gzip bytes themselves do not diff
+    cleanly enough to catch that by eye."""
+    metadata = json.loads((DATA / "metadata.json").read_text(encoding="utf-8"))
+    nouns = _read_gz(DATA / "nouns.txt.gz")
+    words = _read_gz(DATA / "words.txt.gz")
+    assert len(nouns) == metadata["counts"]["nouns.txt.gz"]
+    assert len(words) == metadata["counts"]["words.txt.gz"]
 
 
 def test_noun_list_is_single_token_and_alphabetic(de_data: ModuleType) -> None:
@@ -135,3 +153,43 @@ def test_umlauts_are_kept_not_folded() -> None:
 def test_eszett_is_kept() -> None:
     pack = de_data.GermanDataPack()
     assert pack.is_word("Straße")
+
+
+@requires_de_data
+def test_charade_with_an_umlaut_now_divides_correctly() -> None:
+    """Before `charade` queried the lexicon with `fold=False`, `letter_spans`
+    stripped the umlaut before the lookup, turning "Nachtwächter" into
+    "nachtwachter" - and "wachter" is not a German word, so this genuine
+    charade (Nacht + Wächter) was unreachable. It must now divide."""
+    report = check("charade", "Nachtwächter", lang="de")
+    assert report.satisfied
+
+
+@requires_de_data
+def test_charade_no_longer_assembles_a_division_from_folded_letters() -> None:
+    """Before the fix, "Auslässe" was folded to "auslasse" before the lexicon
+    query and satisfied `charade` via the split "aus" + "lasse" - a division
+    built from letters ("lasse") that only exist once the umlaut has been
+    silently discarded, not from what is literally written. With `fold=False`
+    the lexicon is queried on "auslässe" as written, that split does not
+    exist, and the word is correctly a violation.
+
+    (This is not true of every umlaut word: "Bärlauch" stays satisfied after
+    the fix too, but for a different, legitimate reason - "bär" (bear) and
+    "lauch" (leek) are each independently real German words on their own, so
+    "Bär" + "lauch" is a genuine division of the literal text, not a folding
+    artefact. It is covered separately below.)"""
+    report = check("charade", "Auslässe", lang="de")
+    assert not report.satisfied
+    assert report.violations[0].rule == "does_not_divide"
+
+
+@requires_de_data
+def test_charade_baerlauch_divides_on_the_literal_umlaut_not_a_folded_substitute() -> None:
+    """ "Bärlauch" remains satisfied after the fix, but the division must use
+    the literal letters ("bär", the German word for bear) rather than the
+    pre-fix folded substitute ("bar", a different word obtained only by
+    discarding the umlaut)."""
+
+    pack = get_pack("de")
+    assert splits_into("bärlauch", 2, pack) == ["bär", "lauch"]

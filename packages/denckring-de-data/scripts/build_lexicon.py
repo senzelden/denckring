@@ -19,6 +19,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import UTC, datetime
 from pathlib import Path
 
 #: Network failure modes seen against the shared Wikidata Query Service:
@@ -34,6 +35,10 @@ NETWORK_ERRORS = (
 ENDPOINT = "https://query.wikidata.org/sparql"
 USER_AGENT = "denckring-de-data/0.1 (https://github.com/senzelden/denckring)"
 DATA = Path(__file__).resolve().parents[1] / "src" / "denckring_de_data" / "data"
+#: Beside the .gz files: the generation date and the two entry counts, so a
+#: silent corpus change fails a test loudly instead of drifting unnoticed
+#: (the gzip bytes alone do not diff cleanly enough to catch that by eye).
+METADATA = DATA / "metadata.json"
 
 #: German (Q188), noun (Q1084).
 NOUN_LEMMAS = """
@@ -148,21 +153,40 @@ def all_forms() -> set[str]:
     return forms
 
 
-def write(path: Path, entries: list[str]) -> None:
+def write(path: Path, entries: list[str]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with gzip.open(path, "wt", encoding="utf-8") as handle:
-        handle.write("\n".join(entries))
+    payload = "\n".join(entries).encode("utf-8")
+    # mtime=0: gzip embeds a timestamp by default, so two runs over identical
+    # content would otherwise produce different bytes and `git diff` would
+    # show "Binary files differ" even when nothing changed.
+    path.write_bytes(gzip.compress(payload, mtime=0))
     print(f"  {path.name}: {len(entries):,} entries", file=sys.stderr)
+    return len(entries)
+
+
+def write_metadata(noun_count: int, word_count: int) -> None:
+    """Record beside the .gz files what generated them and how many entries
+    they hold, so a test can assert the shipped files still match and a
+    silent corpus change fails loudly instead of drifting unnoticed."""
+    metadata = {
+        "generated": datetime.now(UTC).strftime("%Y-%m-%d"),
+        "source": "Wikidata Lexemes (Q188, German), CC0 - see LICENSE-WIKIDATA and this script",
+        "counts": {"nouns.txt.gz": noun_count, "words.txt.gz": word_count},
+    }
+    METADATA.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"  {METADATA.name}: {metadata}", file=sys.stderr)
 
 
 def main() -> int:
     lemmas = [w for w in query(NOUN_LEMMAS) if SINGLE_TOKEN.fullmatch(w) and w[:1].isupper()]
     nouns = sorted(set(lemmas))
-    write(DATA / "nouns.txt.gz", nouns)
+    noun_count = write(DATA / "nouns.txt.gz", nouns)
 
     forms = all_forms()
     forms.update(w.casefold() for w in nouns)  # same ß -> ss folding, see all_forms()
-    write(DATA / "words.txt.gz", sorted(forms))
+    word_count = write(DATA / "words.txt.gz", sorted(forms))
+
+    write_metadata(noun_count, word_count)
     return 0
 
 
