@@ -51,3 +51,12 @@ def test_core_declares_no_language_entry_points() -> None:
     assert "denckring.lang" not in groups, (
         "core must not claim a language by entry point; a data pack could not override it"
     )
+
+
+def test_the_german_data_pack_overrides_the_core_pack_when_installed() -> None:
+    """The whole point of Task 1: an entry point beats a default, no collision."""
+    pytest.importorskip("denckring_de_data")
+    from denckring.lang.base import NOUNS
+
+    pack = get_pack("de")
+    assert NOUNS in pack.capabilities, "the data pack did not win over the core pack"
