@@ -1,0 +1,24 @@
+procedure: pangrammatic_window
+lang: en
+cases:
+  - name: pack-my-box
+    source: Traditional 32-letter pangram, in circulation by the early 20th century
+    text: Pack my box with five dozen liquor jugs
+    params: { max_length: 40 }
+    satisfied: true
+  - name: over-the-bar
+    source: Same pangram, checked against a bar shorter than its own length
+    text: The quick brown fox jumps over the lazy dog
+    params: { max_length: 30 }
+    satisfied: false
+  - name: missing-several-letters
+    source: constructed counterexample
+    text: the quick brown fox
+    params: { max_length: 100 }
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    params: { max_length: 100 }
+    satisfied: false
+    max_score: 0.0
