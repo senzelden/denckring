@@ -5,10 +5,30 @@ text. It is a development tool, not part of the distribution — nothing here is
 published, and the package does not depend on it.
 
 ```console
+cp apps/explorer/.env.example apps/explorer/.env   # optional; see below
 uv run --project apps/explorer explorer
 ```
 
 Then open <http://127.0.0.1:8412>. Use `--port` if that one is taken.
+
+## Configuration
+
+Everything optional. `.env.example` documents each variable; copy it to `.env`
+and fill in what you want. `.env` is gitignored, real environment variables win
+over it, and the CLI flags win over both.
+
+`DENCKRING_CORPORA` points at a directory of corpus JSON files (default
+`~/corpora`), which the `ideenwuerfeln` bench offers as a picker. The corpus is
+read on the server and never posted back through the form — a 28,000-entry
+corpus is 5.8MB, which the HTTP field-size limit refuses outright.
+
+`ANTHROPIC_API_KEY` enables *Find the Witz* under a generated throw: a model
+reads the collision and says what, if anything, the excerpts share. It is a
+reading and not a verdict — no `Report`, no score, and nothing in the package
+consults it. `ideenwuerfeln` says the Witz is the step no program does, and that
+stays true; this is a reader at the bench, kept here precisely so the library's
+acceptance criteria stay intrinsic. Leave the key unset and the button does not
+appear.
 
 ## What it shows
 

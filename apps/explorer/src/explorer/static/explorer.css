@@ -864,3 +864,41 @@ mark.hit {
     transform: none;
   }
 }
+
+/* ── the corpus picker and the reading ─────────────────────────────────── */
+
+.corpus-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--rule, #ddd);
+}
+
+.corpus-picker select { max-width: 32rem; }
+.corpus-picker .hint { flex-basis: 100%; margin: 0.2rem 0 0; }
+
+.witz-form { margin-top: 1.2rem; }
+
+/* Set apart from the proof above it: this is a reading, not a verdict, and it
+   should not be mistaken for one at a glance. */
+.witz-reading {
+  margin-top: 0.8rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid #4288c4;
+  background: rgba(66, 136, 196, 0.06);
+  font-style: italic;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.loaded-corpus {
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px dashed var(--rule, #ccc);
+  border-radius: 3px;
+  font-size: 0.9rem;
+  color: #444;
+}
