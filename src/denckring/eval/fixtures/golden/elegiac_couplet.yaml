@@ -1,0 +1,17 @@
+procedure: elegiac_couplet
+lang: en
+cases:
+  - name: dactyl-hexameter-then-pentameter
+    source: constructed from the satisfying strategy's own shape
+    text: |-
+      murmuring murmuring murmuring murmuring murmuring forest
+      murmuring murmuring song murmuring murmuring stone
+    satisfied: true
+  - name: odd-line-count-is-rejected
+    source: constructed counterexample
+    text: murmuring murmuring murmuring murmuring murmuring forest
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    satisfied: false
