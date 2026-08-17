@@ -13,8 +13,15 @@ def parts_without(letters: str) -> str:
     )
 
 
-def test_each_part_omitting_its_letter_is_satisfied() -> None:
-    assert check("serial_lipogram", parts_without("abc")).satisfied
+def lines_without(letters: str) -> str:
+    """One line per letter, each omitting the letter it is assigned."""
+    return "\n".join(
+        " ".join(ch for ch in string.ascii_lowercase if ch != drop) for drop in letters
+    )
+
+
+def test_a_full_alphabets_worth_of_parts_each_omitting_its_letter_is_satisfied() -> None:
+    assert check("serial_lipogram", parts_without(string.ascii_lowercase)).satisfied
 
 
 def test_a_part_keeping_its_letter_violates() -> None:
@@ -23,30 +30,59 @@ def test_a_part_keeping_its_letter_violates() -> None:
     assert any(v.rule == "letter_present" for v in report.violations)
 
 
+def test_too_few_parts_violates_even_when_every_present_part_is_correct() -> None:
+    """The form is 'as many parts as the alphabet has letters' — three correct
+    parts is not the whole alphabet, so the text is genuinely incomplete."""
+    report = check("serial_lipogram", parts_without("abc"))
+    assert not report.satisfied
+    assert any(v.rule == "wrong_part_count" for v in report.violations)
+    assert not any(v.rule == "letter_present" for v in report.violations)
+
+
+def test_empty_text_is_unsatisfied_not_vacuous() -> None:
+    """An empty text has no parts at all, which is the wrong count, not a
+    vacuous pass — unlike the restrictive procedures that forbid something
+    an empty text trivially avoids."""
+    report = check("serial_lipogram", "")
+    assert not report.satisfied
+    assert report.score == 0.0
+    assert [v.rule for v in report.violations] == ["wrong_part_count"]
+
+
 def test_the_walk_starts_at_a_by_default() -> None:
     """Unlike abecedarian, the start cannot be read off the text: a missing
     letter looks like any other letter a short part happens to lack."""
     report = check("serial_lipogram", "zzz")
-    assert report.satisfied, "a part without 'a' satisfies the first constraint"
+    assert not any(v.rule == "letter_present" for v in report.violations)
 
 
 def test_start_moves_the_walk() -> None:
     report = check("serial_lipogram", "aaa", start="b")
-    assert report.satisfied
+    assert not any(v.rule == "letter_present" for v in report.violations)
 
 
 def test_lines_can_be_the_unit() -> None:
-    text = "\n".join(" ".join(c for c in string.ascii_lowercase if c != d) for d in "ab")
+    text = lines_without(string.ascii_lowercase)
     assert check("serial_lipogram", text, unit="line").satisfied
 
 
-def test_more_parts_than_the_alphabet_wraps() -> None:
-    assert check("serial_lipogram", parts_without(string.ascii_lowercase + "a")).satisfied
+def test_wraparound_avoids_letter_present_violations_beyond_the_alphabet() -> None:
+    """More parts than letters wraps the walk back to the start; the extra
+    part is still checked against the wrapped letter and gets it right, so
+    the only violation left is the part count itself."""
+    report = check("serial_lipogram", parts_without(string.ascii_lowercase + "a"))
+    assert not report.satisfied
+    assert all(v.rule == "wrong_part_count" for v in report.violations)
 
 
 def test_start_must_be_a_single_letter() -> None:
     with pytest.raises(InvalidParams):
         check("serial_lipogram", "x", start="ab")
+
+
+def test_start_outside_the_alphabet_is_invalid() -> None:
+    with pytest.raises(InvalidParams):
+        check("serial_lipogram", "x", start="ä")
 
 
 def test_violation_in_the_second_paragraph_has_a_correctly_rebased_offset() -> None:

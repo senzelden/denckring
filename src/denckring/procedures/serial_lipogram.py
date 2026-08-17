@@ -72,11 +72,27 @@ class SerialLipogram(BaseProcedure[SerialLipogramParams]):
                         expected=f"part {index + 1} without {forbidden!r}",
                     )
                 )
-            else:
+            elif index < len(alphabet):
+                # A part beyond the alphabet's length has no slot of its own —
+                # `wrong_part_count` already marks the text unsatisfied, and
+                # letting an extra correct part inflate `good` past `total`'s
+                # alphabet-sized floor would let the score reach 1.0 anyway.
                 good += 1
+
+        if len(parts) != len(alphabet):
+            violations.append(
+                Violation(
+                    rule="wrong_part_count",
+                    offset=None,
+                    found=f"{len(parts)} parts",
+                    expected=f"{len(alphabet)} parts, one per letter of the alphabet",
+                )
+            )
+
+        total = max(len(parts), len(alphabet))
         return self._report(
             good=good,
-            total=len(parts),
+            total=total,
             violations=violations,
-            metrics={"parts": float(len(parts))},
+            metrics={"parts": float(len(parts)), "expected_parts": float(len(alphabet))},
         )

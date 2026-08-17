@@ -1,7 +1,7 @@
 procedure: serial_lipogram
 lang: en
 cases:
-  - name: three-parts-each-omitting-its-letter
+  - name: twenty-six-parts-one-per-letter
     source: >-
       constructed example; the form is attributed to Tryphiodorus, whose Odyssey
       in 24 books each omitted one letter, excerpted by Jean Paul in 1783
@@ -11,6 +11,52 @@ cases:
       acdefghijklmnopqrstuvwxyz
 
       abdefghijklmnopqrstuvwxyz
+
+      abcefghijklmnopqrstuvwxyz
+
+      abcdfghijklmnopqrstuvwxyz
+
+      abcdeghijklmnopqrstuvwxyz
+
+      abcdefhijklmnopqrstuvwxyz
+
+      abcdefgijklmnopqrstuvwxyz
+
+      abcdefghjklmnopqrstuvwxyz
+
+      abcdefghiklmnopqrstuvwxyz
+
+      abcdefghijlmnopqrstuvwxyz
+
+      abcdefghijkmnopqrstuvwxyz
+
+      abcdefghijklnopqrstuvwxyz
+
+      abcdefghijklmopqrstuvwxyz
+
+      abcdefghijklmnpqrstuvwxyz
+
+      abcdefghijklmnoqrstuvwxyz
+
+      abcdefghijklmnoprstuvwxyz
+
+      abcdefghijklmnopqstuvwxyz
+
+      abcdefghijklmnopqrtuvwxyz
+
+      abcdefghijklmnopqrsuvwxyz
+
+      abcdefghijklmnopqrstvwxyz
+
+      abcdefghijklmnopqrstuwxyz
+
+      abcdefghijklmnopqrstuvxyz
+
+      abcdefghijklmnopqrstuvwyz
+
+      abcdefghijklmnopqrstuvwxz
+
+      abcdefghijklmnopqrstuvwxy
     params: {}
     satisfied: true
   - name: second-part-keeping-its-own-letter

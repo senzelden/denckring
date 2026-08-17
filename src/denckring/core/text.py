@@ -43,12 +43,29 @@ def paragraph_spans(text: str) -> list[tuple[int, str]]:
 
     A serial lipogram's parts are sections, not lines — Tryphiodorus wrote
     twenty-four books — so the unit has to be able to hold more than one line.
+
+    Built on `splitlines`, the same as `line_spans`, so a blank line ending in
+    `\\r\\n` closes a paragraph exactly as one ending in `\\n` does — splitting
+    on the literal string `"\\n\\n"` would miss that.
     """
     spans: list[tuple[int, str]] = []
+    group_start: int | None = None
+    group_end = 0
     offset = 0
-    for block in text.split("\n\n"):
-        stripped = block.strip()
-        if stripped:
-            spans.append((offset + block.index(stripped[0]), stripped))
-        offset += len(block) + 2
+    for line in text.splitlines(keepends=True):
+        stripped = line.rstrip("\r\n")
+        if stripped.strip():
+            if group_start is None:
+                group_start = offset
+            group_end = offset + len(stripped)
+        elif group_start is not None:
+            block = text[group_start:group_end]
+            content = block.strip()
+            spans.append((group_start + block.index(content[0]), content))
+            group_start = None
+        offset += len(line)
+    if group_start is not None:
+        block = text[group_start:group_end]
+        content = block.strip()
+        spans.append((group_start + block.index(content[0]), content))
     return spans
