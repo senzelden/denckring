@@ -36,7 +36,7 @@ def _wrong_count(part_count: int) -> Case:
     return _parts_avoiding(forbidden), {}
 
 
-def _letter_present(bad_index: int) -> Case:
+def _forbidden_letter(bad_index: int) -> Case:
     """The full 26 parts, one of them keeping the letter it should omit."""
     words = [_word_avoiding(letter) for letter in ALPHABET]
     words[bad_index] = ALPHABET[bad_index] * 3
@@ -48,5 +48,5 @@ def violating() -> CaseStrategy:
     return st.one_of(
         st.integers(min_value=0, max_value=25).map(_wrong_count),
         st.integers(min_value=27, max_value=31).map(_wrong_count),
-        st.integers(min_value=0, max_value=len(ALPHABET) - 1).map(_letter_present),
+        st.integers(min_value=0, max_value=len(ALPHABET) - 1).map(_forbidden_letter),
     )

@@ -66,7 +66,7 @@ class SerialLipogram(BaseProcedure[SerialLipogramParams]):
             if hits:
                 violations.append(
                     Violation(
-                        rule="letter_present",
+                        rule="forbidden_letter",
                         offset=offset + hits[0],
                         found=forbidden,
                         expected=f"part {index + 1} without {forbidden!r}",
