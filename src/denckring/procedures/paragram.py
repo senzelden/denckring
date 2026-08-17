@@ -13,7 +13,19 @@ from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import WORDS
+from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC, WORDS
+
+#: What makes one candidate swap better than another. Highest first:
+#: (1) the pronouncing dictionary actually has an entry for it — `pack.nouns()`
+#: carries lower-cased scientific and unit abbreviations ("thc", "thm", "tce")
+#: that are WordNet noun lemmas but nothing English speakers say, and none of
+#: them has a CMUdict pronunciation, which is a sharper test than eyeballing
+#: for a vowel; (2) it is in `pack.nouns()` at all — the same curated list
+#: `anagram.apply` walks — rather than merely being in the union `is_word`
+#: checks; (3) it is the longer word. A ranking, not a filter: a candidate
+#: that clears none of these is still better than no candidate at all, so it
+#: is never dropped from consideration, only ranked last.
+CandidateScore = tuple[bool, bool, int]
 
 
 class ParagramParams(DiacriticParams):
@@ -86,6 +98,14 @@ class Paragram(BaseProcedure[ParagramParams]):
         generator that replaced the original in place would leave nothing for
         it to compare against.
 
+        Every word, position and letter in the text is a candidate, and the
+        best-scoring one wins — not the first one found. A first-match search
+        against a broad lexicon (CMUdict union WordNet) reliably surfaces the
+        noisiest entry available: "the" always became "the che" long before
+        anything a writer would reach for. `CandidateScore` ranks what is
+        found rather than gating it, so the search still returns its best
+        effort — never a refusal — when nothing scores well.
+
         `lexicon.words` is required here but deliberately not added to the
         catalogue row: `requires` gates `check` too, and this row has always
         been checkable with core alone. ADR 0002 makes `apply` the optional
@@ -97,7 +117,13 @@ class Paragram(BaseProcedure[ParagramParams]):
         pack = get_pack(lang)
         require_capability(pack, WORDS, self.id)
         self.parse_params(params)
+        has_nouns = NOUNS in pack.capabilities
+        has_syllables = SYLLABLES_HEURISTIC in pack.capabilities
 
+        best_score: CandidateScore | None = None
+        best_offset = 0
+        best_word = ""
+        best_swapped = ""
         for offset, word in word_spans(text, pack):
             if not word.isalpha():
                 continue
@@ -107,7 +133,19 @@ class Paragram(BaseProcedure[ParagramParams]):
                     if letter == lowered[position]:
                         continue
                     swapped = lowered[:position] + letter + lowered[position + 1 :]
-                    if pack.is_word(swapped):
-                        insert_at = offset + len(word)
-                        return text[:insert_at] + " " + swapped + text[insert_at:]
-        raise NoCandidateWord(self.id)
+                    if not pack.is_word(swapped):
+                        continue
+                    # `syllable_count`'s second element is True only when the
+                    # pronouncing dictionary itself listed the word, not when a
+                    # spelling heuristic guessed at one — the same distinction
+                    # every syllabic procedure's `estimated_words` metric rests on.
+                    pronounced = has_syllables and pack.syllable_count(swapped)[1]
+                    is_noun = has_nouns and pack.noun_index(swapped) is not None
+                    score: CandidateScore = (pronounced, is_noun, len(swapped))
+                    if best_score is None or score > best_score:
+                        best_score = score
+                        best_offset, best_word, best_swapped = offset, word, swapped
+        if best_score is None:
+            raise NoCandidateWord(self.id)
+        insert_at = best_offset + len(best_word)
+        return text[:insert_at] + " " + best_swapped + text[insert_at:]
