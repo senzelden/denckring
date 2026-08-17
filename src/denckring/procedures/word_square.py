@@ -28,7 +28,14 @@ class WordSquare(BaseProcedure[WordSquareParams]):
         return WordSquareParams
 
     def _check(self, text: str, pack: LanguagePack, params: WordSquareParams) -> Report:
-        rows = ["".join(ch for _, ch in letter_spans(line, pack)) for _, line in line_spans(text)]
+        # fold=False: the lexicon stores each language's own diacritics
+        # (German umlauts included), so folding before the query would
+        # make every umlaut word unfindable and could assemble a false
+        # positive from pieces not actually present in the text.
+        rows = [
+            "".join(ch for _, ch in letter_spans(line, pack, fold=False))
+            for _, line in line_spans(text)
+        ]
         if not rows:
             return Report(
                 procedure=self.id,

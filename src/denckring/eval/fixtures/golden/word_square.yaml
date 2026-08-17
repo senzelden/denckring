@@ -21,3 +21,19 @@ cases:
       rotas
     params: {}
     satisfied: false
+  - name: ja-an
+    lang: de
+    source: constructed example; ja and an are both words the lexicon knows, verified with is_word
+    text: |-
+      ja
+      an
+    params: {}
+    satisfied: true
+  - name: ja-ja-not-symmetric
+    lang: de
+    source: constructed counterexample; repeating the same row breaks the row/column symmetry
+    text: |-
+      ja
+      ja
+    params: {}
+    satisfied: false

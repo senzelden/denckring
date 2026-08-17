@@ -1,10 +1,10 @@
 """Language pack lookup.
 
-English is available as a built-in *default* so core never depends on its own
-installed metadata being readable in order to find its own language. Everything
-else — including the German pack that ships in this same wheel, and the
-`denckring[en]` data package — arrives through the `denckring.lang` entry-point
-group, which is exactly how a third-party pack installs.
+English and German are available as built-in *defaults* so core never depends on
+its own installed metadata being readable in order to find its own languages.
+Data distributions — `denckring[en]`, `denckring[de]` — arrive through the
+`denckring.lang` entry-point group, which is exactly how a third-party pack
+installs, and take precedence over the defaults they upgrade.
 
 Precedence runs: explicitly registered pack, then entry point, then built-in
 default. That ordering is what lets `denckring-en-data` upgrade English rather
@@ -17,14 +17,19 @@ from importlib.metadata import entry_points
 
 from denckring.core.errors import DuplicatePack, UnknownLanguage
 from denckring.core.protocol import LanguagePack
+from denckring.lang.de import GermanPack
 from denckring.lang.en import EnglishPack
 
 DuplicatePack = DuplicatePack
 
 ENTRY_POINT_GROUP = "denckring.lang"
 
-#: The floor: always present, never dependent on installed metadata.
-_DEFAULTS: dict[str, LanguagePack] = {"en": EnglishPack()}
+#: The floor: always present, never dependent on installed metadata. German sits
+#: here beside English so that `denckring-de-data` can override it the way
+#: `denckring-en-data` overrides English. It was an entry point until a second
+#: distribution claiming `de` proved that two entry points for one language
+#: raise DuplicatePack. Amends ADR 0010.
+_DEFAULTS: dict[str, LanguagePack] = {"en": EnglishPack(), "de": GermanPack()}
 #: Discovered or explicitly registered packs, which take precedence.
 _PACKS: dict[str, LanguagePack] = {}
 _DISCOVERED = False
