@@ -1,0 +1,13 @@
+procedure: paragram
+lang: en
+cases:
+  - name: cat-sat-mat
+    source: constructed example
+    text: the cat sat on the mat
+    satisfied: true
+    min_score: 1.0
+  - name: no-shared-length
+    source: constructed counterexample
+    text: one three seventeen
+    satisfied: false
+    max_score: 0.0
