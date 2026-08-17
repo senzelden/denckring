@@ -708,7 +708,7 @@ procedures:
     aliases: [emordnilap, reversible word]
     kind: restrictive
     languages: [en, de]
-    requires: [tokens, fold_diacritics, lexicon.words]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Find words that read as a different word backwards, such as stressed and desserts.
@@ -729,7 +729,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en, de]
-    requires: [tokens, fold_diacritics, lexicon.words]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Build a square of words that reads the same across each row as down each column.

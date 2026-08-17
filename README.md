@@ -27,15 +27,20 @@ and only meaningful for the constructive ones.
 ```console
 pip install denckring          # English and German, no data files
 pip install denckring[en]      # + a pronouncing dictionary and a noun lexicon
+pip install denckring[de]      # + a word lexicon and a noun list
 pip install denckring[fr]      # French (not yet released)
 ```
 
-The `[en]` extra improves existing procedures rather than enabling new ones. Without it
-syllables are estimated from spelling and every report says how many words were guessed;
-with it, that number goes to zero for words the dictionary knows.
+The `[en]` and `[de]` extras improve or unlock procedures rather than changing the
+language itself. Without `[en]`, syllables are estimated from spelling and every report
+says how many words were guessed; with it, that number goes to zero for words the
+dictionary knows. Without `[de]`, `charade`, `semordnilap`, `word_square`, `n_plus_7`
+and `s_plus_7` raise `MissingCapability` for German; with it, they run.
 
-German ships in core because the twelve procedures below need no lexicon. It registers
-through the `denckring.lang` entry-point group — the same path a third-party pack takes.
+German ships in core because the twelve procedures below need no lexicon, and it is a
+built-in default exactly like English (ADR 0022): `denckring[de]` overrides that default
+the same way `denckring[en]` overrides English's, rather than registering through a
+separate path.
 
 ## What's here
 
@@ -102,8 +107,9 @@ uv run python scripts/build_gallery.py && uv run mkdocs serve
 Three kinds of thing a procedure can need, and they are handled differently. A **device**
 — Harsdörffer's five rings — is the procedure, so it ships with it. A **language pack**
 describes a language and ships separately when it carries weight: `denckring[en]` adds a
-pronouncing dictionary and a noun lexicon. A **corpus** is somebody's collection, so the
-package carries the loader and you supply the reading:
+pronouncing dictionary and a noun lexicon, `denckring[de]` adds a word lexicon and a noun
+list. A **corpus** is somebody's collection, so the package carries the loader and you
+supply the reading:
 
 ```console
 denckring check ideenwuerfeln throw.txt --source my-excerpts.json

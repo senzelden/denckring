@@ -46,7 +46,11 @@ class Charade(BaseProcedure[CharadeParams]):
         words = word_spans(text, pack)
         violations: list[Violation] = []
         for offset, word in words:
-            letters = "".join(ch for _, ch in letter_spans(word, pack))
+            # fold=False: the lexicon stores each language's own diacritics
+            # (German umlauts included), so folding before the query would
+            # make every umlaut word unfindable and could assemble a false
+            # positive from pieces not actually present in the text.
+            letters = "".join(ch for _, ch in letter_spans(word, pack, fold=False))
             if splits_into(letters, params.parts, pack) is None:
                 violations.append(
                     Violation(

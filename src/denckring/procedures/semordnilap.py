@@ -28,7 +28,11 @@ class Semordnilap(BaseProcedure[SemordnilapParams]):
         words = word_spans(text, pack)
         violations: list[Violation] = []
         for offset, word in words:
-            letters = "".join(ch for _, ch in letter_spans(word, pack))
+            # fold=False: the lexicon stores each language's own diacritics
+            # (German umlauts included), so folding before the query would
+            # make every umlaut word unfindable and could assemble a false
+            # positive from pieces not actually present in the text.
+            letters = "".join(ch for _, ch in letter_spans(word, pack, fold=False))
             reversed_letters = letters[::-1]
             if reversed_letters == letters:
                 violations.append(
