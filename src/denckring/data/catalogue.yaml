@@ -2877,7 +2877,7 @@ procedures:
     aliases: [lipogrammatic cycle]
     kind: restrictive
     languages: [en]
-    requires: [tokens, alphabet, fold_diacritics]
+    requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
       en: Write one section per letter of the alphabet, each omitting the letter it is assigned.
