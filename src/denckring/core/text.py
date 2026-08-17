@@ -47,6 +47,13 @@ def paragraph_spans(text: str) -> list[tuple[int, str]]:
     Built on `splitlines`, the same as `line_spans`, so a blank line ending in
     `\\r\\n` closes a paragraph exactly as one ending in `\\n` does — splitting
     on the literal string `"\\n\\n"` would miss that.
+
+    Unlike `line_spans`, this strips the surrounding whitespace of each block
+    rather than keeping the original text: a paragraph's first and last lines
+    can carry leading or trailing space that is not part of any line's own
+    content, so the offset is rebased to the first non-whitespace character
+    and the text returned has none. Harmless for its one caller, which works
+    in letters — but deliberately different from its sibling, not an oversight.
     """
     spans: list[tuple[int, str]] = []
     group_start: int | None = None

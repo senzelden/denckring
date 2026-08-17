@@ -52,17 +52,14 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
             if index >= len(lines):
                 continue
             offset, line = lines[index]
-            present = {ch for _, ch in letter_spans(line, pack, fold=params.fold_diacritics)}
-            intruder = [
-                offset + span_offset
-                for span_offset, ch in letter_spans(line, pack, fold=params.fold_diacritics)
-                if ch == letter
-            ]
+            spans = letter_spans(line, pack, fold=params.fold_diacritics)
+            present = {ch for _, ch in spans}
+            intruder = [offset + span_offset for span_offset, ch in spans if ch == letter]
             missing = [ch for ch in alphabet if ch != letter and ch not in present]
             if intruder:
                 violations.append(
                     Violation(
-                        rule="forbidden_letter_present",
+                        rule="forbidden_letter",
                         offset=intruder[0],
                         found=letter,
                         expected=f"line {index + 1} without {letter!r}",
@@ -72,7 +69,7 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
                 violations.append(
                     Violation(
                         rule="missing_letter",
-                        offset=offset,
+                        offset=None,
                         found="",
                         expected=f"{ch!r} somewhere in line {index + 1}",
                     )
@@ -93,5 +90,5 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
             good=good,
             total=max(len(wanted), len(lines)),
             violations=violations,
-            metrics={"lines": float(len(lines)), "letters": float(len(wanted))},
+            metrics={"lines": float(len(lines)), "expected_lines": float(len(wanted))},
         )

@@ -43,7 +43,6 @@ def test_apply_produces_a_real_word() -> None:
     assert isinstance(procedure, Constructive)
     produced = procedure.apply("the cat sat", lang="en")
     assert produced != "the cat sat"
-    assert check("paragram", produced, minimum=0).satisfied or True  # shape only
     assert all(get_pack("en").is_word(w) for w in produced.split() if w.isalpha())
 
 
