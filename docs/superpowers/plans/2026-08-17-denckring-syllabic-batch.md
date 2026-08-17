@@ -413,10 +413,12 @@ def test_the_closest_reading_supplies_the_violations() -> None:
     """Reporting all thirty-two failures would tell a writer nothing. The
     candidate that matched most words is the one scansion worth showing."""
     pack = get_pack("en")
-    result = line_metre("the forest primeval", pack, ["000000", "?10010"], 0)
+    # "the forest primeval" scans as `?10010`. Both options below are the right
+    # length and both fail, so the result must carry ONE candidate's violations
+    # rather than the two candidates' combined.
+    result = line_metre("the forest primeval", pack, ["000000", "111111"], 0)
     assert result.violations
-    # Only the closest candidate's violations, not both candidates' combined.
-    assert len(result.violations) <= 3
+    assert len(result.violations) == 2
 ```
 
 - [ ] **Step 6: Run to verify it fails**
