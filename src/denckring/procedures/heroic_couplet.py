@@ -40,7 +40,7 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
         return HeroicCoupletParams
 
     def _check(self, text: str, pack: LanguagePack, params: HeroicCoupletParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             scheme="".join(chr(65 + i // 2) for i in range(_line_count(text))),
@@ -48,5 +48,11 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
         )
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "checks": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )

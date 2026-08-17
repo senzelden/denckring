@@ -25,7 +25,7 @@ class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
         return RhymeRoyalParams
 
     def _check(self, text: str, pack: LanguagePack, params: RhymeRoyalParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             scheme="ABABBCC",
@@ -33,5 +33,11 @@ class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
         )
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "checks": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )

@@ -25,7 +25,7 @@ class ShakespeareanSonnet(BaseProcedure[ShakespeareanSonnetParams]):
         return ShakespeareanSonnetParams
 
     def _check(self, text: str, pack: LanguagePack, params: ShakespeareanSonnetParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             scheme="ABABCDCDEFEFGG",
@@ -33,5 +33,11 @@ class ShakespeareanSonnet(BaseProcedure[ShakespeareanSonnetParams]):
         )
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "checks": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )

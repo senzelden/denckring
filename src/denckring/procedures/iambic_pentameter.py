@@ -25,12 +25,18 @@ class IambicPentameter(BaseProcedure[IambicPentameterParams]):
         return IambicPentameterParams
 
     def _check(self, text: str, pack: LanguagePack, params: IambicPentameterParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             metre="01" * 5,
         )
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "checks": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )
