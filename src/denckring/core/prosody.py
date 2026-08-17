@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
+from denckring.core.errors import MissingCapability
 from denckring.core.protocol import LanguagePack, Violation
 from denckring.core.text import line_spans
+from denckring.lang.base import PHONEMES
 
 #: `?` matches either, so a monosyllable takes whatever stress the line needs.
 FREE = "?"
@@ -21,9 +25,37 @@ def line_stress(line: str, pack: LanguagePack) -> list[tuple[str, str]]:
 
 
 def _fits(stress: str, wanted: str) -> bool:
+    """`?` means "either" on both sides.
+
+    On the word side it is a monosyllable taking whatever beat the line needs.
+    On the pattern side it is the classical anceps — the position that may be
+    long or short — which sapphics and alcaics both have.
+    """
     return len(stress) == len(wanted) and all(
-        mark in (FREE, want) for mark, want in zip(stress, wanted, strict=True)
+        want == FREE or mark in (FREE, want) for mark, want in zip(stress, wanted, strict=True)
     )
+
+
+def word_stress(word: str, pack: LanguagePack) -> tuple[list[str], bool]:
+    """Every stress pattern a word can take, and whether they are known.
+
+    Mirrors `pack.syllable_count`'s `(value, exact)` contract, for the same
+    reason: a pronouncing dictionary does not carry every word, and an unknown
+    word is a normal event in verse rather than an exceptional one. The
+    dictionary raises `MissingCapability` for a word it lacks — naming a
+    capability the pack does provide — so that case is caught here and turned
+    into a scan that measures the word's length while constraining no beat.
+
+    A pack that genuinely lacks `phonemes` still raises, which is what the
+    exception is for.
+    """
+    if PHONEMES not in pack.capabilities:
+        raise MissingCapability(f"<word {word!r}>", pack.lang, PHONEMES)
+    try:
+        return pack.stress_patterns(word), True
+    except MissingCapability:
+        count, _ = pack.syllable_count(word)
+        return [FREE * max(count, 1)], False
 
 
 def _scan(
@@ -44,9 +76,18 @@ def _scan(
     return None
 
 
-def metre_violations(
-    line: str, pack: LanguagePack, pattern: str, offset: int
-) -> tuple[list[Violation], int, int]:
+class MetreResult(NamedTuple):
+    """A scan's outcome. Named rather than a bare tuple because it grew a
+    fourth field, and `PatternResult` in `syllable_count` sets the precedent.
+    """
+
+    violations: list[Violation]
+    good: int
+    total: int
+    estimated: int
+
+
+def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -> MetreResult:
     """Check a line against a stress pattern, treating `?` as satisfiable.
 
     Because each free syllable is independent of every other, this is a linear
@@ -57,14 +98,17 @@ def metre_violations(
     tokens = pack.tokenize(line)
     combinations = 1
     words: list[tuple[str, list[str]]] = []
+    estimated = 0
     for word in tokens:
-        forms = pack.stress_patterns(word)
+        forms, exact = word_stress(word, pack)
+        if not exact:
+            estimated += 1
         combinations *= max(len(forms), 1)
         words.append((word, forms if combinations <= MAX_COMBINATIONS else forms[:1]))
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
-        return [], len(words), max(len(words), 1)
+        return MetreResult([], len(words), max(len(words), 1), estimated)
 
     violations: list[Violation] = []
     # No combination fits. Report against the first pronunciation of each word,
@@ -80,7 +124,7 @@ def metre_violations(
                 expected=f"{len(pattern)} syllables",
             )
         )
-        return violations, 0, 1
+        return MetreResult(violations, 0, 1, estimated)
 
     matched = 0
     position = 0
@@ -95,7 +139,7 @@ def metre_violations(
                 )
             )
         position += len(stress)
-    return violations, matched, max(len(words), 1)
+    return MetreResult(violations, matched, max(len(words), 1), estimated)
 
 
 def repeat_to(pattern_unit: str, feet: int) -> str:
