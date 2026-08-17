@@ -24,9 +24,21 @@ DATA = (
     / "data"
 )
 
+try:
+    import denckring_de_data as de_data
+except ModuleNotFoundError:
+    de_data = None  # type: ignore[assignment]
 
-@pytest.fixture
-def de_data():
+#: Applied to the tests below that reference `de_data` directly rather than
+#: through the fixture, so they skip - rather than error - when the package
+#: is absent. Collection-time skip is deliberately avoided (no module-level
+#: `importorskip`): it would also skip the eszett-folding test above, which
+#: must keep running even when the package does not exist.
+requires_de_data = pytest.mark.skipif(de_data is None, reason="denckring-de-data is not installed")
+
+
+@pytest.fixture(name="de_data")
+def _de_data_fixture():
     return pytest.importorskip("denckring_de_data")
 
 
@@ -81,3 +93,43 @@ def test_membership_folds_eszett_deliberately_while_the_noun_list_keeps_it() -> 
 
     assert eszett_noun.casefold() in words  # the ss-folded spelling is stored
     assert eszett_noun.lower() not in words  # the ß spelling (via lower()) is not
+
+
+@requires_de_data
+def test_pack_declares_both_lexical_capabilities() -> None:
+    from denckring.lang.base import NOUNS, WORDS
+
+    pack = de_data.GermanDataPack()
+    assert {NOUNS, WORDS} <= pack.capabilities
+
+
+@requires_de_data
+def test_is_word_knows_german() -> None:
+    pack = de_data.GermanDataPack()
+    assert pack.is_word("Katze")
+    assert pack.is_word("katze"), "membership is case-insensitive"
+    assert not pack.is_word("xqzzy")
+
+
+@requires_de_data
+def test_noun_index_finds_a_noun_and_rejects_a_non_noun() -> None:
+    pack = de_data.GermanDataPack()
+    assert pack.noun_index("Katze") is not None
+    assert pack.noun_index("xqzzy") is None
+
+
+@requires_de_data
+def test_umlauts_are_kept_not_folded() -> None:
+    """`fold_diacritics` would collide these two. ADR 0009 makes folding a
+    procedure parameter, so the lexicon must not decide it for every caller."""
+    pack = de_data.GermanDataPack()
+    baer = pack.noun_index("Bär")
+    bar = pack.noun_index("Bar")
+    assert baer is not None and bar is not None
+    assert baer != bar, "Bär and Bar must be distinct entries"
+
+
+@requires_de_data
+def test_eszett_is_kept() -> None:
+    pack = de_data.GermanDataPack()
+    assert pack.is_word("Straße")
