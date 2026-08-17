@@ -52,10 +52,10 @@ def form_report(
         total += checks
     if metre is not None:
         for offset, line in line_spans(text):
-            found, matched, checks = metre_violations(line, pack, metre, offset)
-            violations += found
-            good += matched
-            total += checks
+            result = metre_violations(line, pack, metre, offset)
+            violations += result.violations
+            good += result.good
+            total += result.total
     if refrains is not None:
         lines = [line.strip().casefold() for _, line in line_spans(text)]
         for first, repeat in refrains:
