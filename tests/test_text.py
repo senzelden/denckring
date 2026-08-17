@@ -40,3 +40,27 @@ def test_paragraph_spans_of_a_blank_text_is_empty() -> None:
     from denckring.core.text import paragraph_spans
 
     assert paragraph_spans("\n\n   \n") == []
+
+
+def test_paragraph_spans_splits_on_a_crlf_blank_line() -> None:
+    """A blank line ending in \\r\\n closes a paragraph, same as line_spans."""
+    from denckring.core.text import paragraph_spans
+
+    text = "first\r\n\r\nsecond"
+    spans = paragraph_spans(text)
+    assert [t for _, t in spans] == ["first", "second"]
+
+
+def test_paragraph_spans_offsets_are_always_exact() -> None:
+    """Every returned offset points at the start of its own text, verbatim."""
+    from denckring.core.text import paragraph_spans
+
+    for text in (
+        "first para\nstill first\n\nsecond para\n\n\nthird",
+        "aaa\n\nbbb",
+        "\n\n   \n",
+        "first\r\n\r\nsecond",
+        "  a \r\n\r\n b  \n\nc",
+    ):
+        for offset, part in paragraph_spans(text):
+            assert text[offset : offset + len(part)] == part
