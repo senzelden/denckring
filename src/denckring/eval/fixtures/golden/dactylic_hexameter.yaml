@@ -1,0 +1,15 @@
+procedure: dactylic_hexameter
+lang: en
+cases:
+  - name: longfellow-evangeline
+    source: Longfellow, Evangeline, opening line
+    text: This is the forest primeval the murmuring pines and the hemlocks
+    satisfied: true
+  - name: prose-of-similar-length
+    source: constructed counterexample
+    text: I walked down to the shop this morning to buy a loaf
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    satisfied: false

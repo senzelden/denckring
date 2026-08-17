@@ -2075,8 +2075,14 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables, phonemes]
     deterministic: true
+    notes: >-
+      Checked as English accentual verse: classical quantity is vowel length,
+      which English does not have, so stress stands in for it. The caesura is
+      not checked, and the fifth foot is fixed as a dactyl because a spondaic
+      fifth is rare enough that accepting it would cost more in false positives
+      than it buys.
     prompt_hints:
       en: Write six-foot lines of dactyls and spondees, with a dactyl in the fifth foot.
 
