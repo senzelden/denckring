@@ -36,3 +36,19 @@ def line_spans(text: str) -> list[tuple[int, str]]:
             spans.append((offset, stripped))
         offset += len(line)
     return spans
+
+
+def paragraph_spans(text: str) -> list[tuple[int, str]]:
+    """Every non-blank paragraph as `(offset, text)`, split on blank lines.
+
+    A serial lipogram's parts are sections, not lines — Tryphiodorus wrote
+    twenty-four books — so the unit has to be able to hold more than one line.
+    """
+    spans: list[tuple[int, str]] = []
+    offset = 0
+    for block in text.split("\n\n"):
+        stripped = block.strip()
+        if stripped:
+            spans.append((offset + block.index(stripped[0]), stripped))
+        offset += len(block) + 2
+    return spans
