@@ -14,7 +14,9 @@ from denckring import __version__
 from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.registry import all_procedures
-from explorer import bench, catalogue_view
+from explorer import bench, catalogue_view, corpora, env, witz
+
+env.load()
 
 HERE = Path(__file__).parent
 
@@ -83,10 +85,22 @@ def procedure(request: Request, procedure_id: str) -> HTMLResponse:
         examples=bench.examples_for(procedure_id) if implemented else [],
         languages=bench.languages_for(procedure_id) if implemented else [],
         can_apply=bench.can_apply(procedure_id) if implemented else False,
+        corpora=corpora.available() if implemented and bench.wants_corpus(procedure_id) else [],
+        can_read=witz.available(),
         missing=catalogue_view.sort_for(
             meta, set(all_procedures()), catalogue_view._capabilities()
         ).missing,
     )
+
+
+def _corpus_from(form: dict[str, Any]) -> tuple[str, str]:
+    """The corpus the bench has loaded, read here rather than posted back.
+
+    A 28,000-entry corpus is 5.8MB, which the form-field size limit refuses
+    outright — so the browser carries the path and the file is read server-side.
+    """
+    path = str(form.pop("corpus_path", ""))
+    return corpora.load(path) if path else ("", "")
 
 
 @app.post("/p/{procedure_id}/check", response_class=HTMLResponse)
@@ -94,6 +108,11 @@ async def check(request: Request, procedure_id: str) -> HTMLResponse:
     form = dict(await request.form())
     text = str(form.pop("text", ""))
     lang = str(form.pop("lang", "en"))
+    corpus, corpus_problem = _corpus_from(form)
+    if corpus_problem:
+        return page(request, "_proof.html", report=None, problem=corpus_problem)
+    if corpus:
+        form["source"] = corpus
     fields = bench.fields_for(procedure_id)
     try:
         params = bench.coerce(fields, {k: str(v) for k, v in form.items()})
@@ -115,10 +134,71 @@ async def apply(request: Request, procedure_id: str) -> HTMLResponse:
     form = dict(await request.form())
     text = str(form.pop("text", ""))
     lang = str(form.pop("lang", "en"))
+    corpus, corpus_problem = _corpus_from(form)
+    if corpus_problem:
+        return page(request, "_generated.html", produced="", problem=corpus_problem)
+    # `apply` takes the corpus as its text — the bench's own text box is the
+    # source only when no corpus is loaded.
+    text = corpus or text
     fields = bench.fields_for(procedure_id)
-    params = bench.coerce(fields, {k: str(v) for k, v in form.items()})
+    headword = str(form.get("headword", ""))
+    style = str(form.pop("style", witz.DEFAULT_REGISTER))
+    try:
+        params = bench.coerce(fields, {k: str(v) for k, v in form.items()})
+    except ValueError as exc:
+        # The check route has always guarded this; apply used to let the
+        # ValueError escape as a 500 for any procedure with an integer field.
+        return page(request, "_generated.html", produced="", problem=f"That is not a number: {exc}")
     produced, problem = bench.generate(procedure_id, text, lang, params)
-    return page(request, "_generated.html", produced=produced, problem=problem)
+    return page(
+        request,
+        "_generated.html",
+        produced=produced,
+        problem=problem,
+        procedure_id=procedure_id,
+        headword=headword,
+        lang=lang,
+        style=style,
+        can_read=witz.available() and bench.wants_corpus(procedure_id),
+    )
+
+
+@app.post("/p/{procedure_id}/corpus", response_class=HTMLResponse)
+async def load_corpus(request: Request, procedure_id: str) -> HTMLResponse:
+    """Put a corpus from disk into the bench, and list its headwords."""
+    form = dict(await request.form())
+    path = str(form.get("path", ""))
+    text, problem = corpora.load(path)
+    chosen = next((c for c in corpora.available() if c.path == path), None)
+    return page(
+        request,
+        "_bench.html",
+        meta=catalogue.get(procedure_id),
+        fields=bench.fields_for(procedure_id),
+        languages=bench.languages_for(procedure_id),
+        can_apply=bench.can_apply(procedure_id),
+        corpora=corpora.available(),
+        can_read=witz.available(),
+        headwords=corpora.headwords_of(text),
+        loaded_path=path if not problem else "",
+        loaded_name=chosen.name if chosen else "",
+        loaded_entries=chosen.entries if chosen else 0,
+        loaded_style=chosen.style if chosen else witz.DEFAULT_REGISTER,
+        problem=problem,
+    )
+
+
+@app.post("/p/{procedure_id}/witz", response_class=HTMLResponse)
+async def read_witz(request: Request) -> HTMLResponse:
+    """A reading of one throw. Not a verdict — see explorer.witz."""
+    form = dict(await request.form())
+    reading = witz.read(
+        str(form.get("throw", "")),
+        headword=str(form.get("headword", "")),
+        lang=str(form.get("lang", "en")),
+        register=str(form.get("style", witz.DEFAULT_REGISTER)),
+    )
+    return page(request, "_witz.html", reading=reading.text, problem=reading.problem)
 
 
 @app.post("/p/{procedure_id}/example", response_class=HTMLResponse)

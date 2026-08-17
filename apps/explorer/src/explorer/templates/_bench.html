@@ -1,3 +1,21 @@
+{% if problem %}<p class="notice">{{ problem }}</p>{% endif %}
+
+{% if corpora %}
+<form class="corpus-picker" hx-post="/p/{{ meta.id }}/corpus" hx-target="#bench" hx-swap="innerHTML">
+  <label for="path">Corpus on disk</label>
+  <select id="path" name="path">
+    {% for c in corpora %}
+    <option value="{{ c.path }}">
+      {{ c.name }} — {{ "{:,}".format(c.entries) }} entries{% if c.headwords %}, {{ c.headwords }} Stichwörter{% endif %}
+    </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="quiet">Load it</button>
+  <p class="hint">Read from <code>DENCKRING_CORPORA</code>. Nothing is copied — the file
+    stays where you put it.</p>
+</form>
+{% endif %}
+
 <form class="bench-form" hx-post="/p/{{ meta.id }}/check" hx-target="#proof" hx-swap="innerHTML">
   <div class="field">
     <label for="text">Your text</label>
@@ -29,7 +47,22 @@
         {{ f.name.replace('_', ' ') }}{% if f.required %} <span style="color:#b3121d">required</span>{% endif %}
       </label>
       {% set value = example.params[f.name] if example and f.name in example.params else (f.default if f.default is not none else '') %}
-      {% if f.control == 'select' %}
+      {% if f.name == 'source' and loaded_path %}
+        {# The corpus stays on the server. Posting 5.8MB back through the form
+           is both slow and refused outright by the HTTP field-size limit, so
+           the bench carries the path and the server reads the file. #}
+        <input type="hidden" name="corpus_path" value="{{ loaded_path }}">
+        <input type="hidden" name="style" value="{{ loaded_style }}">
+        <p class="loaded-corpus">{{ loaded_name }} — {{ "{:,}".format(loaded_entries) }} entries.
+          Held on the server; not posted back with the form.</p>
+      {% elif f.name == 'headword' and headwords %}
+        <select id="headword" name="headword">
+          <option value="">— any headword —</option>
+          {% for word in headwords %}
+          <option value="{{ word }}">{{ word }}</option>
+          {% endfor %}
+        </select>
+      {% elif f.control == 'select' %}
         <select id="{{ f.name }}" name="{{ f.name }}">
           {% for choice in f.choices %}
           <option value="{{ choice }}" {% if choice == value | string %}selected{% endif %}>{{ choice }}</option>
