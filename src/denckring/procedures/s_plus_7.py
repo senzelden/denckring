@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report
+from denckring.core.protocol import Lang, LanguagePack, Report
 from denckring.core.registry import register
-from denckring.procedures.n_plus_7 import NPlus7Params, displacement_report
+from denckring.procedures.n_plus_7 import NPlus7Params, displace, displacement_report
 
 
 class SPlus7Params(SourceParams):
@@ -31,3 +33,10 @@ class SPlus7(BaseProcedure[SPlus7Params]):
             pack,
             NPlus7Params(source=params.source, offset=params.offset),
         )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """The same walk, with the step the caller asked for."""
+        from denckring.lang import get_pack
+
+        parsed = self.parse_params({"source": text, **params})
+        return displace(text, get_pack(lang), parsed.offset)

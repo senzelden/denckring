@@ -2,12 +2,36 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
+
+
+def displace(text: str, pack: LanguagePack, offset: int) -> str:
+    """Replace each word the noun list knows with the one `offset` further on.
+
+    Word spans are substituted in place rather than re-joined, so punctuation
+    and spacing survive — `displacement_report` compares position by position,
+    and a generator that normalised the whitespace would produce text its own
+    checker then rejected for the wrong reason.
+    """
+    nouns = pack.nouns()
+    pieces: list[str] = []
+    cursor = 0
+    for offset_in_text, word in word_spans(text, pack):
+        index = pack.noun_index(word)
+        if index is None:
+            continue
+        pieces.append(text[cursor:offset_in_text])
+        pieces.append(nouns[(index + offset) % len(nouns)])
+        cursor = offset_in_text + len(word)
+    pieces.append(text[cursor:])
+    return "".join(pieces)
 
 
 class NPlus7Params(SourceParams):
@@ -89,7 +113,12 @@ def displacement_report(
             )
     return procedure._report(
         good=good,
-        total=max(len(candidate), 1),
+        # Not max(..., 1): a text and a source that are both wordless agree
+        # vacuously, and forcing the total to 1 made that report unsatisfied
+        # while listing no violation — a verdict with nothing behind it. The
+        # length mismatch above already fails an empty candidate against a
+        # source that has words, which is the case the floor was guarding.
+        total=len(candidate),
         violations=violations,
         metrics={"words": float(len(candidate)), "ambiguous_words": float(ambiguous)},
     )
@@ -107,3 +136,10 @@ class NPlus7(BaseProcedure[NPlus7Params]):
 
     def _check(self, text: str, pack: LanguagePack, params: NPlus7Params) -> Report:
         return displacement_report(self, text, pack, params)
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """Walk every noun in `text` seven places down the dictionary."""
+        from denckring.lang import get_pack
+
+        parsed = self.parse_params({"source": text, **params})
+        return displace(text, get_pack(lang), parsed.offset)
