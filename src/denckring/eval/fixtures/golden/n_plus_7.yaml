@@ -13,3 +13,24 @@ cases:
       a cat sat on the table
     params: { source: the cat sat on the table }
     satisfied: false
+  - name: german-displaced-by-seven
+    lang: de
+    source: >-
+      constructed example; computed by calling n_plus_7.check directly.
+      Katze (noun_index 79197) and Tisch (noun_index 157569) are each
+      displaced 7 entries forward in nouns() to Katzenbesitzerin and
+      Tischbürste — verified against the lexicon and the procedure, not
+      hand-written.
+    text: |-
+      Die Katzenbesitzerin schläft auf dem Tischbürste.
+    params: { source: "Die Katze schläft auf dem Tisch." }
+    satisfied: true
+  - name: german-non-noun-changed
+    lang: de
+    source: >-
+      constructed counterexample; computed by calling n_plus_7.check directly.
+      "Die" is changed to "Eine", a non-noun substitution the checker flags.
+    text: |-
+      Eine Katze schläft auf dem Tisch.
+    params: { source: "Die Katze schläft auf dem Tisch." }
+    satisfied: false

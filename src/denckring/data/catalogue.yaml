@@ -251,7 +251,7 @@ procedures:
     attested: author-stated
     aliases: [N+7]
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
@@ -269,7 +269,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
@@ -707,8 +707,8 @@ procedures:
     attested: codified
     aliases: [emordnilap, reversible word]
     kind: restrictive
-    languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.words]
+    languages: [en, de]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Find words that read as a different word backwards, such as stressed and desserts.
@@ -728,8 +728,8 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.words]
+    languages: [en, de]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Build a square of words that reads the same across each row as down each column.
@@ -838,7 +838,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:

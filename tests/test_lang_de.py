@@ -3,6 +3,7 @@ import pytest
 from denckring.core.errors import MissingCapability
 from denckring.lang import get_pack, installed_languages
 from denckring.lang.base import ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, TOKENS
+from denckring.lang.de import GermanPack
 
 
 def test_german_pack_is_discovered() -> None:
@@ -11,11 +12,13 @@ def test_german_pack_is_discovered() -> None:
 
 
 def test_german_declares_the_same_four_capabilities_as_english() -> None:
-    assert get_pack("de").capabilities == {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES}
+    assert {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES} <= get_pack("de").capabilities
 
 
 def test_german_has_no_lexicon_or_syllables() -> None:
-    pack = get_pack("de")
+    # The core pack specifically: get_pack("de") resolves to the data pack when
+    # denckring[de] is installed, and that one does provide these.
+    pack = GermanPack()
     with pytest.raises(MissingCapability):
         pack.syllables("Wetter")
     with pytest.raises(MissingCapability):
