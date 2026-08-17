@@ -63,6 +63,23 @@ class UnsettablePhrase(DenckringError):
         )
 
 
+class InputTooLong(DenckringError):
+    """A generator that searches refuses input it cannot search in reasonable time.
+
+    Raised rather than returning a poor result, so a caller learns the limit
+    instead of silently receiving something the procedure could not really do.
+    """
+
+    def __init__(self, procedure_id: str, given: int, limit: int) -> None:
+        self.procedure_id = procedure_id
+        self.given = given
+        self.limit = limit
+        super().__init__(
+            f"{procedure_id} can rearrange at most {limit} letters and was given "
+            f"{given}. Shorten the text, or check it instead of generating it."
+        )
+
+
 class MalformedTable(DenckringError):
     def __init__(self, reason: str) -> None:
         super().__init__(f"That numbered vocabulary cannot be read: {reason}")
