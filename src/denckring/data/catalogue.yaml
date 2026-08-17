@@ -2004,8 +2004,11 @@ procedures:
     aliases: [distich]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables, phonemes]
     deterministic: true
+    notes: >-
+      The pair forming one unit of sense is the form's point and is not
+      checked — sense is not a property this or any checker can read.
     prompt_hints:
       en: Pair a six-foot line with a shorter one, each pair complete in itself.
 
