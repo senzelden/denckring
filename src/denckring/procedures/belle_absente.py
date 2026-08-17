@@ -39,7 +39,11 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
         alphabet = pack.alphabet()
         # The space in "Georges Perec" is not a constraint, and neither is a
         # hyphen: the name reduces to the letters it is spelled with.
-        wanted = [ch for ch in params.name.lower() if ch.isalpha()]
+        wanted = [
+            pack.fold_diacritics(ch) if params.fold_diacritics else ch.lower()
+            for ch in params.name
+            if ch.isalpha()
+        ]
         lines = line_spans(text)
 
         violations: list[Violation] = []
@@ -50,7 +54,7 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
             offset, line = lines[index]
             present = {ch for _, ch in letter_spans(line, pack, fold=params.fold_diacritics)}
             intruder = [
-                span_offset
+                offset + span_offset
                 for span_offset, ch in letter_spans(line, pack, fold=params.fold_diacritics)
                 if ch == letter
             ]

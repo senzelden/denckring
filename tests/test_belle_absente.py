@@ -50,6 +50,12 @@ def test_an_empty_name_is_refused() -> None:
 
 
 def test_violations_carry_offsets() -> None:
-    report = check("belle_absente", "banana\nx", name="ab")
+    # The offending line is the second one, so a line-relative offset (0)
+    # would be indistinguishable from a correct text-relative offset here.
+    text = "x\nbanana"
+    report = check("belle_absente", text, name="ab")
     offending = [v for v in report.violations if v.rule == "forbidden_letter_present"]
-    assert offending and offending[0].offset is not None
+    assert offending
+    offset = offending[0].offset
+    assert offset is not None
+    assert text[offset] == "b"
