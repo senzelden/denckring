@@ -66,6 +66,15 @@ def test_an_unknown_word_no_longer_aborts_the_check() -> None:
     assert report.violations[0].rule == "wrong_line_length"
 
 
+def test_a_guessed_word_is_reported_rather_than_hidden() -> None:
+    """The old `test_an_unknown_word_raises_rather_than_guessing` refused to
+    scan at all. Scanning is right — `hemlocks` is an ordinary word CMUdict
+    lacks — but a report that says nothing about the guess is worse than the
+    refusal it replaced."""
+    report = check("iambic_pentameter", "the hemlocks stand beside the silent stream")
+    assert report.metrics["estimated_words"] == 1.0
+
+
 def test_metre_is_unavailable_without_the_data_package() -> None:
     """The first procedures a core-only install genuinely cannot run."""
     core = EnglishPack()

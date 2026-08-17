@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from pydantic import BaseModel, Field, field_validator
 
 from denckring.core.base import BaseProcedure
@@ -9,6 +11,17 @@ from denckring.core.prosody import metre_violations, scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
+
+
+class FormResult(NamedTuple):
+    """A fixed form's outcome. Named for the same reason `MetreResult` is:
+    the estimated-word count from the metre branch must reach every caller.
+    """
+
+    violations: list[Violation]
+    good: int
+    total: int
+    estimated: int
 
 
 class RhymeSchemeParams(BaseModel):
@@ -34,7 +47,7 @@ def form_report(
     metre: str | None = None,
     refrains: list[tuple[int, int]] | None = None,
     allow_identical: bool = False,
-) -> tuple[list[Violation], int, int]:
+) -> FormResult:
     """Check any combination of rhyme scheme, metre and refrain lines.
 
     The fixed forms are assembled from these three parts rather than
@@ -43,6 +56,7 @@ def form_report(
     violations: list[Violation] = []
     good = 0
     total = 0
+    estimated = 0
     if scheme is not None:
         found, matched, checks = scheme_violations(
             text, pack, scheme, allow_identical=allow_identical
@@ -56,6 +70,7 @@ def form_report(
             violations += result.violations
             good += result.good
             total += result.total
+            estimated += result.estimated
     if refrains is not None:
         lines = [line.strip().casefold() for _, line in line_spans(text)]
         for first, repeat in refrains:
@@ -71,7 +86,7 @@ def form_report(
                         expected=lines[first] if first < len(lines) else f"line {first + 1}",
                     )
                 )
-    return violations, good, max(total, 1)
+    return FormResult(violations, good, max(total, 1), estimated)
 
 
 @register
@@ -85,12 +100,15 @@ class RhymeScheme(BaseProcedure[RhymeSchemeParams]):
         return RhymeSchemeParams
 
     def _check(self, text: str, pack: LanguagePack, params: RhymeSchemeParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text, pack, scheme=params.scheme, allow_identical=params.allow_identical
         )
         return self._report(
-            good=good,
-            total=total,
-            violations=violations,
-            metrics={"pairs_checked": float(total)},
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "pairs_checked": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )

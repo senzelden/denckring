@@ -25,7 +25,7 @@ class Triolet(BaseProcedure[TrioletParams]):
         return TrioletParams
 
     def _check(self, text: str, pack: LanguagePack, params: TrioletParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             scheme="ABAAABAB",
@@ -34,5 +34,11 @@ class Triolet(BaseProcedure[TrioletParams]):
         )
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={
+                "checks": float(result.total),
+                "estimated_words": float(result.estimated),
+            },
         )

@@ -26,11 +26,14 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
         return BlankVerseParams
 
     def _check(self, text: str, pack: LanguagePack, params: BlankVerseParams) -> Report:
-        violations, good, total = form_report(
+        result = form_report(
             text,
             pack,
             metre="01" * 5,
         )
+        violations = result.violations
+        good = result.good
+        total = result.total
 
         # Blank verse is defined by the absence of rhyme, so any rhyming pair is
         # the violation — not merely adjacent ones, or ABAB would slip through.
@@ -51,5 +54,8 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
                 good += 1
 
         return self._report(
-            good=good, total=total, violations=violations, metrics={"checks": float(total)}
+            good=good,
+            total=total,
+            violations=violations,
+            metrics={"checks": float(total), "estimated_words": float(result.estimated)},
         )
