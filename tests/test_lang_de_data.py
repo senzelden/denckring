@@ -10,6 +10,8 @@ later task) does not exist yet.
 import gzip
 import re
 from pathlib import Path
+from types import ModuleType
+from typing import cast
 
 import pytest
 
@@ -38,15 +40,15 @@ requires_de_data = pytest.mark.skipif(de_data is None, reason="denckring-de-data
 
 
 @pytest.fixture(name="de_data")
-def _de_data_fixture():
-    return pytest.importorskip("denckring_de_data")
+def _de_data_fixture() -> ModuleType:
+    return cast(ModuleType, pytest.importorskip("denckring_de_data"))
 
 
 def _read_gz(path: Path) -> list[str]:
     return gzip.decompress(path.read_bytes()).decode("utf-8").splitlines()
 
 
-def test_noun_list_is_single_token_and_alphabetic(de_data) -> None:
+def test_noun_list_is_single_token_and_alphabetic(de_data: ModuleType) -> None:
     """ADR 0015's rule: N+7 walks this list and needs whole tokens."""
     nouns = de_data.noun_list()
     assert len(nouns) > 100_000
@@ -54,17 +56,17 @@ def test_noun_list_is_single_token_and_alphabetic(de_data) -> None:
     assert not offenders[:10], f"multi-token or non-alphabetic lemmas: {offenders[:10]}"
 
 
-def test_noun_list_is_capitalised_as_german_nouns_are(de_data) -> None:
+def test_noun_list_is_capitalised_as_german_nouns_are(de_data: ModuleType) -> None:
     nouns = de_data.noun_list()
     assert all(w[:1].isupper() for w in nouns[:1000])
 
 
-def test_noun_list_is_in_dictionary_order(de_data) -> None:
+def test_noun_list_is_in_dictionary_order(de_data: ModuleType) -> None:
     nouns = de_data.noun_list()
     assert list(nouns) == sorted(nouns)
 
 
-def test_membership_covers_more_than_nouns(de_data) -> None:
+def test_membership_covers_more_than_nouns(de_data: ModuleType) -> None:
     """A noun-only oracle would reject `singen` and `rot`."""
     known = de_data.known_words()
     assert "singen" in known

@@ -232,6 +232,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+de = [
+    { name = "denckring-de-data" },
+]
 en = [
     { name = "denckring-en-data" },
 ]
@@ -248,12 +251,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "denckring-de-data", marker = "extra == 'de'", editable = "packages/denckring-de-data" },
     { name = "denckring-en-data", marker = "extra == 'en'", editable = "packages/denckring-en-data" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
-provides-extras = ["en"]
+provides-extras = ["en", "de"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en
+      - run: uv sync --extra en --extra de
       - run: uv run ruff check
       - run: uv run ruff format --check
 
@@ -31,8 +31,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en
-      - run: uv run mypy --strict src tests packages/denckring-en-data/src
+      - run: uv sync --extra en --extra de
+      - run: uv run mypy --strict src tests packages/denckring-en-data/src packages/denckring-de-data/src
 
   test:
     strategy:
@@ -47,7 +47,7 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
-      - run: uv sync --extra en
+      - run: uv sync --extra en --extra de
       - run: uv run pytest -q
 
   eval:
@@ -60,7 +60,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en
+      - run: uv sync --extra en --extra de
       - run: uv run denckring eval --all
       - run: uv run denckring status
 
@@ -106,7 +106,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en
+      - run: uv sync --extra en --extra de
       - name: Regenerate the gallery
         run: uv run python scripts/build_gallery.py
       - name: Build the site
