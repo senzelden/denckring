@@ -13,3 +13,23 @@ cases:
       the catacala satanism on the tablefork
     params: { source: the cat sat on the table, offset: 7 }
     satisfied: false
+  - name: german-unchanged-nouns-tolerated
+    lang: de
+    source: >-
+      constructed example; computed by calling s_plus_7.check directly. Katze and
+      Tisch are indexed nouns left unchanged, which the checker accepts as
+      ambiguous part-of-speech rather than a violation — verified against the
+      lexicon and the procedure, not hand-written.
+    text: |-
+      Die Katze schläft auf dem Tisch.
+    params: { source: "Die Katze schläft auf dem Tisch.", offset: 3 }
+    satisfied: true
+  - name: german-non-noun-changed
+    lang: de
+    source: >-
+      constructed counterexample; computed by calling s_plus_7.check directly.
+      "Die" is changed to "Eine", a non-noun substitution the checker flags.
+    text: |-
+      Eine Katze schläft auf dem Tisch.
+    params: { source: "Die Katze schläft auf dem Tisch.", offset: 3 }
+    satisfied: false
