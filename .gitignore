@@ -18,3 +18,9 @@ site/
 
 # The explorer keeps its own environment
 apps/explorer/.venv/
+
+# Local secrets and paths for the explorer
+apps/explorer/.env
+
+# Claude Code session state, including worktrees
+.claude/
