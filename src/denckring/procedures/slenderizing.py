@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
@@ -65,4 +67,20 @@ class Slenderizing(BaseProcedure[SlenderizingParams]):
             total=max(len(expected), len(actual)),
             violations=violations,
             metrics={"expected": float(len(expected)), "actual": float(len(actual))},
+        )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """Strike the letter out of `text` and let the rest close up.
+
+        No seed: there is exactly one slenderizing of a text for a given letter,
+        which is why this generator takes no choices at all.
+        """
+        from denckring.lang import get_pack
+
+        parsed = self.parse_params({"source": text, **params})
+        pack = get_pack(lang)
+        return "".join(
+            ch
+            for ch in text
+            if not ch.isalpha() or pack.fold_diacritics(ch).lower() != parsed.deleted
         )
