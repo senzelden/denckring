@@ -4,7 +4,15 @@ import pytest
 
 from denckring import check
 from denckring.core.errors import MissingCapability
-from denckring.core.prosody import FREE, _fits, metre_violations, word_stress
+from denckring.core.prosody import (
+    FREE,
+    _fits,
+    feet,
+    line_metre,
+    metre_violations,
+    stanza_violations,
+    word_stress,
+)
 from denckring.lang import get_pack
 from denckring.lang.en import EnglishPack
 
@@ -135,3 +143,63 @@ def test_metre_violations_reports_how_many_words_were_estimated() -> None:
 
     unknown = metre_violations("the hemlocks", pack, "???", 0)
     assert unknown.estimated == 1
+
+
+DACTYL = ("100", "11")
+HEXAMETER = [DACTYL, DACTYL, DACTYL, DACTYL, ("100",), ("11", "10")]
+
+
+def test_feet_expands_every_substitution() -> None:
+    """A dactyl may be a spondee, so a metre is a set of readings, not one."""
+    patterns = feet(HEXAMETER)
+    assert len(patterns) == 32
+    assert len(set(patterns)) == 32
+    assert min(len(p) for p in patterns) == 13
+    assert max(len(p) for p in patterns) == 17
+
+
+def test_feet_of_a_single_option_is_one_pattern() -> None:
+    assert feet([("100",), ("11",)]) == ["10011"]
+
+
+def test_a_line_satisfies_if_it_fits_any_reading() -> None:
+    pack = get_pack("en")
+    # "the forest" is ?10 — fits the second option, not the first.
+    result = line_metre("the forest", pack, ["111", "?10"], 0)
+    assert not result.violations
+
+
+def test_the_closest_reading_supplies_the_violations() -> None:
+    """Reporting all thirty-two failures would tell a writer nothing. The
+    candidate that matched most words is the one scansion worth showing."""
+    pack = get_pack("en")
+    # "the forest primeval" scans as `?10010`. Both options below are the right
+    # length and both fail, so the result must carry ONE candidate's violations
+    # rather than the two candidates' combined.
+    result = line_metre("the forest primeval", pack, ["000000", "111111"], 0)
+    assert result.violations
+    assert len(result.violations) == 2
+
+
+def test_each_line_is_checked_against_its_own_pattern() -> None:
+    """Sapphics and alcaics change shape from line to line, which a single
+    pattern applied to every line cannot express."""
+    pack = get_pack("en")
+    text = "the forest\nforest"
+    result = stanza_violations(text, pack, [["?10"], ["10"]])
+    assert not result.violations
+
+
+def test_a_line_count_mismatch_is_reported_once() -> None:
+    pack = get_pack("en")
+    result = stanza_violations("the forest", pack, [["?10"], ["10"]])
+    assert [v.rule for v in result.violations] == ["wrong_line_count"]
+    assert not result.violations[0].offset
+
+
+def test_an_empty_text_is_unsatisfied_and_says_why() -> None:
+    """No vacuous verdicts: a report with no violations behind it is a defect."""
+    pack = get_pack("en")
+    result = stanza_violations("", pack, [["?10"]])
+    assert result.violations
+    assert result.good < result.total
