@@ -114,7 +114,7 @@ jobs:
           enable-cache: true
       - run: uv sync --extra en --extra de
       - name: Regenerate the gallery
-        run: uv run python scripts/build_gallery.py
+        run: uv run python scripts/build_docs.py
       - name: Build the site
         run: uv run mkdocs build --strict
 

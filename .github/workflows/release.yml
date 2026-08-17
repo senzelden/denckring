@@ -49,5 +49,5 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --extra en
-      - run: uv run python scripts/build_gallery.py
+      - run: uv run python scripts/build_docs.py
       - run: uv run mkdocs gh-deploy --force --strict

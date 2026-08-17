@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-"""Generate the documentation gallery from the catalogue and the golden fixtures.
+"""Assemble everything the docs build needs that is not written by hand.
+
+Two jobs. The gallery is generated from the catalogue and the golden fixtures.
+The three pages the nav shares with the repository root — the readme, the
+contributing guide and the changelog — are copied in, because mkdocs can only
+see files under `docs/` and keeping a second copy by hand is how the two drift.
 
 Nothing here is written by hand, which is what makes 145 entries maintainable —
 and the gallery cannot drift, because a fixture that stopped matching its
 recorded result would fail the test suite long before it reached the docs.
 
-Output is gitignored and rebuilt on every docs build. A committed generated file
-is a file that can be stale.
+Everything written here is gitignored and rebuilt on every docs build. A
+committed generated file is a file that can be stale.
 """
 
 from __future__ import annotations
@@ -21,7 +26,17 @@ from denckring.core.registry import all_procedures
 from denckring.eval import harness
 
 ROOT = Path(__file__).resolve().parents[1]
-GALLERY = ROOT / "docs" / "gallery"
+DOCS = ROOT / "docs"
+GALLERY = DOCS / "gallery"
+
+#: Root file -> the name the nav expects under docs/. mkdocs resolves nav
+#: entries relative to docs_dir and will not follow a path outside it, so these
+#: have to be copies rather than references.
+SHARED_PAGES = {
+    "README.md": "index.md",
+    "CONTRIBUTING.md": "contributing.md",
+    "CHANGELOG.md": "changelog.md",
+}
 
 FAMILY_BLURB = {
     "letter": "Procedures operating on individual characters.",
@@ -194,6 +209,27 @@ def render_index(entries: dict[str, Meta], implemented: set[str], validated: set
     return "\n".join(lines) + "\n"
 
 
+def copy_shared_pages() -> int:
+    """Bring the root's own documents in under `docs/`.
+
+    Missing sources are an error rather than a skip: the nav names all three, so
+    a silent skip would surface much later as a `mkdocs --strict` abort with no
+    hint about which file went missing.
+    """
+    for source, target in SHARED_PAGES.items():
+        origin = ROOT / source
+        if not origin.is_file():
+            raise FileNotFoundError(f"{source} is named in the nav but is not in the repository")
+        body = origin.read_text(encoding="utf-8")
+        # Links between the root documents have to follow them in. The readme
+        # points at CONTRIBUTING.md, which is `contributing.md` once it is here,
+        # and mkdocs --strict treats the dangling link as an error.
+        for other, renamed in SHARED_PAGES.items():
+            body = body.replace(f"]({other})", f"]({renamed})")
+        (DOCS / target).write_text(body, encoding="utf-8")
+    return len(SHARED_PAGES)
+
+
 def main() -> None:
     entries = catalogue.load()
     implemented = set(harness.implemented_ids())
@@ -211,6 +247,7 @@ def main() -> None:
             render_procedure(meta, implemented, validated), encoding="utf-8"
         )
     print(f"wrote {len(entries) + 1} pages to {GALLERY.relative_to(ROOT)}")
+    print(f"copied {copy_shared_pages()} shared pages into {DOCS.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
