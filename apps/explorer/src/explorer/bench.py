@@ -174,6 +174,15 @@ def can_apply(procedure_id: str) -> bool:
     return isinstance(get(procedure_id), Constructive)
 
 
+def wants_corpus(procedure_id: str) -> bool:
+    """Whether this procedure draws from a corpus rather than a plain source.
+
+    Asked of the procedure rather than hard-coded to `ideenwuerfeln`, so a
+    second corpus-drawing procedure gets the picker without a change here.
+    """
+    return "corpus" in get(procedure_id).meta.requires or procedure_id == "ideenwuerfeln"
+
+
 def pack_for(lang: str) -> LanguagePack:
     return get_pack(lang)
 

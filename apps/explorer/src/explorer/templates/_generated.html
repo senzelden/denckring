@@ -6,4 +6,14 @@
 <div class="proof-text">{{ produced }}</div>
 <p class="hint">Paste this back into the text box and check it — a constructive procedure
 should satisfy its own checker.</p>
+{% if can_read %}
+<form class="witz-form" hx-post="/p/{{ procedure_id }}/witz" hx-target="#witz" hx-swap="innerHTML">
+  <input type="hidden" name="throw" value="{{ produced }}">
+  <input type="hidden" name="headword" value="{{ headword }}">
+  <input type="hidden" name="lang" value="{{ lang }}">
+  <input type="hidden" name="style" value="{{ style }}">
+  <button type="submit" class="quiet">Find the Witz</button>
+</form>
+<div id="witz"></div>
+{% endif %}
 {% endif %}

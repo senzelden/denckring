@@ -1,0 +1,9 @@
+{% if problem %}
+<p class="notice">{{ problem }}</p>
+{% else %}
+<h3>The paragraph</h3>
+<div class="witz-reading">{{ reading }}</div>
+<p class="hint">Not a verdict. The checker verifies provenance and distinctness and stops
+there — this is the prose a model builds from the throw, run by hand, and nothing in the
+package depends on it.</p>
+{% endif %}
