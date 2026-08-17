@@ -71,7 +71,12 @@ def displacement_report(
             )
             continue
         expected = nouns[(index + params.offset) % len(nouns)]
-        if produced.casefold() == expected:
+        # The noun list preserves each language's own capitalisation — German
+        # nouns are capitalised, English ones are not — so `expected` must be
+        # casefolded too, matching the identity comparison above. Comparing a
+        # folded left side to an unfolded right side would silently reject
+        # every correct German displacement.
+        if produced.casefold() == expected.casefold():
             good += 1
         else:
             violations.append(
