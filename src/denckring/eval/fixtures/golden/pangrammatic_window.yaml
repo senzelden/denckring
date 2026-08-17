@@ -7,7 +7,7 @@ cases:
     params: { max_length: 40 }
     satisfied: true
   - name: over-the-bar
-    source: Same pangram, checked against a bar shorter than its own length
+    source: The fox pangram, checked against a bar shorter than its own length
     text: The quick brown fox jumps over the lazy dog
     params: { max_length: 30 }
     satisfied: false
