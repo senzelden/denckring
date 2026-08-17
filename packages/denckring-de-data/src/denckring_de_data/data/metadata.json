@@ -1,0 +1,9 @@
+{
+  "counts": {
+    "nouns.txt.gz": 184040,
+    "words.txt.gz": 668580
+  },
+  "generated": "2026-08-16",
+  "note": "This metadata file was added after the .gz files already existed, so 'generated' is not from a fresh run of build_lexicon.py. It is recovered from the mtime field embedded in each file's gzip header (nouns.txt.gz: 2026-08-16T23:19:58Z, words.txt.gz: 2026-08-16T23:27:34Z), which predates this fix's mtime=0 change. Future regenerations write this field from the actual run date.",
+  "source": "Wikidata Lexemes (Q188, German), CC0 - see LICENSE-WIKIDATA and scripts/build_lexicon.py"
+}

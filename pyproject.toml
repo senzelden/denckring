@@ -26,6 +26,8 @@ dependencies = ["pydantic>=2.7", "pyyaml>=6.0", "typer>=0.12"]
 [project.optional-dependencies]
 # Exact syllable counts and rhyme, from the CMU Pronouncing Dictionary.
 en = ["denckring-en-data"]
+# Word membership and a noun list for German, from Wikidata Lexemes.
+de = ["denckring-de-data"]
 
 [project.urls]
 Homepage = "https://github.com/senzelden/denckring"
@@ -35,17 +37,13 @@ Issues = "https://github.com/senzelden/denckring/issues"
 [project.scripts]
 denckring = "denckring.cli:app"
 
-# The German pack ships inside this wheel but is discovered exactly the way a
-# third-party pack would be. See ADR 0010.
-[project.entry-points."denckring.lang"]
-de = "denckring.lang.de:GermanPack"
-
 [tool.uv.workspace]
 members = ["packages/*"]
 
 [tool.uv.sources]
 denckring = { workspace = true }
 denckring-en-data = { workspace = true }
+denckring-de-data = { workspace = true }
 
 [dependency-groups]
 dev = [

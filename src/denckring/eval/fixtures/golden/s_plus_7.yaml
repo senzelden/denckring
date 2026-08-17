@@ -13,3 +13,23 @@ cases:
       the catacala satanism on the tablefork
     params: { source: the cat sat on the table, offset: 7 }
     satisfied: false
+  - name: german-displaced-by-three
+    lang: de
+    source: >-
+      constructed example; computed by calling s_plus_7.check directly.
+      Katze (noun_index 79197) and Tisch (noun_index 157569) are each
+      displaced 3 entries forward in nouns() to Katzenauge and Tischblatt —
+      verified against the lexicon and the procedure, not hand-written.
+    text: |-
+      Die Katzenauge schläft auf dem Tischblatt.
+    params: { source: "Die Katze schläft auf dem Tisch.", offset: 3 }
+    satisfied: true
+  - name: german-non-noun-changed
+    lang: de
+    source: >-
+      constructed counterexample; computed by calling s_plus_7.check directly.
+      "Die" is changed to "Eine", a non-noun substitution the checker flags.
+    text: |-
+      Eine Katze schläft auf dem Tisch.
+    params: { source: "Die Katze schläft auf dem Tisch.", offset: 3 }
+    satisfied: false

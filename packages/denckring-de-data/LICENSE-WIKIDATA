@@ -1,0 +1,12 @@
+The German lexicon in this distribution is derived from Wikidata Lexemes.
+
+Wikidata's lexicographical data is released into the public domain under the
+Creative Commons CC0 1.0 Universal Public Domain Dedication:
+
+    https://creativecommons.org/publicdomain/zero/1.0/
+
+CC0 imposes no attribution and no share-alike requirement. This file records the
+provenance because the project records provenance, not because the licence
+compels it.
+
+Regenerate the vendored files with scripts/build_lexicon.py.
