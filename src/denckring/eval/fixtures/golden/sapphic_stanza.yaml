@@ -1,0 +1,26 @@
+procedure: sapphic_stanza
+lang: en
+cases:
+  - name: constructed-satisfying-stanza
+    source: >-
+      constructed example; no literary English translation of Sappho was
+      found to scan exactly against this fixed accentual pattern, so this
+      case tiles the hendecasyllable and adonic from words of known stress.
+    text: |-
+      forest morning murmuring silver garden
+      silver garden beautiful forest morning
+      garden silver carefully morning forest
+      wonderful garden
+    satisfied: true
+  - name: prose-of-similar-length
+    source: constructed counterexample
+    text: |-
+      the cat sat on the small mat by the door
+      a dog ran through the park and down the street
+      a bird flew high above the old grey house
+      the wind blew softly
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    satisfied: false

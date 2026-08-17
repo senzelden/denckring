@@ -1,0 +1,27 @@
+procedure: alcaic_stanza
+lang: en
+cases:
+  - name: constructed-satisfying-stanza
+    source: >-
+      constructed example; no literary English translation of Alcaeus was
+      found to scan exactly against this fixed accentual pattern, so this
+      case tiles the hendecasyllable, enneasyllable and decasyllable from
+      words of known stress.
+    text: |-
+      song forest daylight murmuring garden light
+      stone morning birthright beautiful silver sea
+      song forest morning silver moonlight
+      murmuring beautiful forest garden
+    satisfied: true
+  - name: prose-of-similar-length
+    source: constructed counterexample
+    text: |-
+      the cat sat on the small mat by the door
+      a dog ran through the park and down the street
+      a bird flew high above the old house
+      the wind blew softly through the trees
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    satisfied: false

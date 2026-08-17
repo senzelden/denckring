@@ -1967,8 +1967,12 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables, phonemes]
     deterministic: true
+    notes: >-
+      Checked as English accentual verse: classical quantity is vowel length,
+      which English does not have, so stress stands in for it, as for
+      dactylic hexameter.
     prompt_hints:
       en: Write three eleven-syllable lines and close on a five-syllable one.
 
@@ -1985,8 +1989,12 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables, phonemes]
     deterministic: true
+    notes: >-
+      Checked as English accentual verse: classical quantity is vowel length,
+      which English does not have, so stress stands in for it, as for
+      dactylic hexameter.
     prompt_hints:
       en: Write two eleven-syllable lines, then one of nine and one of ten.
 
