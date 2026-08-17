@@ -1,0 +1,19 @@
+procedure: belle_absente
+lang: en
+cases:
+  - name: two-letter-dedication
+    source: >-
+      constructed example; the form is Perec's, in Oulipo, Atlas de littérature
+      potentielle (1981)
+    text: |-
+      b c d e f g h i j k l m n o p q r s t u v w x y z
+      a c d e f g h i j k l m n o p q r s t u v w x y z
+    params: { name: ab }
+    satisfied: true
+  - name: a-line-keeping-its-own-letter
+    source: constructed counterexample
+    text: |-
+      banana
+      banana
+    params: { name: ab }
+    satisfied: false
