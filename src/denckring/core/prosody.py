@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+from collections.abc import Sequence
 from typing import NamedTuple
 
 from denckring.core.errors import MissingCapability
@@ -140,6 +142,74 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
             )
         position += len(stress)
     return MetreResult(violations, matched, max(len(words), 1), estimated)
+
+
+def feet(units: Sequence[Sequence[str]]) -> list[str]:
+    """Every pattern a line of substitutable feet can take.
+
+    Classical metre substitutes: a dactyl may be a spondee, so a hexameter is
+    thirty-two readings rather than one. `feet` enumerates them, and the set is
+    bounded by construction — no metre in the catalogue has more than six feet.
+    """
+    return ["".join(combination) for combination in itertools.product(*units)]
+
+
+def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: int) -> MetreResult:
+    """Scan a line against several acceptable readings, reporting the closest.
+
+    A substitutable foot makes a metre a set rather than a single pattern, so
+    the line satisfies if it fits any member. When none fits, the violations
+    come from the candidate that matched the most words — the writer is told
+    about one scansion rather than thirty-two.
+    """
+    best: MetreResult | None = None
+    for pattern in options:
+        result = metre_violations(line, pack, pattern, offset)
+        if not result.violations:
+            return result
+        if best is None or result.good > best.good:
+            best = result
+    if best is None:
+        raise ValueError("line_metre needs at least one pattern")
+    return best
+
+
+def stanza_violations(
+    text: str, pack: LanguagePack, patterns: Sequence[Sequence[str]]
+) -> MetreResult:
+    """Check a stanza whose lines each have their own metre.
+
+    `patterns[i]` is the set of readings acceptable for line `i`. A stanza of
+    the wrong length reports `wrong_line_count` and stops — scanning line three
+    against line four's pattern would bury the real fault under false ones.
+    """
+    lines = line_spans(text)
+    if len(lines) != len(patterns):
+        return MetreResult(
+            [
+                Violation(
+                    rule="wrong_line_count",
+                    offset=None,
+                    found=f"{len(lines)} lines",
+                    expected=f"{len(patterns)} lines",
+                )
+            ],
+            0,
+            1,
+            0,
+        )
+
+    violations: list[Violation] = []
+    good = 0
+    total = 0
+    estimated = 0
+    for (offset, line), options in zip(lines, patterns, strict=True):
+        result = line_metre(line, pack, options, offset)
+        violations += result.violations
+        good += result.good
+        total += result.total
+        estimated += result.estimated
+    return MetreResult(violations, good, max(total, 1), estimated)
 
 
 def repeat_to(pattern_unit: str, feet: int) -> str:
