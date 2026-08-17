@@ -900,6 +900,12 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Change one letter of a word to make another, and build the sentence on the swap.
+    notes: >-
+      The checker needs no dictionary: both halves of the swap are in the text,
+      so two words of a length differing in one place is the whole property. The
+      generator does need one — it has to know that what it produced is a word —
+      so `apply` requires `lexicon.words` and raises `MissingCapability` without
+      it, while `check` keeps working on the core pack alone.
 
   - id: pangrammatic_lipogram
     names: { en: Pangrammatic lipogram }

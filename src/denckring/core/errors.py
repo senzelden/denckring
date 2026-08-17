@@ -80,6 +80,23 @@ class InputTooLong(DenckringError):
         )
 
 
+class NoCandidateWord(DenckringError):
+    """A generator that needs a real word to swap into refuses when none exists.
+
+    Raised rather than returning text with no swap in it: silence there would
+    let a caller believe a pair had been produced when the lexicon offered
+    nothing for any word in the text.
+    """
+
+    def __init__(self, procedure_id: str) -> None:
+        self.procedure_id = procedure_id
+        super().__init__(
+            f"{procedure_id} found no one-letter swap of any word into a word "
+            f"the lexicon knows. Try a different text, or check it instead of "
+            f"generating from it."
+        )
+
+
 class MalformedTable(DenckringError):
     def __init__(self, reason: str) -> None:
         super().__init__(f"That numbered vocabulary cannot be read: {reason}")
