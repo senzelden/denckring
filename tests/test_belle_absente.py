@@ -11,13 +11,13 @@ WITHOUT_B = "Quartz glyph vex jocks fund whimp"
 
 def test_a_line_per_letter_of_the_name() -> None:
     report = check("belle_absente", f"{WITHOUT_A}\n{WITHOUT_B}", name="ab")
-    assert report.metrics["lines"] == 2.0
+    assert report.satisfied
 
 
 def test_a_line_containing_its_own_letter_violates() -> None:
     report = check("belle_absente", "banana\nbanana", name="ab")
     assert not report.satisfied
-    assert any(v.rule == "forbidden_letter_present" for v in report.violations)
+    assert any(v.rule == "forbidden_letter" for v in report.violations)
 
 
 def test_a_line_missing_another_letter_violates() -> None:
@@ -41,7 +41,7 @@ def test_the_name_reduces_to_its_letters() -> None:
 def test_a_repeated_letter_is_a_repeated_constraint() -> None:
     """Perec's dedications repeat letters; each occurrence is its own line."""
     report = check("belle_absente", "x\nx\nx", name="aba")
-    assert report.metrics["lines"] == 3.0
+    assert report.metrics["expected_lines"] == 3.0
 
 
 def test_an_empty_name_is_refused() -> None:
@@ -54,7 +54,7 @@ def test_violations_carry_offsets() -> None:
     # would be indistinguishable from a correct text-relative offset here.
     text = "x\nbanana"
     report = check("belle_absente", text, name="ab")
-    offending = [v for v in report.violations if v.rule == "forbidden_letter_present"]
+    offending = [v for v in report.violations if v.rule == "forbidden_letter"]
     assert offending
     offset = offending[0].offset
     assert offset is not None

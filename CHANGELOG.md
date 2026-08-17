@@ -130,6 +130,23 @@ All notable changes to this project are documented here. The format follows
   table. No tablet ships.
 - ADR 0021 on implementing the transferable part of a procedure rather than the
   artefact.
+- `belle_absente`: Perec's form, one line per letter of a dedicatee's name, each line
+  omitting exactly that letter and using every other letter of the alphabet, so the
+  missing letters read down the poem as the name itself.
+- `serial_lipogram`: the whole-work form attributed to Tryphiodorus, as many parts as
+  the alphabet has letters, the omitted letter walking one step per part. `paragraph_spans`
+  in `core/text.py` gives a part more than one line to work with, the way Tryphiodorus's
+  twenty-four books do.
+- `pangrammatic_window`: the shortest naturally occurring stretch of text holding every
+  letter of the alphabet, scored against a caller-stated `max_length` rather than a
+  hidden constant — without a bar this is `pangram` under a second name.
+- `paragram`, with a lexicon-gated generator: both halves of a one-letter word swap are
+  left in the text for `check` to find, and `apply` ranks every candidate swap by
+  pronounceability, noun membership and length instead of taking the first match.
+  Checking needs no lexicon; generating does, so `apply` carries its own capability
+  requirement rather than the catalogue row claiming one `check` never needed. The new
+  `NoCandidateWord` error is raised when the search finds nothing to swap, rather than
+  returning text with no swap in it for `check` to then reject.
 
 ### Fixed
 
