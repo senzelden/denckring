@@ -21,11 +21,16 @@ def _line(dactyls: list[str], close: str) -> str:
 
 
 def satisfying() -> CaseStrategy:
-    """Five dactyls and a trochee — the commonest reading, and always 17
-    syllables, so no substitution ambiguity can creep in."""
-    return st.lists(_DACTYL_WORD, min_size=5, max_size=5).flatmap(
-        lambda dactyls: _TROCHEE_WORD.map(lambda close: (_line(dactyls, close), {}))
-    )
+    """Draws among the readings the pattern set actually admits: feet 1-4 each
+    independently a dactyl or a spondee word, foot 5 fixed as a dactyl (per
+    the classical convention `feet()` encodes), and foot 6 a spondee or a
+    trochee word. Every draw exercises whichever of the 32 `PATTERNS` its
+    choices happen to spell, rather than always the same one."""
+    substitutable_foot = st.one_of(_DACTYL_WORD, _SPONDEE_WORD)
+    final_foot = st.one_of(_SPONDEE_WORD, _TROCHEE_WORD)
+    return st.tuples(
+        st.lists(substitutable_foot, min_size=4, max_size=4), _DACTYL_WORD, final_foot
+    ).map(lambda parts: (_line([*parts[0], parts[1]], parts[2]), {}))
 
 
 def violating() -> CaseStrategy:
