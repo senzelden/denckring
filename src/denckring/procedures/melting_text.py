@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import random
+from typing import Any
+
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -49,3 +52,17 @@ class MeltingText(BaseProcedure[MeltingTextParams]):
             violations=violations,
             metrics={"kept": float(matched), "source_words": float(len(source))},
         )
+
+    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+        """One stage of the melt: words dropped, the survivors in their order.
+
+        Half of them, by coin, rather than a fixed stride — a melt that always
+        took every second word would be `every_nth_word` under another name, and
+        the point here is that the loss is uneven.
+        """
+        from denckring.lang import get_pack
+
+        self.parse_params({"source": text, **params})
+        chooser = random.Random(seed)
+        kept = [word for _, word in word_spans(text, get_pack(lang)) if chooser.random() < 0.5]
+        return " ".join(kept)
