@@ -1,0 +1,23 @@
+procedure: column_reading
+lang: en
+cases:
+  - name: second-word-of-each-line-read-down
+    source: constructed example; the procedure is from Oulipo's Atlas de littérature potentielle
+    text: cat dog bird
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+      column: 2
+    satisfied: true
+  - name: first-word-is-the-wrong-column
+    source: constructed counterexample
+    text: cat dog bird
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+      column: 1
+    satisfied: false

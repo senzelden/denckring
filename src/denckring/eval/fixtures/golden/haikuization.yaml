@@ -1,0 +1,21 @@
+procedure: haikuization
+lang: en
+cases:
+  - name: line-ends-form-the-shorter-poem
+    source: constructed example; the procedure is Oulipo's
+    text: down fast high
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+    satisfied: true
+  - name: a-non-line-end-breaks-the-reading
+    source: constructed counterexample
+    text: cat fast high
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+    satisfied: false
