@@ -1,0 +1,13 @@
+procedure: larding
+lang: en
+cases:
+  - name: sentences-alternate-with-lards
+    source: constructed example; only the checkable half (the alternation) is scored
+    text: A cat sat. New lard one. The dog ran. New lard two. It rained hard.
+    params: { source: "A cat sat. The dog ran. It rained hard." }
+    satisfied: true
+  - name: no-lards-inserted
+    source: constructed counterexample
+    text: A cat sat. The dog ran. It rained hard.
+    params: { source: "A cat sat. The dog ran. It rained hard." }
+    satisfied: false
