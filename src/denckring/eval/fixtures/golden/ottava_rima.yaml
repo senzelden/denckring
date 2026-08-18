@@ -1,0 +1,28 @@
+procedure: ottava_rima
+lang: en
+cases:
+  - name: abababcc
+    source: constructed example
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the owl will call across the dark at sea
+      the fox will hide beneath the fallen way
+      the mice will creep beside the ancient stone
+      the birds will sing before the day has flown
+    params: {}
+    satisfied: true
+  - name: seven-lines
+    source: constructed counterexample
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the owl will call across the dark at sea
+      the fox will hide beneath the fallen way
+      the mice will creep beside the ancient stone
+    params: {}
+    satisfied: false
