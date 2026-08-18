@@ -39,39 +39,45 @@ def test_spenserian_final_line_is_an_alexandrine() -> None:
     assert check("spenserian_stanza", short_last).satisfied is False
 
 
-#: Three eight-line ababbcbc stanzas and a bcbc envoi, on the same three rhymes
-#: throughout and closing every part on the same refrain line — the ballade
-#: itself, not adapted from OTTAVA or SPENSERIAN, since neither of those uses
-#: the same rhyme sounds across stanzas the way a ballade must.
+#: The refrain: identical text at indices 7, 15, 23 and 27 — the four lettered
+#: "c" positions the scheme shares with no other line.
+BALLADE_REFRAIN = "until the northern wind has blown"
+
+#: Three eight-line ababbcbc stanzas and a bcbc envoi. The scheme repeats its
+#: three letters across all three stanzas rather than resetting per stanza, so
+#: a genuine ballade needs the fourteen b-lines, the six a-lines and the four
+#: non-refrain c-lines each on a distinct word within their own letter — every
+#: one below is. Not adapted from OTTAVA or SPENSERIAN, since neither of those
+#: uses the same rhyme sounds across stanzas the way a ballade must.
 BALLADE_LINES = [
-    "a cat can climb a tall old tree",
-    "the dog will run and play all day",
-    "the bird will fly out to the sea",
-    "the sun will shine and light the way",
-    "the wind will blow and clouds will sway",
-    "the leaves will fall where they were sown",
-    "the rain will fall and skies grow gray",
-    "till all the fields to gold have grown",
-    "a fish will leap and swim so free",
-    "the stars will shine to mark the way",
-    "the child will laugh and shout with glee",
-    "the birds will sing and greet the day",
-    "the waves will crash and touch the bay",
-    "the fields lie still where seeds were sown",
-    "the wind will call the ships to sway",
-    "till all the fields to gold have grown",
-    "the moon shines down on all the sea",
-    "the sun goes down to end the day",
-    "the fox runs fast and feels so free",
-    "the birds fly south to find the bay",
-    "the leaves will turn from green to gray",
-    "the seeds lie deep where they were sown",
-    "the birds will call to greet the day",
-    "till all the fields to gold have grown",
-    "the fields will wait the whole long day",
-    "the seeds will wait till they have grown",
-    "the fields will wait the whole long day",
-    "till all the fields to gold have grown",
+    "a cat can climb a tall old tree",  # 0 a
+    "the dog will run and play all day",  # 1 b
+    "the bird will fly out to the sea",  # 2 a
+    "the sun will shine and light the way",  # 3 b
+    "the sky will clear by first of may",  # 4 b
+    "the wall was built of gray old stone",  # 5 c
+    "the birds will call what they all say",  # 6 b
+    BALLADE_REFRAIN,  # 7 c refrain
+    "the clock will chime at half past three",  # 8 a
+    "the boys will laugh and run to play",  # 9 b
+    "a fish will leap and swim so free",  # 10 a
+    "the guests will come and wish to stay",  # 11 b
+    "the storm clouds turn both dark and gray",  # 12 b
+    "the barn stood dark and stayed alone",  # 13 c
+    "the goats will roam and love to stray",  # 14 b
+    BALLADE_REFRAIN,  # 15 c refrain
+    "he holds the door shut with a key",  # 16 a
+    "the trees will bend then start to sway",  # 17 b
+    "the priest will grant the poor his plea",  # 18 a
+    "the child will shape the wet soft clay",  # 19 b
+    "the light comes down in one long ray",  # 20 b
+    "the truth at last to all was known",  # 21 c
+    "the hens will rest then soon they lay",  # 22 b
+    BALLADE_REFRAIN,  # 23 c refrain
+    "the men will come at dusk to pay",  # 24 b
+    "the corn stood tall for it had grown",  # 25 c
+    "the ships will sail out past the bay",  # 26 b
+    BALLADE_REFRAIN,  # 27 c refrain
 ]
 
 
@@ -83,3 +89,14 @@ def test_ballade_requires_the_refrain_to_repeat() -> None:
     report = check("ballade", broken)
     assert report.satisfied is False
     assert any(v.rule == "broken_refrain" for v in report.violations)
+
+
+def test_ballade_rejects_an_accidental_rhyme_reuse() -> None:
+    """Only the refrain may repeat a word. A non-refrain line stealing another
+    line's rhyme word is not the refrain, and must still be flagged."""
+    reused = list(BALLADE_LINES)
+    # Line 9 already ends "play"; line 24 reusing it is not a refrain position.
+    reused[24] = "the men will come at dusk to play"
+    report = check("ballade", "\n".join(reused))
+    assert report.satisfied is False
+    assert any(v.rule == "identical_rhyme" for v in report.violations)

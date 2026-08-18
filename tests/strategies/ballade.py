@@ -1,8 +1,9 @@
 """Generators for ballade.
 
 A valid instance cannot be generated blind — the three rhyme families have to be
-held constant across all three stanzas and the refrain repeated verbatim four
-times — so these sample verified texts, as `rhyme_royal` does for the same reason.
+held constant across all three stanzas, every non-refrain line on its own word,
+and the refrain repeated verbatim four times — so these sample verified texts,
+as `rhyme_royal` does for the same reason.
 """
 
 from hypothesis import strategies as st
@@ -13,31 +14,32 @@ CONFORMING = """a cat can climb a tall old tree
 the dog will run and play all day
 the bird will fly out to the sea
 the sun will shine and light the way
-the wind will blow and clouds will sway
-the leaves will fall where they were sown
-the rain will fall and skies grow gray
-till all the fields to gold have grown
+the sky will clear by first of may
+the wall was built of gray old stone
+the birds will call what they all say
+until the northern wind has blown
+the clock will chime at half past three
+the boys will laugh and run to play
 a fish will leap and swim so free
-the stars will shine to mark the way
-the child will laugh and shout with glee
-the birds will sing and greet the day
-the waves will crash and touch the bay
-the fields lie still where seeds were sown
-the wind will call the ships to sway
-till all the fields to gold have grown
-the moon shines down on all the sea
-the sun goes down to end the day
-the fox runs fast and feels so free
-the birds fly south to find the bay
-the leaves will turn from green to gray
-the seeds lie deep where they were sown
-the birds will call to greet the day
-till all the fields to gold have grown
-the fields will wait the whole long day
-the seeds will wait till they have grown
-the fields will wait the whole long day
-till all the fields to gold have grown"""
+the guests will come and wish to stay
+the storm clouds turn both dark and gray
+the barn stood dark and stayed alone
+the goats will roam and love to stray
+until the northern wind has blown
+he holds the door shut with a key
+the trees will bend then start to sway
+the priest will grant the poor his plea
+the child will shape the wet soft clay
+the light comes down in one long ray
+the truth at last to all was known
+the hens will rest then soon they lay
+until the northern wind has blown
+the men will come at dusk to pay
+the corn stood tall for it had grown
+the ships will sail out past the bay
+until the northern wind has blown"""
 
+#: The refrain broken at its final occurrence.
 VIOLATING = "\n".join([*CONFORMING.splitlines()[:27], "a different closing line entirely"])
 
 PARAMS: dict[str, object] = {}
