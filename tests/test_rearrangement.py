@@ -32,3 +32,33 @@ def test_boustrophedon_apply_round_trips() -> None:
     assert produced
     report = procedure.check(produced, source=SOURCE)
     assert report.satisfied
+
+
+def test_text_folding_brings_the_far_flap_forward() -> None:
+    folded = "three\nfour\nfive\none\ntwo"
+    source = "one\ntwo\nthree\nfour\nfive"
+    assert check("text_folding", folded, source=source, fold_at=2).satisfied is True
+
+
+def test_text_folding_rejects_the_unfolded_source() -> None:
+    source = "one\ntwo\nthree\nfour\nfive"
+    report = check("text_folding", source, source=source, fold_at=2)
+    assert report.satisfied is False
+    assert any(v.rule == "line_out_of_fold" for v in report.violations)
+
+
+def test_text_folding_may_not_invent_material() -> None:
+    source = "one\ntwo\nthree\nfour\nfive"
+    added = "three\nfour\nfive\none\ntwo\nsix"
+    report = check("text_folding", added, source=source, fold_at=2)
+    assert report.satisfied is False
+
+
+def test_text_folding_apply_round_trips() -> None:
+    procedure = get("text_folding")
+    assert isinstance(procedure, Constructive)
+    source = "one\ntwo\nthree\nfour\nfive"
+    produced = procedure.apply(source, fold_at=2)
+    assert produced
+    report = procedure.check(produced, source=source, fold_at=2)
+    assert report.satisfied

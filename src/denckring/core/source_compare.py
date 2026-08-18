@@ -1,6 +1,6 @@
 """Comparisons between a text and the source it was made from.
 
-Four callers in the catalogue backlog need the same three shapes — a class of letters
+Eight callers in the catalogue backlog need the same three shapes — a class of letters
 preserved, a selection drawn out, a set of parts rearranged — so they live here rather
 than in whichever procedure happened to need them first. `form_report` is the
 precedent: it was extracted from real sonnets, not designed ahead of them.
@@ -20,6 +20,7 @@ two rows that exist do not need one.
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import Literal, NamedTuple
 
 from denckring.core.protocol import LanguagePack, Violation
@@ -128,3 +129,42 @@ def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> Clas
             continue
         good += 1
     return ClassResult(violations, good, max(len(chosen), 1))
+
+
+def rearrangement_report(parts: list[str], source_parts: list[str]) -> ClassResult:
+    """Whether `parts` is exactly `source_parts` reordered — nothing added or lost.
+
+    Checked as a multiset rather than a set: a procedure that drops one of two
+    identical lines has changed the text, and a set comparison would not notice. The
+    rule producing the *order* stays in the caller — `boustrophedon` reverses
+    alternate parts in place, `text_folding` swaps the two flaps either side of a
+    fold — that is the only part the two rows do not share.
+
+    `boustrophedon` was written first, by hand, with this comparison inline: see
+    that row's history for what the draft taught. Two things did not survive
+    unchanged from a first, more literal reading of "compare the multisets": no
+    `, 1` floor on `total`, and `good` as the multiset intersection rather than
+    `total` minus what is missing. Both were needed for the same test —
+    `test_a_rearrangement_may_not_invent_material` — which a version scored
+    satisfied even though it carried an `invented_part` violation, because pinning
+    `total` to `sum(want.values())` alone let an extra part in `have` cost nothing
+    against the score. Comparing intersection sizes instead fixes that, and drops
+    the floor along with it: an all-blank `parts` and `source_parts` then leaves
+    `total == 0`, which `_report` already scores vacuously satisfied — the same
+    reasoning `letter_class_report` documents for skipping the floor `selection_report`
+    keeps.
+    """
+    have = Counter(part.strip().casefold() for part in parts)
+    want = Counter(part.strip().casefold() for part in source_parts)
+    violations: list[Violation] = []
+    for part, count in (want - have).items():
+        violations.append(
+            Violation(rule="missing_part", offset=None, found="", expected=part, note=f"x{count}")
+        )
+    for part, count in (have - want).items():
+        violations.append(
+            Violation(rule="invented_part", offset=None, found=part, expected="", note=f"x{count}")
+        )
+    good = sum((want & have).values())
+    total = max(sum(want.values()), sum(have.values()))
+    return ClassResult(violations, good, total)
