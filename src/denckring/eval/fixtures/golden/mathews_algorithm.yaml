@@ -1,0 +1,31 @@
+procedure: mathews_algorithm
+lang: en
+cases:
+  - name: each-row-rotated-by-its-index
+    source: constructed example; the procedure is Harry Mathews's algorithm
+    text: |-
+      the quick brown fox jumps
+      lazy dogs while cats over
+      warm bright skies sleep under
+    params:
+      source: |-
+        the quick brown fox jumps
+
+        over lazy dogs while cats
+
+        sleep under warm bright skies
+    satisfied: true
+  - name: unrotated-table-fails
+    source: constructed counterexample
+    text: |-
+      the quick brown fox jumps
+      over lazy dogs while cats
+      sleep under warm bright skies
+    params:
+      source: |-
+        the quick brown fox jumps
+
+        over lazy dogs while cats
+
+        sleep under warm bright skies
+    satisfied: false
