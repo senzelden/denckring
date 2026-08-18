@@ -32,7 +32,7 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
     nonsense phrase is a lexicon question this row does not declare; that line
     two names a person needs an entity recogniser this project does not have;
     and the rhyme between lines four and eight is not checked because this
-    definition does not mention it, though the metre already pulls `phonemes`
+    definition does not mention it, though the metre already pulls `stress`
     in regardless. A verse failing any of the three is still reported
     satisfied.
     """

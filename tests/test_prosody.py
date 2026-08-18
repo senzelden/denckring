@@ -1,5 +1,7 @@
 """Rhyme and metre, and the honest limits of both."""
 
+from typing import ClassVar
+
 import pytest
 
 from denckring import check
@@ -13,10 +15,14 @@ from denckring.core.prosody import (
     stanza_violations,
     word_stress,
 )
+from denckring.core.protocol import Lang
 from denckring.lang import get_pack
+from denckring.lang.base import PHONEMES, STRESS
 from denckring.lang.en import EnglishPack
 
 pytest.importorskip("denckring_en_data")
+
+from denckring_en_data import EnglishDataPack
 
 PENTAMETER = """the cat can see the moon above the tree
 the dog will run across the field today
@@ -131,6 +137,27 @@ def test_a_pack_genuinely_lacking_phonemes_still_raises() -> None:
     """The repair must not swallow the real capability error it is named for."""
     with pytest.raises(MissingCapability):
         word_stress("forest", EnglishPack())
+
+
+def test_a_pack_with_phonemes_but_not_stress_still_raises() -> None:
+    """`word_stress` must guard on `stress`, not `phonemes`.
+
+    `pack.stress_patterns` is gated on `stress` (see `lang/base.py`), so a pack
+    carrying `phonemes` without `stress` — legal under ADR 0013/0015, and the
+    plausible shape of a pronouncing dictionary that lists phonemes but not
+    stress marks — must still raise here rather than scanning every word as
+    free.
+    """
+
+    class PhonemesWithoutStress(EnglishDataPack):
+        lang: ClassVar[Lang] = "en"
+        capabilities: ClassVar[frozenset[str]] = frozenset(EnglishDataPack.capabilities - {STRESS})
+
+    pack = PhonemesWithoutStress()
+    assert PHONEMES in pack.capabilities
+    assert STRESS not in pack.capabilities
+    with pytest.raises(MissingCapability):
+        word_stress("forest", pack)
 
 
 def test_metre_violations_reports_how_many_words_were_estimated() -> None:
