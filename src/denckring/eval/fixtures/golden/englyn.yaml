@@ -1,0 +1,21 @@
+procedure: englyn
+lang: en
+cases:
+  - name: ten-six-seven-seven
+    source: constructed example; syllable pattern and unodl rhyme after the strict-metre form
+    text: |-
+      the summer evening settles by the bay
+      beside the quiet way
+      and the swallow calls the day
+      and the river hums today
+    params: {}
+    satisfied: true
+  - name: wrong-first-line
+    source: constructed counterexample
+    text: |-
+      a short first line
+      beside the quiet way
+      and the swallow calls the day
+      and the river hums today
+    params: {}
+    satisfied: false

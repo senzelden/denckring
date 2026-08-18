@@ -1,0 +1,21 @@
+procedure: clerihew
+lang: en
+cases:
+  - name: davy-gravy
+    source: constructed example after Edmund Clerihew Bentley's form
+    text: |-
+      sir humphry davy
+      abominated gravy
+      he mixed his chemicals every night
+      and left the lab in the pale light
+    params: {}
+    satisfied: true
+  - name: unrhymed-second-couplet
+    source: constructed counterexample
+    text: |-
+      sir humphry davy
+      abominated gravy
+      he mixed his chemicals every day
+      and left the lab in the pale light
+    params: {}
+    satisfied: false
