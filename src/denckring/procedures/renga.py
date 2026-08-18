@@ -77,7 +77,7 @@ class Renga(BaseProcedure[RengaParams]):
             faults = [
                 Violation(
                     rule="wrong_syllable_count",
-                    offset=line_offset,
+                    offset=offset + line_offset,
                     found=f"{syllables} syllables",
                     expected=f"{expected} syllables",
                 )

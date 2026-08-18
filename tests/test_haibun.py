@@ -29,6 +29,15 @@ def test_an_empty_text_is_unsatisfied_and_says_why() -> None:
     assert report.violations
 
 
+def test_a_work_that_does_not_end_with_a_haiku_is_rejected() -> None:
+    """The spec is 'beginning with prose and ending with a haiku' — the
+    alternation check alone does not enforce the ending, since prose/haiku/prose
+    alternates correctly while still failing to close on a haiku."""
+    report = check("haibun", PROSE + "\n\n" + HAIKU + "\n\n" + PROSE)
+    assert not report.satisfied
+    assert "wrong_ending" in [v.rule for v in report.violations]
+
+
 def test_estimated_words_is_carried_from_line_syllables() -> None:
     """`line_syllables` promises every syllabic report carries its estimate
     count. `hemlocks` is an ordinary word CMUdict lacks, so it is scanned

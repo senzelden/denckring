@@ -183,7 +183,7 @@ All notable changes to this project are documented here. The format follows
   `rhyme_scheme`, `shakespearean_sonnet`, `terza_rima`, `triolet`, `trochaic_tetrameter`,
   `villanelle`—where before it was computed and discarded.
 - Catalogue rows for the five procedures that scan stress — the four metres and
-  `double_dactyl` — gained `phonemes` in `requires`, since scanning stress reaches
+  `double_dactyl` — gained `stress` in `requires`, since scanning stress reaches
   `pack.stress_patterns`. `renga` and `haibun` did not — they count syllables only.
 
 ### Fixed

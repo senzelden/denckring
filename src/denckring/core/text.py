@@ -52,8 +52,10 @@ def paragraph_spans(text: str) -> list[tuple[int, str]]:
     rather than keeping the original text: a paragraph's first and last lines
     can carry leading or trailing space that is not part of any line's own
     content, so the offset is rebased to the first non-whitespace character
-    and the text returned has none. Harmless for its one caller, which works
-    in letters — but deliberately different from its sibling, not an oversight.
+    and the text returned has none. It now has three callers, two of which
+    work in lines and offsets of their own — the offset this function returns
+    is a stanza's or block's start, not necessarily the start of a line within
+    it, and a caller measuring within the block must rebase against it.
     """
     spans: list[tuple[int, str]] = []
     group_start: int | None = None

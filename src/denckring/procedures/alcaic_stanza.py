@@ -8,6 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.prosody import stanza_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
+from denckring.core.text import line_spans
 
 HENDECASYLLABLE = "?1011100101"
 ENNEASYLLABLE = "?101?1011"
@@ -40,5 +41,8 @@ class AlcaicStanza(BaseProcedure[AlcaicStanzaParams]):
             good=result.good,
             total=result.total,
             violations=result.violations,
-            metrics={"lines": float(len(PATTERNS)), "estimated_words": float(result.estimated)},
+            metrics={
+                "lines": float(len(line_spans(text))),
+                "estimated_words": float(result.estimated),
+            },
         )
