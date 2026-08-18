@@ -13,11 +13,13 @@ from denckring.procedures.syllable_count import line_syllables
 HAIKU = [5, 7, 5]
 
 
-def _is_haiku(block: str, pack: LanguagePack) -> bool:
+def _is_haiku(block: str, pack: LanguagePack) -> tuple[bool, int]:
+    """Whether the block scans as 5-7-5, and how many of its words were estimated."""
     measured = line_syllables(block, pack)
-    return len(measured) == len(HAIKU) and all(
+    verse = len(measured) == len(HAIKU) and all(
         syllables == expected for (_, syllables, _), expected in zip(measured, HAIKU, strict=True)
     )
+    return verse, sum(count for _, _, count in measured)
 
 
 class HaibunParams(BaseModel):
@@ -30,7 +32,9 @@ class Haibun(BaseProcedure[HaibunParams]):
 
     Whether the haiku condenses the passage rather than continuing it is a
     judgement about sense, which no checker can make. It is not checked, and a
-    haibun that fails it will still be reported satisfied.
+    haibun that fails it will still be reported satisfied. Classification is
+    syllable-only too: a prose block that happens to scan as three lines of
+    5-7-5 is classified as verse.
     """
 
     id = "haibun"
@@ -41,7 +45,9 @@ class Haibun(BaseProcedure[HaibunParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: HaibunParams) -> Report:
         blocks = paragraph_spans(text)
-        kinds = [(offset, _is_haiku(block, pack)) for offset, block in blocks]
+        classified = [(offset, *_is_haiku(block, pack)) for offset, block in blocks]
+        kinds = [(offset, verse) for offset, verse, _ in classified]
+        estimated = sum(count for _, _, count in classified)
         violations: list[Violation] = []
         total = 2
         good = 0
@@ -88,5 +94,5 @@ class Haibun(BaseProcedure[HaibunParams]):
             good=good,
             total=max(total, 1),
             violations=violations,
-            metrics={"blocks": float(len(blocks)), "estimated_words": 0.0},
+            metrics={"blocks": float(len(blocks)), "estimated_words": float(estimated)},
         )
