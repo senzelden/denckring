@@ -74,7 +74,7 @@ class Description(BaseModel):
     id: str
     name: str
     definition: str
-    prompt_hints: list[str]
+    prompt_hints: str | None  # prompt_hints[lang]; the field is dict[Lang, str]
     family: str
     kind: str
     checkability: str
@@ -113,7 +113,15 @@ model on a core-only install.
 
 `DenckringError` gains a `code: str` class attribute and a `to_dict()` returning
 `{"code", "message", "detail"}`. Codes are stable strings, not class names, so renaming a
-class does not break a client:
+class does not break a client.
+
+There are **fifteen** subclasses, not the handful the loop meets most often: `UnknownProcedure`,
+`UnknownLanguage`, `MissingCapability`, `InvalidParams`, `DuplicateProcedure`, `UnknownDevice`,
+`UnsettablePhrase`, `InputTooLong`, `NoCandidateWord`, `MalformedTable`, `MalformedCorpus`,
+`UnknownFigure`, `UnknownLevel`, `DuplicatePack`. Every one gets a code — a test asserts the set
+is complete and unique, so a subclass added later without one fails rather than reaching a model
+as an unlabelled failure. The table below details only those the agentic surface raises in normal
+use; the rest take the obvious snake_case of their class name.
 
 | Error | `code` | `detail` carries |
 |---|---|---|
