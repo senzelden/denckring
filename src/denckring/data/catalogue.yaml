@@ -2644,8 +2644,13 @@ procedures:
     prompt_hints:
       en: Translate through several languages in turn and return to the first.
     notes: >-
-      No acceptance criterion exists. It is a chain through several languages;
-      the drift is the point and nothing measures it.
+      No acceptance criterion exists. The intermediate texts are not present:
+      given only a source and a result, nothing distinguishes a text that made
+      the round trip through several languages from one that never left, since
+      any difference is equally consistent with both. The drift the form is
+      about has no metric either — measuring semantic distance would grade
+      translation quality, a different question from whether the chain
+      occurred.
 
   - id: back_translation
     names: { en: Back translation, de: Rückübersetzung, fr: Rétrotraduction }
@@ -2691,8 +2696,12 @@ procedures:
     prompt_hints:
       en: Recast the passage in a different register of the same language.
     notes: >-
-      No acceptance criterion exists. Register and period are not mechanically
-      detectable.
+      No acceptance criterion exists. Register and period are properties of
+      usage rather than of form. Deciding this needs two judgements at once:
+      that the content survived, which is the translation problem, and that
+      the register moved, which no lexicon encodes. A list of archaisms would
+      decide something narrower than the definition claims, and passing it
+      would not make a text a rendering of the source.
 
   - id: calligram
     names: { en: Calligram, de: Kalligramm, fr: Calligramme }
