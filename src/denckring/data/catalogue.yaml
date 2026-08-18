@@ -1725,8 +1725,15 @@ procedures:
     aliases: [higgledy-piggledy]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables, phonemes]
     deterministic: true
+    notes: >-
+      Only the metre and the single double-dactylic word are checked. That
+      line one is a nonsense phrase is a lexicon question this row does not
+      declare; that line two names a person needs an entity recogniser this
+      project does not have; and the rhyme between lines four and eight is
+      not checked because this definition does not mention it, though the
+      metre already pulls `phonemes` in regardless.
     prompt_hints:
       en: Open on a nonsense phrase, name someone in line two, and spend one whole line on one long word.
 
