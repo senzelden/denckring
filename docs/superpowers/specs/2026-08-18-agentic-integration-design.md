@@ -115,7 +115,7 @@ model on a core-only install.
 `{"code", "message", "detail"}`. Codes are stable strings, not class names, so renaming a
 class does not break a client.
 
-There are **fifteen** subclasses, not the handful the loop meets most often: `UnknownProcedure`,
+There are **fourteen** subclasses — counted in the file, not estimated — not the handful the loop meets most often: `UnknownProcedure`,
 `UnknownLanguage`, `MissingCapability`, `InvalidParams`, `DuplicateProcedure`, `UnknownDevice`,
 `UnsettablePhrase`, `InputTooLong`, `NoCandidateWord`, `MalformedTable`, `MalformedCorpus`,
 `UnknownFigure`, `UnknownLevel`, `DuplicatePack`. Every one gets a code — a test asserts the set
