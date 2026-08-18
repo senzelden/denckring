@@ -1,37 +1,29 @@
 procedure: fold_in
 lang: en
 cases:
-  - name: pages-interleaved-line-by-line
-    source: constructed example; the procedure is Burroughs's fold-in
+  - name: left-half-joined-to-right-half
+    source: constructed example; the procedure is Burroughs and Gysin's fold-in
     text: |-
-      one
-      alpha
-      two
-      beta
-      three
+      alpha beta three four
+      five six ten
     params:
       source: |-
-        one
-        two
-        three
+        alpha beta gamma delta
+        five six seven
 
-        alpha
-        beta
+        one two three four
+        eight nine ten
     satisfied: true
-  - name: unfolded-pages-fail
+  - name: unfolded-page-one-fails
     source: constructed counterexample
     text: |-
-      one
-      two
-      three
-      alpha
-      beta
+      alpha beta gamma delta
+      five six seven
     params:
       source: |-
-        one
-        two
-        three
+        alpha beta gamma delta
+        five six seven
 
-        alpha
-        beta
+        one two three four
+        eight nine ten
     satisfied: false

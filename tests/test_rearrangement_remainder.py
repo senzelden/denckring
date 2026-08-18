@@ -3,24 +3,25 @@
 from denckring import check, get
 from denckring.core.protocol import Constructive
 
-FOLD_SOURCE = "one\ntwo\nthree\n\nalpha\nbeta"
+FOLD_SOURCE = "alpha beta gamma delta\nfive six seven\n\none two three four\neight nine ten"
 
 TABLE_SOURCE = "the quick brown\n\nover lazy dogs\n\nsleep under warm"
 
 
-def test_fold_in_interleaves_the_two_pages_line_by_line() -> None:
-    folded = "one\nalpha\ntwo\nbeta\nthree"
+def test_fold_in_joins_page_ones_left_half_to_page_twos_right_half() -> None:
+    folded = "alpha beta three four\nfive six ten"
     assert check("fold_in", folded, source=FOLD_SOURCE).satisfied is True
 
 
-def test_fold_in_rejects_the_pages_read_straight_through() -> None:
-    report = check("fold_in", "one\ntwo\nthree\nalpha\nbeta", source=FOLD_SOURCE)
+def test_fold_in_rejects_page_one_read_unfolded() -> None:
+    report = check("fold_in", "alpha beta gamma delta\nfive six seven", source=FOLD_SOURCE)
     assert report.satisfied is False
-    assert any(v.rule == "line_out_of_join" for v in report.violations)
+    assert any(v.rule == "not_the_fold" for v in report.violations)
 
 
-def test_fold_in_may_not_invent_material() -> None:
-    added = "one\nalpha\ntwo\nbeta\nthree\nextra"
+def test_fold_in_penalises_invented_material() -> None:
+    folded = "alpha beta three four\nfive six ten"
+    added = folded + "\nextra words here"
     report = check("fold_in", added, source=FOLD_SOURCE)
     assert report.satisfied is False
     assert report.score < 1.0
