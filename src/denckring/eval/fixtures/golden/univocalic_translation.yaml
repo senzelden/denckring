@@ -1,0 +1,13 @@
+procedure: univocalic_translation
+lang: en
+cases:
+  - name: single-vowel-result
+    source: constructed example; only the checkable half (the vowel constraint) is scored
+    text: the letters were her tenders
+    params: { source: x, vowel: e }
+    satisfied: true
+  - name: second-vowel-present
+    source: constructed counterexample
+    text: the cat sat
+    params: { source: x, vowel: e }
+    satisfied: false
