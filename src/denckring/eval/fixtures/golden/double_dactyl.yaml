@@ -1,0 +1,36 @@
+procedure: double_dactyl
+lang: en
+cases:
+  - name: constructed-satisfying-stanza
+    source: >-
+      constructed example; the second quatrain's opening line is a single
+      double-dactylic word, `vulnerability`, verified against CMUdict to fit
+      the metre through its free first syllable.
+    text: |-
+      murmuring beautiful
+      beautiful murmuring
+      wonderful carefully
+      carefully song
+      vulnerability
+      murmuring beautiful
+      beautiful murmuring
+      wonderful stone
+    satisfied: true
+  - name: nonsense-refrain-without-a-double-dactylic-word
+    source: >-
+      constructed counterexample; the metre scans throughout but no line of
+      the second quatrain is a single six-syllable word.
+    text: |-
+      higgledy piggledy
+      higgledy piggledy
+      higgledy piggledy
+      carefully song
+      higgledy piggledy
+      higgledy piggledy
+      higgledy piggledy
+      carefully song
+    satisfied: false
+  - name: empty-text-is-not-vacuous
+    source: constructed counterexample
+    text: ""
+    satisfied: false
