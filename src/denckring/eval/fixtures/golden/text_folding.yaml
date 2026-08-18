@@ -1,0 +1,37 @@
+procedure: text_folding
+lang: en
+cases:
+  - name: far-flap-brought-forward
+    source: constructed example; the procedure is Burroughs's fold-in
+    text: |-
+      three
+      four
+      five
+      one
+      two
+    params:
+      source: |-
+        one
+        two
+        three
+        four
+        five
+      fold_at: 2
+    satisfied: true
+  - name: unfolded-text-fails
+    source: constructed counterexample
+    text: |-
+      one
+      two
+      three
+      four
+      five
+    params:
+      source: |-
+        one
+        two
+        three
+        four
+        five
+      fold_at: 2
+    satisfied: false
