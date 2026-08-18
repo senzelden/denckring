@@ -1,0 +1,27 @@
+procedure: boustrophedon
+lang: en
+cases:
+  - name: alternate-lines-turned
+    source: constructed example; the procedure is traditional
+    text: |-
+      the cat sat down
+      tsaf nar god a
+      one bird flew high
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+    satisfied: true
+  - name: no-line-turned
+    source: constructed counterexample
+    text: |-
+      the cat sat down
+      a dog ran fast
+      one bird flew high
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+    satisfied: false
