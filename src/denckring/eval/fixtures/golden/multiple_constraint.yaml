@@ -1,0 +1,17 @@
+procedure: multiple_constraint
+lang: en
+cases:
+  - name: univocalic-and-lipogram-both-hold
+    source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
+    text: the letters were her tender ferments
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+    satisfied: true
+  - name: one-of-two-constraints-fails
+    source: constructed counterexample; the vowel constraint is broken, the letter one is not
+    text: the cat sat
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+    satisfied: false
