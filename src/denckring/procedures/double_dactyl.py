@@ -31,9 +31,10 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
     Three clauses of the form are not checked and cannot be. That line one is a
     nonsense phrase is a lexicon question this row does not declare; that line
     two names a person needs an entity recogniser this project does not have;
-    and the rhyme between lines four and eight would pull `phonemes` into a row
-    that otherwise needs only syllables. A verse failing any of the three is
-    still reported satisfied.
+    and the rhyme between lines four and eight is not checked because this
+    definition does not mention it, though the metre already pulls `phonemes`
+    in regardless. A verse failing any of the three is still reported
+    satisfied.
     """
 
     id = "double_dactyl"
@@ -50,11 +51,11 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
 
         lines = line_spans(text)
         if len(lines) == len(PATTERNS):
+            tokens = [pack.tokenize(lines[index][1]) for index in SECOND_QUATRAIN]
             single = [
                 index
-                for index in SECOND_QUATRAIN
-                if len(pack.tokenize(lines[index][1])) == 1
-                and pack.syllable_count(pack.tokenize(lines[index][1])[0])[0] == 6
+                for index, words in zip(SECOND_QUATRAIN, tokens, strict=True)
+                if len(words) == 1 and pack.syllable_count(words[0])[0] == 6
             ]
             if single:
                 good += 1
