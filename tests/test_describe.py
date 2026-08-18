@@ -6,6 +6,7 @@ from denckring import describe, summaries
 from denckring.core.catalogue import get as meta_for
 from denckring.core.describe import runnable
 from denckring.core.errors import UnknownProcedure
+from denckring.lang.en import EnglishPack
 
 
 def test_describe_carries_what_the_loop_needs() -> None:
@@ -60,22 +61,46 @@ def test_family_filters() -> None:
 
 
 def test_runnable_only_hides_what_this_install_cannot_run() -> None:
-    """A model offered a procedure it cannot run gets an error it cannot fix."""
+    """A model offered a procedure it cannot run gets an error it cannot fix.
+
+    On this install (data packs present), nothing is excluded — that state is
+    worth covering too, but on its own it cannot prove the filter works; see
+    `test_runnable_only_shrinks_under_a_core_only_pack` for that.
+    """
     every = summaries()
     only = summaries(runnable_only=True)
     assert len(only) <= len(every)
     assert all(row.runnable for row in only)
 
 
-def test_runnable_reports_what_is_missing() -> None:
+def test_runnable_only_shrinks_under_a_core_only_pack(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Capability-awareness is the point of `runnable()`. Force the install down to
+    the core English pack (no lexicon, no phonemes, no stress) and check that
+    `runnable_only` genuinely excludes rows, and only rows that are genuinely
+    unrunnable."""
+    monkeypatch.setattr("denckring.lang.get_pack", lambda lang="en": EnglishPack())
+    every = summaries()
+    only = summaries(runnable_only=True)
+    assert len(every) == 86
+    assert len(only) == 64
+    assert len(only) < len(every)
+    kept = {row.id for row in only}
+    excluded = {row.id: row for row in every if row.id not in kept}
+    assert excluded
+    assert all(not row.runnable for row in excluded.values())
+
+
+def test_runnable_reports_what_is_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("denckring.lang.get_pack", lambda lang="en": EnglishPack())
     ok, missing = runnable(meta_for("dactylic_hexameter"))
-    if not ok:
-        assert "stress" in missing
+    assert not ok
+    assert missing == ["stress"]
 
 
-def test_renga_is_runnable_wherever_haiku_is() -> None:
-    """The syllabic batch's last defect: renga and haibun were gated on a
-    capability nothing calls, which would have hidden two working procedures
-    from every model on a core-only install."""
+def test_renga_and_haibun_match_haikus_catalogued_requirements() -> None:
+    """Catalogue consistency, not capability coverage: renga and haibun declare
+    the same `requires` as haiku, so nothing in the catalogue can silently gate
+    two working procedures on a capability haiku doesn't need. (`runnable()`
+    itself is exercised by the core-only-pack tests above.)"""
     assert runnable(meta_for("renga"))[0] == runnable(meta_for("haiku"))[0]
     assert runnable(meta_for("haibun"))[0] == runnable(meta_for("haiku"))[0]
