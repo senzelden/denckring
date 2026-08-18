@@ -8,32 +8,41 @@ SOURCE = "silence is the garden where nothing grows and everything waits"
 
 def test_diastic_picks_words_by_position() -> None:
     """Word 1 has s first, word 2 has i second, word 3 has l third."""
-    report = check("diastic", "silence is silence", source=SOURCE, seed="sil")
+    report = check("diastic", "silence is silence", source=SOURCE, seed_phrase="sil")
     assert isinstance(report.satisfied, bool)
 
 
 def test_diastic_rejects_a_word_whose_letter_is_wrong() -> None:
-    report = check("diastic", "garden is silence", source=SOURCE, seed="sil")
+    report = check("diastic", "garden is silence", source=SOURCE, seed_phrase="sil")
     assert report.satisfied is False
     assert any(v.rule == "wrong_letter_at_position" for v in report.violations)
 
 
 def test_a_selection_must_come_from_the_source() -> None:
-    report = check("diastic", "elephant", source=SOURCE, seed="e")
+    report = check("diastic", "elephant", source=SOURCE, seed_phrase="e")
     assert report.satisfied is False
     assert any(v.rule == "not_in_source" for v in report.violations)
 
 
 def test_diastic_apply_round_trips() -> None:
-    """`apply` can't take a custom seed (see `DiasticParams.seed`'s comment), so this
-    exercises the default seed — but the round-trip property, whatever apply
-    produces its own check accepts, has to hold regardless of which seed is live."""
     procedure = get("diastic")
     assert isinstance(procedure, Constructive)
-    produced = procedure.apply(SOURCE)
+    produced = procedure.apply(SOURCE, seed_phrase="sil")
     assert produced
-    report = procedure.check(produced, source=SOURCE)
+    report = procedure.check(produced, source=SOURCE, seed_phrase="sil")
     assert report.satisfied
+
+
+def test_diastic_apply_uses_the_caller_supplied_seed_phrase() -> None:
+    """Pins R15: `seed_phrase` used to be named `seed`, which collided with
+    `apply`'s reserved `seed: int | None` RNG keyword — a caller-supplied value
+    was silently discarded in favour of the default (`"the"`), with no error.
+    Two different seed phrases must now produce two different outputs."""
+    procedure = get("diastic")
+    assert isinstance(procedure, Constructive)
+    produced_default = procedure.apply(SOURCE)
+    produced_custom = procedure.apply(SOURCE, seed_phrase="sil")
+    assert produced_default != produced_custom
 
 
 def test_mesostic_runs_the_spine_down_the_middle() -> None:
