@@ -45,20 +45,13 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
         delegate = get("univocalic").check(
             text, lang=pack.lang, vowel=params.vowel, fold_diacritics=params.fold_diacritics
         )
-        # `Report` exposes `score` and `violations`, not `good`/`total` directly.
-        # `univocalic` counts one violation per foreign vowel occurrence, and its
-        # score is exactly `good / total` whenever `total > 0` — so `total` is
-        # recoverable from `score` and `bad = len(violations)` by solving
-        # `total * (1 - score) == bad`. A score of 1.0 means zero violations;
-        # good/total then collapse to 1/1, which is enough to keep `self._report`
-        # vacuously satisfied without inventing a letter count that was never
-        # exposed.
-        bad = len(delegate.violations)
-        if bad == 0:
-            good, total = 1, 1
-        else:
-            total = round(bad / (1.0 - delegate.score))
-            good = total - bad
+        # `univocalic` publishes its exact counts in `metrics` — `vowel_count` is
+        # `total`, `foreign` is the violation count — so those are read directly
+        # rather than reconstructed from `score`. The key names are pinned by
+        # `test_univocalic_publishes_the_metric_keys_we_depend_on` in
+        # `tests/test_constraint_translations.py`.
+        total = int(delegate.metrics["vowel_count"])
+        good = total - int(delegate.metrics["foreign"])
         return self._report(
             good=good,
             total=total,
