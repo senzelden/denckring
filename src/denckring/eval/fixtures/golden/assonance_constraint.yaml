@@ -1,0 +1,13 @@
+procedure: assonance_constraint
+lang: en
+cases:
+  - name: rain-and-stays-and-mainly
+    source: constructed example, the "rain in spain" pattern
+    text: the rain in spain stays mainly plain
+    params: {}
+    satisfied: true
+  - name: no-shared-vowel
+    source: constructed counterexample
+    text: cat dog jumps
+    params: {}
+    satisfied: false

@@ -1,0 +1,21 @@
+procedure: alliterative_verse
+lang: en
+cases:
+  - name: four-lines-of-three
+    source: constructed example, echoing the alliterative long line of Piers Plowman
+    text: |-
+      in a summer season when soft was the sun
+      i shaped me in shrouds as a shepherd were
+      bright was the bank where the birds were bold
+      in a wide wild wood i wandered west
+    params: { minimum: 3 }
+    satisfied: true
+  - name: one-line-breaks-the-chain
+    source: constructed counterexample
+    text: |-
+      in a summer season when soft was the sun
+      i shaped me in shrouds as a shepherd were
+      bright was the bank where the birds were bold
+      the quiet evening came down slowly
+    params: { minimum: 3 }
+    satisfied: false
