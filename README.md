@@ -91,6 +91,26 @@ denckring check lipogram --json text.txt          # 2. CLI, exits 1 when unsatis
 denckring show lipogram --json                    # 3. stable JSON for non-Python callers
 ```
 
+## Letting a model use it
+
+A model writing under a constraint can check its own draft instead of guessing,
+which is the difference between a haiku it believes is a haiku and one that is.
+Two entry points, both over the same core functions, so they cannot disagree
+about what a procedure is:
+
+```console
+pip install denckring[mcp]    # an MCP server: denckring-mcp
+```
+
+The server exposes four tools — `list_procedures`, `describe_procedure`,
+`check_text`, `apply_procedure` — with the procedure as a parameter rather than
+eighty-six tools, because model performance degrades with tool count. Errors
+come back as data (`{"code": "invalid_params", ...}`), never as a traceback a
+model cannot act on.
+
+For Claude Code, [`skills/denckring/SKILL.md`](skills/denckring/SKILL.md) shells
+out to the CLI instead, and needs no extra beyond the package itself.
+
 ## Documentation
 
 The [gallery](https://senzelden.github.io/denckring/gallery/) has a page per catalogued
