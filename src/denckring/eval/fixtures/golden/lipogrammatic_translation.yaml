@@ -1,0 +1,13 @@
+procedure: lipogrammatic_translation
+lang: en
+cases:
+  - name: no-forbidden-letter
+    source: constructed example; only the checkable half (the lipogram) is scored
+    text: brown fox
+    params: { source: x, forbidden: e }
+    satisfied: true
+  - name: forbidden-letter-present
+    source: constructed counterexample
+    text: the letter appears here
+    params: { source: x, forbidden: e }
+    satisfied: false
