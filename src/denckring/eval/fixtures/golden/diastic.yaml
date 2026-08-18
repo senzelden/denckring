@@ -1,17 +1,17 @@
 procedure: diastic
 lang: en
 cases:
-  - name: reading-through-with-the-default-seed
+  - name: reading-through-with-the-default-seed-phrase
     source: constructed example; the procedure is Jackson Mac Low's
     text: the where everything
     params:
       source: silence is the garden where nothing grows and everything waits
-      seed: the
+      seed_phrase: the
     satisfied: true
   - name: wrong-word-and-wrong-letter
     source: constructed counterexample
     text: garden is silence
     params:
       source: silence is the garden where nothing grows and everything waits
-      seed: sil
+      seed_phrase: sil
     satisfied: false
