@@ -1,0 +1,19 @@
+procedure: haibun
+lang: en
+cases:
+  - name: prose-then-haiku
+    source: constructed example
+    text: |-
+      The road turned north and the rain did not let up until evening.
+
+      cat dog mat sat run
+      cat dog mat sat run sky tree
+      cat dog mat sat run
+    params: {}
+    satisfied: true
+  - name: prose-only
+    source: constructed counterexample; no haiku block is present
+    text: |-
+      The road turned north and the rain did not let up until evening.
+    params: {}
+    satisfied: false
