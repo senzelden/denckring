@@ -1,0 +1,13 @@
+procedure: homoconsonantism
+lang: en
+cases:
+  - name: same-skeleton-new-words
+    source: constructed example; the consonant skeleton t-h-c-t-s-t held by different words
+    text: the coat is out
+    params: { source: the cat sat }
+    satisfied: true
+  - name: a-changed-consonant
+    source: constructed counterexample
+    text: the bat sat
+    params: { source: the cat sat }
+    satisfied: false
