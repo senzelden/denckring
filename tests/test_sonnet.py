@@ -30,7 +30,7 @@ def test_thirteen_lines_is_not_a_sonnet() -> None:
     thirteen = "\n".join(SHAKESPEAREAN.splitlines()[:13])
     report = check("sonnet", thirteen, scheme="ABABCDCDEFEFGG", metre="01" * 5)
     assert report.satisfied is False
-    assert any(v.rule == "wrong_line_count" for v in report.violations)
+    assert len([v for v in report.violations if v.rule == "wrong_line_count"]) == 1
 
 
 def test_the_line_count_violation_says_what_it_wanted() -> None:

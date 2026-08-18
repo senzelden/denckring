@@ -54,25 +54,35 @@ def form_report(
     The fixed forms are assembled from these parts rather than
     reimplementing them, so a sonnet is a rhyme scheme plus a metre plus a
     line count and says so.
+
+    As `stanza_violations` does for the same rule: a text of the wrong length
+    reports `wrong_line_count` and stops — scanning line three against line
+    four's pattern would bury the real fault under false ones. So when `lines`
+    is given and the count is wrong, this returns immediately without running
+    the scheme, metre or refrain checks.
     """
     violations: list[Violation] = []
     good = 0
     total = 0
     estimated = 0
     if lines is not None:
-        total += 1
         n = len(line_spans(text))
-        if n == lines:
-            good += 1
-        else:
-            violations.append(
-                Violation(
-                    rule="wrong_line_count",
-                    offset=None,
-                    found=f"{n} lines",
-                    expected=f"{lines} lines",
-                )
+        if n != lines:
+            return FormResult(
+                [
+                    Violation(
+                        rule="wrong_line_count",
+                        offset=None,
+                        found=f"{n} lines",
+                        expected=f"{lines} lines",
+                    )
+                ],
+                0,
+                1,
+                0,
             )
+        total += 1
+        good += 1
     if scheme is not None:
         found, matched, checks = scheme_violations(
             text, pack, scheme, allow_identical=allow_identical
