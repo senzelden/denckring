@@ -1110,10 +1110,13 @@ procedures:
     attested: codified
     kind: both
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, pos]
     deterministic: false
     prompt_hints:
       en: Keep the sentence structure exactly and replace each word with another of the same class.
+    notes: >-
+      Blocked: substituting words of the same part of speech needs a `pos`
+      capability no pack provides. `verbless_prose` needs the same one.
 
   - id: perverb
     names: { en: Perverb }
@@ -1128,10 +1131,13 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, corpus.proverbs]
     deterministic: false
     prompt_hints:
       en: Cross two proverbs at the midpoint and write the passage the hybrid implies.
+    notes: >-
+      Blocked: forming a perverb needs a `corpus.proverbs` capability no pack
+      provides.
 
   - id: mathews_algorithm
     names: { en: Mathews's algorithm }
@@ -1221,7 +1227,7 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
       en: Keep only the rhyming words of each line and present what remains as the poem.
@@ -1242,7 +1248,7 @@ procedures:
     aliases: [doublets, word golf]
     kind: both
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Move from the first word to the last, changing one letter at a time, each step a real word.
@@ -1295,10 +1301,13 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, pos]
     deterministic: true
     prompt_hints:
       en: Describe the scene without using a single finite verb.
+    notes: >-
+      Blocked: telling a finite verb from a participle needs a `pos`
+      capability no pack provides. `homosyntaxism` needs the same one.
 
   - id: single_sentence
     names: { en: Single sentence }
@@ -1427,7 +1436,7 @@ procedures:
     attested: codified
     kind: both
     languages: [en]
-    requires: [tokens]
+    requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Split words apart and wedge other words inside them.
@@ -1465,13 +1474,13 @@ procedures:
     attested: codified
     kind: both
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, phonemes]
     deterministic: true
     prompt_hints:
       en: Exchange the opening sounds of two words so that both results are words.
 
-  - id: univocalic_lipogram_pair
-    names: { en: Compound constraint }
+  - id: multiple_constraint
+    names: { en: Multiple constraint, de: Mehrfachbeschränkung, fr: Contrainte multiple }
     definitions:
       en: >-
         A text satisfying two or more named constraints at once, the difficulty
@@ -1481,6 +1490,7 @@ procedures:
     attribution: reference
     checkability: self
     attested: codified
+    aliases: [univocalic lipogram pair, multiple constraint]
     kind: restrictive
     languages: [en]
     requires: [tokens]
@@ -1668,7 +1678,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes]
+    requires: [tokens, phonemes, syllables]
     deterministic: true
     prompt_hints:
       en: Write three stanzas and an envoi, all sharing rhymes and ending on one refrain.
@@ -1855,7 +1865,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes]
+    requires: [tokens, phonemes, syllables]
     deterministic: true
     prompt_hints:
       en: Write eight-line stanzas rhyming ABABABCC.
@@ -2536,10 +2546,13 @@ procedures:
     aliases: [sound translation]
     kind: both
     languages: [en]
-    requires: [tokens, phonemes]
+    requires: [tokens, phonemes, phonemes.bilingual]
     deterministic: false
     prompt_hints:
       en: Render the source by its sound rather than its meaning, in the target language.
+    notes: >-
+      Blocked: judging that the target sounds like the source across languages
+      needs a `phonemes.bilingual` capability no pack provides.
 
   - id: antonymic_translation
     names: { en: Antonymic translation, fr: Traduction antonymique }
@@ -2622,7 +2635,7 @@ procedures:
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
-    checkability: source
+    checkability: none
     attested: codified
     kind: both
     languages: [en]
@@ -2630,6 +2643,9 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Translate through several languages in turn and return to the first.
+    notes: >-
+      No acceptance criterion exists. It is a chain through several languages;
+      the drift is the point and nothing measures it.
 
   - id: back_translation
     names: { en: Back translation, de: Rückübersetzung, fr: Rétrotraduction }
@@ -2642,7 +2658,7 @@ procedures:
     source: Traditional; a standing exercise in translation studies
     family: translation
     attribution: traditional
-    checkability: source
+    checkability: none
     attested: codified
     kind: both
     languages: [en]
@@ -2650,6 +2666,11 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Translate out and back again, and present the return rather than the original.
+    notes: >-
+      No acceptance criterion exists. Deciding that a text was translated onward
+      and returned requires translation, not comparison: any difference from the
+      source is equally consistent with a bad back-translation and with an
+      unrelated text.
 
   - id: intralingual_translation
     names: { en: Intralingual translation }
@@ -2660,7 +2681,7 @@ procedures:
     source: Roman Jakobson, On Linguistic Aspects of Translation (1959)
     family: translation
     attribution: primary
-    checkability: source
+    checkability: none
     attested: author-stated
     aliases: [rewording]
     kind: both
@@ -2669,6 +2690,9 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Recast the passage in a different register of the same language.
+    notes: >-
+      No acceptance criterion exists. Register and period are not mechanically
+      detectable.
 
   - id: calligram
     names: { en: Calligram, de: Kalligramm, fr: Calligramme }
