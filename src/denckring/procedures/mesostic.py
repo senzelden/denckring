@@ -101,5 +101,10 @@ class Mesostic(BaseProcedure[MesosticParams]):
             chosen.append(words[match])
             cursor = match + 1
         if not chosen:
-            raise NoCandidateWord(self.id)
+            raise NoCandidateWord(
+                self.id,
+                "no word in the source carries the spine's first letter — try "
+                "a different source or spine, or check a text instead of "
+                "generating one",
+            )
         return "\n".join(chosen)

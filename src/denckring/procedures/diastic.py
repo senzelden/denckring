@@ -112,5 +112,10 @@ class Diastic(BaseProcedure[DiasticParams]):
             chosen.append(words[match])
             cursor = match + 1
         if not chosen:
-            raise NoCandidateWord(self.id)
+            raise NoCandidateWord(
+                self.id,
+                "no word in the source carries the seed phrase's first letter "
+                "at its required position — try a different source or seed "
+                "phrase, or check a text instead of generating one",
+            )
         return " ".join(chosen)
