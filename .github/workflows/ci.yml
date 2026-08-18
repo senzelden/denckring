@@ -31,7 +31,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de
+      - run: uv sync --extra en --extra de --extra mcp
       - run: uv run mypy --strict src tests packages/denckring-en-data/src packages/denckring-de-data/src
 
   test:
@@ -69,6 +69,28 @@ jobs:
       - run: uv sync --extra en --extra de
       - run: uv run denckring eval --all
       - run: uv run denckring status
+
+  mcp:
+    # The matrix runs without [mcp], so `pytest.importorskip` skips every MCP
+    # test there — the extra's own code would otherwise be tested nowhere. One
+    # job installs it and runs them for real. A skipped test reports green.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --extra en --extra de --extra mcp
+      - run: uv run pytest tests/test_mcp_tools.py -q
+      - name: The server starts and lists its four tools
+        run: |
+          uv run python -c "
+          import asyncio
+          from denckring.mcp.server import server
+          names = {t.name for t in asyncio.run(server.list_tools())}
+          assert names == {'list_procedures', 'describe_procedure', 'check_text', 'apply_procedure'}, names
+          print('mcp:', sorted(names))
+          "
 
   core-only:
     # Nothing else exercises the install without the data package, and that is
