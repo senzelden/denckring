@@ -89,7 +89,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         id=meta.id,
         name=_text(meta.names, lang),
         definition=_text(meta.definitions, lang),
-        prompt_hints=meta.prompt_hints.get(lang) or meta.prompt_hints.get("en"),
+        prompt_hints=_text(meta.prompt_hints, lang) or None,
         family=meta.family,
         kind=meta.kind,
         checkability=meta.checkability,
