@@ -20,6 +20,11 @@
 - Procedures decidable only against a source text mix in **`SourceParams`** (gives `source: str`). Procedures comparing letters mix in **`DiacriticParams`** (gives `fold_diacritics: bool`). Both from `denckring.core.base`.
 - `apply` signature is exactly `def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object) -> str`.
 - Text helpers live in `denckring.core.text`: `line_spans(text)` yields `(offset, line)`, `word_spans(text, pack)` yields `(offset, word)`.
+- **Controller ruling R1 (binding, overrides task text below):** `form_report` gains a
+  `lines: int | None = None` keyword. When given, it checks the line count itself and
+  emits `wrong_line_count` with `found=f"{n} lines"`. Task 2 makes this change; every
+  later form row passes `lines=` instead of copying a line-count block. Where a task
+  below says "copy that block verbatim", pass `lines=` instead.
 - **Reuse `denckring.core.prosody`, do not reimplement it.** `stanza_violations(text, pack, patterns)` checks a stanza whose lines each have their own metre, where `patterns[i]` is the sequence of readings acceptable for line `i`; it already emits `wrong_line_count` with `found=f"{n} lines"`. `scheme_violations` checks rhyme, `repeat_to("01", 5)` builds `"0101010101"`, and `form_report` composes scheme, metre and refrains. A form row that writes its own scanner is a defect.
 - A `Violation` carries `rule`, `offset`, `found`, `expected`, and optionally `note`. `offset` is an index into the *checked text*, or `None` where no single character is at fault.
 - **The scoreboard is an acceptance criterion.** At the end, `uv run denckring status` must read
@@ -131,6 +136,9 @@ list, keeping the existing entries:
 - `tmesis`: `requires: [tokens, lexicon.words]`
 - `haikuization`: `requires: [tokens, phonemes]`
 - `spoonerism`: `requires: [tokens, fold_diacritics, phonemes]`
+- `ottava_rima`: `requires: [tokens, phonemes, syllables]` *(controller ruling R2 — it
+  scans metre, which reaches the syllable machinery)*
+- `ballade`: `requires: [tokens, phonemes, syllables]` *(controller ruling R2, same reason)*
 
 - [ ] **Step 4: Name what the four blocked rows actually need**
 
@@ -1003,7 +1011,28 @@ class Ghazal(BaseProcedure[BaseModel]):
         )
 ```
 
-- [ ] **Step 5: Run the tests**
+- [ ] **Step 5: Controller ruling R3 — add the qafia check to `ghazal`**
+
+A ghazal is radif **and** qafia: the repeated end word, and a rhyme immediately before
+it. The check above tests only the radif, which both under-specifies the form and leaves
+the row's declared `phonemes` capability unreached — Task 16's honesty test would fail
+on it.
+
+Add: for each line carrying the radif, the word *before* the radif must rhyme with the
+word before the radif in line 1. Use `pack.rhyme_key(word)`. Emit `rule="broken_qafia"`
+with the two keys in `found`/`expected`. Score it as one more check rather than a hard
+gate — real ghazals vary in how strictly the qafia is kept.
+
+Add this test to `tests/test_repeating_forms.py`:
+
+```python
+def test_ghazal_checks_the_rhyme_before_the_radif() -> None:
+    broken = GHAZAL.replace("been slowed tonight", "been painted tonight")
+    report = check("ghazal", broken)
+    assert any(v.rule == "broken_qafia" for v in report.violations)
+```
+
+- [ ] **Step 6: Run the tests**
 
 ```bash
 uv run pytest tests/test_repeating_forms.py -q
@@ -1177,6 +1206,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from denckring.core.base import BaseProcedure
+from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.syllable_count import pattern_result
@@ -1184,9 +1214,17 @@ from denckring.procedures.syllable_count import pattern_result
 PATTERN = [10, 6, 7, 7]
 
 
+SCHEME = "AAAA"
+
+
 @register
 class Englyn(BaseProcedure[BaseModel]):
-    """Checks the syllable pattern. The cynghanedd is not something code judges."""
+    """Syllable pattern and the single rhyme. The cynghanedd is not code's business.
+
+    *Unodl* means one rhyme: all four lines share it. Checking syllables alone would
+    under-specify the form and leave the row's declared `phonemes` unreached
+    (controller ruling R4).
+    """
 
     id = "englyn"
 
@@ -1195,7 +1233,14 @@ class Englyn(BaseProcedure[BaseModel]):
         return BaseModel
 
     def _check(self, text: str, pack: LanguagePack, params: BaseModel) -> Report:
-        return self._report(**pattern_result(text, pack, PATTERN)._asdict())
+        syllabic = pattern_result(text, pack, PATTERN)._asdict()
+        found, matched, checks = scheme_violations(text, pack, SCHEME)
+        return self._report(
+            good=syllabic["good"] + matched,
+            total=syllabic["total"] + checks,
+            violations=syllabic["violations"] + found,
+            metrics=syllabic["metrics"],
+        )
 ```
 
 `src/denckring/procedures/clerihew.py`:
@@ -1849,7 +1894,7 @@ def selection_report(
         except ValueError:
             violations.append(
                 Violation(
-                    rule="not_in_source" if folded in available else "not_in_source",
+                    rule="not_in_source",
                     offset=None,
                     found=word,
                     expected="a word from the source, after the previous one",
