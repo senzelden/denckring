@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Literal, NamedTuple
 
 from denckring.core.protocol import LanguagePack, Violation
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, word_spans
 
 LetterClass = Literal["consonants", "vowels"]
 
@@ -87,3 +87,44 @@ def letter_class_report(
     # vacuously satisfied — the same rule `lipogram` relies on for an empty text. A
     # floor here would score that case 0/1 with zero violations to explain why.
     return ClassResult(violations, good, max(len(expected), len(actual)))
+
+
+def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> ClassResult:
+    """Whether every chosen word is drawn from the source, in the source's order.
+
+    Order matters: a selection that reorders the source is a different procedure.
+    The rule deciding *which* word to choose stays in the caller — `diastic` matches
+    a seed's letters positionally, `mesostic` requires a spine letter inside the
+    line — that is the only part the two selection rows do not share. Extracted from
+    `diastic`, written by hand first with this loop inline: see that row's history
+    for what the hand-written version taught about the signature (`chosen` is a
+    plain list of words, not a `(text, params)` pair, because the caller has
+    already tokenised its own candidate list, by word for `diastic` and by line's
+    words for `mesostic`, before either can even ask whether it is in the source).
+
+    Unlike `letter_class_report`, this floors `total` at 1 even when `chosen` is
+    empty: an empty selection is not vacuously a reading of anything, so it scores
+    0 rather than trivially satisfying the check. A generator that cannot find a
+    single matching word raises rather than returning empty text for exactly this
+    reason — see `diastic.apply`.
+    """
+    available = [word.casefold() for _, word in word_spans(source, pack)]
+    violations: list[Violation] = []
+    good = 0
+    cursor = 0
+    for word in chosen:
+        folded = word.casefold()
+        try:
+            cursor = available.index(folded, cursor) + 1
+        except ValueError:
+            violations.append(
+                Violation(
+                    rule="not_in_source",
+                    offset=None,
+                    found=word,
+                    expected="a word from the source, after the previous one",
+                )
+            )
+            continue
+        good += 1
+    return ClassResult(violations, good, max(len(chosen), 1))
