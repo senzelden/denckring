@@ -185,6 +185,30 @@ All notable changes to this project are documented here. The format follows
 - Catalogue rows for the five procedures that scan stress — the four metres and
   `double_dactyl` — gained `stress` in `requires`, since scanning stress reaches
   `pack.stress_patterns`. `renga` and `haibun` did not — they count syllables only.
+- `describe(id)` and `summaries()` in core, returning the catalogue as a machine reads
+  it: a definition, the prompt hints, whether this install can actually run the row and
+  what it lacks if not, and the parameter schema as JSON Schema. Four callers needed
+  this assembly — the CLI's `show`, the explorer, the MCP server and the skill — so it
+  lives in one place rather than being computed four times and drifting four ways.
+  `list_procedures()` is untouched: it is public and still returns `list[str]`.
+- A stable `code` on all fourteen error classes and a `to_dict()` on the base, so a
+  failure crosses a process boundary as `{"code": "invalid_params", "detail": {...}}`
+  rather than as a traceback. A model can act on the first and cannot act on the second.
+  `UnknownProcedure` additionally carries near-match `suggestions`, so a mistyped
+  `lipogam` answers with `lipogram` instead of a dead end.
+- `denckring describe <id> --json` and `denckring list --json`, so the skill and any
+  other non-Python caller reach the same two functions the MCP server does. `--json`
+  refuses to combine with `--kind` or `--status`, which filter the catalogue rather than
+  the implemented set: the flag would otherwise be accepted and silently ignored.
+- An MCP server behind `pip install denckring[mcp]`, run as `denckring-mcp`. It exposes
+  four tools — `list_procedures`, `describe_procedure`, `check_text`, `apply_procedure`
+  — taking the procedure as a parameter, rather than one tool per procedure. Eighty-six
+  tool definitions would sit in every client's context, and model performance degrades
+  sharply with tool count. No tool raises: each catches `DenckringError` and returns its
+  dictionary form.
+- A Claude Code skill at `skills/denckring/SKILL.md`, which shells out to the CLI and so
+  needs no extra beyond the package. Both transports are deliberately thin — neither
+  computes anything, so the two cannot disagree about what a procedure is.
 
 ### Fixed
 
