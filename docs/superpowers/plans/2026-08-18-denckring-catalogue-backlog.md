@@ -29,6 +29,13 @@
 - A `Violation` carries `rule`, `offset`, `found`, `expected`, and optionally `note`. `offset` is an index into the *checked text*, or `None` where no single character is at fault.
 - **The scoreboard is an acceptance criterion.** At the end, `uv run denckring status` must read
   `152 catalogued · 126 implementable · 114 implemented · 114 validated · 26 not mechanically checkable`.
+- **`tests/conftest.py` auto-parametrizes two fixture names.** A test taking a
+  `procedure_id` argument is run once per registered procedure automatically, and a test
+  taking `golden_case` once per golden case. **Never write your own
+  `@pytest.mark.parametrize("procedure_id", ...)`** — pytest raises `duplicate
+  parametrization of 'procedure_id'` at collection. To sweep every procedure, just take
+  the argument. To parametrize a *fixed* list of your own, name the argument something
+  else.
 - Golden fixtures live in `src/denckring/eval/fixtures/golden/<id>.yaml`; Hypothesis strategies in `tests/strategies/<id>.py` exposing `satisfying()` and `violating()` returning `CaseStrategy`.
 - Run the suite with `uv run pytest -q` and the scoreboard with `uv run denckring eval`.
 
@@ -2367,16 +2374,18 @@ from denckring.core import catalogue
 from denckring.core.registry import all_procedures
 
 
-@pytest.mark.parametrize("procedure_id", sorted(all_procedures()))
 def test_every_declared_capability_is_reachable(procedure_id: str) -> None:
+    """`procedure_id` is auto-parametrized by conftest across every registered row."""
     meta = catalogue.get(procedure_id)
     assert meta.requires, f"{procedure_id} declares no capabilities at all"
     assert "tokens" in meta.requires or meta.family == "visual"
 
 
-@pytest.mark.parametrize("procedure_id", sorted(all_procedures()))
 def test_declared_languages_have_a_fixture(procedure_id: str) -> None:
-    """A `de` in `languages` with no German fixture is an unproven claim."""
+    """A `de` in `languages` with no German fixture is an unproven claim.
+
+    `procedure_id` is auto-parametrized by conftest; do not add a parametrize mark.
+    """
     from denckring.eval import harness
 
     meta = catalogue.get(procedure_id)
