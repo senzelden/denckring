@@ -1,0 +1,43 @@
+procedure: rondeau
+lang: en
+cases:
+  - name: two-rhymes-and-a-rentrement
+    source: constructed example
+    text: |-
+      the summer holds the door
+      the tiles lie warm upon the floor
+      a single swallow crosses sky
+      no one can say the reason why
+      the garden waits for something more
+      the bread is kept inside the store
+      the boats are drawn along the shore
+      a distant gull begins to cry
+      the summer holds
+      the thunder starts its far off roar
+      the candle burns an hour before
+      the wind goes past with one long sigh
+      the truth is not one to deny
+      the harvest time will soon restore
+      the summer holds
+    params: { rentrement_words: 3 }
+    satisfied: true
+  - name: broken-rentrement
+    source: constructed counterexample
+    text: |-
+      the summer holds the door
+      the tiles lie warm upon the floor
+      a single swallow crosses sky
+      no one can say the reason why
+      the garden waits for something more
+      the bread is kept inside the store
+      the boats are drawn along the shore
+      a distant gull begins to cry
+      the winter holds
+      the thunder starts its far off roar
+      the candle burns an hour before
+      the wind goes past with one long sigh
+      the truth is not one to deny
+      the harvest time will soon restore
+      the summer holds
+    params: { rentrement_words: 3 }
+    satisfied: false
