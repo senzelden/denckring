@@ -42,3 +42,14 @@ def test_haikuization_apply_round_trips() -> None:
     assert produced
     report = procedure.check(produced, source=PAGE)
     assert report.satisfied
+
+
+def test_haikuization_tolerates_a_line_end_outside_the_dictionary() -> None:
+    """R18: `haikuization` no longer requires `phonemes`, precisely so an
+    invented word at a line's end produces a report rather than raising
+    `MissingCapability` — the fragility that requiring `phonemes` bought with
+    no corresponding benefit, since the rhyme machinery never distinguished a
+    rhyme-word reading from a line-end one anyway."""
+    source = "the sky is bright\na word made up: flurbish"
+    report = check("haikuization", "bright flurbish", source=source)
+    assert report.satisfied is True

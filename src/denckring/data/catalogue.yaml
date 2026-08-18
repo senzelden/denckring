@@ -1227,8 +1227,18 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en]
-    requires: [tokens, phonemes]
+    requires: [tokens]
     deterministic: true
+    notes: >-
+      Only the line-end reading is checked. The definition's "rhyme-words or
+      line ends" reads as two readings, but this codebase's rhyme machinery
+      always resolves to a line's final word regardless of whether it
+      pronounces as a rhyme with anything else — `rhyme_keys` hands back that
+      word whether or not two lines' keys ever intersect — so a rhyme-word
+      reading distinct from the line-end reading is not constructible here.
+      `phonemes` was added to `requires` in an earlier correction on the
+      assumption the two readings could be told apart; they cannot, so that
+      correction is reversed and this row runs on `tokens` alone.
     prompt_hints:
       en: Keep only the rhyming words of each line and present what remains as the poem.
 
