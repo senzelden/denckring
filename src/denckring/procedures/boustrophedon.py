@@ -8,18 +8,19 @@ end, spaces included, so the words themselves run backwards too, exactly as
 they would to an eye tracing the furrow home. Even-indexed lines are left
 exactly as the source has them.
 
-Written by hand first, with the comparison inline and no helper — see
-`denckring.core.source_compare` for what this draft taught about
-`rearrangement_report`'s shape, once it existed.
+Written by hand first, with the comparison inline and no helper. That draft is
+what `denckring.core.source_compare.rearrangement_report` was distilled from —
+see that function's docstring for what the hand-written version taught about
+its shape. The turning rule stays here: it is the one thing this row and
+`text_folding` do not share.
 """
 
 from __future__ import annotations
 
-from collections import Counter
-
 from denckring.core.base import BaseProcedure, SourceParams
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import line_spans, word_spans
 
 
@@ -50,31 +51,10 @@ class Boustrophedon(BaseProcedure[BoustrophedonParams]):
         canonical = [
             line[::-1] if index % 2 == 1 else line for index, (_, line) in enumerate(text_lines)
         ]
-        have = Counter(part.strip().casefold() for part in canonical)
-        want = Counter(part.strip().casefold() for part in source_lines)
-        violations: list[Violation] = []
-        for part, count in (want - have).items():
-            violations.append(
-                Violation(
-                    rule="missing_part", offset=None, found="", expected=part, note=f"x{count}"
-                )
-            )
-        for part, count in (have - want).items():
-            violations.append(
-                Violation(
-                    rule="invented_part", offset=None, found=part, expected="", note=f"x{count}"
-                )
-            )
-        good = sum((want & have).values())
-        # No `, 1` floor: an all-blank text has nothing turned and nothing
-        # missing, and `_report` already scores a `total == 0` report
-        # vacuously satisfied — the same reasoning `letter_class_report`
-        # documents. Flooring here would score that case 0 with nothing to
-        # explain why, and would also let an invented line slip past for
-        # free: pinning `total` to `sum(want.values())` alone, as a first
-        # draft of this comparison did, left `have`'s extra content costing
-        # nothing against the score.
-        total = max(sum(want.values()), sum(have.values()))
+        result = rearrangement_report(canonical, source_lines)
+        violations = list(result.violations)
+        good = result.good
+        total = result.total
 
         for index, (offset, line) in enumerate(text_lines):
             if index % 2 == 0 or index >= len(source_lines):
