@@ -10,7 +10,6 @@ from denckring.core.errors import UnknownProcedure
 UNDERSTATED = {
     "word_ladder": "lexicon.words",
     "tmesis": "lexicon.words",
-    "haikuization": "phonemes",
     "spoonerism": "phonemes",
 }
 
@@ -53,3 +52,16 @@ def test_the_generic_composite_row_is_renamed() -> None:
     with pytest.raises(UnknownProcedure):
         catalogue.get("univocalic_lipogram_pair")
     assert catalogue.get("multiple_constraint")
+
+
+def test_haikuizations_phonemes_correction_is_reversed() -> None:
+    """R18: an earlier correction added `phonemes` to `haikuization` on the
+    assumption a rhyme-word reading could be told apart from a line-end one.
+    It cannot, in this codebase — `rhyme_keys` always resolves a line to its
+    final word regardless of whether it pronounces as a rhyme with anything,
+    so requiring `phonemes` bought fragility on an out-of-dictionary line
+    ending and no corresponding check. The row runs on `tokens` alone, and
+    the reversal is recorded in its own `notes`."""
+    meta = catalogue.get("haikuization")
+    assert "phonemes" not in meta.requires
+    assert meta.notes
