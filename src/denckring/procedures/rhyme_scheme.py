@@ -47,16 +47,32 @@ def form_report(
     metre: str | None = None,
     refrains: list[tuple[int, int]] | None = None,
     allow_identical: bool = False,
+    lines: int | None = None,
 ) -> FormResult:
-    """Check any combination of rhyme scheme, metre and refrain lines.
+    """Check any combination of rhyme scheme, metre, refrain lines and line count.
 
-    The fixed forms are assembled from these three parts rather than
-    reimplementing them, so a sonnet is a rhyme scheme plus a metre and says so.
+    The fixed forms are assembled from these parts rather than
+    reimplementing them, so a sonnet is a rhyme scheme plus a metre plus a
+    line count and says so.
     """
     violations: list[Violation] = []
     good = 0
     total = 0
     estimated = 0
+    if lines is not None:
+        total += 1
+        n = len(line_spans(text))
+        if n == lines:
+            good += 1
+        else:
+            violations.append(
+                Violation(
+                    rule="wrong_line_count",
+                    offset=None,
+                    found=f"{n} lines",
+                    expected=f"{lines} lines",
+                )
+            )
     if scheme is not None:
         found, matched, checks = scheme_violations(
             text, pack, scheme, allow_identical=allow_identical
@@ -72,18 +88,24 @@ def form_report(
             total += result.total
             estimated += result.estimated
     if refrains is not None:
-        lines = [line.strip().casefold() for _, line in line_spans(text)]
+        stripped_lines = [line.strip().casefold() for _, line in line_spans(text)]
         for first, repeat in refrains:
             total += 1
-            if first < len(lines) and repeat < len(lines) and lines[first] == lines[repeat]:
+            if (
+                first < len(stripped_lines)
+                and repeat < len(stripped_lines)
+                and stripped_lines[first] == stripped_lines[repeat]
+            ):
                 good += 1
             else:
                 violations.append(
                     Violation(
                         rule="broken_refrain",
                         offset=None,
-                        found=lines[repeat] if repeat < len(lines) else "",
-                        expected=lines[first] if first < len(lines) else f"line {first + 1}",
+                        found=stripped_lines[repeat] if repeat < len(stripped_lines) else "",
+                        expected=stripped_lines[first]
+                        if first < len(stripped_lines)
+                        else f"line {first + 1}",
                     )
                 )
     return FormResult(violations, good, max(total, 1), estimated)
