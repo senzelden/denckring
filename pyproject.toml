@@ -28,6 +28,8 @@ dependencies = ["pydantic>=2.7", "pyyaml>=6.0", "typer>=0.12"]
 en = ["denckring-en-data"]
 # Word membership and a noun list for German, from Wikidata Lexemes.
 de = ["denckring-de-data"]
+# An MCP server, so a model can check its own constrained writing.
+mcp = ["mcp[cli]>=2"]
 
 [project.urls]
 Homepage = "https://github.com/senzelden/denckring"
@@ -36,6 +38,7 @@ Issues = "https://github.com/senzelden/denckring/issues"
 
 [project.scripts]
 denckring = "denckring.cli:app"
+denckring-mcp = "denckring.mcp.server:main"
 
 [tool.uv.workspace]
 members = ["packages/*"]
