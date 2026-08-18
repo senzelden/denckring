@@ -17,7 +17,7 @@ def _seed_from(words: list[str]) -> str:
 
 def satisfying() -> CaseStrategy:
     return st.lists(_WORD, min_size=1, max_size=6).map(
-        lambda ws: (" ".join(ws), {"source": " ".join(ws), "seed": _seed_from(ws)})
+        lambda ws: (" ".join(ws), {"source": " ".join(ws), "seed_phrase": _seed_from(ws)})
     )
 
 
@@ -27,6 +27,6 @@ def violating() -> CaseStrategy:
     return st.lists(_WORD, min_size=1, max_size=6).map(
         lambda ws: (
             " ".join([*ws, "zzzzzz"]),
-            {"source": " ".join(ws), "seed": _seed_from(ws)},
+            {"source": " ".join(ws), "seed_phrase": _seed_from(ws)},
         )
     )

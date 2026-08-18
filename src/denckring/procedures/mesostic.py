@@ -14,7 +14,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.errors import InvalidParams
+from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report
@@ -23,9 +23,10 @@ from denckring.core.text import line_spans, word_spans
 
 class MesosticParams(SourceParams):
     # Defaulted like `every_nth_word.n`, so `apply()` is usable with no extra
-    # keyword — unlike `diastic.seed`, `spine` has no reserved-name collision with
-    # the `Constructive` protocol's `seed: int | None`, so there was no forced
-    # reason for a default; it is here purely for that zero-argument convenience.
+    # keyword — unlike `diastic.seed_phrase`, `spine` has no reserved-name
+    # collision with the `Constructive` protocol's `seed: int | None`, so there
+    # was no forced reason for a default; it is here purely for that
+    # zero-argument convenience.
     spine: str = Field(default="the", description="The spine word read down the lines.")
 
 
@@ -78,7 +79,7 @@ class Mesostic(BaseProcedure[MesosticParams]):
         it — sufficient, since `_check` only asks whether the letter is *in* the
         line, not at a fixed position. Stops rather than skipping a letter that
         finds no candidate, for the same round-trip reason as `diastic.apply`, and
-        raises `InvalidParams` instead of returning empty text if even the first
+        raises `NoCandidateWord` instead of returning empty text if even the first
         letter finds nothing to read.
         """
         from denckring.lang import get_pack
@@ -100,9 +101,5 @@ class Mesostic(BaseProcedure[MesosticParams]):
             chosen.append(words[match])
             cursor = match + 1
         if not chosen:
-            raise InvalidParams(
-                self.id,
-                f"no word in the source carries the spine's first letter "
-                f"{parsed.spine!r} — nothing to read through",
-            )
+            raise NoCandidateWord(self.id)
         return "\n".join(chosen)
