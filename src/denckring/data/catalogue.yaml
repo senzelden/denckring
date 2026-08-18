@@ -1725,7 +1725,7 @@ procedures:
     aliases: [higgledy-piggledy]
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
       Only the metre and the single double-dactylic word are checked. That
@@ -1790,7 +1790,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Alternate three-line and two-line stanzas, each linking only to the one before.
@@ -1832,7 +1832,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables]
+    requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Alternate short prose passages with haiku that distil rather than continue them.
