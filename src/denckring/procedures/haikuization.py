@@ -1,21 +1,20 @@
-"""Haikuization — keep only the rhyme-words or line ends, discard the rest.
+"""Haikuization — keep only the line ends of an existing poem, discard the rest.
 
 The catalogue's own words: "a reduction that keeps only the rhyme-words or
 line ends of an existing poem, leaving a shorter poem inside the longer one."
-Task 1 corrected this row's `requires` to include `phonemes`, so the reading
-implemented here has to genuinely reach a pronunciation, not just count
-letters at a line's end — `denckring.core.prosody.rhyme_keys` is what does
-that: for every line it returns the line's final word together with every
-rhyme key that word's pronunciation can take. It always returns that final
-word, whether or not the poem actually rhymes anything against it, which is
-exactly why one function serves both halves of the catalogue's "or": the
-"rhyme-word" reading and the "line end" reading are the same word here, and
-`rhyme_keys` is where a genuine phonemic answer would show up if this row
-ever needed to test rhyme rather than merely locate the candidate word — a
-later, stricter row could ask whether two of those key sets intersect, as
-`scheme_violations` does; this one does not, because "leaving a shorter poem
-inside the longer one" only needs the words identified, not verified against
-each other.
+That reads as two distinct readings, but only one is checked here: the line
+ends. `phonemes` was briefly required by an earlier correction on the
+assumption a "rhyme-word" reading could be told apart from a "line end" one
+— it cannot, in this codebase. `denckring.core.prosody.rhyme_keys` always
+resolves each line to its final word regardless of whether that word
+pronounces as a rhyme with anything else; it never tells two lines' words
+apart by whether they actually rhyme, so calling it bought a phoneme lookup
+that never affected any verdict, only fragility on a line-ending word outside
+the pronouncing dictionary. This row now reads line ends directly — by
+`line_spans` and `word_spans`, not `rhyme_keys` — and declares `tokens` only.
+A future row that genuinely tests rhyme (two lines' keys intersecting, as
+`scheme_violations` does) would be a different, stricter procedure than
+"leaving a shorter poem inside the longer one" asks for.
 
 Built on `selection_report`, the same helper `diastic`, `mesostic` and
 `column_reading` share: the words come from the source in order, and the
@@ -27,11 +26,10 @@ from __future__ import annotations
 
 from denckring.core.base import BaseProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.prosody import rhyme_keys
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report
-from denckring.core.text import word_spans
+from denckring.core.text import line_spans, word_spans
 
 
 class HaikuizationParams(SourceParams):
@@ -53,6 +51,21 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
     def params_model(cls) -> type[HaikuizationParams]:
         return HaikuizationParams
 
+    @staticmethod
+    def _line_ends(source: str, pack: LanguagePack) -> list[str]:
+        """Every non-blank line's last word, in line order.
+
+        No lexicon or phoneme lookup: an invented word such as "flurbish" is
+        as good a line end as a dictionary one — this row only locates the
+        word, it does not pronounce it.
+        """
+        ends: list[str] = []
+        for _, line in line_spans(source):
+            words = [word for _, word in word_spans(line, pack)]
+            if words:
+                ends.append(words[-1])
+        return ends
+
     def _check(self, text: str, pack: LanguagePack, params: HaikuizationParams) -> Report:
         chosen_spans = word_spans(text, pack)
         chosen = [word for _, word in chosen_spans]
@@ -60,7 +73,7 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
         violations = list(result.violations)
         good = result.good
         total = result.total
-        expected = [word for _, word, _ in rhyme_keys(params.source, pack)]
+        expected = self._line_ends(params.source, pack)
         for index, word in enumerate(expected):
             total += 1
             if index < len(chosen) and chosen[index].casefold() == word.casefold():
@@ -96,25 +109,21 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
     ) -> str:
         """Keep only the last word of every line of `text`, which serves as the source.
 
-        Calls `rhyme_keys` rather than reading `line_spans` and tokenizing by
-        hand, so this generator exercises the same phonemic lookup its own
-        `_check` does — a generator that took the cheaper, letters-only route
-        would produce text its declared `phonemes` requirement was never
-        needed to accept. Raises `NoCandidateWord` rather than returning an
-        empty string when the source has no non-blank line to read from:
-        `_check` floors its denominator at 1, so an empty selection scores 0
-        rather than vacuously 1 — silently returning "" would hand back text
-        its own checker rejects.
+        Raises `NoCandidateWord` rather than returning an empty string when
+        the source has no non-blank line to read from: `_check` floors its
+        denominator at 1, so an empty selection scores 0 rather than
+        vacuously 1 — silently returning "" would hand back text its own
+        checker rejects.
         """
         from denckring.lang import get_pack
 
         self.parse_params({"source": text, **params})
         pack = get_pack(lang)
-        chosen = [word for _, word, _ in rhyme_keys(text, pack)]
+        chosen = self._line_ends(text, pack)
         if not chosen:
             raise NoCandidateWord(
                 self.id,
-                "the source has no non-blank line to read a rhyme-word or line end "
-                "from — try a source with at least one line of text",
+                "the source has no non-blank line to read a line end from — "
+                "try a source with at least one line of text",
             )
         return " ".join(chosen)
