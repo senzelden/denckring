@@ -1,0 +1,25 @@
+procedure: mesostic
+lang: en
+cases:
+  - name: sitg-down-the-lines
+    source: constructed example; the procedure is John Cage's
+    text: |-
+      silence
+      is
+      the
+      garden
+    params:
+      source: silence is the garden where nothing grows and everything waits
+      spine: sitg
+    satisfied: true
+  - name: fourth-line-drops-its-letter
+    source: constructed counterexample
+    text: |-
+      silence
+      is
+      the
+      and
+    params:
+      source: silence is the garden where nothing grows and everything waits
+      spine: sitg
+    satisfied: false

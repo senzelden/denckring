@@ -1,11 +1,11 @@
 """Diastic — words whose nth letter matches the nth letter of a seed.
 
 Jackson Mac Low's reading-through method. Two rules apply at once: the words come
-from the source in order, and each carries the seed's letter at its own index.
-Written by hand first, with both rules inline and no helper, so that the extraction
-into `denckring.core.source_compare.selection_report` (the next commit) is shaped by
-what this row and `mesostic` actually share rather than by a guess made before the
-second caller existed.
+from the source in order, and each carries the seed's letter at its own index. This
+row was written by hand first, with both rules inline and no helper — see
+`denckring.core.source_compare.selection_report` for what that draft taught about
+the order half, now extracted there and shared with `mesostic`. The positional
+letter rule stays here: it is the one thing the two rows do not share.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from denckring.core.base import BaseProcedure, SourceParams
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import selection_report
 from denckring.core.text import word_spans
 
 
@@ -44,43 +45,30 @@ class Diastic(BaseProcedure[DiasticParams]):
         return DiasticParams
 
     def _check(self, text: str, pack: LanguagePack, params: DiasticParams) -> Report:
-        available = [word.casefold() for _, word in word_spans(params.source, pack)]
         chosen = [word for _, word in word_spans(text, pack)]
+        result = selection_report(chosen, params.source, pack)
+        violations = list(result.violations)
+        good = result.good
+        total = result.total
         letters = [ch for ch in params.seed.casefold() if ch.isalpha()]
-        violations: list[Violation] = []
-        good = 0
-        total = 0
-        cursor = 0
         for index, word in enumerate(chosen):
+            if index >= len(letters):
+                break
             folded = word.casefold()
             total += 1
-            try:
-                cursor = available.index(folded, cursor) + 1
+            letter = letters[index]
+            if index < len(folded) and folded[index] == letter:
                 good += 1
-            except ValueError:
+            else:
                 violations.append(
                     Violation(
-                        rule="not_in_source",
+                        rule="wrong_letter_at_position",
                         offset=None,
-                        found=word,
-                        expected="a word from the source, after the previous one",
+                        found=folded[index] if index < len(folded) else "",
+                        expected=letter,
+                        note=f"position {index + 1} of {word!r}",
                     )
                 )
-            if index < len(letters):
-                total += 1
-                letter = letters[index]
-                if index < len(folded) and folded[index] == letter:
-                    good += 1
-                else:
-                    violations.append(
-                        Violation(
-                            rule="wrong_letter_at_position",
-                            offset=None,
-                            found=folded[index] if index < len(folded) else "",
-                            expected=letter,
-                            note=f"position {index + 1} of {word!r}",
-                        )
-                    )
         return self._report(
             good=good,
             total=max(total, 1),
