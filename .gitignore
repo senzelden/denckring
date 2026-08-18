@@ -24,3 +24,6 @@ apps/explorer/.env
 
 # Claude Code session state, including worktrees
 .claude/
+
+# Subagent-driven-development scratch workspace (ledgers, briefs, review packages).
+.superpowers/
