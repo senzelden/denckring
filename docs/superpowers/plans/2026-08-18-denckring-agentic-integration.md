@@ -1,6 +1,6 @@
 # Agentic Integration Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Give the package a machine-readable surface — `describe`, `summaries`, structured errors — and expose it as an MCP server and a Claude Code skill, so a model can write under a constraint, check its own output, and revise.
 
@@ -48,7 +48,7 @@
 - Consumes: nothing.
 - Produces: `DenckringError.code: str`, `DenckringError.to_dict() -> dict[str, Any]`, and `UnknownProcedure.suggestions: list[str]`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_error_codes.py`:
 
@@ -132,12 +132,12 @@ def test_invalid_params_carries_the_field_errors() -> None:
     assert payload["detail"]
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `uv run pytest tests/test_error_codes.py -v`
 Expected: FAIL — `code` does not exist.
 
-- [ ] **Step 3: Add `code` and `to_dict()` to the base**
+- [x] **Step 3: Add `code` and `to_dict()` to the base**
 
 In `src/denckring/core/errors.py`, replace the base class:
 
@@ -163,7 +163,7 @@ class DenckringError(Exception):
 
 Add `from typing import Any` at the top of the file in the same edit — a repo hook strips imports that are momentarily unused.
 
-- [ ] **Step 4: Give every subclass its code**
+- [x] **Step 4: Give every subclass its code**
 
 Add one `code` line to each of the fifteen. Use the snake_case of the class name unless the table below says otherwise:
 
@@ -184,7 +184,7 @@ Add one `code` line to each of the fifteen. Use the snake_case of the class name
 | `UnknownLevel` | `unknown_level` |
 | `DuplicatePack` | `duplicate_pack` |
 
-- [ ] **Step 5: Override `detail()` where there is something to say**
+- [x] **Step 5: Override `detail()` where there is something to say**
 
 ```python
 class UnknownProcedure(DenckringError):
@@ -233,7 +233,7 @@ def _near(procedure_id: str, limit: int = 3) -> list[str]:
 
 `MissingCapability.detail()` returns `{"capability", "lang", "procedure_id"}`; `InvalidParams.detail()` returns `{"errors": self.errors}` if it carries them, otherwise `{}`; `InputTooLong.detail()` returns `{"limit", "received"}`. Read each class before writing its `detail()` — use the attributes it already sets, do not invent new ones.
 
-- [ ] **Step 6: Run the tests**
+- [x] **Step 6: Run the tests**
 
 Run: `uv run pytest tests/test_error_codes.py -v`
 Expected: PASS.
@@ -242,7 +242,7 @@ If `test_there_are_fifteen_subclasses` fails, count them with
 `uv run python -c "import inspect; from denckring.core import errors; print(len([c for _,c in inspect.getmembers(errors, inspect.isclass) if issubclass(c, errors.DenckringError) and c is not errors.DenckringError]))"`
 and fix the **assertion** to the real number — then say so in your report, because the spec's inventory needs the same correction.
 
-- [ ] **Step 7: Full suite, lint, type-check**
+- [x] **Step 7: Full suite, lint, type-check**
 
 ```bash
 uv run pytest -q
@@ -250,7 +250,7 @@ uv run ruff check src tests && uv run ruff format --check src tests
 uv run mypy --strict src tests packages/denckring-en-data/src packages/denckring-de-data/src
 ```
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/denckring/core/errors.py tests/test_error_codes.py
@@ -276,7 +276,7 @@ git commit -m "feat: give every error a stable code and a machine-readable form"
   - `summaries(*, query: str | None = None, family: str | None = None, runnable_only: bool = False, lang: Lang = "en") -> list[Summary]`
   - `runnable(meta: Meta, lang: Lang = "en") -> tuple[bool, list[str]]`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_describe.py`:
 
@@ -364,12 +364,12 @@ def test_renga_is_runnable_wherever_haiku_is() -> None:
     assert runnable(meta_for("haibun"))[0] == runnable(meta_for("haiku"))[0]
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `uv run pytest tests/test_describe.py -v`
 Expected: FAIL — `cannot import name 'describe'`.
 
-- [ ] **Step 3: Write the module**
+- [x] **Step 3: Write the module**
 
 Create `src/denckring/core/describe.py`:
 
@@ -529,7 +529,7 @@ def summaries(
     return rows
 ```
 
-- [ ] **Step 4: Export from the package**
+- [x] **Step 4: Export from the package**
 
 In `src/denckring/__init__.py`, add to the imports and to `__all__`:
 
@@ -539,14 +539,14 @@ from denckring.core.describe import Description, Scholarly, Summary, describe, s
 
 `__all__` gains `"Description"`, `"Scholarly"`, `"Summary"`, `"describe"`, `"summaries"`, keeping the list alphabetical as it already is. **Do not touch `list_procedures`.**
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `uv run pytest tests/test_describe.py -v`
 Expected: PASS.
 
 If `test_summaries_lists_every_implemented_procedure` fails on the count, the registry has grown — fix the assertion to `len(all_procedures())` rather than a literal, and say so in your report.
 
-- [ ] **Step 6: Full suite, lint, type-check**
+- [x] **Step 6: Full suite, lint, type-check**
 
 ```bash
 uv run pytest -q
@@ -554,7 +554,7 @@ uv run ruff check src tests && uv run ruff format --check src tests
 uv run mypy --strict src tests packages/denckring-en-data/src packages/denckring-de-data/src
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/denckring/core/describe.py src/denckring/__init__.py tests/test_describe.py
@@ -573,7 +573,7 @@ git commit -m "feat: add describe and summaries, the catalogue as a machine read
 - Consumes: `describe`, `summaries` from Task 2.
 - Produces: `denckring describe <id> [--json] [--scholarly]` and `denckring list [--json]`, which the skill in Task 5 shells out to.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_cli_json.py`:
 
@@ -619,12 +619,12 @@ def test_describe_reports_an_unknown_id_without_a_traceback() -> None:
     assert "Traceback" not in result.stdout
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `uv run pytest tests/test_cli_json.py -v`
 Expected: FAIL — no `describe` command.
 
-- [ ] **Step 3: Add the command and the flag**
+- [x] **Step 3: Add the command and the flag**
 
 In `src/denckring/cli.py`, add beside the existing `show` command:
 
@@ -664,12 +664,12 @@ Add `--json` to the existing `list` command, emitting `summaries()`:
 
 Read the existing `list_command` before editing — reuse whatever parameters it already has for family and language rather than adding duplicates. Add `import json` and the `describe`/`summaries` imports in the same edit.
 
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `uv run pytest tests/test_cli_json.py -v`
 Expected: PASS.
 
-- [ ] **Step 5: Full suite, lint, type-check, then commit**
+- [x] **Step 5: Full suite, lint, type-check, then commit**
 
 ```bash
 uv run pytest -q
@@ -694,7 +694,7 @@ git commit -m "feat: add describe --json and list --json to the CLI"
 
 **The tool functions must be importable and callable without a running client.** Define each as a plain module-level function, then register it with the decorator — do not define the body inside a decorator call. The tests call the plain functions.
 
-- [ ] **Step 1: Add the extra and the script**
+- [x] **Step 1: Add the extra and the script**
 
 In `pyproject.toml`:
 
@@ -714,7 +714,7 @@ denckring-mcp = "denckring.mcp.server:main"
 
 Then `uv sync --extra mcp` and confirm `uv run python -c "from mcp.server import MCPServer; print('ok')"` prints `ok`. **If that import fails, stop and report it** — the class was renamed by the 2026-07-28 spec revision and the plan's assumption needs correcting rather than working around.
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `tests/test_mcp_tools.py`:
 
@@ -784,12 +784,12 @@ def test_apply_on_a_restrictive_procedure_is_data_not_an_exception() -> None:
     assert "code" in result
 ```
 
-- [ ] **Step 3: Run to verify it fails**
+- [x] **Step 3: Run to verify it fails**
 
 Run: `uv run pytest tests/test_mcp_tools.py -v`
 Expected: FAIL — no module `denckring.mcp.server`.
 
-- [ ] **Step 4: Write the server**
+- [x] **Step 4: Write the server**
 
 Create `src/denckring/mcp/__init__.py` containing only a docstring, and `src/denckring/mcp/server.py`:
 
@@ -911,17 +911,17 @@ def main() -> None:
 
 If `server.tool()` or `server.run()` does not exist under SDK v2, read the SDK's own quickstart and use what it documents — then report the difference. Do not guess a third name.
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `uv run pytest tests/test_mcp_tools.py -v`
 Expected: PASS.
 
-- [ ] **Step 6: Confirm the suite still skips cleanly without the extra**
+- [x] **Step 6: Confirm the suite still skips cleanly without the extra**
 
 Run: `uv run --no-extra mcp pytest tests/test_mcp_tools.py -q`
 Expected: all tests SKIPPED, none errored. If they error instead of skipping, the `importorskip` is in the wrong place — it must precede the `denckring.mcp.server` import.
 
-- [ ] **Step 7: Full suite, lint, type-check, then commit**
+- [x] **Step 7: Full suite, lint, type-check, then commit**
 
 ```bash
 uv run pytest -q
@@ -943,7 +943,7 @@ git commit -m "feat: add an MCP server behind denckring[mcp]"
 - Consumes: the CLI commands from Task 3.
 - Produces: nothing later tasks use.
 
-- [ ] **Step 1: Write the skill**
+- [x] **Step 1: Write the skill**
 
 Create `skills/denckring/SKILL.md`. There is no `skills/` directory yet — create it.
 
@@ -1005,7 +1005,7 @@ Some need extra data. `describe` reports `runnable` and `missing`; install the
 extra it names, e.g. `pip install denckring[en]` for syllable and stress data.
 ```
 
-- [ ] **Step 2: Verify every command in the skill actually runs**
+- [x] **Step 2: Verify every command in the skill actually runs**
 
 Run each one and confirm the output is what the skill claims:
 
@@ -1022,13 +1022,13 @@ for stdin; neither has a `--text` flag, and parameters are `-p key=value`. A ski
 whose commands do not run is worse than no skill: if any command here fails, fix
 the **document**, never the CLI.
 
-- [ ] **Step 3: Note the skill in the README**
+- [x] **Step 3: Note the skill in the README**
 
 Add a short section under the existing usage documentation pointing at
 `skills/denckring/SKILL.md` and at `pip install denckring[mcp]` for the server.
 Match the README's existing voice.
 
-- [ ] **Step 4: Full suite and commit**
+- [x] **Step 4: Full suite and commit**
 
 ```bash
 uv run pytest -q
@@ -1043,7 +1043,7 @@ git commit -m "docs: add the Claude Code skill and note both agentic entry point
 **Files:**
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Read the established format**
+- [x] **Step 1: Read the established format**
 
 ```bash
 git show 6432a49 -- CHANGELOG.md
@@ -1052,7 +1052,7 @@ git show 68bbf40 -- CHANGELOG.md
 
 Match their format and voice — prose in bullets, explaining why, not bare list items.
 
-- [ ] **Step 2: Write the entry**
+- [x] **Step 2: Write the entry**
 
 Cover: `describe` and `summaries` in core; stable `code` and `to_dict()` on all
 fifteen error classes, with near-match suggestions on `UnknownProcedure`;
@@ -1060,7 +1060,7 @@ fifteen error classes, with near-match suggestions on `UnknownProcedure`;
 its four tools and why it is four rather than eighty-six; the Claude Code skill.
 Note that `list_procedures()` is unchanged.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add CHANGELOG.md
