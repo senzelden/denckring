@@ -26,3 +26,24 @@ def test_an_empty_text_is_unsatisfied_and_says_why() -> None:
     report = check("renga", "")
     assert not report.satisfied
     assert report.violations
+
+
+def test_links_below_the_built_in_minimum_does_not_relax_it() -> None:
+    """`links` raises the floor; it cannot lower it. `links=1` collapses into
+    the built-in minimum of 2 rather than making a single hokku satisfiable."""
+    report = check("renga", HOKKU + "\n\n" + WAKIKU, links=1)
+    assert report.satisfied, [(v.rule, v.found) for v in report.violations]
+
+
+def test_links_above_the_actual_count_is_rejected_exactly_once() -> None:
+    report = check("renga", HOKKU + "\n\n" + WAKIKU, links=5)
+    assert not report.satisfied
+    too_few = [v for v in report.violations if v.rule == "too_few_links"]
+    assert len(too_few) == 1
+    assert too_few[0].expected == "at least 5 stanzas"
+
+
+def test_a_chain_meeting_the_requested_links_is_accepted() -> None:
+    chain = HOKKU + "\n\n" + WAKIKU + "\n\n" + HOKKU + "\n\n" + WAKIKU
+    report = check("renga", chain, links=4)
+    assert report.satisfied, [(v.rule, v.found) for v in report.violations]

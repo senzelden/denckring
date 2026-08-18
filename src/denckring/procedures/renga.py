@@ -16,7 +16,11 @@ WAKIKU = [7, 7]
 
 class RengaParams(BaseModel):
     links: int | None = Field(
-        default=None, description="How many stanzas to require. Unset means any number."
+        default=None,
+        description=(
+            "A minimum number of stanzas to require, raising the built-in minimum "
+            "of 2. Unset means the built-in minimum applies alone."
+        ),
     )
 
 
@@ -43,24 +47,14 @@ class Renga(BaseProcedure[RengaParams]):
         total = 0
         estimated = 0
 
-        if len(stanzas) < 2:
+        minimum = max(2, params.links) if params.links is not None else 2
+        if len(stanzas) < minimum:
             violations.append(
                 Violation(
                     rule="too_few_links",
                     offset=None,
                     found=f"{len(stanzas)} stanzas",
-                    expected="at least 2 — one stanza is a hokku, not a renga",
-                )
-            )
-            total += 1
-
-        if params.links is not None and len(stanzas) != params.links:
-            violations.append(
-                Violation(
-                    rule="too_few_links",
-                    offset=None,
-                    found=f"{len(stanzas)} stanzas",
-                    expected=f"{params.links} stanzas",
+                    expected=f"at least {minimum} stanzas",
                 )
             )
             total += 1
