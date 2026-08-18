@@ -172,19 +172,25 @@ class InputTooLong(DenckringError):
 
 
 class NoCandidateWord(DenckringError):
-    """A generator that needs a real word to swap into refuses when none exists.
+    """A generator that needs a real word refuses rather than returning none.
 
-    Raised rather than returning text with no swap in it: silence there would
-    let a caller believe a pair had been produced when the lexicon offered
-    nothing for any word in the text.
+    Raised rather than returning text with no candidate in it: silence there
+    would let a caller believe something had been produced when nothing was
+    available to produce it from. `reason` names what, specifically, offered
+    nothing — a lexicon swap for `paragram`, a source word for `diastic` and
+    `mesostic` — because "no candidate word" alone does not say what a caller
+    should do differently. Left unset, the message is `paragram`'s original
+    one, the first and for a while the only caller.
     """
 
     code = "no_candidate_word"
 
-    def __init__(self, procedure_id: str) -> None:
+    def __init__(self, procedure_id: str, reason: str | None = None) -> None:
         self.procedure_id = procedure_id
         super().__init__(
-            f"{procedure_id} found no one-letter swap of any word into a word "
+            f"{procedure_id}: {reason}"
+            if reason
+            else f"{procedure_id} found no one-letter swap of any word into a word "
             f"the lexicon knows. Try a different text, or check it instead of "
             f"generating from it."
         )
