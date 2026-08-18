@@ -28,7 +28,7 @@ def list_procedures_tool(
     family: str | None = None,
     runnable_only: bool = False,
     lang: Lang = "en",
-) -> Any:
+) -> list[dict[str, Any]] | dict[str, Any]:
     """List the writing procedures this install can run.
 
     `query` matches ids, names and aliases. Call this before `check_text` if you
@@ -99,13 +99,16 @@ def apply_procedure_tool(
         return exc.to_dict()
 
 
-for _tool in (
-    list_procedures_tool,
-    describe_procedure_tool,
-    check_text_tool,
-    apply_procedure_tool,
+# The functions carry a `_tool` suffix so the module can also be imported and
+# called directly; the client must not see it. Register under the names the
+# docstrings above tell the model to call.
+for _name, _tool in (
+    ("list_procedures", list_procedures_tool),
+    ("describe_procedure", describe_procedure_tool),
+    ("check_text", check_text_tool),
+    ("apply_procedure", apply_procedure_tool),
 ):
-    server.tool()(_tool)
+    server.tool(name=_name)(_tool)
 
 
 def main() -> None:
