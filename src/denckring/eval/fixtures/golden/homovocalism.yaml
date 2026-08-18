@@ -1,0 +1,13 @@
+procedure: homovocalism
+lang: en
+cases:
+  - name: same-vowels-new-words
+    source: constructed example; the vowel sequence e-a-a held by different words
+    text: we ran fast
+    params: { source: the cat sat }
+    satisfied: true
+  - name: a-changed-vowel
+    source: constructed counterexample
+    text: the cot sat
+    params: { source: the cat sat }
+    satisfied: false
