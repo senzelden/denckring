@@ -1,0 +1,25 @@
+procedure: ghazal
+lang: en
+cases:
+  - name: radif-and-qafia-held
+    source: constructed example
+    text: |-
+      i cannot find the road tonight
+      the lamps have all been slowed tonight
+      the river takes another turn
+      and leaves its heavy load tonight
+      the letters that i never sent
+      are lying in the code tonight
+    params: {}
+    satisfied: true
+  - name: radif-dropped-on-the-last-line
+    source: constructed counterexample
+    text: |-
+      i cannot find the road tonight
+      the lamps have all been slowed tonight
+      the river takes another turn
+      and leaves its heavy load tonight
+      the letters that i never sent
+      are lying in the code today
+    params: {}
+    satisfied: false
