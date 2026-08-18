@@ -1,0 +1,37 @@
+procedure: fold_in
+lang: en
+cases:
+  - name: pages-interleaved-line-by-line
+    source: constructed example; the procedure is Burroughs's fold-in
+    text: |-
+      one
+      alpha
+      two
+      beta
+      three
+    params:
+      source: |-
+        one
+        two
+        three
+
+        alpha
+        beta
+    satisfied: true
+  - name: unfolded-pages-fail
+    source: constructed counterexample
+    text: |-
+      one
+      two
+      three
+      alpha
+      beta
+    params:
+      source: |-
+        one
+        two
+        three
+
+        alpha
+        beta
+    satisfied: false
