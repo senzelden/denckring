@@ -1,7 +1,7 @@
 # denckring
 
 A library of experimental writing procedures — lipograms, snowballs, acrostics and
-several hundred more — where **the validator is the eval**.
+a hundred and fifty more — where **the validator is the eval**.
 
 ```python
 from denckring import check
@@ -14,7 +14,7 @@ print(report.satisfied, report.score)
 $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
-31 catalogued · 12 implemented · 12 validated
+152 catalogued · 129 implementable · 86 implemented · 86 validated · 23 not mechanically checkable
 ```
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
@@ -37,18 +37,19 @@ says how many words were guessed; with it, that number goes to zero for words th
 dictionary knows. Without `[de]`, `charade`, `semordnilap`, `word_square`, `n_plus_7`
 and `s_plus_7` raise `MissingCapability` for German; with it, they run.
 
-German ships in core because the twelve procedures below need no lexicon, and it is a
-built-in default exactly like English (ADR 0022): `denckring[de]` overrides that default
-the same way `denckring[en]` overrides English's, rather than registering through a
-separate path.
+German ships in core because the procedures that need no lexicon work for it
+unchanged, and it is a built-in default exactly like English (ADR 0022):
+`denckring[de]` overrides that default the same way `denckring[en]` overrides
+English's, rather than registering through a separate path.
 
 ## What's here
 
-Batch 1 implements the twelve procedures that need no lexicon: `lipogram`,
-`univocalic`, `tautogram`, `pangram`, `heterogram`, `palindrome`, `snowball`,
-`reverse_snowball`, `prisoners_constraint`, `beau_present`, `acrostic` and `telestich`.
-The catalogue lists many more, sourced and awaiting implementation — see
-`denckring list --status catalogued`.
+Eighty-six of the 152 catalogued procedures are implemented, and every one of them
+is validated. Of the rest, 23 have no mechanical acceptance criterion and are
+catalogued rather than implemented — see [What can be checked](#what-can-be-checked)
+— and the remaining 43 are sourced and awaiting implementation. `denckring list`
+shows what this install can run; `denckring list --status catalogued` shows
+everything.
 
 ## What can be checked
 
@@ -108,8 +109,9 @@ eighty-six tools, because model performance degrades with tool count. Errors
 come back as data (`{"code": "invalid_params", ...}`), never as a traceback a
 model cannot act on.
 
-For Claude Code, [`skills/denckring/SKILL.md`](skills/denckring/SKILL.md) shells
-out to the CLI instead, and needs no extra beyond the package itself.
+For Claude Code, the skill at
+[`skills/denckring/SKILL.md`](https://github.com/senzelden/denckring/blob/main/skills/denckring/SKILL.md)
+shells out to the CLI instead, and needs no extra beyond the package itself.
 
 ## Documentation
 
@@ -157,13 +159,13 @@ scaffolds the module, test, strategy, golden fixture and catalogue row. See
 
 ## Scope of the name
 
-The *Fünffacher Denckring der Teutschen Sprache* (Harsdörffer, 1651) is one device among
-the hundreds catalogued here, not the whole subject. Werkzeug is not only about tools
-either. Searching for `oulipy` will also find this package.
+The *Fünffacher Denckring der Teutschen Sprache* (Harsdörffer, 1651) is one device
+among the hundred and fifty catalogued here, not the whole subject. Werkzeug is not
+only about tools either. Searching for `oulipy` will also find this package.
 
 ## The catalogue as data
 
-The catalogue is 145 sourced procedures and is a contribution in its own right — useful
+The catalogue is 152 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.
 
 ```console
