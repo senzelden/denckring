@@ -1794,6 +1794,12 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Alternate three-line and two-line stanzas, each linking only to the one before.
+    notes: >-
+      Only the 5-7-5 / 7-7 alternation is checked. That a renga is composed
+      collaboratively, and that each link joins only to its neighbour rather
+      than to the whole poem, are the form's substance and neither is a
+      property of the text — a solo renga whose links each answer the entire
+      poem passes all the same.
 
   - id: senryu
     names: { en: Senryū }
@@ -1830,6 +1836,11 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Alternate short prose passages with haiku that distil rather than continue them.
+    notes: >-
+      Only the alternation of prose and 5-7-5 verse is checked. Whether the
+      haiku condenses the passage before it rather than continuing it is a
+      judgement about sense that no checker can make — a haibun that fails it
+      is still reported satisfied.
 
   - id: ottava_rima
     names: { en: Ottava rima, de: Stanze, fr: Ottava rima }

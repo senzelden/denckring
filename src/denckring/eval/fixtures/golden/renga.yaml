@@ -1,0 +1,22 @@
+procedure: renga
+lang: en
+cases:
+  - name: alternating-chain
+    source: constructed example; the 5-7-5 / 7-7 alternation is the form's
+    text: |-
+      cat dog mat sat run
+      cat dog mat sat run sky tree
+      cat dog mat sat run
+
+      cat dog mat sat run sky tree
+      cat dog mat sat run sky tree
+    params: {}
+    satisfied: true
+  - name: single-stanza
+    source: constructed counterexample; one hokku is not a renga
+    text: |-
+      cat dog mat sat run
+      cat dog mat sat run sky tree
+      cat dog mat sat run
+    params: {}
+    satisfied: false
