@@ -9,7 +9,7 @@ from typing import NamedTuple
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import LanguagePack, Violation
 from denckring.core.text import line_spans
-from denckring.lang.base import PHONEMES
+from denckring.lang.base import STRESS
 
 #: `?` matches either, so a monosyllable takes whatever stress the line needs.
 FREE = "?"
@@ -48,11 +48,11 @@ def word_stress(word: str, pack: LanguagePack) -> tuple[list[str], bool]:
     capability the pack does provide — so that case is caught here and turned
     into a scan that measures the word's length while constraining no beat.
 
-    A pack that genuinely lacks `phonemes` still raises, which is what the
+    A pack that genuinely lacks `stress` still raises, which is what the
     exception is for.
     """
-    if PHONEMES not in pack.capabilities:
-        raise MissingCapability(f"<word {word!r}>", pack.lang, PHONEMES)
+    if STRESS not in pack.capabilities:
+        raise MissingCapability(f"<word {word!r}>", pack.lang, STRESS)
     try:
         return pack.stress_patterns(word), True
     except MissingCapability:
@@ -159,8 +159,10 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
 
     A substitutable foot makes a metre a set rather than a single pattern, so
     the line satisfies if it fits any member. When none fits, the violations
-    come from the candidate that matched the most words — the writer is told
-    about one scansion rather than thirty-two.
+    come from the candidate with the highest `good` count — the writer is told
+    about one scansion rather than thirty-two. `good` is not normalised across
+    candidates of differing pattern length, so this is a preference among the
+    candidates tried, not a guarantee of the best possible reading.
     """
     best: MetreResult | None = None
     for pattern in options:

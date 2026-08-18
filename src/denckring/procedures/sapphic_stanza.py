@@ -8,6 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.prosody import stanza_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
+from denckring.core.text import line_spans
 
 #: Trochee, trochee-with-anceps, dactyl, trochee, trochee-with-anceps.
 #: The `?` marks are the classical anceps, which `_fits` honours on the
@@ -44,5 +45,8 @@ class SapphicStanza(BaseProcedure[SapphicStanzaParams]):
             good=result.good,
             total=result.total,
             violations=result.violations,
-            metrics={"lines": float(len(PATTERNS)), "estimated_words": float(result.estimated)},
+            metrics={
+                "lines": float(len(line_spans(text))),
+                "estimated_words": float(result.estimated),
+            },
         )

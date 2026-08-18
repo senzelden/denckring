@@ -28,7 +28,8 @@ class HaibunParams(BaseModel):
 
 @register
 class Haibun(BaseProcedure[HaibunParams]):
-    """Checks the alternation of prose and 5-7-5 verse only.
+    """Checks the alternation of prose and 5-7-5 verse, and that the work
+    begins with prose and ends with a haiku.
 
     Whether the haiku condenses the passage rather than continuing it is a
     judgement about sense, which no checker can make. It is not checked, and a
@@ -87,6 +88,21 @@ class Haibun(BaseProcedure[HaibunParams]):
                         offset=offset,
                         found="verse" if verse else "prose",
                         expected="prose" if index % 2 == 0 else "verse",
+                    )
+                )
+
+        if kinds:
+            total += 1
+            last_offset, last_verse = kinds[-1]
+            if last_verse:
+                good += 1
+            else:
+                violations.append(
+                    Violation(
+                        rule="wrong_ending",
+                        offset=last_offset,
+                        found="prose",
+                        expected="the work to end with a haiku",
                     )
                 )
 

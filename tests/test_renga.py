@@ -47,3 +47,17 @@ def test_a_chain_meeting_the_requested_links_is_accepted() -> None:
     chain = HOKKU + "\n\n" + WAKIKU + "\n\n" + HOKKU + "\n\n" + WAKIKU
     report = check("renga", chain, links=4)
     assert report.satisfied, [(v.rule, v.found) for v in report.violations]
+
+
+def test_a_fault_in_a_later_stanza_reports_a_document_offset() -> None:
+    """`line_syllables` measures offsets within the stanza substring it is
+    given, but every other procedure's offsets — including this one's own
+    `wrong_stanza_shape` — are document-relative. The fault here sits in the
+    second stanza, not the first, so a stanza-relative offset and a
+    document-relative one point at different places."""
+    broken_line = "cat dog mat sat run sky tree big"
+    text = HOKKU + "\n\n" + "cat dog mat sat run sky tree\n" + broken_line
+    report = check("renga", text)
+    faults = [v for v in report.violations if v.rule == "wrong_syllable_count"]
+    assert len(faults) == 1
+    assert text[faults[0].offset :].startswith(broken_line)

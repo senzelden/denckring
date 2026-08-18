@@ -1725,7 +1725,7 @@ procedures:
     aliases: [higgledy-piggledy]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, stress]
     deterministic: true
     notes: >-
       Only the metre and the single double-dactylic word are checked. That
@@ -1733,7 +1733,7 @@ procedures:
       declare; that line two names a person needs an entity recogniser this
       project does not have; and the rhyme between lines four and eight is
       not checked because this definition does not mention it, though the
-      metre already pulls `phonemes` in regardless.
+      metre already pulls `stress` in regardless.
     prompt_hints:
       en: Open on a nonsense phrase, name someone in line two, and spend one whole line on one long word.
 
@@ -1985,7 +1985,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, stress]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
@@ -2007,7 +2007,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, stress]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
@@ -2030,7 +2030,7 @@ procedures:
     aliases: [distich]
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, stress]
     deterministic: true
     notes: >-
       The pair forming one unit of sense is the form's point and is not
@@ -2104,7 +2104,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, stress]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
