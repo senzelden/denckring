@@ -147,6 +147,44 @@ All notable changes to this project are documented here. The format follows
   requirement rather than the catalogue row claiming one `check` never needed. The new
   `NoCandidateWord` error is raised when the search finds nothing to swap, rather than
   returning text with no swap in it for `check` to then reject.
+- `dactylic_hexameter`: six feet, the first four either a dactyl or a spondee, the fifth
+  a dactyl, and the sixth a spondee or trochee. This yields thirty-two readings spanning
+  13–17 syllables.
+- `elegiac_couplet`: a dactylic hexameter answered by a pentameter. The pentameter is two
+  hemiepes; only the first admits the spondee. That asymmetry is the form.
+- `sapphic_stanza`: three hendecasyllables and an adonic, 11/11/11/5.
+- `alcaic_stanza`: two hendecasyllables, an enneasyllable and a decasyllable, 11/11/9/10.
+- `double_dactyl`: two quatrains, with one line of the second being a single six-syllable
+  word. The nonsense opening, the named person and the rhyme are not checked, and the
+  docstring says so.
+- `renga`: alternating 5-7-5 and 7-7 stanzas. Its `links` parameter is a minimum, not an
+  exact count.
+- `haibun`: prose and haiku alternating.
+- The four new metrical procedures—`dactylic_hexameter`, `elegiac_couplet`, `sapphic_stanza`,
+  `alcaic_stanza`—are checked as English accentual verse. Classical quantity is vowel length,
+  which English does not have, so stress stands in for it. This is the batch's central
+  editorial decision.
+- `?` now means "either" on the pattern side as well as the word side—the classical anceps.
+  Before, it was honoured only for a free monosyllable, so a pattern written with anceps
+  rejected every fixed-stress word at that position. Sapphics and alcaics both need it.
+- A word not in the pronouncing dictionary no longer aborts the scan. `pack.stress_patterns`
+  raised `MissingCapability` for such a word—naming a capability the pack actually provides—so
+  one ordinary English noun killed the whole check. Longfellow's own hexameter could not be
+  checked. Unknown words now scan as free and are counted in a new `estimated_words` metric,
+  mirroring the contract the syllable path has always had. **This changed previously deliberate
+  behaviour:** a test named `test_an_unknown_word_raises_rather_than_guessing` was replaced.
+  Callers who want strict scanning can reject on `estimated_words > 0`.
+- `word_stress`, `feet` and `stanza_violations` added to `core/prosody.py`. `word_stress`
+  handles the out-of-dictionary repair; `feet` enumerates substitutable foot readings, making
+  a metre a set of readings rather than one; `stanza_violations` applies one pattern per line,
+  since a sapphic changes shape from line to line.
+- `estimated_words` now reported by all twelve form-report callers—`blank_verse`,
+  `heroic_couplet`, `iambic_pentameter`, `limerick`, `petrarchan_sonnet`, `rhyme_royal`,
+  `rhyme_scheme`, `shakespearean_sonnet`, `terza_rima`, `triolet`, `trochaic_tetrameter`,
+  `villanelle`—where before it was computed and discarded.
+- Catalogue rows for the five new metrical procedures gained `phonemes` in `requires`, since
+  scanning stress reaches `pack.stress_patterns`. `renga` and `haibun` did not—they count
+  syllables only.
 
 ### Fixed
 
