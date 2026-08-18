@@ -12,6 +12,7 @@ from typing import Annotated, Any, cast, get_args
 import typer
 
 from denckring.core import catalogue
+from denckring.core.describe import describe, summaries
 from denckring.core.errors import DenckringError, UnknownLanguage
 from denckring.core.protocol import FAMILIES, Constructive, Lang
 from denckring.core.registry import all_procedures, get
@@ -132,17 +133,56 @@ def apply_command(
         _fail(exc)
 
 
+@app.command("describe")
+def describe_command(
+    procedure_id: str,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+    scholarly: Annotated[bool, typer.Option("--scholarly")] = False,
+    lang: Annotated[str, typer.Option("--lang")] = "en",
+) -> None:
+    """A procedure as a machine reads it: definition, hints, parameter schema."""
+    try:
+        described = describe(procedure_id, lang=_lang(lang), scholarly=scholarly)
+    except DenckringError as exc:
+        _fail(exc)
+        return
+    if as_json:
+        typer.echo(described.model_dump_json(indent=2))
+        return
+    typer.echo(f"{described.id}  {described.name}")
+    typer.echo(described.definition)
+    if described.prompt_hints:
+        typer.echo(f"\nHint: {described.prompt_hints}")
+    if not described.runnable:
+        typer.echo(f"\nNot runnable here — missing: {', '.join(described.missing)}")
+
+
 @app.command("list")
 def list_command(
     lang: str | None = None,
     kind: str | None = None,
     family: Annotated[str | None, typer.Option(help="|".join(FAMILIES))] = None,
     status: Annotated[str | None, typer.Option(help="catalogued|implemented|validated")] = None,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """List catalogue entries."""
+    if as_json and (kind or status):
+        typer.echo(
+            "--json cannot be combined with --kind or --status: summaries() has no "
+            "such filters, so the flag would silently be ignored rather than applied."
+        )
+        raise typer.Exit(EXIT_ERROR)
     if family and family not in FAMILIES:
         typer.echo(f"Unknown family {family!r}. Known families: {', '.join(FAMILIES)}")
         raise typer.Exit(EXIT_ERROR)
+    if as_json:
+        try:
+            rows = summaries(family=family, lang=_lang(lang) if lang else "en")
+        except DenckringError as exc:
+            _fail(exc)
+            return
+        typer.echo(json.dumps([row.model_dump() for row in rows], indent=2))
+        return
     implemented = set(harness.implemented_ids())
     validated = set(harness.validated_ids())
     for procedure_id in catalogue.ids():
