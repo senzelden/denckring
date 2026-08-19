@@ -24,11 +24,20 @@ so both are folded away; word choice and word order are what is checked.
 
 **Any one sense counts.** `pack.glosses` returns every sense OEWN records for a word, and
 resolution is best-effort, not a guarantee: `pack.glosses("sat")` returns only the
-Saturday-abbreviation sense, nothing to do with sitting — the same shape of collision the
-capability's own contract cites for `glosses("aides")` returning the Hades sense.
-Requiring the "right" sense would need a discrimination the pack does not offer, and
-would fail a correct expansion for a reason outside the writer's control. So this row
-accepts any of a word's glosses, not one it has picked out in advance.
+Saturday-abbreviation sense, nothing to do with sitting — this row's own finding while
+building its test fixtures, the same shape of collision as `glosses("aides")` returning
+the Hades sense. Requiring the "right" sense would need a discrimination the pack does
+not offer, and would fail a correct expansion for a reason outside the writer's control.
+So this row accepts any of a word's glosses, not one it has picked out in advance.
+
+**Occurrence for occurrence (Controller ruling R6).** The catalogue definition says each
+substantive word is replaced *once* — not that it is replaced somewhere. A source word
+appearing `n` times needs `n` non-overlapping gloss occurrences in the candidate text, not
+one embedded definition standing in for all of them: `"the cat and the cat"` with only
+the first `cat` expanded scored a false `satisfied=True` before this ruling, because the
+first pass asked only "does some gloss of `cat` appear anywhere" and never asked how many
+times. `_replaced_by_gloss` now consumes each matched token span as it is used, so a
+second occurrence of the same word must find its own, separate run of tokens.
 
 **Unresolved words are counted, never failed.** A source word `pack.glosses` cannot
 resolve — an irregular form such as `went`, or a function word such as `the`, both of
@@ -50,36 +59,49 @@ from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
-def _gloss_present(candidate_tokens: list[str], gloss: str, pack: LanguagePack) -> bool:
-    """Whether `gloss`'s own word tokens appear, in order, as a run in `candidate_tokens`.
+def _find_unclaimed_span(
+    candidate_tokens: list[str], claimed: list[bool], gloss: str, pack: LanguagePack
+) -> tuple[int, int] | None:
+    """The earliest run of `candidate_tokens` matching `gloss`'s own tokens, with no
+    position in `claimed` already `True`, or `None` if no such run exists.
 
     Both sides are lower-cased and tokenised with `pack.tokenize`, so parentheses,
     semicolons, colons and quotation marks in the gloss — and any case difference from
     the candidate text re-casing a sentence-initial word — never gate the match. See the
-    module docstring for why this is the comparison this row uses.
+    module docstring for why this is the comparison this row uses, and for R6's
+    occurrence-for-occurrence rule this function exists to enforce: a span already
+    claimed by an earlier occurrence cannot satisfy a later one.
     """
     needle = [token.lower() for token in pack.tokenize(gloss)]
     if not needle:
-        return False
+        return None
     span = len(needle)
-    return any(
-        candidate_tokens[start : start + span] == needle
-        for start in range(len(candidate_tokens) - span + 1)
-    )
+    for start in range(len(candidate_tokens) - span + 1):
+        end = start + span
+        if any(claimed[start:end]):
+            continue
+        if candidate_tokens[start:end] == needle:
+            return start, end
+    return None
 
 
 def _replaced_by_gloss(
     source: str, text: str, pack: LanguagePack
 ) -> tuple[list[Violation], int, int, int]:
-    """Check every substantive word of `source` against `text`.
+    """Check every substantive word of `source` against `text`, occurrence for occurrence.
 
     Walks `source`'s words in order. A word `pack.glosses` cannot resolve is counted as
     unresolved and never scored. A word that resolves is scored `good` if any one of its
-    glosses is present in `text` (see `_gloss_present`), and reported as `not_expanded`
-    otherwise. Returns `(violations, good, total, unresolved)` — `definitional_literature`
-    consumes this by name.
+    glosses matches an as-yet-unclaimed run of `text`'s tokens (see
+    `_find_unclaimed_span`), which is then claimed so it cannot satisfy a later
+    occurrence of the same word — R6: a source word appearing `n` times needs `n`
+    separate gloss occurrences, not one definition standing in for all of them. An
+    occurrence with no unclaimed match is reported as `not_expanded`. Returns
+    `(violations, good, total, unresolved)` — `definitional_literature` consumes this by
+    name.
     """
     candidate_tokens = [token.lower() for token in pack.tokenize(text)]
+    claimed = [False] * len(candidate_tokens)
     violations: list[Violation] = []
     good = 0
     total = 0
@@ -90,7 +112,16 @@ def _replaced_by_gloss(
             unresolved += 1
             continue
         total += 1
-        if any(_gloss_present(candidate_tokens, gloss, pack) for gloss in glosses):
+        matched = False
+        for gloss in glosses:
+            found = _find_unclaimed_span(candidate_tokens, claimed, gloss, pack)
+            if found is not None:
+                start, end = found
+                for index in range(start, end):
+                    claimed[index] = True
+                matched = True
+                break
+        if matched:
             good += 1
         else:
             violations.append(
@@ -98,7 +129,7 @@ def _replaced_by_gloss(
                     rule="not_expanded",
                     offset=offset,
                     found=word,
-                    expected=f"one of its {len(glosses)} dictionary definitions",
+                    expected=f"one of its {len(glosses)} dictionary definitions, unclaimed",
                 )
             )
     return violations, good, total, unresolved
