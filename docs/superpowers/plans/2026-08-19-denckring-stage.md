@@ -19,7 +19,7 @@
 - Line length 100, `ruff format` clean, `mypy --strict` clean. Run from the app: `uv run --project apps/explorer ruff check`, `uv run --project apps/explorer mypy --strict src tests`, `uv run --project apps/explorer pytest -q`.
 - Templates extend `base.html` (bench pages) or `stage.html` (board and scenes). Render through the existing `page(request, name, **context)` helper in `app.py`.
 - Corpora are never committed and never copied (ADR 0020). They are read from `DENCKRING_CORPORA` through `explorer.corpora`.
-- The repository suite must stay green too: `uv run pytest -q` at the root, unchanged at 3395 passed.
+- The repository suite must stay green too: `uv run pytest` at the root, unchanged at **3398 passed, 32 skipped**.
 
 ---
 
