@@ -33,7 +33,7 @@ procedures:
     aliases: [monovocalism]
     kind: restrictive
     languages: [en, de]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
       en: Write a passage in which "e" is the only vowel that appears.
@@ -498,7 +498,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write fourteen lines in the given rhyme scheme and metre.
@@ -789,7 +789,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
       en: Write a passage in which the only consonant that appears is "n".
@@ -942,7 +942,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
       en: Write a passage using only the vowels "a" and "e".
@@ -1078,7 +1078,7 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en, de]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
       en: Keep the consonants of the source in order and choose new vowels to make new words.
@@ -1097,7 +1097,7 @@ procedures:
     attested: codified
     kind: both
     languages: [en, de]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
       en: Keep the vowels of the source in order and choose new consonants around them.
@@ -1724,7 +1724,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, syllables]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write three stanzas and an envoi, all sharing rhymes and ending on one refrain.
@@ -1917,7 +1917,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, syllables]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write eight-line stanzas rhyming ABABABCC.
@@ -1951,7 +1951,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write nine lines rhyming ABABBCBCC, closing with a six-foot line.
@@ -2011,7 +2011,7 @@ procedures:
     attested: author-stated
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
@@ -2166,7 +2166,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
@@ -2237,7 +2237,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, syllables, phonemes]
+    requires: [tokens, syllables.heuristic, phonemes]
     deterministic: true
     prompt_hints:
       en: Write a short strict-metre stanza binding the lines by consonant patterning.
@@ -2680,7 +2680,7 @@ procedures:
     attested: codified
     kind: both
     languages: [en, de]
-    requires: [tokens, fold_diacritics]
+    requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
       en: Translate the passage using only one vowel throughout.

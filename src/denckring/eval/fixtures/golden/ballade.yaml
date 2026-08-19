@@ -6,7 +6,7 @@ cases:
     text: |-
       a cat can climb a tall old tree
       the dog will run and play all day
-      the bird will fly out to the sea
+      the kestrel flies out to the sea
       the sun will shine and light the way
       the sky will clear by first of may
       the wall was built of gray old stone
@@ -35,11 +35,11 @@ cases:
     params: {}
     satisfied: true
   - name: broken-refrain
-    source: constructed counterexample
+    source: constructed counterexample; the envoi closes on a line that is not the refrain
     text: |-
       a cat can climb a tall old tree
       the dog will run and play all day
-      the bird will fly out to the sea
+      the kestrel flies out to the sea
       the sun will shine and light the way
       the sky will clear by first of may
       the wall was built of gray old stone
@@ -64,6 +64,72 @@ cases:
       the men will come at dusk to pay
       the corn stood tall for it had grown
       the ships will sail out past the bay
-      a different closing line entirely
+      until the southern wind has blown
+    params: {}
+    satisfied: false
+  - name: twenty-eight-lines-one-mis-rhymed
+    source: constructed counterexample; the refrain holds, one line leaves the a-rhyme
+    text: |-
+      a cat can climb a hill at dawn
+      the dog will run and play all day
+      the kestrel flies out to the sea
+      the sun will shine and light the way
+      the sky will clear by first of may
+      the wall was built of gray old stone
+      the birds will call what they all say
+      until the northern wind has blown
+      the clock will chime at half past three
+      the boys will laugh and run to play
+      a fish will leap and swim so free
+      the guests will come and wish to stay
+      the storm clouds turn both dark and gray
+      the barn stood dark and stayed alone
+      the goats will roam and love to stray
+      until the northern wind has blown
+      he holds the door shut with a key
+      the trees will bend then start to sway
+      the priest will grant the poor his plea
+      the child will shape the wet soft clay
+      the light comes down in one long ray
+      the truth at last to all was known
+      the hens will rest then soon they lay
+      until the northern wind has blown
+      the men will come at dusk to pay
+      the corn stood tall for it had grown
+      the ships will sail out past the bay
+      until the northern wind has blown
+    params: {}
+    satisfied: false
+  - name: twenty-eight-lines-one-unmetrical
+    source: constructed counterexample; the refrain and the rhymes hold, one trochee falls against the beat
+    text: |-
+      he climbed over the tall old tree
+      the dog will run and play all day
+      the kestrel flies out to the sea
+      the sun will shine and light the way
+      the sky will clear by first of may
+      the wall was built of gray old stone
+      the birds will call what they all say
+      until the northern wind has blown
+      the clock will chime at half past three
+      the boys will laugh and run to play
+      a fish will leap and swim so free
+      the guests will come and wish to stay
+      the storm clouds turn both dark and gray
+      the barn stood dark and stayed alone
+      the goats will roam and love to stray
+      until the northern wind has blown
+      he holds the door shut with a key
+      the trees will bend then start to sway
+      the priest will grant the poor his plea
+      the child will shape the wet soft clay
+      the light comes down in one long ray
+      the truth at last to all was known
+      the hens will rest then soon they lay
+      until the northern wind has blown
+      the men will come at dusk to pay
+      the corn stood tall for it had grown
+      the ships will sail out past the bay
+      until the northern wind has blown
     params: {}
     satisfied: false
