@@ -1,0 +1,24 @@
+procedure: definitional_expansion
+lang: en
+cases:
+  - name: both-substantive-words-expanded
+    source: >-
+      constructed example; `garden` and `quiet` are each replaced by one of
+      the senses `get_pack("en").glosses` returns for them (`garden`'s second
+      sense, `quiet`'s first), read verbatim rather than hand-typed. `the` and
+      `was` do not resolve and are left as they were, which is why
+      `estimated_words` reports 2 rather than the row scoring only 2 of 4
+      words.
+    text: |-
+      the a plot of ground where plants are cultivated was characterized by an absence or near absence of agitation or activity
+    params: { source: "the garden was quiet" }
+    satisfied: true
+  - name: one_word_left_unexpanded
+    source: >-
+      constructed counterexample; `garden` is expanded the same way as the
+      case above, but `quiet` is left as the bare source word, which
+      `_replaced_by_gloss` reports as `not_expanded`.
+    text: |-
+      the a plot of ground where plants are cultivated was quiet
+    params: { source: "the garden was quiet" }
+    satisfied: false
