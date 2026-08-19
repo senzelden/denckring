@@ -33,9 +33,29 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
 
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            docstring_section_style: table
+            merge_init_into_class: true
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            separate_signature: true
+
 nav:
   - Home: index.md
   - Gallery: gallery/index.md
+  - API reference:
+      - Reading a report: api/index.md
+      - Functions: api/functions.md
+      - Types: api/types.md
+      - Errors: api/errors.md
+      - Language packs: api/packs.md
   - Design decisions:
       - "1. English API, multilingual content": adr/0001-english-api-multilingual-content.md
       - "2. `check` mandatory, `apply` optional": adr/0002-check-mandatory-apply-optional.md
