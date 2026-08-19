@@ -7,9 +7,7 @@ including Bentley's own.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -19,7 +17,7 @@ SCHEME = "AABB"
 LINES = 4
 
 
-class ClerihewParams(BaseModel):
+class ClerihewParams(RhymeParams):
     pass
 
 
@@ -34,7 +32,9 @@ class Clerihew(BaseProcedure[ClerihewParams]):
         return ClerihewParams
 
     def _check(self, text: str, pack: LanguagePack, params: ClerihewParams) -> Report:
-        found, matched, checks = scheme_violations(text, pack, SCHEME, allow_identical=False)
+        found, matched, checks, _estimated = scheme_violations(
+            text, pack, SCHEME, allow_identical=False
+        )
         return self._report(
             good=matched,
             total=checks,

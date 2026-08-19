@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure
-from denckring.core.prosody import metre_violations, scheme_violations
+from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.prosody import UnknownRhyme, metre_violations, scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -24,7 +24,7 @@ class FormResult(NamedTuple):
     estimated: int
 
 
-class RhymeSchemeParams(BaseModel):
+class RhymeSchemeParams(RhymeParams):
     scheme: str = Field(description="Rhyme pattern such as ABAB.")
     allow_identical: bool = Field(
         default=False,
@@ -48,6 +48,7 @@ def form_report(
     refrains: list[tuple[int, int]] | None = None,
     allow_identical: bool = False,
     lines: int | None = None,
+    unknown_rhyme: UnknownRhyme = "undecidable",
 ) -> FormResult:
     """Check any combination of rhyme scheme, metre, refrain lines and line count.
 
@@ -84,12 +85,17 @@ def form_report(
         total += 1
         good += 1
     if scheme is not None:
-        found, matched, checks = scheme_violations(
-            text, pack, scheme, allow_identical=allow_identical
+        rhyme = scheme_violations(
+            text,
+            pack,
+            scheme,
+            allow_identical=allow_identical,
+            unknown_rhyme=unknown_rhyme,
         )
-        violations += found
-        good += matched
-        total += checks
+        violations += rhyme.violations
+        good += rhyme.good
+        total += rhyme.total
+        estimated += rhyme.estimated
     if metre is not None:
         for offset, line in line_spans(text):
             result = metre_violations(line, pack, metre, offset)
@@ -133,7 +139,11 @@ class RhymeScheme(BaseProcedure[RhymeSchemeParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: RhymeSchemeParams) -> Report:
         result = form_report(
-            text, pack, scheme=params.scheme, allow_identical=params.allow_identical
+            text,
+            pack,
+            scheme=params.scheme,
+            allow_identical=params.allow_identical,
+            unknown_rhyme=params.unknown_rhyme,
         )
         return self._report(
             good=result.good,

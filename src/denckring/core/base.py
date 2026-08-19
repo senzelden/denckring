@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, MissingCapability
+from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import Lang, LanguagePack, Meta, Report, Violation
 
 P = TypeVar("P", bound=BaseModel)
@@ -29,6 +30,27 @@ class DiacriticParams(BaseModel):
     fold_diacritics: bool = Field(
         default=True,
         description="Treat accented letters as their base letter, and ß as ss.",
+    )
+
+
+class RhymeParams(BaseModel):
+    """Mixed into every procedure that checks a rhyme.
+
+    Whether a word the pronouncing dictionary does not carry rhymes is an
+    editorial decision rather than a library constant — the same argument
+    `DiacriticParams` makes about `Mädchen`. Carrying it as a parameter puts it
+    in `params_schema()` and on the command line for free, so a caller can say
+    what an unknown word should mean for their text instead of inheriting a
+    guess. `denckring.core.prosody.scheme_violations` documents the readings.
+    """
+
+    unknown_rhyme: UnknownRhyme = Field(
+        default="undecidable",
+        description=(
+            "What a line ending absent from the pronouncing dictionary means: "
+            "leave the pair unscored (undecidable), let it satisfy the scheme "
+            "(free), or fail it (strict)."
+        ),
     )
 
 

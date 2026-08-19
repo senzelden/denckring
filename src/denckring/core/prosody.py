@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Sequence
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import LanguagePack, Violation
 from denckring.core.text import line_spans
-from denckring.lang.base import STRESS
+from denckring.lang.base import PHONEMES, STRESS
 
 #: `?` matches either, so a monosyllable takes whatever stress the line needs.
 FREE = "?"
@@ -19,6 +19,24 @@ FREE = "?"
 #: is tried. Real lines are far below it; the cap exists so a pathological line
 #: cannot hang the checker.
 MAX_COMBINATIONS = 4096
+
+#: What a line ending the pronouncing dictionary does not carry means for a
+#: rhyme. See `scheme_violations` for why this is a parameter and not a constant.
+UnknownRhyme = Literal["undecidable", "free", "strict"]
+
+
+class SchemeResult(NamedTuple):
+    """A rhyme scheme's outcome.
+
+    Carries `estimated` for the same reason `MetreResult` does: a report drawn
+    from partial knowledge must say so, or a caller reads a score computed over
+    fewer pairs than it thinks.
+    """
+
+    violations: list[Violation]
+    good: int
+    total: int
+    estimated: int
 
 
 def line_stress(line: str, pack: LanguagePack) -> list[tuple[str, str]]:
@@ -219,33 +237,79 @@ def repeat_to(pattern_unit: str, feet: int) -> str:
     return pattern_unit * feet
 
 
-def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[str]]]:
-    """Per line: offset, the final word, and every rhyme key it can take.
+def word_rhyme_keys(word: str, pack: LanguagePack) -> tuple[frozenset[str], bool]:
+    """Every rhyme key a word can take, and whether they are known.
+
+    The mirror of `word_stress`, for the same reason: a pronouncing dictionary
+    does not carry every word, and an unknown word is a normal event in verse
+    rather than an exceptional one. The dictionary raises `MissingCapability`
+    for a word it lacks — naming a capability the pack does provide — so that
+    case is caught here and returned as an empty key set the caller can
+    recognise, rather than aborting the whole check.
+
+    A pack that genuinely lacks `phonemes` still raises, which is what the
+    exception is for. What an empty key set *means* for a rhyme is the caller's
+    decision, not this function's — see `scheme_violations`.
+    """
+    if PHONEMES not in pack.capabilities:
+        raise MissingCapability(f"<word {word!r}>", pack.lang, PHONEMES)
+    try:
+        return frozenset(pack.rhyme_keys(word)), True
+    except MissingCapability:
+        return frozenset(), False
+
+
+def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[str], bool]]:
+    """Per line: offset, the final word, its rhyme keys, and whether they are known.
 
     Two lines rhyme when their key sets intersect — the same satisfiability
-    reading applied to pronunciation that metre applies to stress.
+    reading applied to pronunciation that metre applies to stress. The fourth
+    element distinguishes "this word rhymes with nothing here" from "the
+    dictionary does not carry this word", which are different claims.
     """
-    keys: list[tuple[int, str, frozenset[str]]] = []
+    keys: list[tuple[int, str, frozenset[str], bool]] = []
     for offset, line in line_spans(text):
         words = pack.tokenize(line)
         if not words:
             continue
-        keys.append((offset, words[-1], frozenset(pack.rhyme_keys(words[-1]))))
+        found, exact = word_rhyme_keys(words[-1], pack)
+        keys.append((offset, words[-1], found, exact))
     return keys
 
 
 def scheme_violations(
-    text: str, pack: LanguagePack, scheme: str, *, allow_identical: bool
-) -> tuple[list[Violation], int, int]:
+    text: str,
+    pack: LanguagePack,
+    scheme: str,
+    *,
+    allow_identical: bool,
+    unknown_rhyme: UnknownRhyme = "undecidable",
+) -> SchemeResult:
     """Check line endings against a rhyme scheme such as `ABAB`.
 
     Both directions matter: lines sharing a letter must rhyme, and lines with
     different letters must not. A poem in which everything rhymes does not
     satisfy `ABAB`.
+
+    `unknown_rhyme` decides what a line ending the pronouncing dictionary does
+    not carry means, which is an editorial question rather than a library
+    constant — the argument ADR 0009 makes for diacritic folding:
+
+    - `undecidable` leaves the pair unscored and counts the word in `estimated`,
+      claiming neither that it rhymes nor that it does not;
+    - `free` lets it satisfy whatever the scheme asks, the reading `word_stress`
+      takes for an unscannable word;
+    - `strict` fails the pair, naming the word the dictionary lacks.
+
+    Under `undecidable` a text whose every pair is unknown would score nothing
+    over nothing, which `_report` reads as vacuously satisfied. That case is
+    reported as a single `rhyme_undecidable` violation instead: a partial
+    verdict is honest, an empty one is not.
     """
     keys = rhyme_keys(text, pack)
     letters = [ch.upper() for ch in scheme if ch.isalpha()]
     violations: list[Violation] = []
+    estimated = sum(1 for key in keys if not key[3])
     if len(keys) != len(letters):
         violations.append(
             Violation(
@@ -255,12 +319,29 @@ def scheme_violations(
                 expected=f"{len(letters)} lines",
             )
         )
-        return violations, 0, 1
+        return SchemeResult(violations, 0, 1, estimated)
 
     checks = 0
     matched = 0
     for i in range(len(keys)):
         for j in range(i + 1, len(keys)):
+            if not (keys[i][3] and keys[j][3]):
+                if unknown_rhyme == "undecidable":
+                    continue
+                checks += 1
+                if unknown_rhyme == "free":
+                    matched += 1
+                else:
+                    unknown = keys[j][1] if not keys[j][3] else keys[i][1]
+                    violations.append(
+                        Violation(
+                            rule="unknown_rhyme",
+                            offset=keys[j][0],
+                            found=unknown,
+                            expected="a word the pronouncing dictionary carries",
+                        )
+                    )
+                continue
             checks += 1
             should_rhyme = letters[i] == letters[j]
             does_rhyme = bool(keys[i][2] & keys[j][2])
@@ -294,4 +375,14 @@ def scheme_violations(
                 )
             else:
                 matched += 1
-    return violations, matched, max(checks, 1)
+    if unknown_rhyme == "undecidable" and checks == 0 and len(keys) > 1:
+        violations.append(
+            Violation(
+                rule="rhyme_undecidable",
+                offset=None,
+                found=f"{estimated} line endings the dictionary does not carry",
+                expected="at least one pair this install can decide",
+            )
+        )
+        return SchemeResult(violations, 0, 1, estimated)
+    return SchemeResult(violations, matched, max(checks, 1), estimated)
