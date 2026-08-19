@@ -19,8 +19,9 @@ def test_homoconsonantism_rejects_a_changed_consonant() -> None:
 
 
 def test_homovocalism_keeps_the_vowels() -> None:
+    """e-a-a preserved in order, every consonant free to change."""
     report = check("homovocalism", "he ran back", source="the cat sat")
-    assert isinstance(report.satisfied, bool)
+    assert report.satisfied is True
 
 
 def test_homovocalism_rejects_a_changed_vowel() -> None:
