@@ -228,8 +228,12 @@ All notable changes to this project are documented here. The format follows
   that are already the wrong ones — matching `stanza_violations`'s existing behaviour.
 - `multiple_constraint`, Oulipo's general composite-constraint form. It replaces
   `univocalic_lipogram_pair`, whose definition described any composite constraint
-  rather than the one pair its id named; the old id is kept as an alias, so a search
-  for it still finds this row.
+  rather than the one pair its id named. `denckring search` finds the row under the old
+  id, under the old id written as prose, and under the row's previous published English
+  name, *Compound constraint*; all three are carried as aliases. `denckring show
+  univocalic_lipogram_pair` still raises `UnknownProcedure`, because `registry.get`
+  resolves ids and never consults aliases — but it names `multiple_constraint` as the
+  suggestion.
 - German declared on seventeen rows, each decided on whether the procedure *means*
   something in German rather than whether it merely runs, and each shipping a German
   golden fixture — a declaration with no fixture behind it is an assertion, not a claim.
