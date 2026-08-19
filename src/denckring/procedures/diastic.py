@@ -47,13 +47,13 @@ class Diastic(BaseProcedure[DiasticParams]):
         return DiasticParams
 
     def _check(self, text: str, pack: LanguagePack, params: DiasticParams) -> Report:
-        chosen = [word for _, word in word_spans(text, pack)]
+        chosen = word_spans(text, pack)
         result = selection_report(chosen, params.source, pack)
         violations = list(result.violations)
         good = result.good
         total = result.total
         letters = [ch for ch in params.seed_phrase.casefold() if ch.isalpha()]
-        for index, word in enumerate(chosen):
+        for index, (offset, word) in enumerate(chosen):
             if index >= len(letters):
                 break
             folded = word.casefold()
@@ -65,7 +65,10 @@ class Diastic(BaseProcedure[DiasticParams]):
                 violations.append(
                     Violation(
                         rule="wrong_letter_at_position",
-                        offset=None,
+                        # The offset of the word carrying the wrong letter, not of
+                        # the letter itself: `word_spans` locates words, and the
+                        # word is what a writer replaces.
+                        offset=offset,
                         found=folded[index] if index < len(folded) else "",
                         expected=letter,
                         note=f"position {index + 1} of {word!r}",

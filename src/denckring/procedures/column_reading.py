@@ -65,7 +65,7 @@ class ColumnReading(BaseProcedure[ColumnReadingParams]):
     def _check(self, text: str, pack: LanguagePack, params: ColumnReadingParams) -> Report:
         chosen_spans = word_spans(text, pack)
         chosen = [word for _, word in chosen_spans]
-        drawn = selection_report(chosen, params.source, pack)
+        drawn = selection_report(chosen_spans, params.source, pack)
         column = params.column
         placed = positional_report(
             chosen_spans,

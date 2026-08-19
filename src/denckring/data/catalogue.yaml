@@ -370,7 +370,7 @@ procedures:
     kind: constructive
     languages: [en, de]
     requires: [tokens]
-    deterministic: false
+    deterministic: true
     prompt_hints:
       en: Interleave the left half of one passage with the right half of another, line by line.
 
@@ -2553,7 +2553,7 @@ procedures:
     kind: constructive
     languages: [en, de]
     requires: [tokens]
-    deterministic: false
+    deterministic: true
     prompt_hints:
       en: Fold the page so distant passages touch, and read across the fold.
 

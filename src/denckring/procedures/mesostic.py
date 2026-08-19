@@ -41,14 +41,21 @@ class Mesostic(BaseProcedure[MesosticParams]):
         return MesosticParams
 
     def _check(self, text: str, pack: LanguagePack, params: MesosticParams) -> Report:
-        lines = [line for _, line in line_spans(text)]
-        chosen = [word for line in lines for _, word in word_spans(line, pack)]
+        lines = line_spans(text)
+        # Word offsets are relative to their own line, so each is shifted by the
+        # line's own offset to give a position in the whole text — which is what
+        # every other row's violations report.
+        chosen = [
+            (line_offset + offset, word)
+            for line_offset, line in lines
+            for offset, word in word_spans(line, pack)
+        ]
         result = selection_report(chosen, params.source, pack)
         violations = list(result.violations)
         good = result.good
         total = result.total
         letters = [ch for ch in params.spine.casefold() if ch.isalpha()]
-        for index, line in enumerate(lines[: len(letters)]):
+        for index, (offset, line) in enumerate(lines[: len(letters)]):
             total += 1
             letter = letters[index]
             if letter in line.casefold():
@@ -57,7 +64,7 @@ class Mesostic(BaseProcedure[MesosticParams]):
                 violations.append(
                     Violation(
                         rule="spine_letter_missing",
-                        offset=None,
+                        offset=offset,
                         found=line,
                         expected=letter,
                         note=f"line {index + 1} must carry {letter!r}",
