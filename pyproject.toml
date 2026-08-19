@@ -57,6 +57,9 @@ dev = [
     "types-PyYAML>=6",
     "mkdocs-material>=9.7.7",
 ]
+# Build-only: regenerates the English lexicon (packages/denckring-en-data). Never
+# imported at runtime, never installed by `pip install denckring[en]`.
+lexicon = ["wn>=1.1"]
 
 [build-system]
 requires = ["hatchling"]

@@ -9,7 +9,7 @@ from hypothesis import strategies as st
 
 from strategies import CaseStrategy
 
-CONFORMING = """the catafalque satchmo on the tablespoonful"""
+CONFORMING = """the catacomb satchmo on the tablespoonful"""
 
 VIOLATING = """a cat sat on the table"""
 

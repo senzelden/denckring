@@ -5,7 +5,7 @@ from denckring import check
 pytest.importorskip("denckring_en_data")
 
 SOURCE = "the cat sat on the table"
-DISPLACED = "the catafalque satchmo on the tablespoonful"
+DISPLACED = "the catacomb satchmo on the tablespoonful"
 
 
 def test_a_correct_displacement_is_satisfied() -> None:
@@ -26,7 +26,7 @@ def test_changing_a_non_noun_is_a_violation() -> None:
 
 
 def test_a_wrong_displacement_is_a_violation() -> None:
-    wrong = DISPLACED.replace("catafalque", "zebra")
+    wrong = DISPLACED.replace("catacomb", "zebra")
     assert not check("n_plus_7", wrong, source=SOURCE).satisfied
 
 
