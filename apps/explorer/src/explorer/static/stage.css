@@ -1,0 +1,45 @@
+/* The stage: scenes recorded as short loops.
+ *
+ * One fixed size, because every recording should crop identically. The bench's
+ * type-case palette carries over; a scene is a proof pulled on the same press.
+ */
+
+.stage-body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--case-deep);
+}
+
+.stage {
+  width: 1280px;
+  height: 720px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 3rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+.stage.stage-tall { height: auto; min-height: 720px; }
+
+.stage-caption {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--lead);
+  margin: 1rem 0 0;
+  max-width: 1280px;
+}
+
+.stage-body.bare .stage { box-shadow: none; }
+
+.board { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.4rem; list-style: none; padding: 0; }
+.tile { border-left: 3px solid var(--lead); padding: 0.3rem 0.5rem; background: var(--paper-shade); }
+.tile.green { border-left-color: #3f7d3f; }
+.tile.red { border-left-color: var(--rubric); }
+.tile.grey { opacity: 0.55; }
+.tile-detail { font-size: 0.7rem; color: var(--rubric); margin: 0.2rem 0 0; }

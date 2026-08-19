@@ -1,0 +1,11 @@
+{% extends "stage.html" %}
+{% block title %}The stage — denckring{% endblock %}
+{% block main %}
+<h1>The stage</h1>
+<ol class="scene-list">
+  {% for scene in scenes %}
+  <li><a href="/stage/{{ scene.slug }}">{{ scene.title }}</a> <span>{{ scene.caption }}</span></li>
+  {% endfor %}
+</ol>
+{% endblock %}
+{% block caption %}Five procedures, driven by hand.{% endblock %}
