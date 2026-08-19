@@ -1,0 +1,53 @@
+{% extends "stage.html" %}
+{% block title %}Der Denckring{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Harsdörffer &middot; Nürnberg, 1651</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="denckring-stage">
+  <div class="rings">
+    {% for slot in rings.slots %}
+    <button class="ring ring-{{ loop.index0 }}" id="ring-{{ loop.index0 }}" type="button"
+            data-parts="{{ slot.alternatives | join('|') }}"
+            onclick="turn({{ loop.index0 }}, 1)">
+      <span class="ring-name">{{ slot.name }}</span>
+      <span class="ring-turn">{{ slot.alternatives[0] }}</span>
+    </button>
+    {% endfor %}
+  </div>
+  <div class="control-panel">
+    <div class="word-panel">
+      <div id="word">
+        <p class="word">&nbsp;</p>
+      </div>
+    </div>
+    <form class="actions" hx-post="/stage/denckring/act" hx-target="#word" hx-trigger="submit">
+      <input type="hidden" name="word" id="word-field">
+      <button type="submit">Read it</button>
+      <button type="submit" name="turn" value="1">Turn them for me</button>
+    </form>
+    <p class="counts">
+      <span class="count count-true">{{ "{:,}".format(rings.combinations) }}</span>
+      <span class="count-label">readings on these discs</span>
+      <span class="count count-claimed"><s>{{ "{:,}".format(rings.claimed) }}</s></span>
+      <span class="count-label">the figure the literature repeats</span>
+    </p>
+  </div>
+</div>
+<script>
+const at = {};
+function turn(ring, step) {
+  const el = document.getElementById('ring-' + ring);
+  const parts = el.dataset.parts.split('|');
+  at[ring] = ((at[ring] || 0) + step + parts.length) % parts.length;
+  el.querySelector('.ring-turn').textContent = parts[at[ring]];
+  document.getElementById('word-field').value =
+    [0, 1, 2, 3, 4].map(i => {
+      const e = document.getElementById('ring-' + i);
+      return e ? e.querySelector('.ring-turn').textContent : '';
+    }).join('');
+}
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

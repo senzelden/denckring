@@ -7,6 +7,9 @@
 :root {
   /* The board needs a pass colour; none of explorer.css's seven tokens is green. */
   --pass: #3f7d3f;
+  /* The board's --pass sits on paper; the word panel sits on the dark case, where
+     that green all but disappears. A lighter step of the same hue, not a new one. */
+  --pass-bright: #6fae6f;
 }
 
 .stage-body {
@@ -70,4 +73,209 @@
   font-size: 0.7rem;
   color: var(--rubric);
   margin: 0.2rem 0 0;
+}
+
+/* ── scene one: der Denckring ─────────────────────────────────────────── */
+
+.scene-head {
+  margin: 0 0 1.5rem;
+}
+
+.scene-kicker {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0 0 0.3rem;
+}
+
+.scene-head h1 {
+  font-family: var(--display);
+  font-size: 2.1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.denckring-stage {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* The five discs, drawn concentrically. Each ring is a full circle sized to its
+   own diameter; the smaller ones sit on top in z-order, so what shows through is
+   only the outer band belonging to the larger ring underneath — the same trick a
+   dartboard uses, not an SVG donut. */
+
+.rings {
+  position: relative;
+  width: 460px;
+  height: 460px;
+  flex: none;
+}
+
+.rings::before {
+  /* Marks the reading line, the way a rubricator marked where to read. */
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 11px solid var(--rubric);
+  z-index: 6;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.55rem 0.5rem 0;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+  transition: filter 120ms ease;
+}
+
+.ring:focus-visible {
+  outline: 2px solid var(--rubric-soft);
+  outline-offset: -3px;
+}
+
+.ring-name {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lead);
+}
+
+.ring-turn {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 0.1rem;
+}
+
+/* Each ring restates its own colours on `:hover` — the base button rule (in
+   explorer.css) sets `background`/`border-color` on hover, and a bare `.ring:hover`
+   would lose that property battle by simply not mentioning them. */
+
+.ring-4 { width: 460px; height: 460px; z-index: 1; background: #f2efe7; border: 1px solid var(--case-lip); }
+.ring-4:hover { background: #f2efe7; border-color: var(--rubric-soft); }
+
+.ring-3 { width: 368px; height: 368px; z-index: 2; background: #e8e3d9; border: 1px solid var(--case-lip); }
+.ring-3:hover { background: #e8e3d9; border-color: var(--rubric-soft); }
+
+.ring-2 { width: 276px; height: 276px; z-index: 3; background: #dcd5c5; border: 1px solid var(--case-lip); }
+.ring-2:hover { background: #dcd5c5; border-color: var(--rubric-soft); }
+
+.ring-1 { width: 184px; height: 184px; z-index: 4; background: #c9beaa; border: 1px solid var(--case-lip); }
+.ring-1:hover { background: #c9beaa; border-color: var(--rubric-soft); }
+
+.ring-0 {
+  width: 92px;
+  height: 92px;
+  z-index: 5;
+  justify-content: center;
+  padding-top: 0;
+  background: var(--rubric);
+  border: 1px solid var(--rubric);
+}
+
+.ring-0:hover {
+  background: var(--rubric);
+  border-color: var(--paper);
+}
+
+.ring-0 .ring-name {
+  color: rgba(247, 245, 240, 0.75);
+}
+
+.ring-0 .ring-turn {
+  color: var(--paper);
+  font-size: 1.05rem;
+}
+
+.control-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.word-panel {
+  background: var(--case-deep);
+  padding: 1.5rem 1.75rem;
+  border-radius: 2px;
+  min-height: 6rem;
+  display: flex;
+  align-items: center;
+}
+
+.word-panel .word {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+  margin: 0;
+}
+
+.word-panel .verdict {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0.5rem 0 0;
+}
+
+.word-panel .verdict.yes {
+  color: var(--pass-bright);
+}
+
+.word-panel .verdict.no {
+  color: var(--rubric-soft);
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.9rem;
+  row-gap: 0.15rem;
+  align-items: baseline;
+  font-family: var(--mono);
+  margin: 0;
+}
+
+.count {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.count-true {
+  color: var(--ink);
+}
+
+.count-claimed {
+  color: var(--rubric);
+}
+
+.count-label {
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
 }
