@@ -170,12 +170,18 @@ procedures:
     attested: author-stated
     kind: restrictive
     languages: [en, de]
-    requires: [tokens, letter_shapes, fold_diacritics]
+    requires: [letter_shapes]
     deterministic: true
     prompt_hints:
       en: >-
         Write using only letters that stay within the x-height — avoid b, d, f, g,
         h, j, k, l, p, q, t and y.
+    notes: >-
+      `tokens` and `fold_diacritics` are removed: `_check` scans `enumerate(text)`
+      directly rather than through `word_spans`, and calls `pack.exceeds_x_height`
+      on each raw character, never `pack.fold_diacritics` — folding first would be
+      wrong here, not merely unused, since a stripped diacritic mark is exactly
+      what `exceeds_x_height` needs to see to catch a letter like `ä`.
 
   - id: beau_present
     names: { en: Beau présent, de: Schönes Geschenk, fr: Beau présent }
@@ -1501,10 +1507,16 @@ procedures:
     attested: codified
     kind: both
     languages: [en]
-    requires: [tokens, fold_diacritics, phonemes]
+    requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
       en: Exchange the opening sounds of two words so that both results are words.
+    notes: >-
+      `fold_diacritics` is removed: `_check` compares phoneme onsets via
+      `pack.phonemes`, never diacritic-folds a letter, and `apply`'s own
+      `_letter_onset` splits on `pack.vowels()` membership directly, not on a
+      folded form. The onset comparison already lives entirely in phonemes,
+      where accents do not apply.
 
   - id: multiple_constraint
     names: { en: Multiple constraint, de: Mehrfachbeschränkung, fr: Contrainte multiple }
@@ -2185,6 +2197,14 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Break each line at a caesura and alliterate the stressed syllables across the break.
+    notes: >-
+      The checker compares bare first letters (see the module docstring's own
+      admission that this reads "knight" and "king" as alliterating, which Old
+      English metre would not). German is the sharper case: the tradition this
+      row is named for treats `st`, `sp` and `sch` as staves distinct from a
+      bare `s`, so a line built on that distinction can pass this checker
+      while failing the tradition, or the reverse. The shipped German fixture
+      is written to hold under both readings rather than relying on the gap.
 
   - id: assonance_constraint
     names: { en: Assonance constraint }
