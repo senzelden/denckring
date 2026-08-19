@@ -1,0 +1,19 @@
+denckring-en-data
+Copyright 2026 senzelden
+
+The code in this distribution is licensed under the Apache License, Version 2.0.
+See LICENSE.
+
+The data in this distribution is not, and is redistributed under its own terms:
+
+  - src/denckring_en_data/data/cmudict.dict is the CMU Pronouncing Dictionary,
+    Copyright (C) 1993-2015 Carnegie Mellon University, under the BSD-2-Clause
+    terms reproduced in LICENSE-CMUDICT.
+
+  - src/denckring_en_data/data/nouns.txt and data/glosses.txt.gz are derived from
+    the Open English WordNet 2024 (oewn:2024), licensed CC BY 4.0 and reproduced in
+    LICENSE-WORDNET. Both files are modifications: nouns.txt is a filtered list of
+    single-word noun lemmas and glosses.txt.gz a compressed lemma-to-definitions
+    index, neither in OEWN's own format. scripts/build_lexicon.py is the derivation.
+
+    Open English WordNet, https://en-word.net/, CC BY 4.0

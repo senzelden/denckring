@@ -60,6 +60,7 @@ nav:
       - "21. Implement the transferable part, not the artefact": adr/0021-the-transferable-part.md
       - "22. German is a built-in default, not an entry point": adr/0022-german-moves-to-a-default.md
       - "23. The German lexicon is Wikidata Lexemes": adr/0023-the-german-lexicon.md
+      - "24. Apache-2.0 for the code": adr/0024-apache-two-for-the-code.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

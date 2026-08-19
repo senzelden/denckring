@@ -68,7 +68,8 @@ not have, that job is what catches it.
 
 ## Licensing
 
-Code contributions are MIT. Catalogue rows are CC BY 4.0 and need a real source. Do not
+Code contributions are Apache-2.0, and a contribution is taken as licensed that way
+(the licence's own section 5). Catalogue rows are CC BY 4.0 and need a real source. Do not
 add lexicons or hyphenation data to core: Wiktionary-derived data is CC BY-SA and pyphen
 is copyleft, so both must live behind an extra. Record any new data source in an ADR
 under `docs/adr/` before the data lands.
