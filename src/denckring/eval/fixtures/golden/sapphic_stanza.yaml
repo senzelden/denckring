@@ -24,3 +24,12 @@ cases:
     source: constructed counterexample
     text: ""
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      flurbish morning murmuring silver garden
+      silver garden beautiful forest morning
+      garden silver carefully morning forest
+      wonderful garden
+    params: {}
+    satisfied: true

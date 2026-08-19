@@ -15,3 +15,10 @@ cases:
     source: constructed counterexample
     text: ""
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      flurbishly murmuring murmuring murmuring murmuring forest
+      murmuring murmuring song murmuring murmuring stone
+    params: {}
+    satisfied: true

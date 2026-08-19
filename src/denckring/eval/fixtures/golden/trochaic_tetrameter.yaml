@@ -14,3 +14,10 @@ cases:
       the cat can see the moon above the tree
     params: {}
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      flurbish having any water
+      seldom eating apple butter
+    params: {}
+    satisfied: true

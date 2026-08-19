@@ -16,3 +16,12 @@ cases:
       the cat sat on the mat
     params: {}
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      blorf cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+    params: {}
+    satisfied: true
