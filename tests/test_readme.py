@@ -31,6 +31,45 @@ def test_all_twelve_batch_one_procedures_are_registered() -> None:
     assert set(list_procedures()) >= BATCH_ONE
 
 
+def test_readme_scoreboard_is_the_one_the_harness_reports() -> None:
+    """The README's `denckring status` transcript is a claim about this install, and a
+    stale one misstates the project's own headline number. It went stale on the very
+    next branch after being corrected by hand, because nothing compared the two: this
+    test reads the line out of the README and requires it to be exactly what
+    `harness.status()` prints.
+    """
+    text = README.read_text(encoding="utf-8")
+    line = harness.status().line()
+    assert line in text, (
+        f"README does not carry the current scoreboard.\n"
+        f"  expected: {line}\n"
+        f"  found:    {_scoreboard_line(text) or '(no scoreboard line at all)'}"
+    )
+
+
+def _scoreboard_line(text: str) -> str:
+    """The README's scoreboard line, whatever it currently says."""
+    for line in text.splitlines():
+        if "catalogued ·" in line:
+            return line.strip()
+    return ""
+
+
+def test_readme_prose_counts_match_the_scoreboard() -> None:
+    """The "What's here" paragraph restates the same four numbers in words, and drifted
+    the same way. Every number it names must be one the harness actually reports.
+    """
+    text = README.read_text(encoding="utf-8")
+    coverage = harness.status()
+    unimplemented = coverage.implementable - coverage.implemented
+    for claim in (
+        f"the {coverage.catalogued} catalogued procedures",
+        f"{coverage.unreachable} have no mechanical acceptance criterion",
+        f"the remaining {unimplemented} are sourced",
+    ):
+        assert claim in text, f"README's prose does not say {claim!r}"
+
+
 def test_catalogue_is_larger_than_the_implemented_set() -> None:
     coverage = harness.status()
     assert coverage.catalogued > coverage.implemented
