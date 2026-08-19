@@ -3,6 +3,22 @@
 Batch 1 was restrictive throughout, so no procedure defined `apply` and
 `check(apply(text))` had nothing to run on. The source-relative constructive
 procedures are the first that can generate as well as validate.
+
+Coverage gap, named rather than left implicit: every call below is
+`apply(text, lang=lang, seed=0)` — no other parameter is ever supplied. A
+generator whose `params_model` requires a field beyond `source` (or beyond a
+field with a usable default) is therefore skipped by this property on every
+single call, via the `except DenckringError` below, not exercised by it. As
+of this writing that is four rows: `word_ladder` (`target`), `arca_musarithmica`
+(`pinakes`), `pasigraphy` (`table`/`from_language`/`to_language`), and
+`slenderizing` (`deleted`). `diastic` and `mesostic` also take an extra
+parameter (`seed_phrase`, `spine`) but escape the gap because their defaults
+happen to produce a usable selection on generic alphabetic text. Extending
+this harness to supply row-specific extra parameters is out of scope here —
+it is its own piece of work with its own review surface. Until then, each of
+the four skipped rows relies on its own row-level round-trip test (e.g.
+`test_word_ladder.py::test_apply_finds_a_ladder_its_own_check_accepts`) as the
+substitute for what this property cannot reach.
 """
 
 from hypothesis import given, settings
