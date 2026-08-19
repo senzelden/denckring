@@ -8,6 +8,7 @@ metric on every syllabic report shows how much was still guessed.
 
 from __future__ import annotations
 
+import gzip
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
@@ -16,6 +17,7 @@ from typing import ClassVar
 from denckring.lang.base import (
     ALPHABET,
     FOLD_DIACRITICS,
+    GLOSSES,
     LETTER_SHAPES,
     NOUNS,
     PHONEMES,
@@ -30,6 +32,7 @@ from denckring.lang.en import EnglishPack
 
 DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict"))
 NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
+GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 
 __version__ = "0.1.0"
 
@@ -76,6 +79,23 @@ def noun_positions() -> dict[str, int]:
 
 
 @lru_cache(maxsize=1)
+def gloss_table() -> dict[str, tuple[str, ...]]:
+    """Lemma to every sense's definition, from the gzip-compressed extract.
+
+    Each line is `lemma\\tgloss | gloss | gloss`; no definition in the corpus
+    contains the `" | "` separator, so splitting on it is unambiguous.
+    """
+    table: dict[str, tuple[str, ...]] = {}
+    with gzip.open(GLOSSES_PATH, mode="rt", encoding="utf-8") as handle:
+        for line in handle:
+            lemma, _, glosses = line.rstrip("\n").partition("\t")
+            if not glosses:
+                continue
+            table[lemma] = tuple(glosses.split(" | "))
+    return table
+
+
+@lru_cache(maxsize=1)
 def known_words() -> frozenset[str]:
     """Word membership, from the nouns and the pronouncing dictionary together.
 
@@ -108,6 +128,7 @@ class EnglishDataPack(EnglishPack):
             STRESS,
             NOUNS,
             WORDS,
+            GLOSSES,
         }
     )
 
@@ -127,6 +148,15 @@ class EnglishDataPack(EnglishPack):
 
     def noun_index(self, word: str) -> int | None:
         return noun_positions().get(self._lemma(word))
+
+    def glosses(self, word: str) -> tuple[str, ...]:
+        table = gloss_table()
+        lemma = self._lemma(word)
+        for candidate in (lemma, *_inflections(lemma)):
+            found = table.get(candidate)
+            if found:
+                return found
+        return ()
 
     @staticmethod
     def _lemma(word: str) -> str:
@@ -156,6 +186,16 @@ class EnglishDataPack(EnglishPack):
         """
         found = dict.fromkeys(_stress_of(f) for f in _forms_or_raise(self, word))
         return sorted(found, key=len, reverse=True)
+
+
+def _inflections(lemma: str) -> tuple[str, ...]:
+    """Plain English inflections only. Irregulars — `went` for `go` — are out of
+    reach, and a word this cannot resolve returns nothing rather than a guess."""
+    candidates = []
+    for suffix in ("s", "es", "ed", "ing"):
+        if lemma.endswith(suffix) and len(lemma) > len(suffix) + 2:
+            candidates.append(lemma[: -len(suffix)])
+    return tuple(candidates)
 
 
 def _forms_or_raise(pack: EnglishDataPack, word: str) -> list[list[str]]:
@@ -191,8 +231,10 @@ def _rhyme_of(phones: list[str]) -> str:
 
 __all__ = [
     "DICTIONARY_PATH",
+    "GLOSSES_PATH",
     "NOUNS_PATH",
     "EnglishDataPack",
+    "gloss_table",
     "known_words",
     "noun_list",
     "pronunciations",
