@@ -183,8 +183,17 @@ class WordLadder(BaseProcedure[WordLadderParams]):
                 f"{start!r} and {target!r} must both be words the lexicon knows",
             )
 
-        ladder = _search_ladder(start, target, pack)
+        ladder, gave_up_on_breadth = _search_ladder(start, target, pack)
         if ladder is None:
+            if gave_up_on_breadth:
+                raise NoCandidateWord(
+                    self.id,
+                    f"the search gave up after visiting {MAX_EXPLORED} words "
+                    f"without finding a path from {start!r} to {target!r} — "
+                    "the connected component here is larger than this search "
+                    "chases, not necessarily empty; check a ladder instead of "
+                    "generating one",
+                )
             raise NoCandidateWord(
                 self.id,
                 f"no ladder connects {start!r} to {target!r} within "
@@ -214,7 +223,7 @@ def _substitutions(word: str) -> tuple[str, ...]:
     return tuple(candidates)
 
 
-def _search_ladder(start: str, target: str, pack: LanguagePack) -> list[str] | None:
+def _search_ladder(start: str, target: str, pack: LanguagePack) -> tuple[list[str] | None, bool]:
     """The shortest word-to-word ladder, or `None` within the search's bounds.
 
     Breadth-first: `frontier` is a FIFO queue, so words are dequeued in order
@@ -222,9 +231,16 @@ def _search_ladder(start: str, target: str, pack: LanguagePack) -> list[str] | N
     is necessarily by way of a shortest path. `parents` doubles as the visited
     set — a word is recorded the moment it is first reached — so nothing is
     ever queued twice.
+
+    Returns the ladder alongside a flag distinguishing *why* it is `None`:
+    `True` means the search gave up on breadth, hitting `MAX_EXPLORED` before
+    the frontier ran out; `False` means the frontier ran out on its own,
+    within `MAX_LADDER_WORDS` of depth, having genuinely found nothing.
+    `apply` uses this to tell a caller "the search gave up" from "no path
+    exists this short" rather than blaming both on the same bound.
     """
     if start == target:
-        return [start]
+        return [start], False
     parents: dict[str, str] = {start: start}
     frontier: deque[tuple[str, int]] = deque([(start, 1)])
     explored = 0
@@ -237,12 +253,12 @@ def _search_ladder(start: str, target: str, pack: LanguagePack) -> list[str] | N
                 continue
             parents[candidate] = word
             if candidate == target:
-                return _reconstruct(parents, target)
+                return _reconstruct(parents, target), False
             explored += 1
             if explored >= MAX_EXPLORED:
-                return None
+                return None, True
             frontier.append((candidate, depth + 1))
-    return None
+    return None, False
 
 
 def _reconstruct(parents: dict[str, str], target: str) -> list[str]:
