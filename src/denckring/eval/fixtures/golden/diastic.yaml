@@ -15,3 +15,19 @@ cases:
       source: silence is the garden where nothing grows and everything waits
       seed_phrase: sil
     satisfied: false
+  - name: lesung-mit-dem-saatwort-die
+    lang: de
+    source: constructed example; the procedure is Jackson Mac Low's
+    text: die Wiese liegt
+    params:
+      source: die Wiese liegt weit hinter dem Haus und schweigt
+      seed_phrase: die
+    satisfied: true
+  - name: falsche-woerter-falsche-buchstaben
+    lang: de
+    source: constructed counterexample
+    text: dem Haus und
+    params:
+      source: die Wiese liegt weit hinter dem Haus und schweigt
+      seed_phrase: die
+    satisfied: false

@@ -15,3 +15,19 @@ cases:
       constraints: [univocalic, lipogram]
       constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
     satisfied: false
+  - name: univocalic-und-lipogram-beide-erfuellt
+    lang: de
+    source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
+    text: wer entdeckt echtes leben
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+    satisfied: true
+  - name: eine-von-zwei-bedingungen-scheitert
+    lang: de
+    source: constructed counterexample; the vowel constraint is broken, the letter one is not — reuses lipogram's own de fixture
+    text: der Wind trug die Blumen fort
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+    satisfied: false

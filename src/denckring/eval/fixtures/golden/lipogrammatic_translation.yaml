@@ -11,3 +11,15 @@ cases:
     text: the letter appears here
     params: { source: x, forbidden: e }
     satisfied: false
+  - name: kein-verbotener-buchstabe
+    lang: de
+    source: constructed example; only the checkable half (the lipogram) is scored — reuses lipogram's own de fixture
+    text: Und so zog Wind durch kalt Rauch, ganz ohn Trost.
+    params: { source: x, forbidden: e }
+    satisfied: true
+  - name: verbotener-buchstabe-vorhanden
+    lang: de
+    source: constructed counterexample — reuses lipogram's own de fixture
+    text: Der Wind weht heute wieder gegen jedes Fenster.
+    params: { source: x, forbidden: e }
+    satisfied: false

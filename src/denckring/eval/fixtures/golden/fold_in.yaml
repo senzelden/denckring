@@ -27,3 +27,31 @@ cases:
         one two three four
         eight nine ten
     satisfied: false
+  - name: linke-haelfte-mit-rechter-haelfte-verbunden
+    lang: de
+    source: constructed example; the procedure is Burroughs and Gysin's fold-in
+    text: |-
+      eins zwei zehn elf
+      fuenf sechs vierzehn
+    params:
+      source: |-
+        eins zwei drei vier
+        fuenf sechs sieben
+
+        acht neun zehn elf
+        zwoelf dreizehn vierzehn
+    satisfied: true
+  - name: ungefaltete-seite-eins-scheitert
+    lang: de
+    source: constructed counterexample
+    text: |-
+      eins zwei drei vier
+      fuenf sechs sieben
+    params:
+      source: |-
+        eins zwei drei vier
+        fuenf sechs sieben
+
+        acht neun zehn elf
+        zwoelf dreizehn vierzehn
+    satisfied: false

@@ -11,3 +11,15 @@ cases:
     text: A cat sat. The dog ran. It rained hard.
     params: { source: "A cat sat. The dog ran. It rained hard." }
     satisfied: false
+  - name: saetze-wechseln-sich-mit-einschueben-ab
+    lang: de
+    source: constructed example; only the checkable half (the alternation) is scored
+    text: "Die Katze schlief. Neuer Satz eins. Der Hund lief. Neuer Satz zwei. Es regnete stark."
+    params: { source: "Die Katze schlief. Der Hund lief. Es regnete stark." }
+    satisfied: true
+  - name: keine-einschuebe
+    lang: de
+    source: constructed counterexample
+    text: "Die Katze schlief. Der Hund lief. Es regnete stark."
+    params: { source: "Die Katze schlief. Der Hund lief. Es regnete stark." }
+    satisfied: false

@@ -13,3 +13,17 @@ cases:
       cold card warm
     params: {}
     satisfied: false
+  - name: wald-zu-halt
+    lang: de
+    source: constructed example; the game itself is Carroll's, "Wortleiter" its established German name (already in this row's names)
+    text: |-
+      wald bald ball fall hall halt
+    params: {}
+    satisfied: true
+  - name: zwei-buchstaben-in-einem-schritt
+    lang: de
+    source: constructed counterexample; wald to ball changes two letters at once
+    text: |-
+      wald ball halt
+    params: {}
+    satisfied: false

@@ -11,3 +11,15 @@ cases:
     text: the bat sat
     params: { source: the cat sat }
     satisfied: false
+  - name: gleiches-skelett-neue-woerter
+    lang: de
+    source: constructed example; the consonant skeleton m-n-b-l-d-s-t held by different words
+    text: man bald sät
+    params: { source: mein Bild ist }
+    satisfied: true
+  - name: ein-geaenderter-konsonant
+    lang: de
+    source: constructed counterexample
+    text: man wald sät
+    params: { source: mein Bild ist }
+    satisfied: false

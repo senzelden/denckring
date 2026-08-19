@@ -35,3 +35,39 @@ cases:
         five
       fold_at: 2
     satisfied: false
+  - name: entfernte-lasche-nach-vorn-geholt
+    lang: de
+    source: constructed example; the procedure is Burroughs's fold-in
+    text: |-
+      drei
+      vier
+      fuenf
+      eins
+      zwei
+    params:
+      source: |-
+        eins
+        zwei
+        drei
+        vier
+        fuenf
+      fold_at: 2
+    satisfied: true
+  - name: ungefalteter-text-scheitert
+    lang: de
+    source: constructed counterexample
+    text: |-
+      eins
+      zwei
+      drei
+      vier
+      fuenf
+    params:
+      source: |-
+        eins
+        zwei
+        drei
+        vier
+        fuenf
+      fold_at: 2
+    satisfied: false
