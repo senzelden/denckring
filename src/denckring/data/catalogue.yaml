@@ -1272,10 +1272,18 @@ procedures:
     aliases: [doublets, word golf]
     kind: both
     languages: [en, de]
-    requires: [tokens, fold_diacritics, lexicon.words]
+    requires: [tokens, alphabet, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Move from the first word to the last, changing one letter at a time, each step a real word.
+    notes: >-
+      German is declared, and the checker takes a `fold_diacritics` parameter so
+      the declaration holds. Folded — the house default — `schon` and `schön` are
+      the same word and the step is rightly refused; unfolded, they differ in
+      exactly one letter and the canonical German doublet is accepted. The
+      generator substitutes over `alphabet()` widened by `vowels()`, which is
+      how it reaches ä, ö and ü at all; ß is in neither, so `apply` cannot
+      produce *Maße* from *Masse* although `check` accepts that step unfolded.
 
   - id: snowball_sentence
     names: { en: Snowball sentence }

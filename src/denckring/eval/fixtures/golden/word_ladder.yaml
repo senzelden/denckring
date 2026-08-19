@@ -27,3 +27,17 @@ cases:
       wald ball halt
     params: {}
     satisfied: false
+  - name: schon-zu-schoen-ungefaltet
+    lang: de
+    source: constructed example; the canonical German doublet, which only exists with folding off
+    text: |-
+      schon schön
+    params: { fold_diacritics: false }
+    satisfied: true
+  - name: schon-zu-schoen-gefaltet
+    lang: de
+    source: constructed counterexample; folded, the two are the same word and no step happened
+    text: |-
+      schon schön
+    params: {}
+    satisfied: false
