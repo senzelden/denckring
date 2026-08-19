@@ -1,37 +1,29 @@
-WordNet 3.1 licence
-===================
+Open English WordNet 2024 licence
+==================================
 
-This licence covers src/denckring_en_data/data/nouns.txt, the list of single-word
-noun lemmas extracted from WordNet's index.noun. It does not cover the CMU
-Pronouncing Dictionary in the same package, which is BSD-2-Clause — see
-LICENSE-CMUDICT — nor the code, which is MIT.
+This licence covers src/denckring_en_data/data/nouns.txt and
+src/denckring_en_data/data/glosses.txt.gz, both derived from the Open English
+WordNet (oewn:2024). It does not cover the CMU Pronouncing Dictionary in the
+same package, which is BSD-2-Clause — see LICENSE-CMUDICT — nor the code,
+which is MIT.
 
-This software and database is being provided to you, the LICENSEE, by
-Princeton University under the following license.  By obtaining, using
-and/or copying this software and database, you agree that you have
-read, understood, and will comply with these terms and conditions.:
+The Open English WordNet is a project of the Globalwordnet Association:
 
-Permission to use, copy, modify and distribute this software and
-database and its documentation for any purpose and without fee or
-royalty is hereby granted, provided that you agree to comply with
-the following copyright notice and statements, including the disclaimer,
-and that the same appear on ALL copies of the software, database and
-documentation, including modifications that you make for internal
-use or for distribution.
+    https://github.com/globalwordnet/english-wordnet
 
-WordNet 3.1 Copyright 2011 by Princeton University.  All rights reserved.
+It is released under the Creative Commons Attribution 4.0 International
+licence (CC BY 4.0):
 
-THIS SOFTWARE AND DATABASE IS PROVIDED "AS IS" AND PRINCETON
-UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR
-IMPLIED.  BY WAY OF EXAMPLE, BUT NOT LIMITATION, PRINCETON
-UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF MERCHANT-
-ABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE
-OF THE LICENSED SOFTWARE, DATABASE OR DOCUMENTATION WILL NOT
-INFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR
-OTHER RIGHTS.
+    https://creativecommons.org/licenses/by/4.0/
 
-The name of Princeton University or Princeton may not be used in
-advertising or publicity pertaining to distribution of the software
-and/or database.  Title to copyright in this software, database and
-any associated documentation shall at all times remain with
-Princeton University and LICENSEE agrees to preserve same.
+Attribution
+-----------
+
+Open English WordNet 2024, by the Globalwordnet Association and
+contributors, is licensed under CC BY 4.0. Both vendored files in this
+package (nouns.txt, glosses.txt.gz) are derived from it — see
+scripts/build_lexicon.py for the extraction, and metadata.json beside the
+data for the exact version and generation date.
+
+Nothing in this package's own MIT licence extends to the data files
+themselves; their terms are CC BY 4.0 as stated here.
