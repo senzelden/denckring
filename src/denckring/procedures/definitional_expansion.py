@@ -2,7 +2,8 @@
 definition.
 
 One iteration of Bénabou and Perec's *littérature définitionnelle*; `definitional_literature`
-(a later task) is the row that repeats this to a fixed point rather than stopping at one pass.
+is the row that repeats this rather than stopping at one pass, and it reuses the comparison
+below — `unclaimed_run` — rather than growing a second one.
 
 **Comparison rule, decided by running it against real OEWN text, not by reasoning about
 it.** `get_pack("en").glosses("cat")` returns ten senses carrying parentheses (`(baseball)
@@ -36,7 +37,7 @@ appearing `n` times needs `n` non-overlapping gloss occurrences in the candidate
 one embedded definition standing in for all of them: `"the cat and the cat"` with only
 the first `cat` expanded scored a false `satisfied=True` before this ruling, because the
 first pass asked only "does some gloss of `cat` appear anywhere" and never asked how many
-times. `_replaced_by_gloss` now consumes each matched token span as it is used, so a
+times. `replaced_by_gloss` now consumes each matched token span as it is used, so a
 second occurrence of the same word must find its own, separate run of tokens.
 
 **Unresolved words are counted, never failed.** A source word `pack.glosses` cannot
@@ -59,23 +60,21 @@ from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
-def _find_unclaimed_span(
-    candidate_tokens: list[str], claimed: list[bool], gloss: str, pack: LanguagePack
+def unclaimed_run(
+    candidate_tokens: list[str], claimed: list[bool], needle: list[str]
 ) -> tuple[int, int] | None:
-    """The earliest run of `candidate_tokens` matching `gloss`'s own tokens, with no
-    position in `claimed` already `True`, or `None` if no such run exists.
+    """The earliest run of `candidate_tokens` equal to `needle` with no position in
+    `claimed` already `True`, or `None` if no such run exists.
 
-    Both sides are lower-cased and tokenised with `pack.tokenize`, so parentheses,
-    semicolons, colons and quotation marks in the gloss — and any case difference from
-    the candidate text re-casing a sentence-initial word — never gate the match. See the
-    module docstring for why this is the comparison this row uses, and for R6's
-    occurrence-for-occurrence rule this function exists to enforce: a span already
-    claimed by an earlier occurrence cannot satisfy a later one.
+    The comparison both definitional rows share, taking tokens rather than gloss prose so
+    that a caller matching one gloss against thousands of positions — which
+    `definitional_literature` does at every round below the first — tokenises it once
+    instead of once per position. Claiming the returned span is the caller's business;
+    see `replaced_by_gloss` for why spans are claimed at all (R6).
     """
-    needle = [token.lower() for token in pack.tokenize(gloss)]
-    if not needle:
-        return None
     span = len(needle)
+    if not span:
+        return None
     for start in range(len(candidate_tokens) - span + 1):
         end = start + span
         if any(claimed[start:end]):
@@ -85,7 +84,24 @@ def _find_unclaimed_span(
     return None
 
 
-def _replaced_by_gloss(
+def find_unclaimed_span(
+    candidate_tokens: list[str], claimed: list[bool], gloss: str, pack: LanguagePack
+) -> tuple[int, int] | None:
+    """`unclaimed_run` for a gloss still in the prose form `pack.glosses` returns it in.
+
+    Both sides are lower-cased and tokenised with `pack.tokenize`, so parentheses,
+    semicolons, colons and quotation marks in the gloss — and any case difference from
+    the candidate text re-casing a sentence-initial word — never gate the match. See the
+    module docstring for why this is the comparison this row uses, and for R6's
+    occurrence-for-occurrence rule these two functions exist to enforce: a span already
+    claimed by an earlier occurrence cannot satisfy a later one.
+    """
+    return unclaimed_run(
+        candidate_tokens, claimed, [token.lower() for token in pack.tokenize(gloss)]
+    )
+
+
+def replaced_by_gloss(
     source: str, text: str, pack: LanguagePack
 ) -> tuple[list[Violation], int, int, int]:
     """Check every substantive word of `source` against `text`, occurrence for occurrence.
@@ -93,7 +109,7 @@ def _replaced_by_gloss(
     Walks `source`'s words in order. A word `pack.glosses` cannot resolve is counted as
     unresolved and never scored. A word that resolves is scored `good` if any one of its
     glosses matches an as-yet-unclaimed run of `text`'s tokens (see
-    `_find_unclaimed_span`), which is then claimed so it cannot satisfy a later
+    `find_unclaimed_span`), which is then claimed so it cannot satisfy a later
     occurrence of the same word — R6: a source word appearing `n` times needs `n`
     separate gloss occurrences, not one definition standing in for all of them. An
     occurrence with no unclaimed match is reported as `not_expanded`. Returns
@@ -114,7 +130,7 @@ def _replaced_by_gloss(
         total += 1
         matched = False
         for gloss in glosses:
-            found = _find_unclaimed_span(candidate_tokens, claimed, gloss, pack)
+            found = find_unclaimed_span(candidate_tokens, claimed, gloss, pack)
             if found is not None:
                 start, end = found
                 for index in range(start, end):
@@ -151,7 +167,7 @@ class DefinitionalExpansion(BaseProcedure[DefinitionalExpansionParams]):
         return DefinitionalExpansionParams
 
     def _check(self, text: str, pack: LanguagePack, params: DefinitionalExpansionParams) -> Report:
-        violations, good, total, unresolved = _replaced_by_gloss(params.source, text, pack)
+        violations, good, total, unresolved = replaced_by_gloss(params.source, text, pack)
         return self._report(
             good=good,
             total=total,
