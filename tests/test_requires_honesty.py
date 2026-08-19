@@ -126,6 +126,7 @@ from denckring.eval import harness
 from denckring.lang.base import (
     ALPHABET,
     FOLD_DIACRITICS,
+    GLOSSES,
     LETTER_SHAPES,
     NOUNS,
     PHONEMES,
@@ -148,6 +149,7 @@ CAPABILITY_METHODS: dict[str, tuple[str, ...]] = {
     "fold_diacritics": ("fold_diacritics",),
     "lexicon.words": ("is_word",),
     "lexicon.nouns": ("nouns", "noun_index"),
+    "lexicon.glosses": ("glosses",),
     "phonemes": ("phonemes", "rhyme_key", "rhyme_keys"),
     "stress": ("stress_pattern", "stress_patterns"),
     "syllables": ("syllables",),
@@ -179,6 +181,7 @@ METHOD_CAPABILITY: dict[str, str] = {
     "is_word": WORDS,
     "nouns": NOUNS,
     "noun_index": NOUNS,
+    "glosses": GLOSSES,
 }
 
 
