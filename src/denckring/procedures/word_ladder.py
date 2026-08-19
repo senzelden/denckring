@@ -1,27 +1,50 @@
 """Word ladder — Lewis Carroll's Doublets: one letter changed per step, every
 step itself a word.
 
-Task 1 corrected this row's `requires` to `[tokens, fold_diacritics,
-lexicon.words]`: the "every step being itself a word" clause is a membership
-test, via `pack.is_word`, and comparing two same-length words letter by letter
-is what `fold_diacritics` earns its keep on — see `_folded` below.
+Task 1 corrected this row's `requires` to include `lexicon.words`: the "every
+step being itself a word" clause is a membership test, via `pack.is_word`, and
+comparing two same-length words letter by letter is what `fold_diacritics`
+earns its keep on — see `_folded` below.
+
+**Folding is a parameter here, not a constant, because German needs it off.**
+`schon` → `schön` is the canonical German doublet step, and this row folded
+unconditionally, so it compared `schon` against `schon`, found nothing changed
+and reported `step_too_large` with the note "no letters differ" — a violation
+whose own note contradicts its own rule name. Under folding that verdict is
+*correct*: if `ö` is `o`, the two words are the same word and no step happened.
+The defect was having no way to say otherwise, on a row that declares `de`,
+while `univocalic` and `homovocalism` have carried `fold_diacritics` as a
+parameter since Batch 1. It defaults to `True`, the house behaviour; a German
+caller passes `fold_diacritics=False` and gets the tradition's answer.
+
+`apply` follows the same switch, so what it generates is always something its
+own `check` accepts under the same setting. Its substitution alphabet comes from
+the pack rather than from `string.ascii_lowercase`: with folding off it is
+`pack.alphabet()` widened by `pack.vowels()`, which is how a German ladder can
+pass through `schön` at all — something it could never do before, whatever
+`check` allowed. German's `alphabet()` is deliberately the base 26 (umlauts are
+decorated forms, and the pangram rows depend on that) while its `vowels()` names
+`ä`, `ö` and `ü`, so the union is as close as this pack API comes to "every
+letter the language spells with". It is an approximation in one known place: `ß`
+is in neither, so `apply` cannot produce *Maße* from *Masse*, though `check`
+accepts that step unfolded. Widening it further wants a pack method that does
+not exist yet, not a longer literal here.
 """
 
 from __future__ import annotations
 
-import string
 from collections import deque
 from functools import lru_cache
 from itertools import pairwise
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from denckring.core.base import BaseProcedure, require_capability
+from denckring.core.base import BaseProcedure, DiacriticParams, require_capability
 from denckring.core.errors import InvalidParams, NoCandidateWord
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import WORDS
+from denckring.lang.base import ALPHABET, WORDS
 
 #: A ladder longer than this is not worth searching for. Carroll's own puzzles
 #: run to a handful of steps; a breadth-first search that has not reached the
@@ -41,18 +64,38 @@ MAX_LADDER_WORDS = 12
 MAX_EXPLORED = 4000
 
 
-def _folded(word: str, pack: LanguagePack) -> str:
-    """Letters only, diacritics folded — what `check` compares position by position.
+def _folded(word: str, pack: LanguagePack, *, fold: bool) -> str:
+    """Letters only, diacritics folded or not — what `check` compares position by
+    position.
 
     Deliberately not what `pack.is_word` is asked about: `charade` established
     that folding before a lexicon lookup can make an accented word unfindable,
     because the lexicon stores each language's own diacritics. Folding here is
     for comparing two spellings' *shapes*, not for looking either of them up.
+
+    With `fold=False` the letters are merely lower-cased, so `schön` stays three
+    letters longer than nothing and differs from `schon` in exactly one place.
     """
+    if not fold:
+        return "".join(ch.lower() for ch in word if ch.isalpha())
     return "".join(pack.fold_diacritics(ch) for ch in word if ch.isalpha())
 
 
-class WordLadderParams(BaseModel):
+def _alphabet(pack: LanguagePack, *, fold: bool) -> str:
+    """Every letter `apply` may substitute in. See the module docstring.
+
+    Folding on, the base alphabet is the whole of it: `check` compares folded
+    shapes, so a candidate differing from its predecessor only by a diacritic
+    folds back to the same string and is not a step at all. Generating it would
+    hand back a ladder this row's own `check` rejects. Folding off, the
+    diacritics are exactly what a step may be, so `vowels()` widens the set.
+    """
+    if not fold:
+        return "".join(sorted(set(pack.alphabet()) | pack.vowels()))
+    return pack.alphabet()
+
+
+class WordLadderParams(DiacriticParams):
     # Named `target`, not `end` or anything shorter: `apply`'s reserved
     # keywords are `seed` and `lang` (see `every_nth_word.py`), and `target`
     # collides with neither. Left optional — defaulting to `None` — so `check`,
@@ -97,8 +140,8 @@ class WordLadder(BaseProcedure[WordLadderParams]):
 
         for (_, first), (offset, second) in pairwise(spans):
             total += 1
-            folded_first = _folded(first, pack)
-            folded_second = _folded(second, pack)
+            folded_first = _folded(first, pack, fold=params.fold_diacritics)
+            folded_second = _folded(second, pack, fold=params.fold_diacritics)
             if len(folded_first) != len(folded_second):
                 violations.append(
                     Violation(
@@ -152,11 +195,22 @@ class WordLadder(BaseProcedure[WordLadderParams]):
         `len(word) * 25` lookups regardless of how large the lexicon is. This
         also restricts the search to words of the right length for free, since
         a substitution can never change a word's length.
+
+        **Which error a refusal gets.** Everything decidable about the two
+        endpoints as *input* — a missing target, an endpoint that is not a
+        single alphabetic word, two endpoints of different lengths — is
+        `InvalidParams`, because the caller passed something malformed and the
+        lexicon was never consulted. `NoCandidateWord` is kept for the search
+        coming back empty: an endpoint the lexicon does not know, so nothing
+        can be reached from or to it, or no path inside the search's bounds.
+        These were split across the two codes with no line between them, so
+        three different mistakes with the same field answered under two names.
         """
         from denckring.lang import get_pack
 
         pack = get_pack(lang)
         require_capability(pack, WORDS, self.id)
+        require_capability(pack, ALPHABET, self.id)
         parsed = self.parse_params(params)
         if not parsed.target:
             raise InvalidParams(self.id, "target is required: apply(start_word, target=end_word)")
@@ -164,14 +218,13 @@ class WordLadder(BaseProcedure[WordLadderParams]):
         start = text.strip().lower()
         target = parsed.target.strip().lower()
         if not start.isalpha() or not target.isalpha():
-            raise NoCandidateWord(
+            raise InvalidParams(
                 self.id,
                 "both the start word and target must be single alphabetic "
-                "words — try one word each, or check a ladder instead of "
-                "generating one",
+                f"words; got {text.strip()!r} and {parsed.target.strip()!r}",
             )
         if len(start) != len(target):
-            raise NoCandidateWord(
+            raise InvalidParams(
                 self.id,
                 f"{start!r} and {target!r} are different lengths "
                 f"({len(start)} vs {len(target)}); a ladder needs the same "
@@ -183,7 +236,8 @@ class WordLadder(BaseProcedure[WordLadderParams]):
                 f"{start!r} and {target!r} must both be words the lexicon knows",
             )
 
-        ladder, gave_up_on_breadth = _search_ladder(start, target, pack)
+        alphabet = _alphabet(pack, fold=parsed.fold_diacritics)
+        ladder, gave_up_on_breadth = _search_ladder(start, target, pack, alphabet)
         if ladder is None:
             if gave_up_on_breadth:
                 raise NoCandidateWord(
@@ -204,26 +258,30 @@ class WordLadder(BaseProcedure[WordLadderParams]):
 
 
 @lru_cache(maxsize=4096)
-def _substitutions(word: str) -> tuple[str, ...]:
-    """Every one-letter substitution of `word`.
+def _substitutions(word: str, alphabet: str) -> tuple[str, ...]:
+    """Every one-letter substitution of `word` over `alphabet`.
 
-    Keyed on the word itself, not on a `LanguagePack` instance: this is pure
-    string combinatorics, the same for any pack that might ask, so caching it
-    by the word carries no risk of pinning a discarded pack in memory the way
-    keying on the pack would. `denckring_en_data` caches its own loaders
-    (`known_words`, `variants`, ...) the same way — by what they compute,
-    never by the identity of whoever is asking.
+    Keyed on the word and the alphabet string, not on a `LanguagePack`
+    instance: this is pure string combinatorics, the same for any pack that
+    supplies the same letters, so caching it this way carries no risk of
+    pinning a discarded pack in memory the way keying on the pack would.
+    `denckring_en_data` caches its own loaders (`known_words`, `variants`, ...)
+    the same way — by what they compute, never by the identity of whoever is
+    asking. The alphabet is a parameter rather than `string.ascii_lowercase`
+    because a German ladder that cannot reach `ö` cannot climb.
     """
     candidates = []
     for position in range(len(word)):
-        for letter in string.ascii_lowercase:
+        for letter in alphabet:
             if letter == word[position]:
                 continue
             candidates.append(word[:position] + letter + word[position + 1 :])
     return tuple(candidates)
 
 
-def _search_ladder(start: str, target: str, pack: LanguagePack) -> tuple[list[str] | None, bool]:
+def _search_ladder(
+    start: str, target: str, pack: LanguagePack, alphabet: str
+) -> tuple[list[str] | None, bool]:
     """The shortest word-to-word ladder, or `None` within the search's bounds.
 
     Breadth-first: `frontier` is a FIFO queue, so words are dequeued in order
@@ -248,7 +306,7 @@ def _search_ladder(start: str, target: str, pack: LanguagePack) -> tuple[list[st
         word, depth = frontier.popleft()
         if depth >= MAX_LADDER_WORDS:
             continue
-        for candidate in _substitutions(word):
+        for candidate in _substitutions(word, alphabet):
             if candidate in parents or not pack.is_word(candidate):
                 continue
             parents[candidate] = word
