@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from denckring.core import device
+
 
 @dataclass(frozen=True)
 class Scene:
@@ -61,3 +63,40 @@ def scene(slug: str) -> Scene:
         if candidate.slug == slug:
             return candidate
     raise KeyError(slug)
+
+
+#: The figure the literature repeats for the Denckring. It is not a product of rings of
+#: 12 and 120 at all — the catalogue row carries the arithmetic. The scene puts it next
+#: to the real number rather than arguing in prose.
+CLAIMED_COMBINATIONS = 97_209_600
+
+
+@dataclass(frozen=True)
+class RingSlot:
+    """One disc, with everything written on it."""
+
+    name: str
+    alternatives: list[str]
+    optional: bool
+
+
+@dataclass(frozen=True)
+class Rings:
+    """The five discs, and the two counts."""
+
+    slots: list[RingSlot]
+    combinations: int
+    claimed: int
+
+
+def rings() -> Rings:
+    """Harsdörffer's device as the shipped transcription has it."""
+    loaded = device.load("harsdoerffer_1651")
+    return Rings(
+        slots=[
+            RingSlot(name=slot.name, alternatives=list(slot.alternatives), optional=slot.optional)
+            for slot in loaded.slots
+        ],
+        combinations=loaded.combinations,
+        claimed=CLAIMED_COMBINATIONS,
+    )
