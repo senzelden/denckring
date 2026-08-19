@@ -313,6 +313,14 @@ All notable changes to this project are documented here. The format follows
   Pronouncing Dictionary; `denckring-de-data` is `Apache-2.0 AND CC0-1.0` for Wikidata
   Lexemes. Both data packages gained a `NOTICE` naming which file carries which terms and
   saying plainly that the derived lexicons are modifications of their sources.
+- The core source distribution no longer carries the workspace members. It was 7.1 MB
+  because it bundled `packages/` and `apps/` wholesale — the CMU dictionary, the WordNet
+  glosses and the German lexicon a second time, under a licence expression that did not
+  describe them and inside a package that never reads them. Excluding both leaves 0.6 MB.
+  `tests/` and `docs/` stay, since a downstream packager building from source runs the
+  suite. `tests/test_packaging.py` builds the sdist and reads it, because a test
+  asserting that the pyproject *contains* an exclude pattern would pass while the build
+  ignored it.
 
 ### Fixed
 
