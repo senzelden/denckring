@@ -14,7 +14,7 @@ from denckring import __version__
 from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.registry import all_procedures
-from explorer import bench, catalogue_view, corpora, env, witz
+from explorer import bench, catalogue_view, corpora, env, stage, witz
 
 env.load()
 
@@ -62,6 +62,11 @@ def missing(request: Request) -> HTMLResponse:
         gaps=catalogue_view.gaps(),
         unreachable=catalogue_view.unreachable(),
     )
+
+
+@app.get("/stage", response_class=HTMLResponse)
+def the_stage(request: Request, chrome: str = "on") -> HTMLResponse:
+    return page(request, "stage_index.html", scenes=stage.SCENES, chrome_off=chrome == "off")
 
 
 @app.get("/search", response_class=HTMLResponse)
