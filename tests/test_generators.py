@@ -54,7 +54,7 @@ def test_displacement_actually_moves_a_noun() -> None:
     checker tolerates an unchanged noun as a possible verb. So assert movement."""
     pack = get_pack("en")
     produced = generator("n_plus_7").apply("the cat sleeps", lang="en")
-    # Word-level, not substring: cat displaces to `catafalque`, which contains
+    # Word-level, not substring: cat displaces to `catacomb`, which contains
     # "cat" — a naive `not in` check would call a correct displacement a failure.
     assert "cat" not in produced.split()
     expected = pack.nouns()[(pack.noun_index("cat") or 0) + 7]
