@@ -313,7 +313,8 @@ All notable changes to this project are documented here. The format follows
   dropped `tokens` and `fold_diacritics` — it scans raw characters and asks only about
   x-height, and folding first would destroy the ascender the check needs to see;
   `spoonerism` dropped `fold_diacritics` — its onset comparison lives entirely in
-  phonemes, where accents do not apply. `haikuization` is the interesting one: it
+  phonemes, where accents do not apply — and gained `alphabet`, which its written-onset
+  guess does call. `haikuization` is the interesting one: it
   gained `phonemes` early in the batch on the assumption that a rhyme-word reading and
   a line-end reading could be told apart, then lost it again, because this codebase's
   rhyme machinery always resolves a line to its final word regardless of whether it

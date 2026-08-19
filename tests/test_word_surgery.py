@@ -6,9 +6,12 @@ tmesis, `phonemes` for spoonerism — installed alongside this suite.
 import pytest
 
 from denckring import check
-from denckring.core.errors import NoCandidateWord
+from denckring.core import catalogue
+from denckring.core.errors import MissingCapability, NoCandidateWord
 from denckring.core.protocol import Constructive
 from denckring.core.registry import get
+from denckring.lang.en import EnglishPack
+from denckring.procedures import spoonerism
 
 
 def test_tmesis_accepts_the_classic_example() -> None:
@@ -85,3 +88,30 @@ def test_spoonerism_apply_refuses_a_single_word() -> None:
     assert isinstance(procedure, Constructive)
     with pytest.raises(NoCandidateWord):
         procedure.apply("solo", lang="en")
+
+
+def test_spoonerism_apply_names_a_missing_capability_instead_of_swallowing_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """T14: `apply` had no `require_capability` guard, and `check`'s template method
+    is not above it. On a pack without `phonemes` the call reached `_onset_or_none`,
+    whose `except MissingCapability` exists to tolerate one unknown *word* and
+    swallowed a missing *capability* instead — so "install denckring[en]" came back
+    as "no candidate word". `anagram` is the pattern this now follows.
+    """
+    monkeypatch.setattr("denckring.lang.get_pack", lambda lang="en": EnglishPack())
+    procedure = get("spoonerism")
+    assert isinstance(procedure, Constructive)
+    with pytest.raises(MissingCapability) as exc_info:
+        procedure.apply("cat dog", lang="en")
+    assert exc_info.value.capability == "phonemes"
+
+
+def test_spoonerism_declares_the_capability_its_written_onset_needs() -> None:
+    """`_letter_onset` calls `pack.vowels()`, which is `alphabet` — the same call
+    `supervocalic` declares it for. The row's docstring also still asserted a
+    `requires` of `[tokens, fold_diacritics, phonemes]` two corrections after that
+    stopped being true."""
+    assert catalogue.get("spoonerism").requires == ["tokens", "alphabet", "phonemes"]
+    assert spoonerism.__doc__ is not None
+    assert "[tokens, alphabet, phonemes]" in spoonerism.__doc__
