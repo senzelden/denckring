@@ -1,0 +1,18 @@
+{% extends "stage.html" %}
+{% block title %}The board — denckring{% endblock %}
+{% block main_class %} stage-tall{% endblock %}
+{% block main %}
+<h1>The board</h1>
+<p class="scoreboard">{{ scoreboard }}</p>
+<ul class="board">
+  {% for tile in tiles %}
+  <li class="tile {{ tile.state }}">
+    <a href="/p/{{ tile.id }}">
+      <span class="tile-id">{{ tile.id }}</span>
+      <span class="tile-cases">{{ tile.cases }}</span>
+    </a>
+    {% if tile.detail %}<p class="tile-detail">{{ tile.detail }}</p>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
