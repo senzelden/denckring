@@ -26,7 +26,7 @@ cases:
       wind und wellen wehten wild
       berge brachen brausend breit
       kalte klare quellen kamen
-      sturm schlug scharf ins schiff
+      sturm stand stark am strand
     params: { minimum: 3 }
     satisfied: true
   - name: eine-zeile-bricht-die-kette
