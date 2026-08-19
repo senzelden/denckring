@@ -325,6 +325,18 @@ All notable changes to this project are documented here. The format follows
   suite. `tests/test_packaging.py` builds the sdist and reads it, because a test
   asserting that the pyproject *contains* an exclude pattern would pass while the build
   ignored it.
+- A stability statement in the README, naming the four surfaces treated as contracts
+  through `0.x` — procedure ids, `Report` as JSON, the catalogue export schema and the
+  `denckring.lang` entry-point group — and what is expected to move: violation `rule`
+  strings, `metrics` keys, message wording and `denckring.core`. The README already
+  promised "stable JSON for non-Python callers" and left the scope of that promise to be
+  guessed at.
+- A naming policy in the README. Apache-2.0 section 6 reserves the name and says nothing
+  about permitted use, so the reservation is stated as something that can be complied
+  with: redistribute unmodified under the name, describe compatibility freely, rename
+  before publishing a modified version.
+- `denckring --version`. `__version__` was exported from the library and unreachable from
+  the command line.
 
 ### Fixed
 
@@ -433,5 +445,13 @@ All notable changes to this project are documented here. The format follows
   place and `ed`/`ing` bought two extra resolutions of which both were wrong, so only
   `s`/`es` is kept. The docstring no longer claims resolution never guesses: it is
   best-effort, and only the empty sequence is a guarantee.
+- The three distributions are version-locked to each other. `denckring-en-data`
+  subclasses the core English pack, and `release.yml` publishes all three from one
+  workflow for exactly that reason, but each declared a bare `denckring` dependency and
+  each extra a bare data-package one — so `pip install denckring-en-data` was free to
+  pair a subclass with a core it was never built against. All four declarations now pin
+  `==0.1.0`; `[tool.uv.sources]` keeps local development on the workspace copies.
+- `project.urls` gained Documentation and Changelog entries, which are what PyPI's
+  sidebar shows.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main

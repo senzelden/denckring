@@ -25,16 +25,18 @@ dependencies = ["pydantic>=2.7", "pyyaml>=6.0", "typer>=0.12"]
 
 [project.optional-dependencies]
 # Exact syllable counts and rhyme, from the CMU Pronouncing Dictionary.
-en = ["denckring-en-data"]
+en = ["denckring-en-data==0.1.0"]
 # Word membership and a noun list for German, from Wikidata Lexemes.
-de = ["denckring-de-data"]
+de = ["denckring-de-data==0.1.0"]
 # An MCP server, so a model can check its own constrained writing.
 mcp = ["mcp[cli]>=2"]
 
 [project.urls]
 Homepage = "https://github.com/senzelden/denckring"
+Documentation = "https://senzelden.github.io/denckring/"
 Repository = "https://github.com/senzelden/denckring"
 Issues = "https://github.com/senzelden/denckring/issues"
+Changelog = "https://github.com/senzelden/denckring/blob/main/CHANGELOG.md"
 
 [project.scripts]
 denckring = "denckring.cli:app"

@@ -74,3 +74,13 @@ def test_unknown_language_is_reported_not_traced(tmp_path: Path) -> None:
     result = runner.invoke(app, ["check", "lipogram", str(path), "--lang", "fr"])
     assert result.exit_code == 2
     assert "denckring[fr]" in result.stdout
+
+
+def test_version_prints_the_installed_version() -> None:
+    """`__version__` was exported from the library but unreachable from the command
+    line, which is where a bug report is written from."""
+    from denckring import __version__
+
+    result = runner.invoke(app, ["--version"])
+    assert result.exit_code == 0
+    assert __version__ in result.stdout

@@ -13,7 +13,8 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic",
     "Typing :: Typed",
 ]
-dependencies = ["denckring"]
+# Version-locked, for the reason denckring-en-data records.
+dependencies = ["denckring==0.1.0"]
 
 [project.entry-points."denckring.lang"]
 de = "denckring_de_data:GermanDataPack"
