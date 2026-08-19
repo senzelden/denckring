@@ -89,3 +89,20 @@ def test_readme_mentions_the_licence_split() -> None:
     text = README.read_text(encoding="utf-8")
     assert "Apache-2.0" in text
     assert "CC BY 4.0" in text
+
+
+def test_readme_states_what_is_stable() -> None:
+    """A README that promises "stable JSON for non-Python callers" and never says what
+    that covers leaves every future change to judgement. These four surfaces are the ones
+    outside code depends on, so the promise has to name them."""
+    text = README.read_text(encoding="utf-8")
+    assert "## What is stable" in text
+    surfaces = ("Procedure ids", "`Report` as JSON", "catalogue export schema", "denckring.lang")
+    for surface in surfaces:
+        assert surface in text, f"the stability section does not name {surface}"
+
+
+def test_readme_says_what_the_name_may_be_used_for() -> None:
+    """Apache-2.0 section 6 reserves the name and says nothing about permitted use. A
+    reservation nobody can comply with protects less than a stated policy."""
+    assert "## Using the name" in README.read_text(encoding="utf-8")
