@@ -1473,14 +1473,16 @@ procedures:
     prompt_hints:
       en: Split words apart and wedge other words inside them.
     notes: >-
-      German declared: the classical figure is not the English colloquial
-      idiom the definition's example quotes, but German's own compounding —
-      genuinely splitting a compound and wedging material into the seam — is
-      the same operation the checker performs (a hyphen-joined run whose
-      outer parts rejoin as a lexicon word), and German's separable-verb
-      prefixes are independently attested under this same name in German
-      grammatical description. The mechanism, not the English idiom, is what
-      transfers.
+      German declared on what the checker actually tests: a hyphen-joined run
+      whose outer parts rejoin as a lexicon word. German compounding gives
+      that operation more material than English does — *Fern-seltsam-seher*
+      splits *Fernseher* at a real seam — so the mechanism transfers even
+      though the definition's example quotes an English colloquial idiom.
+      Separable-verb prefixes are the other thing called tmesis in German
+      grammatical description, and they are outside this row: *er machte die
+      Tür auf* carries no hyphen, so the checker does not see it and reports
+      `too_few_splits`. Deciding that case needs the part-of-speech capability
+      no pack provides, the same one `homosyntaxism` is blocked on.
 
   - id: melting_text
     names: { en: Melting text }
@@ -1515,7 +1517,7 @@ procedures:
     attested: codified
     kind: both
     languages: [en]
-    requires: [tokens, phonemes]
+    requires: [tokens, alphabet, phonemes]
     deterministic: true
     prompt_hints:
       en: Exchange the opening sounds of two words so that both results are words.
