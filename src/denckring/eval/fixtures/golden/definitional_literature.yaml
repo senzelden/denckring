@@ -1,0 +1,34 @@
+procedure: definitional_literature
+lang: en
+cases:
+  - name: one-round-expansion
+    source: >-
+      constructed example, both rounds performed with `get_pack("en").glosses`
+      rather than hand-typed. `key`'s fourth sense — "something crucial for
+      explaining" — replaces it; `the` does not resolve and stays, which is why
+      `estimated_words` reports 1. One round is definitional literature as much
+      as two are, so this passes with `iterations` 1.
+    text: |-
+      the something crucial for explaining
+    params: { source: "the key" }
+    satisfied: true
+  - name: two-round-expansion
+    source: >-
+      the case above put through the procedure a second time: of that gloss's own
+      words only `crucial` resolves, and it is replaced by its first sense, while
+      `something`, `for` and `explaining` resolve to nothing and stay as they are.
+      No single round reaches this text — `definitional_expansion` rejects it —
+      and two rounds do.
+    text: |-
+      the something of extreme importance; vital to the resolution of a crisis for explaining
+    params: { source: "the key" }
+    satisfied: true
+  - name: no-round-count-reaches-it
+    source: >-
+      constructed counterexample; the source retyped unchanged. Zero rounds is
+      not what the procedure asks for, so `key` is reported `not_expanded` and
+      `iterations` is 0.
+    text: |-
+      the key
+    params: { source: "the key" }
+    satisfied: false
