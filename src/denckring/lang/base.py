@@ -21,6 +21,7 @@ SYLLABLES_HEURISTIC = "syllables.heuristic"
 SYLLABLES_DICTIONARY = "syllables.dictionary"
 NOUNS = "lexicon.nouns"
 WORDS = "lexicon.words"
+GLOSSES = "lexicon.glosses"
 PHONEMES = "phonemes"
 STRESS = "stress"
 
@@ -120,6 +121,15 @@ class BasePack:
     def is_word(self, word: str) -> bool:
         """Whether the lexicon knows this word at all."""
         raise MissingCapability(DIRECT_CALL, self.lang, WORDS)
+
+    def glosses(self, word: str) -> Sequence[str]:
+        """Every definition the lexicon carries for this word.
+
+        Every sense, not the first: which sense a writer meant is not knowable
+        from the text, so a caller that accepts any of them is the honest reader.
+        An empty sequence means the lexicon could not resolve the word at all.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, GLOSSES)
 
     def nouns(self) -> Sequence[str]:
         """Every noun the lexicon knows, in dictionary order.

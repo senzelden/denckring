@@ -1,0 +1,37 @@
+"""Definitions, and an honest answer when there are none."""
+
+import pytest
+
+from denckring.core.errors import MissingCapability
+from denckring.lang import get_pack
+from denckring.lang.en import EnglishPack
+
+
+def test_a_pack_without_the_capability_raises() -> None:
+    with pytest.raises(MissingCapability):
+        EnglishPack().glosses("bank")
+
+
+def test_every_sense_is_returned_not_just_the_first() -> None:
+    """A writer replacing `bank` with the riverbank sense is doing the procedure
+    correctly, so a checker accepting only the first sense rejects correct work."""
+    found = get_pack("en").glosses("bank")
+    assert len(found) > 1
+
+
+def test_an_inflected_form_resolves_through_the_fallback() -> None:
+    assert get_pack("en").glosses("birds")
+
+
+def test_an_irregular_form_is_out_of_reach() -> None:
+    """`went` needs irregular morphology — go -> went is not a plain inflection —
+    so resolution cannot reach it and returns nothing rather than a guess."""
+    assert get_pack("en").glosses("went") == ()
+
+
+def test_an_unresolvable_word_returns_nothing_rather_than_guessing() -> None:
+    """`flurbish` is not a word at all, in any inflection. Resolution tries it,
+    its lemma, and the plain-inflection fallback, and all of them come up empty —
+    the rows that consume this count such words and disclose them; none of them
+    guess."""
+    assert get_pack("en").glosses("flurbish") == ()
