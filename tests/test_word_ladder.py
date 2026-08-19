@@ -1,6 +1,7 @@
 """Carroll's doublets: one letter per step, every step a word."""
 
 from denckring import check
+from denckring.core.protocol import Constructive
 from denckring.core.registry import get
 
 
@@ -23,7 +24,9 @@ def test_a_step_that_is_not_a_word_is_rejected() -> None:
 
 def test_apply_finds_a_ladder_its_own_check_accepts() -> None:
     """The round-trip property every generative row must satisfy."""
-    ladder = get("word_ladder").apply("cold", target="warm")  # type: ignore[attr-defined]
+    procedure = get("word_ladder")
+    assert isinstance(procedure, Constructive)
+    ladder = procedure.apply("cold", target="warm")
     assert check("word_ladder", ladder).satisfied is True
     assert ladder.split()[0] == "cold"
     assert ladder.split()[-1] == "warm"
