@@ -11,9 +11,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from denckring import __version__
+from denckring import check as denckring_check
 from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
-from denckring.core.registry import all_procedures
+from denckring.core.protocol import Constructive
+from denckring.core.registry import all_procedures, get
 from explorer import bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
@@ -79,6 +81,32 @@ def the_board(request: Request) -> HTMLResponse:
 @app.get("/stage", response_class=HTMLResponse)
 def the_stage(request: Request, chrome: str = "on") -> HTMLResponse:
     return page(request, "stage_index.html", scenes=stage.SCENES, chrome_off=chrome == "off")
+
+
+@app.get("/stage/denckring", response_class=HTMLResponse)
+def stage_denckring(request: Request, chrome: str = "on") -> HTMLResponse:
+    return page(
+        request,
+        "stage_denckring.html",
+        scene=stage.scene("denckring"),
+        rings=stage.rings(),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/denckring/act", response_class=HTMLResponse)
+async def stage_denckring_act(request: Request) -> HTMLResponse:
+    """Check the word the rings currently spell, or turn them to a new one."""
+    form = dict(await request.form())
+    word = str(form.get("word", ""))
+    if form.get("turn"):
+        procedure = get("denckring")
+        # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps
+        # it off `BaseProcedure` because it is optional. Narrow once, here.
+        assert isinstance(procedure, Constructive)
+        word = procedure.apply("", lang="en")
+    report = denckring_check("denckring", word) if word else None
+    return page(request, "_stage_word.html", word=word, report=report)
 
 
 @app.get("/search", response_class=HTMLResponse)
