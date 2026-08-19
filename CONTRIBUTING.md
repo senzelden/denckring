@@ -12,7 +12,7 @@
 ## Adding a procedure
 
 ```console
-uv run denckring new <id>
+uv run python scripts/new_procedure.py <id>
 ```
 
 That writes five files from templates — module, test, Hypothesis strategy, golden
