@@ -6,7 +6,7 @@ cases:
     text: |-
       the cat can see the moon above the tree
       the dog will run across the field today
-      a bird can fly around the house at three
+      a kestrel flies around the house at three
       the sun will set behind the hill in may
       the fox will hide beneath the fallen stone
       the fish will swim beneath the frozen lake
@@ -36,5 +36,43 @@ cases:
       the stars will burn until the end of night
       the mouse will hide behind the open till
       the clock will mark the passing of the time
+    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
+    satisfied: false
+  - name: fourteen-lines-one-mis-rhymed
+    source: constructed counterexample; fourteen lines, one broken rhyme and nothing else
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+      a bird can fly around the house at dawn
+      the sun will set behind the hill in may
+      the fox will hide beneath the fallen stone
+      the fish will swim beneath the frozen lake
+      the owl will call across the dark alone
+      the deer will wake before the morning break
+      the moon will rise and fill the sky with light
+      the horse will stand beside the gate so still
+      the stars will burn until the end of night
+      the mouse will hide behind the open till
+      the clock will mark the passing of the time
+      the bell will ring and slowly start to chime
+    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
+    satisfied: false
+  - name: fourteen-lines-one-unmetrical
+    source: constructed counterexample; fourteen lines, one trochee against the beat
+    text: |-
+      the cat can see the moon over the tree
+      the dog will run across the field today
+      a bird can fly around the house at three
+      the sun will set behind the hill in may
+      the fox will hide beneath the fallen stone
+      the fish will swim beneath the frozen lake
+      the owl will call across the dark alone
+      the deer will wake before the morning break
+      the moon will rise and fill the sky with light
+      the horse will stand beside the gate so still
+      the stars will burn until the end of night
+      the mouse will hide behind the open till
+      the clock will mark the passing of the time
+      the bell will ring and slowly start to chime
     params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
     satisfied: false
