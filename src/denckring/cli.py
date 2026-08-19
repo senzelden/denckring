@@ -11,6 +11,7 @@ from typing import Annotated, Any, cast, get_args
 
 import typer
 
+from denckring import __version__
 from denckring.core import catalogue
 from denckring.core.describe import describe, summaries
 from denckring.core.errors import DenckringError, UnknownLanguage
@@ -19,6 +20,23 @@ from denckring.core.registry import all_procedures, get
 from denckring.eval import harness
 
 app = typer.Typer(add_completion=False, help="Experimental writing procedures.")
+
+
+def _version(value: bool) -> None:
+    """Print the installed version and stop. The first thing a bug report needs."""
+    if value:
+        typer.echo(f"denckring {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: Annotated[
+        bool, typer.Option("--version", callback=_version, is_eager=True, help="Show the version.")
+    ] = False,
+) -> None:
+    """Experimental writing procedures."""
+
 
 catalogue_app = typer.Typer(help="Work with the catalogue as data.")
 app.add_typer(catalogue_app, name="catalogue")

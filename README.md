@@ -80,6 +80,28 @@ is a parameter: `fold_diacritics` defaults to true and can be turned off per cal
 questions never fold — *Masse* satisfies the prisoner's constraint and *Maße* does not,
 because a written `ß` carries an ascender.
 
+## What is stable
+
+`0.x` means the API can change in a minor release, and the changelog says when it does.
+Four surfaces are treated as contracts regardless, because things outside this repository
+are built on them:
+
+- **Procedure ids.** An id that has shipped does not change meaning. When a row is
+  replaced, the old id stays findable through `denckring search` as an alias — though
+  `get` resolves ids only, and raises `UnknownProcedure` naming the replacement.
+  `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
+- **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
+  the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
+  added; the ones already there do not change type or meaning.
+- **The catalogue export schema** (`denckring catalogue export`), including the `licence`
+  and `attribution` keys the CC BY terms are carried by.
+- **The `denckring.lang` entry-point group** and the capability names a pack declares, so
+  an installed third-party pack keeps working.
+
+Not stable, and expected to move: violation `rule` strings, `metrics` keys, message
+wording, and everything under `denckring.core`. A check's *verdict* is a contract; the
+reason it gives for a failure is not one yet.
+
 ## Three ways in
 
 ```python
@@ -164,6 +186,15 @@ strategy, golden fixture and catalogue row. See
 The *Fünffacher Denckring der Teutschen Sprache* (Harsdörffer, 1651) is one device
 among the hundred and fifty catalogued here, not the whole subject. Werkzeug is not
 only about tools either. Searching for `oulipy` will also find this package.
+
+## Using the name
+
+The name is reserved — Apache-2.0 grants no trade mark rights (section 6), which is what
+keeps a fork from publishing as this project. What that reservation permits, stated so it
+can be complied with rather than guessed at: redistribute the package unmodified under
+the name freely, say that your work uses or is compatible with denckring freely, and
+rename before publishing a modified version. "denckring" in the name of a package you
+publish, or on a site presenting your fork as the original, is the line.
 
 ## The catalogue as data
 
