@@ -305,7 +305,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: false
     prompt_hints:
@@ -362,7 +362,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: false
     prompt_hints:
@@ -380,7 +380,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -399,7 +399,7 @@ procedures:
     attested: author-stated
     aliases: [mesostich]
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1071,7 +1071,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
@@ -1090,7 +1090,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
@@ -1151,7 +1151,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1226,7 +1226,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     notes: >-
@@ -1239,6 +1239,14 @@ procedures:
       `phonemes` was added to `requires` in an earlier correction on the
       assumption the two readings could be told apart; they cannot, so that
       correction is reversed and this row runs on `tokens` alone.
+
+      German declared: borderline, recorded rather than silently assumed. The
+      name evokes a Japanese form neither language's version actually is —
+      what "haikuization" checks is the Oulipo reduction (keep each line's
+      last word, discard the rest), a purely positional operation on line
+      ends that reads and means the same thing whichever language the source
+      poem is in. The name's cultural loading is cosmetic, not part of what
+      is checked.
     prompt_hints:
       en: Keep only the rhyming words of each line and present what remains as the poem.
 
@@ -1257,7 +1265,7 @@ procedures:
     attested: author-stated
     aliases: [doublets, word golf]
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
@@ -1445,11 +1453,20 @@ procedures:
     checkability: self
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Split words apart and wedge other words inside them.
+    notes: >-
+      German declared: the classical figure is not the English colloquial
+      idiom the definition's example quotes, but German's own compounding —
+      genuinely splitting a compound and wedging material into the seam — is
+      the same operation the checker performs (a hyphen-joined run whose
+      outer parts rejoin as a lexicon word), and German's separable-verb
+      prefixes are independently attested under this same name in German
+      grammatical description. The mechanism, not the English idiom, is what
+      transfers.
 
   - id: melting_text
     names: { en: Melting text }
@@ -1502,11 +1519,18 @@ procedures:
     attested: codified
     aliases: [univocalic lipogram pair, multiple constraint]
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
       en: Satisfy both named constraints in the same passage, without relaxing either.
+    notes: >-
+      German declared: this row's own logic needs only `tokens`, which is
+      what `languages` records. It says nothing about whether a *particular*
+      composition works in German — that depends on whichever constraints
+      are named in `constraints`, exactly as it already does in English; a
+      caller naming a German-incompatible constraint gets that constraint's
+      own `MissingCapability`, not a false pass from this row.
 
   - id: definitional_expansion
     names: { en: Definitional expansion }
@@ -1708,10 +1732,16 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
       en: Write five lines rhyming AABBA with the middle two lines shorter.
+    notes: >-
+      Only the rhyme scheme is checked: `_check` calls `form_report` with
+      `scheme="AABBA"` and no `metre`, so the anapestic metre and the shorter
+      middle couplet the definition names are never scanned. `stress` was
+      declared for that unimplemented half and is removed rather than kept
+      as an aspiration a caller cannot see is unreached.
 
   - id: clerihew
     names: { en: Clerihew }
@@ -2150,7 +2180,7 @@ procedures:
     attested: codified
     aliases: [stabreim]
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -2437,7 +2467,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -2493,7 +2523,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: false
     prompt_hints:
@@ -2613,7 +2643,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
@@ -2629,7 +2659,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
@@ -2788,7 +2818,7 @@ procedures:
     checkability: source
     attested: codified
     kind: constructive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:

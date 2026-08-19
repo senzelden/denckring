@@ -21,3 +21,25 @@ cases:
         one bird flew high
       column: 1
     satisfied: false
+  - name: zweites-wort-jeder-zeile-gelesen
+    lang: de
+    source: constructed example; the procedure is from Oulipo's Atlas de littérature potentielle
+    text: katze hund vogel
+    params:
+      source: |-
+        die katze schlief tief
+        ein hund lief schnell
+        ein vogel flog hoch
+      column: 2
+    satisfied: true
+  - name: erste-spalte-ist-die-falsche
+    lang: de
+    source: constructed counterexample
+    text: katze hund vogel
+    params:
+      source: |-
+        die katze schlief tief
+        ein hund lief schnell
+        ein vogel flog hoch
+      column: 1
+    satisfied: false

@@ -19,3 +19,23 @@ cases:
       the quiet evening came down slowly
     params: { minimum: 3 }
     satisfied: false
+  - name: vier-zeilen-mit-drei-stabreimen
+    lang: de
+    source: constructed example; German Stabreim is the tradition this row's name already names
+    text: |-
+      wind und wellen wehten wild
+      berge brachen brausend breit
+      kalte klare quellen kamen
+      sturm schlug scharf ins schiff
+    params: { minimum: 3 }
+    satisfied: true
+  - name: eine-zeile-bricht-die-kette
+    lang: de
+    source: constructed counterexample
+    text: |-
+      wind und wellen wehten wild
+      berge brachen brausend breit
+      kalte klare quellen kamen
+      der abend kam still herein
+    params: { minimum: 3 }
+    satisfied: false
