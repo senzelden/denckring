@@ -31,3 +31,22 @@ cases:
       the birds will sing before the break of day
     params: {}
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      blorf cat can see the moon above the tree
+      the dog will run across the field today
+      the sun will set behind the hill in may
+      a bird can fly around the house at three
+      the boat will drift below the open sea
+      the wind will move the grass and blow away
+      the light will fade before the end of day
+      the child will run across the field so free
+      the fox will hide beneath the fallen stone
+      the fish will swim beneath the frozen lake
+      the moon will rise and fill the sky with light
+      the owl will call across the dark alone
+      the deer will wake before the morning break
+      the stars will burn until the end of night
+    params: {}
+    satisfied: true
