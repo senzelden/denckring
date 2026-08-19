@@ -14,7 +14,7 @@ print(report.satisfied, report.score)
 $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
-152 catalogued · 126 implementable · 115 implemented · 115 validated · 26 not mechanically checkable
+152 catalogued · 126 implementable · 116 implemented · 116 validated · 26 not mechanically checkable
 ```
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
@@ -44,10 +44,10 @@ English's, rather than registering through a separate path.
 
 ## What's here
 
-A hundred and fifteen of the 152 catalogued procedures are implemented, and every
+A hundred and sixteen of the 152 catalogued procedures are implemented, and every
 one of them is validated. Of the rest, 26 have no mechanical acceptance criterion and
 are catalogued rather than implemented — see
-[What can be checked](#what-can-be-checked) — and the remaining 11 are sourced and
+[What can be checked](#what-can-be-checked) — and the remaining 10 are sourced and
 awaiting implementation. `denckring list`
 shows what this install can run; `denckring list --status catalogued` shows
 everything.
