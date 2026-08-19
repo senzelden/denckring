@@ -867,7 +867,7 @@ procedures:
     aliases: [marsupial word]
     kind: restrictive
     languages: [en]
-    requires: [tokens, fold_diacritics, lexicon.synonyms]
+    requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Find words that carry a synonym of themselves inside their own letters, in order.
@@ -1185,10 +1185,15 @@ procedures:
     attested: author-stated
     kind: constructive
     languages: [en]
-    requires: [tokens, lexicon.synonyms]
+    requires: [tokens, pos]
     deterministic: false
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
+    notes: >-
+      Blocked on the same `pos` capability as `homosyntaxism` and `verbless_prose`.
+      This row empties a text of its nouns, verbs and adjectives and refills each
+      class from a different source, which is a part-of-speech operation; it was
+      previously filed under `lexicon.synonyms`, which it never needed.
 
   - id: canada_dry
     names: { en: Canada Dry }
@@ -1443,6 +1448,11 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Replace every meaningful word with its opposite and keep the grammar unchanged.
+    notes: >-
+      Blocked, and a larger thesaurus will not unblock it. Of Open English
+      WordNet's lemmas, 6,633 have any antonym at all, and only 2 of 11 content
+      words in plain prose have one. "Every substantive word replaced by its
+      opposite" is not satisfiable by ordinary text.
 
   - id: synonymic_substitution
     names: { en: Synonymic substitution }
@@ -1461,6 +1471,12 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Replace each meaningful word with a synonym, then do it again to the result.
+    notes: >-
+      Blocked, and a larger thesaurus will not unblock it. WordNet synonymy is
+      synset co-membership: of twelve substitutions a writer would naturally
+      make, five are co-members, and only four of eleven content words in plain
+      prose have any synonym at all. "Every substantive word replaced by a
+      synonym" is not satisfiable by ordinary text.
 
   - id: tmesis
     names: { en: Tmesis, de: Tmesis, fr: Tmèse }
@@ -2654,6 +2670,11 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Translate the passage into its opposite, term by term.
+    notes: >-
+      Blocked, and a larger thesaurus will not unblock it. Of Open English
+      WordNet's lemmas, 6,633 have any antonym at all, and only 2 of 11 content
+      words in plain prose have one. "Each element replaced by its opposite" is
+      not satisfiable by ordinary text.
 
   - id: definitional_translation
     names: { en: Definitional translation }
@@ -2668,10 +2689,15 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.glosses]
+    requires: [tokens, lexicon.glosses.bilingual]
     deterministic: true
     prompt_hints:
       en: Replace each word of the source with its definition in the target language.
+    notes: >-
+      Blocked: replacing each word by its definition *in the target language*
+      needs glosses in two languages. English glosses do not serve it, and no
+      pack ships non-English ones. Named alongside `homophonic_translation`'s
+      `phonemes.bilingual` for the same reason.
 
   - id: lipogrammatic_translation
     names: { en: Lipogrammatic translation, de: Lipogrammatische Übersetzung }
