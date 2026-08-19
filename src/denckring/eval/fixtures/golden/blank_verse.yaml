@@ -19,3 +19,12 @@ cases:
       the sun will set behind the hill in may
     params: {}
     satisfied: false
+  - name: unknown-word-mid-line
+    source: constructed example; an invented word reaches the stress fallback
+    text: |-
+      blorf cat can see the moon above the tree
+      the dog will run across the field today
+      the fox will hide beneath the fallen stone
+      the moon will rise behind the hill at nine
+    params: {}
+    satisfied: true

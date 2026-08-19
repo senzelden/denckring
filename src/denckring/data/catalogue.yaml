@@ -462,7 +462,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write unrhymed lines of five iambic feet each.
@@ -1953,7 +1953,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
@@ -1992,7 +1992,7 @@ procedures:
     aliases: [italian sonnet]
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write an octave rhyming ABBAABBA, then a sestet that answers it.
@@ -2013,7 +2013,7 @@ procedures:
     aliases: [english sonnet]
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write three quatrains and a closing couplet in iambic pentameter.
@@ -2047,7 +2047,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, phonemes, stress]
+    requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write in rhyming pairs of ten-syllable iambic lines.
@@ -2067,7 +2067,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
@@ -2089,7 +2089,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
       Checked as English accentual verse: classical quantity is vowel length,
@@ -2112,7 +2112,7 @@ procedures:
     aliases: [distich]
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
       The pair forming one unit of sense is the form's point and is not
@@ -2152,7 +2152,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write lines of five iambic feet, ten syllables alternating unstressed and stressed.
@@ -2168,7 +2168,7 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en]
-    requires: [tokens, stress]
+    requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
       en: Write lines of four trochees, each foot stressed then unstressed.
