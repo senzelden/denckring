@@ -21,11 +21,14 @@ substitute for what this property cannot reach.
 
 `TEXT` carries `\n` in its alphabet, and that is load-bearing rather than
 incidental. Without it this property was vacuous for every line- or page-oriented
-generator — `fold_in`, `text_folding`, `mathews_algorithm`, `column_reading`,
-`haikuization`, `word_ladder`, `spoonerism`, `ideenwuerfeln` and
-`arca_musarithmica` raised on every example Hypothesis could draw, were swallowed
-by the same `except DenckringError` the parameter gap uses, and the docstring above
-said four when the true figure was nine.
+generator: `fold_in`, `text_folding`, `mathews_algorithm` and `ideenwuerfeln`
+raised on every example Hypothesis could draw, so eight rows were unreached where
+an earlier version of this paragraph named nine — the other four being the
+parameter-gated set the first paragraph above does name. That earlier count was
+wrong twice over rather than merely off by one: `column_reading`, `haikuization`
+and `spoonerism` were in fact reached (`spoonerism` on inputs like `'wu u pzyh'`,
+via its letter-onset fallback), while `pasigraphy` and `slenderizing` — both
+already parameter-gated — went unnamed.
 """
 
 from hypothesis import given, settings

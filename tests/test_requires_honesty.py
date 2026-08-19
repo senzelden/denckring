@@ -92,6 +92,28 @@ existed. Had this guard existed then, `phonemes` would have shown as "reached" (
 happened) and the assertion would have passed, missing the defect entirely. Seeing that
 requires asking whether a returned value affects the verdict, which is a per-row
 semantic question neither a method-name spy nor a capability gate has any way to answer.
+
+**A gap `test_declared_capabilities_are_sufficient` itself does not close.** That test
+can only refuse a capability path a row's golden fixtures actually walk; a row whose
+fixtures happen never to need a capability its own code can still reach passes
+regardless of what `_check` declares. Ten metre-scanning rows — `alcaic_stanza`,
+`blank_verse`, `elegiac_couplet`, `heroic_couplet`, `iambic_pentameter`,
+`petrarchan_sonnet`, `rhyme_royal`, `sapphic_stanza`, `shakespearean_sonnet` and
+`trochaic_tetrameter` — declare `stress` without `syllables.heuristic`, yet all reach
+it: `prosody.word_stress`'s fallback for a word its stress dictionary lacks calls
+`pack.syllable_count`, which is exactly `syllables.heuristic`. None of the ten's golden
+fixtures contains such a word, so the fallback is never walked and
+`test_declared_capabilities_are_sufficient` is green for all ten — they are latent,
+not fixed. Confirmed live rather than only inferred: under a pack carrying exactly
+`iambic_pentameter`'s or `blank_verse`'s declared capabilities, checking `"a kestrel
+flies around the house at three"` — an ordinary sentence, not an adversarial one —
+raises `MissingCapability('syllables.heuristic')` for both. All ten pre-date this
+branch, and no pack this codebase ships today exposes the gap (`EnglishPack` has the
+heuristic but not `stress`; `en-data` has both; `de` has neither), so nothing
+shippable hits it yet. But a row that survives this guard has not thereby proved what
+the guard's own docstring above claims it proves, and closing the gap needs a fixture
+batch that gives each of the ten a word its stress dictionary lacks — its own piece of
+work, not attempted here.
 """
 
 from __future__ import annotations
