@@ -92,7 +92,7 @@ def letter_class_report(
     return ClassResult(violations, good, max(len(expected), len(actual)))
 
 
-def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> ClassResult:
+def selection_report(chosen: list[tuple[int, str]], source: str, pack: LanguagePack) -> ClassResult:
     """Whether every chosen word is drawn from the source, in the source's order.
 
     Order matters: a selection that reorders the source is a different procedure.
@@ -101,9 +101,17 @@ def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> Clas
     line — that is the only part the two selection rows do not share. Extracted from
     `diastic`, written by hand first with this loop inline: see that row's history
     for what the hand-written version taught about the signature (`chosen` is a
-    plain list of words, not a `(text, params)` pair, because the caller has
+    flat list of words, not a `(text, params)` pair, because the caller has
     already tokenised its own candidate list, by word for `diastic` and by line's
     words for `mesostic`, before either can even ask whether it is in the source).
+
+    `chosen` carries offsets rather than bare words. It took `list[str]`, which
+    structurally forced `offset=None` on every `not_in_source` violation any caller
+    could produce — while all four callers computed the offsets and threw them away
+    in the same comprehension. `rearrangement_report` keeps `list[str]`: its
+    `missing_part` violation names something *absent* from the text and so has no
+    offset to give, and pairing that with an offset-bearing `invented_part` would
+    be a wider change for half an answer.
 
     Unlike `letter_class_report`, this floors `total` at 1 even when `chosen` is
     empty: an empty selection is not vacuously a reading of anything, so it scores
@@ -115,7 +123,7 @@ def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> Clas
     violations: list[Violation] = []
     good = 0
     cursor = 0
-    for word in chosen:
+    for offset, word in chosen:
         folded = word.casefold()
         try:
             cursor = available.index(folded, cursor) + 1
@@ -123,7 +131,7 @@ def selection_report(chosen: list[str], source: str, pack: LanguagePack) -> Clas
             violations.append(
                 Violation(
                     rule="not_in_source",
-                    offset=None,
+                    offset=offset,
                     found=word,
                     expected="a word from the source, after the previous one",
                 )

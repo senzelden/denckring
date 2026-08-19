@@ -36,6 +36,19 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: SpenserianStanzaParams) -> Report:
         metre = stanza_violations(text, pack, PATTERNS)
+        # `stanza_violations` and `scheme_violations` each short-circuit on a
+        # wrong line count, independently, so running both on a text of the wrong
+        # length reported the same fault twice — one text, one length, two
+        # identical violations. The metre scan's verdict is the one kept, matching
+        # `form_report`, which returns after its own line-count check rather than
+        # running the scheme as well.
+        if any(violation.rule == "wrong_line_count" for violation in metre.violations):
+            return self._report(
+                good=metre.good,
+                total=metre.total,
+                violations=metre.violations,
+                metrics={"checks": float(metre.total), "estimated_words": 0.0},
+            )
         found, matched, checks = scheme_violations(text, pack, SCHEME, allow_identical=False)
         return self._report(
             good=metre.good + matched,
