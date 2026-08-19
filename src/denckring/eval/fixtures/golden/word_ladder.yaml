@@ -1,0 +1,15 @@
+procedure: word_ladder
+lang: en
+cases:
+  - name: cold-to-warm
+    source: Lewis Carroll's own example ladder, Doublets, a Word Puzzle (1879)
+    text: |-
+      cold cord card ward warm
+    params: {}
+    satisfied: true
+  - name: two-letters-in-one-step
+    source: constructed counterexample; card to warm changes two letters at once
+    text: |-
+      cold card warm
+    params: {}
+    satisfied: false
