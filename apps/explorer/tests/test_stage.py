@@ -65,3 +65,15 @@ def test_the_denckring_scene_renders() -> None:
     response = client.get("/stage/denckring")
     assert response.status_code == 200
     assert "ring-0" in response.text
+
+
+def test_the_rings_show_a_valid_word_on_first_paint() -> None:
+    """The hidden field is assembled by JS from what's on screen, on load as well
+    as on every turn — nothing server-side pre-fills it. What this can test without
+    a browser is the claim that assembly makes: each ring's default (its first
+    alternative), read inward to outward, already spells a denckring word, so
+    "Read it" has something real to check the moment the page appears."""
+    from denckring import check
+
+    word = "".join(slot.alternatives[0] for slot in stage.rings().slots)
+    assert check("denckring", word).satisfied is True

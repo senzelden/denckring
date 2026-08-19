@@ -169,6 +169,18 @@
   margin-top: 0.1rem;
 }
 
+/* A skipped optional ring (prefix or suffix) is turned to an empty piece rather
+   than defaulted to an alternative, so the assembled word stays correct — this
+   is what shows in the band instead of nothing being there at all. */
+.ring-turn:empty::after {
+  content: "\2013";
+  color: var(--lead);
+}
+
+.ring-0 .ring-turn:empty::after {
+  color: rgba(247, 245, 240, 0.7);
+}
+
 /* Each ring restates its own colours on `:hover` — the base button rule (in
    explorer.css) sets `background`/`border-color` on hover, and a bare `.ring:hover`
    would lose that property battle by simply not mentioning them. */

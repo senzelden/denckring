@@ -99,14 +99,19 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
     """Check the word the rings currently spell, or turn them to a new one."""
     form = dict(await request.form())
     word = str(form.get("word", ""))
+    pieces: list[str] | None = None
     if form.get("turn"):
         procedure = get("denckring")
         # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps
-        # it off `BaseProcedure` because it is optional. Narrow once, here.
-        assert isinstance(procedure, Constructive)
-        word = procedure.apply("", lang="en")
+        # it off `BaseProcedure` because it is optional. Degrade rather than raise
+        # if that assumption ever stops holding, as `bench.generate` does.
+        if isinstance(procedure, Constructive):
+            word = procedure.apply("", lang="en")
+            # The library chose this word; hand back which piece each ring would
+            # have to show so the diagram can turn to match, not just the panel.
+            pieces = stage.pieces_for(word)
     report = denckring_check("denckring", word) if word else None
-    return page(request, "_stage_word.html", word=word, report=report)
+    return page(request, "_stage_word.html", word=word, report=report, pieces=pieces)
 
 
 @app.get("/search", response_class=HTMLResponse)

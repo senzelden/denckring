@@ -37,17 +37,54 @@
 </div>
 <script>
 const at = {};
-function turn(ring, step) {
-  const el = document.getElementById('ring-' + ring);
-  const parts = el.dataset.parts.split('|');
-  at[ring] = ((at[ring] || 0) + step + parts.length) % parts.length;
-  el.querySelector('.ring-turn').textContent = parts[at[ring]];
+
+// The single place that reads what the rings show and writes it to the hidden
+// field. Called after every turn, and once below at load — the rings display a
+// word (each one's first alternative) from the first paint, so the field has to
+// match from the first paint too, not just after a click.
+function assemble() {
   document.getElementById('word-field').value =
     [0, 1, 2, 3, 4].map(i => {
       const e = document.getElementById('ring-' + i);
       return e ? e.querySelector('.ring-turn').textContent : '';
     }).join('');
 }
+
+function turn(ring, step) {
+  const el = document.getElementById('ring-' + ring);
+  const parts = el.dataset.parts.split('|');
+  at[ring] = ((at[ring] || 0) + step + parts.length) % parts.length;
+  el.querySelector('.ring-turn').textContent = parts[at[ring]];
+  assemble();
+}
+
+// Turns one ring to show a specific piece, rather than stepping through it —
+// used to walk the diagram to a word the server chose. An empty piece is a
+// skipped optional ring (prefix or suffix); shown blank, not defaulted to
+// alternative zero, so the assembled word still comes out right.
+function setRing(ring, piece) {
+  const el = document.getElementById('ring-' + ring);
+  if (!el) return;
+  const parts = el.dataset.parts.split('|');
+  at[ring] = parts.indexOf(piece);
+  el.querySelector('.ring-turn').textContent = piece;
+}
+
+// "Turn them for me" asks the library for a word, which the server cannot spell
+// out on these rings itself — so the fragment carries back the five pieces that
+// produced it (`data-pieces` on .word), and here the diagram is walked to match.
+// No pieces on the response (a plain "Read it", or the rare word the rings truly
+// cannot spell) means the rings stay exactly where they were.
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.target.id !== 'word') return;
+  const wordEl = evt.target.querySelector('.word');
+  const raw = wordEl && wordEl.dataset.pieces;
+  if (!raw) return;
+  raw.split('|').forEach((piece, i) => setRing(i, piece));
+  assemble();
+});
+
+assemble();
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
