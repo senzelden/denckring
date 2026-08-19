@@ -3,7 +3,7 @@ name = "denckring-explorer"
 version = "0.1.0"
 description = "A local browser for the denckring catalogue, and a bench for trying procedures"
 requires-python = ">=3.11"
-license = "MIT"
+license = "Apache-2.0"
 classifiers = [
     # This is a development tool, not a distribution. It must never be uploaded.
     "Private :: Do Not Upload",

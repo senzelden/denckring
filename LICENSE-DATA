@@ -10,7 +10,7 @@ and anything exported from it, including the output of
     denckring catalogue export
 
 It does NOT cover the source code in this repository, which is licensed under the
-MIT Licence — see LICENSE.
+Apache License 2.0 — see LICENSE and NOTICE.
 
 
 Creative Commons Attribution 4.0 International (CC BY 4.0)

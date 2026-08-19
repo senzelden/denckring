@@ -25,4 +25,5 @@ installation nor use touches the network:
   both derived from it. `metadata.json` beside the data records the exact version and
   generation date; `scripts/build_lexicon.py` regenerates both files from OEWN alone.
 
-The code in this package is MIT, like denckring itself.
+The code in this package is Apache-2.0, like denckring itself. The data is not — see
+`NOTICE` for which file carries which terms.

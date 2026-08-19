@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "A library of experimental writing procedures, where the validator is the eval"
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
-license-files = ["LICENSE"]
+license = "Apache-2.0 AND CC-BY-4.0"
+license-files = ["LICENSE", "NOTICE", "LICENSE-DATA"]
 authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
 keywords = ["oulipo", "constrained-writing", "lipogram", "poetics", "nlp"]
 classifiers = [
