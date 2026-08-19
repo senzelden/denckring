@@ -1,4 +1,4 @@
-<p class="word">{{ word }}</p>
+<p class="word"{% if pieces is not none %} data-pieces="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
 {% if report %}
 <p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
   {{ "off the rings" if report.satisfied else "not a reading of these rings" }}

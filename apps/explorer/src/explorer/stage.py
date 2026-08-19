@@ -100,3 +100,16 @@ def rings() -> Rings:
         combinations=loaded.combinations,
         claimed=CLAIMED_COMBINATIONS,
     )
+
+
+def pieces_for(word: str) -> list[str] | None:
+    """The five ring pieces that spell `word`, one per slot, or `None` if the rings
+    cannot spell it at all.
+
+    The same segmentation `check` itself relies on — `denckring.core.device.segment`
+    — so that when the library turns the rings for the scene (rather than a person
+    clicking them), the diagram can be walked to the position that actually produced
+    the word instead of leaving it wherever it happened to be. A skipped optional
+    ring (prefix or suffix) comes back as `""`.
+    """
+    return device.segment(word, device.load("harsdoerffer_1651"))
