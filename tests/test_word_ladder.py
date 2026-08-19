@@ -1,6 +1,9 @@
 """Carroll's doublets: one letter per step, every step a word."""
 
+import pytest
+
 from denckring import check
+from denckring.core.errors import InvalidParams, NoCandidateWord
 from denckring.core.protocol import Constructive
 from denckring.core.registry import get
 
@@ -30,3 +33,54 @@ def test_apply_finds_a_ladder_its_own_check_accepts() -> None:
     assert check("word_ladder", ladder).satisfied is True
     assert ladder.split()[0] == "cold"
     assert ladder.split()[-1] == "warm"
+
+
+def test_the_canonical_german_step_is_accepted_with_folding_off() -> None:
+    """`schon` to `schön` is the German doublet, and this row declares `de`.
+
+    Folding is what decides it: folded, `ö` is `o`, the two are the same word, and
+    the step is rightly refused. The row had no way to say otherwise — it folded
+    unconditionally — so it reported `step_too_large` with the note "no letters
+    differ", a violation contradicting its own rule name. `fold_diacritics` is now a
+    parameter, as it is on `univocalic` and `homovocalism`.
+    """
+    assert check("word_ladder", "schon schön", lang="de", fold_diacritics=False).satisfied is True
+
+    folded = check("word_ladder", "schon schön", lang="de")
+    assert folded.satisfied is False
+    assert [v.rule for v in folded.violations] == ["step_too_large"]
+
+
+def test_apply_can_reach_an_umlaut_with_folding_off() -> None:
+    """`_substitutions` walked `string.ascii_lowercase`, so no ladder `apply` ever
+    produced could contain ä, ö or ü — the `de` declaration was unreachable from the
+    generator's side however `check` was configured."""
+    procedure = get("word_ladder")
+    assert isinstance(procedure, Constructive)
+    ladder = procedure.apply("schon", lang="de", target="schön", fold_diacritics=False)
+    assert ladder == "schon schön"
+    assert check("word_ladder", ladder, lang="de", fold_diacritics=False).satisfied is True
+
+
+def test_apply_answers_every_malformed_endpoint_with_invalid_params() -> None:
+    """One field, one error code. A missing target raised `InvalidParams` while a
+    non-alphabetic or wrong-length one raised `NoCandidateWord`, seventeen lines
+    apart. `NoCandidateWord` now means the search came back empty, not that the
+    caller mistyped."""
+    procedure = get("word_ladder")
+    assert isinstance(procedure, Constructive)
+    with pytest.raises(InvalidParams):
+        procedure.apply("cold")
+    with pytest.raises(InvalidParams):
+        procedure.apply("cold", target="wa-rm")
+    with pytest.raises(InvalidParams):
+        procedure.apply("cold", target="warmth")
+
+
+def test_an_endpoint_the_lexicon_does_not_know_is_a_search_failure() -> None:
+    """The other side of the line: the parameters are well-formed, and the search has
+    nothing to walk from."""
+    procedure = get("word_ladder")
+    assert isinstance(procedure, Constructive)
+    with pytest.raises(NoCandidateWord):
+        procedure.apply("cold", target="zzzz")
