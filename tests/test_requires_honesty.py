@@ -65,7 +65,8 @@ watching them found two real, live over-declarations: `prisoners_constraint` (de
 `tokens` and `fold_diacritics`, used neither — it scans `enumerate(text)` directly and
 calls only `pack.exceeds_x_height`) and `spoonerism` (declared `fold_diacritics`, and
 the string `fold` appears in that module only inside its own docstring). Both `requires`
-were corrected as part of this task.
+were corrected as part of this task. `spoonerism` gained `alphabet` afterwards, from the
+sufficiency test rather than from this spy: `_letter_onset` calls `pack.vowels()`.
 
 **Why `syllables` is watched only for `pack.syllables()`.** An earlier version of the
 map below let `stress_pattern`/`stress_patterns` count as evidence for `syllables` too,

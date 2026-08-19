@@ -1,8 +1,8 @@
 """Spoonerism — initial sounds exchanged between two words.
 
 *The Lord is a shoving leopard* swaps "l" for "sh" between "loving" and
-"shepherd". Task 1 corrected the catalogue row's `requires` to `[tokens,
-fold_diacritics, phonemes]` — deliberately without `lexicon.words` — because what
+"shepherd". The catalogue row requires `[tokens, alphabet, phonemes]` —
+deliberately without `lexicon.words` — because what
 makes an exchange a spoonerism is that the two words' *initial sounds* differ, not
 that the swap happens to land on other dictionary words. Comparing initial
 letters would get this wrong in both directions: "knight" and "night" share no
@@ -10,6 +10,11 @@ initial letter but the same initial sound, and "phone" and "gnome" share no
 initial letter either despite starting on different sounds for a different
 reason. Comparing initial phoneme clusters (onsets) is what `pack.phonemes` buys
 that spelling cannot, and it is the entire reason this row declares it.
+
+`fold_diacritics` was dropped as unreached — nothing here folds. `alphabet` was
+added because something here does call it: `_letter_onset` asks `pack.vowels()`
+where the written onset ends, which is the same call `supervocalic` declares
+`alphabet` for.
 
 `pack.phonemes` raises `MissingCapability` for a word the pronouncing dictionary
 does not carry (see `assonance_constraint`, ruling R14). Unlike a scan that can
@@ -25,11 +30,12 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, require_capability
 from denckring.core.errors import MissingCapability, NoCandidateWord
 from denckring.core.protocol import Lang, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
+from denckring.lang.base import ALPHABET, PHONEMES
 
 
 def _phoneme_onset(phonemes: list[str]) -> list[str]:
@@ -175,6 +181,14 @@ class Spoonerism(BaseProcedure[SpoonerismParams]):
         from denckring.lang import get_pack
 
         pack = get_pack(lang)
+        # `check` is gated by `BaseProcedure.check`; `apply` has no such template
+        # method above it, so it guards its own capabilities the way `anagram` does.
+        # Without this, a pack lacking `phonemes` reached `_onset_or_none`, whose
+        # `except MissingCapability` is there to tolerate one unknown *word* and
+        # silently swallowed a missing *capability* instead, turning a fixable
+        # "install denckring[en]" into "no candidate word".
+        require_capability(pack, PHONEMES, self.id)
+        require_capability(pack, ALPHABET, self.id)
         self.parse_params(params)
         spans = word_spans(text, pack)
         if len(spans) < 2:
