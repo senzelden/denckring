@@ -78,3 +78,18 @@ def test_author_stated_rows_name_a_source_with_a_year() -> None:
                 f"{meta.id} says the author stated the rule but its source names no "
                 f"year: {meta.source!r}"
             )
+
+
+@pytest.mark.parametrize("meta", ENTRIES.values(), ids=list(ENTRIES))
+def test_every_declared_language_carries_a_name_and_a_definition(meta: Meta) -> None:
+    """A row that declares a language it cannot say anything in has declared a
+    capability of the packs, not a fact about the procedure.
+
+    Nine rows arrived in the catalogue-backlog batch with `languages: [en, de]`, no
+    `names.de` and no `definitions.de` — the German they claimed appeared nowhere in
+    the row a German reader would actually read. `denckring show --lang de` and the
+    generated gallery both fall back to English silently, so nothing showed it.
+    """
+    for lang in meta.languages:
+        assert lang in meta.names, f"{meta.id} declares {lang} with no names.{lang}"
+        assert lang in meta.definitions, f"{meta.id} declares {lang} with no definitions.{lang}"

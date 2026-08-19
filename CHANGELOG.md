@@ -237,6 +237,10 @@ All notable changes to this project are documented here. The format follows
 - German declared on seventeen rows, each decided on whether the procedure *means*
   something in German rather than whether it merely runs, and each shipping a German
   golden fixture — a declaration with no fixture behind it is an assertion, not a claim.
+  Every one also carries `names.de` and `definitions.de`, so the German a row claims
+  appears in the row a German reader reads, and a test in the catalogue quality suite
+  requires that of every declared language. `semordnilap`, which declared `de` with no
+  German name since long before this batch, is corrected with them.
 - `tests/test_requires_honesty.py`, guarding `requires` in both directions. One test
   watches through the real `check()` path whether a row's golden fixtures ever reach the
   capabilities it declares; it caught `limerick` on its first run against every

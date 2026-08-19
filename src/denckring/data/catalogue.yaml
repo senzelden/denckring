@@ -701,11 +701,14 @@ procedures:
       en: Write a phrase whose Roman-numeral letters add up to the target year.
 
   - id: semordnilap
-    names: { en: Semordnilap }
+    names: { en: Semordnilap, de: Semordnilap }
     definitions:
       en: >-
         A word or text that spells a different word when reversed, unlike a
         palindrome, which spells the same one.
+      de: >-
+        Ein Wort oder Text, der rückwärts gelesen ein anderes Wort ergibt — anders
+        als das Palindrom, das dasselbe ergibt.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
@@ -1065,11 +1068,12 @@ procedures:
   # ---------------------------------------------------------------------------
 
   - id: homoconsonantism
-    names: { en: Homoconsonantism, fr: Homoconsonantisme }
+    names: { en: Homoconsonantism, de: Homokonsonantismus, fr: Homoconsonantisme }
     definitions:
       en: >-
         A rewriting that keeps the consonants of the source text in their original
         order while replacing every vowel, producing a new sense from the same skeleton.
+      de: Eine Umschrift, die die Konsonanten des Ausgangstexts in ihrer Reihenfolge bewahrt und jeden Vokal ersetzt.
       fr: Une réécriture conservant les consonnes du texte source et changeant les voyelles.
     source: Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
@@ -1084,11 +1088,14 @@ procedures:
       en: Keep the consonants of the source in order and choose new vowels to make new words.
 
   - id: homovocalism
-    names: { en: Homovocalism, fr: Homovocalisme }
+    names: { en: Homovocalism, de: Homovokalismus, fr: Homovocalisme }
     definitions:
       en: >-
         The mirror of homoconsonantism: the vowels of the source are preserved in
         order and the consonants are replaced.
+      de: >-
+        Das Gegenstück zum Homokonsonantismus: die Vokale bleiben in ihrer
+        Reihenfolge, die Konsonanten werden ersetzt.
       fr: Une réécriture conservant les voyelles du texte source.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
@@ -1146,11 +1153,12 @@ procedures:
       provides.
 
   - id: mathews_algorithm
-    names: { en: Mathews's algorithm }
+    names: { en: Mathews's algorithm, de: Mathews-Algorithmus }
     definitions:
       en: >-
         A permutation in which elements of several texts are arranged in a table
         and each column is rotated by a different amount before being read across.
+      de: Elemente mehrerer Texte stehen in einer Tabelle, jede Spalte wird unterschiedlich weit gedreht und dann zeilenweise gelesen.
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
@@ -1220,11 +1228,12 @@ procedures:
       en: Delete every "r" from the passage and read what the remaining letters now say.
 
   - id: haikuization
-    names: { en: Haikuization, fr: Haïkuisation }
+    names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
     definitions:
       en: >-
         A reduction that keeps only the rhyme-words or line ends of an existing
         poem, leaving a shorter poem inside the longer one.
+      de: Eine Verkürzung, die nur die Reimwörter oder Zeilenenden eines vorhandenen Gedichts behält.
       fr: Une réduction ne gardant que les rimes d'un poème existant.
     source: Oulipo, La Littérature potentielle (1973)
     family: word
@@ -1534,6 +1543,7 @@ procedures:
       en: >-
         A text satisfying two or more named constraints at once, the difficulty
         rising far faster than the count of rules.
+      de: Ein Text, der zwei oder mehr benannte Beschränkungen zugleich erfüllt, wobei die Schwierigkeit weit schneller wächst als die Zahl der Regeln.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -2486,11 +2496,12 @@ procedures:
       en: Keep every seventh word of the source and read what results.
 
   - id: column_reading
-    names: { en: Column reading }
+    names: { en: Column reading, de: Spaltenlesung }
     definitions:
       en: >-
         A reading that takes a printed page vertically rather than horizontally,
         so the column rather than the line becomes the unit.
+      de: Eine Lesart, die eine gedruckte Seite senkrecht statt waagerecht liest, sodass die Spalte an die Stelle der Zeile tritt.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
@@ -2542,11 +2553,12 @@ procedures:
       en: Redistribute the source sentences into a new order, changing none of them.
 
   - id: text_folding
-    names: { en: Text folding }
+    names: { en: Text folding, de: Textfaltung }
     definitions:
       en: >-
         A text produced by folding a page so that non-adjacent passages meet and
         are read as continuous.
+      de: Ein Text, der entsteht, indem eine Seite so gefaltet wird, dass entfernte Stellen aufeinandertreffen und fortlaufend gelesen werden.
     source: William S. Burroughs, The Third Mind (1978)
     family: procedural
     attribution: primary
@@ -2662,11 +2674,12 @@ procedures:
       en: Replace each word of the source with its definition in the target language.
 
   - id: lipogrammatic_translation
-    names: { en: Lipogrammatic translation }
+    names: { en: Lipogrammatic translation, de: Lipogrammatische Übersetzung }
     definitions:
       en: >-
         A translation that observes a lipogram absent from the original, or
         preserves one the original imposed.
+      de: Eine Übersetzung, die ein im Original nicht vorhandenes Lipogramm einhält oder ein vorhandenes bewahrt.
     source: Gilbert Adair's A Void (1994), translating Perec's La Disparition
     family: translation
     attribution: primary
@@ -2680,9 +2693,10 @@ procedures:
       en: Translate the passage while never using the forbidden letter.
 
   - id: univocalic_translation
-    names: { en: Univocalic translation }
+    names: { en: Univocalic translation, de: Univokalische Übersetzung }
     definitions:
       en: A translation restricted throughout to a single vowel in the target language.
+      de: Eine Übersetzung, die in der Zielsprache durchgehend auf einen einzigen Vokal beschränkt ist.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
