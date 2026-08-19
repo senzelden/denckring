@@ -7,9 +7,17 @@ SOURCE = "silence is the garden where nothing grows and everything waits"
 
 
 def test_diastic_picks_words_by_position() -> None:
-    """Word 1 has s first, word 2 has i second, word 3 has l third."""
-    report = check("diastic", "silence is silence", source=SOURCE, seed_phrase="sil")
-    assert isinstance(report.satisfied, bool)
+    """Word 1 has s first, word 2 has h second, word 3 has o third, word 4 has r
+    fourth — a selection that genuinely satisfies, asserted as satisfying.
+
+    The case this replaced read `seed_phrase="sil"` over `"silence is silence"` and
+    asserted only `isinstance(report.satisfied, bool)`, which is true of every report
+    this library can produce. Measured, that case scored 0.67 and raised both
+    `not_in_source` and `wrong_letter_at_position`: the docstring described a passing
+    selection and the assertion could not have noticed it was a failing one.
+    """
+    report = check("diastic", "silence the grows everything", source=SOURCE, seed_phrase="shore")
+    assert report.satisfied is True
 
 
 def test_diastic_rejects_a_word_whose_letter_is_wrong() -> None:
@@ -46,13 +54,14 @@ def test_diastic_apply_uses_the_caller_supplied_seed_phrase() -> None:
 
 
 def test_mesostic_runs_the_spine_down_the_middle() -> None:
+    """s, i, t, g down the four lines, in that order, from the source in that order."""
     report = check(
         "mesostic",
         "silence\nis\nthe\ngarden",
         source=SOURCE,
         spine="sitg",
     )
-    assert isinstance(report.satisfied, bool)
+    assert report.satisfied is True
 
 
 def test_mesostic_rejects_a_line_missing_its_letter() -> None:
