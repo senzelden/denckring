@@ -250,6 +250,52 @@ All notable changes to this project are documented here. The format follows
   pack. Their shared blind spot, documented in the module: a row that calls a
   capability's method and discards the answer is invisible to both — the gap
   `haikuization` fell into below.
+- `lexicon.glosses` on `LanguagePack`: every definition Open English WordNet records for
+  a word, or an empty sequence when the lexicon cannot resolve it at all. Every sense,
+  not the first — which sense a writer meant is not recoverable from the text, so a
+  reader that accepts any of them is the honest one, the same reading `rhyme_keys` and
+  `stress_patterns` already take. It costs 1.03 MB over shipping first senses only.
+  Resolution tries the word as given, then its lemma, then plain `s`/`es` stripping;
+  irregulars such as *went* stay out of reach by design and are disclosed rather than
+  guessed at.
+- `packages/denckring-en-data/scripts/build_lexicon.py`, the build the data package never
+  had. `nouns.txt` was an opaque blob extracted by hand at some point in the past with no
+  record of how; it is now generated, alongside `glosses.txt.gz` and a `metadata.json`
+  carrying source, date and row counts, by a script in the repository. A test pins the
+  shipped `nouns.txt` against what the script produces, so a hand-edit is caught rather
+  than inherited.
+- `kangaroo_word`: a word carrying a synonym of itself inside its own letters, in order
+  (*encourage* carries *urge*). It needed no thesaurus — the synonym is a `synonym`
+  parameter, the writer's claim, and what the row decides is the decidable half: that the
+  claimed synonym is a real word, hidden in order, and not the word itself.
+- `definitional_expansion`: each substantive word of the source replaced once by one of
+  its dictionary definitions. The comparison was chosen by running it against real gloss
+  text rather than at the desk — glosses carry parentheses, semicolons and colons no
+  writer retypes character for character, so a gloss counts as present when its own
+  lower-cased tokens appear as a contiguous run, punctuation and case folded away, word
+  choice and word order kept. Occurrences are counted rather than merely found: a word
+  appearing twice needs two expansions, and each match consumes the span it used.
+- `definitional_literature`: the same procedure fed back into itself, which is the form
+  Bénabou and Perec described. `check` is given the source and the finished text and
+  nothing in between, so it discovers the depth — one round, then two, then three — and
+  reports the first that accounts for every resolvable source word in an `iterations`
+  metric. Below the top level a round means "some gloss of this word has all of its own
+  substantive words present one round shallower"; word order is checked where the gloss
+  must appear as a run and not below that, because pinning the nesting positions would
+  mean parsing a text where every definition is stitched to the next with nothing between
+  them. The cap of three rounds is measured, not guessed: against a genuine three-round
+  expansion of *the cat sat* (3,679 tokens), depth 3 takes 0.15 s, depth 4 takes 18 s and
+  depth 5 takes 219 s, because the cost falls on the searches that fail and cannot stop
+  early.
+- `lexicon.synonyms` and `lexicon.antonyms` were specified, measured, and deliberately
+  not built, with the measurements recorded in the catalogue rows that wait on them
+  rather than merely omitted. WordNet synonymy is synset co-membership: of twelve
+  substitutions a writer would naturally make, five are co-members, and only four of
+  eleven content words in plain prose have any synonym at all. Antonymy is thinner still
+  — 6,633 lemmas have any antonym, and 2 of 11 content words in plain prose do. "Every
+  substantive word replaced by a synonym" is not satisfiable by ordinary text, and a
+  larger thesaurus does not change that, so `synonymic_substitution`,
+  `antonymic_substitution` and `antonymic_translation` say so in their `notes`.
 
 ### Fixed
 
@@ -335,5 +381,28 @@ All notable changes to this project are documented here. The format follows
   provides; `homophonic_translation` needs phonemes in two languages at once;
   `perverb` needs a proverb corpus, which ADR 0020 already rules this project does not
   ship.
+- The English lexicon is now derived from Open English WordNet 2024 rather than Princeton
+  WordNet 3.1, which is unmaintained. The noun list grows from 55,239 to 56,468 entries
+  and 78,865 glosses arrive with it; `LICENSE-WORDNET` is replaced with the CC BY 4.0
+  notice OEWN carries, and the data package's README stops naming the old release.
+  **This changes published output:** `n_plus_7` and `s_plus_7` both count forward through
+  that list, so a displacement that landed on one word can now land on another — *cat*
+  displaces to *catacomb*, where it displaced to *catafalque* before. N+7's golden
+  fixture, strategy and tests are updated to the new list; S+7's fixture words were not
+  affected, but the same shift applies to any input.
+- Four catalogue rows named capabilities they never needed, each corrected against what
+  the row actually does: `kangaroo_word` needs a word list (`lexicon.words`), not a
+  thesaurus, since whether two words are synonyms is the writer's claim; `chimera`
+  substitutes by part of speech and is blocked on `pos` alongside `homosyntaxism` and
+  `verbless_prose`; `definitional_translation` needs glosses *in the target language*
+  (`lexicon.glosses.bilingual`), which English ones do not serve and no shipped pack
+  provides, named the way `homophonic_translation`'s `phonemes.bilingual` already is.
+- `glosses`' inflection fallback tried stripping `ed` and `ing`, which resolved *cared* to
+  *car* and *poled* to *pol* — unrelated headwords, returned with the confidence of a
+  real answer, and enough to make the definitional rows demand the wrong sense of a
+  correctly expanded word. Measured over a sample sentence, `s`/`es` stripping earns its
+  place and `ed`/`ing` bought two extra resolutions of which both were wrong, so only
+  `s`/`es` is kept. The docstring no longer claims resolution never guesses: it is
+  best-effort, and only the empty sequence is a guarantee.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main
