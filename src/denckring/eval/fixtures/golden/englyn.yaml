@@ -19,3 +19,21 @@ cases:
       and the river hums today
     params: {}
     satisfied: false
+  - name: first-line-one-syllable-long
+    source: constructed counterexample; the rhyme holds, only the syllable count is wrong
+    text: |-
+      the summer evening settles by the great bay
+      beside the quiet way
+      and the swallow calls the day
+      and the river hums today
+    params: {}
+    satisfied: false
+  - name: second-line-off-the-rhyme
+    source: constructed counterexample; the syllable pattern holds, only the unodl rhyme breaks
+    text: |-
+      the summer evening settles by the bay
+      beside the quiet stone
+      and the swallow calls the day
+      and the river hums today
+    params: {}
+    satisfied: false
