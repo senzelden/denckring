@@ -11,3 +11,15 @@ cases:
     text: the cot sat
     params: { source: the cat sat }
     satisfied: false
+  - name: gleiche-vokale-neue-woerter
+    lang: de
+    source: constructed example; the vowel sequence e-i-i-i held by different words
+    text: wen ihn ist mir
+    params: { source: mein Bild ist }
+    satisfied: true
+  - name: ein-geaenderter-vokal
+    lang: de
+    source: constructed counterexample
+    text: won ihn ist mir
+    params: { source: mein Bild ist }
+    satisfied: false

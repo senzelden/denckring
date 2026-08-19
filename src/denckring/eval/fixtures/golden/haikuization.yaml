@@ -19,3 +19,23 @@ cases:
         a dog ran fast
         one bird flew high
     satisfied: false
+  - name: zeilenenden-bilden-das-kuerzere-gedicht
+    lang: de
+    source: constructed example; the procedure is Oulipo's
+    text: tief schnell hoch
+    params:
+      source: |-
+        die katze schlief tief
+        ein hund lief schnell
+        ein vogel flog hoch
+    satisfied: true
+  - name: kein-zeilenende-bricht-die-lesung
+    lang: de
+    source: constructed counterexample
+    text: katze schnell hoch
+    params:
+      source: |-
+        die katze schlief tief
+        ein hund lief schnell
+        ein vogel flog hoch
+    satisfied: false

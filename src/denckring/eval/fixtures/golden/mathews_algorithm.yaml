@@ -29,3 +29,33 @@ cases:
 
         sleep under warm bright skies
     satisfied: false
+  - name: jede-zeile-um-ihren-index-gedreht
+    lang: de
+    source: constructed example; the procedure is Harry Mathews's algorithm
+    text: |-
+      eins zwei drei vier fuenf
+      sieben acht neun zehn sechs
+      dreizehn vierzehn fuenfzehn elf zwoelf
+    params:
+      source: |-
+        eins zwei drei vier fuenf
+
+        sechs sieben acht neun zehn
+
+        elf zwoelf dreizehn vierzehn fuenfzehn
+    satisfied: true
+  - name: ungedrehte-tabelle-scheitert
+    lang: de
+    source: constructed counterexample
+    text: |-
+      eins zwei drei vier fuenf
+      sechs sieben acht neun zehn
+      elf zwoelf dreizehn vierzehn fuenfzehn
+    params:
+      source: |-
+        eins zwei drei vier fuenf
+
+        sechs sieben acht neun zehn
+
+        elf zwoelf dreizehn vierzehn fuenfzehn
+    satisfied: false

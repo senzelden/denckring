@@ -23,3 +23,27 @@ cases:
       source: silence is the garden where nothing grows and everything waits
       spine: sitg
     satisfied: false
+  - name: siww-die-zeilen-hinab
+    lang: de
+    source: constructed example; the procedure is John Cage's
+    text: |-
+      stille
+      ist
+      wind
+      wartet
+    params:
+      source: stille ist der wind wenn der garten wartet
+      spine: siww
+    satisfied: true
+  - name: dritte-zeile-verliert-ihren-buchstaben
+    lang: de
+    source: constructed counterexample
+    text: |-
+      stille
+      ist
+      der
+      wartet
+    params:
+      source: stille ist der wind wenn der garten wartet
+      spine: siww
+    satisfied: false

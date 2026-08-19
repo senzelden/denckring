@@ -25,3 +25,29 @@ cases:
         a dog ran fast
         one bird flew high
     satisfied: false
+  - name: zeile-zwei-gewendet
+    lang: de
+    source: constructed example; the procedure is traditional
+    text: |-
+      die katze schlief
+      llenhcs feil dnuh nie
+      ein vogel flog hoch
+    params:
+      source: |-
+        die katze schlief
+        ein hund lief schnell
+        ein vogel flog hoch
+    satisfied: true
+  - name: keine-zeile-gewendet
+    lang: de
+    source: constructed counterexample
+    text: |-
+      die katze schlief
+      ein hund lief schnell
+      ein vogel flog hoch
+    params:
+      source: |-
+        die katze schlief
+        ein hund lief schnell
+        ein vogel flog hoch
+    satisfied: false

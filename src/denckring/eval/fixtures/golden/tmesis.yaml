@@ -13,3 +13,17 @@ cases:
       cats-really-dogs
     params: {}
     satisfied: false
+  - name: fern-seltsam-seher
+    lang: de
+    source: constructed example; Fern-seher rejoins as Fernseher, a real compound
+    text: |-
+      Fern-seltsam-seher
+    params: {}
+    satisfied: true
+  - name: haelften-fuegen-sich-nicht
+    lang: de
+    source: constructed counterexample; Katze and Hund do not rejoin into a word
+    text: |-
+      Katze-lustig-Hund
+    params: {}
+    satisfied: false
