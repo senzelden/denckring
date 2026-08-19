@@ -1,0 +1,15 @@
+procedure: spoonerism
+lang: en
+cases:
+  - name: cat-dog-distinct-onsets
+    source: constructed example; cat (onset K) and dog (onset D) exchange cleanly
+    text: |-
+      cat dog
+    params: {}
+    satisfied: true
+  - name: cat-cap-same-onset
+    source: constructed counterexample; cat and cap both carry the onset K
+    text: |-
+      cat cap
+    params: {}
+    satisfied: false

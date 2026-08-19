@@ -1,0 +1,15 @@
+procedure: tmesis
+lang: en
+cases:
+  - name: abso-bloody-lutely
+    source: Traditional; the standard English example of tmesis
+    text: |-
+      abso-bloody-lutely
+    params: {}
+    satisfied: true
+  - name: halves-do-not-rejoin
+    source: constructed counterexample; cats and dogs do not rejoin into a word
+    text: |-
+      cats-really-dogs
+    params: {}
+    satisfied: false
