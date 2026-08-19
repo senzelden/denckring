@@ -6,7 +6,7 @@
 {% include "_head.html" %}
 </head>
 <body class="stage-body{% if chrome_off %} bare{% endif %}">
-<main class="stage" id="stage">
+<main class="stage{% block main_class %}{% endblock %}" id="stage">
 {% block main %}{% endblock %}
 </main>
 {% if not chrome_off %}

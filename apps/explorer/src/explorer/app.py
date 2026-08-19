@@ -14,7 +14,7 @@ from denckring import __version__
 from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.registry import all_procedures
-from explorer import bench, catalogue_view, corpora, env, stage, witz
+from explorer import bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
 
@@ -61,6 +61,18 @@ def missing(request: Request) -> HTMLResponse:
         coverage=catalogue_view.coverage(),
         gaps=catalogue_view.gaps(),
         unreachable=catalogue_view.unreachable(),
+    )
+
+
+@app.get("/board", response_class=HTMLResponse)
+def the_board(request: Request) -> HTMLResponse:
+    """Every procedure's golden cases, run now and laid out to be scanned."""
+    return page(
+        request,
+        "board.html",
+        page_id="board",
+        tiles=board.tiles(),
+        scoreboard=board.scoreboard_line(),
     )
 
 
