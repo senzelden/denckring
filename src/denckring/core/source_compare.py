@@ -1,8 +1,9 @@
 """Comparisons between a text and the source it was made from.
 
-Eight callers in the catalogue backlog need the same three shapes — a class of letters
-preserved, a selection drawn out, a set of parts rearranged — so they live here rather
-than in whichever procedure happened to need them first. `form_report` is the
+Ten callers in the catalogue backlog need the same four shapes — a class of letters
+preserved, a selection drawn out, a positional rule reproduced, a set of parts
+rearranged — so they live here rather than in whichever procedure happened to need
+them first. `form_report` is the
 precedent: it was extracted from real sonnets, not designed ahead of them.
 
 `letter_class_report` follows that precedent on a smaller scale. `homoconsonantism`
@@ -21,6 +22,7 @@ two rows that exist do not need one.
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Callable
 from typing import Literal, NamedTuple
 
 from denckring.core.protocol import LanguagePack, Violation
@@ -168,3 +170,56 @@ def rearrangement_report(parts: list[str], source_parts: list[str]) -> ClassResu
     good = sum((want & have).values())
     total = max(sum(want.values()), sum(have.values()))
     return ClassResult(violations, good, total)
+
+
+def positional_report(
+    chosen: list[tuple[int, str]],
+    expected: list[str],
+    *,
+    rule: str,
+    note: Callable[[int, str], str],
+) -> ClassResult:
+    """Whether `chosen` is exactly the words the source's positional rule produces.
+
+    The fourth shape, and a sibling of `selection_report` rather than a variant of
+    it: that one asks only whether each chosen word occurs in the source in order,
+    which every selection row needs; this asks whether the chosen word is the
+    *particular* word the rule names for that position, which `column_reading` and
+    `haikuization` both need and the two `diastic`-family rows do not — their rule
+    is a property of the word (a letter at an index), not an identity fixed in
+    advance. Those two rows carried this loop, the `extra_words` tail and all,
+    line for line identical but for the rule name and how `expected` was computed
+    — the second of which is exactly the caller's business, and is why `expected`
+    arrives already computed.
+
+    `note` is a callable where `letter_class_report`'s `keep` is a `Literal`, and
+    the difference is deliberate rather than inconsistent: `keep` decides the
+    verdict, so leaving it open would let a caller ask for a partition this module
+    never agreed to support, while `note` only phrases a violation a human reads
+    and cannot change whether the text passes.
+    """
+    violations: list[Violation] = []
+    good = 0
+    for index, word in enumerate(expected):
+        if index < len(chosen) and chosen[index][1].casefold() == word.casefold():
+            good += 1
+        else:
+            violations.append(
+                Violation(
+                    rule=rule,
+                    offset=chosen[index][0] if index < len(chosen) else None,
+                    found=chosen[index][1] if index < len(chosen) else "",
+                    expected=word,
+                    note=note(index, word),
+                )
+            )
+    if len(chosen) > len(expected):
+        violations.append(
+            Violation(
+                rule="extra_words",
+                offset=chosen[len(expected)][0],
+                found=" ".join(word for _, word in chosen[len(expected) :]),
+                expected="",
+            )
+        )
+    return ClassResult(violations, good, len(expected))

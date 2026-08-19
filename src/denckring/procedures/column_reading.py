@@ -23,9 +23,9 @@ from pydantic import Field
 
 from denckring.core.base import BaseProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Report
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report
+from denckring.core.source_compare import positional_report, selection_report
 from denckring.core.text import line_spans, word_spans
 
 
@@ -65,38 +65,18 @@ class ColumnReading(BaseProcedure[ColumnReadingParams]):
     def _check(self, text: str, pack: LanguagePack, params: ColumnReadingParams) -> Report:
         chosen_spans = word_spans(text, pack)
         chosen = [word for _, word in chosen_spans]
-        result = selection_report(chosen, params.source, pack)
-        violations = list(result.violations)
-        good = result.good
-        total = result.total
-        expected = self._column(params.source, pack, params.column)
-        for index, word in enumerate(expected):
-            total += 1
-            if index < len(chosen) and chosen[index].casefold() == word.casefold():
-                good += 1
-            else:
-                violations.append(
-                    Violation(
-                        rule="wrong_column_word",
-                        offset=chosen_spans[index][0] if index < len(chosen) else None,
-                        found=chosen[index] if index < len(chosen) else "",
-                        expected=word,
-                        note=f"line {index + 1}'s word {params.column} should be {word!r}",
-                    )
-                )
-        if len(chosen) > len(expected):
-            violations.append(
-                Violation(
-                    rule="extra_words",
-                    offset=chosen_spans[len(expected)][0],
-                    found=" ".join(chosen[len(expected) :]),
-                    expected="",
-                )
-            )
+        drawn = selection_report(chosen, params.source, pack)
+        column = params.column
+        placed = positional_report(
+            chosen_spans,
+            self._column(params.source, pack, column),
+            rule="wrong_column_word",
+            note=lambda index, word: f"line {index + 1}'s word {column} should be {word!r}",
+        )
         return self._report(
-            good=good,
-            total=max(total, 1),
-            violations=violations,
+            good=drawn.good + placed.good,
+            total=max(drawn.total + placed.total, 1),
+            violations=drawn.violations + placed.violations,
             metrics={"selected": float(len(chosen))},
         )
 
