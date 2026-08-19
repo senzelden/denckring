@@ -185,18 +185,30 @@ class NoCandidateWord(DenckringError):
 
     code = "no_candidate_word"
 
+    #: What the message says when no caller supplies a reason — `paragram`'s
+    #: original wording, kept so that row's behaviour is untouched. Stored on the
+    #: instance like any other reason, so `detail()` never has to say `None`.
+    LEXICON_DEFAULT = (
+        "found no one-letter swap of any word into a word the lexicon knows. "
+        "Try a different text, or check it instead of generating from it."
+    )
+
     def __init__(self, procedure_id: str, reason: str | None = None) -> None:
         self.procedure_id = procedure_id
+        self.reason = reason or self.LEXICON_DEFAULT
         super().__init__(
-            f"{procedure_id}: {reason}"
-            if reason
-            else f"{procedure_id} found no one-letter swap of any word into a word "
-            f"the lexicon knows. Try a different text, or check it instead of "
-            f"generating from it."
+            f"{procedure_id}: {reason}" if reason else f"{procedure_id} {self.LEXICON_DEFAULT}"
         )
 
     def detail(self) -> dict[str, Any]:
-        return {"procedure_id": self.procedure_id}
+        """`reason` is in here, not only inside `message`.
+
+        The whole point of giving this error a reason was that an agentic caller
+        learns the true cause — a source word for `diastic`, a lexicon swap for
+        `paragram` — and a caller reading the JSON could reach it only by parsing
+        English out of `message`, which is the thing `to_dict` exists to avoid.
+        """
+        return {"procedure_id": self.procedure_id, "reason": self.reason}
 
 
 class MalformedTable(DenckringError):

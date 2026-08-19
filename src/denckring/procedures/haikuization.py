@@ -69,7 +69,7 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
     def _check(self, text: str, pack: LanguagePack, params: HaikuizationParams) -> Report:
         chosen_spans = word_spans(text, pack)
         chosen = [word for _, word in chosen_spans]
-        drawn = selection_report(chosen, params.source, pack)
+        drawn = selection_report(chosen_spans, params.source, pack)
         placed = positional_report(
             chosen_spans,
             self._line_ends(params.source, pack),
