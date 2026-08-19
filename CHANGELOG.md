@@ -209,6 +209,35 @@ All notable changes to this project are documented here. The format follows
 - A Claude Code skill at `skills/denckring/SKILL.md`, which shells out to the CLI and so
   needs no extra beyond the package. Both transports are deliberately thin — neither
   computes anything, so the two cannot disagree about what a procedure is.
+- Twenty-eight procedures implemented, taking the total from 86 to 114. Eleven fixed
+  forms: `sonnet`, `ottava_rima`, `spenserian_stanza`, `ballade`, `rondeau`, `ghazal`,
+  `curtal_sonnet`, `englyn`, `clerihew`, `alliterative_verse`, `assonance_constraint`.
+  Three clusters of source-comparison rows: letter-class (`homoconsonantism`,
+  `homovocalism`), selection (`diastic`, `mesostic`, `column_reading`, `haikuization`)
+  and rearrangement (`boustrophedon`, `text_folding`, `mathews_algorithm`). And a
+  remainder: `fold_in`, `univocalic_translation`, `lipogrammatic_translation`,
+  `larding`, `multiple_constraint`, `tmesis`, `spoonerism`, `word_ladder`.
+- `core/source_compare.py`: `letter_class_report`, `selection_report` and
+  `rearrangement_report`, the three shapes eight of this batch's rows share. Each was
+  extracted from a row already written, not designed ahead of one — `homoconsonantism`
+  was written by hand first, and writing `homovocalism` against that code showed the
+  entire body was identical but for one predicate, which is why `letter_class_report`
+  exists at all. Precedent: `form_report`, extracted from real sonnets the same way.
+- `lines=` on `form_report`, so a fixed form with a prescribed length reports
+  `wrong_line_count` and stops rather than scanning a scheme or metre against lines
+  that are already the wrong ones — matching `stanza_violations`'s existing behaviour.
+- `multiple_constraint`, Oulipo's general composite-constraint form. It replaces
+  `univocalic_lipogram_pair`, whose definition described any composite constraint
+  rather than the one pair its id named; the old id is kept as an alias, so a search
+  for it still finds this row.
+- German declared on seventeen rows, each decided on whether the procedure *means*
+  something in German rather than whether it merely runs, and each shipping a German
+  golden fixture — a declaration with no fixture behind it is an assertion, not a claim.
+- `tests/test_requires_honesty.py`, watching through the real `check()` path whether a
+  row's golden fixtures ever reach the capabilities it declares. It caught `limerick`
+  on its first run against every implemented procedure, not just this batch's. Its
+  documented blind spot: a row that calls a capability's method and discards the
+  answer is invisible to it — the gap `haikuization` fell into below.
 
 ### Fixed
 
@@ -255,5 +284,30 @@ All notable changes to this project are documented here. The format follows
   ascender is a property of the written glyph, and folding destroys it. The checker now
   reads raw characters. **This changes existing English results:** text containing
   accented letters that previously satisfied the constraint no longer does.
+- The catalogue got more honest in both directions this batch. Rows that understated
+  what they need: `word_ladder` and `tmesis` gained `lexicon.words`; `ottava_rima` and
+  `ballade` gained `syllables`, since both scan metre. Rows that declared what they
+  never used: `limerick` dropped `stress` — it checks the rhyme scheme only, never the
+  anapestic metre or shortened couplet its definition names; `prisoners_constraint`
+  dropped `tokens` and `fold_diacritics` — it scans raw characters and asks only about
+  x-height, and folding first would destroy the ascender the check needs to see;
+  `spoonerism` dropped `fold_diacritics` — its onset comparison lives entirely in
+  phonemes, where accents do not apply. `haikuization` is the interesting one: it
+  gained `phonemes` early in the batch on the assumption that a rhyme-word reading and
+  a line-end reading could be told apart, then lost it again, because this codebase's
+  rhyme machinery always resolves a line to its final word regardless of whether it
+  pronounces as a rhyme with anything — the two readings are not constructible here, so
+  the capability did no work and only made the row refuse unusual vocabulary.
+- `back_translation`, `transduction` and `intralingual_translation` reclassified to
+  `checkability: none`, each recording in `notes` why no acceptance criterion exists
+  rather than merely asserting it: a translated-onward-and-back rendering, a chain of
+  translations whose drift is the point, and a rewording into another register have no
+  independent text to check the result against. `implementable` falls from 129 to 126
+  as a result — the fall is the point, not a regression.
+- Four catalogue rows are blocked on a missing capability and now say so in `notes`:
+  `homosyntaxism` and `verbless_prose` need a part-of-speech capability no pack
+  provides; `homophonic_translation` needs phonemes in two languages at once;
+  `perverb` needs a proverb corpus, which ADR 0020 already rules this project does not
+  ship.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main
