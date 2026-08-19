@@ -284,20 +284,6 @@ def eval_command(
         raise typer.Exit(EXIT_UNSATISFIED)
 
 
-@app.command("new")
-def new_command(procedure_id: str, root: Path = Path(".")) -> None:
-    """Scaffold a new procedure: module, test, strategy, fixture and catalogue row."""
-    from denckring.scaffold.generator import scaffold
-
-    try:
-        for path in scaffold(procedure_id, root):
-            typer.echo(f"wrote {path}")
-    except FileExistsError as exc:
-        typer.echo(str(exc))
-        raise typer.Exit(EXIT_ERROR) from exc
-    typer.echo(f"Now fill in the FILL IN markers, starting with {procedure_id}.py")
-
-
 @catalogue_app.command("export")
 def catalogue_export(
     export_format: Annotated[str, typer.Option("--format")] = "json",

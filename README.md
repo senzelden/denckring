@@ -154,8 +154,9 @@ filled where a checker exists — builds each parameter form from that procedure
 
 ## Contributing
 
-One module per procedure, `check` mandatory. Start with `denckring new <id>`, which
-scaffolds the module, test, strategy, golden fixture and catalogue row. See
+One module per procedure, `check` mandatory. Start with
+`uv run python scripts/new_procedure.py <id>`, which scaffolds the module, test,
+strategy, golden fixture and catalogue row. See
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Scope of the name

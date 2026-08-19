@@ -23,9 +23,13 @@ All notable changes to this project are documented here. The format follows
   `prisoners_constraint`, `beau_present`, `acrostic`, `telestich`.
 - Three-level eval harness: golden fixtures, Hypothesis strategies, and a scoreboard
   that exits non-zero on regression.
-- CLI: `check`, `apply`, `list`, `show`, `status`, `eval`, `new`.
-- `denckring new <id>`, which scaffolds module, test, strategy, fixture and catalogue
-  row from templates.
+- CLI: `check`, `apply`, `describe`, `list`, `search`, `show`, `status`, `eval`,
+  `catalogue export`.
+- `scripts/new_procedure.py`, which scaffolds module, test, strategy, fixture and
+  catalogue row from templates. It is a contributor tool and stays outside the package:
+  it writes into `src/denckring/procedures/` and appends to this repository's
+  `catalogue.yaml`, so as the shipped `denckring new` it put a command in every user's
+  CLI that could do nothing for them.
 - Eight architecture decision records under `docs/adr/`.
 - German language pack, shipping in core with no data files and discovered through the
   `denckring.lang` entry-point group — the same path a third-party pack takes.
