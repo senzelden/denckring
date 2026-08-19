@@ -189,10 +189,20 @@ class EnglishDataPack(EnglishPack):
 
 
 def _inflections(lemma: str) -> tuple[str, ...]:
-    """Plain English inflections only. Irregulars — `went` for `go` — are out of
-    reach, and a word this cannot resolve returns nothing rather than a guess."""
+    """Plain plural stripping only (R5). `ed`/`ing` were tried and dropped: measured
+    over a sample sentence they resolved two extra words (`cared` -> `car`, `poled`
+    -> `pol`) and both were wrong — a verb's stem collides with an unrelated noun
+    often enough that the fallback is not worth it. `s`/`es` earns its keep on the
+    case it exists for, plural nouns (`birds` -> `bird`), and was not observed to
+    misresolve.
+
+    This is still best-effort, not proof: even `s`/`es` stripping can in principle
+    collide with an unrelated headword, so a resolution here is not a guarantee of
+    correctness. What the caller can rely on is the other direction: a word this
+    cannot resolve at all comes back as nothing, disclosed, never guessed at.
+    """
     candidates = []
-    for suffix in ("s", "es", "ed", "ing"):
+    for suffix in ("s", "es"):
         if lemma.endswith(suffix) and len(lemma) > len(suffix) + 2:
             candidates.append(lemma[: -len(suffix)])
     return tuple(candidates)

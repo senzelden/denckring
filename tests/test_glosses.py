@@ -20,7 +20,20 @@ def test_every_sense_is_returned_not_just_the_first() -> None:
 
 
 def test_an_inflected_form_resolves_through_the_fallback() -> None:
-    assert get_pack("en").glosses("birds")
+    """`birds` strips its trailing `s` to `bird` (R5 keeps `s`/`es` stripping)."""
+    found = get_pack("en").glosses("birds")
+    assert found == get_pack("en").glosses("bird")
+    assert any("bird" in gloss for gloss in found)
+
+
+def test_an_ed_inflection_is_not_guessed_at_r5() -> None:
+    """R5: `_inflections` tries only `s`/`es`, not `ed`/`ing`. `ed`/`ing` stripping
+    was measured and dropped because it silently misresolves — `cared` strips to
+    `car` and would surface automobile definitions for a text that never said
+    `car`, which is worse than not resolving at all. This is the regression pin
+    for that finding; it fails against the pre-R5 code, which returned the `car`
+    glosses here instead of `()`."""
+    assert get_pack("en").glosses("cared") == ()
 
 
 def test_an_irregular_form_is_out_of_reach() -> None:
