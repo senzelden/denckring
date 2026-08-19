@@ -31,8 +31,23 @@ def test_haikuization_keeps_the_line_ends() -> None:
 
 
 def test_haikuization_rejects_a_word_that_was_not_a_line_end() -> None:
+    """The rule is `wrong_line_end`, in the house `wrong_*` family. It read
+    `not_a_line_end` while `column_reading`'s line-for-line identical block read
+    `wrong_column_word`; both now come from `positional_report`, which takes the
+    name as a parameter because the two rows genuinely name different things."""
     report = check("haikuization", "cat fast high", source=PAGE)
     assert report.satisfied is False
+    assert any(v.rule == "wrong_line_end" for v in report.violations)
+
+
+def test_column_reading_and_haikuization_share_one_positional_check() -> None:
+    """Same shape, same tail: a word out of place, then one violation for the
+    surplus. The two blocks were duplicated in full before `positional_report`."""
+    by_column = check("column_reading", "cat dog bird extra", source=PAGE, column=2)
+    by_line_end = check("haikuization", "cat dog bird extra", source=PAGE)
+    for report in (by_column, by_line_end):
+        assert report.satisfied is False
+        assert report.violations[-1].rule == "extra_words"
 
 
 def test_haikuization_apply_round_trips() -> None:
