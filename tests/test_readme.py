@@ -83,6 +83,9 @@ def test_every_implemented_procedure_is_also_validated() -> None:
 
 
 def test_readme_mentions_the_licence_split() -> None:
+    """Two licences in one repository is the kind of thing a reader has to be told
+    about in the README rather than left to discover in a file listing (ADR 0006,
+    amended by ADR 0024 when the code moved from MIT to Apache-2.0)."""
     text = README.read_text(encoding="utf-8")
-    assert "MIT" in text
+    assert "Apache-2.0" in text
     assert "CC BY 4.0" in text

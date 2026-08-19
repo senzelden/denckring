@@ -1,0 +1,16 @@
+denckring
+Copyright 2026 senzelden
+
+Licensed under the Apache License, Version 2.0. See LICENSE for the terms, and
+https://github.com/senzelden/denckring for the project.
+
+This product includes the denckring catalogue — src/denckring/data/catalogue.yaml
+and anything exported from it, including the output of `denckring catalogue export`
+— which is NOT covered by the Apache License. The catalogue is licensed under
+Creative Commons Attribution 4.0 International (CC BY 4.0), and reuse of it carries
+the attribution requirement that licence states. See LICENSE-DATA for the full terms
+and for what the per-entry `source` and `attribution` fields do and do not assert.
+
+Attribution satisfying the CC BY term:
+
+    denckring catalogue, https://github.com/senzelden/denckring, CC BY 4.0

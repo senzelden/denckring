@@ -189,5 +189,7 @@ form travels under, so a search for `isogram` finds `heterogram`.
 
 ## Licence
 
-Code is MIT. The catalogue is CC BY 4.0 — see [LICENSE-DATA](LICENSE-DATA) for the
-attribution string and what the licence does and does not cover.
+Code is Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE), which every
+derivative distribution has to carry. The catalogue is CC BY 4.0 — see
+[LICENSE-DATA](LICENSE-DATA) for the attribution string and what the licence does and
+does not cover. The code was MIT before 0.1.0; ADR 0024 records why it moved.

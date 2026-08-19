@@ -296,6 +296,23 @@ All notable changes to this project are documented here. The format follows
   substantive word replaced by a synonym" is not satisfiable by ordinary text, and a
   larger thesaurus does not change that, so `synonymic_substitution`,
   `antonymic_substitution` and `antonymic_translation` say so in their `notes`.
+- The code is licensed Apache-2.0 rather than MIT, decided before the first release
+  because relicensing afterwards needs every contributor's consent. What MIT does not do
+  is the reason: it asks only that a notice be retained, so a fork that keeps a line in a
+  file has met it while presenting the work as its own, and it is silent on trade marks,
+  leaving the project's name — the one thing a fork cannot take without renaming —
+  unprotected. Apache-2.0 adds a `NOTICE` every derivative distribution must carry, a
+  section reserving the name, and a patent grant. The catalogue stays CC BY 4.0, and
+  ADR 0006's data rule is untouched; ADR 0024 records the change. Per-file licence
+  headers are deliberately not used.
+- Each distribution now declares what it actually contains rather than only what its
+  author wrote: `denckring` is `Apache-2.0 AND CC-BY-4.0` and ships `LICENSE-DATA` in the
+  wheel, so the catalogue's attribution terms reach people who install the package and
+  never see the repository; `denckring-en-data` is
+  `Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause` for Open English WordNet and the CMU
+  Pronouncing Dictionary; `denckring-de-data` is `Apache-2.0 AND CC0-1.0` for Wikidata
+  Lexemes. Both data packages gained a `NOTICE` naming which file carries which terms and
+  saying plainly that the derived lexicons are modifications of their sources.
 
 ### Fixed
 

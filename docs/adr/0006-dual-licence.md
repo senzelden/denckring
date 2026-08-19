@@ -1,5 +1,9 @@
 # 6. Dual licence: MIT code, CC BY catalogue
 
+> **Amended by [ADR 0024](0024-apache-two-for-the-code.md).** The code moved from
+> MIT to Apache-2.0 before the first release. The catalogue half of this decision,
+> and the data rule in it, still stand.
+
 ## Context
 
 The catalogue is a contribution in its own right. The field is littered with one-off
