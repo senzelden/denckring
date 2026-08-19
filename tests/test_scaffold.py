@@ -1,8 +1,7 @@
 from pathlib import Path
 
 import pytest
-
-from denckring.scaffold.generator import class_name, scaffold
+from new_procedure import class_name, scaffold
 
 
 def _empty_tree(root: Path) -> None:

@@ -92,17 +92,15 @@ ignore = ["ANN401"]
 "src/denckring/core/errors.py" = ["N818"]
 
 [tool.mypy]
+mypy_path = "tests:scripts"
 python_version = "3.11"
 strict = true
 warn_unreachable = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["tests"]
+pythonpath = ["tests", "scripts"]
 addopts = "-q"
 
 [tool.ruff.lint.isort]
 known-first-party = ["denckring"]
-
-[tool.hatch.build]
-artifacts = ["src/denckring/scaffold/templates/*.tmpl"]
