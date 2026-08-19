@@ -7,9 +7,9 @@ is the one property every sonnet shares.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -18,7 +18,7 @@ from denckring.procedures.rhyme_scheme import form_report
 LINES = 14
 
 
-class SonnetParams(BaseModel):
+class SonnetParams(RhymeParams):
     scheme: str = Field(
         default="ABABCDCDEFEFGG",
         description="Rhyme pattern, one letter per line. Must be fourteen letters.",

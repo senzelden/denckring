@@ -7,9 +7,7 @@ whose single `metre=` string cannot say "all but the last".
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import repeat_to, scheme_violations, stanza_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -20,7 +18,7 @@ ALEXANDRINE = repeat_to("01", 6)
 PATTERNS = [[PENTAMETER]] * 8 + [[ALEXANDRINE]]
 
 
-class SpenserianStanzaParams(BaseModel):
+class SpenserianStanzaParams(RhymeParams):
     pass
 
 
@@ -49,7 +47,9 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
                 violations=metre.violations,
                 metrics={"checks": float(metre.total), "estimated_words": 0.0},
             )
-        found, matched, checks = scheme_violations(text, pack, SCHEME, allow_identical=False)
+        found, matched, checks, _estimated = scheme_violations(
+            text, pack, SCHEME, allow_identical=False
+        )
         return self._report(
             good=metre.good + matched,
             total=metre.total + checks,
