@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import repeat_to
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -14,7 +12,7 @@ SCHEME = "ABABABCC"
 LINES = 8
 
 
-class OttavaRimaParams(BaseModel):
+class OttavaRimaParams(RhymeParams):
     pass
 
 

@@ -13,15 +13,14 @@ qafia is kept, so a poem that drops it does not fail outright, it scores lower.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.prosody import word_rhyme_keys
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, word_spans
 
 
-class GhazalParams(BaseModel):
+class GhazalParams(RhymeParams):
     pass
 
 
@@ -58,12 +57,17 @@ class Ghazal(BaseProcedure[GhazalParams]):
 
         first_words = words_of(lines[0])
         radif = first_words[-1] if first_words else ""
-        base_qafia = pack.rhyme_key(first_words[-2]) if len(first_words) >= 2 else None
+        base_qafia, base_exact = (
+            word_rhyme_keys(first_words[-2], pack)
+            if len(first_words) >= 2
+            else (frozenset[str](), False)
+        )
 
         good = 0
         total = 0
         qafia_good = 0
         qafia_total = 0
+        estimated = 0
         # The opening couplet carries the radif on both lines; thereafter every second.
         carriers = [1, *range(3, len(lines), 2)]
         for index in carriers:
@@ -82,24 +86,46 @@ class Ghazal(BaseProcedure[GhazalParams]):
                     )
                 )
                 continue
-            if base_qafia is None or len(words) < 2:
+            if len(first_words) < 2 or len(words) < 2:
+                continue
+            candidate, candidate_exact = word_rhyme_keys(words[-2], pack)
+            if not (base_exact and candidate_exact):
+                # The dictionary does not carry one of the pair, so this couplet
+                # cannot be judged. What that means is the caller's decision.
+                if params.unknown_rhyme == "undecidable":
+                    estimated += 1
+                    continue
+                qafia_total += 1
+                if params.unknown_rhyme == "free":
+                    qafia_good += 1
+                else:
+                    violations.append(
+                        Violation(
+                            rule="unknown_rhyme",
+                            offset=None,
+                            found=words[-2] if not candidate_exact else first_words[-2],
+                            expected="a word the pronouncing dictionary carries",
+                        )
+                    )
                 continue
             qafia_total += 1
-            candidate = pack.rhyme_key(words[-2])
-            if candidate == base_qafia:
+            if candidate & base_qafia:
                 qafia_good += 1
             else:
                 violations.append(
                     Violation(
                         rule="broken_qafia",
                         offset=None,
-                        found=candidate,
-                        expected=base_qafia,
+                        found=words[-2],
+                        expected=f"a rhyme for {first_words[-2]!r}",
                     )
                 )
         return self._report(
             good=good + qafia_good,
             total=max(total + qafia_total, 1),
             violations=violations,
-            metrics={"couplets": float(len(lines) // 2)},
+            metrics={
+                "couplets": float(len(lines) // 2),
+                "estimated_words": float(estimated),
+            },
         )

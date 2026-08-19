@@ -20,9 +20,7 @@ is a genuine duplicate outside the refrain, not a refrain pair, and stays report
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import repeat_to, rhyme_keys, scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -35,7 +33,7 @@ LINES = 28
 REFRAINS = [(7, 15), (7, 23), (7, 27)]
 REFRAIN_INDICES = sorted({index for pair in REFRAINS for index in pair})
 
-RhymeKeys = list[tuple[int, str, frozenset[str]]]
+RhymeKeys = list[tuple[int, str, frozenset[str], bool]]
 
 
 def _exempt_refrain_identicals(
@@ -70,7 +68,7 @@ def _exempt_refrain_identicals(
     return kept, exempted
 
 
-class BalladeParams(BaseModel):
+class BalladeParams(RhymeParams):
     pass
 
 
@@ -98,7 +96,9 @@ class Ballade(BaseProcedure[BalladeParams]):
         estimated = result.estimated
 
         if len(line_spans(text)) == LINES:
-            found, matched, checks = scheme_violations(text, pack, SCHEME, allow_identical=False)
+            found, matched, checks, _estimated = scheme_violations(
+                text, pack, SCHEME, allow_identical=False
+            )
             keys = rhyme_keys(text, pack)
             found, exempted = _exempt_refrain_identicals(found, keys)
             violations += found

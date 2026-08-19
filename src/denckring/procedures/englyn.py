@@ -6,9 +6,7 @@ counts, so it uses the same helper `haiku` does rather than the stress scanner.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -20,7 +18,7 @@ PATTERN = [10, 6, 7, 7]
 SCHEME = "AAAA"
 
 
-class EnglynParams(BaseModel):
+class EnglynParams(RhymeParams):
     pass
 
 
@@ -41,7 +39,9 @@ class Englyn(BaseProcedure[EnglynParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: EnglynParams) -> Report:
         syllabic = pattern_result(text, pack, PATTERN)
-        found, matched, checks = scheme_violations(text, pack, SCHEME, allow_identical=False)
+        found, matched, checks, _estimated = scheme_violations(
+            text, pack, SCHEME, allow_identical=False
+        )
         return self._report(
             good=syllabic.good + matched,
             total=syllabic.total + checks,
