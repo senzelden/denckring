@@ -54,6 +54,50 @@ def test_the_generic_composite_row_is_renamed() -> None:
     assert catalogue.get("multiple_constraint")
 
 
+def _search(term: str) -> list[str]:
+    """What `denckring search` would match — id, every name, every alias."""
+    needle = term.casefold()
+    return [
+        pid
+        for pid in catalogue.ids()
+        if any(
+            needle in field.casefold()
+            for field in [pid, *catalogue.get(pid).names.values(), *catalogue.get(pid).aliases]
+        )
+    ]
+
+
+def test_the_renamed_row_is_still_findable_by_what_it_used_to_be_called() -> None:
+    """Renaming a published row without keeping its old handles findable deletes it
+    from the record. `registry.get` resolves ids only and never consults aliases, so
+    "kept as an alias" buys nothing unless the alias is the string a reader would
+    actually type — the old *id*, and the old published English name, "Compound
+    constraint", which the rename dropped entirely.
+    """
+    for term in ("univocalic_lipogram_pair", "univocalic lipogram pair", "Compound constraint"):
+        assert _search(term) == ["multiple_constraint"], f"{term!r} finds nothing"
+
+
+def test_the_renamed_rows_id_still_suggests_the_row_it_became() -> None:
+    """Asking for the old id by id must name the row that replaced it, not just fail."""
+    with pytest.raises(UnknownProcedure) as exc_info:
+        catalogue.get("univocalic_lipogram_pair")
+    assert "multiple_constraint" in exc_info.value.suggestions
+
+
+def test_the_renamed_rows_aliases_are_its_old_handles_and_not_its_own_name() -> None:
+    """`search` already matches names, so "multiple constraint" as an alias of
+    *Multiple constraint* bought nothing while displacing the two strings that would
+    have. (`n_plus_7` also aliases its own name, `N+7`; that one is a harmless
+    duplicate of a symbol its three names already carry, and is left alone.)
+    """
+    meta = catalogue.get("multiple_constraint")
+    own = {name.casefold() for name in meta.names.values()}
+    assert not [alias for alias in meta.aliases if alias.casefold() in own]
+    assert "univocalic_lipogram_pair" in meta.aliases
+    assert "Compound constraint" in meta.aliases
+
+
 def test_haikuizations_phonemes_correction_is_reversed() -> None:
     """R18: an earlier correction added `phonemes` to `haikuization` on the
     assumption a rhyme-word reading could be told apart from a line-end one.

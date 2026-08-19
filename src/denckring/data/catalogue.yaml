@@ -1529,7 +1529,7 @@ procedures:
     attribution: reference
     checkability: self
     attested: codified
-    aliases: [univocalic lipogram pair, multiple constraint]
+    aliases: [univocalic_lipogram_pair, univocalic lipogram pair, Compound constraint]
     kind: restrictive
     languages: [en, de]
     requires: [tokens]
