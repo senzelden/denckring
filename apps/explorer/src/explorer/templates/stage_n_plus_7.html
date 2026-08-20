@@ -16,8 +16,43 @@
     <form class="actions" hx-post="/stage/n_plus_7/act" hx-target="#displaced" hx-swap="innerHTML">
       <label for="source-field">Source</label>
       <input id="source-field" type="text" name="source" value="{{ source }}">
+      <label for="lang-select">Language</label>
+      <select id="lang-select" name="lang">
+        <option value="en" data-example="{{ examples.en }}"
+                {% if default_lang == "en" %}selected{% endif %}>English</option>
+        <option value="de" data-example="{{ examples.de }}"
+                {% if default_lang == "de" %}selected{% endif %}>German</option>
+      </select>
       <button type="submit">Displace it</button>
     </form>
+    {# Unlike Ideenwürfeln's toggle, this one genuinely changes what comes back: it
+       picks which noun list `displace` walks, so English and German land on
+       different replacements for the same kind of source — see app.py's own
+       `stage_n_plus_7_act` for how `lang` reaches `displace`, `stage.displacement`
+       and `check` alike. #}
+    <p class="lang-note">Language picks which dictionary <code>displace</code> and
+      <code>check</code> walk — English's 56,468 nouns or German's 184,040.</p>
+    <script>
+    // Keeps the source field in step with the language toggle, the same way scene
+    // two's own toggle stays in step with its corpus picker: switching languages
+    // re-fills the field with that language's own example sentence, read from the
+    // chosen `<option>`'s own data (see app.py's `N_PLUS_7_SOURCES`). It stops the
+    // moment a reader edits the field directly — overwriting a reader's own typed
+    // source out from under them would look like the field silently reverting
+    // itself, exactly what scene two's own script already declines to do.
+    (() => {
+      const langSelect = document.getElementById("lang-select");
+      const sourceField = document.getElementById("source-field");
+      if (!langSelect || !sourceField) return;
+      let touched = false;
+      sourceField.addEventListener("input", () => { touched = true; });
+      langSelect.addEventListener("change", () => {
+        if (touched) return;
+        const example = langSelect.selectedOptions[0]?.dataset.example;
+        if (example) sourceField.value = example;
+      });
+    })();
+    </script>
     <div id="displaced" class="displaced-area"></div>
   </div>
 </div>

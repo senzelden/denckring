@@ -938,6 +938,59 @@ def test_a_blank_source_produces_nothing_to_check() -> None:
     assert "verdict" not in response.text
 
 
+def test_the_n_plus_7_scene_offers_a_language_toggle_defaulting_to_english() -> None:
+    """`stage.N_PLUS_7_DEFAULT_LANG` is what the toggle pre-selects at first paint —
+    the brief's own instruction, not a corpus-style guess the way Ideenwürfeln's is."""
+    assert stage.N_PLUS_7_DEFAULT_LANG == "en"
+    response = client.get("/stage/n_plus_7")
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert '<option value="en" data-example="the cat sat on the table" selected>' in normalised
+    assert 'data-example="die Katze saß auf dem Tisch" >German</option>' in normalised
+
+
+def test_a_german_source_displaces_through_the_german_list() -> None:
+    """The toggle genuinely changes the output here, unlike Ideenwürfeln's own: German
+    walks its own noun list, not the English one read in a different voice."""
+    from denckring import check
+    from denckring.procedures.n_plus_7 import displace
+
+    source = "die Katze saß auf dem Tisch"
+    produced = displace(source, stage.pack("de"), 7)
+    assert produced == "die Katzenbesitzerin saß auf dem Tischbürste"
+    assert check("n_plus_7", produced, source=source, lang="de").satisfied is True
+
+    response = client.post("/stage/n_plus_7/act", data={"source": source, "lang": "de"})
+    assert response.status_code == 200
+    assert "Katzenbesitzerin" in response.text
+    assert "Tischbürste" in response.text
+    assert "verdict yes" in response.text
+    # The catafalque story is English's own — a German reel must never carry it.
+    assert "catacomb" not in response.text
+    assert "catafalque" not in response.text
+
+
+def test_the_german_reel_shows_the_words_a_noun_travels_past() -> None:
+    """Pinned against the shipped German lexicon: `Katze` sits at index 79197 and
+    lands on `Katzenbesitzerin`, eight entries inclusive — the same shape
+    `test_the_scene_shows_the_words_a_noun_travels_past` pins for English."""
+    steps = stage.displacement("die Katze saß auf dem Tisch", 7, lang="de")
+    katze = next(step for step in steps if step.word == "Katze")
+    assert katze.replacement == "Katzenbesitzerin"
+    assert len(katze.neighbours) == 8
+    assert katze.neighbours[0] == "Katze" and katze.neighbours[-1] == "Katzenbesitzerin"
+
+
+def test_an_unrecognised_lang_falls_back_to_english() -> None:
+    """A hand-made request with a `lang` the picker never offers narrows to English
+    (`bench.as_lang`'s own rule) rather than raising `UnknownLanguage` at the route."""
+    response = client.post(
+        "/stage/n_plus_7/act", data={"source": "the cat sat on the table", "lang": "xx"}
+    )
+    assert response.status_code == 200
+    assert "catacomb" in response.text
+
+
 # ── scene five: Ghazal ───────────────────────────────────────────────────────
 
 
