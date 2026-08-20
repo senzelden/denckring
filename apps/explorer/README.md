@@ -60,7 +60,9 @@ browser — the discs spinning and landing, the reduced-motion paths, the layout
 fitting 1280×720 — is verified by hand and by no test at all. That gap is worth
 naming plainly: checking scenes by eye in this stage caught three real bugs a
 Python test could not have seen, including four of five discs painted over one
-another and a deadlock that left the whole scene dead until reload.
+another and the Arca's column numbers turned invisible by a specificity clash.
+The reduced-motion deadlock is not on that list: a browser run passed before it,
+and it was found afterwards by reading the stylesheet.
 
 ## What it is not
 

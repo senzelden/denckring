@@ -6,34 +6,8 @@
   <h1>{{ scene.title }}</h1>
 </header>
 <div class="n7-stage scene-split">
-  <div class="n7-columns-wrap scene-figure">
-    <p class="n7-source">&ldquo;{{ source }}&rdquo;</p>
-    <div class="n7-columns">
-      {% for step in steps %}
-      <div class="n7-column">
-        <p class="n7-label">{{ step.word }}</p>
-        <div class="n7-viewport">
-          <div class="n7-track">
-            {# Two blank spacer rows on each end — the viewport shows five rows,
-               so this is what lets the reel start centred on the read line
-               (the word itself) and end centred there too (the replacement),
-               rather than pinned to an edge. See the script's own comment. #}
-            {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
-            {% for entry in step.neighbours %}
-            <p class="n7-row{{ ' n7-landing' if loop.last }}">{{ entry }}</p>
-            {% endfor %}
-            {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
-          </div>
-        </div>
-        <button type="button" class="quiet n7-travel"
-                data-target="{{ (step.neighbours | length) - 1 }}">Slide it down</button>
-      </div>
-      {% endfor %}
-    </div>
-    <p class="n7-note">Here &ldquo;cat&rdquo; lands on &ldquo;catacomb&rdquo;. It landed on
-    &ldquo;catafalque&rdquo; until this project's English lexicon moved from Princeton WordNet
-    3.1 to Open English WordNet 2024 &mdash; a procedure is only as stable as the dictionary
-    underneath it.</p>
+  <div id="n7-reels" class="n7-columns-wrap scene-figure">
+    {% include "_stage_reels.html" %}
   </div>
   <div class="control-panel">
     <p class="n7-panel-note">This runs the library's own round trip: <code>displace</code>
@@ -56,8 +30,13 @@
 // measured from a real row rather than assumed, so a font or spacing change
 // elsewhere on the page can never silently throw the maths off (see the
 // stage's house rule on measuring rather than estimating).
-document.querySelectorAll('.n7-travel').forEach((button) => {
-  button.addEventListener('click', () => travel(button));
+// Delegated from the body rather than bound to the buttons present at load:
+// displacing a new source re-renders the whole reel column out of band (see
+// `_stage_displaced.html`), and per-button listeners would go with the
+// columns they were attached to, leaving the new buttons dead.
+document.body.addEventListener('click', (evt) => {
+  const button = evt.target.closest('.n7-travel');
+  if (button) travel(button);
 });
 
 function prefersReducedMotion() {
