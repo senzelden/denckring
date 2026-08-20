@@ -10,21 +10,23 @@
     <svg id="rings" class="rings-svg" viewBox="0 0 600 600" role="img"
          aria-label="Five concentric discs of German word parts">
       {% for slot in rings.slots %}
+      {# `data-default-index` seeds first paint on Harsdörffer's own example,
+         `Aas` (`stage.default_reading`), rather than each ring's own index 0
+         — the same position `pieces` below carries for the word panel, so
+         the discs and the panel can never open disagreeing. #}
       <g id="ring-{{ loop.index0 }}" data-ring="{{ loop.index0 }}" data-name="{{ slot.name }}"
          data-optional="{{ 'true' if slot.optional else 'false' }}"
-         data-parts="{{ slot.alternatives | join('|') }}"></g>
+         data-parts="{{ slot.alternatives | join('|') }}"
+         data-default-index="{{ pieces[loop.index0] }}"></g>
       {% endfor %}
     </svg>
-    {# Says in words what the legend (moved to the right column below) says in
-       numbers: a disc showing twenty parts and a legend saying 120 are not in
-       disagreement. #}
-    <p class="ring-note">A window onto each ring, not all the legend counts — turning scrolls
-    the rest through.</p>
   </div>
   <div class="control-panel">
+    <p class="scene-note">The rings give <q lang="de">blinde oder deutunglose Wörter</q>
+      &mdash; until one is not.</p>
     <div class="word-panel">
       <div id="word">
-        <p class="word">&nbsp;</p>
+        {% include "_stage_word.html" %}
       </div>
     </div>
     <form class="actions" hx-post="/stage/denckring/act" hx-target="#word" hx-trigger="submit">
@@ -43,42 +45,38 @@
         &middot; {{ slot.alternatives | length }}</span>
       {% endfor %}
     </p>
+    {# The plate opposite prints 48 &middot; 60 &middot; 12 &middot; 120 &middot; 24; this
+       transcription's legend, just above, prints 49 &middot; 60 &middot; 12 &middot; 120 &middot;
+       23. A viewer can see both at once now that the plate is on the page — said in one
+       clause, not hidden and not argued with, because neither figure has been adjusted. #}
+    <p class="legend-note">The plate prints 48 &middot; 60 &middot; 12 &middot; 120 &middot; 24 for
+      these same five bands &mdash; both counts stand, unreconciled.</p>
+    {# The counter and its arithmetic, in one paragraph rather than a panel: the
+       struck figure's own prime factors rule it out as a product of these rings,
+       and the true product — vorsylbe and nachsylbe each free to be left blank —
+       is spelled out rather than left for a viewer to multiply the legend above
+       and come up 6.5% short. #}
     <p class="counts">
-      <span class="count count-true">{{ "{:,}".format(rings.combinations) }}</span>
-      <span class="count-label">readings on these discs</span>
-      <span class="count count-claimed"><s>{{ "{:,}".format(rings.claimed) }}</s></span>
-      <span class="count-label">the figure the literature repeats</span>
+      <span class="count-true">{{ "{:,}".format(rings.combinations) }}</span> readings on these
+      discs &mdash; not the <s>{{ "{:,}".format(rings.claimed) }}</s> the literature repeats
+      (2<sup>8</sup> &times; 3 &times; 5<sup>2</sup> &times; 61 &times; 83; neither 61 nor 83
+      divides any ring size). vorsylbe and nachsylbe may each be left blank, so the real product
+      is
+      {%- for slot in rings.slots %} {{ slot.alternatives | length + (1 if slot.optional else 0) }}
+      {%- if not loop.last %} &times;{% endif %}{% endfor %}.
     </p>
-    {# Both numbers above need their reason on screen. Striking one through
-       without saying why is an assertion, and the true one is a product of
-       50 · 60 · 12 · 120 · 24 where the legend shows 49 and 23 — a viewer who
-       multiplies the legend gets 97,372,800 and concludes the page is wrong.
-       The product is built from the same slots the legend is, blanks included,
-       so the two can never drift apart. #}
-    <p class="counts-note">The struck figure factors as 2<sup>8</sup> &times; 3 &times;
-    5<sup>2</sup> &times; 61 &times; 83; neither 61 nor 83 divides any ring size, so it cannot be
-    a product of these rings on any count. The prefix and suffix rings (vorsylbe, nachsylbe) may
-    each be left blank &mdash; one turn more than each has parts &mdash; so the product is
-    {%- for slot in rings.slots %} {{ slot.alternatives | length + (1 if slot.optional else 0) }}
-    {%- if not loop.last %} &times;{% endif %}{% endfor %}.</p>
-    <figure class="harsdoerffer-quote">
-      <blockquote lang="de">hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die
-      Reimsilben auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten
-      Ring darzu drehet</blockquote>
-      <p class="quote-gloss">has its use in the invention of rhyme-words, when one seeks the
-      rhyming syllables on the third and fourth rings and turns the rhyming letters of the second
-      ring to them.</p>
-      <figcaption>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae
-      (Erquickstunden)</cite>, Nürnberg 1651. <span class="quote-note">Quoted from secondary
-      sources reproducing the Deliciae, not from the print itself; the translation is this
-      project's own.</span></figcaption>
+    <figure class="denckring-plate">
+      <img src="/static/denckring-plate.jpg"
+           alt="Harsdörffer's own engraving of the device: five concentric rings around the cartouche &quot;Fünffacher Denckring der Teütschen Sprache&quot;, with the four corner emblems and the binder's note beneath.">
+      <figcaption>Herzog August Bibliothek Wolfenbüttel, 224.2 Quod., the leaf facing p. 517 —
+      <a href="https://diglib.hab.de/drucke/224-2-quod/start.htm?image=00535">https://diglib.hab.de/drucke/224-2-quod/start.htm?image=00535</a></figcaption>
     </figure>
     <div class="rhyme-panel">
-      {# The mode the quotation above describes, run rather than only quoted:
-         lock the medial, final and suffix rings to one curated ending — see
-         `stage.RHYME_ENDINGS` for why curated — and sweep the initial ring
-         through every letter it offers. #}
-      <p class="rhyme-kicker">Rhyme mode — lock a Reimsilbe, turn the second ring through it</p>
+      {# The plate's own name for this: its cartouche calls ring II "die 60
+         Anfangsbuchstab und Reimbuchstaben" — the rhyme-letter ring. Rhyme
+         mode is labelled on the device, not inferred by us. #}
+      <p class="rhyme-kicker"><q lang="de">Reimbuchstaben</q> &mdash; ring II, swept through a
+        locked Reimsilbe</p>
       <form class="rhyme-controls" hx-post="/stage/denckring/rhyme" hx-target="#rhyme-result"
             hx-trigger="submit">
         {% for ending in rhyme_endings %}
@@ -371,7 +369,22 @@ function buildRing(ringIndex) {
     spokeEls.push(text);
   }
 
-  rings[ringIndex] = { g, dial, parts, optional, total, window: windowSize, index: 0, spokeEls };
+  // First paint opens on Harsdörffer's own example, `Aas` (see
+  // `stage.default_reading`), not on whichever alternative each ring's index
+  // 0 happens to carry — `data-default-index` is that word's true position
+  // on this ring, server-rendered the same way every other position on this
+  // page now travels.
+  const defaultIndex = Number(g.dataset.defaultIndex);
+  rings[ringIndex] = {
+    g,
+    dial,
+    parts,
+    optional,
+    total,
+    window: windowSize,
+    index: defaultIndex,
+    spokeEls,
+  };
   renderDial(ringIndex);
 }
 
