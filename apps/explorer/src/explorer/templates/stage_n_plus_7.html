@@ -10,59 +10,43 @@
     {% include "_stage_reels.html" %}
   </div>
   <div class="control-panel">
-    <p class="n7-panel-note">This runs the library's own round trip: <code>displace</code>
-    produces the text below, and <code>check</code> then confirms it independently against
-    the source you typed.</p>
     <form class="actions" hx-post="/stage/n_plus_7/act" hx-target="#displaced" hx-swap="innerHTML">
-      <label for="source-field">Source</label>
-      <input id="source-field" type="text" name="source" value="{{ source }}">
-      <label for="lang-select">Language</label>
-      {# `data-sync`: refill the source field from the chosen language's own
-         example sentence (see `_stage_sync.html`, and app.py's
-         `N_PLUS_7_SOURCES` for where the sentences come from). #}
-      <select id="lang-select" name="lang" data-sync="source-field:example">
-        <option value="en" data-example="{{ examples.en }}"
-                {% if default_lang == "en" %}selected{% endif %}>English</option>
-        <option value="de" data-example="{{ examples.de }}"
-                {% if default_lang == "de" %}selected{% endif %}>German</option>
-      </select>
-      <button type="submit">Displace it</button>
+      <div class="n7-source-field">
+        <label for="source-field">Source</label>
+        <input id="source-field" type="text" name="source" value="{{ source }}">
+      </div>
+      <div class="n7-controls-row">
+        <label for="lang-select">Language</label>
+        {# `data-sync`: refill the source field from the chosen language's own
+           example sentence (see `_stage_sync.html`, and app.py's
+           `N_PLUS_7_SOURCES` for where the sentences come from). #}
+        <select id="lang-select" name="lang" data-sync="source-field:example">
+          <option value="en" data-example="{{ examples.en }}"
+                  {% if default_lang == "en" %}selected{% endif %}>English</option>
+          <option value="de" data-example="{{ examples.de }}"
+                  {% if default_lang == "de" %}selected{% endif %}>German</option>
+        </select>
+        <button type="submit">Displace it</button>
+      </div>
     </form>
     {# Unlike Ideenwürfeln's toggle, this one genuinely changes what comes back: it
        picks which noun list `displace` walks, so English and German land on
        different replacements for the same kind of source — see app.py's own
        `stage_n_plus_7_act` for how `lang` reaches `displace`, `stage.displacement`
        and `check` alike. #}
-    {# Both figures are read off the noun lists themselves (see app.py's
-       `noun_counts`), never typed here — the same rule the Denckring's legend
-       one scene over already follows, and for the same reason: a hand-typed
-       count is the one place a viewer could catch the page disagreeing with
-       the data underneath it. #}
-    <p class="lang-note">Language picks which dictionary <code>displace</code> and
-      <code>check</code> walk — English's {{ "{:,}".format(noun_counts.en) }} nouns or
-      German's {{ "{:,}".format(noun_counts.de) }}.</p>
     {% include "_stage_sync.html" %}
     <div id="displaced" class="displaced-area"></div>
   </div>
 </div>
 <script>
 // Each column is a reel: every neighbour the noun passes on its way to the
-// replacement, stacked one per row, with two blank spacer rows on each end
-// (the viewport shows five) so the reel can start and end centred on the
+// replacement, stacked one per row, with one blank spacer row on each end
+// (the viewport shows three) so the reel can start and end centred on the
 // read line rather than pinned to an edge. Sliding it is one `translateY`
-// on the track — the row height is
-// measured from a real row rather than assumed, so a font or spacing change
-// elsewhere on the page can never silently throw the maths off (see the
-// stage's house rule on measuring rather than estimating).
-// Delegated from the body rather than bound to the buttons present at load:
-// displacing a new source re-renders the whole reel column out of band (see
-// `_stage_displaced.html`), and per-button listeners would go with the
-// columns they were attached to, leaving the new buttons dead.
-document.body.addEventListener('click', (evt) => {
-  const button = evt.target.closest('.n7-travel');
-  if (button) travel(button);
-});
-
+// on the track — the row height is measured from a real row rather than
+// assumed, so a font or spacing change elsewhere on the page can never
+// silently throw the maths off (see the stage's house rule on measuring
+// rather than estimating).
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -76,35 +60,20 @@ function prefersReducedMotion() {
 // otherwise a fallback timer, sized to the transition's own duration plus a
 // little slack, resolves the same way the event would — whichever comes first,
 // guarded so only one of them actually finishes the journey.
-function travel(button) {
-  if (button.disabled) return;
-  const column = button.closest('.n7-column');
-  const track = column.querySelector('.n7-track');
+//
+// Takes the track directly rather than a button: there is no button any
+// more (see `playReels` below) and no replay affordance to guard against a
+// second click, since each column now plays exactly once, on its own,
+// whenever a fresh reel renders.
+function travelColumn(track) {
   const rows = track.querySelectorAll('.n7-row');
   const rowHeight = rows[0].getBoundingClientRect().height;
-  const target = Number(button.dataset.target);
-
-  if (column.classList.contains('n7-arrived')) {
-    // Reset instantly to the top of the reel so the slide can be replayed —
-    // a second click on an already-landed column should show the journey
-    // again, not sit inert on the word it already reached.
-    track.style.transition = 'none';
-    track.style.transform = 'translateY(0)';
-    column.classList.remove('n7-arrived');
-    void track.getBoundingClientRect(); // flush, so the reset is not itself animated
-  }
-
-  button.disabled = true;
+  const target = Number(track.dataset.target);
   const distance = target * rowHeight;
-  const finish = () => {
-    track.style.transition = 'none';
-    column.classList.add('n7-arrived');
-    button.disabled = false;
-  };
 
   if (prefersReducedMotion()) {
+    track.style.transition = 'none';
     track.style.transform = `translateY(-${distance}px)`;
-    finish();
     return;
   }
 
@@ -114,7 +83,7 @@ function travel(button) {
     settled = true;
     track.removeEventListener('transitionend', onEnd);
     clearTimeout(fallback);
-    finish();
+    track.style.transition = 'none';
   };
   const onEnd = (evt) => {
     if (evt.propertyName === 'transform') settle();
@@ -129,6 +98,38 @@ function travel(button) {
   track.style.transform = `translateY(-${distance}px)`;
   const fallback = setTimeout(settle, duration + 80);
 }
+
+// The sentence displaces left to right, one noun after another, rather than
+// every reel resolving together — the brief's own complaint about the old
+// per-column buttons, which nothing stopped a viewer from firing all at
+// once. 350ms between columns keeps three nouns landing well inside two
+// seconds (890ms of travel each, at this scene's fixed offset of 7 — see
+// `travelColumn`'s own duration line), short enough to loop.
+const N7_STAGGER_MS = 350;
+
+function playReels(container) {
+  container.querySelectorAll('.n7-track').forEach((track, index) => {
+    if (prefersReducedMotion()) {
+      // Every word at its landing immediately, with no stagger either — a
+      // delay a viewer cannot see resolve is just a wait, not a courtesy.
+      travelColumn(track);
+    } else {
+      setTimeout(() => travelColumn(track), index * N7_STAGGER_MS);
+    }
+  });
+}
+
+playReels(document.getElementById('n7-reels'));
+
+// The reels are swapped out of band whenever a new source is displaced (see
+// `_stage_displaced.html`) — `htmx:oobAfterSwap` fires once per such region,
+// with the swapped element itself as `evt.target`, which is the one place a
+// freshly rendered set of columns can start its own journey; nothing else
+// would ever call `playReels` on them.
+document.body.addEventListener('htmx:oobAfterSwap', (evt) => {
+  if (evt.target.id !== 'n7-reels') return;
+  playReels(evt.target);
+});
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
