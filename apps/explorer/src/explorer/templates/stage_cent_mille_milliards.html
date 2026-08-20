@@ -1,0 +1,29 @@
+{% extends "stage.html" %}
+{% block title %}Cent mille milliards de poèmes{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Raymond Queneau &middot; Cent mille milliards de poèmes, 1961</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div id="poem" class="poem">
+  {% include "_stage_poem.html" %}
+</div>
+<div class="queneau-panel">
+  <p class="queneau-count">
+    <span class="count count-true">{{ "{:,}".format(poem.combinations) }}</span>
+    <span class="count-label">poems these strips can make &mdash; three alternatives to the
+      fourteenth line, 3<sup>14</sup></span>
+  </p>
+  <form class="actions" hx-post="/stage/cent_mille_milliards/deal" hx-target="#poem"
+        hx-swap="innerHTML">
+    <button type="submit">Deal</button>
+  </form>
+  {# The wording the golden fixture uses for this exact situation
+     (`src/denckring/eval/fixtures/golden/cent_mille_milliards.yaml`) — Queneau
+     died in 1976, his ten sonnets are still in copyright and are not shipped, so
+     what is on screen was written for this scene. #}
+  <p class="queneau-attribution">The machine is Queneau's, the strips are not: his own ten
+    sonnets remain in copyright, so these fourteen were written for this scene.</p>
+</div>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

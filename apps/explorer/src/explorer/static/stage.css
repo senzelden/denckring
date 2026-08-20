@@ -1079,3 +1079,145 @@
   overflow-y: auto;
 }
 
+/* ── scene four: Cent mille milliards de poèmes ──────────────────────────
+   No figure/panel split — the poem itself is the whole figure, the way this
+   scene's own brief asks for a page rather than a control panel. Centred,
+   narrower than the 1280px stage, because verse this short set edge to edge
+   would read as a report rather than a page. Measured in a browser at every
+   state (first paint, mid-deal, chrome off); see the task report for the
+   numbers `.stage`'s 720px clip has to hold. */
+
+.poem {
+  max-width: 34rem;
+  margin: 0.5rem auto 0;
+}
+
+.strips {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fourteen lines of verse plus the header above and the panel below is the
+   tallest content on this stage — measured (see the task report) at 777px
+   against the 720px `.stage` clips silently to, 57px over. `.strip`'s own
+   padding and `.strip-line`'s font size below are both tuned smaller than a
+   first draft had them for exactly that reason, not for their own sake. */
+.strip {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.1rem 0;
+  border-bottom: 1px dashed var(--paper-shade);
+  /* The 3D flip below needs real depth to rotate through, not the flat 2D
+     plane every other transform on this stage uses. */
+  perspective: 420px;
+}
+
+.strip:last-child {
+  border-bottom: none;
+}
+
+/* The sonnet's own shape, ABAB CDCD EFEF GG, read as three quatrains and a
+   couplet — a gap after the fourth strip in each quatrain, none after the
+   fourteenth. nth-child is 1-indexed; these are positions 4, 8 and 12
+   (0-indexed 3, 7, 11), the last strip of each quatrain. */
+.strip:nth-child(4),
+.strip:nth-child(8),
+.strip:nth-child(12) {
+  border-bottom-style: solid;
+  margin-bottom: 0.2rem;
+  padding-bottom: 0.16rem;
+}
+
+.strip-line {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: var(--ink);
+  transform-origin: top center;
+  backface-visibility: hidden;
+  /* A strip flipping down into place, top edge first — a hinge, not a fade
+     and not the disc's own radial turn or the slip's own falling landing.
+     Runs once, on whichever strip's own DOM node was just replaced (a deal
+     replaces all fourteen; a flip replaces exactly one), so a viewer who
+     flips a single strip sees only that line move. */
+  animation: strip-flip-in 260ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes strip-flip-in {
+  from {
+    opacity: 0;
+    transform: rotateX(-85deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+/* explorer.css's blanket `prefers-reduced-motion` rule sets `animation: none
+   !important`, which alone would strand a strip at its pre-animation
+   `opacity: 0, rotateX(-85deg)` forever — motion removed is not the same as
+   the strip having arrived. This is what actually shows it: the settled end
+   state, not a plainer one the motion happened to pass through, the same
+   fix `.slip` above already needs for the same reason. Same selector
+   specificity as the base rule, declared after it, so this wins once the
+   media query is live. */
+@media (prefers-reduced-motion: reduce) {
+  .strip-line {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.strip-flip {
+  flex: none;
+  margin: 0;
+}
+
+.strip-flip-button {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.62rem;
+}
+
+.poem-verdict {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--pass);
+  margin: 0.5rem 0 0;
+}
+
+.queneau-panel {
+  max-width: 34rem;
+  margin: 0.5rem auto 0;
+  text-align: center;
+}
+
+.queneau-count {
+  margin: 0;
+}
+
+.queneau-panel .actions {
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+
+.queneau-panel .actions button {
+  padding: 0.42rem 0.9rem;
+}
+
+/* The wording the golden fixture uses for this exact situation — Queneau's
+   own ten sonnets are still in copyright, so what is on screen is not them. */
+.queneau-attribution {
+  font-family: var(--body);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0.4rem auto 0;
+}
+

@@ -1,0 +1,18 @@
+{# One strip: the line it currently shows, and the flip control that redraws
+   only this position. Included once per position by `_stage_poem.html` (each
+   with its own `--i` for the deal's own stagger) and returned bare, by id, as
+   the whole of `/stage/cent_mille_milliards/flip`'s response for a single
+   strip — the same markup either way, so a flip and a deal can never render
+   a strip two different ways. `hx-include` reads the shared `#poem-state`
+   field rather than carrying a copy of the state in all fourteen forms,
+   which is also what keeps every flip in step with whichever one, or whichever
+   deal, last touched the poem. #}
+<div class="strip" id="strip-{{ strip.position }}" style="--i: {{ strip.position }}">
+  <p class="strip-line">{{ strip.line }}</p>
+  <form class="strip-flip" hx-post="/stage/cent_mille_milliards/flip"
+        hx-target="#strip-{{ strip.position }}" hx-swap="outerHTML" hx-include="#poem-state">
+    <input type="hidden" name="position" value="{{ strip.position }}">
+    <button type="submit" class="quiet strip-flip-button"
+            aria-label="Flip line {{ strip.position + 1 }}">flip</button>
+  </form>
+</div>
