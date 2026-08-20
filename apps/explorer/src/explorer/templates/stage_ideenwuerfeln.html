@@ -17,8 +17,15 @@
   {# `data-sync` names the field this picker fills and the key it reads off the
      chosen option; `data-lang` is the corpus style's own language suggestion,
      resolved server-side by `stage.default_lang` (see `CorpusChoice.lang`) so
-     the rule lives in one place rather than being re-run in script here. #}
-  <select id="corpus-select" name="corpus_path" data-sync="lang-select:lang">
+     the rule lives in one place rather than being re-run in script here.
+
+     The `hx-get` alongside it is a second, independent reaction to the same
+     `change` — refilling the headword picker below rather than the language
+     select `data-sync` already owns. Both can watch the same event: htmx's
+     own listener and the plain script's never touch the same field. #}
+  <select id="corpus-select" name="corpus_path" data-sync="lang-select:lang"
+          hx-get="/stage/ideenwuerfeln/headword-field" hx-target="#headword-field"
+          hx-swap="outerHTML">
     {% for choice in choices %}
     <option value="{{ choice.path }}" data-lang="{{ choice.lang }}">
       {{ choice.name }} — {{ "{:,}".format(choice.entries) }} entries
@@ -26,7 +33,7 @@
     {% endfor %}
   </select>
   <label for="headword">Headword</label>
-  <input id="headword" type="text" name="headword" placeholder="a headword to collide under">
+  {% include "_stage_headword_field.html" %}
   <label for="lang-select">Language</label>
   <select id="lang-select" name="lang">
     <option value="en" {% if default_lang == "en" %}selected{% endif %}>English</option>
@@ -34,12 +41,6 @@
   </select>
   <button type="submit">Throw</button>
 </form>
-{# What the toggle governs, in a few words — it is not the corpus picker beside it.
-   `apply` ignores it today (a draw is verbatim excerpts, not a translation), but the
-   Witz reading genuinely writes in it, and the interface is asked for it regardless
-   — see stage.default_lang for the corpus-style default this pre-selects. #}
-<p class="lang-note">Language governs the Witz reading — not the draw itself, which
-  never reads it, and not which corpus above is drawn from.</p>
 {% include "_stage_sync.html" %}
 {% endif %}
 <div id="throw" class="throw-area"></div>
