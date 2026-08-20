@@ -1,19 +1,24 @@
-{% if ending %}
-{# One entry per letter the second ring offers, in ring order, real word or
-   "" — exactly `stage.rhyme_sweep`'s own list, pipe-joined the same way
-   `pieces` is elsewhere on this page. The script below walks the ring
-   through it and grows the list underneath as each hit comes up, rather than
-   this template revealing them all at once — the sweep is the point. #}
-<div id="rhyme-sweep-data" data-label="{{ ending.label }}"
-     data-mittelbuchstabe="{{ ending.mittelbuchstabe }}" data-endbuchstabe="{{ ending.endbuchstabe }}"
-     data-nachsylbe="{{ ending.nachsylbe }}" data-sweep="{{ sweep | join('|') }}"></div>
+{% if sweep %}
+{# The three locked rings' true positions, and the sweep itself: one entry
+   per letter the second ring offers, in ring order, real word or "" —
+   `sweep.words`, pipe-joined the same way `pieces` is elsewhere on this
+   page. Positions, not text — a client that searched a parts list for
+   `endbuchstabe`'s locked letter could land on the wrong one of its two
+   repeats ('f', 'ls'); a position is unambiguous. The script below walks
+   the ring through the sweep and grows the list underneath as each hit
+   comes up, rather than this template revealing them all at once — the
+   sweep is the point. #}
+<div id="rhyme-sweep-data" data-label="{{ sweep.label }}"
+     data-mittelbuchstabe-index="{{ sweep.mittelbuchstabe_index }}"
+     data-endbuchstabe-index="{{ sweep.endbuchstabe_index }}"
+     data-nachsylbe-index="{{ sweep.nachsylbe_index }}" data-sweep="{{ sweep.words | join('|') }}"></div>
 {# The tally the sweep will end on, already known here — but the script
    below holds it back behind "sweeping…" until the disc has actually
    finished walking past every position, so the count is never on screen
    before the turn that earns it. A viewer with JS off (or the tests, which
    read this response directly) still gets the true count immediately. #}
-<p class="rhyme-status" id="rhyme-status">{{ hits | length }} of {{ sweep | length }} real —
-  {{ ending.label }}</p>
+<p class="rhyme-status" id="rhyme-status">{{ hits | length }} of {{ sweep.words | length }} real —
+  {{ sweep.label }}</p>
 <ul class="rhyme-list" id="rhyme-list"></ul>
 {% else %}
 <p class="rhyme-status">choose an ending to sweep the second ring through it</p>

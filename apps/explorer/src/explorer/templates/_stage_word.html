@@ -1,4 +1,4 @@
-<p class="word"{% if pieces is not none %} data-pieces="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
+<p class="word"{% if pieces is not none %} data-positions="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
 {% if find_failed %}
 <p class="verdict verdict-find no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
   — try again</p>
