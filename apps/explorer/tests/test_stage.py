@@ -224,6 +224,113 @@ def test_the_quotation_is_attributed_without_a_page_number() -> None:
     assert "517" not in normalised
 
 
+def test_the_two_verdicts_are_distinct() -> None:
+    """A word built from the rings is always a reading of them — `check`
+    cannot fail it, which is why the scene shows a second verdict that can.
+    A ring word straight off first paint is off-the-rings True; a made-up
+    string of the same shape that the lexicon does not carry is
+    German-knows False, even though neither verdict is about the other."""
+    from denckring import check
+
+    ring_word = "".join(_label(slot.alternatives, 0) for slot in stage.rings().slots)
+    assert check("denckring", ring_word, lang="de").satisfied is True
+    assert stage.german_pack().is_word(ring_word) is False
+
+    found = stage.find_word()
+    assert found is not None
+    real_word, _pieces = found
+    assert check("denckring", real_word, lang="de").satisfied is True
+    assert stage.german_pack().is_word(real_word) is True
+
+
+def test_the_word_panel_shows_both_verdicts_distinctly() -> None:
+    """The page itself, not just the two facts in isolation: both verdicts
+    render, and they disagree on the interesting word the way the facts
+    above say they should."""
+    found = stage.find_word()
+    assert found is not None
+    word, _pieces = found
+    response = client.post("/stage/denckring/act", data={"word": word})
+    normalised = " ".join(response.text.split())
+    assert "off the rings — always true" in normalised
+    assert "a word German knows — yes" in normalised
+
+
+def test_find_me_one_lands_on_a_word_off_the_rings_and_in_the_lexicon() -> None:
+    """The button's whole claim: a bounded server-side search that lands on a
+    word both verdicts would say yes to, without a viewer sitting through the
+    ~4,900 tries a random turn needs on average."""
+    from denckring import check
+
+    found = stage.find_word()
+    assert found is not None
+    word, pieces = found
+    assert check("denckring", word, lang="de").satisfied is True
+    assert stage.german_pack().is_word(word) is True
+    # The pieces returned are the exact segmentation the discs would spin to,
+    # not merely a word believed to match it.
+    assert "".join(pieces) == word
+
+
+def test_find_me_one_can_report_failure_honestly() -> None:
+    """A budget of zero tries can never find anything — the search must say
+    so rather than hang or claim a word it never found."""
+    assert stage.find_word(attempts=0) is None
+
+
+def test_find_me_one_route_turns_the_discs_to_a_real_word() -> None:
+    response = client.post("/stage/denckring/act", data={"find": "1"})
+    assert response.status_code == 200
+    assert "data-pieces=" in response.text
+    assert "a word German knows — yes" in " ".join(response.text.split())
+
+
+def test_rhyme_endings_are_all_curated_and_clean() -> None:
+    """Every offered ending is one this project chose to show on camera, and
+    every word its sweep can produce is real — the curation the report talks
+    about, pinned rather than only asserted."""
+    for ending in stage.RHYME_ENDINGS:
+        sweep = stage.rhyme_sweep(ending)
+        hits = [word for word in sweep if word]
+        assert hits, ending.label
+        for word in hits:
+            assert stage.german_pack().is_word(word) is True
+            assert word.casefold().endswith(
+                (ending.mittelbuchstabe + ending.endbuchstabe + ending.nachsylbe).casefold()
+            )
+
+
+def test_rhyme_sweep_yields_match_the_measured_counts() -> None:
+    """The report's own headline numbers, pinned against the shipped lexicon:
+    -acken 24, -ecken 23, -allen 17."""
+    expected = {"-acken": 24, "-ecken": 23, "-allen": 17}
+    for label, count in expected.items():
+        ending = stage.rhyme_ending(label)
+        assert ending is not None
+        hits = [word for word in stage.rhyme_sweep(ending) if word]
+        assert len(hits) == count
+
+
+def test_the_rhyme_route_sweeps_a_locked_ending() -> None:
+    response = client.post("/stage/denckring/rhyme", data={"ending": "-acken"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "24 of 60 real — -acken" in normalised
+    assert "Backen" in normalised
+
+
+def test_the_rhyme_route_refuses_an_unknown_ending() -> None:
+    response = client.post("/stage/denckring/rhyme", data={"ending": "-nonsense"})
+    assert response.status_code == 200
+    assert "choose an ending" in response.text.lower()
+
+
+def test_the_scene_offers_every_curated_ending() -> None:
+    response = client.get("/stage/denckring")
+    for ending in stage.RHYME_ENDINGS:
+        assert f'value="{ending.label}"' in response.text
+
+
 def test_the_scene_renders_without_any_corpus() -> None:
     """Every machine except the author's has an empty DENCKRING_CORPORA. A scene that
     exploded there would be worse than one that explains itself (ADR 0020: corpora are
