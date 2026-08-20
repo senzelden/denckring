@@ -1,0 +1,31 @@
+{% extends "stage.html" %}
+{% block title %}Ideenwürfeln{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Jean Paul &middot; notebook titled Ideenwürfeln, February 1795</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+{% if not choices %}
+<p class="placeholder">
+  There is no corpus to throw. Point <code>DENCKRING_CORPORA</code> at a directory of
+  excerpt files; nothing is bundled, because a corpus belongs to whoever assembled it.
+</p>
+{% else %}
+<form class="throw-form corpus-picker" hx-post="/stage/ideenwuerfeln/act" hx-target="#throw"
+      hx-swap="innerHTML">
+  <label for="corpus-select">Corpus</label>
+  <select id="corpus-select" name="corpus_path">
+    {% for choice in choices %}
+    <option value="{{ choice.path }}" data-register="{{ choice.register }}">
+      {{ choice.name }} — {{ "{:,}".format(choice.entries) }} entries
+    </option>
+    {% endfor %}
+  </select>
+  <label for="headword">Headword</label>
+  <input id="headword" type="text" name="headword" placeholder="a headword to collide under">
+  <button type="submit">Throw</button>
+</form>
+{% endif %}
+<div id="throw" class="throw-area"></div>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

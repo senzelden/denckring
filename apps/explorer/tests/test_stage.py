@@ -159,3 +159,33 @@ def test_the_quotation_is_attributed_without_a_page_number() -> None:
     assert "Nürnberg 1651" in normalised
     assert "p. 517" not in normalised
     assert "517" not in normalised
+
+
+def test_the_scene_renders_without_any_corpus() -> None:
+    """Every machine except the author's has an empty DENCKRING_CORPORA. A scene that
+    exploded there would be worse than one that explains itself (ADR 0020: corpora are
+    never shipped)."""
+    import os
+
+    from explorer import corpora
+
+    original = os.environ.get("DENCKRING_CORPORA")
+    os.environ["DENCKRING_CORPORA"] = "/nonexistent-for-this-test"
+    corpora.available.cache_clear() if hasattr(corpora.available, "cache_clear") else None
+    try:
+        response = client.get("/stage/ideenwuerfeln")
+        assert response.status_code == 200
+        assert "no corpus" in response.text.lower()
+    finally:
+        if original is None:
+            os.environ.pop("DENCKRING_CORPORA", None)
+        else:
+            os.environ["DENCKRING_CORPORA"] = original
+
+
+def test_each_corpus_maps_to_a_register() -> None:
+    """The corpora already carry the marker that switches the scene's look:
+    `style: jean_paul` and `style: modern`."""
+    assert stage.register_for("jean_paul") == "baroque"
+    assert stage.register_for("modern") == "modern"
+    assert stage.register_for("anything-else") == "modern"
