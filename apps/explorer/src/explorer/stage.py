@@ -342,6 +342,21 @@ def register_for(style: str) -> str:
     return REGISTERS.get(style, "modern")
 
 
+#: The same marker, this time suggesting which language the throw and the Witz
+#: reading default to — Jean Paul's excerpts want German, everything else English.
+#: A default only: the scene's language toggle can always override it, and a corpus
+#: is free to be in any language regardless of what its own register implies.
+LANG_DEFAULTS = {"jean_paul": "de"}
+
+
+def default_lang(style: str) -> str:
+    """The language a corpus's own `style` marker suggests, before the toggle
+    overrides it. Independent of `register_for` — a register is how the page
+    looks, a language is what `apply` and the Witz reading are asked for — so
+    the two are kept as separate lookups even though they share a source."""
+    return LANG_DEFAULTS.get(style, "en")
+
+
 @dataclass(frozen=True)
 class CorpusChoice:
     """One corpus, offered to the scene."""
