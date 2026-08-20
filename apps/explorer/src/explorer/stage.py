@@ -140,7 +140,7 @@ def german_pack() -> LanguagePack:
 #: bums, hure, nutte, titt, möse, pimmel); scatological ones (scheiss/schiss
 #: — both stems needed, since "beschissen" carries the strong verb's past
 #: stem "schiss" rather than "scheiss"; kack; piss; kotz); and slurs (neger,
-#: zigeuner, kanak).
+#: zigeuner, kanak, spast).
 #:
 #: Deliberately excludes some stems that looked relevant and were checked
 #: against the shipped lexicon and rejected as too broad for this device:
@@ -156,6 +156,21 @@ def german_pack() -> LanguagePack:
 #: "vollschüren" (to stoke a fire further) — a false positive judged worth
 #: the true ones alongside it, on the reasoning that a lost word is a minor
 #: cost and a missed vulgarity is not. Audited in full in the task report.
+#:
+#: Two rulings made after that audit, both checked against what these rings
+#: can actually spell (see the task report's "Ruling 1"/"Ruling 2"):
+#: "spast" is blocked as a stem even though it also costs "spastisch" (a
+#: genuine clinical adjective, and likewise producible) — in German "Spast"
+#: itself is an ableist slur with no innocent reading, so the trade favours
+#: blocking the stem: a missing adjective in a demo costs nothing, a slur in
+#: a recording costs a great deal. "schlampen" is blocked as the exact word,
+#: not the "schlamp" stem: "Schlampe" (the singular) is not producible by
+#: this device at all, but "schlampen" (pieces ['', 'Schl', 'a', 'mp', 'en'])
+#: is, and is the same slur in its plural/verb form. The narrower stem is
+#: enough — and, because matching is substring-based, "schlampen" still
+#: catches nothing else — so "schlampig" (sloppy, an ordinary adjective,
+#: also producible) is left untouched, the same precision already used for
+#: "arsch" and "sack".
 _BLOCKED_STEMS = frozenset(
     {
         # sexual
@@ -180,6 +195,8 @@ _BLOCKED_STEMS = frozenset(
         "neger",
         "zigeuner",
         "kanak",
+        "spast",
+        "schlampen",
     }
 )
 
