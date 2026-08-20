@@ -100,11 +100,21 @@ const rings = [];
 // — not-allowed cursor, buttons disabled — rather than quietly eating clicks.
 let inert = false;
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function setInert(value) {
   inert = value;
   svg.classList.toggle('spinning', inert);
   document.querySelectorAll('.actions button').forEach((button) => {
     button.disabled = inert;
+  });
+  // aria-disabled, not just the cursor and the buttons — a keyboard user
+  // gets no cursor to read, and the Enter/Space handler below checks this
+  // same attribute rather than silently doing nothing.
+  document.querySelectorAll('.ring-disc').forEach((disc) => {
+    disc.setAttribute('aria-disabled', String(inert));
   });
 }
 
@@ -139,22 +149,48 @@ function angleStep(r) {
 // The redrawn spoke 0 is already the part that step landed on, so the reset
 // is invisible; it is what lets a handful of rendered spokes stand in for
 // scrolling through the whole ring, `advance` at a time.
+//
+// A `duration` of 0 (the reduced-motion paths below) skips the transform
+// entirely rather than setting a rotation only to snap it away moments
+// later — no motion means no motion, not a one-frame flash of one.
+//
+// Otherwise, never resolves on `transitionend` alone. `explorer.css`'s
+// `prefers-reduced-motion` rule sets `transition: none !important`, which
+// beats this function's own inline transition — under that preference no
+// transition ever runs, so the event never fires. A backgrounded tab or an
+// interrupted transition can just as well drop it. A fallback timer, sized
+// to the requested duration plus a little slack, resolves the same way the
+// event would if the event never shows up — whichever comes first wins, and
+// the guard below makes sure only one of them actually runs the finish.
 function microStep(ringIndex, duration, advance) {
+  const r = rings[ringIndex];
+  const finish = () => {
+    r.index = (r.index + advance) % r.total;
+    r.dial.style.transition = 'none';
+    r.dial.style.transform = 'rotate(0deg)';
+    renderDial(ringIndex);
+  };
+  if (duration <= 0) {
+    finish();
+    return Promise.resolve();
+  }
   return new Promise((resolve) => {
-    const r = rings[ringIndex];
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      r.dial.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+      finish();
+      void r.dial.getBoundingClientRect(); // flush, so the reset is not itself animated
+      resolve();
+    };
+    const onEnd = () => settle();
+    r.dial.addEventListener('transitionend', onEnd);
     r.dial.style.transition = `transform ${duration}ms ease`;
     void r.dial.getBoundingClientRect(); // flush, so the transition itself is not skipped
     r.dial.style.transform = `rotate(-${advance * angleStep(r)}deg)`;
-    const onEnd = () => {
-      r.dial.removeEventListener('transitionend', onEnd);
-      r.index = (r.index + advance) % r.total;
-      r.dial.style.transition = 'none';
-      r.dial.style.transform = 'rotate(0deg)';
-      void r.dial.getBoundingClientRect(); // flush again, so the reset is not itself animated
-      renderDial(ringIndex);
-      resolve();
-    };
-    r.dial.addEventListener('transitionend', onEnd);
+    const fallback = setTimeout(settle, duration + 50);
   });
 }
 
@@ -166,7 +202,7 @@ function microStep(ringIndex, duration, advance) {
 function turnOne(ringIndex) {
   if (inert) return;
   setInert(true);
-  microStep(ringIndex, 220, 1).then(() => {
+  microStep(ringIndex, prefersReducedMotion() ? 0 : 220, 1).then(() => {
     setInert(false);
     assemble();
   });
@@ -193,6 +229,15 @@ async function spinRingTo(ringIndex, piece) {
   if (target < 0) return; // defensive: pieces_for always names a real piece or ""
   const forward = (target - r.index + r.total) % r.total;
   const total = forward >= r.window ? forward : forward + r.total;
+
+  if (prefersReducedMotion()) {
+    // The word must still land exactly where the server put it — only the
+    // theatre goes away. One immediate step covering the whole distance,
+    // no blur, no settle-and-slow-down.
+    await microStep(ringIndex, 0, total);
+    return;
+  }
+
   const settle = Math.min(SETTLE_MS.length, total);
   let blur = total - settle;
   const stride = Math.max(1, Math.ceil(blur / MAX_BLUR_STEPS));
@@ -224,12 +269,16 @@ function buildRing(ringIndex) {
   disc.setAttribute('tabindex', '0');
   disc.setAttribute('role', 'button');
   disc.setAttribute('aria-label', 'Turn the ' + g.dataset.name + ' disc');
+  disc.setAttribute('aria-disabled', 'false');
   disc.addEventListener('click', () => turnOne(ringIndex));
   disc.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Enter' || evt.key === ' ') {
-      evt.preventDefault();
-      turnOne(ringIndex);
-    }
+    if (evt.key !== 'Enter' && evt.key !== ' ') return;
+    evt.preventDefault();
+    // Respect the same refusal a mouse gets from `inert`/the cursor change
+    // — `turnOne` would no-op anyway, but a keyboard user gets nothing to
+    // see from a cursor, so the attribute has to carry the refusal instead.
+    if (disc.getAttribute('aria-disabled') === 'true') return;
+    turnOne(ringIndex);
   });
   g.appendChild(disc);
 
