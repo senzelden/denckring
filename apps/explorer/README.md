@@ -50,7 +50,7 @@ there; and the result marks the offending characters inline using the offsets ev
 
 `/board` lays out every golden case in the catalogue and runs each one live, so
 it is slow by design — that is the coverage picture, run for real rather than
-cached. `/stage` holds three recordable demo scenes at a fixed size for
+cached. `/stage` holds six recordable demo scenes at a fixed size for
 screen capture. Neither needs a corpus except the Ideenwürfeln scene, which
 explains itself in the page when `DENCKRING_CORPORA` is unset.
 
@@ -58,9 +58,10 @@ The Python suite executes no JavaScript. What is guarded by tests is the markup,
 the routes and the procedures behind them; the scenes' actual behaviour in a
 browser — the discs spinning and landing, the reduced-motion paths, the layout
 fitting 1280×720 — is verified by hand and by no test at all. That gap is worth
-naming plainly: checking scenes by eye in this stage caught three real bugs a
+naming plainly: checking scenes by eye in this stage caught eight real bugs a
 Python test could not have seen, including four of five discs painted over one
-another and the Arca's column numbers turned invisible by a specificity clash.
+another and, in N+7, a language select that claimed the whole form row and left
+the source field beside it 26 pixels wide.
 The reduced-motion deadlock is not on that list: a browser run passed before it,
 and it was found afterwards by reading the stylesheet.
 

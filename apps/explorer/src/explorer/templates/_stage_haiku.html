@@ -30,8 +30,6 @@
 <p class="haiku-remnant" style="--i: {{ haiku.line_count }}">{{ haiku.remnant }}</p>
 {% if report %}
 <p class="verdict haiku-verdict {{ 'yes' if report.satisfied else 'no' }}">
-  {# No possessive apostrophe here — `{{ }}` output is autoescaped and would turn one into
-     `&#39;`, the same reason every other scene's own verdict text on this stage avoids one. #}
   {{ "checked — every word above ends its own line" if report.satisfied
      else "checked — not every word above ends its own line" }}
 </p>
