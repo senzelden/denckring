@@ -5,7 +5,13 @@
 {% set stylesheets = ["/static/stage.css"] %}
 {% include "_head.html" %}
 </head>
-<body class="stage-body{% if chrome_off %} bare{% endif %}">
+{# `?chrome=off` takes the caption away and nothing else. The scenes are driven
+   by hand while they are being recorded, so their forms and buttons are the
+   recording rather than furniture around it — there is no control here that
+   could be hidden without making the scene undriveable. The `bare` hook this
+   body used to carry, which no stylesheet ever picked up, is gone: a hook that
+   hooks nothing promises a second half of this switch that does not exist. #}
+<body class="stage-body">
 <main class="stage{% block main_class %}{% endblock %}" id="stage">
 {% block main %}{% endblock %}
 </main>
