@@ -17,3 +17,88 @@ cases:
       geht
     params: { source: "Auf | Ab\nNacht | Tag\nkommt | geht" }
     satisfied: false
+  - name: a-german-poem-the-strips-actually-offer
+    lang: de
+    source: >-
+      constructed example; the fourteen strips are the German set written
+      for the "Cent mille milliards de poèmes" stage scene
+      (apps/explorer/src/explorer/data/queneau_strips_de.txt), copied here
+      verbatim. `text` is the first alternative at every position — the
+      catalogue's own `languages: [en, de]` for this row needs at least one
+      German case behind it (`test_declared_languages_have_a_fixture`), and
+      a real 14-position poem, not a shortened stand-in, is what actually
+      exercises the shape the row claims. The German pack ships no
+      `phonemes`, so this only confirms that each line is one the strips
+      offer — not that the poem rhymes; see the stage's own test for that
+      limitation stated in full.
+    text: |-
+      Fünf Scheiben aus Papier, und etwas Zeit.
+      Ein jeder Ring dreht sich in deiner Hand.
+      Was hier entsteht, ist selten schon gescheit.
+      Ein blindes Wort kommt her aus keinem Land.
+      Hier wird aus Silben Sprache, still gemacht.
+      Man kann die ganze Sprache darin sehen.
+      Nicht jedes Drehen hat ein Wort gebracht.
+      Man läßt die Ringe ihren Weg so gehen.
+      Am Ende steht ein einzig klares Wort.
+      Die Scheiben drehen weiter, ganz allein.
+      Man dreht es immer weiter, immer fort.
+      Ein Wort ist manchmal nichts als leerer Schein.
+      Fünf Ringe tragen jeden deutschen Reim.
+      Und was sie sagen, bleibt zuletzt geheim.
+    params:
+      source: |-
+        Fünf Scheiben aus Papier, und etwas Zeit. | Der Denckring liegt geheftet, drehbereit. | Ein Blättlein hält die Sprache, schmal und weit.
+        Ein jeder Ring dreht sich in deiner Hand. | Die Silben stehen sauber Rand an Rand. | Ein Wort entsteht ganz ohne Verstand.
+        Was hier entsteht, ist selten schon gescheit. | Der Zufall kennt kein Maß und auch kein Leid. | Die Ringe schweigen, führen keinen Streit.
+        Ein blindes Wort kommt her aus keinem Land. | Die Scheiben hält ein dünnes, festes Band. | Die Lettern stehen dicht wie eine Wand.
+        Hier wird aus Silben Sprache, still gemacht. | Man dreht die Ringe einmal, eine Nacht. | Ein Wort hat über nichts und niemand Macht.
+        Man kann die ganze Sprache darin sehen. | Und jeder Ring will für sich selber drehen. | Fünf Scheiben, die nun übereinander stehen.
+        Nicht jedes Drehen hat ein Wort gebracht. | Der Meister hat das Blättlein wohl bedacht. | Die Sprache liegt hier ohne alle Pracht.
+        Man läßt die Ringe ihren Weg so gehen. | Es kann in einem Dreh ein Wort geschehen. | Und keiner muß das blinde Wort verstehen.
+        Am Ende steht ein einzig klares Wort. | Und niemand weiß, von welchem stillen Ort. | Was blind war, wird auf einmal lesbar dort.
+        Die Scheiben drehen weiter, ganz allein. | Ein Wort kann groß und dennoch nichtig sein. | Der Ring ist alt, das Blättlein ist nur klein.
+        Man dreht es immer weiter, immer fort. | Die Sprache liegt im Blättlein wie ein Hort. | Ein totes Wort ist stumm und bald verdorrt.
+        Ein Wort ist manchmal nichts als leerer Schein. | Der Reim fällt selten glatt und selten rein. | Die Lettern sind gestochen scharf und fein.
+        Fünf Ringe tragen jeden deutschen Reim. | In jeder Silbe liegt ein ganzer Keim. | Man trägt die ganze Sprache mit nach heim.
+        Und was sie sagen, bleibt zuletzt geheim. | Fünf Scheiben halten sich mit etwas Leim. | So bleibt die ganze Sprache hier daheim.
+    satisfied: true
+  - name: a-german-line-not-on-the-strips
+    lang: de
+    source: >-
+      constructed counterexample; same fourteen strips as the case above,
+      with position 3 (0-indexed 2) replaced by an alternative offered for
+      position 1 instead — real German text, but not one this position
+      offers.
+    text: |-
+      Fünf Scheiben aus Papier, und etwas Zeit.
+      Ein jeder Ring dreht sich in deiner Hand.
+      Der Denckring liegt geheftet, drehbereit.
+      Ein blindes Wort kommt her aus keinem Land.
+      Hier wird aus Silben Sprache, still gemacht.
+      Man kann die ganze Sprache darin sehen.
+      Nicht jedes Drehen hat ein Wort gebracht.
+      Man läßt die Ringe ihren Weg so gehen.
+      Am Ende steht ein einzig klares Wort.
+      Die Scheiben drehen weiter, ganz allein.
+      Man dreht es immer weiter, immer fort.
+      Ein Wort ist manchmal nichts als leerer Schein.
+      Fünf Ringe tragen jeden deutschen Reim.
+      Und was sie sagen, bleibt zuletzt geheim.
+    params:
+      source: |-
+        Fünf Scheiben aus Papier, und etwas Zeit. | Der Denckring liegt geheftet, drehbereit. | Ein Blättlein hält die Sprache, schmal und weit.
+        Ein jeder Ring dreht sich in deiner Hand. | Die Silben stehen sauber Rand an Rand. | Ein Wort entsteht ganz ohne Verstand.
+        Was hier entsteht, ist selten schon gescheit. | Der Zufall kennt kein Maß und auch kein Leid. | Die Ringe schweigen, führen keinen Streit.
+        Ein blindes Wort kommt her aus keinem Land. | Die Scheiben hält ein dünnes, festes Band. | Die Lettern stehen dicht wie eine Wand.
+        Hier wird aus Silben Sprache, still gemacht. | Man dreht die Ringe einmal, eine Nacht. | Ein Wort hat über nichts und niemand Macht.
+        Man kann die ganze Sprache darin sehen. | Und jeder Ring will für sich selber drehen. | Fünf Scheiben, die nun übereinander stehen.
+        Nicht jedes Drehen hat ein Wort gebracht. | Der Meister hat das Blättlein wohl bedacht. | Die Sprache liegt hier ohne alle Pracht.
+        Man läßt die Ringe ihren Weg so gehen. | Es kann in einem Dreh ein Wort geschehen. | Und keiner muß das blinde Wort verstehen.
+        Am Ende steht ein einzig klares Wort. | Und niemand weiß, von welchem stillen Ort. | Was blind war, wird auf einmal lesbar dort.
+        Die Scheiben drehen weiter, ganz allein. | Ein Wort kann groß und dennoch nichtig sein. | Der Ring ist alt, das Blättlein ist nur klein.
+        Man dreht es immer weiter, immer fort. | Die Sprache liegt im Blättlein wie ein Hort. | Ein totes Wort ist stumm und bald verdorrt.
+        Ein Wort ist manchmal nichts als leerer Schein. | Der Reim fällt selten glatt und selten rein. | Die Lettern sind gestochen scharf und fein.
+        Fünf Ringe tragen jeden deutschen Reim. | In jeder Silbe liegt ein ganzer Keim. | Man trägt die ganze Sprache mit nach heim.
+        Und was sie sagen, bleibt zuletzt geheim. | Fünf Scheiben halten sich mit etwas Leim. | So bleibt die ganze Sprache hier daheim.
+    satisfied: false
