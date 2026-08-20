@@ -1,0 +1,44 @@
+{# The one toggle-sync script, shared by the three scenes that each grew their
+   own copy of it: Ideenwürfeln's corpus picker driving its language select,
+   N+7's language select driving its source field, and the word ladder's
+   driving both of its word fields. All three did the same thing and said so in
+   their own comments. The spec's rule is to extract once a third scene proves
+   it needs the same thing, and a third one did.
+
+   Declarative, so this file knows nothing about any scene: the driving
+   `<select>` carries `data-sync="field-id:key ..."`, and each of its
+   `<option>`s carries a value for each `key` as `data-<key>`. On a change,
+   every named field is refilled from the option that was chosen.
+
+   It stops the moment a reader touches one of the fields it fills — syncing
+   past an explicit choice would look like the field silently reverting itself,
+   which is what all three copies already refused to do, for the same reason.
+   Writing `.value` from script fires neither `input` nor `change`, so this
+   script's own writes can never be mistaken for a reader's touch. #}
+<script>
+(() => {
+  document.querySelectorAll("[data-sync]").forEach((driver) => {
+    const targets = driver.dataset.sync
+      .split(" ")
+      .map((pair) => pair.split(":"))
+      .map(([id, key]) => [document.getElementById(id), key])
+      .filter(([field]) => field);
+    if (!targets.length) return;
+    let touched = false;
+    const touch = () => { touched = true; };
+    targets.forEach(([field]) => {
+      field.addEventListener("input", touch);
+      field.addEventListener("change", touch);
+    });
+    driver.addEventListener("change", () => {
+      if (touched) return;
+      const option = driver.selectedOptions[0];
+      if (!option) return;
+      targets.forEach(([field, key]) => {
+        const value = option.dataset[key];
+        if (value) field.value = value;
+      });
+    });
+  });
+})();
+</script>

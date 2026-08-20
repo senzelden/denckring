@@ -436,17 +436,26 @@ def default_lang(style: str) -> str:
 
 @dataclass(frozen=True)
 class CorpusChoice:
-    """One corpus, offered to the scene."""
+    """One corpus, offered to the scene.
+
+    `register` and `lang` are both resolved from `style` here, on the server,
+    rather than left for the page to work out: the scene's picker writes
+    `lang` onto each option so the shared toggle-sync script can read it
+    without re-running `default_lang`'s rule in JavaScript, which is what it
+    used to do from `data-style`. One rule, in one place.
+    """
 
     path: str
     name: str
     entries: int
     style: str
     register: str
+    lang: str
 
 
 def corpus_choices() -> list[CorpusChoice]:
-    """Whatever is in `DENCKRING_CORPORA`, with its register resolved."""
+    """Whatever is in `DENCKRING_CORPORA`, with its register and language
+    suggestion resolved."""
     return [
         CorpusChoice(
             path=item.path,
@@ -454,6 +463,7 @@ def corpus_choices() -> list[CorpusChoice]:
             entries=item.entries,
             style=item.style,
             register=register_for(item.style),
+            lang=default_lang(item.style),
         )
         for item in corpora.available()
     ]

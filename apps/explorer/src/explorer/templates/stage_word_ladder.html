@@ -20,7 +20,9 @@
       <label for="target-field">Target</label>
       <input id="target-field" type="text" name="target" value="{{ target }}">
       <label for="lang-select">Language</label>
-      <select id="lang-select" name="lang">
+      {# `data-sync`: refill both word fields from the chosen language's own
+         example pair (see `_stage_sync.html`, and `WORD_LADDER_EXAMPLES`). #}
+      <select id="lang-select" name="lang" data-sync="start-field:start target-field:target">
         <option value="en" data-start="{{ examples.en[0] }}" data-target="{{ examples.en[1] }}"
                 {% if default_lang == "en" %}selected{% endif %}>English</option>
         <option value="de" data-start="{{ examples.de[0] }}" data-target="{{ examples.de[1] }}"
@@ -34,29 +36,7 @@
        `stage_word_ladder_act` for how `lang` reaches `stage.word_ladder` and `check` alike. #}
     <p class="lang-note">Language picks which lexicon <code>apply</code> and <code>check</code>
       search, so English and German can find different ladders to the same word.</p>
-    <script>
-    // Keeps the Start and Target fields in step with the language toggle, the same idiom
-    // N+7's own script uses for its one source field: switching languages re-fills both
-    // fields with that language's own example pair (see app.py's `WORD_LADDER_EXAMPLES`),
-    // and stops the moment a reader edits either field directly, so a reader's own typed
-    // words are never silently overwritten.
-    (() => {
-      const langSelect = document.getElementById("lang-select");
-      const startField = document.getElementById("start-field");
-      const targetField = document.getElementById("target-field");
-      if (!langSelect || !startField || !targetField) return;
-      let touched = false;
-      startField.addEventListener("input", () => { touched = true; });
-      targetField.addEventListener("input", () => { touched = true; });
-      langSelect.addEventListener("change", () => {
-        if (touched) return;
-        const option = langSelect.selectedOptions[0];
-        if (!option) return;
-        if (option.dataset.start) startField.value = option.dataset.start;
-        if (option.dataset.target) targetField.value = option.dataset.target;
-      });
-    })();
-    </script>
+    {% include "_stage_sync.html" %}
   </div>
 </div>
 {% endblock %}
