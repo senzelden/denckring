@@ -9,6 +9,17 @@ from fastapi.testclient import TestClient
 client = TestClient(app)
 
 
+def _label(alternatives: list[str], index: int) -> str:
+    """What a disc shows at a given index — the same model the scene's own
+    script uses to turn the rings. A real alternative in range; one further
+    blank position, past the end, for a ring that may contribute nothing,
+    exactly as the paper rings themselves carry a blank for the prefix and
+    suffix. The per-ring index is the truth on this scene now, not whatever
+    text happens to be painted on screen, so this is what a Python test can
+    pin without a browser."""
+    return alternatives[index] if index < len(alternatives) else ""
+
+
 def test_the_index_lists_every_scene() -> None:
     response = client.get("/stage")
     assert response.status_code == 200
@@ -68,12 +79,83 @@ def test_the_denckring_scene_renders() -> None:
 
 
 def test_the_rings_show_a_valid_word_on_first_paint() -> None:
-    """The hidden field is assembled by JS from what's on screen, on load as well
-    as on every turn — nothing server-side pre-fills it. What this can test without
-    a browser is the claim that assembly makes: each ring's default (its first
-    alternative), read inward to outward, already spells a denckring word, so
-    "Read it" has something real to check the moment the page appears."""
+    """The hidden field is assembled by JS from the per-ring index — the single
+    source of truth for what the discs show and what gets checked, on first
+    paint, after a manual turn and after a spin alike (see the two tests below
+    for the latter two). Nothing server-side pre-fills it. What this can test
+    without a browser is the claim first paint makes: every ring starts at
+    index 0, which is always a real alternative, so reading inward to outward
+    already spells a denckring word — "Read it" has something real to check
+    the moment the page appears."""
     from denckring import check
 
-    word = "".join(slot.alternatives[0] for slot in stage.rings().slots)
+    word = "".join(_label(slot.alternatives, 0) for slot in stage.rings().slots)
     assert check("denckring", word).satisfied is True
+
+
+def test_a_manual_turn_still_spells_a_denckring_word() -> None:
+    """A click on one disc advances only that ring's index by one, the others
+    holding. Any index for any ring — including the blank position an
+    optional ring carries past its last real alternative — still spells
+    something the rings could have produced: one alternative, or a blank
+    where the ring allows it, chosen per slot in order, which is exactly what
+    device.segment() (and so `check`) accepts, regardless of which specific
+    index a click happened to land on."""
+    from denckring import check
+
+    slots = stage.rings().slots
+    for ring_index, slot in enumerate(slots):
+        total = len(slot.alternatives) + (1 if slot.optional else 0)
+        # A small turn, and turning all the way round to the blank a ring
+        # allows (or, for a ring with no blank, its last real alternative).
+        for turned_index in (1, total - 1):
+            word = "".join(
+                _label(other.alternatives, turned_index if i == ring_index else 0)
+                for i, other in enumerate(slots)
+            )
+            assert check("denckring", word).satisfied is True, (slot.name, turned_index)
+
+
+def test_a_spin_lands_the_discs_on_the_word_that_was_checked() -> None:
+    """ "Turn them for me" asks the library for a word and walks the discs to it
+    with stage.pieces_for() — the same segmentation the scene's script uses to
+    pick each disc's target index from the piece the server sent back. The
+    invariant this pins: reassembling those pieces, inward to outward, must
+    give back exactly the word `check` was asked about — the discs and the
+    checked word can never disagree, including after a spin."""
+    from denckring import check
+    from denckring.core.protocol import Constructive
+    from denckring.core.registry import get
+
+    procedure = get("denckring")
+    assert isinstance(procedure, Constructive)
+    word = procedure.apply("", lang="en")
+    pieces = stage.pieces_for(word)
+    assert pieces is not None
+    assert "".join(pieces) == word
+    assert check("denckring", word).satisfied is True
+
+
+def test_the_harsdoerffer_quotation_is_reproduced_exactly() -> None:
+    """Byte-for-byte, virgule and ellipsis included — modernising the spelling,
+    "fixing" Reimwörter or swapping the slash for a comma would be exactly the
+    liberty this project refuses to take with its data everywhere else."""
+    response = client.get("/stage/denckring")
+    normalised = " ".join(response.text.split())
+    assert (
+        "hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die Reimsilben "
+        "auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten "
+        "Ring darzu drehet"
+    ) in normalised
+
+
+def test_the_quotation_is_attributed_without_a_page_number() -> None:
+    """The catalogue's p. 517 is the page of the device plate; the sources that
+    carry this sentence give no page for it, so citing one would be exactly
+    the false precision this project refuses elsewhere."""
+    response = client.get("/stage/denckring")
+    normalised = " ".join(response.text.split())
+    assert "Deliciae Physico-Mathematicae (Erquickstunden)" in normalised
+    assert "Nürnberg 1651" in normalised
+    assert "p. 517" not in normalised
+    assert "517" not in normalised

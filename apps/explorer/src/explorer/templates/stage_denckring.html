@@ -6,15 +6,25 @@
   <h1>{{ scene.title }}</h1>
 </header>
 <div class="denckring-stage">
-  <div class="rings">
-    {% for slot in rings.slots %}
-    <button class="ring ring-{{ loop.index0 }}" id="ring-{{ loop.index0 }}" type="button"
-            data-parts="{{ slot.alternatives | join('|') }}"
-            onclick="turn({{ loop.index0 }}, 1)">
-      <span class="ring-name">{{ slot.name }}</span>
-      <span class="ring-turn">{{ slot.alternatives[0] }}</span>
-    </button>
-    {% endfor %}
+  <div class="rings-wrap">
+    <svg id="rings" class="rings-svg" viewBox="0 0 400 400" role="img"
+         aria-label="Five concentric discs of German word parts">
+      {% for slot in rings.slots %}
+      <g id="ring-{{ loop.index0 }}" data-ring="{{ loop.index0 }}" data-name="{{ slot.name }}"
+         data-optional="{{ 'true' if slot.optional else 'false' }}"
+         data-parts="{{ slot.alternatives | join('|') }}"></g>
+      {% endfor %}
+    </svg>
+    <p class="ring-note">Each disc shows a window onto its own ring, not the whole thing — as
+    few as eight parts near the hub, more on the outer bands, out of as many as 120; turning
+    scrolls the rest through.</p>
+    <p class="ring-legend">
+      <span class="legend-item"><i class="swatch swatch-0"></i>vorsylbe</span>
+      <span class="legend-item"><i class="swatch swatch-1"></i>anfangsbuchstabe</span>
+      <span class="legend-item"><i class="swatch swatch-2"></i>mittelbuchstabe</span>
+      <span class="legend-item"><i class="swatch swatch-3"></i>endbuchstabe</span>
+      <span class="legend-item"><i class="swatch swatch-4"></i>nachsylbe</span>
+    </p>
   </div>
   <div class="control-panel">
     <div class="word-panel">
@@ -35,56 +45,232 @@
     </p>
   </div>
 </div>
+<figure class="harsdoerffer-quote">
+  <blockquote lang="de">hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die
+  Reimsilben auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten Ring
+  darzu drehet</blockquote>
+  <p class="quote-gloss">has its use in the invention of rhyme-words, when one seeks the rhyming
+  syllables on the third and fourth rings and turns the rhyming letters of the second ring to
+  them.</p>
+  <figcaption>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae
+  (Erquickstunden)</cite>, Nürnberg 1651. <span class="quote-note">Quoted from secondary sources
+  reproducing the Deliciae, not from the print itself.</span></figcaption>
+</figure>
 <script>
-const at = {};
+// The five discs, drawn and turned entirely here rather than in Jinja, so there
+// is exactly one place — this script — that knows how a ring index becomes an
+// angle and a piece of text. `stage.py` hands over the raw parts; everything
+// about how they are laid out on paper is a rendering decision and belongs here.
+const CENTER = 200;
+// Radius of each band's outer edge, and how many of its parts are ever drawn
+// at once. The window narrows toward the hub because that is where a real
+// paper disc would run out of room to write legibly, not an arbitrary cut —
+// the outer bands, with more circumference, can carry more of the ring.
+const GEOMETRY = [
+  { rOuter: 54, window: 8, fill: 'var(--rubric)', labelR: 33, font: 7.2 },
+  { rOuter: 88, window: 14, fill: '#c9beaa', labelR: 71, font: 8 },
+  { rOuter: 122, window: 12, fill: '#dcd5c5', labelR: 105, font: 9 },
+  { rOuter: 156, window: 18, fill: '#e8e3d9', labelR: 139, font: 8.4 },
+  { rOuter: 190, window: 20, fill: '#f2efe7', labelR: 173, font: 8 },
+];
+const SVGNS = 'http://www.w3.org/2000/svg';
+// A ring's true distance to travel ranges from a handful of parts (the
+// medial ring, 12) to well over a hundred (the final ring, 120), and every
+// micro-step is a real DOM update with its own forced layout — cheap once,
+// but not a hundred times over, five rings at once. So a long spin is walked
+// in *strides* of more than one true part per step during the blur, which
+// bounds the number of DOM updates regardless of ring size; only the last
+// few steps, which sell the settle rather than the blur, move one true part
+// at a time, slowing to a stop.
+const MAX_BLUR_STEPS = 22;
+const BLUR_MS = 70; // one blur-phase step, chosen for a plausible spin speed
+const SETTLE_MS = [260, 190, 130, 80]; // the last four true steps, slowing to a stop
+const svg = document.getElementById('rings');
+const rings = [];
 
-// The single place that reads what the rings show and writes it to the hidden
-// field. Called after every turn, and once below at load — the rings display a
-// word (each one's first alternative) from the first paint, so the field has to
-// match from the first paint too, not just after a click.
-function assemble() {
-  document.getElementById('word-field').value =
-    [0, 1, 2, 3, 4].map(i => {
-      const e = document.getElementById('ring-' + i);
-      return e ? e.querySelector('.ring-turn').textContent : '';
-    }).join('');
+function label(ring, index) {
+  return index < ring.parts.length ? ring.parts[index] : '';
 }
 
-function turn(ring, step) {
-  const el = document.getElementById('ring-' + ring);
-  const parts = el.dataset.parts.split('|');
-  at[ring] = ((at[ring] || 0) + step + parts.length) % parts.length;
-  el.querySelector('.ring-turn').textContent = parts[at[ring]];
+// The single place that reads the current model and writes it to the hidden
+// field — the per-ring index is the truth, on first paint, after a manual
+// turn and after a spin alike; nothing here ever reads the SVG back.
+function assemble() {
+  document.getElementById('word-field').value = rings.map((r) => label(r, r.index)).join('');
+}
+
+function renderDial(ringIndex) {
+  const r = rings[ringIndex];
+  for (let k = 0; k < r.window; k++) {
+    const piece = label(r, (r.index + k) % r.total);
+    const el = r.spokeEls[k];
+    el.textContent = piece === '' ? '–' : piece;
+    el.classList.toggle('blank', piece === '');
+  }
+}
+
+function angleStep(r) {
+  return 360 / r.window;
+}
+
+// One micro-step: rotate the dial by `advance` true parts' worth of angle,
+// then — once the transition ends — advance the true index by that many,
+// redraw the window around it and snap the rotation silently back to zero.
+// The redrawn spoke 0 is already the part that step landed on, so the reset
+// is invisible; it is what lets a handful of rendered spokes stand in for
+// scrolling through the whole ring, `advance` at a time.
+function microStep(ringIndex, duration, advance) {
+  return new Promise((resolve) => {
+    const r = rings[ringIndex];
+    r.dial.style.transition = `transform ${duration}ms ease`;
+    void r.dial.getBoundingClientRect(); // flush, so the transition itself is not skipped
+    r.dial.style.transform = `rotate(-${advance * angleStep(r)}deg)`;
+    const onEnd = () => {
+      r.dial.removeEventListener('transitionend', onEnd);
+      r.index = (r.index + advance) % r.total;
+      r.dial.style.transition = 'none';
+      r.dial.style.transform = 'rotate(0deg)';
+      void r.dial.getBoundingClientRect(); // flush again, so the reset is not itself animated
+      renderDial(ringIndex);
+      resolve();
+    };
+    r.dial.addEventListener('transitionend', onEnd);
+  });
+}
+
+// A click on a disc: one deliberate turn, the others holding — the manual
+// control the brief asks for, live on the disc itself rather than a button
+// beside it. Its own fixed, unhurried duration — a single step never needs
+// the blur/settle split a many-step spin does.
+function turnOne(ringIndex) {
+  const r = rings[ringIndex];
+  if (r.spinning) return;
+  r.spinning = true;
+  microStep(ringIndex, 220, 1).then(() => {
+    r.spinning = false;
+    assemble();
+  });
+}
+
+// "Turn them for me" already asks the library for a word and maps it back
+// onto the rings with device.segment() (stage.pieces_for); this walks each
+// disc there by spinning forward to the target in two phases: a blur, in
+// strides of more than one true part per step so the DOM update count stays
+// bounded no matter how far the final ring (120 parts) has to travel, then a
+// true single-part-at-a-time settle for the last few steps, which is what
+// actually needs to look like it is landing on something. A lap is added
+// only when the natural distance is too short to read as a turn at all —
+// and any padding has to be a whole multiple of the ring's *true* size,
+// because a micro-step's `advance` always means true parts, not spokes;
+// padding by a multiple of the smaller visual window instead (as an earlier
+// version of this did) lands the ring one window-length short or long of
+// the part it was actually asked to show.
+async function spinRingTo(ringIndex, piece) {
+  const r = rings[ringIndex];
+  if (r.spinning) return;
+  const target = piece === '' ? r.parts.length : r.parts.indexOf(piece);
+  if (target < 0) return; // defensive: pieces_for always names a real piece or ""
+  const forward = (target - r.index + r.total) % r.total;
+  const total = forward >= r.window ? forward : forward + r.total;
+  const settle = Math.min(SETTLE_MS.length, total);
+  let blur = total - settle;
+  const stride = Math.max(1, Math.ceil(blur / MAX_BLUR_STEPS));
+
+  r.spinning = true;
+  while (blur > 0) {
+    const advance = Math.min(stride, blur);
+    await microStep(ringIndex, BLUR_MS, advance);
+    blur -= advance;
+  }
+  for (let i = 0; i < settle; i++) {
+    await microStep(ringIndex, SETTLE_MS[i], 1);
+  }
+  r.spinning = false;
   assemble();
 }
 
-// Turns one ring to show a specific piece, rather than stepping through it —
-// used to walk the diagram to a word the server chose. An empty piece is a
-// skipped optional ring (prefix or suffix); shown blank, not defaulted to
-// alternative zero, so the assembled word still comes out right.
-function setRing(ring, piece) {
-  const el = document.getElementById('ring-' + ring);
-  if (!el) return;
-  const parts = el.dataset.parts.split('|');
-  at[ring] = parts.indexOf(piece);
-  el.querySelector('.ring-turn').textContent = piece;
+function buildRing(ringIndex) {
+  const g = document.getElementById('ring-' + ringIndex);
+  const geo = GEOMETRY[ringIndex];
+  const parts = g.dataset.parts.split('|');
+  const optional = g.dataset.optional === 'true';
+  const total = parts.length + (optional ? 1 : 0); // a blank turn, as the paper rings carry
+  const windowSize = Math.min(geo.window, total);
+
+  const disc = document.createElementNS(SVGNS, 'circle');
+  disc.setAttribute('cx', String(CENTER));
+  disc.setAttribute('cy', String(CENTER));
+  disc.setAttribute('r', String(geo.rOuter));
+  disc.setAttribute('fill', geo.fill);
+  disc.setAttribute('class', 'ring-disc');
+  disc.setAttribute('tabindex', '0');
+  disc.setAttribute('role', 'button');
+  disc.setAttribute('aria-label', 'Turn the ' + g.dataset.name + ' disc');
+  disc.addEventListener('click', () => turnOne(ringIndex));
+  disc.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Enter' || evt.key === ' ') {
+      evt.preventDefault();
+      turnOne(ringIndex);
+    }
+  });
+  g.appendChild(disc);
+
+  const dial = document.createElementNS(SVGNS, 'g');
+  dial.setAttribute('class', 'ring-dial');
+  g.appendChild(dial);
+
+  const spokeEls = [];
+  for (let k = 0; k < windowSize; k++) {
+    const angle = k * (360 / windowSize);
+    const rad = (angle * Math.PI) / 180;
+    const x = CENTER + geo.labelR * Math.sin(rad);
+    const y = CENTER - geo.labelR * Math.cos(rad);
+    const text = document.createElementNS(SVGNS, 'text');
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(y));
+    text.setAttribute('transform', `rotate(${angle}, ${x}, ${y})`);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'ring-part' + (ringIndex === 0 ? ' ring-part-hub' : ''));
+    text.style.fontSize = geo.font + 'px';
+    // A spoke fades the further it sits from the reading mark at 12 o'clock —
+    // an approximation of ink further round a paper disc reading fainter in
+    // a photograph, and it draws the eye to what is actually being read.
+    text.style.opacity = String(0.32 + 0.68 * (1 + Math.cos(rad)) / 2);
+    if (k === 0) text.classList.add('ring-part-current');
+    dial.appendChild(text);
+    spokeEls.push(text);
+  }
+
+  rings[ringIndex] = { g, dial, parts, optional, total, window: windowSize, index: 0, spokeEls };
+  renderDial(ringIndex);
 }
 
-// "Turn them for me" asks the library for a word, which the server cannot spell
-// out on these rings itself — so the fragment carries back the five pieces that
-// produced it (`data-pieces` on .word), and here the diagram is walked to match.
-// No pieces on the response (a plain "Read it", or the rare word the rings truly
-// cannot spell) means the rings stay exactly where they were.
+// Jinja wrote the five <g> containers in slot order (0 = innermost first),
+// which would paint the smallest disc on the bottom and the largest on top —
+// backwards. Re-append them largest first, so SVG's paint order (later in
+// the document draws over earlier) puts each smaller disc over the last and
+// only its own band shows, the same trick a dartboard uses, not an SVG donut.
+[4, 3, 2, 1, 0].forEach((ringIndex) => {
+  svg.appendChild(document.getElementById('ring-' + ringIndex));
+});
+[4, 3, 2, 1, 0].forEach(buildRing);
+assemble();
+
+// The five pieces come back on the fragment as `data-pieces`; walk each disc
+// to the piece that produced the word, innermost first and each a beat later
+// than the last, so the word assembles one part at a time rather than
+// appearing all at once — that stagger is the shot worth recording. No
+// pieces on the response (a plain "Read it", or the rare word the rings
+// truly cannot spell) leaves the discs exactly where they were.
 document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.target.id !== 'word') return;
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.pieces;
   if (!raw) return;
-  raw.split('|').forEach((piece, i) => setRing(i, piece));
-  assemble();
+  raw.split('|').forEach((piece, ringIndex) => {
+    setTimeout(() => spinRingTo(ringIndex, piece), ringIndex * 260);
+  });
 });
-
-assemble();
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
