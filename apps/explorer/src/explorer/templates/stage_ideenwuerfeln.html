@@ -14,9 +14,13 @@
 <form class="throw-form corpus-picker" hx-post="/stage/ideenwuerfeln/act" hx-target="#throw"
       hx-swap="innerHTML">
   <label for="corpus-select">Corpus</label>
-  <select id="corpus-select" name="corpus_path">
+  {# `data-sync` names the field this picker fills and the key it reads off the
+     chosen option; `data-lang` is the corpus style's own language suggestion,
+     resolved server-side by `stage.default_lang` (see `CorpusChoice.lang`) so
+     the rule lives in one place rather than being re-run in script here. #}
+  <select id="corpus-select" name="corpus_path" data-sync="lang-select:lang">
     {% for choice in choices %}
-    <option value="{{ choice.path }}" data-style="{{ choice.style }}">
+    <option value="{{ choice.path }}" data-lang="{{ choice.lang }}">
       {{ choice.name }} — {{ "{:,}".format(choice.entries) }} entries
     </option>
     {% endfor %}
@@ -36,26 +40,7 @@
    — see stage.default_lang for the corpus-style default this pre-selects. #}
 <p class="lang-note">Language governs the Witz reading — not the draw itself, which
   never reads it, and not which corpus above is drawn from.</p>
-<script>
-// The toggle's pre-selected option already matches the first corpus's style at first
-// paint (see app.py's `default_lang`); this keeps that agreement alive across a corpus
-// change too, without a round trip, by re-running the same style→language rule
-// client-side. It stops the moment a reader touches the language select directly —
-// syncing past an explicit choice would look like the toggle silently reverting itself,
-// exactly the kind of thing this scene's own docs call out as not to be trusted on faith.
-(() => {
-  const corpusSelect = document.getElementById("corpus-select");
-  const langSelect = document.getElementById("lang-select");
-  if (!corpusSelect || !langSelect) return;
-  let touched = false;
-  langSelect.addEventListener("change", () => { touched = true; });
-  corpusSelect.addEventListener("change", () => {
-    if (touched) return;
-    const style = corpusSelect.selectedOptions[0]?.dataset.style || "";
-    langSelect.value = style === "jean_paul" ? "de" : "en";
-  });
-})();
-</script>
+{% include "_stage_sync.html" %}
 {% endif %}
 <div id="throw" class="throw-area"></div>
 {% endblock %}

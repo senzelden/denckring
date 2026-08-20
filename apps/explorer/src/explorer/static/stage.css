@@ -174,9 +174,12 @@
    Every scene below was built concretely and on its own. `.scene-split` and
    `.scene-figure` are what der Denckring and N+7 turned out to want byte for
    byte; the `.verdict` rule further down was shared by three scenes before
-   Arca and Ghazal, its other two users, were removed, and N+7 is the one
-   left needing it. Kept here rather than folded into N+7's own section —
-   the shape is still the reusable one, whichever scene next reaches for it. */
+   Arca and Ghazal, its other two users, were removed, and it said it was kept
+   here for "whichever scene next reaches for it". Two scenes then reached for
+   it and wrote their own copies instead — the word ladder's and
+   haikuization's, identical to N+7's but for a margin and a font size. All
+   three read from here now, and keep only those two declarations of their
+   own, in their own sections. */
 
 /* Figure on the left, controls on the right: scenes one and three. */
 .scene-split {
@@ -197,25 +200,30 @@
    block, which is a heading with a rule under it, where this is one line of
    small caps. A class beats one regardless of source order, so this needs
    not fight it. Arca's `.column-area .verdict` and Ghazal's `.ghazal-panel
-   .verdict` shared this same rule until both scenes were removed; N+7's own
-   is what is left. Scene one's `.word-panel .verdict` is deliberately not in
-   here: it sits on the dark case, set in uppercase and in the brighter pair
-   of colours that survive that ground. */
-.displaced-area .verdict {
+   .verdict` shared this same rule until both scenes were removed; N+7's, the
+   word ladder's and haikuization's are what read it now. Scene one's
+   `.word-panel .verdict` is deliberately not in here: it sits on the dark
+   case, set in uppercase and in the brighter pair of colours that survive
+   that ground. */
+.displaced-area .verdict,
+.ladder-wrap .verdict,
+.haiku-area .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
-  margin: 0;
   font-family: var(--mono);
-  font-size: 0.8rem;
   letter-spacing: 0.02em;
 }
 
-.displaced-area .verdict.yes {
+.displaced-area .verdict.yes,
+.ladder-wrap .verdict.yes,
+.haiku-area .verdict.yes {
   color: var(--pass);
 }
 
-.displaced-area .verdict.no {
+.displaced-area .verdict.no,
+.ladder-wrap .verdict.no,
+.haiku-area .verdict.no {
   color: var(--rubric);
 }
 
@@ -1064,6 +1072,15 @@
   min-height: 2rem;
 }
 
+/* The margin and the size, the only two declarations this scene's verdict
+   line ever disagreed with the other two scenes' on; the rest of the rule —
+   the reset past explorer.css's bare `.verdict`, and the pass/fail colours —
+   is shared at the top of this file. */
+.displaced-area .verdict {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
 /* Whatever is typed above comes back here at 1.3rem — a pasted paragraph runs
    to several hundred pixels, and `.stage` clips it silently, taking the verdict
    under it with it. Measured: this starts 375px down the panel with 433px left
@@ -1248,27 +1265,11 @@
   gap: 0.55rem;
 }
 
-/* Scoped past explorer.css's own bare `.verdict` — the check page's proof
-   block, a heading with a rule under it — the same way N+7's own
-   `.displaced-area .verdict` already has to. Display, border and padding
-   reset, not just the type, or the rule that block draws would survive here
-   too. */
+/* This scene's own two declarations; the reset past explorer.css's bare
+   `.verdict` and the pass/fail colours are shared at the top of this file. */
 .ladder-wrap .verdict {
-  display: block;
-  border-bottom: none;
-  padding-bottom: 0;
   margin: 0.5rem 0 0;
-  font-family: var(--mono);
   font-size: 0.8rem;
-  letter-spacing: 0.02em;
-}
-
-.ladder-wrap .verdict.yes {
-  color: var(--pass);
-}
-
-.ladder-wrap .verdict.no {
-  color: var(--rubric);
 }
 
 /* One rung arriving after the one above it — the same "each keyframe fires once,
@@ -1578,24 +1579,11 @@
   }
 }
 
-/* Scoped past explorer.css's own bare `.verdict` — the check page's proof
-   block, a heading with a rule under it — the same reset every other
-   scene's own verdict already needs. */
+/* This scene's own two declarations — the quietest of the three, a step
+   smaller than N+7's and the ladder's. The reset past explorer.css's bare
+   `.verdict` and the pass/fail colours are shared at the top of this file. */
 .haiku-area .verdict {
-  display: block;
-  border-bottom: none;
-  padding-bottom: 0;
   margin: 0.4rem 0 0;
-  font-family: var(--mono);
   font-size: 0.72rem;
-  letter-spacing: 0.02em;
-}
-
-.haiku-area .verdict.yes {
-  color: var(--pass);
-}
-
-.haiku-area .verdict.no {
-  color: var(--rubric);
 }
 
