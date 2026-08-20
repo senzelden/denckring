@@ -413,6 +413,55 @@ async def stage_cent_mille_milliards_flip(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/stage/word_ladder", response_class=HTMLResponse)
+def stage_word_ladder(request: Request, chrome: str = "on") -> HTMLResponse:
+    lang = stage.WORD_LADDER_DEFAULT_LANG
+    start, target = stage.WORD_LADDER_EXAMPLES[lang]
+    ladder = stage.word_ladder(start, target, lang)
+    report = denckring_check("word_ladder", ladder.text, lang=lang) if not ladder.problem else None
+    return page(
+        request,
+        "stage_word_ladder.html",
+        scene=stage.scene("word_ladder"),
+        ladder=ladder,
+        report=report,
+        start=start,
+        target=target,
+        default_lang=lang,
+        examples=stage.WORD_LADDER_EXAMPLES,
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/word_ladder/act", response_class=HTMLResponse)
+async def stage_word_ladder_act(request: Request) -> HTMLResponse:
+    """Search a ladder from the posted start to the posted target, then check
+    the result independently — both halves of `apply`/`check` the library
+    itself performs, run here exactly as it runs them, the same round trip
+    N+7's own action route shows.
+
+    `stage.word_ladder` already tells the two failure modes apart (an
+    endpoint the lexicon does not know, from a search that found no path
+    between two it does), so this route only has to read back which one, if
+    either, happened — never re-derive it from `apply`'s own exception text.
+    """
+    form = dict(await request.form())
+    start = str(form.get("start", ""))
+    target = str(form.get("target", ""))
+    lang = bench.as_lang(str(form.get("lang", "")))
+    ladder = stage.word_ladder(start, target, lang)
+    report = denckring_check("word_ladder", ladder.text, lang=lang) if not ladder.problem else None
+    return page(
+        request,
+        "_stage_ladder.html",
+        ladder=ladder,
+        report=report,
+        start=start,
+        target=target,
+        lang=lang,
+    )
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)

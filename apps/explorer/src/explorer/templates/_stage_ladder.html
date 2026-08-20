@@ -1,0 +1,34 @@
+{# The ladder itself: rungs arriving one after another, the changed letter marked
+   on each. Shared by the scene's first paint and by the fragment `/act` swaps back,
+   the same split `_stage_reels.html` and `_stage_poem.html` already use, so editing
+   the start or target re-renders the figure rather than leaving it showing a ladder
+   the panel beside it no longer claims. #}
+{% if ladder.problem == "invalid" %}
+<p class="placeholder">{{ ladder.message }}</p>
+{% elif ladder.problem == "unknown_word" %}
+{# Distinct from "no ladder": the search was never run at all, because one of the
+   two words is not one the lexicon has ever heard of — a different, and more basic,
+   kind of failure than a search that ran and found nothing. #}
+<p class="ladder-problem">{{ ladder.message }}</p>
+{% elif ladder.problem == "no_ladder" %}
+{# Distinct from "unknown word": both ends are real words the lexicon knows, and the
+   search still found no path — a true and interesting answer in its own right, not
+   an error to hide (see the brief). #}
+<p class="ladder-problem">{{ ladder.message }}</p>
+{% else %}
+<div class="ladder">
+  {% for rung in ladder.rungs %}
+  <div class="rung" style="--i: {{ loop.index0 }}">
+    {% for letter in rung.word %}
+    <span class="tile{{ ' changed' if rung.changed == loop.index0 }}">{{ letter }}</span>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% if report %}
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {{ "checked — a real ladder from start to target" if report.satisfied
+     else "checked — not a valid ladder" }}
+</p>
+{% endif %}
+{% endif %}
