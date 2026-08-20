@@ -1469,6 +1469,40 @@ def test_the_scene_renders_the_default_source_and_its_verdict() -> None:
     assert "checked — every word above ends its own line" in response.text
 
 
+def test_first_paint_settles_the_scene_and_the_button_plays_it() -> None:
+    """ "Scenes do not autoplay. The recording is a person using the thing" —
+    and this was the one scene of six whose whole demonstration, the dissolve
+    and the remnant's entrance both, ran on load with nobody touching it, so a
+    recorder who started capture after the page loaded had missed the shot.
+    First paint marks itself `settled`, which cancels both animations; the
+    action's own response carries no such mark and plays them."""
+    first_paint = client.get("/stage/haikuization")
+    assert first_paint.status_code == 200
+    assert 'class="haiku-source settled"' in first_paint.text
+    assert 'class="haiku-remnant settled"' in first_paint.text
+
+    played = client.post("/stage/haikuization/act", data={"source": stage.HAIKUIZATION_SOURCE})
+    assert played.status_code == 200
+    assert 'class="haiku-source"' in played.text
+    assert 'class="haiku-remnant"' in played.text
+
+
+def test_the_settled_state_cancels_both_of_the_scenes_animations() -> None:
+    """The markup above only names a class; this is the half that makes it do
+    something. `.haiku-fade` needs the animation cancelled and nothing else —
+    it starts visible and only the animation moves it — while `.haiku-remnant`
+    carries a static `opacity: 0` on its base rule and would be left invisible
+    by a cancelled animation alone, so its settled values are stated too. Read
+    from the stylesheet, the same way the reduced-motion rules are: no test
+    here runs a browser."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert ".haiku-source.settled .haiku-fade { animation: none; }" in normalised
+    assert (
+        ".haiku-remnant.settled { animation: none; opacity: 1; transform: none; }"
+    ) in normalised
+
+
 def test_a_prose_source_reduces_to_one_word_correctly() -> None:
     """Prose has one line, so the reduction is a single word — correct, by the
     procedure's own rule (see the brief's own "prose is a real input"), and

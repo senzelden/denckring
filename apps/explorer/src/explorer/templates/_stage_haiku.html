@@ -2,7 +2,14 @@
 <p class="placeholder">Nothing to reduce yet &mdash; type or paste a poem with at least
   one line.</p>
 {% else %}
-<div class="haiku-source">
+{# `settled` is first paint: the source as it stands, nothing dissolving, the
+   remnant already under it. The stage's own rule is that a scene does not
+   autoplay — the recording is a person using the thing — and this scene was
+   the one of six whose whole demonstration ran before anyone had touched it.
+   The action's response sets `dissolve`, and only then does anything move.
+   An unset flag settles rather than plays, so a fragment rendered without it
+   is still readable. #}
+<div class="haiku-source{{ ' settled' if not dissolve }}">
 {% for line in haiku.lines %}
 <p class="haiku-line">{% for token in line.tokens -%}
   {%- if token.is_word -%}
@@ -27,7 +34,8 @@
    whatever the source's length — `line_count` is one more than the highest
    `--i` any line above carries, not a fixed guess this scene's own default
    would happen to satisfy and a longer paste would not. #}
-<p class="haiku-remnant" style="--i: {{ haiku.line_count }}">{{ haiku.remnant }}</p>
+<p class="haiku-remnant{{ ' settled' if not dissolve }}"
+   style="--i: {{ haiku.line_count }}">{{ haiku.remnant }}</p>
 {% if report %}
 <p class="verdict haiku-verdict {{ 'yes' if report.satisfied else 'no' }}">
   {{ "checked — every word above ends its own line" if report.satisfied

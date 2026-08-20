@@ -1488,6 +1488,23 @@
   }
 }
 
+/* First paint: the source exactly as it stands, nothing dissolving. The
+   dissolve is what the Reduce button performs, not what the page performs on
+   itself before anyone has touched it — the spec's own "scenes do not
+   autoplay. The recording is a person using the thing", which this scene was
+   the last of six still breaking. `.settled` is what the fragment marks its
+   own first rendering with (see `_stage_haiku.html`); the action's response
+   carries no such mark, so its words fade the way they always did.
+
+   Cancelling the animation is the whole of it here, and is safe: a
+   `.haiku-fade` word starts at its inherited opacity of 1 and only the
+   animation ever moves it, so with the animation gone it is simply visible —
+   the same reason this scene needs no reduced-motion override for these
+   words either. */
+.haiku-source.settled .haiku-fade {
+  animation: none;
+}
+
 /* Prose's own one-word case is not a special layout, only a line of prose
    above the same remnant everything else lands in — see the brief's own
    "prose is a real input". */
@@ -1538,6 +1555,20 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* First paint again: the remnant is already there, under a source that has
+   not dissolved. Unlike `.haiku-fade` above, cancelling the animation is not
+   enough — this element carries a static `opacity: 0` on its base rule, and
+   an animation removed from it would leave it invisible rather than settled
+   (the same trap `prefers-reduced-motion` sets for it, answered the same
+   way). So the settled values are stated here as well, and this two-class
+   selector outranks both the base rule and the reduced-motion override
+   below, which sets the same two values anyway. */
+.haiku-remnant.settled {
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
