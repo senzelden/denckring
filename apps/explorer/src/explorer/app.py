@@ -501,6 +501,11 @@ def stage_haikuization(request: Request, chrome: str = "on") -> HTMLResponse:
         source=source,
         haiku=haiku,
         report=report,
+        # First paint shows the poem settled — the dissolve is what the button
+        # does, not what the page does to itself before a recorder has pressed
+        # anything (the stage's own "scenes do not autoplay"). Only
+        # `stage_haikuization_act` below sets this.
+        dissolve=False,
         chrome_off=chrome == "off",
     )
 
@@ -529,6 +534,9 @@ async def stage_haikuization_act(request: Request) -> HTMLResponse:
         source=source,
         haiku=haiku,
         report=report,
+        # The one rendering that plays: a viewer pressed Reduce, so the lines
+        # dissolve and the remnant arrives after them.
+        dissolve=True,
     )
 
 
