@@ -16,6 +16,7 @@ from denckring.core import device
 from denckring.core.errors import InvalidParams, NoCandidateWord
 from denckring.core.protocol import Constructive, Lang, LanguagePack
 from denckring.core.registry import get
+from denckring.core.text import line_spans, word_spans
 from denckring.lang import get_pack
 from denckring.procedures.cent_mille_milliards import alternatives as queneau_alternatives
 from explorer import corpora
@@ -68,6 +69,12 @@ SCENES: list[Scene] = [
         title="Word ladder",
         procedure_id="word_ladder",
         caption="Carroll's Doublets. Change one letter, land on a word, until you arrive.",
+    ),
+    Scene(
+        slug="haikuization",
+        title="Haikuization",
+        procedure_id="haikuization",
+        caption="Oulipo's haïkuisation. Keep every line's last word; let the rest go.",
     ),
 ]
 
@@ -769,3 +776,114 @@ def word_ladder(start: str, target: str, lang: Lang = "en") -> Ladder:
     for previous, word in pairwise(words):
         rungs.append(Rung(word=word, changed=_changed_letter(previous, word)))
     return Ladder(rungs=rungs, problem="", message="")
+
+
+# ── scene six: haikuization ─────────────────────────────────────────────────
+# Oulipo's haïkuisation: keep only the line ends of an existing poem, discard
+# the rest, leaving a shorter poem inside the longer one. Not a haiku — the
+# row's own docstring (`denckring/procedures/haikuization.py`) is explicit
+# that only line ends are checked, so this scene has to say what it does
+# rather than trade on what its name promises.
+
+#: Written for this scene, not quoted — see `stage_haikuization.html`'s own
+#: attribution. Six lines so the reduction is visibly shorter than the
+#: source; verified (see the task report) to reduce to "paper turns word
+#: stands language sheet", which reads as a sentence and as a poem.
+HAIKUIZATION_SOURCE = """Five discs of nothing more than cut-out paper,
+and each of them, whenever someone turns,
+will bring together parts that spell a word
+no hand set down, and yet the strange thing stands
+as evidence of everything a language
+can hold inside one folded paper sheet."""
+
+
+@dataclass(frozen=True)
+class HaikuToken:
+    """One piece of a source line: either a word `word_spans` found, or the
+    literal gap (space or punctuation) between two of them.
+
+    `kept` is only meaningful on a word token — whether it is its line's own
+    last word, the one the procedure keeps. `line_index` is that word's own
+    line, 0-based, and is what the page uses to stage the dissolve one line
+    at a time — the procedure's own unit, rather than one word at a time,
+    which would tie a poem's animation length to its word count instead of
+    its (almost always far smaller) line count.
+    """
+
+    text: str
+    is_word: bool
+    kept: bool
+    line_index: int
+
+
+@dataclass(frozen=True)
+class HaikuLine:
+    """One line of the source, as the literal text between and around its
+    words plus the words themselves — enough to render the line exactly as
+    typed with only its words individually markable."""
+
+    tokens: list[HaikuToken]
+
+
+@dataclass(frozen=True)
+class Haikuization:
+    """A source poem read the way `haikuization.apply` reads it, and what
+    `apply` actually produced from it.
+
+    `remnant` is read back from `apply` itself, never reassembled from the
+    tokens above — two independent readings of "keep the line ends" could in
+    principle drift apart, and this scene exists to show that they do not.
+    `prose` marks the one-line case: a real input, not a malformed one, whose
+    correct reduction is a single word that looks like a failure without an
+    explanation beside it (see the brief).
+    """
+
+    lines: list[HaikuLine]
+    remnant: str
+    prose: bool
+
+    @property
+    def line_count(self) -> int:
+        """How many lines the dissolve has to stage — what the page's own
+        CSS reads to time the remnant's entrance after the last line's own
+        fade (see `_stage_haiku.html`), rather than guessing at a fixed
+        delay a longer or shorter source would fall out of step with."""
+        return len(self.lines)
+
+
+def haikuize(source: str, lang: Lang = "en") -> Haikuization:
+    """Split `source` into lines and words exactly as the procedure does —
+    `line_spans` and `word_spans`, the same two helpers `haikuization.apply`
+    itself calls — and pair that with what `apply` actually returns.
+
+    `apply` is only called when `source` has at least one non-blank line: it
+    raises `NoCandidateWord` otherwise, and an empty box is a real input on
+    this scene's own editable field, not an error to let escape as a 500.
+    """
+    pack = get_pack(lang)
+    line_texts = [text for _, text in line_spans(source)]
+
+    lines: list[HaikuLine] = []
+    for line_number, line_text in enumerate(line_texts):
+        spans = word_spans(line_text, pack)
+        last_offset = spans[-1][0] if spans else -1
+        tokens: list[HaikuToken] = []
+        cursor = 0
+        for offset, word in spans:
+            if offset > cursor:
+                tokens.append(HaikuToken(line_text[cursor:offset], False, False, line_number))
+            tokens.append(HaikuToken(word, True, offset == last_offset, line_number))
+            cursor = offset + len(word)
+        if cursor < len(line_text):
+            tokens.append(HaikuToken(line_text[cursor:], False, False, line_number))
+        lines.append(HaikuLine(tokens=tokens))
+
+    remnant = ""
+    if line_texts:
+        procedure = get("haikuization")
+        # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps
+        # it off `BaseProcedure` because it is optional. Narrow once, here.
+        assert isinstance(procedure, Constructive)
+        remnant = procedure.apply(source, lang=lang)
+
+    return Haikuization(lines=lines, remnant=remnant, prose=len(line_texts) == 1)

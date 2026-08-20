@@ -14,7 +14,7 @@ from denckring import __version__
 from denckring import check as denckring_check
 from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
-from denckring.core.protocol import Constructive
+from denckring.core.protocol import Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.procedures.n_plus_7 import displace
 from explorer import bench, board, catalogue_view, corpora, env, stage, witz
@@ -459,6 +459,60 @@ async def stage_word_ladder_act(request: Request) -> HTMLResponse:
         start=start,
         target=target,
         lang=lang,
+    )
+
+
+#: English only — the row declares `[en, de]` but the shipped source poem is
+#: English (see `stage.HAIKUIZATION_SOURCE`) and a German source has not been
+#: written for it, so this scene carries no language toggle at all, unlike
+#: N+7's and the word ladder's own.
+HAIKUIZATION_LANG: Lang = "en"
+
+
+@app.get("/stage/haikuization", response_class=HTMLResponse)
+def stage_haikuization(request: Request, chrome: str = "on") -> HTMLResponse:
+    source = stage.HAIKUIZATION_SOURCE
+    haiku = stage.haikuize(source, lang=HAIKUIZATION_LANG)
+    report = (
+        denckring_check("haikuization", haiku.remnant, lang=HAIKUIZATION_LANG, source=source)
+        if haiku.remnant
+        else None
+    )
+    return page(
+        request,
+        "stage_haikuization.html",
+        scene=stage.scene("haikuization"),
+        source=source,
+        haiku=haiku,
+        report=report,
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/haikuization/act", response_class=HTMLResponse)
+async def stage_haikuization_act(request: Request) -> HTMLResponse:
+    """Reduce the posted source to its own line ends, then check the result
+    independently against that same source — the same round trip N+7's and
+    the word ladder's own action routes run between `apply` and `check`.
+
+    `stage.haikuize` never calls `apply` on a source with no non-blank line,
+    so an empty box comes back with an empty remnant rather than a 500 —
+    that is a real state this editable field can reach, not a malformed one.
+    """
+    form = dict(await request.form())
+    source = str(form.get("source", ""))
+    haiku = stage.haikuize(source, lang=HAIKUIZATION_LANG)
+    report = (
+        denckring_check("haikuization", haiku.remnant, lang=HAIKUIZATION_LANG, source=source)
+        if haiku.remnant
+        else None
+    )
+    return page(
+        request,
+        "_stage_haiku.html",
+        source=source,
+        haiku=haiku,
+        report=report,
     )
 
 

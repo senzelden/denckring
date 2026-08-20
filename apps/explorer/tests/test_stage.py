@@ -1344,3 +1344,134 @@ def test_reduced_motion_settles_rungs_instead_of_stranding_them() -> None:
     assert (
         "@media (prefers-reduced-motion: reduce) { .rung { opacity: 1; transform: none; } }"
     ) in normalised
+
+
+# ── scene six: haikuization ──────────────────────────────────────────────────
+
+
+def test_the_default_source_reduces_to_its_own_line_ends() -> None:
+    """Assert against the source's own lines, not a hardcoded string — the
+    remnant has to be exactly each line's last word, in order, whatever the
+    shipped source happens to say, not merely what it says today."""
+    from denckring.core.text import line_spans as _line_spans
+    from denckring.core.text import word_spans as _word_spans
+    from denckring.lang import get_pack
+
+    pack = get_pack("en")
+    expected = [
+        _word_spans(line, pack)[-1][1] for _, line in _line_spans(stage.HAIKUIZATION_SOURCE)
+    ]
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    assert haiku.remnant == " ".join(expected)
+
+
+def test_the_default_remnant_is_the_one_the_brief_verified() -> None:
+    """Pinned as a second, independent assertion on top of the line-ends check
+    above — this is the exact remnant the brief verified before this scene was
+    built, and it reads as a sentence as well as a poem."""
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    assert haiku.remnant == "paper turns word stands language sheet"
+
+
+def test_the_default_remnant_satisfies_the_checker() -> None:
+    from denckring import check
+
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    report = check("haikuization", haiku.remnant, lang="en", source=stage.HAIKUIZATION_SOURCE)
+    assert report.satisfied is True
+
+
+def test_the_scene_renders_the_default_source_and_its_verdict() -> None:
+    response = client.get("/stage/haikuization")
+    assert response.status_code == 200
+    assert "paper turns word stands language sheet" in response.text
+    assert "checked — every word above ends its own line" in response.text
+
+
+def test_a_prose_source_reduces_to_one_word_correctly() -> None:
+    """Prose has one line, so the reduction is a single word — correct, by the
+    procedure's own rule (see the brief's own "prose is a real input"), and
+    the checker must agree it is correct rather than merely unsurprising."""
+    from denckring import check
+
+    prose = "This is just a plain sentence with no line breaks at all, nothing special."
+    haiku = stage.haikuize(prose, lang="en")
+    assert haiku.prose is True
+    assert haiku.remnant == "special"
+    assert check("haikuization", haiku.remnant, lang="en", source=prose).satisfied is True
+
+
+def test_the_prose_case_renders_its_explanation_not_a_bare_word() -> None:
+    """A single word on screen with nothing beside it would look broken; the
+    explanation is what makes it read as correct instead (see the brief)."""
+    response = client.post(
+        "/stage/haikuization/act",
+        data={
+            "source": "This is just a plain sentence with no line breaks at all, nothing special."
+        },
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "haiku-prose-note" in response.text
+    assert "the procedure keeps line ends, and this" in normalised
+    assert "checked — every word above ends its own line" in normalised
+
+
+def test_a_multi_line_source_does_not_carry_the_prose_note() -> None:
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    assert haiku.prose is False
+
+
+def test_an_empty_source_does_not_raise() -> None:
+    haiku = stage.haikuize("", lang="en")
+    assert haiku.lines == []
+    assert haiku.remnant == ""
+    response = client.post("/stage/haikuization/act", data={"source": ""})
+    assert response.status_code == 200
+    assert "Nothing to reduce yet" in response.text
+
+
+def test_a_whitespace_only_source_does_not_raise_either() -> None:
+    """`line_spans` counts a blank line as no line at all, so a source of
+    pure whitespace has to reach the same empty-box handling a genuinely
+    empty field does, rather than the `NoCandidateWord` `apply` itself would
+    raise on it."""
+    haiku = stage.haikuize("   \n\n  \n", lang="en")
+    assert haiku.lines == []
+    assert haiku.remnant == ""
+
+
+def test_every_word_shown_is_marked_word_or_gap_never_both() -> None:
+    """The token reconstruction has to cover the whole line with no overlap
+    and no gap of its own — otherwise the rendered line would silently drop
+    or duplicate a character of the source it claims to show verbatim."""
+    from denckring.core.text import line_spans as _line_spans
+
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    for line, source_line in zip(
+        haiku.lines,
+        [text for _, text in _line_spans(stage.HAIKUIZATION_SOURCE)],
+        strict=True,
+    ):
+        assert "".join(token.text for token in line.tokens) == source_line
+
+
+def test_exactly_one_word_per_line_is_marked_kept() -> None:
+    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
+    for line in haiku.lines:
+        kept = [token for token in line.tokens if token.is_word and token.kept]
+        assert len(kept) == 1
+
+
+def test_reduced_motion_settles_the_remnant_instead_of_stranding_it() -> None:
+    """`.haiku-remnant` starts hidden (`opacity: 0`) and only its own
+    animation ever brings it to `opacity: 1` — the same pattern `.slip`,
+    `.strip-line` and `.rung` already need an explicit reduced-motion
+    override for, since explorer.css's blanket `animation: none !important`
+    would otherwise strand it invisible forever."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert (
+        "@media (prefers-reduced-motion: reduce) { .haiku-remnant { opacity: 1; "
+        "transform: none; } }"
+    ) in normalised
