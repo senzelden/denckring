@@ -95,6 +95,38 @@ def test_every_scene_renders_and_survives_chrome_off(slug: str) -> None:
     assert "stage-caption" not in without.text
 
 
+#: The `data-sync` declaration each scene's driving `<select>` carries, and
+#: the id/key pairs it names. Three scenes wrote three copies of the same
+#: toggle-sync script before it was extracted to `_stage_sync.html`; what the
+#: markup now has to get right is the declaration, so that is what is pinned.
+_SYNC_DECLARATIONS = {
+    "n_plus_7": [("source-field", "example")],
+    "word_ladder": [("start-field", "start"), ("target-field", "target")],
+}
+
+
+def _assert_sync_wiring(html: str, pairs: list[tuple[str, str]]) -> None:
+    """Every field and dataset key the declaration names is really on the page.
+
+    The shared script fails silently on a name that is not there — it filters
+    missing fields out and syncs the rest — which is exactly the kind of quiet
+    half-working control this stage must not ship, and exactly what a test
+    reading the markup can catch without running any JavaScript."""
+    normalised = " ".join(html.split())
+    assert normalised.count('data-sync="') == 1
+    assert normalised.count('document.querySelectorAll("[data-sync]")') == 1
+    declaration = " ".join(f"{field}:{key}" for field, key in pairs)
+    assert f'data-sync="{declaration}"' in normalised
+    for field, key in pairs:
+        assert f'id="{field}"' in normalised, field
+        assert f"data-{key}=" in normalised, key
+
+
+@pytest.mark.parametrize("slug", sorted(_SYNC_DECLARATIONS))
+def test_the_shared_toggle_sync_is_wired_to_fields_that_exist(slug: str) -> None:
+    _assert_sync_wiring(client.get(f"/stage/{slug}").text, _SYNC_DECLARATIONS[slug])
+
+
 def test_the_rings_carry_the_transcribed_counts() -> None:
     """Cramer's transcription has 49/60/12/120/23, where Harsdörffer's own text
     announces 48/50/12/120/24. The scene shows what the data has, not what the book
@@ -714,7 +746,14 @@ def _stub_one_corpus(monkeypatch: pytest.MonkeyPatch, style: str) -> None:
         stage,
         "corpus_choices",
         lambda: [
-            stage.CorpusChoice(path="x", name="stub", entries=3, style=style, register="modern")
+            stage.CorpusChoice(
+                path="x",
+                name="stub",
+                entries=3,
+                style=style,
+                register="modern",
+                lang=stage.default_lang(style),
+            )
         ],
     )
     monkeypatch.setattr(corpora, "load", lambda path: ("stub corpus text", ""))
@@ -778,6 +817,11 @@ def test_the_stage_pre_selects_the_toggle_from_the_first_corpuss_style(
     # suggests English — its option should be the one marked selected.
     assert '<option value="en" selected>English</option>' in response.text
     assert '<option value="de" >German</option>' in response.text
+    # And the corpus option carries that same suggestion as `data-lang`, so
+    # the shared sync script reads `default_lang`'s answer rather than
+    # re-running its rule in JavaScript, which is what it used to do.
+    assert 'data-lang="en"' in response.text
+    _assert_sync_wiring(response.text, [("lang-select", "lang")])
 
 
 def test_the_witz_form_carries_the_throws_own_language(

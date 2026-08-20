@@ -204,7 +204,7 @@ def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
         # The picker's first option is whatever a reader sees pre-selected, so the
         # toggle's own pre-selected option follows that same corpus's style — the
         # two controls agreeing at first paint, without yet being the same control.
-        default_lang=stage.default_lang(choices[0].style) if choices else "en",
+        default_lang=choices[0].lang if choices else "en",
         can_read=witz.available(),
         chrome_off=chrome == "off",
     )

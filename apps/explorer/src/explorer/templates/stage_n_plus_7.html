@@ -17,7 +17,10 @@
       <label for="source-field">Source</label>
       <input id="source-field" type="text" name="source" value="{{ source }}">
       <label for="lang-select">Language</label>
-      <select id="lang-select" name="lang">
+      {# `data-sync`: refill the source field from the chosen language's own
+         example sentence (see `_stage_sync.html`, and app.py's
+         `N_PLUS_7_SOURCES` for where the sentences come from). #}
+      <select id="lang-select" name="lang" data-sync="source-field:example">
         <option value="en" data-example="{{ examples.en }}"
                 {% if default_lang == "en" %}selected{% endif %}>English</option>
         <option value="de" data-example="{{ examples.de }}"
@@ -38,27 +41,7 @@
     <p class="lang-note">Language picks which dictionary <code>displace</code> and
       <code>check</code> walk — English's {{ "{:,}".format(noun_counts.en) }} nouns or
       German's {{ "{:,}".format(noun_counts.de) }}.</p>
-    <script>
-    // Keeps the source field in step with the language toggle, the same way scene
-    // two's own toggle stays in step with its corpus picker: switching languages
-    // re-fills the field with that language's own example sentence, read from the
-    // chosen `<option>`'s own data (see app.py's `N_PLUS_7_SOURCES`). It stops the
-    // moment a reader edits the field directly — overwriting a reader's own typed
-    // source out from under them would look like the field silently reverting
-    // itself, exactly what scene two's own script already declines to do.
-    (() => {
-      const langSelect = document.getElementById("lang-select");
-      const sourceField = document.getElementById("source-field");
-      if (!langSelect || !sourceField) return;
-      let touched = false;
-      sourceField.addEventListener("input", () => { touched = true; });
-      langSelect.addEventListener("change", () => {
-        if (touched) return;
-        const example = langSelect.selectedOptions[0]?.dataset.example;
-        if (example) sourceField.value = example;
-      });
-    })();
-    </script>
+    {% include "_stage_sync.html" %}
     <div id="displaced" class="displaced-area"></div>
   </div>
 </div>
