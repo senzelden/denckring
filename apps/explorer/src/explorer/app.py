@@ -123,6 +123,14 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
         # if that assumption ever stops holding, as `bench.generate` does.
         if isinstance(procedure, Constructive):
             word = procedure.apply("", lang="de")
+            # Nearly every draw already passes fit_for_stage (see TURN_ATTEMPTS);
+            # this only ever loops on the rare draw that does not, rather than
+            # trusting the rings' own randomness to never spell one of the words
+            # this stage refuses to show.
+            for _ in range(stage.TURN_ATTEMPTS - 1):
+                if stage.fit_for_stage(word):
+                    break
+                word = procedure.apply("", lang="de")
             # The library chose this word; hand back which piece each ring would
             # have to show so the diagram can turn to match, not just the panel.
             pieces = stage.pieces_for(word)

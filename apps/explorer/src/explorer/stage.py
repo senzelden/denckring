@@ -123,17 +123,103 @@ def german_pack() -> LanguagePack:
     return get_pack("de")
 
 
-#: ~1 turn in 4,900 lands on a word `is_word` recognises (measured). A random
-#: search needs several multiples of that mean to be confident of a hit, and
-#: each attempt is a `device.spin` plus a lexicon lookup — cheap enough that
-#: twenty thousand of them still run well inside one request. See the task
-#: report for the timing.
-FIND_ATTEMPTS = 20_000
+#: Stems, not whole words: one entry also catches every inflected form the
+#: rings can assemble around it ("fick" -> Ficken, fickst, gefickt, ...)
+#: without enumerating each by hand. Matched against a casefolded word —
+#: Python's own `casefold` already turns "ß" into "ss", so "Scheiße" and
+#: "scheisse" match the same stem without this list carrying both spellings.
+#:
+#: This is the actual safety mechanism for every word this scene can put on
+#: screen, not `RHYME_ENDINGS`'s curation: a hand-read pass over the -acken
+#: sweep missed "Kacken", and `find_word` went through no curation at all —
+#: a raw 184,040-word lexicon answers "is this a word", not "is this fit to
+#: show on a recording". See `fit_for_stage` below, which every path onto
+#: this stage now calls.
+#:
+#: Covers, deliberately: sexual vulgarities (fick, fotz/votz, muschi, wichs,
+#: bums, hure, nutte, titt, möse, pimmel); scatological ones (scheiss/schiss
+#: — both stems needed, since "beschissen" carries the strong verb's past
+#: stem "schiss" rather than "scheiss"; kack; piss; kotz); and slurs (neger,
+#: zigeuner, kanak).
+#:
+#: Deliberately excludes some stems that looked relevant and were checked
+#: against the shipped lexicon and rejected as too broad for this device:
+#: "schei" alone catches "bescheiden" (modest), "entscheiden" (decide),
+#: "erscheinen" (appear) and 100+ other ordinary words, all sharing the
+#: syllable but none the vulgarity; "arsch" catches "Marsch", "Barsch" and
+#: "harsch" (marching, perch, harsh) and nothing this device can actually
+#: spell that means what "Arsch" means, since no ring offers a bare "r" as
+#: a medial letter; "muff" catches "Muffin"; "sack" catches the ordinary
+#: word "Sack" (bag) and its "sacken" (sink/drop) family; "hoden" and
+#: "sperma" are the clinical terms, not the crude register the brief asked
+#: this list to cover. "hure" is kept despite also catching "nachschüren"/
+#: "vollschüren" (to stoke a fire further) — a false positive judged worth
+#: the true ones alongside it, on the reasoning that a lost word is a minor
+#: cost and a missed vulgarity is not. Audited in full in the task report.
+_BLOCKED_STEMS = frozenset(
+    {
+        # sexual
+        "fick",
+        "fotz",
+        "votz",
+        "muschi",
+        "wichs",
+        "bums",
+        "hure",
+        "nutte",
+        "titt",
+        "möse",
+        "pimmel",
+        # scatological
+        "scheiss",
+        "schiss",
+        "kack",
+        "piss",
+        "kotz",
+        # slurs
+        "neger",
+        "zigeuner",
+        "kanak",
+    }
+)
+
+
+def fit_for_stage(word: str) -> bool:
+    """Whether `word` is fit to appear on a recorded stage.
+
+    The one predicate every path that can put a word on screen — `find_word`,
+    `rhyme_sweep`, and "turn them for me" in `app.py` — calls before it does,
+    so a word this scene shows is filtered exactly once, in exactly one
+    place, rather than trusted to whichever curation a given path happened
+    to build for itself.
+    """
+    folded = word.casefold()
+    return not any(stem in folded for stem in _BLOCKED_STEMS)
+
+
+#: "Turn them for me" does not need a real word — that is the whole point of
+#: the "off the rings" verdict — so it only ever retries a draw
+#: `fit_for_stage` itself rejects, which is a needle in the full combination
+#: space: of the ~21,000 real words these rings can spell, well under 100
+#: match `_BLOCKED_STEMS`, and almost every draw is not a real word at all.
+#: A bound this small (rather than `FIND_ATTEMPTS`'s 20,000) is still several
+#: orders of magnitude more headroom than that rarity needs.
+TURN_ATTEMPTS = 50
+
+#: ~1 turn in 4,900 lands on a word `is_word` recognises (measured). 20,000
+#: attempts (~4x that mean) measured a ~0.3% failure rate in this fix round
+#: — rare, but rare enough to show up as test flakiness once a test session
+#: calls `find_word` a few dozen times, which is exactly what happened here.
+#: 60,000 (~12x the mean) measured zero failures in 50 runs with the same
+#: ~0.1-0.8s per call a viewer would wait on the button — see the task
+#: report for both sets of numbers.
+FIND_ATTEMPTS = 60_000
 
 
 def find_word(attempts: int = FIND_ATTEMPTS) -> tuple[str, list[str]] | None:
     """Turn the rings at random, server-side, until `is_word` recognises the
-    result, or say the search failed rather than hang a recording on it.
+    result and `fit_for_stage` accepts it, or say the search failed rather
+    than hang a recording on it.
 
     A viewer will not sit through the ~4,900 tries a random turn needs on
     average, so the search happens here in one request rather than one click
@@ -148,7 +234,7 @@ def find_word(attempts: int = FIND_ATTEMPTS) -> tuple[str, list[str]] | None:
     for _ in range(attempts):
         turned = device.spin(machine)
         word = "".join(turned)
-        if word and german.is_word(word):
+        if word and german.is_word(word) and fit_for_stage(word):
             pieces = pieces_for(word)
             if pieces is not None:
                 return word, pieces
@@ -168,12 +254,15 @@ class RhymeEnding:
     nachsylbe: str
 
 
-#: Curated rather than filtered at request time. A full sweep of the raw
-#: lexicon surfaces vulgarities on some endings — `-icken` lands on "Ficken",
-#: `-itten` on "Titten" — and this scene is recorded, so only endings whose
-#: complete 60-letter sweep was read by hand and found clean are offered here.
-#: Yields measured against the shipped lexicon (see the task report): -acken
-#: 24, -ecken 23, -allen 17, -eck 22, -ein 21.
+#: A presentation choice, not a safety mechanism: `fit_for_stage` is what
+#: keeps every word this scene shows clean, on every path, so an ending does
+#: not need curating to be safe to offer. These five are offered because
+#: they give a good yield to watch accumulate, measured against the shipped
+#: lexicon after `fit_for_stage` runs (see the task report): -acken 23,
+#: -ecken 23, -allen 17, -eck 22, -ein 21. A hand-read pass over -acken once
+#: missed "Kacken" here (23 real words, not the 24 an unfiltered count
+#: would show) — exactly the failure mode that made curation the wrong
+#: mechanism to rely on in the first place.
 RHYME_ENDINGS: list[RhymeEnding] = [
     RhymeEnding("-acken", "a", "ck", "en"),
     RhymeEnding("-ecken", "e", "ck", "en"),
@@ -194,7 +283,7 @@ def rhyme_ending(label: str) -> RhymeEnding | None:
 def rhyme_sweep(ending: RhymeEnding) -> list[str]:
     """One entry per position on the initial disc, in ring order: the word
     that position spells against the locked ending, or `""` where `is_word`
-    rejects it.
+    rejects it or `fit_for_stage` does.
 
     This is the quotation turned into a search rather than an instruction:
     "seek the rhyme syllables on the third and fourth ring [and turn] the
@@ -209,7 +298,7 @@ def rhyme_sweep(ending: RhymeEnding) -> list[str]:
     swept = []
     for letters in initial.alternatives:
         word = letters + ending.mittelbuchstabe + ending.endbuchstabe + ending.nachsylbe
-        swept.append(word if german.is_word(word) else "")
+        swept.append(word if german.is_word(word) and fit_for_stage(word) else "")
     return swept
 
 

@@ -412,7 +412,9 @@ async function runRhymeSweep(sweepData) {
   // just earn.
   document.querySelector('#word .word').textContent = ' ';
   document.querySelectorAll('#word .verdict').forEach((el) => el.remove());
-  setInert(true);
+  // `inert` is already true here — the `htmx:beforeRequest` listener below
+  // sets it synchronously the moment the rhyme form was submitted, before
+  // the request even goes out, not reactively once the response is back.
   // Rings 0 (forced blank — the quotation names only the second, third and
   // fourth rings), 2, 3 and 4 lock to the chosen ending first, staggered the
   // same way "turn them for me" staggers its five. Ring 1 is walked
@@ -445,10 +447,39 @@ async function runRhymeSweep(sweepData) {
   setInert(false);
 }
 
+// Every submit of `.actions` or `.rhyme-controls` sets `inert` synchronously
+// here, before the request is even sent — reacting only in `htmx:afterSwap`
+// (as an earlier version of this did) left the window between a click and
+// its response wide open, during which the buttons were still enabled and a
+// second click could start a second, independent spin sequence mutating the
+// same `rings[].index` underneath the first. `htmx:beforeRequest` fires on
+// the same JS turn the submit does, so two submits — even a double-click, or
+// a "Read it" and a "Find me one" a moment apart — are strictly ordered by
+// the single-threaded event loop: whichever runs its handler first wins,
+// and the second finds `inert` already true and is refused outright, the
+// same "refused, not queued" rule `turnOne` already followed.
+document.body.addEventListener('htmx:beforeRequest', (evt) => {
+  if (!evt.target.matches('.actions, .rhyme-controls')) return;
+  if (inert) {
+    evt.preventDefault();
+    return;
+  }
+  setInert(true);
+});
+
+// Every request `.actions`/`.rhyme-controls` sends must eventually clear
+// `inert` again exactly once, on every path through here — including a
+// plain "Read it" (no pieces to animate) and an unknown rhyme ending (no
+// sweep data) — now that `beforeRequest` above always sets it. Missing one
+// of those paths would leave the whole stage stuck refusing every turn.
 document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.target.id === 'rhyme-result') {
     const data = document.getElementById('rhyme-sweep-data');
-    if (data) runRhymeSweep(data.dataset);
+    if (data) {
+      runRhymeSweep(data.dataset); // clears `inert` itself once the sweep ends
+    } else {
+      setInert(false);
+    }
     return;
   }
   if (evt.target.id !== 'word') return;
@@ -460,14 +491,11 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   // one" that ran out of tries) leaves the discs exactly where they were.
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.pieces;
-  if (!raw) return;
+  if (!raw) {
+    setInert(false);
+    return;
+  }
   const pieces = raw.split('|');
-  // The whole assembly goes inert for the entire batch, not per ring — set
-  // synchronously here, before any of the five staggered spins has even
-  // started, so a second "Turn them for me" click in the gap before ring 0
-  // begins moving finds the button already disabled rather than slipping a
-  // request in underneath this one.
-  setInert(true);
   Promise.all(
     pieces.map(
       (piece, ringIndex) =>
@@ -480,6 +508,15 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     assemble();
   });
 });
+
+// A request that never gets a swap at all — a network failure, a non-2xx
+// response — would otherwise leave `inert` stuck true forever with no path
+// back to false, since every route above only clears it from inside
+// `htmx:afterSwap`. Neither is expected from this app's own routes, but a
+// stage that can freeze itself for the rest of a recording over one dropped
+// request is worse than one extra safety net.
+document.body.addEventListener('htmx:responseError', () => setInert(false));
+document.body.addEventListener('htmx:sendError', () => setInert(false));
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
