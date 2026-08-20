@@ -402,18 +402,48 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
 
 
 @app.get("/stage/cent_mille_milliards", response_class=HTMLResponse)
-def stage_cent_mille_milliards(request: Request, chrome: str = "on") -> HTMLResponse:
-    state = stage.queneau_initial_state()
-    poem = stage.queneau_poem(state)
-    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+def stage_cent_mille_milliards(
+    request: Request, lang: str = "en", chrome: str = "on"
+) -> HTMLResponse:
+    lang_ = stage.queneau_lang(lang)
+    state = stage.queneau_initial_state(lang_)
+    poem = stage.queneau_poem(state, lang_)
+    report = denckring_check(
+        "cent_mille_milliards", poem.text, lang=lang_, source=stage.queneau_source(lang_)
+    )
     return page(
         request,
         "stage_cent_mille_milliards.html",
         scene=stage.scene("cent_mille_milliards"),
         poem=poem,
         state=stage.queneau_state_to_text(state),
+        lang=lang_,
         report=report,
         chrome_off=chrome == "off",
+    )
+
+
+@app.get("/stage/cent_mille_milliards/set", response_class=HTMLResponse)
+def stage_cent_mille_milliards_set(request: Request, lang: str = "en") -> HTMLResponse:
+    """Switch strip sets: the picker's own `change` fires this, and first
+    paint of whichever set it now names comes back — the same reset
+    `queneau_initial_state` gives the scene's own first load, so the poem,
+    the count and the verdict all follow the chosen set together rather than
+    carrying over indices that might run past its own positions.
+    """
+    lang_ = stage.queneau_lang(lang)
+    state = stage.queneau_initial_state(lang_)
+    poem = stage.queneau_poem(state, lang_)
+    report = denckring_check(
+        "cent_mille_milliards", poem.text, lang=lang_, source=stage.queneau_source(lang_)
+    )
+    return page(
+        request,
+        "_stage_queneau_scene.html",
+        poem=poem,
+        state=stage.queneau_state_to_text(state),
+        lang=lang_,
+        report=report,
     )
 
 
@@ -422,16 +452,23 @@ async def stage_cent_mille_milliards_deal(request: Request) -> HTMLResponse:
     """Redraw every position at once — a fresh poem, not the one-line change a
     flip makes. Checked exactly like a flip's own result, against the same
     source, so a viewer sees a real verdict on whichever poem is on screen
-    rather than a claim carried over from before the deal.
+    rather than a claim carried over from before the deal. `lang` comes off
+    the deal form's own hidden field, the picker's current value carried
+    along with it, so a deal always redraws the set actually on screen.
     """
-    state = stage.queneau_deal()
-    poem = stage.queneau_poem(state)
-    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    form = dict(await request.form())
+    lang_ = stage.queneau_lang(str(form.get("lang", "")))
+    state = stage.queneau_deal(lang_)
+    poem = stage.queneau_poem(state, lang_)
+    report = denckring_check(
+        "cent_mille_milliards", poem.text, lang=lang_, source=stage.queneau_source(lang_)
+    )
     return page(
         request,
         "_stage_poem.html",
         poem=poem,
         state=stage.queneau_state_to_text(state),
+        lang=lang_,
         report=report,
     )
 
@@ -447,21 +484,28 @@ async def stage_cent_mille_milliards_flip(request: Request) -> HTMLResponse:
     might run past a position's own alternatives. `position` is clamped the
     same defensive way, to the first strip, so a request outside what the
     page itself can send still returns something checked rather than a 500.
+    `lang` comes off the same shared field `state` does (`#poem-lang`,
+    `_stage_poem.html`) and picks which set both the redraw and the fallback
+    read from, so a flip on the German strips can never land on the English
+    sheet underneath them.
     """
     form = dict(await request.form())
-    current = stage.queneau_state_from_text(str(form.get("state", "")))
+    lang_ = stage.queneau_lang(str(form.get("lang", "")))
+    current = stage.queneau_state_from_text(str(form.get("state", "")), lang_)
     if current is None:
-        current = stage.queneau_initial_state()
-    offered = stage.queneau_offered()
+        current = stage.queneau_initial_state(lang_)
+    offered = stage.queneau_offered(lang_)
     try:
         position = int(str(form.get("position", "")))
     except ValueError:
         position = 0
     if not (0 <= position < len(offered)):
         position = 0
-    new_state = stage.queneau_flip(current, position)
-    poem = stage.queneau_poem(new_state)
-    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    new_state = stage.queneau_flip(current, position, lang_)
+    poem = stage.queneau_poem(new_state, lang_)
+    report = denckring_check(
+        "cent_mille_milliards", poem.text, lang=lang_, source=stage.queneau_source(lang_)
+    )
     return page(
         request,
         "_stage_flip.html",

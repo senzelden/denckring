@@ -1,29 +1,22 @@
 {% extends "stage.html" %}
 {% block title %}Cent mille milliards de poèmes{% endblock %}
 {% block main %}
-<header class="scene-head">
+<header class="scene-head queneau-head">
   <p class="scene-kicker">Raymond Queneau &middot; Cent mille milliards de poèmes, 1961</p>
   <h1>{{ scene.title }}</h1>
+  {# Switching sets is a fresh first paint of whichever one is now named, not
+     a patch onto the poem already showing — see `app.py`'s own
+     `stage_cent_mille_milliards_set` for why a reset, not a carry-over, is
+     the honest response to a change of strips underneath the reader. #}
+  <select id="set-select" name="lang" class="queneau-set-select"
+          hx-get="/stage/cent_mille_milliards/set" hx-target="#queneau-scene"
+          hx-swap="innerHTML" aria-label="Strip set">
+    <option value="en" {% if lang == "en" %}selected{% endif %}>English strips</option>
+    <option value="de" {% if lang == "de" %}selected{% endif %}>German strips</option>
+  </select>
 </header>
-<div id="poem" class="poem">
-  {% include "_stage_poem.html" %}
-</div>
-<div class="queneau-panel">
-  <p class="queneau-count">
-    <span class="count count-true">{{ "{:,}".format(poem.combinations) }}</span>
-    <span class="count-label">poems these strips can make &mdash; three alternatives to the
-      fourteenth line, 3<sup>14</sup></span>
-  </p>
-  <form class="actions" hx-post="/stage/cent_mille_milliards/deal" hx-target="#poem"
-        hx-swap="innerHTML">
-    <button type="submit">Deal</button>
-  </form>
-  {# The wording the golden fixture uses for this exact situation
-     (`src/denckring/eval/fixtures/golden/cent_mille_milliards.yaml`) — Queneau
-     died in 1976, his ten sonnets are still in copyright and are not shipped, so
-     what is on screen was written for this scene. #}
-  <p class="queneau-attribution">The machine is Queneau's, the strips are not: his own ten
-    sonnets remain in copyright, so these fourteen were written for this scene.</p>
+<div id="queneau-scene">
+  {% include "_stage_queneau_scene.html" %}
 </div>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
