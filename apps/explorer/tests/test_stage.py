@@ -13,7 +13,7 @@ from explorer import bench, corpora, stage
 from explorer.app import app
 from fastapi.testclient import TestClient
 
-from denckring.core.protocol import LanguagePack
+from denckring.core.protocol import Lang, LanguagePack
 
 client = TestClient(app)
 
@@ -1238,77 +1238,90 @@ def test_the_scene_lists_a_real_procedure() -> None:
     assert scene.procedure_id == "cent_mille_milliards"
 
 
-def test_the_strips_are_fourteen_positions_of_three() -> None:
-    """The shape the brief promises: fourteen positions, three alternatives
-    each, so 3**14 poems — read from the shipped file, not asserted against
-    a hard-coded 14."""
-    offered = stage.queneau_offered()
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_the_strips_are_fourteen_positions_of_three(lang: Lang) -> None:
+    """The shape the brief promises, for every set this scene ships:
+    fourteen positions, three alternatives each, so 3**14 poems — read from
+    the shipped file, not asserted against a hard-coded 14."""
+    offered = stage.queneau_offered(lang)
     assert len(offered) == 14
     assert all(len(options) == 3 for options in offered)
 
 
-def test_the_count_is_computed_from_what_actually_loaded() -> None:
-    """The page's one number needs no argument because it is arithmetic, not
-    a claim — pinned here against both the brief's own figure and a fresh
-    product over whatever `queneau_offered` actually returns, so a strip
-    added or removed could not leave a stale count on screen."""
-    offered = stage.queneau_offered()
-    assert stage.queneau_combinations() == math.prod(len(options) for options in offered)
-    assert stage.queneau_combinations() == 4_782_969
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_the_count_is_computed_from_what_actually_loaded(lang: Lang) -> None:
+    """The page's one number needs no argument beyond which set it is
+    describing, because it is arithmetic, not a claim — pinned here against
+    both the brief's own figure and a fresh product over whatever
+    `queneau_offered` actually returns for that set, so a strip added or
+    removed, in either set, could not leave a stale count on screen."""
+    offered = stage.queneau_offered(lang)
+    assert stage.queneau_combinations(lang) == math.prod(len(options) for options in offered)
+    assert stage.queneau_combinations(lang) == 4_782_969
 
 
-def test_first_paint_reads_the_first_alternative_at_every_position() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_first_paint_reads_the_first_alternative_at_every_position(lang: Lang) -> None:
     """Deterministic, the way Denckring's own rings start every disc at index
-    0 — so first paint is the same poem on every load, not a draw a test
-    would have to pin against randomness."""
-    state = stage.queneau_initial_state()
+    0 — so first paint is the same poem on every load, or every switch of
+    strip set, rather than a draw a test would have to pin against
+    randomness."""
+    state = stage.queneau_initial_state(lang)
     assert state == [0] * 14
-    poem = stage.queneau_poem(state)
-    offered = stage.queneau_offered()
+    poem = stage.queneau_poem(state, lang)
+    offered = stage.queneau_offered(lang)
     assert poem.lines == [options[0] for options in offered]
 
 
-def test_first_paints_poem_satisfies_the_checker() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_first_paints_poem_satisfies_the_checker(lang: Lang) -> None:
     from denckring import check
 
-    poem = stage.queneau_poem(stage.queneau_initial_state())
-    report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    poem = stage.queneau_poem(stage.queneau_initial_state(lang), lang)
+    report = check("cent_mille_milliards", poem.text, lang=lang, source=stage.queneau_source(lang))
     assert report.satisfied is True
 
 
-def test_every_line_a_deal_shows_is_one_its_position_actually_offers() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_every_line_a_deal_shows_is_one_its_position_actually_offers(lang: Lang) -> None:
     """Asserted against `queneau_offered()` itself, not a second, copied-out
     transcription of the strips — the two could otherwise drift apart and
-    this test would never notice."""
+    this test would never notice. Both sets: the German strips get the same
+    discipline the English ones already had."""
 
-    offered = stage.queneau_offered()
+    offered = stage.queneau_offered(lang)
     for seed in range(20):
-        state = stage.queneau_deal(random.Random(seed))
-        poem = stage.queneau_poem(state)
+        state = stage.queneau_deal(lang, random.Random(seed))
+        poem = stage.queneau_poem(state, lang)
         for line, options in zip(poem.lines, offered, strict=True):
             assert line in options
 
 
-def test_a_deal_satisfies_the_checker() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_a_deal_satisfies_the_checker(lang: Lang) -> None:
 
     from denckring import check
 
     for seed in range(10):
-        state = stage.queneau_deal(random.Random(seed))
-        poem = stage.queneau_poem(state)
-        report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+        state = stage.queneau_deal(lang, random.Random(seed))
+        poem = stage.queneau_poem(state, lang)
+        report = check(
+            "cent_mille_milliards", poem.text, lang=lang, source=stage.queneau_source(lang)
+        )
         assert report.satisfied is True, poem.text
 
 
-def test_a_flip_changes_only_the_position_it_touched() -> None:
-    """The scene's whole claim: flip one strip, and the other thirteen hold."""
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_a_flip_changes_only_the_position_it_touched(lang: Lang) -> None:
+    """The scene's whole claim: flip one strip, and the other thirteen hold —
+    in whichever set is on screen."""
 
-    offered = stage.queneau_offered()
+    offered = stage.queneau_offered(lang)
     for seed in range(20):
         rng = random.Random(seed)
-        before = stage.queneau_deal(rng)
+        before = stage.queneau_deal(lang, rng)
         position = rng.randrange(len(offered))
-        after = stage.queneau_flip(before, position, rng)
+        after = stage.queneau_flip(before, position, lang, rng)
         for i in range(len(offered)):
             if i == position:
                 assert after[i] != before[i]
@@ -1317,24 +1330,26 @@ def test_a_flip_changes_only_the_position_it_touched() -> None:
                 assert after[i] == before[i]
 
 
-def test_a_flip_can_still_land_on_every_alternative_but_the_current_one() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_a_flip_can_still_land_on_every_alternative_but_the_current_one(lang: Lang) -> None:
     """`queneau_flip` excludes the index already showing — a flip that
     redrew the same line would look, on camera, like nothing happened."""
 
     state = [0] * 14
-    seen = {stage.queneau_flip(state, 0, random.Random(i))[0] for i in range(30)}
+    seen = {stage.queneau_flip(state, 0, lang, random.Random(i))[0] for i in range(30)}
     assert seen == {1, 2}
 
 
-def test_a_flipped_poem_satisfies_the_checker() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_a_flipped_poem_satisfies_the_checker(lang: Lang) -> None:
 
     from denckring import check
 
     rng = random.Random(1)
-    state = stage.queneau_deal(rng)
-    state = stage.queneau_flip(state, 3, rng)
-    poem = stage.queneau_poem(state)
-    report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    state = stage.queneau_deal(lang, rng)
+    state = stage.queneau_flip(state, 3, lang, rng)
+    poem = stage.queneau_poem(state, lang)
+    report = check("cent_mille_milliards", poem.text, lang=lang, source=stage.queneau_source(lang))
     assert report.satisfied is True
 
 
@@ -1344,23 +1359,44 @@ def test_state_text_round_trips() -> None:
     assert stage.queneau_state_from_text(text) == state
 
 
-def test_state_from_text_refuses_the_wrong_shape() -> None:
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_state_from_text_refuses_the_wrong_shape(lang: Lang) -> None:
     """A hand-crafted or stale post — never one this page's own markup would
-    send — must not be trusted at face value."""
-    assert stage.queneau_state_from_text("0,1,2") is None  # too short
-    assert stage.queneau_state_from_text("0,1,2,3,4,5,6,7,8,9,10,11,12,13") is None  # 3 not valid
-    assert stage.queneau_state_from_text("a,b,c,d,e,f,g,h,i,j,k,l,m,n") is None  # not integers
+    send — must not be trusted at face value, against either set's own
+    shape."""
+    assert stage.queneau_state_from_text("0,1,2", lang) is None  # too short
+    assert (
+        stage.queneau_state_from_text("0,1,2,3,4,5,6,7,8,9,10,11,12,13", lang) is None
+    )  # 3 not valid
+    not_integers = "a,b,c,d,e,f,g,h,i,j,k,l,m,n"
+    assert stage.queneau_state_from_text(not_integers, lang) is None
+
+
+def test_queneau_lang_narrows_to_a_set_this_scene_actually_ships() -> None:
+    """Whatever a hand-crafted or stale request names, only the two sets the
+    picker itself can send come back — the same discipline `bench.as_lang`
+    applies for `Lang`'s own three values, narrowed further here because
+    this scene has strips behind only two of them."""
+    assert stage.queneau_lang("en") == "en"
+    assert stage.queneau_lang("de") == "de"
+    assert stage.queneau_lang("fr") == "en"  # a real Lang, but no strips ship for it
+    assert stage.queneau_lang("") == "en"
+    assert stage.queneau_lang("not a language") == "en"
 
 
 def test_the_rhyme_scheme_survives_random_draws() -> None:
-    """The brief's own property: for a handful of random draws, each pair the
-    ABAB CDCD EFEF GG scheme names ends on the same rhyme — verified against
-    the library's own pronouncing dictionary, not spelling. See `_line_rhyme`
-    for why a literal comparison is not safe here."""
+    """The brief's own property, for the English set: for a handful of
+    random draws, each pair the ABAB CDCD EFEF GG scheme names ends on the
+    same rhyme — verified against the library's own pronouncing dictionary,
+    not spelling. See `_line_rhyme` for why a literal comparison is not safe
+    even for English. The German set cannot be verified this same way; see
+    `test_the_german_pack_ships_no_phonemes_so_rhyme_keys_cannot_run` and
+    `test_the_german_rhyme_pairing_holds_by_the_only_check_available` below
+    for what runs in its place, and why."""
     pack = stage.pack("en")
     for seed in range(15):
-        state = stage.queneau_deal(random.Random(seed))
-        poem = stage.queneau_poem(state)
+        state = stage.queneau_deal("en", random.Random(seed))
+        poem = stage.queneau_poem(state, "en")
         lines = poem.lines
         for line_a, line_b in _RHYME_PAIRS:
             assert _lines_rhyme(lines[line_a - 1], lines[line_b - 1], pack), (
@@ -1376,9 +1412,10 @@ def test_the_rhyme_pairing_holds_for_every_combination_of_alternatives() -> None
     end of a pair shares a pronounced rhyme, per the pronouncing dictionary,
     with every one of the three at the other end — the actual guarantee the
     brief asks a viewer to be able to trust regardless of which two strips a
-    flip happens to land on together."""
+    flip happens to land on together. English only — see the German tests
+    below for why the same exhaustive check cannot run against that pack."""
     pack = stage.pack("en")
-    offered = stage.queneau_offered()
+    offered = stage.queneau_offered("en")
     for line_a, line_b in _RHYME_PAIRS:
         for option_a in offered[line_a - 1]:
             for option_b in offered[line_b - 1]:
@@ -1396,13 +1433,84 @@ def test_no_deal_can_rhyme_a_word_with_itself() -> None:
 
     Compared on the final word `rhyme_keys` itself reports, not on the raw
     line, so punctuation and capitalisation cannot make two identical words
-    look distinct."""
+    look distinct. English only, for the same reason as the two tests above."""
     pack = stage.pack("en")
-    offered = stage.queneau_offered()
+    offered = stage.queneau_offered("en")
     for line_a, line_b in _RHYME_PAIRS:
         words_a = {_line_rhyme(option, pack)[0] for option in offered[line_a - 1]}
         words_b = {_line_rhyme(option, pack)[0] for option in offered[line_b - 1]}
         assert not (words_a & words_b), (line_a, line_b, sorted(words_a & words_b))
+
+
+def test_the_german_pack_ships_no_phonemes_so_rhyme_keys_cannot_run() -> None:
+    """The honest limit the brief itself names: "the German pack ships no
+    phonemes". Not taken on faith here — checked. `rhyme_keys` is the exact
+    call the three English tests above use; run against the German pack it
+    raises `MissingCapability` rather than returning a weaker answer, because
+    `word_rhyme_keys` re-raises when the *pack itself* lacks the capability
+    (as opposed to a single word the dictionary happens not to carry, which
+    it catches and reports as unknown instead).
+
+    Pinned here, rather than left as a comment only, so that if a German
+    phonemes pack is ever added, this assertion is the one that fails —
+    telling whoever changes it that the weaker, orthographic tests below
+    have stopped being the ceiling of what can be verified and should be
+    replaced with a real `rhyme_keys` test, the same one English already
+    gets, rather than left in place proving less than the pack now allows.
+    """
+    from denckring.core import prosody
+    from denckring.core.errors import MissingCapability
+
+    pack = stage.pack("de")
+    with pytest.raises(MissingCapability):
+        prosody.rhyme_keys("ein Wort geht", pack)
+
+
+def _german_rhyme_suffix(line: str, length: int = 3) -> str:
+    """The orthographic proxy the brief allows in place of `rhyme_keys` for
+    German ("I verified those by suffix and by ear"): the final word's last
+    `length` letters, after the two normalisations German spelling needs
+    that a bare suffix comparison does not supply on its own —
+
+    - final-obstruent devoicing: a word-final "d", "b" or "g" is pronounced
+      "t", "p" or "k" in German, so "Zeit" and "Leid" both end the same
+      rhyme (-eit) despite the different final letter — folded here by
+      mapping the final letter to its voiceless counterpart;
+    - a doubled consonant immediately before the ending, which in German
+      spelling marks a short preceding vowel rather than a doubled sound —
+      "Ort" and "verdorrt" both end -ort once the doubled "rr" collapses to
+      one "r".
+
+    This is spelling, not pronunciation, and is weaker than `rhyme_keys` on
+    purpose: it cannot see a rhyme spelled two different ways the way the
+    pronouncing dictionary would, or catch a false match spelled the same
+    but pronounced differently. It is the strongest check possible without
+    phonemes, not a claim to have replaced them — see the test above.
+    """
+    word = re.findall(r"[^\W\d_]+", line, re.UNICODE)[-1].lower()
+    collapsed = re.sub(r"(.)\1", r"\1", word)
+    fold = {"d": "t", "b": "p", "g": "k"}
+    devoiced = collapsed[:-1] + fold.get(collapsed[-1], collapsed[-1])
+    return devoiced[-length:]
+
+
+def test_the_german_rhyme_pairing_holds_by_the_only_check_available() -> None:
+    """Not a phonetic rhyme test — `rhyme_keys` cannot run on this pack at
+    all (see the test above). This checks the weaker, orthographic property
+    the strips were actually verified by, across every one of the three
+    alternatives at each end of every pair the scheme names — the same
+    exhaustiveness `test_the_rhyme_pairing_holds_for_every_combination_...`
+    gives English, over a weaker property than that test checks."""
+    offered = stage.queneau_offered("de")
+    for line_a, line_b in _RHYME_PAIRS:
+        for option_a in offered[line_a - 1]:
+            for option_b in offered[line_b - 1]:
+                assert _german_rhyme_suffix(option_a) == _german_rhyme_suffix(option_b), (
+                    line_a,
+                    line_b,
+                    option_a,
+                    option_b,
+                )
 
 
 def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
@@ -1410,6 +1518,18 @@ def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
     assert "The paper discs are turning in the light." in normalised
+    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "4,782,969" in normalised
+
+
+def test_the_german_set_first_paints_its_own_poem_and_verdict() -> None:
+    """The same first paint, for the set the picker's other option names —
+    the count and the verdict following the German strips, not carried over
+    from the English default."""
+    response = client.get("/stage/cent_mille_milliards", params={"lang": "de"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "Fünf Scheiben aus Papier, und etwas Zeit." in normalised
     assert "checked — every line is one of the three these strips offer" in normalised
     assert "4,782,969" in normalised
 
@@ -1423,14 +1543,67 @@ def test_the_scene_credits_the_strips_to_this_project_not_queneau() -> None:
     assert "The machine is Queneau's, the strips are not" in normalised
 
 
+def test_the_set_picker_offers_both_sets_with_the_current_one_selected() -> None:
+    response = client.get("/stage/cent_mille_milliards", params={"lang": "de"})
+    selected = re.search(r'value="(en|de)"\s*selected', response.text)
+    assert selected is not None
+    assert selected.group(1) == "de"
+    assert 'value="en"' in response.text
+    assert 'value="de"' in response.text
+
+
+def test_the_set_route_switches_to_the_german_strips() -> None:
+    """The picker's own `change` request: a fresh first paint of whichever
+    set it now names, not a patch onto the poem already on screen — the
+    count and the verdict both following, not just the lines."""
+    response = client.get("/stage/cent_mille_milliards/set", params={"lang": "de"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "Fünf Scheiben aus Papier, und etwas Zeit." in normalised
+    assert "The paper discs are turning in the light." not in normalised
+    assert "4,782,969" in normalised
+    assert "checked — every line is one of the three these strips offer" in normalised
+
+
+def test_the_set_route_falls_back_to_english_for_an_unknown_lang() -> None:
+    response = client.get("/stage/cent_mille_milliards/set", params={"lang": "fr"})
+    assert response.status_code == 200
+    assert "The paper discs are turning in the light." in response.text
+
+
+def test_the_poem_state_carries_which_set_it_belongs_to() -> None:
+    """`#poem-lang` names the set `#poem-state`'s own indices are indices
+    into — read back by every flip form's `hx-include`, so a flip can never
+    be run against the wrong sheet."""
+    response = client.get("/stage/cent_mille_milliards", params={"lang": "de"})
+    assert 'id="poem-lang" name="lang" value="de"' in response.text
+
+
+def test_flip_forms_include_both_the_state_and_the_set_fields() -> None:
+    response = client.get("/stage/cent_mille_milliards")
+    assert 'hx-include="#poem-state, #poem-lang"' in response.text
+
+
 def test_the_deal_route_redraws_the_whole_poem_and_it_still_checks() -> None:
     response = client.post("/stage/cent_mille_milliards/deal")
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
     assert "checked — every line is one of the three these strips offer" in normalised
-    offered = stage.queneau_offered()
-    import re
+    offered = stage.queneau_offered("en")
+    state_match = re.search(r'name="state" value="([\d,]+)"', response.text)
+    assert state_match is not None
+    state = [int(part) for part in state_match.group(1).split(",")]
+    assert len(state) == 14
+    for line, options in zip([offered[i][state[i]] for i in range(14)], offered, strict=True):
+        assert line in options
 
+
+def test_the_deal_route_redraws_the_german_poem_and_it_still_checks() -> None:
+    response = client.post("/stage/cent_mille_milliards/deal", data={"lang": "de"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "checked — every line is one of the three these strips offer" in normalised
+    offered = stage.queneau_offered("de")
     state_match = re.search(r'name="state" value="([\d,]+)"', response.text)
     assert state_match is not None
     state = [int(part) for part in state_match.group(1).split(",")]
@@ -1440,16 +1613,33 @@ def test_the_deal_route_redraws_the_whole_poem_and_it_still_checks() -> None:
 
 
 def test_the_flip_route_changes_only_the_posted_position() -> None:
-    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state())
+    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state("en"))
     response = client.post(
-        "/stage/cent_mille_milliards/flip", data={"state": initial_state, "position": "2"}
+        "/stage/cent_mille_milliards/flip",
+        data={"state": initial_state, "position": "2", "lang": "en"},
     )
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
     assert 'id="strip-2"' in normalised
     assert 'id="strip-1"' not in normalised  # only the touched strip comes back
-    offered = stage.queneau_offered()
+    offered = stage.queneau_offered("en")
     assert offered[2][0] not in normalised  # the line that was showing is gone
+    assert any(alt in normalised for alt in offered[2][1:])
+    assert "checked — every line is one of the three these strips offer" in normalised
+
+
+def test_the_flip_route_changes_only_the_posted_position_in_german() -> None:
+    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state("de"))
+    response = client.post(
+        "/stage/cent_mille_milliards/flip",
+        data={"state": initial_state, "position": "2", "lang": "de"},
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert 'id="strip-2"' in normalised
+    assert 'id="strip-1"' not in normalised
+    offered = stage.queneau_offered("de")
+    assert offered[2][0] not in normalised
     assert any(alt in normalised for alt in offered[2][1:])
     assert "checked — every line is one of the three these strips offer" in normalised
 
@@ -1465,7 +1655,7 @@ def test_the_flip_route_falls_back_to_first_paint_on_a_malformed_state() -> None
 
 
 def test_the_flip_route_clamps_a_position_outside_the_strips() -> None:
-    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state())
+    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state("en"))
     response = client.post(
         "/stage/cent_mille_milliards/flip",
         data={"state": initial_state, "position": "99"},

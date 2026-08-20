@@ -1,10 +1,13 @@
-{# Everything inside `#poem`: the shared state field every flip form reads by
-   `hx-include`, the fourteen strips themselves, and the verdict. Rendered
-   both by the scene's own first paint and — verbatim — by the deal route's
-   response, which swaps `#poem`'s whole innerHTML; `/flip`'s own response
-   swaps a single strip out of this same markup instead — see
-   `_stage_strip.html` and `_stage_flip.html`. #}
+{# Everything inside `#poem`: the shared state and set fields every flip form
+   reads by `hx-include`, the fourteen strips themselves, and the verdict.
+   Rendered both by the scene's own first paint and — verbatim — by the deal
+   route's response, which swaps `#poem`'s whole innerHTML; `/flip`'s own
+   response swaps a single strip out of this same markup instead — see
+   `_stage_strip.html` and `_stage_flip.html`. `#poem-lang` names which set
+   `state`'s own indices are indices into, so a flip can never read the
+   posted state against the wrong sheet. #}
 <input type="hidden" id="poem-state" name="state" value="{{ state }}">
+<input type="hidden" id="poem-lang" name="lang" value="{{ lang }}">
 <div class="strips">
   {% for strip in poem.strips %}
   {% include "_stage_strip.html" %}
