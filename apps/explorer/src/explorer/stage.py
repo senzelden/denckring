@@ -10,9 +10,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from denckring.core import arca, device
-from denckring.core.protocol import LanguagePack
+from denckring.core.protocol import Lang, LanguagePack
 from denckring.lang import get_pack
 from explorer import corpora
+
+#: N+7's own default, mirroring `default_lang`'s shape — but with no corpus to
+#: read a suggestion from, the toggle simply starts on English every time
+#: (the brief's own instruction), so this is a bare constant rather than a
+#: style-keyed lookup.
+N_PLUS_7_DEFAULT_LANG: Lang = "en"
 
 
 @dataclass(frozen=True)
@@ -453,18 +459,23 @@ class Step:
     neighbours: list[str]
 
 
-def pack() -> LanguagePack:
-    """The English pack, with the noun list the scene walks."""
-    return get_pack("en")
+def pack(lang: Lang = "en") -> LanguagePack:
+    """The pack whose noun list the N+7 scene walks — English by default, so
+    every other caller (`displacement`'s own default, the golden fixtures the
+    scene's tests pin) keeps behaving exactly as it did before the toggle."""
+    return get_pack(lang)
 
 
-def displacement(source: str, offset: int = 7) -> list[Step]:
-    """Each noun of `source`, with the entries it passes on the way to its replacement."""
-    english = pack()
-    nouns = english.nouns()
+def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
+    """Each noun of `source`, with the entries it passes on the way to its
+    replacement — walked through whichever language's noun list `lang` names,
+    since that is what actually decides both the replacement and the reel of
+    neighbours a viewer watches it pass."""
+    chosen = pack(lang)
+    nouns = chosen.nouns()
     steps: list[Step] = []
-    for token in english.tokenize(source):
-        index = english.noun_index(token.lower())
+    for token in chosen.tokenize(source):
+        index = chosen.noun_index(token.lower())
         if index is None:
             continue
         landing = index + offset

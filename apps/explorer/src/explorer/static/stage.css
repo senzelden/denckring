@@ -1238,6 +1238,12 @@ button.column-choice:hover {
   color: var(--ink);
 }
 
+/* Nowrap held from before the language toggle joined this row; now that the
+   row carries two labels, two fields and a button rather than one field and
+   a button, the toggle's own select needs an explicit width — the bare
+   `width: 100%` explorer.css gives every select would otherwise claim the
+   whole row and crush the source field beside it (measured: 26px wide,
+   unusable). Sized to the wider of the two option words, "English". */
 .n7-stage .control-panel .actions {
   flex-wrap: nowrap;
   align-items: center;
@@ -1245,6 +1251,12 @@ button.column-choice:hover {
 
 .n7-stage .control-panel .actions input[type="text"] {
   flex: 1;
+  min-width: 7rem;
+}
+
+.n7-stage .control-panel .actions select {
+  width: auto;
+  min-width: 6.5rem;
 }
 
 .displaced-area {
