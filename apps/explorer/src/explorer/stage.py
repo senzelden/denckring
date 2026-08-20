@@ -148,18 +148,25 @@ def german_pack() -> LanguagePack:
 #: Python's own `casefold` already turns "ß" into "ss", so "Scheiße" and
 #: "scheisse" match the same stem without this list carrying both spellings.
 #:
-#: This is the actual safety mechanism for every word this scene can put on
-#: screen, not `RHYME_ENDINGS`'s curation: a hand-read pass over the -acken
-#: sweep missed "Kacken", and `find_word` went through no curation at all —
-#: a raw 184,040-word lexicon answers "is this a word", not "is this fit to
-#: show on a recording". See `fit_for_stage` below, which every path onto
-#: this stage now calls.
+#: This is the actual safety mechanism for the words the *Denckring* scene
+#: puts on screen by machine, not `RHYME_ENDINGS`'s curation: a hand-read pass
+#: over the -acken sweep missed "Kacken", and `find_word` went through no
+#: curation at all — a raw 184,040-word lexicon answers "is this a word", not
+#: "is this fit to show on a recording". See `fit_for_stage` below, and the
+#: note above it for the two scenes it deliberately does not cover.
 #:
 #: Covers, deliberately: sexual vulgarities (fick, fotz/votz, muschi, wichs,
 #: bums, hure, nutte, titt, möse, pimmel); scatological ones (scheiss/schiss
 #: — both stems needed, since "beschissen" carries the strong verb's past
-#: stem "schiss" rather than "scheiss"; kack; piss; kotz); and slurs (neger,
-#: zigeuner, kanak, spast).
+#: stem "schiss" rather than "scheiss"; kack; piss; kotz; strull); and slurs
+#: (neger, zigeuner, kanak, spast, untermensch).
+#:
+#: "untermensch" and "strull" are the round-two additions, and both cost
+#: nothing at all: the whole shipped lexicon holds two forms containing
+#: "untermensch" (the slur and its plural, both producible) and thirteen
+#: containing "strull" (every one of them the vulgar verb, three producible).
+#: They are stems rather than `_BLOCKED_EXACT` entries because they take no
+#: ordinary word down with them — which is the only reason that list exists.
 #:
 #: Deliberately excludes some stems that looked relevant and were checked
 #: against the shipped lexicon and rejected as too broad for this device:
@@ -171,7 +178,13 @@ def german_pack() -> LanguagePack:
 #: a medial letter; "muff" catches "Muffin"; "sack" catches the ordinary
 #: word "Sack" (bag) and its "sacken" (sink/drop) family; "hoden" and
 #: "sperma" are the clinical terms, not the crude register the brief asked
-#: this list to cover. "hure" is kept despite also catching "nachschüren"/
+#: this list to cover; "dirne" is the archaic literary word for a prostitute
+#: rather than a current insult (the crude register is already covered by
+#: "hure" and "nutte"), and on a 1651 device it reads as period vocabulary;
+#: "rotz" catches "Trotz", "Protz", "strotzen" and 24 other producible
+#: ordinary words, and blocking only "anrotzen" as an exact form would leave
+#: "Rotz", "rotzen", "rotzig" and "hinrotzen" reachable, which is a gesture
+#: rather than a safety property. "hure" is kept despite also catching "nachschüren"/
 #: "vollschüren" (to stoke a fire further) — a false positive judged worth
 #: the true ones alongside it, on the reasoning that a lost word is a minor
 #: cost and a missed vulgarity is not. Audited in full in the task report.
@@ -202,11 +215,13 @@ _BLOCKED_STEMS = frozenset(
         "kack",
         "piss",
         "kotz",
+        "strull",
         # slurs
         "neger",
         "zigeuner",
         "kanak",
         "spast",
+        "untermensch",
     }
 )
 
@@ -221,24 +236,67 @@ _BLOCKED_STEMS = frozenset(
 #: rejected). Matched as a whole word instead, "Schlampen" is still blocked
 #: — "Schlampe", the singular, is not producible by this device at all, so
 #: the plural/verb form is the one that matters — while both "schlampig"
-#: (sloppy) and "verschlampen" survive. The next entry that needs this same
-#: precision — a slur reachable only in one exact inflected form, inside a
-#: longer ordinary word as a stem — belongs here, not in `_BLOCKED_STEMS`.
+#: (sloppy) and "verschlampen" survive. An entry that needs this same
+#: precision — a word reachable only in particular forms, and inside ordinary
+#: words as a stem — belongs here, not in `_BLOCKED_STEMS`.
+#:
+#: "poppen" is the second such case, and the round-two addition. It sits in
+#: exactly the crude register the blocked "bums" does, but a "popp" stem would
+#: also take "poppig" (garish), "aufpoppen" (to jazz something up) and
+#: "verpoppen" with it — all ordinary and all producible. The three entries
+#: below are every form of the vulgar verb these rings can actually spell
+#: (audited against the shipped lexicon); the ordinary neighbours are
+#: untouched, since none of them *equals* an entry. "Popper" was checked and
+#: rejected: in German it names a 1980s youth subculture, and is a common
+#: surname besides — not a vulgarity at all.
 _BLOCKED_EXACT = frozenset(
     {
         "schlampen",
+        "popp",
+        "poppen",
+        "poppet",
     }
 )
 
 
+#: Scope, stated once so no comment has to guess at it again. `fit_for_stage`
+#: covers the three paths on which *this machine* chooses a German word to
+#: show — `find_word`, `rhyme_sweep`, and "turn them for me" in `app.py`. It
+#: does not cover the whole stage, and two scenes are outside it on purpose:
+#:
+#: - **N+7** puts machine-selected German nouns on screen — the replacement
+#:   and the eight-entry reel of neighbours it travels past — unfiltered. Of
+#:   the 184,040 nouns in the shipped list, 149 clean ones have a blocked word
+#:   as their `+7` replacement and 560 pass one somewhere in the reel
+#:   (measured; "Kachel" -> "Kackbeutel", "Scheitern" -> "Scheiße").
+#: - **The word ladder** searches its intermediate rungs through that same
+#:   raw lexicon, and a rung can land on a blocked word (rare: one ladder in
+#:   a sample of 120 between ordinary words, per the branch review).
+#:
+#: Filtering either would be worse than the exposure. The noun at index+7 is
+#: what N+7 *is* — skip it and the scene is performing something else while
+#: claiming to perform N+7 — and a ladder with a rung dropped out of it is no
+#: longer a ladder `check` would accept, so the scene would be handing its own
+#: checker something it made up. A scene that lied about its procedure to keep
+#: a word off screen would break the one promise this stage exists to keep, so
+#: the exposure is accepted and written down instead.
+#:
+#: What makes that safe to record: both scenes ship scripted, deterministic
+#: defaults that are clean — `die Katze saß auf dem Tisch` (see
+#: `app.py`'s `N_PLUS_7_SOURCES`) and `kalt -> warm` (`WORD_LADDER_EXAMPLES`)
+#: — so a recording of either scene as it loads shows the same clean output
+#: every time. Only a recorder who types something else into the box can
+#: reach the rest of the lexicon, and that is their own choice, made on
+#: camera, not something the page did behind them.
 def fit_for_stage(word: str) -> bool:
     """Whether `word` is fit to appear on a recorded stage.
 
-    The one predicate every path that can put a word on screen — `find_word`,
-    `rhyme_sweep`, and "turn them for me" in `app.py` — calls before it does,
-    so a word this scene shows is filtered exactly once, in exactly one
-    place, rather than trusted to whichever curation a given path happened
-    to build for itself.
+    The one predicate every *Denckring* path that can put a machine-chosen
+    word on screen — `find_word`, `rhyme_sweep`, and "turn them for me" in
+    `app.py` — calls before it does, so a word that scene shows is filtered
+    exactly once, in exactly one place, rather than trusted to whichever
+    curation a given path happened to build for itself. Its reach stops
+    there; see the note above for the two scenes outside it and why.
     """
     folded = word.casefold()
     if folded in _BLOCKED_EXACT:
@@ -469,7 +527,13 @@ def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
     """Each noun of `source`, with the entries it passes on the way to its
     replacement — walked through whichever language's noun list `lang` names,
     since that is what actually decides both the replacement and the reel of
-    neighbours a viewer watches it pass."""
+    neighbours a viewer watches it pass.
+
+    Deliberately unfiltered: `fit_for_stage` is not applied here and must not
+    be. See the note above it for the measured exposure, why filtering would
+    make this scene lie about the procedure it demonstrates, and why the
+    scripted default is safe to record anyway.
+    """
     chosen = pack(lang)
     nouns = chosen.nouns()
     steps: list[Step] = []
@@ -637,6 +701,11 @@ def queneau_state_to_text(state: list[int]) -> str:
 # Carroll's Doublets: change one letter, land on a word, repeat until the
 # target is reached. `apply` does the searching; `check` does the confirming
 # — both real, both shown, per the brief's own "What it does".
+#
+# The intermediate rungs come out of the raw lexicon, unfiltered, and that is
+# deliberate: `fit_for_stage` is not applied here and must not be — a ladder
+# with a rung taken out of it is not a ladder `check` would accept. See the
+# note above `fit_for_stage` for the measured exposure and the whole argument.
 
 #: One pair per language the toggle offers, both landing on "warm" — the
 #: brief's own instruction that the pair is worth showing off together, the

@@ -383,6 +383,33 @@ def test_fit_for_stage_blocks_schlampen_precisely() -> None:
     assert stage.fit_for_stage("verschlampen") is True
 
 
+def test_fit_for_stage_blocks_untermensch_and_strullen_without_collateral() -> None:
+    """Round two's two new stems. Both are producible by these rings, both
+    are the register this list exists to catch, and both were audited against
+    the whole shipped lexicon before being added as stems rather than exact
+    forms: nothing but the slur itself contains "untermensch", and nothing but
+    the vulgar verb contains "strull", so neither takes an ordinary word down
+    with it."""
+    for word in ("Untermensch", "Untermenschen", "strullen", "gestrullt"):
+        assert stage.fit_for_stage(word) is False, word
+    assert stage.pieces_for("Untermensch") is not None
+    assert stage.pieces_for("strullen") is not None
+
+
+def test_fit_for_stage_blocks_poppen_precisely() -> None:
+    """An exact-form entry, for the same reason "schlampen" is one: "poppen"
+    is the crude register the blocked "bums" belongs to, but a "popp" stem
+    would take "poppig" (garish), "aufpoppen" and "verpoppen" with it — all
+    ordinary, all producible. Every form of the vulgar verb these rings can
+    spell is blocked; the ordinary neighbours survive, and so does "Popper",
+    which names a youth subculture rather than anything vulgar."""
+    for word in ("Popp", "poppen", "Poppet"):
+        assert stage.fit_for_stage(word) is False, word
+        assert stage.pieces_for(word) is not None, word
+    for word in ("poppig", "aufpoppen", "verpoppen", "Popper"):
+        assert stage.fit_for_stage(word) is True, word
+
+
 def test_turn_them_for_me_never_shows_a_draw_that_was_never_checked(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
