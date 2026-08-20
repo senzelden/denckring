@@ -2283,7 +2283,10 @@ procedures:
   # ---------------------------------------------------------------------------
 
   - id: cent_mille_milliards
-    names: { en: Hundred thousand billion poems, fr: Cent mille milliards de poèmes }
+    names:
+      en: Hundred thousand billion poems
+      de: Hunderttausend Milliarden Gedichte
+      fr: Cent mille milliards de poèmes
     definitions:
       en: >-
         Ten sonnets sharing one rhyme scheme and syntax, printed on cut strips so
@@ -2291,6 +2294,12 @@ procedures:
         checker asks whether a given poem is one of them: each line must be an
         alternative offered for that position. Whether every one of the 10^14 reads
         well is not a question code answers.
+      de: >-
+        Zehn Sonette mit gleichem Reimschema und Satzbau, in Streifen geschnitten,
+        sodass jede Zeile auf jede andere folgen kann — zehn hoch vierzehn Gedichte.
+        Der Prüfer fragt nur, ob ein gegebenes Gedicht eines davon ist: jede Zeile
+        muss eine für diese Position angebotene Alternative sein. Ob alle 10^14
+        gut klingen, ist keine Frage, die Code beantwortet.
       fr: Dix sonnets interchangeables vers par vers, soit dix puissance quatorze poèmes.
     source: Raymond Queneau, Cent mille milliards de poèmes (1961)
     family: permutation
@@ -2298,7 +2307,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens]
     deterministic: true
     prompt_hints:
