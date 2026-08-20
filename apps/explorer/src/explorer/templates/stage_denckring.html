@@ -88,6 +88,26 @@ const SETTLE_MS = [260, 190, 130, 80]; // the last four true steps, slowing to a
 const svg = document.getElementById('rings');
 const rings = [];
 
+// Whether anything on the stage is mid-turn. A per-ring `spinning` flag
+// looked sufficient but wasn't: a manual click landing on a ring that is
+// mid-spin, or a second "Turn them for me" landing before the first spin has
+// reached every ring, would each find that one ring's flag already true and
+// just silently drop the request — leaving that ring stranded on whatever it
+// was already turning to while the panel had already moved on to a new word.
+// So the whole assembly goes inert together: while anything is moving, no
+// new turn can start at all, refused rather than queued (it reads better on
+// camera than a request that visibly waits its turn), and the discs show it
+// — not-allowed cursor, buttons disabled — rather than quietly eating clicks.
+let inert = false;
+
+function setInert(value) {
+  inert = value;
+  svg.classList.toggle('spinning', inert);
+  document.querySelectorAll('.actions button').forEach((button) => {
+    button.disabled = inert;
+  });
+}
+
 function label(ring, index) {
   return index < ring.parts.length ? ring.parts[index] : '';
 }
@@ -141,13 +161,13 @@ function microStep(ringIndex, duration, advance) {
 // A click on a disc: one deliberate turn, the others holding — the manual
 // control the brief asks for, live on the disc itself rather than a button
 // beside it. Its own fixed, unhurried duration — a single step never needs
-// the blur/settle split a many-step spin does.
+// the blur/settle split a many-step spin does. Refused outright while
+// anything else is moving, rather than silently ignored — see `inert` above.
 function turnOne(ringIndex) {
-  const r = rings[ringIndex];
-  if (r.spinning) return;
-  r.spinning = true;
+  if (inert) return;
+  setInert(true);
   microStep(ringIndex, 220, 1).then(() => {
-    r.spinning = false;
+    setInert(false);
     assemble();
   });
 }
@@ -164,10 +184,11 @@ function turnOne(ringIndex) {
 // because a micro-step's `advance` always means true parts, not spokes;
 // padding by a multiple of the smaller visual window instead (as an earlier
 // version of this did) lands the ring one window-length short or long of
-// the part it was actually asked to show.
+// the part it was actually asked to show. Whether it's safe to start at all
+// is the caller's job now (see `inert`) — no guard here, so this can't be
+// the thing that silently drops a late request.
 async function spinRingTo(ringIndex, piece) {
   const r = rings[ringIndex];
-  if (r.spinning) return;
   const target = piece === '' ? r.parts.length : r.parts.indexOf(piece);
   if (target < 0) return; // defensive: pieces_for always names a real piece or ""
   const forward = (target - r.index + r.total) % r.total;
@@ -176,7 +197,6 @@ async function spinRingTo(ringIndex, piece) {
   let blur = total - settle;
   const stride = Math.max(1, Math.ceil(blur / MAX_BLUR_STEPS));
 
-  r.spinning = true;
   while (blur > 0) {
     const advance = Math.min(stride, blur);
     await microStep(ringIndex, BLUR_MS, advance);
@@ -185,8 +205,6 @@ async function spinRingTo(ringIndex, piece) {
   for (let i = 0; i < settle; i++) {
     await microStep(ringIndex, SETTLE_MS[i], 1);
   }
-  r.spinning = false;
-  assemble();
 }
 
 function buildRing(ringIndex) {
@@ -267,8 +285,23 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.pieces;
   if (!raw) return;
-  raw.split('|').forEach((piece, ringIndex) => {
-    setTimeout(() => spinRingTo(ringIndex, piece), ringIndex * 260);
+  const pieces = raw.split('|');
+  // The whole assembly goes inert for the entire batch, not per ring — set
+  // synchronously here, before any of the five staggered spins has even
+  // started, so a second "Turn them for me" click in the gap before ring 0
+  // begins moving finds the button already disabled rather than slipping a
+  // request in underneath this one.
+  setInert(true);
+  Promise.all(
+    pieces.map(
+      (piece, ringIndex) =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve(spinRingTo(ringIndex, piece)), ringIndex * 260);
+        })
+    )
+  ).then(() => {
+    setInert(false);
+    assemble();
   });
 });
 </script>
