@@ -150,6 +150,18 @@
   outline: none;
 }
 
+/* While anything on the stage is mid-turn the whole assembly is inert — a
+   click here would otherwise be silently dropped (see `inert` in the
+   scene's own <script>) rather than reaching the ring it landed on, so the
+   cursor says so instead of just doing nothing. */
+.rings-svg.spinning .ring-disc {
+  cursor: not-allowed;
+}
+
+.rings-svg.spinning .ring-disc:hover {
+  filter: none;
+}
+
 .ring-dial {
   pointer-events: none;
 }
@@ -225,6 +237,19 @@
   flex-direction: column;
   gap: 1.1rem;
   padding-top: 0.4rem;
+}
+
+/* Both buttons go inert alongside the discs — see `inert` in the scene's own
+   <script> — including "Read it", which would otherwise let someone check a
+   word while the panel and the still-turning discs disagree. */
+.actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.actions button:disabled:hover {
+  background: var(--ink);
+  border-color: var(--ink);
 }
 
 .word-panel {
@@ -330,7 +355,14 @@
   font-style: italic;
 }
 
+/* The brief asks for this note in the same small type as the gloss, not the
+   citation line's — it sits inside <figcaption> for document structure, but
+   its type is `.quote-gloss`'s, restated rather than inherited. */
 .harsdoerffer-quote .quote-note {
   display: block;
-  margin-top: 0.1rem;
+  margin-top: 0.2rem;
+  font-family: var(--display);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--lead);
 }
