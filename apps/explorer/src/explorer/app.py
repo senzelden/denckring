@@ -128,12 +128,16 @@ def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
 
 @app.post("/stage/ideenwuerfeln/act", response_class=HTMLResponse)
 async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
-    """Throw the dice: draw slips from the chosen corpus under one headword.
+    """Throw the dice: draw slips from the chosen corpus under one headword,
+    forced across distinct fields wherever the headword's pool allows it.
 
-    The register comes from the corpus that was actually loaded, not from a
-    field the form could have carried unchanged — the picker offers only
-    corpora `stage.corpus_choices()` knows about, so this is the same lookup
-    rather than a second, trustable-or-not copy of the same fact.
+    Same-field slips are the smaller half of the procedure — the collision is
+    the point, and `distinct_domains` is what makes it real rather than
+    merely claimed. The register comes from the corpus that was actually
+    loaded, not from a field the form could have carried unchanged — the
+    picker offers only corpora `stage.corpus_choices()` knows about, so this
+    is the same lookup rather than a second, trustable-or-not copy of the
+    same fact.
     """
     form = dict(await request.form())
     path = str(form.get("corpus_path", ""))
@@ -142,18 +146,31 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     text, problem = corpora.load(path) if path else ("", "no corpus chosen")
     if problem:
         return page(request, "_stage_throw.html", throw="", problem=problem, headword=headword)
-    produced, trouble = bench.generate(
-        "ideenwuerfeln", text, "en", {"headword": headword} if headword else {}
-    )
+
+    spans_enough_fields = stage.domains_available(text, headword, stage.THROW_SLOTS)
+    params: dict[str, Any] = {"distinct_domains": True}
+    if headword:
+        params["headword"] = headword
+    produced, trouble = bench.generate("ideenwuerfeln", text, "en", params)
+    if trouble and headword:
+        # `apply` raises when even its whole-corpus fallback pool cannot fill
+        # `slots` entries for this headword at all — a shortage unrelated to
+        # distinct fields, so retry as the plain draw it would have been
+        # without the request, rather than surface that as an error asking
+        # for a collision caused.
+        produced, trouble = bench.generate("ideenwuerfeln", text, "en", {"headword": headword})
+
     return page(
         request,
         "_stage_throw.html",
+        slips=stage.slips_of(text, produced) if produced else [],
         throw=produced,
         problem=trouble,
         headword=headword,
         style=chosen.style if chosen else witz.DEFAULT_REGISTER,
         register=chosen.register if chosen else "modern",
         can_read=witz.available(),
+        fields_short=bool(produced) and not spans_enough_fields,
     )
 
 

@@ -420,26 +420,46 @@
   margin: 0 0 0.6rem;
 }
 
+/* A headword whose pool doesn't span enough fields for a cross-field throw —
+   `apply` itself falls back to a plain draw rather than fail, and this says
+   so plainly instead of letting a same-field throw pass as the collision it
+   was asked to be. Not `.notice`: that class reads as an error (rubric red,
+   the checker's own failure colour), and this is neither a failure nor the
+   checker's business. */
+.field-note {
+  font-family: var(--body);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--lead);
+  margin: 0 0 0.6rem;
+}
+
 /* However long a throw's excerpts run, the stage itself never grows past
    720px tall — `.stage` clips silently rather than scrolling (see the
    brief), so the slip rail carries its own scrollbar instead of risking
-   that clip. */
+   that clip. Roomier than once a reading joins it below (see the `:has()`
+   rule further down) — the two are competing for the same fixed height, and
+   before a reading exists the slips may as well have all of it. */
 .slips {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 10rem;
+  max-height: 13rem;
   overflow-y: auto;
   padding-right: 0.4rem;
   margin: 0 0 0.8rem;
+  transition: max-height 160ms ease;
 }
 
 .slip {
   margin: 0;
-  padding: 0.65rem 0.9rem;
+  padding: 0.6rem 0.9rem;
   background: var(--paper-shade);
   border-left: 3px solid var(--lead);
-  line-height: 1.5;
+  line-height: 1.45;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
   opacity: 0;
   transform: translateY(6px);
   /* One slip lands after another — the same idiom scene one's spin uses for
@@ -448,6 +468,24 @@
      a server-chosen target, so a plain delayed keyframe is the whole of it. */
   animation: slip-land 260ms ease forwards;
   animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.slip-text {
+  flex: 1;
+}
+
+/* The field a slip was filed under — small, fixed, and never wrapping, so a
+   long domain name never fights the excerpt for room. This is the whole
+   point made visible: without it, a cross-field throw and a same-field one
+   look identical on the page. */
+.slip-domain {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--lead);
+  white-space: nowrap;
 }
 
 @keyframes slip-land {
@@ -493,7 +531,9 @@
    to mind; on the stage a paragraph long enough (the baroque register runs to
    160 words) would push the disclaimer below it — the one line that must
    never go missing — off the bottom of a box that clips rather than scrolls.
-   So the reading gets its own scrollbar here rather than trusting its length. */
+   So the reading gets its own scrollbar here rather than trusting its length,
+   as a backstop for a genuinely long outlier — the `:has()` rule below is
+   what keeps the common case from needing it. */
 .stage #witz h3 {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
@@ -504,12 +544,36 @@
 }
 
 .stage .witz-reading {
-  max-height: 7rem;
+  max-height: 12.5rem;
   overflow-y: auto;
+  transition: max-height 160ms ease;
 }
 
 .stage #witz .hint {
   margin-top: 0.3rem;
+}
+
+/* The slips and the reading are competing for the same fixed 720px, and once
+   a reading exists it is the thing worth the room — a viewer already saw the
+   slips arrive and read them; they only need to still be legible, not fully
+   at ease. `:has()` reacts the moment `_witz.html`'s fragment lands in
+   `#witz` (a plain descendant check, live across the htmx swap; no script
+   needed to notice it), so the rail condenses — tighter padding, smaller
+   type, as well as less room — and the reading gets what it gives up, tuned
+   so a typical throw in either register fits without scrolling either box;
+   see the fix report for the measured heights. */
+.throw:has(.witz-reading) .slips {
+  max-height: 9rem;
+  gap: 0.35rem;
+}
+
+.throw:has(.witz-reading) .slip {
+  padding: 0.4rem 0.7rem;
+  line-height: 1.3;
+}
+
+.throw:has(.witz-reading) .witz-reading {
+  max-height: 13rem;
 }
 
 /* The one thing this scene must not blur: a model's reading sits beside five
