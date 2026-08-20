@@ -10,6 +10,21 @@
   /* The board's --pass sits on paper; the word panel sits on the dark case, where
      that green all but disappears. A lighter step of the same hue, not a new one. */
   --pass-bright: #6fae6f;
+
+  /* The Denckring's five bands, innermost outward, lightening as they go so the
+     hub reads as the one rubricated ring. Named here because the scene's own
+     script paints the discs from these same five tokens (see its GEOMETRY);
+     declared twice, in two languages, they would drift and the legend would
+     end up naming a colour that no longer belongs to that ring. */
+  --ring-0: var(--rubric);
+  --ring-1: #c9beaa;
+  --ring-2: #dcd5c5;
+  --ring-3: #e8e3d9;
+  --ring-4: #f2efe7;
+
+  /* Paper at reading strength rather than full: the blank dash on the hub, the
+     one band dark enough that a full-strength dash would shout. */
+  --paper-faint: rgba(247, 245, 240, 0.7);
 }
 
 .stage-body {
@@ -109,9 +124,14 @@
    names which band is which — none of which can live on a disc's own face,
    because every angle on a rotating disc is somewhere text sweeps past. */
 
+/* Wider than the discs it holds. The legend below carries each band's own part
+   count now, and at the disc's own 360px those five items wrapped onto a third
+   row that put the Harsdörffer figure past the bottom of a stage which clips
+   without saying so; 400px is what fits them on two. Measured, not guessed —
+   see the fix report for the numbers. */
 .rings-wrap {
   flex: none;
-  width: 360px;
+  width: 400px;
   position: relative;
 }
 
@@ -132,6 +152,9 @@
   display: block;
   width: 360px;
   height: 360px;
+  /* Centred in the wider wrap, because the reading mark above sits at its
+     50% and the two must agree. */
+  margin: 0 auto;
 }
 
 /* The discs are built and turned in script — see the scene's own <script> —
@@ -189,7 +212,7 @@
 }
 
 .ring-part-hub.blank {
-  fill: rgba(247, 245, 240, 0.7);
+  fill: var(--paper-faint);
 }
 
 .ring-note {
@@ -197,14 +220,14 @@
   font-size: 0.66rem;
   line-height: 1.4;
   color: var(--lead);
-  margin: 0.6rem 0 0;
+  margin: 0.5rem 0 0;
 }
 
 .ring-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem 0.7rem;
-  margin: 0.5rem 0 0;
+  gap: 0.25rem 0.7rem;
+  margin: 0.4rem 0 0;
   font-family: var(--mono);
   font-size: 0.62rem;
   letter-spacing: 0.02em;
@@ -225,11 +248,11 @@
   border: 1px solid var(--case-lip);
 }
 
-.swatch-0 { background: var(--rubric); }
-.swatch-1 { background: #c9beaa; }
-.swatch-2 { background: #dcd5c5; }
-.swatch-3 { background: #e8e3d9; }
-.swatch-4 { background: #f2efe7; }
+.swatch-0 { background: var(--ring-0); }
+.swatch-1 { background: var(--ring-1); }
+.swatch-2 { background: var(--ring-2); }
+.swatch-3 { background: var(--ring-3); }
+.swatch-4 { background: var(--ring-4); }
 
 .control-panel {
   flex: 1;
@@ -316,13 +339,28 @@
   color: var(--lead);
 }
 
+/* The reason under the two numbers. Both need one: a figure struck through
+   with no argument beside it is an assertion, and the true count multiplies
+   50 and 24 where the legend shows 49 and 23, which without a word of
+   explanation reads as a 6.5% error rather than as the blank turn each of
+   those two rings carries. Set below the counts rather than inside the grid,
+   which is a scoreboard and stays one line per number. */
+.counts-note {
+  font-family: var(--body);
+  font-size: 0.73rem;
+  line-height: 1.5;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0.45rem 0 0;
+}
+
 /* The Harsdörffer quotation: what the device was for, in his own words, kept
    visibly subordinate — smaller and looser than anything above it — because
    it is the one thing on this page not drawn from the shipped data. */
 
 .harsdoerffer-quote {
-  margin: 0.5rem 0 0;
-  padding: 0.45rem 0 0;
+  margin: 0.35rem 0 0;
+  padding: 0.4rem 0 0;
   border-top: 1px solid var(--paper-shade);
 }
 

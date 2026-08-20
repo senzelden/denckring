@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import pytest
@@ -59,6 +60,49 @@ def test_the_scene_shows_the_true_count_beside_the_famous_one() -> None:
     rings = stage.rings()
     assert rings.claimed == 97_209_600
     assert rings.combinations != rings.claimed
+
+
+def test_the_legend_gives_each_band_its_own_count() -> None:
+    """The counts are read off `rings.slots`, never typed into the template: the
+    two figures beside them are products of these five, and a legend carrying a
+    number by hand is the one place on that page where a viewer could catch the
+    arithmetic disagreeing with itself."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    for slot in stage.rings().slots:
+        assert f"{slot.name} &middot; {len(slot.alternatives)}" in normalised
+
+
+def test_the_scene_shows_how_the_true_count_is_reached() -> None:
+    """The figure on screen is 103,680,000 and the legend beside it reads
+    49/60/12/120/23, which multiply to 97,372,800 — a viewer who checks the
+    arithmetic and is told nothing about the blank turn on the prefix and
+    suffix rings concludes the page is wrong by 6.5%. So the page shows the
+    product it actually used, built from those same slots."""
+    rings = stage.rings()
+    product = [len(slot.alternatives) + (1 if slot.optional else 0) for slot in rings.slots]
+    assert math.prod(product) == rings.combinations
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert " &times; ".join(str(count) for count in product) in normalised
+    assert "may each be left blank" in normalised
+
+
+def test_the_struck_figure_is_given_its_reason() -> None:
+    """Striking a number through without saying why is an assertion, not a
+    demonstration. The catalogue row owns the argument — the figure factors as
+    2^8 x 3 x 5^2 x 61 x 83, and no ring has 61 or 83 parts — and the scene must
+    carry it rather than expecting the viewer to take the strike on trust."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert f"{stage.CLAIMED_COMBINATIONS:,}" in normalised
+    assert "2<sup>8</sup> &times; 3 &times; 5<sup>2</sup> &times; 61 &times; 83" in normalised
+    assert "neither 61 nor 83 divides any ring size" in normalised
+
+
+def test_the_english_gloss_is_credited_to_this_project() -> None:
+    """The German is quoted; the English under it is nobody's but this
+    project's, in a figure otherwise scrupulous about where its text came
+    from."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert "the translation is this project's own" in normalised
 
 
 def test_a_word_turned_from_the_rings_satisfies_the_procedure() -> None:
