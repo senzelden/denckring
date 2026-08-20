@@ -14,20 +14,25 @@
   <div class="n7-column">
     <p class="n7-label">{{ step.word }}</p>
     <div class="n7-viewport">
-      <div class="n7-track">
-        {# Two blank spacer rows on each end — the viewport shows five rows,
-           so this is what lets the reel start centred on the read line
-           (the word itself) and end centred there too (the replacement),
-           rather than pinned to an edge. See the script's own comment. #}
-        {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+      {# `data-target`: the track's own final row index (`neighbours` is the
+         window inclusive of both ends), read by `playReels` in the script
+         below to know how far this column travels — never guessed from the
+         row count in script, since the spacer rows either side of it are
+         not part of that count. #}
+      <div class="n7-track" data-target="{{ (step.neighbours | length) - 1 }}">
+        {# One blank spacer row on each end, not the void a taller window
+           needs — the viewport shows three rows, just enough for the read
+           line to start and end centred (the word, then the replacement)
+           rather than pinned to an edge, without stranding a viewer's eye
+           in empty case above a word that has not moved yet. See the
+           script's own comment. #}
+        {% for _ in range(1) %}<p class="n7-row"></p>{% endfor %}
         {% for entry in step.neighbours %}
         <p class="n7-row{{ ' n7-landing' if loop.last }}">{{ entry }}</p>
         {% endfor %}
-        {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+        {% for _ in range(1) %}<p class="n7-row"></p>{% endfor %}
       </div>
     </div>
-    <button type="button" class="quiet n7-travel"
-            data-target="{{ (step.neighbours | length) - 1 }}">Slide it down</button>
   </div>
   {% endfor %}
 </div>
