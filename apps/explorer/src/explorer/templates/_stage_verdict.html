@@ -1,0 +1,11 @@
+{# The one verdict this scene shows, quietly: a real `check()` ran against
+   the poem exactly as it now stands, every time a flip or a deal changes it
+   — not a claim made once and left to go stale. `oob` is set by whichever
+   caller needs this swapped back into a page that already has one, rather
+   than rendered as the page's own first copy; unset (falsy by default),
+   `_stage_poem.html`'s own first-paint and deal renderings get a plain
+   paragraph instead. #}
+<p class="poem-verdict" id="poem-verdict"{{ ' hx-swap-oob="true"' | safe if oob }}>
+  {{ "checked — every line is one of the three these strips offer" if report.satisfied
+     else "checked — not every line is one these strips offer" }}
+</p>

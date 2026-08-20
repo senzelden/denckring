@@ -343,6 +343,76 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/stage/cent_mille_milliards", response_class=HTMLResponse)
+def stage_cent_mille_milliards(request: Request, chrome: str = "on") -> HTMLResponse:
+    state = stage.queneau_initial_state()
+    poem = stage.queneau_poem(state)
+    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    return page(
+        request,
+        "stage_cent_mille_milliards.html",
+        scene=stage.scene("cent_mille_milliards"),
+        poem=poem,
+        state=stage.queneau_state_to_text(state),
+        report=report,
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/cent_mille_milliards/deal", response_class=HTMLResponse)
+async def stage_cent_mille_milliards_deal(request: Request) -> HTMLResponse:
+    """Redraw every position at once — a fresh poem, not the one-line change a
+    flip makes. Checked exactly like a flip's own result, against the same
+    source, so a viewer sees a real verdict on whichever poem is on screen
+    rather than a claim carried over from before the deal.
+    """
+    state = stage.queneau_deal()
+    poem = stage.queneau_poem(state)
+    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    return page(
+        request,
+        "_stage_poem.html",
+        poem=poem,
+        state=stage.queneau_state_to_text(state),
+        report=report,
+    )
+
+
+@app.post("/stage/cent_mille_milliards/flip", response_class=HTMLResponse)
+async def stage_cent_mille_milliards_flip(request: Request) -> HTMLResponse:
+    """Redraw one strip, the other thirteen holding — the scene's whole claim
+    that a flip changes only the line it touched.
+
+    The posted `state` is the poem as it stood a moment ago; a form this
+    page's own markup never sends without it, but a malformed or stale one
+    falls back to first paint's poem rather than guessing at indices that
+    might run past a position's own alternatives. `position` is clamped the
+    same defensive way, to the first strip, so a request outside what the
+    page itself can send still returns something checked rather than a 500.
+    """
+    form = dict(await request.form())
+    current = stage.queneau_state_from_text(str(form.get("state", "")))
+    if current is None:
+        current = stage.queneau_initial_state()
+    offered = stage.queneau_offered()
+    try:
+        position = int(str(form.get("position", "")))
+    except ValueError:
+        position = 0
+    if not (0 <= position < len(offered)):
+        position = 0
+    new_state = stage.queneau_flip(current, position)
+    poem = stage.queneau_poem(new_state)
+    report = denckring_check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    return page(
+        request,
+        "_stage_flip.html",
+        strip=poem.strips[position],
+        state=stage.queneau_state_to_text(new_state),
+        report=report,
+    )
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)

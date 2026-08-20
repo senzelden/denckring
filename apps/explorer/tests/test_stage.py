@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import random
 from pathlib import Path
 
 import pytest
@@ -918,3 +919,280 @@ def test_an_unrecognised_lang_falls_back_to_english() -> None:
     )
     assert response.status_code == 200
     assert "catacomb" in response.text
+
+
+# ── scene four: Cent mille milliards de poèmes ──────────────────────────────
+
+#: (line A, line B), 1-indexed as the brief itself states the scheme — ABAB
+#: CDCD EFEF GG — converted to 0-indexed pairs at the point of use.
+_RHYME_PAIRS = [(1, 3), (2, 4), (5, 7), (6, 8), (9, 11), (10, 12), (13, 14)]
+
+
+def _final_word(line: str) -> str:
+    """The word a line ends on, punctuation stripped — what a rhyme pair is
+    actually compared on, not the line's whole text."""
+    return line.rstrip(".,;:!?").split()[-1].lower()
+
+
+def _rhyme_key(word: str) -> str:
+    """The last two letters, which is as far as this project's strips ever
+    need to be trimmed to agree — "day"/"say"/"may" only share two, and a
+    three-letter comparison would cut into the part that is allowed to
+    differ (see `_normalised_rhyme_key` for the one family this alone
+    cannot resolve)."""
+    return word[-2:]
+
+
+def _normalised_rhyme_key(word: str) -> str:
+    """A second reading of the same word with two purely orthographic,
+    non-phonetic reductions applied: a trailing silent "e" dropped, and the
+    silent "gh" digraph removed. Needed for exactly one pair in this
+    project's own strips: "trite" rhymes with "light"/"bright"/"sight" by
+    ear, but shares not one literal trailing letter with them ("trite" ends
+    "e", they end "t") until both spellings of the same English "-ight"/
+    "-ite" rhyme family are reduced this way — "trite" -> "trit" -> "it",
+    "light" -> "light" (no trailing e) -> "lit" -> "it". Applied only as a
+    fallback to `_rhyme_key`, which already resolves every other pair on its
+    own and must not be disturbed by this reduction (stripping a trailing
+    "e" from "time"/"rhyme" would wrongly turn a pair that already agrees
+    into one compared on the wrong letters)."""
+    reduced = word[:-1] if word.endswith("e") and len(word) > 3 else word
+    reduced = reduced.replace("gh", "")
+    return reduced[-2:]
+
+
+def _final_words_rhyme(a: str, b: str) -> bool:
+    """Whether two final words are the kind of match this project's strips
+    were built to guarantee — literal, not phonetic, per the brief."""
+    return _rhyme_key(a) == _rhyme_key(b) or _normalised_rhyme_key(a) == _normalised_rhyme_key(b)
+
+
+def test_the_scene_lists_a_real_procedure() -> None:
+    scene = stage.scene("cent_mille_milliards")
+    assert scene.procedure_id == "cent_mille_milliards"
+
+
+def test_the_strips_are_fourteen_positions_of_three() -> None:
+    """The shape the brief promises: fourteen positions, three alternatives
+    each, so 3**14 poems — read from the shipped file, not asserted against
+    a hard-coded 14."""
+    offered = stage.queneau_offered()
+    assert len(offered) == 14
+    assert all(len(options) == 3 for options in offered)
+
+
+def test_the_count_is_computed_from_what_actually_loaded() -> None:
+    """The page's one number needs no argument because it is arithmetic, not
+    a claim — pinned here against both the brief's own figure and a fresh
+    product over whatever `queneau_offered` actually returns, so a strip
+    added or removed could not leave a stale count on screen."""
+    offered = stage.queneau_offered()
+    assert stage.queneau_combinations() == math.prod(len(options) for options in offered)
+    assert stage.queneau_combinations() == 4_782_969
+
+
+def test_first_paint_reads_the_first_alternative_at_every_position() -> None:
+    """Deterministic, the way Denckring's own rings start every disc at index
+    0 — so first paint is the same poem on every load, not a draw a test
+    would have to pin against randomness."""
+    state = stage.queneau_initial_state()
+    assert state == [0] * 14
+    poem = stage.queneau_poem(state)
+    offered = stage.queneau_offered()
+    assert poem.lines == [options[0] for options in offered]
+
+
+def test_first_paints_poem_satisfies_the_checker() -> None:
+    from denckring import check
+
+    poem = stage.queneau_poem(stage.queneau_initial_state())
+    report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    assert report.satisfied is True
+
+
+def test_every_line_a_deal_shows_is_one_its_position_actually_offers() -> None:
+    """Asserted against `queneau_offered()` itself, not a second, copied-out
+    transcription of the strips — the two could otherwise drift apart and
+    this test would never notice."""
+
+    offered = stage.queneau_offered()
+    for seed in range(20):
+        state = stage.queneau_deal(random.Random(seed))
+        poem = stage.queneau_poem(state)
+        for line, options in zip(poem.lines, offered, strict=True):
+            assert line in options
+
+
+def test_a_deal_satisfies_the_checker() -> None:
+
+    from denckring import check
+
+    for seed in range(10):
+        state = stage.queneau_deal(random.Random(seed))
+        poem = stage.queneau_poem(state)
+        report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+        assert report.satisfied is True, poem.text
+
+
+def test_a_flip_changes_only_the_position_it_touched() -> None:
+    """The scene's whole claim: flip one strip, and the other thirteen hold."""
+
+    offered = stage.queneau_offered()
+    for seed in range(20):
+        rng = random.Random(seed)
+        before = stage.queneau_deal(rng)
+        position = rng.randrange(len(offered))
+        after = stage.queneau_flip(before, position, rng)
+        for i in range(len(offered)):
+            if i == position:
+                assert after[i] != before[i]
+                assert offered[i][after[i]] in offered[i]
+            else:
+                assert after[i] == before[i]
+
+
+def test_a_flip_can_still_land_on_every_alternative_but_the_current_one() -> None:
+    """`queneau_flip` excludes the index already showing — a flip that
+    redrew the same line would look, on camera, like nothing happened."""
+
+    state = [0] * 14
+    seen = {stage.queneau_flip(state, 0, random.Random(i))[0] for i in range(30)}
+    assert seen == {1, 2}
+
+
+def test_a_flipped_poem_satisfies_the_checker() -> None:
+
+    from denckring import check
+
+    rng = random.Random(1)
+    state = stage.queneau_deal(rng)
+    state = stage.queneau_flip(state, 3, rng)
+    poem = stage.queneau_poem(state)
+    report = check("cent_mille_milliards", poem.text, source=stage.queneau_source())
+    assert report.satisfied is True
+
+
+def test_state_text_round_trips() -> None:
+    state = [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1]
+    text = stage.queneau_state_to_text(state)
+    assert stage.queneau_state_from_text(text) == state
+
+
+def test_state_from_text_refuses_the_wrong_shape() -> None:
+    """A hand-crafted or stale post — never one this page's own markup would
+    send — must not be trusted at face value."""
+    assert stage.queneau_state_from_text("0,1,2") is None  # too short
+    assert stage.queneau_state_from_text("0,1,2,3,4,5,6,7,8,9,10,11,12,13") is None  # 3 not valid
+    assert stage.queneau_state_from_text("a,b,c,d,e,f,g,h,i,j,k,l,m,n") is None  # not integers
+
+
+def test_the_rhyme_scheme_survives_random_draws() -> None:
+    """The brief's own property: for a handful of random draws, each pair the
+    ABAB CDCD EFEF GG scheme names ends on the same rhyme. Compared as final
+    words, not phonetics — see `_final_words_rhyme`."""
+
+    for seed in range(15):
+        state = stage.queneau_deal(random.Random(seed))
+        poem = stage.queneau_poem(state)
+        lines = poem.lines
+        for line_a, line_b in _RHYME_PAIRS:
+            word_a = _final_word(lines[line_a - 1])
+            word_b = _final_word(lines[line_b - 1])
+            assert _final_words_rhyme(word_a, word_b), (line_a, line_b, word_a, word_b)
+
+
+def test_the_rhyme_pairing_holds_for_every_combination_of_alternatives() -> None:
+    """Not just a sample of draws: every one of the three alternatives at one
+    end of a pair rhymes, by the same literal test, with every one of the
+    three at the other end — the actual guarantee the brief asks a viewer to
+    be able to trust regardless of which two strips a flip happens to land
+    on together."""
+    offered = stage.queneau_offered()
+    for line_a, line_b in _RHYME_PAIRS:
+        for option_a in offered[line_a - 1]:
+            for option_b in offered[line_b - 1]:
+                word_a = _final_word(option_a)
+                word_b = _final_word(option_b)
+                assert _final_words_rhyme(word_a, word_b), (line_a, line_b, word_a, word_b)
+
+
+def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
+    response = client.get("/stage/cent_mille_milliards")
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "The paper discs are turning in the light." in normalised
+    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "4,782,969" in normalised
+
+
+def test_the_scene_credits_the_strips_to_this_project_not_queneau() -> None:
+    """The exact wording the golden fixture uses for the same situation
+    (`src/denckring/eval/fixtures/golden/cent_mille_milliards.yaml`)."""
+    response = client.get("/stage/cent_mille_milliards")
+    assert "the machine is Queneau" not in response.text  # not the fixture's own sentence case
+    normalised = " ".join(response.text.split())
+    assert "The machine is Queneau's, the strips are not" in normalised
+
+
+def test_the_deal_route_redraws_the_whole_poem_and_it_still_checks() -> None:
+    response = client.post("/stage/cent_mille_milliards/deal")
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "checked — every line is one of the three these strips offer" in normalised
+    offered = stage.queneau_offered()
+    import re
+
+    state_match = re.search(r'name="state" value="([\d,]+)"', response.text)
+    assert state_match is not None
+    state = [int(part) for part in state_match.group(1).split(",")]
+    assert len(state) == 14
+    for line, options in zip([offered[i][state[i]] for i in range(14)], offered, strict=True):
+        assert line in options
+
+
+def test_the_flip_route_changes_only_the_posted_position() -> None:
+    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state())
+    response = client.post(
+        "/stage/cent_mille_milliards/flip", data={"state": initial_state, "position": "2"}
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert 'id="strip-2"' in normalised
+    assert 'id="strip-1"' not in normalised  # only the touched strip comes back
+    offered = stage.queneau_offered()
+    assert offered[2][0] not in normalised  # the line that was showing is gone
+    assert any(alt in normalised for alt in offered[2][1:])
+    assert "checked — every line is one of the three these strips offer" in normalised
+
+
+def test_the_flip_route_falls_back_to_first_paint_on_a_malformed_state() -> None:
+    """A request this page's own markup would never send — handled rather
+    than trusted at face value or allowed to 500."""
+    response = client.post(
+        "/stage/cent_mille_milliards/flip", data={"state": "not,a,real,state", "position": "0"}
+    )
+    assert response.status_code == 200
+    assert 'id="strip-0"' in response.text
+
+
+def test_the_flip_route_clamps_a_position_outside_the_strips() -> None:
+    initial_state = stage.queneau_state_to_text(stage.queneau_initial_state())
+    response = client.post(
+        "/stage/cent_mille_milliards/flip",
+        data={"state": initial_state, "position": "99"},
+    )
+    assert response.status_code == 200
+    assert 'id="strip-0"' in response.text
+
+
+def test_reduced_motion_settles_strip_lines_instead_of_stranding_them() -> None:
+    """The same fix `.slip` needs, for the same reason: `explorer.css`'s
+    blanket `prefers-reduced-motion` rule kills every animation, which would
+    otherwise strand a `.strip-line` at its pre-animation `opacity: 0,
+    rotateX(-85deg)` forever. Read the actual CSS rather than trusting the
+    keyframe alone."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert (
+        "@media (prefers-reduced-motion: reduce) { .strip-line { opacity: 1; transform: none; } }"
+    ) in normalised
