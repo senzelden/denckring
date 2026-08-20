@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import random
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -1195,4 +1196,145 @@ def test_reduced_motion_settles_strip_lines_instead_of_stranding_them() -> None:
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
     assert (
         "@media (prefers-reduced-motion: reduce) { .strip-line { opacity: 1; transform: none; } }"
+    ) in normalised
+
+
+# ── scene five: word ladder ──────────────────────────────────────────────────
+
+
+def test_the_english_ladder_satisfies_the_checker() -> None:
+    """The scene's whole claim, in the language the toggle starts on: what
+    `apply` finds is a real word_ladder step from start to target."""
+    from denckring import check
+
+    result = stage.word_ladder("cold", "warm", "en")
+    assert result.problem == ""
+    assert check("word_ladder", result.text, lang="en").satisfied is True
+
+
+def test_the_german_ladder_satisfies_the_checker() -> None:
+    """The pair worth showing beside the English one: the same destination,
+    reached through a different lexicon."""
+    from denckring import check
+
+    result = stage.word_ladder("kalt", "warm", "de")
+    assert result.problem == ""
+    assert check("word_ladder", result.text, lang="de").satisfied is True
+
+
+def test_every_rung_is_a_real_word_and_differs_from_its_predecessor_by_one_letter() -> None:
+    """Asserted against the pack itself, not a copy of the ladder this project
+    happens to expect — the same discipline
+    `test_every_line_a_deal_shows_is_one_its_position_actually_offers` already
+    holds the Queneau strips to."""
+    from denckring.lang import get_pack
+
+    for lang, (start, target) in stage.WORD_LADDER_EXAMPLES.items():
+        result = stage.word_ladder(start, target, lang)
+        assert result.problem == ""
+        pack = get_pack(lang)
+        for rung in result.rungs:
+            assert pack.is_word(rung.word), (lang, rung.word)
+        for previous, current in pairwise(result.rungs):
+            differences = sum(1 for a, b in zip(previous.word, current.word, strict=True) if a != b)
+            assert differences == 1, (lang, previous.word, current.word)
+
+
+def test_the_english_ladder_marks_the_letter_that_actually_changed() -> None:
+    """Pinned against the position itself, not merely that some tile is
+    marked — a marked letter that was not the one substituted would be
+    exactly wrong for a scene whose whole explanatory burden is this mark."""
+    result = stage.word_ladder("cold", "warm", "en")
+    assert [rung.word for rung in result.rungs] == ["cold", "wold", "wald", "ward", "warm"]
+    assert [rung.changed for rung in result.rungs] == [None, 0, 1, 2, 3]
+
+
+def test_the_german_ladder_marks_the_letter_that_actually_changed() -> None:
+    result = stage.word_ladder("kalt", "warm", "de")
+    assert [rung.word for rung in result.rungs] == ["kalt", "kart", "wart", "warm"]
+    assert [rung.changed for rung in result.rungs] == [None, 2, 0, 3]
+
+
+def test_a_pair_with_no_connecting_ladder_says_so_distinctly() -> None:
+    """Both endpoints are real words the lexicon knows; the search itself
+    found no path within its own bounds — a true and interesting answer, not
+    an error (see the brief)."""
+    result = stage.word_ladder("crime", "sound", "en")
+    assert result.problem == "no_ladder"
+    assert result.rungs == []
+    assert "no ladder" in result.message
+
+
+def test_a_word_the_lexicon_does_not_know_says_so_distinctly() -> None:
+    """The search is never even run here — a different, more basic failure
+    than a search that ran and found nothing, and the message must say so."""
+    result = stage.word_ladder("zzzz", "warm", "en")
+    assert result.problem == "unknown_word"
+    assert result.rungs == []
+    assert "lexicon does not have" in result.message
+
+
+def test_the_two_failure_modes_are_never_the_same_sentence() -> None:
+    unknown = stage.word_ladder("zzzz", "warm", "en")
+    no_ladder = stage.word_ladder("crime", "sound", "en")
+    assert unknown.problem != no_ladder.problem
+    assert unknown.message != no_ladder.message
+
+
+def test_the_word_ladder_scene_renders_a_real_ladder_and_its_verdict() -> None:
+    response = client.get("/stage/word_ladder")
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "checked — a real ladder from start to target" in normalised
+    assert 'class="tile changed"' in normalised
+
+
+def test_the_word_ladder_route_finds_a_german_ladder() -> None:
+    """The toggle genuinely changes the search, the way N+7's own does: a
+    German request must not silently fall back to the English lexicon."""
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "kalt", "target": "warm", "lang": "de"}
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "checked — a real ladder from start to target" in normalised
+
+
+def test_the_no_ladder_case_renders_without_raising() -> None:
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "crime", "target": "sound", "lang": "en"}
+    )
+    assert response.status_code == 200
+    assert "no ladder from" in response.text
+    assert "verdict" not in response.text
+
+
+def test_the_unknown_word_case_renders_without_raising() -> None:
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "zzzz", "target": "warm", "lang": "en"}
+    )
+    assert response.status_code == 200
+    assert "lexicon does not have" in response.text
+    assert "verdict" not in response.text
+
+
+def test_the_scene_offers_a_language_toggle_defaulting_to_english() -> None:
+    assert stage.WORD_LADDER_DEFAULT_LANG == "en"
+    response = client.get("/stage/word_ladder")
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert '<option value="en" data-start="cold" data-target="warm" selected>' in normalised
+    assert 'data-start="kalt" data-target="warm" >German</option>' in normalised
+
+
+def test_reduced_motion_settles_rungs_instead_of_stranding_them() -> None:
+    """The same fix `.slip` and `.strip-line` need, for the same reason:
+    `explorer.css`'s blanket `prefers-reduced-motion` rule kills every
+    animation, which would otherwise strand a `.rung` at its pre-animation
+    `opacity: 0, translateY(-14px)` forever. Read the actual CSS rather than
+    trusting the keyframe alone."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert (
+        "@media (prefers-reduced-motion: reduce) { .rung { opacity: 1; transform: none; } }"
     ) in normalised
