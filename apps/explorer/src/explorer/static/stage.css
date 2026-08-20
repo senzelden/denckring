@@ -955,15 +955,18 @@
 }
 
 /* --n7-row: the reel's one row height, in one place so the track's rows,
-   the viewport's fixed five-row height and the script's own measurement of
-   a real row (never a second, hard-coded copy of this number) can never
-   drift apart. Five rows, not three — a noun's window is eight entries
-   (offset 7 inclusive), and five of them visible at once is what actually
-   sells "travelling past" rather than a simple before/after cut. */
+   the viewport's fixed height and the script's own measurement of a real
+   row (never a second, hard-coded copy of this number) can never drift
+   apart. Three rows, not five: five left two whole rows of pure blank case
+   above the source word at rest (and again below the replacement once
+   landed) — the "headroom that doesn't make sense" the reel was built with.
+   Three keeps exactly one row of travelling context either side of the read
+   line, so the strip still shows entries passing rather than a plain
+   before/after cut, without the void. */
 .n7-viewport {
   --n7-row: 2.5rem;
   position: relative;
-  height: calc(5 * var(--n7-row));
+  height: calc(3 * var(--n7-row));
   overflow: hidden;
   background: var(--case-deep);
   border-radius: 2px;
@@ -975,7 +978,7 @@
 .n7-viewport::before {
   content: "";
   position: absolute;
-  top: calc(2 * var(--n7-row));
+  top: var(--n7-row);
   left: 0;
   right: 0;
   height: var(--n7-row);
@@ -1001,9 +1004,9 @@
 
 /* The word a reel starts on and the replacement it lands on are the two
    facts this scene exists to show — set apart from the entries merely
-   passed through on the way between them. Third child: two blank spacer
-   rows come before the first real entry (see the template). */
-.n7-row:nth-child(3) {
+   passed through on the way between them. Second child: one blank spacer
+   row comes before the first real entry (see the template). */
+.n7-row:nth-child(2) {
   color: var(--paper);
   font-weight: 600;
 }
@@ -1011,16 +1014,6 @@
 .n7-row.n7-landing {
   color: var(--paper);
   font-weight: 600;
-}
-
-.n7-travel {
-  margin-top: 0.6rem;
-  font-size: 0.72rem;
-}
-
-.n7-travel:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .n7-note {
@@ -1046,23 +1039,42 @@
   color: var(--ink);
 }
 
-/* Nowrap held from before the language toggle joined this row; now that the
-   row carries two labels, two fields and a button rather than one field and
-   a button, the toggle's own select needs an explicit width — the bare
-   `width: 100%` explorer.css gives every select would otherwise claim the
-   whole row and crush the source field beside it (measured: 26px wide,
-   unusable). Sized to the wider of the two option words, "English". */
+/* The source sentence is the thing a viewer types, so it gets a row to
+   itself rather than sharing one with the language select — which crushed
+   it once already, down to a measured 26px wide, back when both fields sat
+   on `.actions`' own single wrapped row. One row per concern instead. */
 .n7-stage .control-panel .actions {
-  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.9rem;
+}
+
+.n7-source-field label {
+  margin-bottom: 0.25rem;
+}
+
+/* Larger than explorer.css's own 0.92rem input — this is the field the
+   scene is staged around, not an incidental control beside it. */
+.n7-source-field input[type="text"] {
+  font-size: 1.25rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.n7-controls-row {
+  display: flex;
   align-items: center;
+  gap: 0.6rem;
 }
 
-.n7-stage .control-panel .actions input[type="text"] {
-  flex: 1;
-  min-width: 7rem;
+.n7-controls-row label {
+  margin-bottom: 0;
 }
 
-.n7-stage .control-panel .actions select {
+/* The select still needs an explicit width — the bare `width: 100%`
+   explorer.css gives every select would otherwise claim the whole row and
+   crush the button beside it, the same defect that used to crush the
+   source field. Sized to the wider of the two option words, "English". */
+.n7-controls-row select {
   width: auto;
   min-width: 6.5rem;
 }

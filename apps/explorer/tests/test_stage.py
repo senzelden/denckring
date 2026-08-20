@@ -1149,19 +1149,6 @@ def test_the_n_plus_7_scene_offers_a_language_toggle_defaulting_to_english() -> 
     assert 'data-example="die Katze saß auf dem Tisch" >German</option>' in normalised
 
 
-def test_the_panel_reads_both_dictionary_sizes_off_the_lists_themselves() -> None:
-    """The note naming how large each noun list is used to type both figures
-    as prose. They were right, and they were also the one thing on the page a
-    viewer could catch disagreeing with the data — the same argument the
-    Denckring's legend one scene over makes for generating its own counts. So
-    this pins the property, not the two numbers: whatever the shipped lists
-    hold is what the page says."""
-    response = client.get("/stage/n_plus_7")
-    normalised = " ".join(response.text.split())
-    assert f"English's {len(stage.pack('en').nouns()):,} nouns" in normalised
-    assert f"German's {len(stage.pack('de').nouns()):,}." in normalised
-
-
 def test_a_german_source_displaces_through_the_german_list() -> None:
     """The toggle genuinely changes the output here, unlike Ideenwürfeln's own: German
     walks its own noun list, not the English one read in a different voice."""

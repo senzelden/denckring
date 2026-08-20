@@ -361,22 +361,6 @@ def stage_n_plus_7(request: Request, chrome: str = "on") -> HTMLResponse:
         steps=stage.displacement(source, 7, lang=lang),
         default_lang=lang,
         examples=N_PLUS_7_SOURCES,
-        # The two figures the panel's note quotes, read off the lists
-        # themselves rather than typed into the prose. One scene over, the
-        # Denckring's legend generates its counts on the reasoning that a
-        # hand-typed number "would be the one place on this page a viewer
-        # could catch the arithmetic disagreeing with itself"; the same rule
-        # applies to a page that names the size of the dictionary it walks.
-        #
-        # Worth knowing before editing: this reads *both* packs, so the German
-        # data pack is now loaded on this scene's first paint, where before it
-        # was touched only when a German displacement was actually asked for.
-        # `denckring[en,de]` is a declared dependency of this app, so it cannot
-        # be missing, and both lists are `lru_cache`d by the data packages
-        # themselves — but a scene that only ever showed English now pays for
-        # German at load, and that is a consequence of generating the figure
-        # rather than typing it, not an accident.
-        noun_counts={lang: len(stage.pack(lang).nouns()) for lang in N_PLUS_7_SOURCES},
         chrome_off=chrome == "off",
     )
 
