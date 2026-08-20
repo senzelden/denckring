@@ -1,0 +1,28 @@
+{% if problem %}
+<p class="notice">{{ problem }}</p>
+{% endif %}
+{% if throw %}
+<div class="throw" data-register="{{ register }}">
+  <p class="throw-headword">
+    {% if headword %}Filed under &ldquo;{{ headword }}&rdquo;{% else %}Drawn at random{% endif %}
+  </p>
+  <div class="slips">
+    {% for slip in throw.split("\n") if slip.strip() %}
+    <p class="slip" style="--i:{{ loop.index0 }}">{{ slip }}</p>
+    {% endfor %}
+  </div>
+  {% if can_read %}
+  <form class="witz-form" hx-post="/p/ideenwuerfeln/witz" hx-target="#witz" hx-swap="innerHTML">
+    <input type="hidden" name="throw" value="{{ throw }}">
+    <input type="hidden" name="headword" value="{{ headword }}">
+    <input type="hidden" name="style" value="{{ style }}">
+    <button type="submit" class="quiet">Find the Witz</button>
+  </form>
+  <div id="witz"></div>
+  <p class="disclaimer">
+    A reading, not a verdict. No <code>Report</code> is produced and no checker consults
+    it — the Witz is the step no program performs.
+  </p>
+  {% endif %}
+</div>
+{% endif %}
