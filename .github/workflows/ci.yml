@@ -140,6 +140,28 @@ jobs:
       - name: Build the site
         run: uv run mkdocs build --strict
 
+  explorer:
+    # A development tool, but a tested one: 957 lines that no other job touches,
+    # and this stage roughly doubled it to a 64-test suite CI has never run.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # uv run --project apps/explorer still executes with the repo root as
+        # cwd, so pytest's rootdir search finds this repo's own testpaths
+        # config and collects ../../tests instead. Running inside the app's
+        # directory is what actually resolves its test paths.
+        working-directory: apps/explorer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run mypy --strict src tests
+      - run: uv run pytest -q
+
   build:
     runs-on: ubuntu-latest
     steps:
