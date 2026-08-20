@@ -428,3 +428,60 @@ def test_the_arca_scene_measures_with_the_procedures_own_counter() -> None:
     assert "6" in response.text
     for pattern in stage.tablet().patterns(6):
         assert pattern in response.text
+
+
+# ── scene four: N+7 ─────────────────────────────────────────────────────────
+
+
+def test_the_displacement_the_scene_animates_is_the_one_the_checker_accepts() -> None:
+    """The scene's whole claim: what `displace` produces is a real n_plus_7
+    displacement of the source it started from."""
+    from denckring import check
+    from denckring.procedures.n_plus_7 import displace
+
+    source = "the cat sat on the table"
+    produced = displace(source, stage.pack(), 7)
+    assert check("n_plus_7", produced, source=source).satisfied is True
+
+
+def test_the_scene_shows_the_words_a_noun_travels_past() -> None:
+    """Pinned against Open English WordNet 2024: `cat` sits at index 8402 and
+    lands on `catacomb` at 8409, eight entries inclusive. If this ever fails,
+    the noun list has changed underneath the project — check `CHANGELOG.md`
+    before touching this test; it exists to catch exactly that."""
+    steps = stage.displacement("the cat sat on the table", 7)
+    cat = next(step for step in steps if step.word == "cat")
+    assert cat.replacement == "catacomb"
+    assert len(cat.neighbours) == 8
+    assert cat.neighbours[0] == "cat" and cat.neighbours[-1] == "catacomb"
+
+
+def test_the_n_plus_7_scene_renders() -> None:
+    response = client.get("/stage/n_plus_7")
+    assert response.status_code == 200
+    assert "catacomb" in response.text
+
+
+def test_the_n_plus_7_scene_names_the_wordnet_migration() -> None:
+    """The catafalque-to-catacomb story is the caption this scene exists to
+    tell — pin the actual wording, not just that some note is present."""
+    response = client.get("/stage/n_plus_7")
+    assert "catafalque" in response.text
+    assert "Open English WordNet" in response.text
+
+
+def test_a_displaced_text_is_shown_beside_its_real_verdict() -> None:
+    """Both halves of the round trip: `displace` produces the text, and
+    `check` confirms it against the very source that was posted."""
+    response = client.post("/stage/n_plus_7/act", data={"source": "the cat sat on the table"})
+    assert response.status_code == 200
+    assert "catacomb" in response.text
+    assert "verdict yes" in response.text
+
+
+def test_a_blank_source_produces_nothing_to_check() -> None:
+    """No source, no displacement — the fragment must not claim a verdict
+    `check` was never asked to make."""
+    response = client.post("/stage/n_plus_7/act", data={"source": ""})
+    assert response.status_code == 200
+    assert "verdict" not in response.text

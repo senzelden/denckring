@@ -242,6 +242,43 @@ async def stage_arca_act(request: Request) -> HTMLResponse:
     )
 
 
+#: The canonical demonstration sentence: "cat" is the word the caption tells the
+#: catafalque-to-catacomb story about, and every noun in it lands cleanly inside the
+#: shipped noun list (see `stage.displacement`) so the columns always have something
+#: to show, on a machine with no corpus configured and nothing else set up.
+N_PLUS_7_SOURCE = "the cat sat on the table"
+
+
+@app.get("/stage/n_plus_7", response_class=HTMLResponse)
+def stage_n_plus_7(request: Request, chrome: str = "on") -> HTMLResponse:
+    return page(
+        request,
+        "stage_n_plus_7.html",
+        scene=stage.scene("n_plus_7"),
+        source=N_PLUS_7_SOURCE,
+        steps=stage.displacement(N_PLUS_7_SOURCE, 7),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/n_plus_7/act", response_class=HTMLResponse)
+async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
+    """Displace the posted source, then check the result against that same source.
+
+    Both halves of the round trip `n_plus_7.apply`/`.check` perform underneath are
+    run here exactly as the library runs them — `displace` produces the text, and
+    `denckring_check` is asked to confirm it independently — so there is nothing on
+    this page for a viewer to take on faith that the library did not already verify.
+    """
+    from denckring.procedures.n_plus_7 import displace
+
+    form = dict(await request.form())
+    source = str(form.get("source", ""))
+    produced = displace(source, stage.pack(), 7) if source else ""
+    report = denckring_check("n_plus_7", produced, source=source) if source else None
+    return page(request, "_stage_displaced.html", source=source, produced=produced, report=report)
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)

@@ -1,0 +1,131 @@
+{% extends "stage.html" %}
+{% block title %}N+7{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Jean Lescure &middot; Oulipo, 1961</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="n7-stage">
+  <div class="n7-columns-wrap">
+    <p class="n7-source">&ldquo;{{ source }}&rdquo;</p>
+    <div class="n7-columns">
+      {% for step in steps %}
+      <div class="n7-column">
+        <p class="n7-label">{{ step.word }}</p>
+        <div class="n7-viewport">
+          <div class="n7-track">
+            {# Two blank spacer rows on each end — the viewport shows five rows,
+               so this is what lets the reel start centred on the read line
+               (the word itself) and end centred there too (the replacement),
+               rather than pinned to an edge. See the script's own comment. #}
+            {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+            {% for entry in step.neighbours %}
+            <p class="n7-row{{ ' n7-landing' if loop.last }}">{{ entry }}</p>
+            {% endfor %}
+            {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+          </div>
+        </div>
+        <button type="button" class="quiet n7-travel"
+                data-target="{{ (step.neighbours | length) - 1 }}">Slide it down</button>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="n7-note">Here &ldquo;cat&rdquo; lands on &ldquo;catacomb&rdquo;. It landed on
+    &ldquo;catafalque&rdquo; until this project's English lexicon moved from Princeton WordNet
+    3.1 to Open English WordNet 2024 &mdash; a procedure is only as stable as the dictionary
+    underneath it.</p>
+  </div>
+  <div class="control-panel">
+    <p class="n7-panel-note">This runs the library's own round trip: <code>displace</code>
+    produces the text below, and <code>check</code> then confirms it independently against
+    the source you typed.</p>
+    <form class="actions" hx-post="/stage/n_plus_7/act" hx-target="#displaced" hx-swap="innerHTML">
+      <label for="source-field">Source</label>
+      <input id="source-field" type="text" name="source" value="{{ source }}">
+      <button type="submit">Displace it</button>
+    </form>
+    <div id="displaced" class="displaced-area"></div>
+  </div>
+</div>
+<script>
+// Each column is a reel: every neighbour the noun passes on its way to the
+// replacement, stacked one per row, with two blank spacer rows on each end
+// (the viewport shows five) so the reel can start and end centred on the
+// read line rather than pinned to an edge. Sliding it is one `translateY`
+// on the track — the row height is
+// measured from a real row rather than assumed, so a font or spacing change
+// elsewhere on the page can never silently throw the maths off (see the
+// stage's house rule on measuring rather than estimating).
+document.querySelectorAll('.n7-travel').forEach((button) => {
+  button.addEventListener('click', () => travel(button));
+});
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Never resolves on `transitionend` alone — explorer.css's reduced-motion rule
+// sets `transition: none !important`, under which the transition this function
+// starts would never run and the event would never fire, stranding the reel
+// mid-journey; a backgrounded tab or an interrupted transition can drop the
+// event too. So reduced motion is handled explicitly, before any transition is
+// ever started, by jumping straight to the landing row with no motion at all;
+// otherwise a fallback timer, sized to the transition's own duration plus a
+// little slack, resolves the same way the event would — whichever comes first,
+// guarded so only one of them actually finishes the journey.
+function travel(button) {
+  if (button.disabled) return;
+  const column = button.closest('.n7-column');
+  const track = column.querySelector('.n7-track');
+  const rows = track.querySelectorAll('.n7-row');
+  const rowHeight = rows[0].getBoundingClientRect().height;
+  const target = Number(button.dataset.target);
+
+  if (column.classList.contains('n7-arrived')) {
+    // Reset instantly to the top of the reel so the slide can be replayed —
+    // a second click on an already-landed column should show the journey
+    // again, not sit inert on the word it already reached.
+    track.style.transition = 'none';
+    track.style.transform = 'translateY(0)';
+    column.classList.remove('n7-arrived');
+    void track.getBoundingClientRect(); // flush, so the reset is not itself animated
+  }
+
+  button.disabled = true;
+  const distance = target * rowHeight;
+  const finish = () => {
+    track.style.transition = 'none';
+    column.classList.add('n7-arrived');
+    button.disabled = false;
+  };
+
+  if (prefersReducedMotion()) {
+    track.style.transform = `translateY(-${distance}px)`;
+    finish();
+    return;
+  }
+
+  let settled = false;
+  const settle = () => {
+    if (settled) return;
+    settled = true;
+    track.removeEventListener('transitionend', onEnd);
+    clearTimeout(fallback);
+    finish();
+  };
+  const onEnd = (evt) => {
+    if (evt.propertyName === 'transform') settle();
+  };
+  track.addEventListener('transitionend', onEnd);
+  // Every noun in this scene's fixed sentence travels the same eight-entry
+  // window (the offset is fixed at 7), but the duration still scales with
+  // distance rather than being hard-coded to that one case.
+  const duration = Math.min(1400, 260 + target * 90);
+  track.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
+  void track.getBoundingClientRect(); // flush, so the transition itself is not skipped
+  track.style.transform = `translateY(-${distance}px)`;
+  const fallback = setTimeout(settle, duration + 80);
+}
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}
