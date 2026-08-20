@@ -6,9 +6,16 @@
   <p class="throw-headword">
     {% if headword %}Filed under &ldquo;{{ headword }}&rdquo;{% else %}Drawn at random{% endif %}
   </p>
+  {% if fields_short %}
+  <p class="field-note">This headword was not filed across enough fields for a cross-field
+    throw — showing a plain draw instead.</p>
+  {% endif %}
   <div class="slips">
-    {% for slip in throw.split("\n") if slip.strip() %}
-    <p class="slip" style="--i:{{ loop.index0 }}">{{ slip }}</p>
+    {% for slip in slips %}
+    <p class="slip" style="--i:{{ loop.index0 }}">
+      <span class="slip-text">{{ slip.text }}</span>
+      <span class="slip-domain">{{ slip.domain }}</span>
+    </p>
     {% endfor %}
   </div>
   {% if can_read %}

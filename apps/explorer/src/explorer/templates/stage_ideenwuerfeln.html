@@ -16,7 +16,7 @@
   <label for="corpus-select">Corpus</label>
   <select id="corpus-select" name="corpus_path">
     {% for choice in choices %}
-    <option value="{{ choice.path }}" data-register="{{ choice.register }}">
+    <option value="{{ choice.path }}">
       {{ choice.name }} — {{ "{:,}".format(choice.entries) }} entries
     </option>
     {% endfor %}

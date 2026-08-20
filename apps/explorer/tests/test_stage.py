@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
 from explorer import stage
 from explorer.app import app
 from fastapi.testclient import TestClient
@@ -164,14 +167,13 @@ def test_the_quotation_is_attributed_without_a_page_number() -> None:
 def test_the_scene_renders_without_any_corpus() -> None:
     """Every machine except the author's has an empty DENCKRING_CORPORA. A scene that
     exploded there would be worse than one that explains itself (ADR 0020: corpora are
-    never shipped)."""
+    never shipped). `corpora.available` is a plain function with nothing to clear —
+    it re-globs the directory on every call, so pointing the env var elsewhere is
+    the whole setup."""
     import os
-
-    from explorer import corpora
 
     original = os.environ.get("DENCKRING_CORPORA")
     os.environ["DENCKRING_CORPORA"] = "/nonexistent-for-this-test"
-    corpora.available.cache_clear() if hasattr(corpora.available, "cache_clear") else None
     try:
         response = client.get("/stage/ideenwuerfeln")
         assert response.status_code == 200
@@ -189,3 +191,150 @@ def test_each_corpus_maps_to_a_register() -> None:
     assert stage.register_for("jean_paul") == "baroque"
     assert stage.register_for("modern") == "modern"
     assert stage.register_for("anything-else") == "modern"
+
+
+def test_slips_of_matches_each_line_back_to_its_field() -> None:
+    """A viewer has to be able to see the field each slip was filed under —
+    that's what makes a cross-field collision visible rather than merely
+    claimed. A line the corpus has no record of (should not happen, but the
+    scene should not crash if it does) is labelled rather than dropped."""
+    import json
+
+    text = json.dumps(
+        {
+            "entries": [
+                {"text": "a fact about beetles", "domain": "Entomologie"},
+                {"text": "a fact about kings", "domain": "Geschichte"},
+            ]
+        }
+    )
+    slips = stage.slips_of(text, "a fact about beetles\na fact about kings\nsomething unfiled")
+    assert [(s.text, s.domain) for s in slips] == [
+        ("a fact about beetles", "Entomologie"),
+        ("a fact about kings", "Geschichte"),
+        ("something unfiled", "unfiled"),
+    ]
+
+
+def test_domains_available_counts_distinct_fields_under_one_headword() -> None:
+    """The pre-flight check the throw route runs before asking `apply` for a
+    cross-field draw — so the page can say a headword wasn't filed across
+    enough fields rather than showing a same-field draw as the real thing."""
+    import json
+
+    text = json.dumps(
+        {
+            "entries": [
+                {"text": "a", "domain": "x", "headwords": ["w"]},
+                {"text": "b", "domain": "y", "headwords": ["w"]},
+                {"text": "c", "domain": "x", "headwords": ["w"]},
+            ]
+        }
+    )
+    assert stage.domains_available(text, "w", 2) is True
+    assert stage.domains_available(text, "w", 3) is False
+    # An empty headword falls back to the whole corpus, exactly as `entries()`
+    # and the `/act` route both treat it.
+    assert stage.domains_available(text, "", 2) is True
+
+
+def _write_corpus(tmp_path: Path, entries: list[dict[str, object]]) -> Path:
+    """A minimal corpus file inside a temp `DENCKRING_CORPORA`, so the throw
+    route can be exercised without any real corpus on disk — the only path CI
+    ever runs."""
+    import json
+
+    path = tmp_path / "test-corpus.json"
+    path.write_text(json.dumps({"name": "test corpus", "style": "modern", "entries": entries}))
+    return path
+
+
+def test_the_throw_route_without_a_corpus_path_says_so() -> None:
+    """A bare POST with no `corpus_path` is exactly what the picker sends when
+    `choices` was empty and the form never rendered a select at all — it needs
+    no corpus file on disk, and is the branch CI actually exercises."""
+    response = client.post("/stage/ideenwuerfeln/act", data={"headword": "Licht"})
+    assert response.status_code == 200
+    assert "no corpus chosen" in response.text.lower()
+
+
+def test_a_throw_collides_distinct_fields_and_labels_each_slip(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The scene's whole point: a headword filed across several fields comes
+    back as slips from different fields, and each one says which."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt alpha", "domain": "Alpha", "headwords": ["word"]},
+            {"text": "excerpt beta", "domain": "Beta", "headwords": ["word"]},
+            {"text": "excerpt gamma", "domain": "Gamma", "headwords": ["word"]},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "word"},
+    )
+    assert response.status_code == 200
+    for domain in ("Alpha", "Beta", "Gamma"):
+        assert domain in response.text
+    assert "not filed across enough fields" not in response.text
+
+
+def test_a_throw_falls_back_and_says_so_when_a_headword_spans_too_few_fields(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A headword whose pool sits in a single field — Jean Paul's own corpus is
+    exactly like this — still throws, but the page says plainly that it fell
+    back to a plain draw rather than showing a same-field throw as a
+    collision it never was."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt one", "domain": "Register", "headwords": ["Licht"]},
+            {"text": "excerpt two", "domain": "Register", "headwords": ["Licht"]},
+            {"text": "excerpt three", "domain": "Register", "headwords": ["Licht"]},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "Licht"},
+    )
+    assert response.status_code == 200
+    assert "not filed across enough fields" in response.text
+    # Not shown as an error — `.notice` is the checker's own failure colour,
+    # and a thin corpus is neither a failure nor the checker's business.
+    assert "notice" not in response.text
+
+
+def test_the_witz_disclaimer_survives_a_real_throw(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The disclaimer is the requirement with the highest cost of being wrong
+    on this whole scene — pin its actual words, not just that some element
+    exists, so a future edit that quietly drops or rewords it fails a test
+    rather than only a human review."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt alpha", "domain": "Alpha", "headwords": ["word"]},
+            {"text": "excerpt beta", "domain": "Beta", "headwords": ["word"]},
+            {"text": "excerpt gamma", "domain": "Gamma", "headwords": ["word"]},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    # A key that only has to be present for `witz.available()` to be true —
+    # this test never calls `/p/ideenwuerfeln/witz`, so nothing here reaches
+    # the network.
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-a-real-one")
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "word"},
+    )
+    assert response.status_code == 200
+    assert (
+        "A reading, not a verdict. No <code>Report</code> is produced and no checker "
+        "consults\n    it — the Witz is the step no program performs."
+    ) in response.text
