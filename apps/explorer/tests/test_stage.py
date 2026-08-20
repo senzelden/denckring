@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 from itertools import pairwise
 from pathlib import Path
 
@@ -176,12 +177,44 @@ def test_the_struck_figure_is_given_its_reason() -> None:
     assert "neither 61 nor 83 divides any ring size" in normalised
 
 
-def test_the_english_gloss_is_credited_to_this_project() -> None:
-    """The German is quoted; the English under it is nobody's but this
-    project's, in a figure otherwise scrupulous about where its text came
-    from."""
+def test_the_plate_replaces_the_quotation() -> None:
+    """The scene used to quote Harsdörffer from secondary sources and said so
+    on the page. That caveat comes off now that the print was read directly
+    (see `primary-source.md`) — the plate itself, credited exactly to the
+    Wolfenbüttel copy, stands where the quotation used to."""
+    response = client.get("/stage/denckring")
+    normalised = " ".join(response.text.split())
+    assert '<img src="/static/denckring-plate.jpg"' in response.text
+    assert "quoted from secondary sources" not in normalised
+    credit = "Herzog August Bibliothek Wolfenbüttel, 224.2 Quod., the leaf facing p. 517"
+    assert credit in normalised
+    assert "https://diglib.hab.de/drucke/224-2-quod/start.htm?image=00535" in normalised
+
+
+def test_the_plate_and_the_legend_disagree_and_say_so() -> None:
+    """The plate's own cartouche prints 48/60/12/120/24; the shipped
+    transcription's legend prints 49/60/12/120/23 (see
+    `test_the_rings_carry_the_transcribed_counts`). A viewer can see both at
+    once now that the plate is on the page — the scene says so in one
+    clause, adjusting neither figure."""
     normalised = " ".join(client.get("/stage/denckring").text.split())
-    assert "the translation is this project's own" in normalised
+    assert "48 &middot; 60 &middot; 12 &middot; 120 &middot; 24" in normalised
+    assert "unreconciled" in normalised
+
+
+def test_rhyme_mode_is_labelled_on_the_plate_not_inferred() -> None:
+    """The plate's own cartouche calls the second ring "die 60
+    Anfangsbuchstab und Reimbuchstaben" — rhyme mode is named on the device
+    itself, not a reading this project imposed on it."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert "Reimbuchstaben" in normalised
+
+
+def test_the_scene_opens_with_harsdoerffers_own_line_about_the_two_verdicts() -> None:
+    """p. 517: turning the rings gives "blinde oder deutunglose Wörter" —
+    until one is not. That is exactly what the two verdicts below it show."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert "blinde oder deutunglose Wörter" in normalised
 
 
 def test_a_word_turned_from_the_rings_satisfies_the_procedure() -> None:
@@ -205,18 +238,26 @@ def test_the_denckring_scene_renders() -> None:
 
 
 def test_the_rings_show_a_valid_word_on_first_paint() -> None:
-    """The hidden field is assembled by JS from the per-ring index — the single
-    source of truth for what the discs show and what gets checked, on first
-    paint, after a manual turn and after a spin alike (see the two tests below
-    for the latter two). Nothing server-side pre-fills it. What this can test
-    without a browser is the claim first paint makes: every ring starts at
-    index 0, which is always a real alternative, so reading inward to outward
-    already spells a denckring word — "Read it" has something real to check
-    the moment the page appears."""
+    """First paint opens on Harsdörffer's own example, `Aas` (`stage.default_reading`,
+    p. 517: "Aas (cadaver) &c."), rather than whatever each ring's own index 0
+    happens to spell. The word panel is server-rendered through the same
+    `_stage_word.html` partial every other route answers through, and the
+    discs' `data-default-index` carries the exact positions `pieces` names —
+    so a no-JS viewer sees precisely what "Read it" would report, and the
+    discs and the panel can never open disagreeing."""
     from denckring import check
 
-    word = "".join(_label(slot.alternatives, 0) for slot in stage.rings().slots)
+    word, positions = stage.default_reading()
+    assert word == "Aas"
     assert check("denckring", word).satisfied is True
+
+    response = client.get("/stage/denckring")
+    assert f'data-positions="{"|".join(str(p) for p in positions)}">Aas</p>' in response.text
+    # Each ring's own `data-default-index`, in ring order — the exact positions
+    # the discs seed themselves from, not merely the same numbers somewhere
+    # on the page.
+    seeded = [int(match) for match in re.findall(r'data-default-index="(\d+)"', response.text)]
+    assert seeded == positions
 
 
 def test_a_manual_turn_still_spells_a_denckring_word() -> None:
@@ -266,37 +307,13 @@ def test_a_spin_lands_the_discs_on_the_word_that_was_checked() -> None:
     assert check("denckring", word).satisfied is True
 
 
-def test_the_harsdoerffer_quotation_is_reproduced_exactly() -> None:
-    """Byte-for-byte, virgule and ellipsis included — modernising the spelling,
-    "fixing" Reimwörter or swapping the slash for a comma would be exactly the
-    liberty this project refuses to take with its data everywhere else."""
-    response = client.get("/stage/denckring")
-    normalised = " ".join(response.text.split())
-    assert (
-        "hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die Reimsilben "
-        "auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten "
-        "Ring darzu drehet"
-    ) in normalised
-
-
-def test_the_quotation_is_attributed_without_a_page_number() -> None:
-    """The catalogue's p. 517 is the page of the device plate; the sources that
-    carry this sentence give no page for it, so citing one would be exactly
-    the false precision this project refuses elsewhere."""
-    response = client.get("/stage/denckring")
-    normalised = " ".join(response.text.split())
-    assert "Deliciae Physico-Mathematicae (Erquickstunden)" in normalised
-    assert "Nürnberg 1651" in normalised
-    assert "p. 517" not in normalised
-    assert "517" not in normalised
-
-
 def test_the_two_verdicts_are_distinct() -> None:
     """A word built from the rings is always a reading of them — `check`
     cannot fail it, which is why the scene shows a second verdict that can.
-    A ring word straight off first paint is off-the-rings True; a made-up
-    string of the same shape that the lexicon does not carry is
-    German-knows False, even though neither verdict is about the other."""
+    A word assembled directly from the rings' own index-0 alternatives is
+    off-the-rings True; a made-up string of the same shape that the lexicon
+    does not carry is German-knows False, even though neither verdict is
+    about the other."""
     from denckring import check
 
     ring_word = "".join(_label(slot.alternatives, 0) for slot in stage.rings().slots)
@@ -373,8 +390,6 @@ def test_turn_them_for_me_never_returns_a_word_the_blocklist_rejects() -> None:
     draw could in principle spell a blocked stem inside a nonsense string,
     not just inside a real word. Run through the actual route, repeatedly,
     rather than asserted from the retry loop's own logic."""
-    import re
-
     for _ in range(30):
         response = client.post("/stage/denckring/act", data={"turn": "1"})
         assert response.status_code == 200

@@ -151,6 +151,22 @@ def pieces_for(word: str) -> list[int] | None:
     ]
 
 
+#: Harsdörffer's own example, p. 517: turning the rings gives "blinde oder
+#: deutunglose Wörter" — blind or meaningless words — until one is not, "Aas
+#: (cadaver) &c." His example, not a machine-chosen one, and still both
+#: producible and a word German knows, so the scene opens on it rather than
+#: on whatever index 0 of every ring happens to spell.
+DEFAULT_WORD = "Aas"
+
+
+def default_reading() -> tuple[str, list[int]]:
+    """The word and ring positions the scene opens on — see `DEFAULT_WORD`."""
+    positions = pieces_for(DEFAULT_WORD)
+    if positions is None:  # pragma: no cover — DEFAULT_WORD is producible by construction
+        raise AssertionError(f"{DEFAULT_WORD!r} must be producible by the rings")
+    return DEFAULT_WORD, positions
+
+
 def german_pack() -> LanguagePack:
     """The German pack, with the lexicon `is_word` and rhyme mode both need."""
     return get_pack("de")
