@@ -25,6 +25,17 @@
   /* Paper at reading strength rather than full: the blank dash on the hub, the
      one band dark enough that a full-strength dash would shout. */
   --paper-faint: rgba(247, 245, 240, 0.7);
+  /* Jean Paul's own leaf — a half-step warmer than --paper-shade, which is the
+     modern card's ground and must stay distinguishable from it. */
+  --leaf: #f2ecdd;
+  /* The modern corpus speaks in its own material's voice: a preprint blue,
+     deliberately nothing the type case carries. */
+  --preprint: #4288c4;
+  /* The rubric as a wash, for marking a region rather than a mark: the tablet
+     group a measurement matched, and the N+7 reel's read line, which sits over
+     the darker case and needs the heavier of the two. */
+  --rubric-wash: rgba(179, 18, 29, 0.16);
+  --rubric-wash-strong: rgba(179, 18, 29, 0.22);
 }
 
 .stage-body {
@@ -84,10 +95,142 @@
   opacity: 0.55;
 }
 
+.tile a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* The name first: the board's job is to be scanned, and `sestina` reads where
+   a bare id does not. The id stays underneath it, because that is what the
+   procedure page, the fixtures and `denckring eval` all call the row. */
+.tile-name {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.tile-id {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  color: var(--lead);
+}
+
+/* The family and the case count on one line — the two facts that decide
+   whether a tile is worth stopping at. */
+.tile-cases {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lead);
+}
+
 .tile-detail {
   font-size: 0.7rem;
   color: var(--rubric);
   margin: 0.2rem 0 0;
+}
+
+.scoreboard {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--lead);
+  margin: 0 0 1rem;
+}
+
+/* The stage index: a plain contents page, not a scene — it is the one thing
+   under /stage nobody records. */
+.scene-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  max-width: var(--measure);
+}
+
+.scene-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--paper-shade);
+}
+
+.scene-list a {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.scene-list span {
+  display: block;
+  font-family: var(--body);
+  font-size: 0.8rem;
+  color: var(--lead);
+}
+
+/* ── shared scene machinery ───────────────────────────────────────────────
+   Every scene below was built concretely and on its own; these are the three
+   things four of them then turned out to want byte for byte. Only what is
+   genuinely identical is here — the scenes differ in real ways, and those
+   differences stay in their own sections. */
+
+/* Figure on the left, controls on the right: scenes one, three, four and
+   five. */
+.scene-split {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.4rem;
+}
+
+/* The figure column, fixed so `.control-panel` beside it can take whatever is
+   left. Scene one's `.rings-wrap` is not this: its discs are narrower, and it
+   carries the reading mark that needs its own positioning context. */
+.scene-figure {
+  flex: none;
+  width: 620px;
+}
+
+/* Scoped past explorer.css's own bare `.verdict` — the check page's proof
+   block, which is a heading with a rule under it, where these are one line of
+   small caps. Two classes beat one regardless of source order, so none of
+   these need fight it. Only the space below differs per scene, so only that
+   is set there. Scene one's `.word-panel .verdict` is deliberately not in
+   here: it sits on the dark case, set in uppercase and in the brighter pair
+   of colours that survive that ground. */
+.column-area .verdict,
+.displaced-area .verdict,
+.ghazal-panel .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.column-area .verdict.yes,
+.displaced-area .verdict.yes,
+.ghazal-panel .verdict.yes {
+  color: var(--pass);
+}
+
+.column-area .verdict.no,
+.displaced-area .verdict.no,
+.ghazal-panel .verdict.no {
+  color: var(--rubric);
+}
+
+/* A check that ran and found nothing to judge — neither pass nor fail, and it
+   must not borrow the colour of either. Today only N+7 can reach it, when the
+   source carries no noun the list knows. */
+.column-area .verdict.none,
+.displaced-area .verdict.none,
+.ghazal-panel .verdict.none {
+  color: var(--lead);
 }
 
 /* ── scene one: der Denckring ─────────────────────────────────────────── */
@@ -112,12 +255,6 @@
   letter-spacing: -0.01em;
   color: var(--ink);
   margin: 0;
-}
-
-.denckring-stage {
-  display: flex;
-  align-items: flex-start;
-  gap: 2.4rem;
 }
 
 /* The rings wrapper: the SVG discs, the window disclaimer and the legend that
@@ -552,7 +689,7 @@
   font-family: var(--display);
   font-style: italic;
   font-size: 0.94rem;
-  background: #f2ecdd;
+  background: var(--leaf);
   border-left-color: var(--rubric);
 }
 
@@ -562,7 +699,7 @@
   font-family: var(--mono);
   font-size: 0.82rem;
   background: var(--paper-shade);
-  border-left-color: #4288c4;
+  border-left-color: var(--preprint);
 }
 
 /* `_witz.html` is shared with the full bench page, which has no fixed height
@@ -632,17 +769,6 @@
    paper. `.control-panel` is scene one's own class, reused unchanged: a
    label-and-field row above a result area is the same shape here as there. */
 
-.arca-stage {
-  display: flex;
-  align-items: flex-start;
-  gap: 2.4rem;
-}
-
-.tablet-wrap {
-  flex: none;
-  width: 620px;
-}
-
 .tablet {
   display: flex;
   gap: 1rem;
@@ -665,7 +791,7 @@
    script-side syllable count that could disagree with it. */
 .tablet-group.matched {
   border-color: var(--rubric);
-  background: rgba(179, 18, 29, 0.16);
+  background: var(--rubric-wash);
 }
 
 .tablet-length {
@@ -826,25 +952,10 @@ button.column-choice:hover {
   padding: 0 0.15rem;
 }
 
-/* Scoped past explorer.css's own bare `.verdict` (the check page's proof
-   block) the same way scene one's `.word-panel .verdict` already is — two
-   classes beat one regardless of source order, so this need not fight it. */
+/* Shape and colour come from the shared rule above; only the space below the
+   line is this scene's own. */
 .column-area .verdict {
-  display: block;
-  border-bottom: none;
-  padding-bottom: 0;
-  margin: 0 0 0.7rem;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
-}
-
-.column-area .verdict.yes {
-  color: var(--pass);
-}
-
-.column-area .verdict.no {
-  color: var(--rubric);
+  margin-bottom: 0.7rem;
 }
 
 /* ── scene four: N+7 ───────────────────────────────────────────────────
@@ -854,17 +965,6 @@ button.column-choice:hover {
    paper. `.control-panel` and `.actions` are scene one's own classes,
    reused unchanged. */
 
-.n7-stage {
-  display: flex;
-  align-items: flex-start;
-  gap: 2.4rem;
-}
-
-.n7-columns-wrap {
-  flex: none;
-  width: 620px;
-}
-
 .n7-source {
   font-family: var(--display);
   font-style: italic;
@@ -873,9 +973,16 @@ button.column-choice:hover {
   margin: 0 0 1.2rem;
 }
 
+/* One column per noun, and the source is a box a recorder types into — six
+   nouns already run past the 620px this column has, and `.stage` clips
+   without a scrollbar or a symptom. The rail is this scene's own admission
+   that the reel count is not fixed; it stays invisible until it is needed,
+   which the three columns of the shipped sentence never are. */
 .n7-columns {
   display: flex;
   gap: 1.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
 }
 
 .n7-column {
@@ -917,7 +1024,7 @@ button.column-choice:hover {
   left: 0;
   right: 0;
   height: var(--n7-row);
-  background: rgba(179, 18, 29, 0.22);
+  background: var(--rubric-wash-strong);
   pointer-events: none;
 }
 
@@ -997,32 +1104,22 @@ button.column-choice:hover {
   min-height: 2rem;
 }
 
+/* Whatever is typed above comes back here at 1.3rem — a pasted paragraph runs
+   to several hundred pixels, and `.stage` clips it silently, taking the verdict
+   under it with it. Measured: this starts 375px down the panel with 433px left
+   to the stage's own bottom edge, so 22rem scrolls well inside that. The rail
+   is on the text and not on `.displaced-area` around it, so the verdict stays
+   below the rail and on screen however long the text runs — it is the one line
+   this scene exists to show. Scene two's slip rail is the same move for the
+   same reason. */
 .displaced-text {
   font-family: var(--display);
   font-size: 1.3rem;
   line-height: 1.6;
   color: var(--ink);
   margin: 0.4rem 0 0.8rem;
-}
-
-/* Scoped past explorer.css's bare `.verdict` the same way scene one's
-   `.word-panel .verdict` already is. */
-.displaced-area .verdict {
-  display: block;
-  border-bottom: none;
-  padding-bottom: 0;
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
-}
-
-.displaced-area .verdict.yes {
-  color: var(--pass);
-}
-
-.displaced-area .verdict.no {
-  color: var(--rubric);
+  max-height: 22rem;
+  overflow-y: auto;
 }
 
 /* ── scene five: Ghazal ────────────────────────────────────────────────
@@ -1030,17 +1127,6 @@ button.column-choice:hover {
    case furniture the other four sit on — this is text set properly, not a
    mechanism to be turned, so `.control-panel` is reused but the couplets
    themselves get their own column rather than `.tablet-wrap`'s dark box. */
-
-.ghazal-stage {
-  display: flex;
-  align-items: flex-start;
-  gap: 2.4rem;
-}
-
-.ghazal-panel {
-  flex: none;
-  width: 620px;
-}
 
 .ghazal-terms {
   font-family: var(--body);
@@ -1059,11 +1145,20 @@ button.column-choice:hover {
   color: var(--ink);
 }
 
+/* A pasted thirty-line ghazal is 982px of couplets where the panel has 586px
+   for everything, and `.stage` clips rather than scrolls — the verdict below
+   would simply be gone, with nothing on screen to say so. Measured: the six
+   lines this scene ships are 186px, so neither rail is visible until a
+   genuinely long text arrives, and the two together (21rem + 7.5rem) stay
+   inside the panel's own budget with the terms and the verdict in place. */
 .couplets {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   margin: 0 0 0.9rem;
+  max-height: 21rem;
+  overflow-y: auto;
+  padding-right: 0.4rem;
 }
 
 /* A hairline rule per couplet — the closest this scene comes to an ornament,
@@ -1113,24 +1208,10 @@ button.column-choice:hover {
   border-bottom-style: wavy;
 }
 
-/* Scoped past explorer.css's bare `.verdict` the same way every other scene
-   on this stage already is. */
+/* Shape and colour come from the shared rule above; only the space below the
+   line is this scene's own. */
 .ghazal-panel .verdict {
-  display: block;
-  border-bottom: none;
-  padding-bottom: 0;
-  margin: 0 0 0.5rem;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
-}
-
-.ghazal-panel .verdict.yes {
-  color: var(--pass);
-}
-
-.ghazal-panel .verdict.no {
-  color: var(--rubric);
+  margin-bottom: 0.5rem;
 }
 
 .ghazal-panel .verdict .score {
@@ -1143,6 +1224,8 @@ button.column-choice:hover {
   list-style: none;
   margin: 0 0 0.6rem;
   padding: 0;
+  max-height: 7.5rem;
+  overflow-y: auto;
   font-family: var(--body);
   font-size: 0.82rem;
   color: var(--lead);

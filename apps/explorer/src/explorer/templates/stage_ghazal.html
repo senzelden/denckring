@@ -5,8 +5,8 @@
   <p class="scene-kicker">Traditional &middot; classical Persian and Urdu poetry</p>
   <h1>{{ scene.title }}</h1>
 </header>
-<div class="ghazal-stage">
-  <div class="ghazal-panel" id="couplets">{% include "_stage_couplets.html" %}</div>
+<div class="ghazal-stage scene-split">
+  <div class="ghazal-panel scene-figure" id="couplets">{% include "_stage_couplets.html" %}</div>
   <div class="control-panel">
     <form class="actions" id="ghazal-form" hx-post="/stage/ghazal/act" hx-target="#couplets"
           hx-swap="innerHTML" hx-trigger="submit">
