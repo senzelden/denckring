@@ -17,7 +17,6 @@ from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures, get
 from denckring.procedures.n_plus_7 import displace
-from denckring.procedures.syllable_count import line_syllables
 from explorer import bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
@@ -276,51 +275,6 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     )
 
 
-@app.get("/stage/arca", response_class=HTMLResponse)
-def stage_arca(request: Request, chrome: str = "on") -> HTMLResponse:
-    return page(
-        request,
-        "stage_arca.html",
-        scene=stage.scene("arca"),
-        tablet=stage.tablet(),
-        lengths=stage.tablet().lengths(),
-        chrome_off=chrome == "off",
-    )
-
-
-@app.post("/stage/arca/act", response_class=HTMLResponse)
-async def stage_arca_act(request: Request) -> HTMLResponse:
-    """Measure the phrase, offer the tablet's columns for that length, and check
-    whichever column was drawn.
-
-    The same `line_syllables` the `arca_musarithmica` procedure itself uses does the
-    measuring here, so the scene cannot drift from what it demonstrates. What the page
-    goes on to say about a drawn column comes from `check` actually running against it,
-    never from a claim this route works out on its own — the house rule every scene on
-    this stage keeps: describe the result, never predict it.
-    """
-    form = dict(await request.form())
-    phrase = str(form.get("phrase", ""))
-    pattern = str(form.get("pattern", ""))
-    measured = line_syllables(phrase, bench.pack_for("en"))
-    syllables = measured[0][1] if measured else 0
-    offered = stage.tablet().patterns(syllables)
-    report = (
-        denckring_check("arca_musarithmica", pattern, source=phrase, pinakes=stage.TABLET)
-        if pattern
-        else None
-    )
-    return page(
-        request,
-        "_stage_column.html",
-        phrase=phrase,
-        syllables=syllables,
-        offered=offered,
-        pattern=pattern,
-        report=report,
-    )
-
-
 #: The canonical demonstration sentence, one per language the toggle offers.
 #: Not a translation of each other — the same shape (a creature, a piece of
 #: furniture) so that switching the toggle keeps telling the same kind of
@@ -386,50 +340,6 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
         # The reels show this source too, and the fragment swaps them back out of
         # band; see `_stage_displaced.html`.
         steps=stage.displacement(source, 7, lang=lang),
-    )
-
-
-@app.get("/stage/ghazal", response_class=HTMLResponse)
-def stage_ghazal(request: Request, chrome: str = "on") -> HTMLResponse:
-    text = stage.GHAZAL_GOOD
-    report = denckring_check("ghazal", text)
-    return page(
-        request,
-        "stage_ghazal.html",
-        scene=stage.scene("ghazal"),
-        text=text,
-        good_text=stage.GHAZAL_GOOD,
-        broken_text=stage.GHAZAL_BROKEN,
-        reading=stage.ghazal_reading(text),
-        report=report,
-        marked=bench.mark_up(text, report),  # see stage_ghazal_act below for why this is inert
-        chrome_off=chrome == "off",
-    )
-
-
-@app.post("/stage/ghazal/act", response_class=HTMLResponse)
-async def stage_ghazal_act(request: Request) -> HTMLResponse:
-    """Check whatever couplets were posted, and mark them up from that same
-    check — nothing here is shown before `check` has actually run on it.
-
-    `bench.mark_up` is called for the same reason every other checked scene
-    calls it — but every violation `ghazal` raises (`missing_radif`,
-    `broken_qafia`, `unknown_rhyme`) is a whole-line judgement with no
-    character offset, so today this call only ever escapes the text; nothing
-    is actually wrapped in `<mark>`. It stays rather than being dropped: if
-    `ghazal` ever starts carrying offsets, this line begins marking with no
-    change here. The fault a viewer can actually see pointed at is
-    `ghazal_reading`'s own `state-bad` on the offending word, not this call.
-    """
-    form = dict(await request.form())
-    text = str(form.get("text", ""))
-    report = denckring_check("ghazal", text) if text.strip() else None
-    return page(
-        request,
-        "_stage_couplets.html",
-        reading=stage.ghazal_reading(text) if text.strip() else None,
-        report=report,
-        marked=bench.mark_up(text, report) if report else "",
     )
 
 
