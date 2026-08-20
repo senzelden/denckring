@@ -1,0 +1,19 @@
+{# The headword picker: a plain text field wearing a `<datalist>`, not a
+   `<select>` — free text must keep working (a headword absent from the
+   index still throws; the scene already handles a pool too thin to draw
+   from), and a datalist is the one native control that offers a list
+   without refusing anything else typed into it. Swapped whole, by its own
+   id, whenever the corpus above it changes — see `app.py`'s
+   `stage_ideenwuerfeln_headword_field` — so the list on offer can never be
+   the previous corpus's own. `display: contents` (stage.css) keeps this
+   wrapper out of the flex row it swaps inside: the label beside it stays a
+   fixed sibling, and only the input and its datalist ever reload. #}
+<span id="headword-field">
+  <input id="headword" type="text" name="headword" list="headwords" autocomplete="off"
+         placeholder="any headword">
+  <datalist id="headwords">
+    {% for word in headwords %}
+    <option value="{{ word }}"></option>
+    {% endfor %}
+  </datalist>
+</span>

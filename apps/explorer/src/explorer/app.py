@@ -209,6 +209,23 @@ async def stage_denckring_rhyme(request: Request) -> HTMLResponse:
     )
 
 
+def _headwords_for(path: str) -> list[str]:
+    """The headwords a corpus files entries under, read fresh from disk.
+
+    Not memoised against `path`: the brief's own warning is that this scene has
+    a history of claims that outlived the state they described, and a cached
+    list would be exactly that the moment a corpus file changed underneath it.
+    An empty or unreadable path answers with no headwords rather than raising —
+    the picker offers only paths `stage.corpus_choices` already vouches for, but
+    the htmx round-trip below takes `corpus_path` off a request like any other
+    form field, so it is checked here rather than trusted.
+    """
+    if not path:
+        return []
+    text, problem = corpora.load(path)
+    return [] if problem else corpora.headwords_of(text)
+
+
 @app.get("/stage/ideenwuerfeln", response_class=HTMLResponse)
 def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
     choices = stage.corpus_choices()
@@ -221,9 +238,25 @@ def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
         # toggle's own pre-selected option follows that same corpus's style — the
         # two controls agreeing at first paint, without yet being the same control.
         default_lang=choices[0].lang if choices else "en",
+        # Same rule for the headword picker: first paint shows the first
+        # corpus's own headwords, matching what the select above it already
+        # pre-selects, until a reader picks a different one.
+        headwords=_headwords_for(choices[0].path) if choices else [],
         can_read=witz.available(),
         chrome_off=chrome == "off",
     )
+
+
+@app.get("/stage/ideenwuerfeln/headword-field", response_class=HTMLResponse)
+def stage_ideenwuerfeln_headword_field(request: Request, corpus_path: str = "") -> HTMLResponse:
+    """Refill the headword picker for whichever corpus the select now names.
+
+    Its own route rather than folded into the throw itself: switching corpus
+    must reload the offered headwords without throwing anything, and the two
+    are different requests the picker fires at different moments — this one on
+    `change`, `/act` only once "Throw" is pressed.
+    """
+    return page(request, "_stage_headword_field.html", headwords=_headwords_for(corpus_path))
 
 
 @app.post("/stage/ideenwuerfeln/act", response_class=HTMLResponse)

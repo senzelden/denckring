@@ -927,6 +927,83 @@ def test_the_stage_pre_selects_the_toggle_from_the_first_corpuss_style(
     _assert_sync_wiring(response.text, [("lang-select", "lang")])
 
 
+def test_the_stage_offers_the_first_corpuss_headwords_at_first_paint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The picker beside the corpus selector is populated from whichever
+    corpus loads first — the same corpus the pre-selected toggle option above
+    it names, per `test_the_stage_pre_selects_the_toggle_from_the_first_corpuss_style`."""
+    _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt one", "domain": "Alpha", "headwords": ["Licht"]},
+            {"text": "excerpt two", "domain": "Beta", "headwords": ["Schatten"]},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.get("/stage/ideenwuerfeln")
+    assert response.status_code == 200
+    assert '<option value="Licht">' in response.text
+    assert '<option value="Schatten">' in response.text
+
+
+def test_the_headword_field_route_follows_whichever_corpus_is_named(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Switching the corpus select reloads the headword picker from the corpus
+    that was actually named — never the previous corpus's own list left over,
+    which is exactly the stale-state failure mode the brief warns this scene
+    has a history of."""
+    first = _write_corpus(
+        tmp_path, [{"text": "excerpt one", "domain": "Alpha", "headwords": ["Licht"]}]
+    )
+    second_dir = tmp_path / "second"
+    second_dir.mkdir()
+    second = _write_corpus(
+        second_dir, [{"text": "excerpt two", "domain": "Beta", "headwords": ["Schatten"]}]
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+
+    first_response = client.get(
+        "/stage/ideenwuerfeln/headword-field", params={"corpus_path": str(first)}
+    )
+    assert first_response.status_code == 200
+    assert '<option value="Licht">' in first_response.text
+    assert "Schatten" not in first_response.text
+
+    second_response = client.get(
+        "/stage/ideenwuerfeln/headword-field", params={"corpus_path": str(second)}
+    )
+    assert second_response.status_code == 200
+    assert '<option value="Schatten">' in second_response.text
+    assert "Licht" not in second_response.text
+
+
+def test_a_hand_typed_headword_absent_from_the_index_still_throws(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The picker offers a list; it must never become the only way in. A
+    headword that is not one of the corpus's own entries — the free-text case
+    a plain `<select>` would have refused outright — still reaches `apply`
+    and still produces a throw."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt alpha", "domain": "Alpha"},
+            {"text": "excerpt beta", "domain": "Beta"},
+            {"text": "excerpt gamma", "domain": "Gamma"},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "not-in-the-index"},
+    )
+    assert response.status_code == 200
+    for domain in ("Alpha", "Beta", "Gamma"):
+        assert domain in response.text
+
+
 def test_the_witz_form_carries_the_throws_own_language(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

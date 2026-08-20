@@ -690,19 +690,30 @@
 }
 
 .throw-form.corpus-picker input[type="text"] {
-  width: 15rem;
+  width: 12rem;
 }
 
-/* What the language toggle governs, said in a line small enough not to compete
-   with the corpus picker above it — the two controls sit in the same form but
-   answer different questions, and a viewer should not have to guess which one
-   changes the corpus. */
+/* Shared with N+7's and the word ladder's own `.lang-note` — this scene used
+   to carry one too, cut for round three's "less information" pass since it
+   only explained the toggle rather than showing anything, but the class
+   itself stays: two other scenes' templates still render a paragraph with
+   this name and would lose their styling if the rule went with it. */
 .lang-note {
   font-family: var(--mono);
   font-size: 0.66rem;
   line-height: 1.4;
   color: var(--lead);
   margin: 0.3rem 0 0.9rem;
+}
+
+/* The headword field's own wrapper (see `_stage_headword_field.html`) is what
+   htmx swaps whenever the corpus above it changes; `display: contents` takes
+   it back out of the box model entirely so its input and datalist sit in the
+   form's own flex row exactly as if no wrapper were there at all — the
+   "Headword" label beside it stays a fixed sibling, not something the swap
+   ever touches. */
+#headword-field {
+  display: contents;
 }
 
 .throw-area {
