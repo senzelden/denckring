@@ -1,9 +1,18 @@
 {% if not haiku.lines %}
-<p class="placeholder">Nothing to reduce yet &mdash; type or paste a poem with at least one line.</p>
+<p class="placeholder">Nothing to reduce yet &mdash; type or paste a poem with at least
+  one line.</p>
 {% else %}
 <div class="haiku-source">
 {% for line in haiku.lines %}
-<p class="haiku-line">{% for token in line.tokens %}{% if token.is_word %}<span class="haiku-word {{ 'haiku-keep' if token.kept else 'haiku-fade' }}"{% if not token.kept %} style="--i: {{ token.line_index }}"{% endif %}>{{ token.text }}</span>{% else %}{{ token.text }}{% endif %}{% endfor %}</p>
+<p class="haiku-line">{% for token in line.tokens -%}
+  {%- if token.is_word -%}
+    <span class="haiku-word {{ 'haiku-keep' if token.kept else 'haiku-fade' }}"
+      {%- if not token.kept %} style="--i: {{ token.line_index }}"{% endif -%}
+    >{{ token.text }}</span>
+  {%- else -%}
+    {{ token.text }}
+  {%- endif -%}
+{%- endfor %}</p>
 {% endfor %}
 </div>
 {% if haiku.prose %}
