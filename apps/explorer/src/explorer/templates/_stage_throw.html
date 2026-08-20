@@ -17,8 +17,24 @@
     from — this throw was made across the whole corpus instead.</p>
   {% endif %}
   <div class="slips">
+    {# A small repeating set of slight, alternating-sign angles — not JS randomness,
+       since the server already renders every other fact about a slip and a settled
+       angle chosen once at draw time is no less "random" for being deterministic.
+       Three values cover the usual three-slip throw without ever repeating a sign
+       back to back; a longer throw just cycles through them again.
+
+       Kept under ~0.7deg on purpose: a slip runs nearly the full stage width
+       (see .slip's own comment), so on a box that wide even a couple of degrees
+       swings each end several centimetres apart on screen — checked in a
+       browser, that reached far enough into `.slips`' 0.5rem row gap to draw
+       one slip's rotated corner across the next line's opening words. These
+       values stay inside that gap: half the widest slip's width times sin of
+       the largest angle here is under 7px, safely inside the 0.6rem vertical
+       padding the text itself sits behind. #}
+    {% set rotations = ["-0.5deg", "0.65deg", "-0.6deg", "0.45deg", "-0.55deg"] %}
     {% for slip in slips %}
-    <p class="slip" style="--i:{{ loop.index0 }}">
+    {% set rot = rotations[loop.index0 % rotations|length] %}
+    <p class="slip" style="--i:{{ loop.index0 }}; --rot:{{ rot }}">
       <span class="slip-text">{{ slip.text }}</span>
       <span class="slip-domain">{{ slip.domain }}</span>
     </p>
@@ -29,6 +45,7 @@
     <input type="hidden" name="throw" value="{{ throw }}">
     <input type="hidden" name="headword" value="{{ headword }}">
     <input type="hidden" name="style" value="{{ style }}">
+    <input type="hidden" name="lang" value="{{ lang }}">
     <button type="submit" class="quiet">Find the Witz</button>
   </form>
   <div id="witz"></div>
