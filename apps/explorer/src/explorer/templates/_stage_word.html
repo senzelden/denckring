@@ -1,6 +1,19 @@
 <p class="word"{% if pieces is not none %} data-pieces="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
-{% if report %}
-<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
-  {{ "off the rings" if report.satisfied else "not a reading of these rings" }}
-</p>
+{% if find_failed %}
+<p class="verdict verdict-find no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
+  — try again</p>
+{% endif %}
+{% if rings_report %}
+{# `rings_report.satisfied` is read back here, not assumed — the same house
+   rule every other verdict on this stage follows, "describe the result,
+   never predict it". True every time a real turn of these discs reaches
+   this template (the hidden field is always assembled from the discs' own
+   positions), which is exactly why it is worth explaining rather than
+   just shown: the check only confirms a segmentation, and a word built
+   from these five parts is trivially one. #}
+<p class="verdict verdict-rings {{ 'yes' if rings_report.satisfied else 'no' }}">off the rings
+  — {{ "always true, by construction" if rings_report.satisfied else "not a reading of these
+  rings" }}</p>
+<p class="verdict verdict-known {{ 'yes' if known_word else 'no' }}">a word German knows —
+  {{ "yes" if known_word else "no" }}</p>
 {% endif %}

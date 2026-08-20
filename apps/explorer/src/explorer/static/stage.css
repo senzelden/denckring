@@ -257,18 +257,18 @@
   margin: 0;
 }
 
-/* The rings wrapper: the SVG discs, the window disclaimer and the legend that
-   names which band is which — none of which can live on a disc's own face,
-   because every angle on a rotating disc is somewhere text sweeps past. */
+/* The rings wrapper: the SVG discs and the window disclaimer beneath them.
+   The legend that names which band is which now sits in `.control-panel`
+   with the rest of the scene's reading matter — see the layout note there. */
 
-/* Wider than the discs it holds. The legend below carries each band's own part
-   count now, and at the disc's own 360px those five items wrapped onto a third
-   row that put the Harsdörffer figure past the bottom of a stage which clips
-   without saying so; 400px is what fits them on two. Measured, not guessed —
-   see the fix report for the numbers. */
+/* Half the 1280px stage, so the discs read as paper you could turn with a
+   finger rather than a diagram: 640px holds a 600px disc (the GEOMETRY in
+   the scene's own <script> is scaled to fill it) with enough margin either
+   side that the reading mark and the window note do not touch the edges.
+   Measured, not guessed — see the task report for every state's height. */
 .rings-wrap {
   flex: none;
-  width: 400px;
+  width: 640px;
   position: relative;
 }
 
@@ -287,8 +287,8 @@
 
 .rings-svg {
   display: block;
-  width: 360px;
-  height: 360px;
+  width: 580px;
+  height: 580px;
   /* Centred in the wider wrap, because the reading mark above sits at its
      50% and the two must agree. */
   margin: 0 auto;
@@ -357,16 +357,52 @@
   font-size: 0.66rem;
   line-height: 1.4;
   color: var(--lead);
-  margin: 0.5rem 0 0;
+  margin: 0.3rem 0 0;
+  text-align: center;
+}
+
+/* Everything that used to sit under the discs now reads down the right
+   column instead — legend, counter, quotation and rhyme mode included — so
+   the left column can be the discs and nothing else. `.control-panel` is
+   narrower than it was (the discs now claim half the stage), so every piece
+   in it is set a touch smaller and closer than before; that compaction is
+   what keeps a taller stack of reading matter inside the same 720px the
+   scene has always clipped to. */
+.control-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding-top: 0.4rem;
+}
+
+/* This scene alone now carries a lot more reading matter than Arca's or
+   N+7's `.control-panel` (legend, counter, quotation and rhyme mode besides
+   the word panel), in a column the taller discs also made narrower — see
+   the task report for the full height budget. Scoped to `.denckring-stage`
+   rather than the bare `.control-panel` those other two scenes share, so
+   the compaction stays this scene's own. */
+.denckring-stage .control-panel {
+  gap: 0.75rem;
+  padding-top: 0;
+}
+
+/* explorer.css's own `.actions` carries a 1.1rem margin-top meant for a form
+   sitting directly under running prose; this scene's own flex `gap` above
+   already spaces every child, so that margin only doubled the gap. Zeroed
+   rather than left in, once the taller discs made every pixel in this
+   narrower column count. Scoped the same way, for the same reason. */
+.denckring-stage .actions {
+  margin-top: 0;
 }
 
 .ring-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 0.7rem;
-  margin: 0.4rem 0 0;
+  gap: 0.2rem 0.6rem;
+  margin: 0;
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   letter-spacing: 0.02em;
   color: var(--lead);
 }
@@ -391,51 +427,59 @@
 .swatch-3 { background: var(--ring-3); }
 .swatch-4 { background: var(--ring-4); }
 
-.control-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  padding-top: 0.4rem;
-}
-
 /* Both buttons go inert alongside the discs — see `inert` in the scene's own
    <script> — including "Read it", which would otherwise let someone check a
    word while the panel and the still-turning discs disagree. */
-.actions button:disabled {
+/* `.rhyme-controls` alongside `.actions`: a rhyme sweep turns the same rings
+   a manual click or "turn them for me" does, and `setInert` disables both
+   button rows together (see the scene's own <script>) — the greyed cursor
+   has to say so for whichever row the viewer is looking at. */
+.actions button:disabled,
+.rhyme-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
 
-.actions button:disabled:hover {
+.actions button:disabled:hover,
+.rhyme-controls button:disabled:hover {
   background: var(--ink);
   border-color: var(--ink);
 }
 
 .word-panel {
   background: var(--case-deep);
-  padding: 1.2rem 1.5rem;
+  padding: 0.7rem 1.1rem;
   border-radius: 2px;
-  min-height: 5rem;
+  min-height: 4.6rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .word-panel .word {
   font-family: var(--display);
-  font-size: 2.1rem;
+  font-size: 1.75rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--paper);
   margin: 0;
 }
 
+/* Two verdicts, not one — see the task report for why a single "read it"
+   verdict said nothing. Both share this block's type; only colour and the
+   words themselves tell them apart. Reset past explorer.css's own bare
+   `.verdict` (a heading with a rule under it, meant for the check page's
+   single proof block) the same way the other scenes' scoped verdicts already
+   have to — display, border and padding included, not just the type, or two
+   of these stacked would draw two rules and eat the space of neither. */
 .word-panel .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
   font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin: 0.4rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  margin: 0.3rem 0 0;
 }
 
 .word-panel .verdict.yes {
@@ -449,8 +493,8 @@
 .counts {
   display: grid;
   grid-template-columns: auto 1fr;
-  column-gap: 0.9rem;
-  row-gap: 0.15rem;
+  column-gap: 0.8rem;
+  row-gap: 0.1rem;
   align-items: baseline;
   font-family: var(--mono);
   margin: 0;
@@ -458,7 +502,7 @@
 
 .count {
   font-family: var(--display);
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 600;
 }
 
@@ -471,7 +515,7 @@
 }
 
 .count-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.02em;
   color: var(--lead);
 }
@@ -480,24 +524,23 @@
    with no argument beside it is an assertion, and the true count multiplies
    50 and 24 where the legend shows 49 and 23, which without a word of
    explanation reads as a 6.5% error rather than as the blank turn each of
-   those two rings carries. Set below the counts rather than inside the grid,
-   which is a scoreboard and stays one line per number. */
+   those two rings carries. */
 .counts-note {
   font-family: var(--body);
-  font-size: 0.73rem;
-  line-height: 1.5;
+  font-size: 0.68rem;
+  line-height: 1.42;
   color: var(--lead);
-  max-width: var(--measure);
-  margin: 0.45rem 0 0;
+  margin: 0;
 }
 
 /* The Harsdörffer quotation: what the device was for, in his own words, kept
    visibly subordinate — smaller and looser than anything above it — because
-   it is the one thing on this page not drawn from the shipped data. */
+   it is the one thing on this page not drawn from the shipped data. Sits
+   directly above rhyme mode now, since rhyme mode is its illustration. */
 
 .harsdoerffer-quote {
-  margin: 0.35rem 0 0;
-  padding: 0.4rem 0 0;
+  margin: 0;
+  padding: 0.35rem 0 0;
   border-top: 1px solid var(--paper-shade);
 }
 
@@ -505,24 +548,24 @@
   margin: 0;
   font-family: var(--display);
   font-style: italic;
-  font-size: 0.92rem;
-  line-height: 1.35;
+  font-size: 0.8rem;
+  line-height: 1.3;
   color: var(--ink);
 }
 
 .harsdoerffer-quote .quote-gloss {
-  margin: 0.3rem 0 0;
+  margin: 0.25rem 0 0;
   font-family: var(--display);
-  font-size: 0.76rem;
-  line-height: 1.35;
+  font-size: 0.68rem;
+  line-height: 1.3;
   color: var(--lead);
 }
 
 .harsdoerffer-quote figcaption {
-  margin: 0.3rem 0 0;
+  margin: 0.25rem 0 0;
   font-family: var(--mono);
-  font-size: 0.65rem;
-  line-height: 1.4;
+  font-size: 0.6rem;
+  line-height: 1.35;
   color: var(--lead);
 }
 
@@ -537,9 +580,88 @@
   display: block;
   margin-top: 0.2rem;
   font-family: var(--display);
-  font-size: 0.76rem;
-  line-height: 1.35;
+  font-size: 0.68rem;
+  line-height: 1.3;
   color: var(--lead);
+}
+
+/* Rhyme mode: the quotation turned into something the discs do rather than
+   only something written near them. A row of curated endings (see
+   `stage.RHYME_ENDINGS` for why curated, not the raw lexicon), a status
+   line reading back what the sweep actually found, and the accumulating
+   list itself — capped and internally scrollable, since a clean ending's
+   yield ranges from seventeen words to two dozen and the stage clips
+   silently past 720px rather than growing to fit whatever came back. */
+.rhyme-panel {
+  padding: 0.4rem 0 0;
+  border-top: 1px solid var(--paper-shade);
+}
+
+.rhyme-kicker {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0 0 0.25rem;
+}
+
+.rhyme-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.3rem;
+}
+
+.rhyme-controls button {
+  padding: 0.22rem 0.55rem;
+  font-size: 0.68rem;
+}
+
+.rhyme-status {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
+  margin: 0 0 0.22rem;
+}
+
+.rhyme-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  /* Two rows' worth — a clean ending's yield ranges 17 to 24 words (see the
+     task report), always more than fits, so the cap and the scrollbar it
+     implies are load-bearing at every yield, not just the long ones. */
+  max-height: 3.3rem;
+  overflow-y: auto;
+}
+
+.rhyme-list li {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  color: var(--ink);
+  background: var(--paper-shade);
+  padding: 0.08rem 0.4rem;
+  border-radius: 2px;
+  /* Each hit lands the moment its position on the ring is swept past — a
+     quick fade-in reads as "just arrived" rather than the whole list having
+     been there the entire time, which is closer to what actually happened. */
+  animation: rhyme-hit 180ms ease-out;
+}
+
+@keyframes rhyme-hit {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── scene two: Ideenwürfeln ───────────────────────────────────────────

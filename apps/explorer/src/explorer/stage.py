@@ -118,6 +118,101 @@ def pieces_for(word: str) -> list[str] | None:
     return device.segment(word, device.load("harsdoerffer_1651"))
 
 
+def german_pack() -> LanguagePack:
+    """The German pack, with the lexicon `is_word` and rhyme mode both need."""
+    return get_pack("de")
+
+
+#: ~1 turn in 4,900 lands on a word `is_word` recognises (measured). A random
+#: search needs several multiples of that mean to be confident of a hit, and
+#: each attempt is a `device.spin` plus a lexicon lookup — cheap enough that
+#: twenty thousand of them still run well inside one request. See the task
+#: report for the timing.
+FIND_ATTEMPTS = 20_000
+
+
+def find_word(attempts: int = FIND_ATTEMPTS) -> tuple[str, list[str]] | None:
+    """Turn the rings at random, server-side, until `is_word` recognises the
+    result, or say the search failed rather than hang a recording on it.
+
+    A viewer will not sit through the ~4,900 tries a random turn needs on
+    average, so the search happens here in one request rather than one click
+    at a time in the browser. `pieces_for` re-derives the ring pieces from
+    the word that was found, rather than keeping the ones `device.spin`
+    happened to draw, so the discs turn to the exact segmentation `check`
+    itself would find — the same reason "turn them for me" does not just
+    keep its own draw either.
+    """
+    machine = device.load("harsdoerffer_1651")
+    german = german_pack()
+    for _ in range(attempts):
+        turned = device.spin(machine)
+        word = "".join(turned)
+        if word and german.is_word(word):
+            pieces = pieces_for(word)
+            if pieces is not None:
+                return word, pieces
+    return None
+
+
+@dataclass(frozen=True)
+class RhymeEnding:
+    """One locked reading of the medial, final and suffix rings — Harsdörffer's
+    "Reimsilbe" — offered to rhyme mode. The initial ring (`anfangsbuchstabe`)
+    is what sweeps; the prefix ring (`vorsylbe`) stays blank throughout, as
+    the quotation names only the second, third and fourth rings."""
+
+    label: str
+    mittelbuchstabe: str
+    endbuchstabe: str
+    nachsylbe: str
+
+
+#: Curated rather than filtered at request time. A full sweep of the raw
+#: lexicon surfaces vulgarities on some endings — `-icken` lands on "Ficken",
+#: `-itten` on "Titten" — and this scene is recorded, so only endings whose
+#: complete 60-letter sweep was read by hand and found clean are offered here.
+#: Yields measured against the shipped lexicon (see the task report): -acken
+#: 24, -ecken 23, -allen 17, -eck 22, -ein 21.
+RHYME_ENDINGS: list[RhymeEnding] = [
+    RhymeEnding("-acken", "a", "ck", "en"),
+    RhymeEnding("-ecken", "e", "ck", "en"),
+    RhymeEnding("-allen", "a", "ll", "en"),
+    RhymeEnding("-eck", "e", "ck", ""),
+    RhymeEnding("-ein", "ei", "n", ""),
+]
+
+
+def rhyme_ending(label: str) -> RhymeEnding | None:
+    """One curated ending by its label, or `None` for anything else."""
+    for ending in RHYME_ENDINGS:
+        if ending.label == label:
+            return ending
+    return None
+
+
+def rhyme_sweep(ending: RhymeEnding) -> list[str]:
+    """One entry per position on the initial disc, in ring order: the word
+    that position spells against the locked ending, or `""` where `is_word`
+    rejects it.
+
+    This is the quotation turned into a search rather than an instruction:
+    "seek the rhyme syllables on the third and fourth ring [and turn] the
+    rhyme letters of the second ring to them." The medial, final and suffix
+    rings are the ones `ending` already locked; this walks every letter the
+    second ring (`anfangsbuchstabe`) offers and reads off what comes out. The
+    full sweep, blanks included, so the scene can walk the disc through every
+    position in order rather than only the hits.
+    """
+    initial = next(slot for slot in rings().slots if slot.name == "anfangsbuchstabe")
+    german = german_pack()
+    swept = []
+    for letters in initial.alternatives:
+        word = letters + ending.mittelbuchstabe + ending.endbuchstabe + ending.nachsylbe
+        swept.append(word if german.is_word(word) else "")
+    return swept
+
+
 #: A corpus's own `style` marker decides how the scene looks. Jean Paul's excerpts are
 #: paper and copperplate; anything else is a modern card.
 REGISTERS = {"jean_paul": "baroque"}
