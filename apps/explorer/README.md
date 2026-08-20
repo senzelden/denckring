@@ -50,7 +50,7 @@ there; and the result marks the offending characters inline using the offsets ev
 
 `/board` lays out every golden case in the catalogue and runs each one live, so
 it is slow by design — that is the coverage picture, run for real rather than
-cached. `/stage` holds five recordable demo scenes at a fixed size for
+cached. `/stage` holds three recordable demo scenes at a fixed size for
 screen capture. Neither needs a corpus except the Ideenwürfeln scene, which
 explains itself in the page when `DENCKRING_CORPORA` is unset.
 
