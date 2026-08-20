@@ -30,8 +30,14 @@
        different replacements for the same kind of source — see app.py's own
        `stage_n_plus_7_act` for how `lang` reaches `displace`, `stage.displacement`
        and `check` alike. #}
+    {# Both figures are read off the noun lists themselves (see app.py's
+       `noun_counts`), never typed here — the same rule the Denckring's legend
+       one scene over already follows, and for the same reason: a hand-typed
+       count is the one place a viewer could catch the page disagreeing with
+       the data underneath it. #}
     <p class="lang-note">Language picks which dictionary <code>displace</code> and
-      <code>check</code> walk — English's 56,468 nouns or German's 184,040.</p>
+      <code>check</code> walk — English's {{ "{:,}".format(noun_counts.en) }} nouns or
+      German's {{ "{:,}".format(noun_counts.de) }}.</p>
     <script>
     // Keeps the source field in step with the language toggle, the same way scene
     // two's own toggle stays in step with its corpus picker: switching languages
