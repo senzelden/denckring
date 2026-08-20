@@ -485,3 +485,96 @@ def test_a_blank_source_produces_nothing_to_check() -> None:
     response = client.post("/stage/n_plus_7/act", data={"source": ""})
     assert response.status_code == 200
     assert "verdict" not in response.text
+
+
+# ── scene five: Ghazal ───────────────────────────────────────────────────────
+
+
+def test_the_ghazal_examples_are_what_the_scene_claims() -> None:
+    """One passes, one fails on the couplet the scene points at. A scene whose
+    counterexample quietly passed would be teaching the wrong thing."""
+    from denckring import check
+
+    assert check("ghazal", stage.GHAZAL_GOOD).satisfied is True
+    broken = check("ghazal", stage.GHAZAL_BROKEN)
+    assert broken.satisfied is False
+    assert broken.violations
+
+
+def test_the_broken_example_fails_on_the_qafia_alone() -> None:
+    """The brief's own requirement: the counterexample must fail for the one
+    reason the scene points at, not some other one. `GHAZAL_BROKEN` changes
+    only the closing couplet's qafia, so the radif must still hold everywhere
+    and the only violation raised must be `broken_qafia`, naming the actual
+    swapped word rather than some other line."""
+    from denckring import check
+
+    report = check("ghazal", stage.GHAZAL_BROKEN)
+    assert [v.rule for v in report.violations] == ["broken_qafia"]
+    assert report.violations[0].found == "book"
+
+
+def test_the_ghazal_scene_renders_the_good_example_already_marked() -> None:
+    """The pattern has to be visible before a viewer reads a word of
+    explanation — the radif and qafia are marked on first paint, not only
+    after an action."""
+    response = client.get("/stage/ghazal")
+    assert response.status_code == 200
+    assert "role-radif" in response.text
+    assert "role-qafia" in response.text
+    assert "state-defines" in response.text
+    assert "verdict yes" in response.text
+
+
+def test_the_ghazal_scene_names_the_form_without_being_coy() -> None:
+    """The set's only non-Western form — the scene must say so plainly."""
+    response = client.get("/stage/ghazal")
+    assert "Persian and Urdu" in response.text
+    assert "Traditional" in response.text
+
+
+def test_checking_the_broken_couplet_marks_the_fault_the_checker_actually_found() -> None:
+    """The scene's claim: the checker finds the fault in the couplet the page
+    points at. `stage.ghazal_reading` must mark exactly the word `check`
+    itself flagged as `state-bad`, and nothing else — including not the
+    radif, which this counterexample leaves untouched."""
+    from denckring import check
+
+    report = check("ghazal", stage.GHAZAL_BROKEN)
+    reading = stage.ghazal_reading(stage.GHAZAL_BROKEN)
+    assert reading is not None
+    bad_words = [word for line in reading.lines for word in line.words if word.state == "bad"]
+    assert [word.text for word in bad_words] == [report.violations[0].found]
+    assert all(word.role == "qafia" for word in bad_words)
+    # Every radif still holds — this counterexample never touches it.
+    assert not any(
+        word.role == "radif" and word.state == "bad"
+        for line in reading.lines
+        for word in line.words
+    )
+
+    response = client.post("/stage/ghazal/act", data={"text": stage.GHAZAL_BROKEN})
+    assert response.status_code == 200
+    assert "verdict no" in response.text
+    assert "broken qafia" in response.text
+    assert "state-bad" in response.text
+    assert "missing radif" not in response.text
+
+
+def test_checking_the_good_couplets_shows_every_carrying_line_holding() -> None:
+    response = client.post("/stage/ghazal/act", data={"text": stage.GHAZAL_GOOD})
+    assert response.status_code == 200
+    assert "verdict yes" in response.text
+    assert "state-bad" not in response.text
+    # Both roles recur down the page — not just on the opening couplet.
+    assert response.text.count("role-radif") >= 3
+    assert response.text.count("role-qafia") >= 3
+
+
+def test_a_blank_ghazal_produces_nothing_to_check() -> None:
+    """No text, nothing to read — the fragment must not claim a verdict
+    `check` was never asked to make."""
+    response = client.post("/stage/ghazal/act", data={"text": ""})
+    assert response.status_code == 200
+    assert "verdict" not in response.text
+    assert "Nothing to read yet" in response.text
