@@ -8,11 +8,17 @@
   {% for tile in tiles %}
   <li class="tile {{ tile.state }}">
     <a href="/p/{{ tile.id }}">
+      {# The board's job is to be scanned, so the readable name leads and the
+         id follows it — the id is still what the fixtures, the procedure page
+         and `denckring eval` all call this row. #}
+      <span class="tile-name">{{ tile.name }}</span>
       <span class="tile-id">{{ tile.id }}</span>
-      <span class="tile-cases">{{ tile.cases }}</span>
+      <span class="tile-cases">{{ tile.family }} &middot;
+        {{ tile.cases }} case{{ "" if tile.cases == 1 else "s" }}</span>
     </a>
     {% if tile.detail %}<p class="tile-detail">{{ tile.detail }}</p>{% endif %}
   </li>
   {% endfor %}
 </ul>
 {% endblock %}
+{% block caption %}Every golden case in the catalogue, run just now.{% endblock %}

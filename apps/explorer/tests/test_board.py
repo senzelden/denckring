@@ -34,3 +34,22 @@ def test_the_board_renders_with_the_scoreboard_line() -> None:
     response = client.get("/board")
     assert response.status_code == 200
     assert "152 catalogued" in response.text
+
+
+def test_a_tile_is_readable_and_not_just_an_id() -> None:
+    """The board's stated job is scannability, and `sestina` reads where the id
+    beside it does not. Both are shown: the id is what the fixtures, the
+    procedure page and `denckring eval` all call the row."""
+    tiles = {tile.id: tile for tile in board.tiles()}
+    response = client.get("/board")
+    assert tiles["lipogram"].name in response.text
+    assert ">lipogram<" in response.text
+    assert tiles["lipogram"].family in response.text
+
+
+def test_the_board_prints_no_empty_caption() -> None:
+    """It borrows the stage's shell, which carries a caption under the frame —
+    an empty one is a stray element with nothing in it to read."""
+    response = client.get("/board")
+    assert '<p class="stage-caption"></p>' not in response.text
+    assert "run just now" in response.text
