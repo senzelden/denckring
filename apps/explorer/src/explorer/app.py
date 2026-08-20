@@ -90,12 +90,27 @@ def the_stage(request: Request, chrome: str = "on") -> HTMLResponse:
 
 @app.get("/stage/denckring", response_class=HTMLResponse)
 def stage_denckring(request: Request, chrome: str = "on") -> HTMLResponse:
+    # First paint opens on Harsdörffer's own example (`stage.default_reading`,
+    # p. 517: "Aas (cadaver) &c.") rather than whatever each ring's own index 0
+    # happens to spell — server-rendered through the same `_stage_word.html`
+    # partial "Read it"/"Turn them for me"/"Find me one" answer through, so a
+    # no-JS viewer sees exactly what a click would report, and the discs (seeded
+    # from `pieces` below) can never open disagreeing with the panel beside them.
+    word, pieces = stage.default_reading()
     return page(
         request,
         "stage_denckring.html",
         scene=stage.scene("denckring"),
         rings=stage.rings(),
         rhyme_endings=stage.RHYME_ENDINGS,
+        word=word,
+        pieces=pieces,
+        rings_report=denckring_check("denckring", word, lang="de"),
+        known_word=stage.german_pack().is_word(word),
+        find_failed=False,
+        find_attempts=stage.FIND_ATTEMPTS,
+        turn_failed=False,
+        turn_attempts=stage.TURN_ATTEMPTS,
         chrome_off=chrome == "off",
     )
 
