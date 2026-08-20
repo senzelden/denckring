@@ -587,3 +587,224 @@
   max-width: var(--measure);
   margin: 0.6rem 0 0;
 }
+
+/* ── scene three: Arca musarithmica ────────────────────────────────────
+   The tablet is drawn on the same dark case the Denckring's word panel
+   uses — Kircher's rods, like Harsdörffer's discs, are wooden furniture, not
+   paper. `.control-panel` is scene one's own class, reused unchanged: a
+   label-and-field row above a result area is the same shape here as there. */
+
+.arca-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.4rem;
+}
+
+.tablet-wrap {
+  flex: none;
+  width: 620px;
+}
+
+.tablet {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--case-deep);
+  padding: 1rem;
+  border-radius: 2px;
+}
+
+.tablet-group {
+  flex: none;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--case-lip);
+  border-radius: 2px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+/* Which group is highlighted comes from the server's own measurement of the
+   phrase actually posted — see the scene's own <script> — never a second,
+   script-side syllable count that could disagree with it. */
+.tablet-group.matched {
+  border-color: var(--rubric);
+  background: rgba(179, 18, 29, 0.16);
+}
+
+.tablet-length {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lead-bright);
+  margin: 0 0 0.5rem;
+}
+
+.tablet-length span {
+  color: var(--lead);
+}
+
+.tablet-columns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tablet-column,
+.drawn-column,
+.column-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--case);
+  padding: 0.45rem 0.6rem;
+  border-radius: 2px;
+}
+
+.tablet-number,
+.column-number {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  color: var(--paper);
+  text-align: center;
+}
+
+.tablet-note {
+  font-family: var(--body);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--lead);
+  margin: 0.7rem 0 0;
+}
+
+.tablet-note cite {
+  font-style: italic;
+}
+
+.arca-stage .actions {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.arca-stage .actions label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lead);
+  white-space: nowrap;
+}
+
+.arca-stage .actions input[type="text"] {
+  flex: 1;
+}
+
+.column-area {
+  min-height: 2rem;
+}
+
+.measure {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  color: var(--ink);
+  margin: 0 0 0.8rem;
+}
+
+.measure strong {
+  color: var(--rubric);
+}
+
+/* Neither an error nor a bug — Kircher's rods run to particular lengths, and
+   a phrase this box cannot set is a fact about the box (ADR 0021), so this
+   reads as plain running text rather than `.notice`'s alarm red. */
+.tablet-limit {
+  font-family: var(--body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--lead);
+  max-width: var(--measure);
+}
+
+.offer-note {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0 0 0.6rem;
+}
+
+.offered-columns {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.offered-columns form {
+  margin: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  /* A one-shot entrance, staggered the same way a slip lands in scene two —
+     no driven turn to a target, so no transitionend/fallback machinery. */
+  animation: column-land 220ms ease forwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+@keyframes column-land {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offered-columns form {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* `button.quiet` in explorer.css (one element, one class) outranks a bare
+   `.column-choice` (one class) regardless of stylesheet order, so this has
+   to match its specificity rather than merely follow it in the cascade. */
+button.column-choice {
+  background: var(--case);
+  border: 1px solid var(--case-lip);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+button.column-choice:hover {
+  background: var(--case-deep);
+  border-color: var(--rubric);
+}
+
+.drawn-column {
+  flex-direction: row;
+  width: fit-content;
+  margin: 0 0 0.7rem;
+}
+
+.drawn-column .column-number {
+  font-size: 1.15rem;
+  padding: 0 0.15rem;
+}
+
+/* Scoped past explorer.css's own bare `.verdict` (the check page's proof
+   block) the same way scene one's `.word-panel .verdict` already is — two
+   classes beat one regardless of source order, so this need not fight it. */
+.column-area .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0 0 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.column-area .verdict.yes {
+  color: var(--pass);
+}
+
+.column-area .verdict.no {
+  color: var(--rubric);
+}
