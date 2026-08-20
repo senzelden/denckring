@@ -124,17 +124,31 @@ def rings() -> Rings:
     )
 
 
-def pieces_for(word: str) -> list[str] | None:
-    """The five ring pieces that spell `word`, one per slot, or `None` if the rings
-    cannot spell it at all.
+def pieces_for(word: str) -> list[int] | None:
+    """The five ring *positions* that spell `word`, one true index per slot, or
+    `None` if the rings cannot spell it at all.
 
-    The same segmentation `check` itself relies on — `denckring.core.device.segment`
-    — so that when the library turns the rings for the scene (rather than a person
-    clicking them), the diagram can be walked to the position that actually produced
-    the word instead of leaving it wherever it happened to be. A skipped optional
-    ring (prefix or suffix) comes back as `""`.
+    Built on the same segmentation `check` itself relies on —
+    `denckring.core.device.segment` — but handed back as the index each piece
+    sits at on its slot, not the piece's text. Text is not enough to turn a
+    ring by: `endbuchstabe`'s 120 parts repeat two of them ('f' and 'ls',
+    each twice), so a ring found by searching its parts list for matching
+    text (`parts.indexOf(piece)`, the defect this shape replaces) can only
+    ever resolve to the first occurrence — sound as far as it goes, but a
+    computation the client no longer needs to perform, or risk performing
+    differently, once the index is simply the number the server already
+    worked out. A skipped optional ring (prefix or suffix) comes back as the
+    index one past its last real alternative — the same blank position
+    `_label`/the client's own `label()` already treat as blank.
     """
-    return device.segment(word, device.load("harsdoerffer_1651"))
+    device_obj = device.load("harsdoerffer_1651")
+    text_pieces = device.segment(word, device_obj)
+    if text_pieces is None:
+        return None
+    return [
+        len(slot.alternatives) if piece == "" else slot.alternatives.index(piece)
+        for slot, piece in zip(device_obj.slots, text_pieces, strict=True)
+    ]
 
 
 def german_pack() -> LanguagePack:
@@ -341,14 +355,14 @@ TURN_ATTEMPTS = 50
 FIND_ATTEMPTS = 60_000
 
 
-def find_word(attempts: int = FIND_ATTEMPTS) -> tuple[str, list[str]] | None:
+def find_word(attempts: int = FIND_ATTEMPTS) -> tuple[str, list[int]] | None:
     """Turn the rings at random, server-side, until `is_word` recognises the
     result and `fit_for_stage` accepts it, or say the search failed rather
     than hang a recording on it.
 
     A viewer will not sit through the ~4,900 tries a random turn needs on
     average, so the search happens here in one request rather than one click
-    at a time in the browser. `pieces_for` re-derives the ring pieces from
+    at a time in the browser. `pieces_for` re-derives the ring positions from
     the word that was found, rather than keeping the ones `device.spin`
     happened to draw, so the discs turn to the exact segmentation `check`
     itself would find — the same reason "turn them for me" does not just
@@ -405,10 +419,39 @@ def rhyme_ending(label: str) -> RhymeEnding | None:
     return None
 
 
-def rhyme_sweep(ending: RhymeEnding) -> list[str]:
+@dataclass(frozen=True)
+class RhymeSweep:
+    """One full sweep of the initial ring against one locked ending.
+
+    `mittelbuchstabe_index`, `endbuchstabe_index` and `nachsylbe_index` are
+    the true positions the medial, final and suffix rings must be set to —
+    numbers the client uses directly, never text it would have to find on a
+    ring by searching for it. That search is exactly what `endbuchstabe`'s
+    two repeated parts ('f' and 'ls', each twice among its 120) make
+    unsound: a ring positioned by matching text can only ever land on the
+    first occurrence of a repeated part, whichever one was actually meant.
+    None of `RHYME_ENDINGS`' own values happen to repeat, so this never
+    bites the five curated endings in practice — but the position is still
+    carried as the index it always was, not re-derived by the client from
+    text, so the class of bug closes everywhere, not only where it was
+    caught. `words` is the sweep itself: one entry per position on the
+    initial ring, in ring order, the word found there or `""` — position i
+    is always the initial ring's true index i, by construction, so nothing
+    about walking it needs finding either.
+    """
+
+    label: str
+    mittelbuchstabe_index: int
+    endbuchstabe_index: int
+    nachsylbe_index: int
+    words: list[str]
+
+
+def rhyme_sweep(ending: RhymeEnding) -> RhymeSweep:
     """One entry per position on the initial disc, in ring order: the word
     that position spells against the locked ending, or `""` where `is_word`
-    rejects it or `fit_for_stage` does.
+    rejects it or `fit_for_stage` does — alongside the true positions the
+    other three locked rings must show.
 
     This is the quotation turned into a search rather than an instruction:
     "seek the rhyme syllables on the third and fourth ring [and turn] the
@@ -418,13 +461,27 @@ def rhyme_sweep(ending: RhymeEnding) -> list[str]:
     full sweep, blanks included, so the scene can walk the disc through every
     position in order rather than only the hits.
     """
-    initial = next(slot for slot in rings().slots if slot.name == "anfangsbuchstabe")
+    slots = rings().slots
+    initial = next(slot for slot in slots if slot.name == "anfangsbuchstabe")
+    mittelbuchstabe = next(slot for slot in slots if slot.name == "mittelbuchstabe")
+    endbuchstabe = next(slot for slot in slots if slot.name == "endbuchstabe")
+    nachsylbe = next(slot for slot in slots if slot.name == "nachsylbe")
     german = german_pack()
     swept = []
     for letters in initial.alternatives:
         word = letters + ending.mittelbuchstabe + ending.endbuchstabe + ending.nachsylbe
         swept.append(word if german.is_word(word) and fit_for_stage(word) else "")
-    return swept
+    return RhymeSweep(
+        label=ending.label,
+        mittelbuchstabe_index=mittelbuchstabe.alternatives.index(ending.mittelbuchstabe),
+        endbuchstabe_index=endbuchstabe.alternatives.index(ending.endbuchstabe),
+        nachsylbe_index=(
+            len(nachsylbe.alternatives)
+            if ending.nachsylbe == ""
+            else nachsylbe.alternatives.index(ending.nachsylbe)
+        ),
+        words=swept,
+    )
 
 
 #: A corpus's own `style` marker decides how the scene looks. Jean Paul's excerpts are

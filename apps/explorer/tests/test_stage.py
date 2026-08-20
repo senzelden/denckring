@@ -28,7 +28,7 @@ def _label(alternatives: list[str], index: int) -> str:
     return alternatives[index] if index < len(alternatives) else ""
 
 
-def _found_word() -> tuple[str, list[str]]:
+def _found_word() -> tuple[str, list[int]]:
     """`stage.find_word` is a bounded random search over ~21,000 possible real
     words and can rarely exhaust its budget without a hit — not a bug, just
     an unlucky draw (`test_find_me_one_can_report_failure_honestly` pins that
@@ -245,10 +245,10 @@ def test_a_manual_turn_still_spells_a_denckring_word() -> None:
 def test_a_spin_lands_the_discs_on_the_word_that_was_checked() -> None:
     """ "Turn them for me" asks the library for a word and walks the discs to it
     with stage.pieces_for() — the same segmentation the scene's script uses to
-    pick each disc's target index from the piece the server sent back. The
-    invariant this pins: reassembling those pieces, inward to outward, must
-    give back exactly the word `check` was asked about — the discs and the
-    checked word can never disagree, including after a spin."""
+    set each disc's index from the position the server sent back. The
+    invariant this pins: reading the discs off those positions, inward to
+    outward, must give back exactly the word `check` was asked about — the
+    discs and the checked word can never disagree, including after a spin."""
     from denckring import check
     from denckring.core.protocol import Constructive
     from denckring.core.registry import get
@@ -256,9 +256,13 @@ def test_a_spin_lands_the_discs_on_the_word_that_was_checked() -> None:
     procedure = get("denckring")
     assert isinstance(procedure, Constructive)
     word = procedure.apply("", lang="en")
-    pieces = stage.pieces_for(word)
-    assert pieces is not None
-    assert "".join(pieces) == word
+    positions = stage.pieces_for(word)
+    assert positions is not None
+    slots = stage.rings().slots
+    reassembled = "".join(
+        _label(slot.alternatives, p) for slot, p in zip(slots, positions, strict=True)
+    )
+    assert reassembled == word
     assert check("denckring", word).satisfied is True
 
 
@@ -321,12 +325,16 @@ def test_find_me_one_lands_on_a_word_off_the_rings_and_in_the_lexicon() -> None:
     ~4,900 tries a random turn needs on average."""
     from denckring import check
 
-    word, pieces = _found_word()
+    word, positions = _found_word()
     assert check("denckring", word, lang="de").satisfied is True
     assert stage.german_pack().is_word(word) is True
-    # The pieces returned are the exact segmentation the discs would spin to,
-    # not merely a word believed to match it.
-    assert "".join(pieces) == word
+    # The positions returned are the exact ring indices the discs would spin
+    # to, not merely a word believed to match it.
+    slots = stage.rings().slots
+    reassembled = "".join(
+        _label(slot.alternatives, p) for slot, p in zip(slots, positions, strict=True)
+    )
+    assert reassembled == word
 
 
 def test_find_me_one_can_report_failure_honestly() -> None:
@@ -337,12 +345,12 @@ def test_find_me_one_can_report_failure_honestly() -> None:
 
 def test_find_me_one_route_turns_the_discs_to_a_real_word() -> None:
     # A rare failed search (see `_found_word`) would come back through this
-    # same route as `find_failed`, not a "data-pieces" response — retried
+    # same route as `find_failed`, not a "data-positions" response — retried
     # here the same way, for the same reason.
     for _ in range(3):
         response = client.post("/stage/denckring/act", data={"find": "1"})
         assert response.status_code == 200
-        if "data-pieces=" in response.text:
+        if "data-positions=" in response.text:
             break
     else:
         raise AssertionError("find_word failed 3 times running — investigate, do not retry more")
@@ -458,13 +466,83 @@ def test_turn_them_for_me_never_shows_a_draw_that_was_never_checked(
     monkeypatch.setattr(stage, "fit_for_stage", lambda word: False)
     response = client.post("/stage/denckring/act", data={"turn": "1"})
     assert response.status_code == 200
-    assert "data-pieces=" not in response.text
+    assert "data-positions=" not in response.text
     assert "verdict-rings" not in response.text
     assert "verdict-known" not in response.text
     normalised = " ".join(response.text.split())
     assert (
         f"all {stage.TURN_ATTEMPTS:,} turns landed on something this stage will not show"
     ) in normalised
+
+
+def test_rhyme_sweep_locked_positions_are_true_indices() -> None:
+    """`RhymeSweep.mittelbuchstabe_index`, `.endbuchstabe_index` and
+    `.nachsylbe_index` are the true positions the client sets those three
+    rings to — pinned here by reading each one back through `_label` against
+    the real slot, the same way the client's own `label()` would, rather
+    than trusting the number is merely *an* int."""
+    slots = stage.rings().slots
+    mittelbuchstabe = next(s for s in slots if s.name == "mittelbuchstabe")
+    endbuchstabe = next(s for s in slots if s.name == "endbuchstabe")
+    nachsylbe = next(s for s in slots if s.name == "nachsylbe")
+    for ending in stage.RHYME_ENDINGS:
+        sweep = stage.rhyme_sweep(ending)
+        assert _label(mittelbuchstabe.alternatives, sweep.mittelbuchstabe_index) == (
+            ending.mittelbuchstabe
+        )
+        assert _label(endbuchstabe.alternatives, sweep.endbuchstabe_index) == ending.endbuchstabe
+        assert _label(nachsylbe.alternatives, sweep.nachsylbe_index) == ending.nachsylbe
+
+
+def test_the_second_occurrence_of_a_repeated_part_still_yields_a_true_position() -> None:
+    """The ring-positioning bug, pinned against the real data that made it
+    possible: `endbuchstabe` genuinely repeats two of its 120 parts — 'f'
+    and 'ls', each twice, at two different indices. `parts.indexOf(piece)`
+    — the old client's own computation, searching a ring's parts for
+    matching *text* — can only ever resolve to the *first* of those two,
+    never the second, however a ring actually came to stand on it (a manual
+    click moves a ring by index alone, exactly like this).
+
+    Driving `endbuchstabe` directly to its second occurrence — the same way
+    `test_a_manual_turn_still_spells_a_denckring_word` drives any ring to any
+    index — still spells a real denckring word. Reading that word back
+    through `stage.pieces_for` must give back a genuine index for
+    `endbuchstabe`, checked here by type, not merely by value: the pre-fix
+    contract handed back the piece's own *text* ("f"), and `isinstance("f",
+    int)` is `False` where `isinstance(15, int)` is `True` — this is what
+    makes the assertion fail against the old code specifically, not only
+    against a data fixture that no longer matches. Only the first occurrence
+    is reachable this way (both occurrences show identical text, which is
+    the defect in the first place, not something this fix changes) — the
+    fix is that the position is now an index a client uses directly, never
+    text it has to re-search a ring for."""
+    from denckring import check
+
+    slots = stage.rings().slots
+    endbuchstabe_index = next(i for i, s in enumerate(slots) if s.name == "endbuchstabe")
+    endbuchstabe = slots[endbuchstabe_index]
+    alternatives = endbuchstabe.alternatives
+    first = alternatives.index("f")
+    second = first + 1 + alternatives[first + 1 :].index("f")
+    assert alternatives[second] == "f"
+    assert second != first  # the repeat is real, not a mistaken premise
+
+    # Drive the ring directly to the second occurrence — an index, not a
+    # text search — the same way a manual click would.
+    word = "".join(
+        _label(slot.alternatives, second if i == endbuchstabe_index else 0)
+        for i, slot in enumerate(slots)
+    )
+    assert check("denckring", word).satisfied is True
+
+    positions = stage.pieces_for(word)
+    assert positions is not None
+    assert isinstance(positions[endbuchstabe_index], int)
+    assert _label(alternatives, positions[endbuchstabe_index]) == "f"
+    reassembled = "".join(
+        _label(slot.alternatives, p) for slot, p in zip(slots, positions, strict=True)
+    )
+    assert reassembled == word
 
 
 def test_rhyme_endings_are_all_curated_and_clean() -> None:
@@ -475,7 +553,7 @@ def test_rhyme_endings_are_all_curated_and_clean() -> None:
     contains and so proves nothing about cleanliness on its own."""
     for ending in stage.RHYME_ENDINGS:
         sweep = stage.rhyme_sweep(ending)
-        hits = [word for word in sweep if word]
+        hits = [word for word in sweep.words if word]
         assert hits, ending.label
         for word in hits:
             assert stage.german_pack().is_word(word) is True
@@ -490,7 +568,7 @@ def test_the_acken_sweep_no_longer_puts_kacken_on_screen() -> None:
     real sweep rather than only the predicate in isolation."""
     ending = stage.rhyme_ending("-acken")
     assert ending is not None
-    hits = [word for word in stage.rhyme_sweep(ending) if word]
+    hits = [word for word in stage.rhyme_sweep(ending).words if word]
     assert "Kacken" not in hits
     assert "Backen" in hits  # the filter did not overreach into the rest of the list
 
@@ -503,7 +581,7 @@ def test_rhyme_sweep_yields_match_the_measured_counts() -> None:
     for label, count in expected.items():
         ending = stage.rhyme_ending(label)
         assert ending is not None
-        hits = [word for word in stage.rhyme_sweep(ending) if word]
+        hits = [word for word in stage.rhyme_sweep(ending).words if word]
         assert len(hits) == count
 
 
@@ -514,6 +592,16 @@ def test_the_rhyme_route_sweeps_a_locked_ending() -> None:
     assert "23 of 60 real — -acken" in normalised
     assert "Backen" in normalised
     assert "Kacken" not in normalised
+
+    # The three locked rings' true positions travel on the fragment as
+    # plain indices — never text a client would have to relocate on a ring
+    # itself — and match `rhyme_sweep`'s own numbers exactly.
+    ending = stage.rhyme_ending("-acken")
+    assert ending is not None
+    sweep = stage.rhyme_sweep(ending)
+    assert f'data-mittelbuchstabe-index="{sweep.mittelbuchstabe_index}"' in response.text
+    assert f'data-endbuchstabe-index="{sweep.endbuchstabe_index}"' in response.text
+    assert f'data-nachsylbe-index="{sweep.nachsylbe_index}"' in response.text
 
 
 def test_the_rhyme_route_refuses_an_unknown_ending() -> None:

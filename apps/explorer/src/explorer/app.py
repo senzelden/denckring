@@ -113,7 +113,7 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
     """
     form = dict(await request.form())
     word = str(form.get("word", ""))
-    pieces: list[str] | None = None
+    pieces: list[int] | None = None
     find_failed = False
     turn_failed = False
     if form.get("turn"):
@@ -147,8 +147,10 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
             # really are the same move.
             turn_failed = not word
 
-            # The library chose this word; hand back which piece each ring would
-            # have to show so the diagram can turn to match, not just the panel.
+            # The library chose this word; hand back which position each ring
+            # would have to show so the diagram can turn to match, not just the
+            # panel — a true index, never text the client would have to search
+            # a ring's own parts list for (see `stage.pieces_for`).
             pieces = stage.pieces_for(word) if word else None
     elif form.get("find"):
         found = stage.find_word()
@@ -183,13 +185,12 @@ async def stage_denckring_rhyme(request: Request) -> HTMLResponse:
     """
     form = dict(await request.form())
     ending = stage.rhyme_ending(str(form.get("ending", "")))
-    sweep = stage.rhyme_sweep(ending) if ending else []
+    sweep = stage.rhyme_sweep(ending) if ending else None
     return page(
         request,
         "_stage_rhyme.html",
-        ending=ending,
         sweep=sweep,
-        hits=[word for word in sweep if word],
+        hits=[word for word in sweep.words if word] if sweep else [],
     )
 
 

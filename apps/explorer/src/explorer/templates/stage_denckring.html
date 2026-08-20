@@ -280,10 +280,16 @@ function turnOne(ringIndex) {
 // the part it was actually asked to show. Whether it's safe to start at all
 // is the caller's job now (see `inert`) — no guard here, so this can't be
 // the thing that silently drops a late request.
-async function spinRingTo(ringIndex, piece) {
+//
+// `target` is a true index, handed over by the server (`stage.pieces_for`,
+// `stage.rhyme_sweep`) exactly as it will be used — never a piece of text
+// this function has to relocate by searching a ring's parts list.
+// `endbuchstabe`'s 120 parts repeat two of them ('f' and 'ls', each twice),
+// and a search for matching text can only ever resolve to the first
+// occurrence, whichever one was actually meant; a position carries no such
+// ambiguity, so nothing here calls `indexOf` at all any more.
+async function spinRingTo(ringIndex, target) {
   const r = rings[ringIndex];
-  const target = piece === '' ? r.parts.length : r.parts.indexOf(piece);
-  if (target < 0) return; // defensive: pieces_for always names a real piece or ""
   const forward = (target - r.index + r.total) % r.total;
   const total = forward >= r.window ? forward : forward + r.total;
 
@@ -393,8 +399,15 @@ assemble();
 const RHYME_STEP_MS = 90;
 
 async function runRhymeSweep(sweepData) {
-  const locked = { 2: sweepData.mittelbuchstabe, 3: sweepData.endbuchstabe,
-    4: sweepData.nachsylbe };
+  // Positions, handed over exactly as `stage.rhyme_sweep` worked them out —
+  // never text this function would have to relocate on a ring itself. See
+  // `spinRingTo` for why that distinction is load-bearing for `endbuchstabe`
+  // specifically, the one ring among these three whose parts repeat.
+  const locked = {
+    2: Number(sweepData.mittelbuchstabeIndex),
+    3: Number(sweepData.endbuchstabeIndex),
+    4: Number(sweepData.nachsylbeIndex),
+  };
   const sweep = sweepData.sweep.split('|');
   const list = document.getElementById('rhyme-list');
   const status = document.getElementById('rhyme-status');
@@ -424,12 +437,15 @@ async function runRhymeSweep(sweepData) {
     [0, 2, 3, 4].map(
       (ringIndex, i) =>
         new Promise((resolve) => {
-          const piece = ringIndex === 0 ? '' : locked[ringIndex];
-          setTimeout(() => resolve(spinRingTo(ringIndex, piece)), i * 260);
+          const position = ringIndex === 0 ? rings[0].parts.length : locked[ringIndex];
+          setTimeout(() => resolve(spinRingTo(ringIndex, position)), i * 260);
         })
     )
   );
-  await spinRingTo(1, rings[1].parts[0]);
+  // Ring 1 is the sweep itself: `sweep[i]` is always its true position i, by
+  // construction, so resetting it to the start needs no search either — 0
+  // is 0.
+  await spinRingTo(1, 0);
   for (let i = 0; i < sweep.length; i++) {
     if (i > 0) await microStep(1, prefersReducedMotion() ? 0 : RHYME_STEP_MS, 1);
     if (sweep[i]) {
@@ -483,24 +499,24 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     return;
   }
   if (evt.target.id !== 'word') return;
-  // The five pieces come back on the fragment as `data-pieces`; walk each
-  // disc to the piece that produced the word, innermost first and each a
-  // beat later than the last, so the word assembles one part at a time
-  // rather than appearing all at once — that stagger is the shot worth
-  // recording. No pieces on the response (a plain "Read it", or a "find me
-  // one" that ran out of tries) leaves the discs exactly where they were.
+  // The five positions come back on the fragment as `data-positions`; walk
+  // each disc to the position that produced the word, innermost first and
+  // each a beat later than the last, so the word assembles one part at a
+  // time rather than appearing all at once — that stagger is the shot worth
+  // recording. No positions on the response (a plain "Read it", or a "find
+  // me one" that ran out of tries) leaves the discs exactly where they were.
   const wordEl = evt.target.querySelector('.word');
-  const raw = wordEl && wordEl.dataset.pieces;
+  const raw = wordEl && wordEl.dataset.positions;
   if (!raw) {
     setInert(false);
     return;
   }
-  const pieces = raw.split('|');
+  const positions = raw.split('|').map(Number);
   Promise.all(
-    pieces.map(
-      (piece, ringIndex) =>
+    positions.map(
+      (position, ringIndex) =>
         new Promise((resolve) => {
-          setTimeout(() => resolve(spinRingTo(ringIndex, piece)), ringIndex * 260);
+          setTimeout(() => resolve(spinRingTo(ringIndex, position)), ringIndex * 260);
         })
     )
   ).then(() => {
