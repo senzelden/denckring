@@ -244,11 +244,22 @@ _BLOCKED_STEMS = frozenset(
 #: exactly the crude register the blocked "bums" does, but a "popp" stem would
 #: also take "poppig" (garish), "aufpoppen" (to jazz something up) and
 #: "verpoppen" with it — all ordinary and all producible. The three entries
-#: below are every form of the vulgar verb these rings can actually spell
-#: (audited against the shipped lexicon); the ordinary neighbours are
+#: below are every form of the verb *the shipped lexicon carries* that these
+#: rings can spell, which is what was audited; the ordinary neighbours are
 #: untouched, since none of them *equals* an entry. "Popper" was checked and
 #: rejected: in German it names a 1980s youth subculture, and is a common
 #: surname besides — not a vulgarity at all.
+#:
+#: What an exact list cannot do, said plainly rather than left to be found:
+#: it does not cover every producible *string* carrying the stem, only the
+#: dictionary forms. 2,400 of these rings' 103,680,000 readings contain
+#: "popp", and "gepopp" (ge|P|o|pp|) is one of them and passes. That gap is
+#: accepted, not overlooked: the same property already holds for "schlampen",
+#: the stem is still the wrong trade (it would cost "poppig", "aufpoppen" and
+#: "verpoppen"), and the only path that draws unfiltered strings rather than
+#: dictionary words is "turn them for me", where 2,400 in 103,680,000 is
+#: ~0.002% of draws. The honest fix for a known gap this size is wording, not
+#: a filter that takes ordinary words with it.
 _BLOCKED_EXACT = frozenset(
     {
         "schlampen",
@@ -266,9 +277,14 @@ _BLOCKED_EXACT = frozenset(
 #:
 #: - **N+7** puts machine-selected German nouns on screen — the replacement
 #:   and the eight-entry reel of neighbours it travels past — unfiltered. Of
-#:   the 184,040 nouns in the shipped list, 149 clean ones have a blocked word
-#:   as their `+7` replacement and 560 pass one somewhere in the reel
-#:   (measured; "Kachel" -> "Kackbeutel", "Scheitern" -> "Scheiße").
+#:   the 184,040 nouns in the shipped list, 186 are blocked; 150 otherwise
+#:   clean nouns have one as their `+7` replacement and 567 pass one somewhere
+#:   in the reel (measured; "Kachel" -> "Kackbeutel", "Scheitern" ->
+#:   "Scheiße"). These three figures are a function of the list above, not
+#:   constants: they were first written as 149/560/185, which was the count
+#:   before three entries were added to that list in the same commit. Recount
+#:   them against the list as it stands whenever it changes — they moved
+#:   upward, and understating this exposure is the direction that matters.
 #: - **The word ladder** searches its intermediate rungs through that same
 #:   raw lexicon, and a rung can land on a blocked word. Rare, but not as rare
 #:   as one might guess: 3 of 120 German ladders between ordinary four- and
