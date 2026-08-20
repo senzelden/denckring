@@ -9,10 +9,13 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
 
 from denckring.core import device
-from denckring.core.protocol import Lang, LanguagePack
+from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.protocol import Constructive, Lang, LanguagePack
+from denckring.core.registry import get
 from denckring.lang import get_pack
 from denckring.procedures.cent_mille_milliards import alternatives as queneau_alternatives
 from explorer import corpora
@@ -59,6 +62,12 @@ SCENES: list[Scene] = [
         title="Cent mille milliards de poèmes",
         procedure_id="cent_mille_milliards",
         caption="Queneau, 1961. Flip a strip; the sonnet survives every combination.",
+    ),
+    Scene(
+        slug="word_ladder",
+        title="Word ladder",
+        procedure_id="word_ladder",
+        caption="Carroll's Doublets. Change one letter, land on a word, until you arrive.",
     ),
 ]
 
@@ -604,3 +613,148 @@ def queneau_state_from_text(raw: str) -> list[int] | None:
 def queneau_state_to_text(state: list[int]) -> str:
     """The hidden field's own format — the inverse of `queneau_state_from_text`."""
     return ",".join(str(index) for index in state)
+
+
+# ── scene five: word ladder ─────────────────────────────────────────────────
+# Carroll's Doublets: change one letter, land on a word, repeat until the
+# target is reached. `apply` does the searching; `check` does the confirming
+# — both real, both shown, per the brief's own "What it does".
+
+#: One pair per language the toggle offers, both landing on "warm" — the
+#: brief's own instruction that the pair is worth showing off together, the
+#: same destination reached two different ways. Mirrors `N_PLUS_7_SOURCES`'
+#: shape (a dict keyed by `Lang`) rather than `N_PLUS_7_DEFAULT_LANG`'s bare
+#: constant, because this toggle needs two words per language, not one
+#: sentence.
+WORD_LADDER_EXAMPLES: dict[Lang, tuple[str, str]] = {
+    "en": ("cold", "warm"),
+    "de": ("kalt", "warm"),
+}
+
+#: English first, the same rule `N_PLUS_7_DEFAULT_LANG` follows and the brief
+#: asks this scene to match rather than invent its own.
+WORD_LADDER_DEFAULT_LANG: Lang = "en"
+
+
+@dataclass(frozen=True)
+class Rung:
+    """One word of the ladder, and the one letter that changed to reach it.
+
+    `changed` is the index into the word of the letter that differs from the
+    rung above — `None` for the first rung, which changed nothing to get
+    there. That marking is the scene's whole explanatory burden (see the
+    brief), so it is a fact this dataclass carries rather than something the
+    template infers by eye.
+    """
+
+    word: str
+    changed: int | None
+
+
+@dataclass(frozen=True)
+class Ladder:
+    """A search's own report: the ladder it found, or which of the two
+    distinct reasons it found none.
+
+    `problem` is `""` for a real ladder, `"unknown_word"` when the lexicon
+    does not know one of the two endpoints (so no search was even run), and
+    `"no_ladder"` when both endpoints are real words but no path between them
+    was found within the search's own bounds. These are different answers —
+    "there is no ladder from here to there" is true and interesting, not a
+    dressed-up version of "that is not a word" — so the scene must be able to
+    tell them apart, not fold them into one generic failure.
+    """
+
+    rungs: list[Rung]
+    problem: str
+    message: str
+
+    @property
+    def text(self) -> str:
+        """Space-joined, the exact shape `apply` returns and `check` reads —
+        so a ladder this dataclass reports as real is provably the same text
+        the library itself produced, not a reconstruction from the rungs."""
+        return " ".join(rung.word for rung in self.rungs)
+
+
+def _changed_letter(previous: str, word: str) -> int | None:
+    """The one index where `word` differs from `previous`, or `None` if they
+    agree everywhere (never true of a real ladder step, but a defensive
+    answer beats an `IndexError` on any input this scene did not itself
+    produce).
+
+    Compared letter by letter on the raw strings, not folded: `apply`'s own
+    search substitutes exactly one character at a time (see
+    `word_ladder._substitutions`), so the raw strings already differ at
+    exactly one position for any ladder it actually returns — folding, which
+    exists so a German step through a diacritic still counts as one letter,
+    is `check`'s own concern when judging a ladder typed by hand, not a
+    ladder this scene generated itself.
+    """
+    for index, (before, after) in enumerate(zip(previous, word, strict=True)):
+        if before != after:
+            return index
+    return None
+
+
+def word_ladder(start: str, target: str, lang: Lang = "en") -> Ladder:
+    """Search a ladder from `start` to `target`, distinguishing the two ways
+    the search can come back empty.
+
+    The lexicon check happens here, before `apply` is ever called, rather
+    than by parsing which of `apply`'s own `NoCandidateWord` messages came
+    back — `apply` folds "endpoint unknown" and "search exhausted" into the
+    same exception with two different `reason` strings, and matching English
+    prose to tell them apart would break the moment either wording changed.
+    Checking `pack.is_word` directly here means the two failure modes are two
+    branches of this function, not two readings of one string.
+    """
+    cleaned_start = start.strip().lower()
+    cleaned_target = target.strip().lower()
+    if (
+        not cleaned_start
+        or not cleaned_target
+        or not cleaned_start.isalpha()
+        or not cleaned_target.isalpha()
+        or len(cleaned_start) != len(cleaned_target)
+    ):
+        return Ladder(
+            rungs=[],
+            problem="invalid",
+            message="both words must be the same length, letters only.",
+        )
+
+    chosen = get_pack(lang)
+    unknown = [w for w in (cleaned_start, cleaned_target) if not chosen.is_word(w)]
+    if unknown:
+        return Ladder(
+            rungs=[],
+            problem="unknown_word",
+            message=f"the lexicon does not have {unknown[0]!r} — try a word it knows.",
+        )
+
+    procedure = get("word_ladder")
+    # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps it
+    # off `BaseProcedure` because it is optional. Narrow once, here.
+    assert isinstance(procedure, Constructive)
+    try:
+        text = procedure.apply(cleaned_start, lang=lang, target=cleaned_target)
+    except NoCandidateWord:
+        return Ladder(
+            rungs=[],
+            problem="no_ladder",
+            message=f"there is no ladder from {cleaned_start!r} to {cleaned_target!r} "
+            "within the search's own bounds.",
+        )
+    except InvalidParams as exc:
+        # Both endpoints are known words of equal length — the branch above
+        # already refused anything else — so this is unreachable in practice,
+        # but caught rather than left to become a 500 if `apply`'s own
+        # validation ever grows a check this function does not yet share.
+        return Ladder(rungs=[], problem="invalid", message=str(exc))
+
+    words = text.split()
+    rungs = [Rung(word=words[0], changed=None)]
+    for previous, word in pairwise(words):
+        rungs.append(Rung(word=word, changed=_changed_letter(previous, word)))
+    return Ladder(rungs=rungs, problem="", message="")

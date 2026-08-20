@@ -1221,3 +1221,140 @@
   margin: 0.4rem auto 0;
 }
 
+/* ── scene five: word ladder ──────────────────────────────────────────────
+   Figure on the left, controls on the right — scene one's and three's own split,
+   reused unchanged (`.scene-split`, `.scene-figure`, `.control-panel`). The
+   marked letter carries the scene's whole explanatory burden (see the brief), so
+   it is the one thing on this figure set apart in colour rather than merely bold. */
+
+.ladder-wrap {
+  /* A floor under the figure so a failed search's one line of prose does not
+     collapse the column to nothing while the panel beside it holds its own
+     height — the same role `.throw-area`'s and `.displaced-area`'s own
+     min-height play for their scenes. */
+  min-height: 3rem;
+}
+
+.ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* Scoped past explorer.css's own bare `.verdict` — the check page's proof
+   block, a heading with a rule under it — the same way N+7's own
+   `.displaced-area .verdict` already has to. Display, border and padding
+   reset, not just the type, or the rule that block draws would survive here
+   too. */
+.ladder-wrap .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0.5rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.ladder-wrap .verdict.yes {
+  color: var(--pass);
+}
+
+.ladder-wrap .verdict.no {
+  color: var(--rubric);
+}
+
+/* One rung arriving after the one above it — the same "each keyframe fires once,
+   staggered by --i" idiom `.strip-line` and `.slip` already use, not a second
+   pattern. No transitionend anywhere: this is a plain CSS entrance, so nothing
+   here can be stranded mid-flight the way a JS-driven, server-targeted turn can. */
+.rung {
+  display: flex;
+  gap: 0.35rem;
+  opacity: 0;
+  transform: translateY(-14px);
+  animation: rung-arrive 240ms ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 210ms);
+}
+
+@keyframes rung-arrive {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* explorer.css's blanket `prefers-reduced-motion` rule sets `animation: none
+   !important`, which alone would strand a `.rung` at its pre-animation
+   `opacity: 0, translateY(-14px)` forever — motion removed is not the same as
+   the rung having arrived. This is what actually shows it: the settled end
+   state, the same fix `.slip` and `.strip-line` already need for the same
+   reason, letters still marked (`.tile.changed` carries its own colour, not
+   the animation). Same selector specificity as the base rule, declared
+   after it, so this wins once the media query is live. */
+@media (prefers-reduced-motion: reduce) {
+  .rung {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* One letter per box, dark case-furniture like the Denckring's own word panel
+   and the N+7 reels — the motion is the demonstration here too. */
+.tile {
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--case-deep);
+  border-radius: 2px;
+}
+
+/* The one letter that changed to reach this rung — the scene's entire
+   explanatory burden (see the brief), so it is the one tile marked apart
+   from its neighbours rather than merely described near them. */
+.tile.changed {
+  background: var(--rubric);
+  color: var(--paper);
+}
+
+/* Distinct wording for a search that never ran (an endpoint the lexicon does
+   not know) from one that ran and found nothing (see `stage.word_ladder`) —
+   this rule only sets the type both share; the words themselves are what
+   tell a viewer which happened. */
+.ladder-problem {
+  font-family: var(--body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0;
+}
+
+/* Four controls in one row (two text fields, a select, a button) is more than
+   N+7's own single-field form carries, so this scene gets its own sizing
+   rather than N+7's `flex-wrap: nowrap` — wrapping is the right behaviour
+   here, not a fallback from a row that no longer fits. Widths are fixed
+   rather than left at explorer.css's bare `width: 100%`, which inside a
+   flex row would make every field alone claim the whole line. */
+.ladder-stage .control-panel .actions {
+  align-items: center;
+}
+
+.ladder-stage .control-panel .actions input[type="text"] {
+  width: 6rem;
+  flex: none;
+}
+
+.ladder-stage .control-panel .actions select {
+  width: auto;
+  min-width: 6.5rem;
+}
+
