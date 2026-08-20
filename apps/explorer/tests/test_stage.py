@@ -1218,6 +1218,26 @@ def test_the_rhyme_pairing_holds_for_every_combination_of_alternatives() -> None
                 assert _lines_rhyme(option_a, option_b, pack), (line_a, line_b, option_a, option_b)
 
 
+def test_no_deal_can_rhyme_a_word_with_itself() -> None:
+    """A pair the scheme names must rhyme, and `rhyme_keys` is satisfied by a
+    word rhymed with itself — so the pairing test above passed while positions
+    5 and 7 could both deal "again", 6 and 8 both "before" or "more", 9 and 11
+    both "spell" or "tell", and 10 and 12 both "day". Four of the seven pairs.
+    An identical rhyme is weak in English practice and a viewer can deal one,
+    so this pins the property the other test cannot see: across a pair, no
+    alternative ends on the word any alternative at the other end ends on.
+
+    Compared on the final word `rhyme_keys` itself reports, not on the raw
+    line, so punctuation and capitalisation cannot make two identical words
+    look distinct."""
+    pack = stage.pack("en")
+    offered = stage.queneau_offered()
+    for line_a, line_b in _RHYME_PAIRS:
+        words_a = {_line_rhyme(option, pack)[0] for option in offered[line_a - 1]}
+        words_b = {_line_rhyme(option, pack)[0] for option in offered[line_b - 1]}
+        assert not (words_a & words_b), (line_a, line_b, sorted(words_a & words_b))
+
+
 def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
     response = client.get("/stage/cent_mille_milliards")
     assert response.status_code == 200
