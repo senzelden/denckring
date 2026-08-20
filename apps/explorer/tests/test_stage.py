@@ -344,6 +344,27 @@ def test_fit_for_stage_rejects_the_known_vulgarities() -> None:
         assert stage.fit_for_stage(word) is True, word
 
 
+def test_fit_for_stage_blocks_spast_and_accepts_the_trade() -> None:
+    """Ruling 1: "Spast" is an ableist slur with no innocent reading, and is
+    producible by these rings, so the stem is blocked — even though that
+    also costs "spastisch", a genuine clinical adjective (also producible).
+    That trade is deliberate, so both directions are pinned here."""
+    assert stage.fit_for_stage("Spast") is False
+    assert stage.fit_for_stage("spastisch") is False
+
+
+def test_fit_for_stage_blocks_schlampen_precisely() -> None:
+    """Ruling 2: "schlampen" is blocked as the exact word, not the broader
+    "schlamp" stem, because "Schlampe" itself is not producible by this
+    device at all (`pieces_for` returns None) while "schlampen" is — and the
+    precise entry leaves "schlampig" (sloppy, an ordinary adjective, also
+    producible) untouched, the same precision already used for "arsch" and
+    "sack"."""
+    assert stage.pieces_for("Schlampe") is None
+    assert stage.fit_for_stage("schlampen") is False
+    assert stage.fit_for_stage("schlampig") is True
+
+
 def test_rhyme_endings_are_all_curated_and_clean() -> None:
     """Every offered ending is one this project chose to show on camera for
     its yield, and every word its sweep can produce is both real and passes
