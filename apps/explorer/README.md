@@ -46,6 +46,22 @@ examples are the golden fixtures CI enforces, so they behave here exactly as the
 there; and the result marks the offending characters inline using the offsets every
 `Violation` has carried since the first release.
 
+## The board and the stage
+
+`/board` lays out every golden case in the catalogue and runs each one live, so
+it is slow by design — that is the coverage picture, run for real rather than
+cached. `/stage` holds five recordable demo scenes at a fixed size for
+screen capture. Neither needs a corpus except the Ideenwürfeln scene, which
+explains itself in the page when `DENCKRING_CORPORA` is unset.
+
+The Python suite executes no JavaScript. What is guarded by tests is the markup,
+the routes and the procedures behind them; the scenes' actual behaviour in a
+browser — the discs spinning and landing, the reduced-motion paths, the layout
+fitting 1280×720 — is verified by hand and by no test at all. That gap is worth
+naming plainly: checking scenes by eye in this stage caught three real bugs a
+Python test could not have seen, including four of five discs painted over one
+another and a deadlock that left the whole scene dead until reload.
+
 ## What it is not
 
 It reads the installed `denckring` at request time and copies nothing, so it cannot
