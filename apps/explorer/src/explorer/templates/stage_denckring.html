@@ -5,7 +5,7 @@
   <p class="scene-kicker">Harsdörffer &middot; Nürnberg, 1651</p>
   <h1>{{ scene.title }}</h1>
 </header>
-<div class="denckring-stage">
+<div class="denckring-stage scene-split">
   <div class="rings-wrap">
     <svg id="rings" class="rings-svg" viewBox="0 0 400 400" role="img"
          aria-label="Five concentric discs of German word parts">
@@ -15,15 +15,19 @@
          data-parts="{{ slot.alternatives | join('|') }}"></g>
       {% endfor %}
     </svg>
-    <p class="ring-note">Each disc shows a window onto its own ring, not the whole thing — as
-    few as eight parts near the hub, more on the outer bands, out of as many as 120; turning
-    scrolls the rest through.</p>
+    {# Says in words what the legend below now says in numbers: a disc showing
+       twenty parts and a legend saying 120 are not in disagreement. #}
+    <p class="ring-note">Each disc shows a window onto its own ring — never all the parts
+    counted below; turning scrolls the rest through.</p>
+    {# Each band's own part count, read off `rings.slots` rather than typed in —
+       the two figures below are products of these five, and a legend carrying a
+       stale number by hand would be the one place on this page a viewer could
+       catch the arithmetic disagreeing with itself. #}
     <p class="ring-legend">
-      <span class="legend-item"><i class="swatch swatch-0"></i>vorsylbe</span>
-      <span class="legend-item"><i class="swatch swatch-1"></i>anfangsbuchstabe</span>
-      <span class="legend-item"><i class="swatch swatch-2"></i>mittelbuchstabe</span>
-      <span class="legend-item"><i class="swatch swatch-3"></i>endbuchstabe</span>
-      <span class="legend-item"><i class="swatch swatch-4"></i>nachsylbe</span>
+      {% for slot in rings.slots %}
+      <span class="legend-item"><i class="swatch swatch-{{ loop.index0 }}"></i>{{ slot.name }}
+        &middot; {{ slot.alternatives | length }}</span>
+      {% endfor %}
     </p>
   </div>
   <div class="control-panel">
@@ -43,6 +47,18 @@
       <span class="count count-claimed"><s>{{ "{:,}".format(rings.claimed) }}</s></span>
       <span class="count-label">the figure the literature repeats</span>
     </p>
+    {# Both numbers above need their reason on screen. Striking one through
+       without saying why is an assertion, and the true one is a product of
+       50 · 60 · 12 · 120 · 24 where the legend shows 49 and 23 — a viewer who
+       multiplies the legend gets 97,372,800 and concludes the page is wrong.
+       The product is built from the same slots the legend is, blanks included,
+       so the two can never drift apart. #}
+    <p class="counts-note">The struck figure factors as 2<sup>8</sup> &times; 3 &times;
+    5<sup>2</sup> &times; 61 &times; 83; neither 61 nor 83 divides any ring size, so it cannot be
+    a product of these rings on any count. The prefix and suffix rings (vorsylbe, nachsylbe) may
+    each be left blank &mdash; one turn more than each has parts &mdash; so the product is
+    {%- for slot in rings.slots %} {{ slot.alternatives | length + (1 if slot.optional else 0) }}
+    {%- if not loop.last %} &times;{% endif %}{% endfor %}.</p>
   </div>
 </div>
 <figure class="harsdoerffer-quote">
@@ -54,7 +70,8 @@
   them.</p>
   <figcaption>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae
   (Erquickstunden)</cite>, Nürnberg 1651. <span class="quote-note">Quoted from secondary sources
-  reproducing the Deliciae, not from the print itself.</span></figcaption>
+  reproducing the Deliciae, not from the print itself; the translation is this project's
+  own.</span></figcaption>
 </figure>
 <script>
 // The five discs, drawn and turned entirely here rather than in Jinja, so there
@@ -66,12 +83,16 @@ const CENTER = 200;
 // at once. The window narrows toward the hub because that is where a real
 // paper disc would run out of room to write legibly, not an arbitrary cut —
 // the outer bands, with more circumference, can carry more of the ring.
+// `fill` names a --ring-N token rather than a literal: stage.css's legend
+// swatches read the same five, so a band and its swatch cannot be retuned
+// apart and leave the legend saying a colour belongs to a ring it no longer
+// does.
 const GEOMETRY = [
-  { rOuter: 54, window: 8, fill: 'var(--rubric)', labelR: 33, font: 7.2 },
-  { rOuter: 88, window: 14, fill: '#c9beaa', labelR: 71, font: 8 },
-  { rOuter: 122, window: 12, fill: '#dcd5c5', labelR: 105, font: 9 },
-  { rOuter: 156, window: 18, fill: '#e8e3d9', labelR: 139, font: 8.4 },
-  { rOuter: 190, window: 20, fill: '#f2efe7', labelR: 173, font: 8 },
+  { rOuter: 54, window: 8, fill: 'var(--ring-0)', labelR: 33, font: 7.2 },
+  { rOuter: 88, window: 14, fill: 'var(--ring-1)', labelR: 71, font: 8 },
+  { rOuter: 122, window: 12, fill: 'var(--ring-2)', labelR: 105, font: 9 },
+  { rOuter: 156, window: 18, fill: 'var(--ring-3)', labelR: 139, font: 8.4 },
+  { rOuter: 190, window: 20, fill: 'var(--ring-4)', labelR: 173, font: 8 },
 ];
 const SVGNS = 'http://www.w3.org/2000/svg';
 // A ring's true distance to travel ranges from a handful of parts (the
