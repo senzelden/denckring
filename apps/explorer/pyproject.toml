@@ -9,7 +9,7 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-    "denckring[en]",
+    "denckring[en,de]",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     "jinja2>=3.1",
@@ -24,6 +24,7 @@ explorer = "explorer.__main__:main"
 [tool.uv.sources]
 denckring = { path = "../..", editable = true }
 denckring-en-data = { path = "../../packages/denckring-en-data", editable = true }
+denckring-de-data = { path = "../../packages/denckring-de-data", editable = true }
 
 [build-system]
 requires = ["hatchling"]
