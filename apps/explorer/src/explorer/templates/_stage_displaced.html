@@ -2,10 +2,25 @@
 <p class="placeholder">Nothing to displace yet &mdash; type a sentence with at least one noun.</p>
 {% else %}
 <p class="displaced-text">{{ produced }}</p>
-{% if report %}
+{% if report and unchanged %}
+{# `check` is satisfied here — vacuously, there being no noun for the
+   displacement to get wrong — and captioning that "a real displacement of the
+   source" would be true by the checker's semantics and misleading on camera,
+   in the one scene with a box a recorder types into. #}
+<p class="verdict none">checked &mdash; nothing moved: the source carries no noun the list
+  knows</p>
+{% elif report %}
 <p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
   {{ "checked — a real displacement of the source" if report.satisfied
      else "checked — not a displacement of the source" }}
 </p>
 {% endif %}
 {% endif %}
+{# The reels are part of what this action changed, so they are swapped out of
+   band from the source that was actually posted — every other scene on this
+   stage re-renders everything its action touched, and columns still reading
+   "cat" beside a panel displacing something else would be this scene's own
+   version of describing what it did not do. #}
+<div id="n7-reels" class="n7-columns-wrap scene-figure" hx-swap-oob="true">
+  {% include "_stage_reels.html" %}
+</div>

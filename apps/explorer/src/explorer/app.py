@@ -16,6 +16,7 @@ from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures, get
+from denckring.procedures.n_plus_7 import displace
 from denckring.procedures.syllable_count import line_syllables
 from explorer import bench, board, catalogue_view, corpora, env, stage, witz
 
@@ -76,6 +77,10 @@ def the_board(request: Request) -> HTMLResponse:
         page_id="board",
         tiles=board.tiles(),
         scoreboard=board.scoreboard_line(),
+        # The board borrows the stage's shell, which asks whether the chrome is
+        # off; it has no `?chrome=off` of its own, so it answers rather than
+        # leaving the template to read an undefined name as false.
+        chrome_off=False,
     )
 
 
@@ -159,13 +164,6 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     if headword:
         params["headword"] = headword
     produced, trouble = bench.generate("ideenwuerfeln", text, "en", params)
-    if trouble and headword:
-        # `apply` raises when even its whole-corpus fallback pool cannot fill
-        # `slots` entries for this headword at all — a shortage unrelated to
-        # distinct fields, so retry as the plain draw it would have been
-        # without the request, rather than surface that as an error asking
-        # for a collision caused.
-        produced, trouble = bench.generate("ideenwuerfeln", text, "en", {"headword": headword})
 
     slips = stage.slips_of(text, produced, headword) if produced else []
     distinct = len({slip.domain for slip in slips})
@@ -270,13 +268,25 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     `denckring_check` is asked to confirm it independently — so there is nothing on
     this page for a viewer to take on faith that the library did not already verify.
     """
-    from denckring.procedures.n_plus_7 import displace
-
     form = dict(await request.form())
     source = str(form.get("source", ""))
     produced = displace(source, stage.pack(), 7) if source else ""
     report = denckring_check("n_plus_7", produced, source=source) if source else None
-    return page(request, "_stage_displaced.html", source=source, produced=produced, report=report)
+    return page(
+        request,
+        "_stage_displaced.html",
+        source=source,
+        produced=produced,
+        report=report,
+        # `displace` leaves a word alone exactly when the noun list does not know
+        # it, so text that comes back identical is text with no noun to displace
+        # at all — read back from the result rather than predicted from the
+        # source, the same way every other scene here reports what happened.
+        unchanged=bool(source) and produced == source,
+        # The reels show this source too, and the fragment swaps them back out of
+        # band; see `_stage_displaced.html`.
+        steps=stage.displacement(source, 7),
+    )
 
 
 @app.get("/stage/ghazal", response_class=HTMLResponse)

@@ -141,8 +141,8 @@ jobs:
         run: uv run mkdocs build --strict
 
   explorer:
-    # A development tool, but a tested one: 957 lines that no other job touches,
-    # and this stage roughly doubled it to a 64-test suite CI has never run.
+    # A development tool, but a tested one: its own suite, which no other job in
+    # this workflow collects and which has never run in CI before this job.
     runs-on: ubuntu-latest
     defaults:
       run:
