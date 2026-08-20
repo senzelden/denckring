@@ -270,8 +270,10 @@ _BLOCKED_EXACT = frozenset(
 #:   as their `+7` replacement and 560 pass one somewhere in the reel
 #:   (measured; "Kachel" -> "Kackbeutel", "Scheitern" -> "Scheiße").
 #: - **The word ladder** searches its intermediate rungs through that same
-#:   raw lexicon, and a rung can land on a blocked word (rare: one ladder in
-#:   a sample of 120 between ordinary words, per the branch review).
+#:   raw lexicon, and a rung can land on a blocked word. Rare, but not as rare
+#:   as one might guess: 3 of 120 German ladders between ordinary four- and
+#:   five-letter nouns passed one (measured — "zack" to "maki" climbs through
+#:   "kack"), against the 1 in 120 the branch review sampled.
 #:
 #: Filtering either would be worse than the exposure. The noun at index+7 is
 #: what N+7 *is* — skip it and the scene is performing something else while
