@@ -1115,8 +1115,35 @@
    scene's own brief asks for a page rather than a control panel. Centred,
    narrower than the 1280px stage, because verse this short set edge to edge
    would read as a report rather than a page. Measured in a browser at every
-   state (first paint, mid-deal, chrome off); see the task report for the
-   numbers `.stage`'s 720px clip has to hold. */
+   state (first paint, mid-deal, chrome off, both strip sets); see the task
+   report for the numbers `.stage`'s 720px clip has to hold. */
+
+/* The set picker shares `.scene-head`'s own row rather than opening a new
+   one: the kicker still spans the full width above (`flex-basis: 100%`,
+   after `.scene-kicker`'s own block layout would otherwise put it beside
+   the title), and the title and the select share the row below it, select
+   pinned to the right by `margin-left: auto`. A whole extra control row
+   was the first draft; this scene is "already among the quieter ones" (the
+   brief's own words for it) and fourteen lines of verse is already the
+   tallest content on this stage, so the picker earns a share of a row that
+   already exists rather than one of its own. */
+.queneau-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.9rem;
+}
+
+.queneau-head .scene-kicker {
+  flex-basis: 100%;
+}
+
+.queneau-set-select {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 0.2rem 0.4rem;
+}
 
 .poem {
   max-width: 34rem;

@@ -1,0 +1,30 @@
+{# Poem, count, deal control and attribution for whichever strip set `lang`
+   names. The set picker (`stage_cent_mille_milliards.html`) swaps this whole
+   block by id on `change`, via `app.py`'s `stage_cent_mille_milliards_set`,
+   so the count and the verdict can never be left describing the set that
+   used to be on screen. Rendered both by the scene's own first paint and,
+   verbatim, by that route's response. `lang` travels with every request
+   this scene sends onward from here: the deal form's own hidden field, and
+   `#poem-lang` inside `_stage_poem.html` that every flip form reads by
+   `hx-include` — so a flip or a deal on the German strips can never be run
+   against the English source underneath them. #}
+<div id="poem" class="poem">
+  {% include "_stage_poem.html" %}
+</div>
+<div class="queneau-panel">
+  <p class="queneau-count">
+    <span class="count count-true">{{ "{:,}".format(poem.combinations) }}</span>
+    <span class="count-label">poems this set can make</span>
+  </p>
+  <form class="actions" hx-post="/stage/cent_mille_milliards/deal" hx-target="#poem"
+        hx-swap="innerHTML">
+    <input type="hidden" name="lang" value="{{ lang }}">
+    <button type="submit">Deal</button>
+  </form>
+  {# The wording the golden fixture uses for this exact situation
+     (`src/denckring/eval/fixtures/golden/cent_mille_milliards.yaml`) — Queneau
+     died in 1976, his ten sonnets are still in copyright and are not shipped, so
+     what is on screen was written for this scene. #}
+  <p class="queneau-attribution">The machine is Queneau's, the strips are not: his own ten
+    sonnets remain in copyright, so these fourteen were written for this scene.</p>
+</div>

@@ -657,35 +657,56 @@ def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
 
 # ── scene four: Cent mille milliards de poèmes ──────────────────────────────
 # Queneau's own ten sonnets are still in copyright (he died in 1976) and are
-# not shipped and never will be. These fourteen strips of three alternatives
-# were written for this scene — see the task report for the attribution the
-# page itself carries — and are read with the library's own `alternatives()`,
-# the exact parser `check` runs against them, so the scene and the checker
-# can never read two different sheets.
+# not shipped and never will be. Two sets of fourteen strips, three
+# alternatives each, were written for this scene instead — English and
+# German, see the task report for the attribution the page itself carries —
+# and both are read with the library's own `alternatives()`, the exact
+# parser `check` runs against them, so the scene and the checker can never
+# read two different sheets, for either set.
 
 #: Shipped as data alongside the scene rather than through any library
 #: capability — the brief asks for "no new library capability", and the
 #: procedure's own generality (one line per position, `|`-separated) already
 #: covers a strip sheet that lives anywhere.
-_QUENEAU_STRIPS_PATH = Path(__file__).parent / "data" / "queneau_strips.txt"
+_QUENEAU_STRIPS_PATHS: dict[Lang, Path] = {
+    "en": Path(__file__).parent / "data" / "queneau_strips.txt",
+    "de": Path(__file__).parent / "data" / "queneau_strips_de.txt",
+}
+
+#: The strip sets this scene actually ships, in the order the picker offers
+#: them — the only values its own `lang` field can carry, and what
+#: `queneau_lang` narrows a request down to.
+QUENEAU_SETS: tuple[Lang, ...] = ("en", "de")
 
 
-def queneau_source() -> str:
-    """The strip sheet itself, byte for byte."""
-    return _QUENEAU_STRIPS_PATH.read_text(encoding="utf-8")
+def queneau_lang(value: str) -> Lang:
+    """Narrow a request string to a strip set this scene actually ships.
+
+    Not `bench.as_lang`: that narrows to any of `Lang`'s three values, and
+    this scene has strips behind only two of them — a request naming the
+    third, or nothing this picker itself would ever send, falls back to
+    English exactly as `bench.as_lang` falls back for an unrecognised value.
+    """
+    return value if value in QUENEAU_SETS else "en"
 
 
-def queneau_offered() -> list[list[str]]:
+def queneau_source(lang: Lang = "en") -> str:
+    """The strip sheet itself, byte for byte, for whichever set `lang` names."""
+    return _QUENEAU_STRIPS_PATHS[lang].read_text(encoding="utf-8")
+
+
+def queneau_offered(lang: Lang = "en") -> list[list[str]]:
     """One list of alternatives per position, parsed fresh each call with the
     same `alternatives()` `check` itself runs — so a claim this scene makes
     about what a position offers can never drift from what the checker reads."""
-    return queneau_alternatives(queneau_source())
+    return queneau_alternatives(queneau_source(lang))
 
 
-def queneau_combinations() -> int:
+def queneau_combinations(lang: Lang = "en") -> int:
     """Three alternatives per position to the fourteenth power — computed
     from what actually loaded, never typed in, so a strip added or removed
-    could not leave a stale figure on screen.
+    could not leave a stale figure on screen. Per set: German's own count is
+    a fresh product over the German file, not the English constant reused.
 
     Deliberately not cached, for the same reason `queneau_offered` itself
     is not: this number is a claim about that same file, computed by
@@ -695,10 +716,11 @@ def queneau_combinations() -> int:
     source — edit the strip file without restarting the process, and the
     page would render fresh lines from `queneau_offered` while reporting a
     stale count from here. Fourteen lines is not enough text for the
-    re-read to cost anything worth trading that guarantee for.
+    re-read to cost anything worth trading that guarantee for, in either
+    set.
     """
     total = 1
-    for options in queneau_offered():
+    for options in queneau_offered(lang):
         total *= len(options)
     return total
 
@@ -733,31 +755,35 @@ class QueneauPoem:
         return "\n".join(self.lines)
 
 
-def queneau_poem(state: list[int]) -> QueneauPoem:
-    """The poem `state` reads off the strips — one chosen index per position."""
-    offered = queneau_offered()
+def queneau_poem(state: list[int], lang: Lang = "en") -> QueneauPoem:
+    """The poem `state` reads off `lang`'s own strips — one chosen index per
+    position, and a combination count computed from that same set."""
+    offered = queneau_offered(lang)
     strips = [
         QueneauStrip(position=i, alternatives=options, index=state[i])
         for i, options in enumerate(offered)
     ]
-    return QueneauPoem(strips=strips, combinations=queneau_combinations())
+    return QueneauPoem(strips=strips, combinations=queneau_combinations(lang))
 
 
-def queneau_initial_state() -> list[int]:
+def queneau_initial_state(lang: Lang = "en") -> list[int]:
     """First paint: the first alternative at every position — deterministic,
     the way Denckring's own rings start every disc at index 0, so first paint
-    is the same poem every time the scene loads rather than a draw a test
-    would have to pin against randomness."""
-    return [0 for _ in queneau_offered()]
+    is the same poem every time the scene loads, or the picker switches sets,
+    rather than a draw a test would have to pin against randomness."""
+    return [0 for _ in queneau_offered(lang)]
 
 
-def queneau_deal(rng: random.Random | None = None) -> list[int]:
-    """A fresh index for every position — the deal control's whole job."""
+def queneau_deal(lang: Lang = "en", rng: random.Random | None = None) -> list[int]:
+    """A fresh index for every position of `lang`'s own strips — the deal
+    control's whole job."""
     chooser = rng if rng is not None else random.Random()
-    return [chooser.randrange(len(options)) for options in queneau_offered()]
+    return [chooser.randrange(len(options)) for options in queneau_offered(lang)]
 
 
-def queneau_flip(state: list[int], position: int, rng: random.Random | None = None) -> list[int]:
+def queneau_flip(
+    state: list[int], position: int, lang: Lang = "en", rng: random.Random | None = None
+) -> list[int]:
     """Redraw one position only, landing on a different alternative from the
     one already showing — the other thirteen positions untouched.
 
@@ -765,7 +791,7 @@ def queneau_flip(state: list[int], position: int, rng: random.Random | None = No
     the same line again would look, on camera, like nothing had happened at
     all, even though the draw was genuine.
     """
-    offered = queneau_offered()
+    offered = queneau_offered(lang)
     chooser = rng if rng is not None else random.Random()
     options = offered[position]
     remaining = [i for i in range(len(options)) if i != state[position]]
@@ -774,11 +800,12 @@ def queneau_flip(state: list[int], position: int, rng: random.Random | None = No
     return new_state
 
 
-def queneau_state_from_text(raw: str) -> list[int] | None:
-    """Parse the hidden `state` field a form posted back, or `None` if it
-    does not describe a poem these strips could show — a hand-crafted or
-    stale request, never one this page's own markup would send."""
-    offered = queneau_offered()
+def queneau_state_from_text(raw: str, lang: Lang = "en") -> list[int] | None:
+    """Parse the hidden `state` field a form posted back, against `lang`'s own
+    strips, or `None` if it does not describe a poem that set could show — a
+    hand-crafted or stale request, never one this page's own markup would
+    send."""
+    offered = queneau_offered(lang)
     parts = raw.split(",")
     if len(parts) != len(offered):
         return None
