@@ -1,0 +1,33 @@
+{% extends "stage.html" %}
+{% block title %}Haikuization{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Oulipo &middot; ha&iuml;kuisation</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="haiku-stage">
+  {# The name is the catalogue's own and it promises a haiku this row does not
+     make (see the row's own docstring) — said here in the plainest words
+     rather than left for a viewer to assume from the title alone. #}
+  <p class="haiku-panel-note">Not a haiku: <code>apply</code> keeps each line's own last word,
+    in order, and lets the rest of the poem go &mdash; a shorter poem left standing inside the
+    longer one, not five-seven-five syllables.</p>
+  <form class="haiku-form" hx-post="/stage/haikuization/act" hx-target="#haiku" hx-swap="innerHTML">
+    <div class="field">
+      <label for="source-field">Source</label>
+      <textarea id="source-field" name="source" spellcheck="false">{{ source }}</textarea>
+    </div>
+    <div class="actions">
+      <button type="submit">Reduce it</button>
+    </div>
+  </form>
+  {# The source above is not Oulipo's or anyone else's own — this project does
+     not quote what it cannot attest, and reciting verse from memory into a
+     shipped page is exactly that (see the brief). Three words, as asked. #}
+  <p class="haiku-attribution">Written for this scene.</p>
+  <div id="haiku" class="haiku-area">
+    {% include "_stage_haiku.html" %}
+  </div>
+</div>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}
