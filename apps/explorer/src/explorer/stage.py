@@ -249,3 +249,131 @@ def displacement(source: str, offset: int = 7) -> list[Step]:
             )
         )
     return steps
+
+
+#: The golden fixture's own satisfying case, taken verbatim — see
+#: `src/denckring/eval/fixtures/golden/ghazal.yaml`, case `radif-and-qafia-held`.
+#: Every couplet closes on "tonight" (the radif), rhyming "road" (the qafia).
+GHAZAL_GOOD = (
+    "i cannot find the road tonight\n"
+    "the lamps have all been slowed tonight\n"
+    "the river takes another turn\n"
+    "and leaves its heavy load tonight\n"
+    "the letters that i never sent\n"
+    "are lying in the code tonight"
+)
+
+#: `GHAZAL_GOOD` with one word changed: the closing couplet's qafia, "code",
+#: replaced by "book" — a word the pronouncing dictionary knows but that does
+#: not rhyme with "road". The radif ("tonight") is untouched, so `check`
+#: raises exactly one `broken_qafia` violation and nothing else — the brief's
+#: own requirement, that the counterexample fail for the one reason the scene
+#: points at rather than some other one. Confirmed against `check("ghazal", …)`
+#: before this was written down; see the task report for the transcript.
+GHAZAL_BROKEN = (
+    "i cannot find the road tonight\n"
+    "the lamps have all been slowed tonight\n"
+    "the river takes another turn\n"
+    "and leaves its heavy load tonight\n"
+    "the letters that i never sent\n"
+    "are lying in the book tonight"
+)
+
+
+@dataclass(frozen=True)
+class GhazalWord:
+    """One word of a line, and whether it recurs correctly."""
+
+    text: str
+    #: "radif", "qafia" or "" — "" for a word neither slot names.
+    role: str
+    #: "defines" for the opening couplet, which sets the radif and qafia
+    #: rather than being judged against them; "ok" or "bad" for a later
+    #: carrying line judged against that opening couplet; "" for a word with
+    #: no role, or one the checker never reached (a broken radif line's own
+    #: qafia is never scored — see `ghazal_reading`).
+    state: str
+
+
+@dataclass(frozen=True)
+class GhazalLine:
+    """One line, split into its words, with the closing pair marked."""
+
+    words: list[GhazalWord]
+    #: Whether the form requires this line to carry the radif at all — the
+    #: opening couplet, and every second line after it.
+    carries: bool
+
+
+@dataclass(frozen=True)
+class GhazalReading:
+    """A text split into couplets, with the radif and qafia the opening
+    couplet sets and every later line marked against them."""
+
+    radif: str
+    qafia: str
+    lines: list[GhazalLine]
+
+
+def ghazal_reading(text: str) -> GhazalReading | None:
+    """Split `text` into the lines a ghazal reads as couplets, with the radif
+    and qafia marked wherever the form requires them.
+
+    Built from the same primitives `Ghazal._check` itself compares with —
+    `line_spans`/`word_spans` for the words, `word_rhyme_keys` for whether a
+    line's word before its radif actually rhymes with the opening couplet's —
+    the same reason `stage.pieces_for` reuses `device.segment` rather than a
+    second, guessable version of the same fact: a display that recomputed
+    this by a different route could disagree with what the checker finds.
+    Whether a line's *radif* matches is a plain string comparison and carries
+    no such risk either way. Once a carrying line's radif is wrong the real
+    checker never even looks at its qafia (`continue`s past it), so neither
+    does this — that word is left with no state rather than a guessed one.
+    """
+    from denckring.core.prosody import word_rhyme_keys
+    from denckring.core.text import line_spans, word_spans
+
+    raw_lines = [line for _, line in line_spans(text)]
+    if not raw_lines:
+        return None
+    english = pack()
+
+    def words_of(line: str) -> list[str]:
+        return [word.casefold() for _, word in word_spans(line, english)]
+
+    first_words = words_of(raw_lines[0])
+    radif = first_words[-1] if first_words else ""
+    qafia_source = first_words[-2] if len(first_words) >= 2 else ""
+    base_qafia, base_exact = (
+        word_rhyme_keys(qafia_source, english) if qafia_source else (frozenset[str](), False)
+    )
+    carriers = {1, *range(3, len(raw_lines), 2)}
+
+    lines: list[GhazalLine] = []
+    for index, raw_line in enumerate(raw_lines):
+        words = words_of(raw_line)
+        defines = index == 0
+        carries = defines or index in carriers
+        radif_index = len(words) - 1 if carries and words else None
+        qafia_index = len(words) - 2 if carries and len(words) >= 2 else None
+        radif_ok = True
+        qafia_state = ""
+        if carries and not defines:
+            radif_ok = bool(words) and words[-1] == radif
+            if radif_ok and qafia_index is not None:
+                candidate, candidate_exact = word_rhyme_keys(words[qafia_index], english)
+                if base_exact and candidate_exact:
+                    qafia_state = "ok" if candidate & base_qafia else "bad"
+        marked: list[GhazalWord] = []
+        for position, word in enumerate(words):
+            role = ""
+            state = ""
+            if position == radif_index:
+                role = "radif"
+                state = "defines" if defines else ("ok" if radif_ok else "bad")
+            elif position == qafia_index:
+                role = "qafia"
+                state = "defines" if defines else qafia_state
+            marked.append(GhazalWord(text=word, role=role, state=state))
+        lines.append(GhazalLine(words=marked, carries=carries))
+    return GhazalReading(radif=radif, qafia=qafia_source, lines=lines)

@@ -986,3 +986,193 @@ button.column-choice:hover {
 .displaced-area .verdict.no {
   color: var(--rubric);
 }
+
+/* ── scene five: Ghazal ────────────────────────────────────────────────
+   The quiet scene: nothing here spins, falls or slides. Paper, not the dark
+   case furniture the other four sit on — this is text set properly, not a
+   mechanism to be turned, so `.control-panel` is reused but the couplets
+   themselves get their own column rather than `.tablet-wrap`'s dark box. */
+
+.ghazal-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.4rem;
+}
+
+.ghazal-panel {
+  flex: none;
+  width: 620px;
+}
+
+.ghazal-terms {
+  font-family: var(--body);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--lead);
+  margin: 0 0 1.1rem;
+  max-width: var(--measure);
+}
+
+.ghazal-terms .term {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.couplets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0 0 0.9rem;
+}
+
+/* A hairline rule per couplet — the closest this scene comes to an ornament,
+   standing in for the blank line a printed ghazal leaves between couplets. */
+.couplet {
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--paper-shade);
+}
+
+.ghazal-line {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* The radif underlines solid, the qafia dotted, so the two recurring roles
+   read apart from each other even before their colour says whether either
+   held. Neither role's own colour changes here — that only happens on a
+   carrying line judged against the opening couplet, below. */
+.ghazal-word.role-radif {
+  font-weight: 600;
+  border-bottom: 2px solid var(--lead);
+}
+
+.ghazal-word.role-qafia {
+  border-bottom: 2px dotted var(--lead);
+}
+
+/* The opening couplet sets the radif and qafia rather than being judged
+   against them — a third colour, neither the pass green nor the fail red
+   the carrying lines below get, so it cannot be mistaken for either. */
+.ghazal-word.state-defines {
+  border-bottom-color: var(--rubric);
+}
+
+.ghazal-word.state-ok {
+  color: var(--pass);
+  border-bottom-color: var(--pass);
+}
+
+.ghazal-word.state-bad {
+  color: var(--rubric);
+  font-weight: 700;
+  border-bottom-color: var(--rubric);
+  border-bottom-style: wavy;
+}
+
+/* Scoped past explorer.css's bare `.verdict` the same way every other scene
+   on this stage already is. */
+.ghazal-panel .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0 0 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.ghazal-panel .verdict.yes {
+  color: var(--pass);
+}
+
+.ghazal-panel .verdict.no {
+  color: var(--rubric);
+}
+
+.ghazal-panel .verdict .score {
+  margin-left: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--lead);
+}
+
+.ghazal-violations {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  font-family: var(--body);
+  font-size: 0.82rem;
+  color: var(--lead);
+}
+
+.ghazal-violations li {
+  margin: 0 0 0.2rem;
+}
+
+.ghazal-violations .rule-name {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--rubric);
+  margin-right: 0.4rem;
+}
+
+.ghazal-marked-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0.5rem 0 0.3rem;
+}
+
+/* explorer.css's own `.proof-text` was sized for the full bench page; inside
+   this scene's narrower, shorter panel the same block is set smaller so the
+   couplets above it, the verdict and the marked text below all still fit the
+   stage's fixed 720px without scrolling. */
+.ghazal-panel .proof-text {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  padding: 0.6rem 0.75rem;
+  margin: 0;
+}
+
+/* The couplets/verdict form a single vertical read, not the label-beside-
+   field row `.actions` lays out elsewhere on this stage — the textarea needs
+   its own full-width line above the button, not beside it. */
+.ghazal-stage .actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.ghazal-stage textarea {
+  min-height: 8.5rem;
+}
+
+.ghazal-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.ghazal-note {
+  font-family: var(--body);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 1rem 0 0;
+}
+
+.ghazal-note code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+}

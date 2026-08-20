@@ -1,0 +1,47 @@
+{% macro word_span(word) -%}
+<span class="ghazal-word
+  {%- if word.role %} role-{{ word.role }}{% endif -%}
+  {%- if word.state %} state-{{ word.state }}{% endif -%}
+">{{ word.text }}</span>
+{%- endmacro %}
+{% if not reading %}
+<p class="placeholder">Nothing to read yet &mdash; a ghazal needs at least a couplet.</p>
+{% else %}
+<p class="ghazal-terms">
+  <span class="term">radif</span> &mdash; the word every carrying line closes on:
+  &ldquo;{{ reading.radif }}&rdquo;.
+  <span class="term">qafia</span> &mdash; the rhyme just before it, set here by
+  &ldquo;{{ reading.qafia }}&rdquo;.
+</p>
+<div class="couplets">
+  {% for couplet in reading.lines | batch(2) %}
+  <div class="couplet">
+    {% for line in couplet %}
+    <p class="ghazal-line">{% for word in line.words -%}
+      {{ word_span(word) }}{{ " " if not loop.last }}
+    {%- endfor %}</p>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if report %}
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {{ "checked — every carrying line closes on the radif, rhymed" if report.satisfied
+     else "checked — not a ghazal" }}
+  <span class="score">score {{ '%.3f' | format(report.score) }}</span>
+</p>
+{% if report.violations %}
+<ul class="ghazal-violations">
+  {% for v in report.violations %}
+  <li>
+    <span class="rule-name">{{ v.rule.replace('_', ' ') }}</span>
+    {% if v.found %}found &ldquo;{{ v.found }}&rdquo;{% endif %}
+    {% if v.expected %}{% if v.found %} &mdash; {% endif %}expected {{ v.expected }}{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+<p class="ghazal-marked-label">The text, as checked</p>
+<div class="proof-text">{{ marked | safe }}</div>
+{% endif %}
