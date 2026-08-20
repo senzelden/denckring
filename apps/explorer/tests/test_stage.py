@@ -48,6 +48,22 @@ def test_chrome_off_removes_the_caption() -> None:
     assert "stage-caption" not in without.text
 
 
+@pytest.mark.parametrize("slug", [scene.slug for scene in stage.SCENES])
+def test_every_scene_renders_and_survives_chrome_off(slug: str) -> None:
+    """The spec asks this of each scene, not of the index alone: `chrome_off`
+    is threaded through five separate route signatures, so a typo in one would
+    ship unnoticed until somebody sat down to record that scene."""
+    with_chrome = client.get(f"/stage/{slug}")
+    assert with_chrome.status_code == 200
+    assert 'id="stage"' in with_chrome.text
+    assert "stage-caption" in with_chrome.text
+
+    without = client.get(f"/stage/{slug}?chrome=off")
+    assert without.status_code == 200
+    assert 'id="stage"' in without.text
+    assert "stage-caption" not in without.text
+
+
 def test_the_rings_carry_the_transcribed_counts() -> None:
     """Cramer's transcription has 49/60/12/120/23, where Harsdörffer's own text
     announces 48/50/12/120/24. The scene shows what the data has, not what the book
@@ -361,10 +377,14 @@ def test_a_thin_headword_pool_is_widened_and_the_page_says_so(
     assert response.status_code == 200
     for domain in ("Alpha", "Beta", "Gamma"):
         assert domain in response.text
+    # Normalised the way `test_the_harsdoerffer_quotation_is_reproduced_exactly`
+    # normalises: the wording is the claim, and the template's indentation is
+    # not — a pure re-wrap should not fail a test about what the page says.
+    normalised = " ".join(response.text.split())
     assert (
-        "&ldquo;rare&rdquo; was too thin to draw three excerpts\n"
-        "    from — this throw was made across the whole corpus instead."
-    ) in response.text
+        "&ldquo;rare&rdquo; was too thin to draw three excerpts from — this throw was made "
+        "across the whole corpus instead."
+    ) in normalised
     assert "Filed under" not in response.text
     assert "Drawn across the whole corpus" in response.text
     # Not the fallback case — three distinct fields were found, just not from
@@ -397,10 +417,11 @@ def test_the_witz_disclaimer_survives_a_real_throw(
         data={"corpus_path": str(corpus_path), "headword": "word"},
     )
     assert response.status_code == 200
+    normalised = " ".join(response.text.split())
     assert (
         "A reading, not a verdict. No <code>Report</code> is produced and no checker "
-        "consults\n    it — the Witz is the step no program performs."
-    ) in response.text
+        "consults it — the Witz is the step no program performs."
+    ) in normalised
 
 
 # ── scene three: Arca musarithmica ──────────────────────────────────────────
@@ -523,6 +544,43 @@ def test_a_displaced_text_is_shown_beside_its_real_verdict() -> None:
     assert "verdict yes" in response.text
 
 
+def test_a_source_with_no_noun_is_not_called_a_displacement() -> None:
+    """`displace("quickly ran", …)` gives back "quickly ran" and `check` reports
+    satisfied — vacuously, there being no noun in it to displace wrongly. True
+    by the checker's semantics and misleading on camera, in the one scene with
+    a free-text box a recorder types into. The panel says what happened
+    instead."""
+    from denckring import check
+    from denckring.procedures.n_plus_7 import displace
+
+    source = "quickly ran"
+    produced = displace(source, stage.pack(), 7)
+    assert produced == source
+    assert check("n_plus_7", produced, source=source).satisfied is True
+
+    response = client.post("/stage/n_plus_7/act", data={"source": source})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "a real displacement of the source" not in normalised
+    assert "nothing moved: the source carries no noun the list knows" in normalised
+
+
+def test_displacing_a_new_source_re_renders_the_reels() -> None:
+    """Every other scene here re-renders everything its action touched. Reels
+    still reading "cat" beside a panel displacing something else would be this
+    scene's own version of describing what it did not do — and the caption that
+    tells the catafalque story goes with them, since it is true of one word on
+    one reel."""
+    response = client.post("/stage/n_plus_7/act", data={"source": "the dog ran home"})
+    assert response.status_code == 200
+    assert 'id="n7-reels"' in response.text
+    assert 'hx-swap-oob="true"' in response.text
+    assert "doggedness" in response.text
+    assert "homefolk" in response.text
+    assert "catacomb" not in response.text
+    assert "catafalque" not in response.text
+
+
 def test_a_blank_source_produces_nothing_to_check() -> None:
     """No source, no displacement — the fragment must not claim a verdict
     `check` was never asked to make."""
@@ -613,6 +671,27 @@ def test_checking_the_good_couplets_shows_every_carrying_line_holding() -> None:
     # Both roles recur down the page — not just on the opening couplet.
     assert response.text.count("role-radif") >= 3
     assert response.text.count("role-qafia") >= 3
+
+
+def test_the_ghazal_scene_promises_no_marking_it_cannot_do() -> None:
+    """`.proof-text` carries real <mark> spans on the bench page, and the label
+    over it promises them. Every ghazal violation is a whole-line judgement
+    with `offset=None`, so `mark_up` here only ever escapes the text — the
+    block appears when there is a mark in it and not before. The fault is still
+    pointed at, on the couplets themselves."""
+    from explorer import bench
+
+    from denckring import check
+
+    report = check("ghazal", stage.GHAZAL_BROKEN)
+    assert [v.offset for v in report.violations] == [None]
+    assert "<mark" not in bench.mark_up(stage.GHAZAL_BROKEN, report)
+
+    response = client.post("/stage/ghazal/act", data={"text": stage.GHAZAL_BROKEN})
+    assert response.status_code == 200
+    assert "The text, as checked" not in response.text
+    assert "proof-text" not in response.text
+    assert "state-bad" in response.text
 
 
 def test_a_blank_ghazal_produces_nothing_to_check() -> None:

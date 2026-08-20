@@ -1,0 +1,45 @@
+{# The reels: one column per noun the list knows, showing every entry it passes
+   on the way to its replacement. Shared by the scene's first paint and by the
+   fragment the Displace button swaps back, so editing the source re-renders
+   the columns rather than leaving them reading the sentence the page loaded
+   with while the panel beside them displaces something else. #}
+{% if source %}
+<p class="n7-source">&ldquo;{{ source }}&rdquo;</p>
+{% endif %}
+{% if not steps %}
+<p class="placeholder">No reel to run &mdash; the noun list knows none of these words.</p>
+{% else %}
+<div class="n7-columns">
+  {% for step in steps %}
+  <div class="n7-column">
+    <p class="n7-label">{{ step.word }}</p>
+    <div class="n7-viewport">
+      <div class="n7-track">
+        {# Two blank spacer rows on each end — the viewport shows five rows,
+           so this is what lets the reel start centred on the read line
+           (the word itself) and end centred there too (the replacement),
+           rather than pinned to an edge. See the script's own comment. #}
+        {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+        {% for entry in step.neighbours %}
+        <p class="n7-row{{ ' n7-landing' if loop.last }}">{{ entry }}</p>
+        {% endfor %}
+        {% for _ in range(2) %}<p class="n7-row"></p>{% endfor %}
+      </div>
+    </div>
+    <button type="button" class="quiet n7-travel"
+            data-target="{{ (step.neighbours | length) - 1 }}">Slide it down</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{# The catafalque story is true of one word on one reel, so it is told only
+   while that reel is actually on screen — a source edited away from "cat"
+   must not leave the note explaining a journey the columns no longer show. #}
+{% set catacomb = steps | selectattr("word", "equalto", "cat")
+                        | selectattr("replacement", "equalto", "catacomb") | list %}
+{% if catacomb %}
+<p class="n7-note">Here &ldquo;cat&rdquo; lands on &ldquo;catacomb&rdquo;. It landed on
+&ldquo;catafalque&rdquo; until this project's English lexicon moved from Princeton WordNet
+3.1 to Open English WordNet 2024 &mdash; a procedure is only as stable as the dictionary
+underneath it.</p>
+{% endif %}
