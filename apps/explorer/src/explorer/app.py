@@ -114,6 +114,49 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
     return page(request, "_stage_word.html", word=word, report=report, pieces=pieces)
 
 
+@app.get("/stage/ideenwuerfeln", response_class=HTMLResponse)
+def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
+    return page(
+        request,
+        "stage_ideenwuerfeln.html",
+        scene=stage.scene("ideenwuerfeln"),
+        choices=stage.corpus_choices(),
+        can_read=witz.available(),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/ideenwuerfeln/act", response_class=HTMLResponse)
+async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
+    """Throw the dice: draw slips from the chosen corpus under one headword.
+
+    The register comes from the corpus that was actually loaded, not from a
+    field the form could have carried unchanged — the picker offers only
+    corpora `stage.corpus_choices()` knows about, so this is the same lookup
+    rather than a second, trustable-or-not copy of the same fact.
+    """
+    form = dict(await request.form())
+    path = str(form.get("corpus_path", ""))
+    headword = str(form.get("headword", ""))
+    chosen = next((c for c in stage.corpus_choices() if c.path == path), None)
+    text, problem = corpora.load(path) if path else ("", "no corpus chosen")
+    if problem:
+        return page(request, "_stage_throw.html", throw="", problem=problem, headword=headword)
+    produced, trouble = bench.generate(
+        "ideenwuerfeln", text, "en", {"headword": headword} if headword else {}
+    )
+    return page(
+        request,
+        "_stage_throw.html",
+        throw=produced,
+        problem=trouble,
+        headword=headword,
+        style=chosen.style if chosen else witz.DEFAULT_REGISTER,
+        register=chosen.register if chosen else "modern",
+        can_read=witz.available(),
+    )
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)

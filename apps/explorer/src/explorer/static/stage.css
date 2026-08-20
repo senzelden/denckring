@@ -366,3 +366,160 @@
   line-height: 1.35;
   color: var(--lead);
 }
+
+/* ── scene two: Ideenwürfeln ───────────────────────────────────────────
+   Recorded twice, over two corpora, and the corpus's own `style` marker
+   (routed through `stage.register_for`) is what tells a slip which of the
+   two to wear — the markup never hard-codes a look to a corpus name. */
+
+.placeholder {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--lead);
+  max-width: var(--measure);
+}
+
+/* The shared `.corpus-picker` layout was built for the full bench page,
+   which has room to let its row wrap; the stage does not, so it is pinned
+   to one line here and the select and input given real widths instead of
+   the shared rule's 100%, which inside a flex row was stretching each all
+   but off the edge and forcing everything below it onto its own line. */
+.throw-form.corpus-picker {
+  flex-wrap: nowrap;
+  align-items: center;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0.9rem;
+}
+
+.throw-form.corpus-picker label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.throw-form.corpus-picker select {
+  width: auto;
+  max-width: 22rem;
+}
+
+.throw-form.corpus-picker input[type="text"] {
+  width: 15rem;
+}
+
+.throw-area {
+  min-height: 2rem;
+}
+
+.throw-headword {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0 0 0.6rem;
+}
+
+/* However long a throw's excerpts run, the stage itself never grows past
+   720px tall — `.stage` clips silently rather than scrolling (see the
+   brief), so the slip rail carries its own scrollbar instead of risking
+   that clip. */
+.slips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 10rem;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+  margin: 0 0 0.8rem;
+}
+
+.slip {
+  margin: 0;
+  padding: 0.65rem 0.9rem;
+  background: var(--paper-shade);
+  border-left: 3px solid var(--lead);
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(6px);
+  /* One slip lands after another — the same idiom scene one's spin uses for
+     its own stagger, but a slip needs none of that scene's transitionend/
+     fallback-timer machinery: it is one CSS entrance, not a driven turn to
+     a server-chosen target, so a plain delayed keyframe is the whole of it. */
+  animation: slip-land 260ms ease forwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+@keyframes slip-land {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* explorer.css's blanket `prefers-reduced-motion` rule sets `animation: none
+   !important` on every element, but that alone would leave a slip stranded
+   at its pre-animation opacity: 0 forever — motion removed is not the same
+   as the slip having arrived. This rule is what actually shows it, and it
+   wins on source order once the media query is live: same selector
+   specificity as the base rule above, declared after it. */
+@media (prefers-reduced-motion: reduce) {
+  .slip {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Jean Paul's own excerpts: paper and copperplate, the register `stage.css`'s
+   scene one already speaks. */
+.throw[data-register="baroque"] .slip {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 0.94rem;
+  background: #f2ecdd;
+  border-left-color: var(--rubric);
+}
+
+/* Everything else — the arXiv card, set in its own material's voice rather
+   than dressed as a period document. */
+.throw[data-register="modern"] .slip {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: var(--paper-shade);
+  border-left-color: #4288c4;
+}
+
+/* `_witz.html` is shared with the full bench page, which has no fixed height
+   to mind; on the stage a paragraph long enough (the baroque register runs to
+   160 words) would push the disclaimer below it — the one line that must
+   never go missing — off the bottom of a box that clips rather than scrolls.
+   So the reading gets its own scrollbar here rather than trusting its length. */
+.stage #witz h3 {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  color: var(--lead);
+  margin: 0.5rem 0 0.4rem;
+}
+
+.stage .witz-reading {
+  max-height: 7rem;
+  overflow-y: auto;
+}
+
+.stage #witz .hint {
+  margin-top: 0.3rem;
+}
+
+/* The one thing this scene must not blur: a model's reading sits beside five
+   scenes that show real verdicts, so the page says — in running text, not a
+   tooltip — that this is not a sixth one. */
+.disclaimer {
+  font-family: var(--body);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0.6rem 0 0;
+}

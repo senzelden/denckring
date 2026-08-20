@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from denckring.core import device
+from explorer import corpora
 
 
 @dataclass(frozen=True)
@@ -113,3 +114,38 @@ def pieces_for(word: str) -> list[str] | None:
     ring (prefix or suffix) comes back as `""`.
     """
     return device.segment(word, device.load("harsdoerffer_1651"))
+
+
+#: A corpus's own `style` marker decides how the scene looks. Jean Paul's excerpts are
+#: paper and copperplate; anything else is a modern card.
+REGISTERS = {"jean_paul": "baroque"}
+
+
+def register_for(style: str) -> str:
+    """The visual register a corpus's `style` marker asks for."""
+    return REGISTERS.get(style, "modern")
+
+
+@dataclass(frozen=True)
+class CorpusChoice:
+    """One corpus, offered to the scene."""
+
+    path: str
+    name: str
+    entries: int
+    style: str
+    register: str
+
+
+def corpus_choices() -> list[CorpusChoice]:
+    """Whatever is in `DENCKRING_CORPORA`, with its register resolved."""
+    return [
+        CorpusChoice(
+            path=item.path,
+            name=item.name,
+            entries=item.entries,
+            style=item.style,
+            register=register_for(item.style),
+        )
+        for item in corpora.available()
+    ]
