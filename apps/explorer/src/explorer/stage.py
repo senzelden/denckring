@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from denckring.core import arca, device
+from denckring.core.protocol import LanguagePack
+from denckring.lang import get_pack
 from explorer import corpora
 
 
@@ -211,3 +213,39 @@ TABLET = (
 def tablet() -> arca.Pinakes:
     """The scene's pattern table, parsed."""
     return arca.parse(TABLET)
+
+
+@dataclass(frozen=True)
+class Step:
+    """One noun's journey down the list."""
+
+    word: str
+    replacement: str
+    neighbours: list[str]
+
+
+def pack() -> LanguagePack:
+    """The English pack, with the noun list the scene walks."""
+    return get_pack("en")
+
+
+def displacement(source: str, offset: int = 7) -> list[Step]:
+    """Each noun of `source`, with the entries it passes on the way to its replacement."""
+    english = pack()
+    nouns = english.nouns()
+    steps: list[Step] = []
+    for token in english.tokenize(source):
+        index = english.noun_index(token.lower())
+        if index is None:
+            continue
+        landing = index + offset
+        if landing >= len(nouns):
+            continue
+        steps.append(
+            Step(
+                word=token,
+                replacement=nouns[landing],
+                neighbours=[nouns[i] for i in range(index, landing + 1)],
+            )
+        )
+    return steps

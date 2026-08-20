@@ -1,0 +1,11 @@
+{% if not produced %}
+<p class="placeholder">Nothing to displace yet &mdash; type a sentence with at least one noun.</p>
+{% else %}
+<p class="displaced-text">{{ produced }}</p>
+{% if report %}
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {{ "checked — a real displacement of the source" if report.satisfied
+     else "checked — not a displacement of the source" }}
+</p>
+{% endif %}
+{% endif %}

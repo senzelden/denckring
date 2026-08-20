@@ -808,3 +808,181 @@ button.column-choice:hover {
 .column-area .verdict.no {
   color: var(--rubric);
 }
+
+/* ── scene four: N+7 ───────────────────────────────────────────────────
+   Each column is a reel of the entries a noun passes on its way to its
+   replacement — the motion is the demonstration, so the reel is dark
+   case-furniture like the Denckring's word panel and Kircher's tablet, not
+   paper. `.control-panel` and `.actions` are scene one's own classes,
+   reused unchanged. */
+
+.n7-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.4rem;
+}
+
+.n7-columns-wrap {
+  flex: none;
+  width: 620px;
+}
+
+.n7-source {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin: 0 0 1.2rem;
+}
+
+.n7-columns {
+  display: flex;
+  gap: 1.8rem;
+}
+
+.n7-column {
+  flex: none;
+  width: 11.2rem;
+  text-align: center;
+}
+
+.n7-label {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin: 0 0 0.6rem;
+}
+
+/* --n7-row: the reel's one row height, in one place so the track's rows,
+   the viewport's fixed five-row height and the script's own measurement of
+   a real row (never a second, hard-coded copy of this number) can never
+   drift apart. Five rows, not three — a noun's window is eight entries
+   (offset 7 inclusive), and five of them visible at once is what actually
+   sells "travelling past" rather than a simple before/after cut. */
+.n7-viewport {
+  --n7-row: 2.5rem;
+  position: relative;
+  height: calc(5 * var(--n7-row));
+  overflow: hidden;
+  background: var(--case-deep);
+  border-radius: 2px;
+}
+
+/* Marks the read line the same way scene one's rubric arrow marks its own —
+   the middle row is what the reel is "reading", before, during and after a
+   slide. */
+.n7-viewport::before {
+  content: "";
+  position: absolute;
+  top: calc(2 * var(--n7-row));
+  left: 0;
+  right: 0;
+  height: var(--n7-row);
+  background: rgba(179, 18, 29, 0.22);
+  pointer-events: none;
+}
+
+.n7-track {
+  position: relative;
+}
+
+.n7-row {
+  margin: 0;
+  height: var(--n7-row);
+  line-height: var(--n7-row);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--lead-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The word a reel starts on and the replacement it lands on are the two
+   facts this scene exists to show — set apart from the entries merely
+   passed through on the way between them. Third child: two blank spacer
+   rows come before the first real entry (see the template). */
+.n7-row:nth-child(3) {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.n7-row.n7-landing {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.n7-travel {
+  margin-top: 0.6rem;
+  font-size: 0.72rem;
+}
+
+.n7-travel:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.n7-note {
+  font-family: var(--body);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 1.4rem 0 0;
+}
+
+.n7-panel-note {
+  font-family: var(--body);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--lead);
+  margin: 0 0 0.3rem;
+}
+
+.n7-panel-note code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+}
+
+.n7-stage .control-panel .actions {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.n7-stage .control-panel .actions input[type="text"] {
+  flex: 1;
+}
+
+.displaced-area {
+  min-height: 2rem;
+}
+
+.displaced-text {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0.4rem 0 0.8rem;
+}
+
+/* Scoped past explorer.css's bare `.verdict` the same way scene one's
+   `.word-panel .verdict` already is. */
+.displaced-area .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.displaced-area .verdict.yes {
+  color: var(--pass);
+}
+
+.displaced-area .verdict.no {
+  color: var(--rubric);
+}
