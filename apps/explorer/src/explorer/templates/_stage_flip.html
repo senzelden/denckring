@@ -1,0 +1,11 @@
+{# A single strip changed; the other thirteen must not move. `strip` is the
+   one that was just redrawn — its own fresh `<div id="strip-N">` is the
+   whole of `hx-target`'s outerHTML swap, which is what lets its own entrance
+   animation play while every other strip's DOM node, untouched, plays none.
+   The shared state field and the verdict travel back too, out of band, so
+   the next flip anywhere on the page and the next "Deal" both read a poem
+   that actually includes this one. #}
+{% include "_stage_strip.html" %}
+<input type="hidden" id="poem-state" name="state" value="{{ state }}" hx-swap-oob="true">
+{% set oob = true %}
+{% include "_stage_verdict.html" %}

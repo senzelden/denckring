@@ -7,11 +7,14 @@ scene claims can be tested without a browser.
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
+from pathlib import Path
 
 from denckring.core import device
 from denckring.core.protocol import Lang, LanguagePack
 from denckring.lang import get_pack
+from denckring.procedures.cent_mille_milliards import alternatives as queneau_alternatives
 from explorer import corpora
 
 #: N+7's own default, mirroring `default_lang`'s shape — but with no corpus to
@@ -50,6 +53,12 @@ SCENES: list[Scene] = [
         title="N+7",
         procedure_id="n_plus_7",
         caption="Lescure, 1961. Every noun, seven entries further down the dictionary.",
+    ),
+    Scene(
+        slug="cent_mille_milliards",
+        title="Cent mille milliards de poèmes",
+        procedure_id="cent_mille_milliards",
+        caption="Queneau, 1961. Flip a strip; the sonnet survives every combination.",
     ),
 ]
 
@@ -463,3 +472,135 @@ def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
             )
         )
     return steps
+
+
+# ── scene four: Cent mille milliards de poèmes ──────────────────────────────
+# Queneau's own ten sonnets are still in copyright (he died in 1976) and are
+# not shipped and never will be. These fourteen strips of three alternatives
+# were written for this scene — see the task report for the attribution the
+# page itself carries — and are read with the library's own `alternatives()`,
+# the exact parser `check` runs against them, so the scene and the checker
+# can never read two different sheets.
+
+#: Shipped as data alongside the scene rather than through any library
+#: capability — the brief asks for "no new library capability", and the
+#: procedure's own generality (one line per position, `|`-separated) already
+#: covers a strip sheet that lives anywhere.
+_QUENEAU_STRIPS_PATH = Path(__file__).parent / "data" / "queneau_strips.txt"
+
+
+def queneau_source() -> str:
+    """The strip sheet itself, byte for byte."""
+    return _QUENEAU_STRIPS_PATH.read_text(encoding="utf-8")
+
+
+def queneau_offered() -> list[list[str]]:
+    """One list of alternatives per position, parsed fresh each call with the
+    same `alternatives()` `check` itself runs — so a claim this scene makes
+    about what a position offers can never drift from what the checker reads."""
+    return queneau_alternatives(queneau_source())
+
+
+def queneau_combinations() -> int:
+    """Three alternatives per position to the fourteenth power — computed
+    from what actually loaded, never typed in, so a strip added or removed
+    could not leave a stale figure on screen."""
+    total = 1
+    for options in queneau_offered():
+        total *= len(options)
+    return total
+
+
+@dataclass(frozen=True)
+class QueneauStrip:
+    """One position on the sheet: what it offers, and which one is showing."""
+
+    position: int
+    alternatives: list[str]
+    index: int
+
+    @property
+    def line(self) -> str:
+        return self.alternatives[self.index]
+
+
+@dataclass(frozen=True)
+class QueneauPoem:
+    """Fourteen strips read top to bottom, plus the count every combination
+    of them makes."""
+
+    strips: list[QueneauStrip]
+    combinations: int
+
+    @property
+    def lines(self) -> list[str]:
+        return [strip.line for strip in self.strips]
+
+    @property
+    def text(self) -> str:
+        return "\n".join(self.lines)
+
+
+def queneau_poem(state: list[int]) -> QueneauPoem:
+    """The poem `state` reads off the strips — one chosen index per position."""
+    offered = queneau_offered()
+    strips = [
+        QueneauStrip(position=i, alternatives=options, index=state[i])
+        for i, options in enumerate(offered)
+    ]
+    return QueneauPoem(strips=strips, combinations=queneau_combinations())
+
+
+def queneau_initial_state() -> list[int]:
+    """First paint: the first alternative at every position — deterministic,
+    the way Denckring's own rings start every disc at index 0, so first paint
+    is the same poem every time the scene loads rather than a draw a test
+    would have to pin against randomness."""
+    return [0 for _ in queneau_offered()]
+
+
+def queneau_deal(rng: random.Random | None = None) -> list[int]:
+    """A fresh index for every position — the deal control's whole job."""
+    chooser = rng if rng is not None else random.Random()
+    return [chooser.randrange(len(options)) for options in queneau_offered()]
+
+
+def queneau_flip(state: list[int], position: int, rng: random.Random | None = None) -> list[int]:
+    """Redraw one position only, landing on a different alternative from the
+    one already showing — the other thirteen positions untouched.
+
+    Excluding the current index is deliberate: a flip that happened to redraw
+    the same line again would look, on camera, like nothing had happened at
+    all, even though the draw was genuine.
+    """
+    offered = queneau_offered()
+    chooser = rng if rng is not None else random.Random()
+    options = offered[position]
+    remaining = [i for i in range(len(options)) if i != state[position]]
+    new_state = list(state)
+    new_state[position] = chooser.choice(remaining) if remaining else state[position]
+    return new_state
+
+
+def queneau_state_from_text(raw: str) -> list[int] | None:
+    """Parse the hidden `state` field a form posted back, or `None` if it
+    does not describe a poem these strips could show — a hand-crafted or
+    stale request, never one this page's own markup would send."""
+    offered = queneau_offered()
+    parts = raw.split(",")
+    if len(parts) != len(offered):
+        return None
+    try:
+        indices = [int(part) for part in parts]
+    except ValueError:
+        return None
+    if any(
+        not (0 <= index < len(options)) for index, options in zip(indices, offered, strict=True)
+    ):
+        return None
+    return indices
+
+
+def queneau_state_to_text(state: list[int]) -> str:
+    """The hidden field's own format — the inverse of `queneau_state_from_text`."""
+    return ",".join(str(index) for index in state)
