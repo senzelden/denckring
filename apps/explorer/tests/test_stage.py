@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 
 import pytest
-from explorer import stage
+from explorer import bench, corpora, stage
 from explorer.app import app
 from fastapi.testclient import TestClient
 
@@ -649,6 +649,130 @@ def test_the_witz_disclaimer_survives_a_real_throw(
     ) in normalised
 
 
+def test_default_lang_follows_the_corpus_styles_suggestion() -> None:
+    """The one fact the toggle's own default rests on — Jean Paul's excerpts
+    suggest German, anything else suggests English, exactly like
+    `register_for` but as a language rather than a look."""
+    assert stage.default_lang("jean_paul") == "de"
+    assert stage.default_lang("modern") == "en"
+    assert stage.default_lang("anything-else") == "en"
+
+
+def _stub_one_corpus(monkeypatch: pytest.MonkeyPatch, style: str) -> None:
+    """A corpus that never touches disk: `stage.corpus_choices` and
+    `corpora.load` are stubbed directly, so the language toggle can be pinned
+    against `bench.generate` without a real corpus file on disk — the corpus
+    reading itself is already covered by the tests above."""
+    monkeypatch.setattr(
+        stage,
+        "corpus_choices",
+        lambda: [
+            stage.CorpusChoice(path="x", name="stub", entries=3, style=style, register="modern")
+        ],
+    )
+    monkeypatch.setattr(corpora, "load", lambda path: ("stub corpus text", ""))
+
+
+def test_the_language_toggle_reaches_apply(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The toggle's whole job: a German throw and an English throw must differ
+    in the `lang` `bench.generate` (and so `apply`) is called with. Pinned
+    against a stubbed corpus, since this is a claim about the toggle wiring,
+    not about drawing a real throw."""
+    _stub_one_corpus(monkeypatch, "modern")
+    seen: list[str] = []
+
+    def fake_generate(
+        procedure_id: str, text: str, lang: str, params: dict[str, object]
+    ) -> tuple[str, str]:
+        seen.append(lang)
+        return "a line\n", ""
+
+    monkeypatch.setattr(bench, "generate", fake_generate)
+    client.post("/stage/ideenwuerfeln/act", data={"corpus_path": "x", "lang": "de"})
+    client.post("/stage/ideenwuerfeln/act", data={"corpus_path": "x", "lang": "en"})
+    assert seen == ["de", "en"]
+
+
+def test_the_language_defaults_to_the_corpus_style_and_the_toggle_can_override_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No `lang` field at all — never sent by the picker itself, which always
+    submits one of its two options, but exactly what a bare POST like the
+    corpus-absent test already sends — falls back to what the chosen corpus's
+    `style` suggests. An explicit `lang` overrides that default outright,
+    even when it disagrees with the corpus's own suggestion: a German toggle
+    over an English corpus is legitimate and must not be second-guessed."""
+    _stub_one_corpus(monkeypatch, "jean_paul")
+    seen: list[str] = []
+
+    def fake_generate(
+        procedure_id: str, text: str, lang: str, params: dict[str, object]
+    ) -> tuple[str, str]:
+        seen.append(lang)
+        return "a line\n", ""
+
+    monkeypatch.setattr(bench, "generate", fake_generate)
+    client.post("/stage/ideenwuerfeln/act", data={"corpus_path": "x"})
+    client.post("/stage/ideenwuerfeln/act", data={"corpus_path": "x", "lang": "en"})
+    assert seen == ["de", "en"]
+
+
+def test_the_stage_pre_selects_the_toggle_from_the_first_corpuss_style(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """First paint has no submitted toggle yet to read — the option the page
+    pre-selects is what carries the corpus's own suggestion until a reader
+    changes it."""
+    _write_corpus(tmp_path, [{"text": "excerpt", "domain": "Alpha"}])
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.get("/stage/ideenwuerfeln")
+    assert response.status_code == 200
+    # The fixture corpus carries style "modern" (see `_write_corpus`), which
+    # suggests English — its option should be the one marked selected.
+    assert '<option value="en" selected>English</option>' in response.text
+    assert '<option value="de" >German</option>' in response.text
+
+
+def test_the_witz_form_carries_the_throws_own_language(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The Witz reading has to be asked for in the same language the throw
+    itself used, not whatever the toggle happens to show after a corpus swap
+    — the hidden `lang` field on the witz-form is what carries that forward."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt alpha", "domain": "Alpha", "headwords": ["word"]},
+            {"text": "excerpt beta", "domain": "Beta", "headwords": ["word"]},
+            {"text": "excerpt gamma", "domain": "Gamma", "headwords": ["word"]},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-a-real-one")
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "word", "lang": "de"},
+    )
+    assert response.status_code == 200
+    assert '<input type="hidden" name="lang" value="de">' in response.text
+
+
+def test_reduced_motion_settles_slips_instead_of_stranding_them() -> None:
+    """`explorer.css`'s blanket `prefers-reduced-motion` rule kills every
+    animation, which would otherwise strand a `.slip` at its pre-animation
+    `opacity: 0` forever. Read the actual CSS rather than trusting the
+    keyframe alone — a reduced-motion viewer never runs the keyframe to find
+    out whether something restores the settled state, and the settled state
+    has to include the slip's own resting angle, not just visibility, or
+    "already settled" would be a lie under reduced motion specifically."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert (
+        "@media (prefers-reduced-motion: reduce) { .slip { opacity: 1; "
+        "transform: translateY(0) rotate(var(--rot)); } }"
+    ) in normalised
+
+
 # ── scene three: Arca musarithmica ──────────────────────────────────────────
 
 
@@ -904,7 +1028,6 @@ def test_the_ghazal_scene_promises_no_marking_it_cannot_do() -> None:
     with `offset=None`, so `mark_up` here only ever escapes the text — the
     block appears when there is a mark in it and not before. The fault is still
     pointed at, on the couplets themselves."""
-    from explorer import bench
 
     from denckring import check
 

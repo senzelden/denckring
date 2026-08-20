@@ -187,11 +187,16 @@ async def stage_denckring_rhyme(request: Request) -> HTMLResponse:
 
 @app.get("/stage/ideenwuerfeln", response_class=HTMLResponse)
 def stage_ideenwuerfeln(request: Request, chrome: str = "on") -> HTMLResponse:
+    choices = stage.corpus_choices()
     return page(
         request,
         "stage_ideenwuerfeln.html",
         scene=stage.scene("ideenwuerfeln"),
-        choices=stage.corpus_choices(),
+        choices=choices,
+        # The picker's first option is whatever a reader sees pre-selected, so the
+        # toggle's own pre-selected option follows that same corpus's style — the
+        # two controls agreeing at first paint, without yet being the same control.
+        default_lang=stage.default_lang(choices[0].style) if choices else "en",
         can_read=witz.available(),
         chrome_off=chrome == "off",
     )
@@ -216,6 +221,10 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     headword's own pool cannot see that widening coming, and would describe a
     throw that never happened. `stage.slips_of` maps each slip back to its
     real entry, so `filed` below is what the throw actually did.
+
+    The language toggle is a second, independent control from the corpus
+    picker: it never changes which corpus is read, only the `lang` `apply`
+    is called with and, later, the register the Witz reading is asked for.
     """
     form = dict(await request.form())
     path = str(form.get("corpus_path", ""))
@@ -225,10 +234,16 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     if problem:
         return page(request, "_stage_throw.html", throw="", problem=problem, headword=headword)
 
+    # The toggle overrides the corpus's own suggestion when it carries a value; an
+    # empty post (no `lang` field at all — never sent by the picker itself, which
+    # always submits one of its two options) falls back to what `chosen.style`
+    # suggests, the same rule the page pre-selects the toggle with at first paint.
+    lang = str(form.get("lang", "")) or stage.default_lang(chosen.style if chosen else "")
+
     params: dict[str, Any] = {"distinct_domains": True}
     if headword:
         params["headword"] = headword
-    produced, trouble = bench.generate("ideenwuerfeln", text, "en", params)
+    produced, trouble = bench.generate("ideenwuerfeln", text, lang, params)
 
     slips = stage.slips_of(text, produced, headword) if produced else []
     distinct = len({slip.domain for slip in slips})
@@ -256,6 +271,7 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
         note=note,
         style=chosen.style if chosen else witz.DEFAULT_REGISTER,
         register=chosen.register if chosen else "modern",
+        lang=lang,
         can_read=witz.available(),
     )
 

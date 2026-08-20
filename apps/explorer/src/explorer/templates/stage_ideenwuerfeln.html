@@ -16,15 +16,46 @@
   <label for="corpus-select">Corpus</label>
   <select id="corpus-select" name="corpus_path">
     {% for choice in choices %}
-    <option value="{{ choice.path }}">
+    <option value="{{ choice.path }}" data-style="{{ choice.style }}">
       {{ choice.name }} — {{ "{:,}".format(choice.entries) }} entries
     </option>
     {% endfor %}
   </select>
   <label for="headword">Headword</label>
   <input id="headword" type="text" name="headword" placeholder="a headword to collide under">
+  <label for="lang-select">Language</label>
+  <select id="lang-select" name="lang">
+    <option value="en" {% if default_lang == "en" %}selected{% endif %}>English</option>
+    <option value="de" {% if default_lang == "de" %}selected{% endif %}>German</option>
+  </select>
   <button type="submit">Throw</button>
 </form>
+{# What the toggle governs, in a few words — it is not the corpus picker beside it.
+   `apply` ignores it today (a draw is verbatim excerpts, not a translation), but the
+   Witz reading genuinely writes in it, and the interface is asked for it regardless
+   — see stage.default_lang for the corpus-style default this pre-selects. #}
+<p class="lang-note">Language governs the Witz reading (and the draw call itself) — not
+  which corpus above is drawn from.</p>
+<script>
+// The toggle's pre-selected option already matches the first corpus's style at first
+// paint (see app.py's `default_lang`); this keeps that agreement alive across a corpus
+// change too, without a round trip, by re-running the same style→language rule
+// client-side. It stops the moment a reader touches the language select directly —
+// syncing past an explicit choice would look like the toggle silently reverting itself,
+// exactly the kind of thing this scene's own docs call out as not to be trusted on faith.
+(() => {
+  const corpusSelect = document.getElementById("corpus-select");
+  const langSelect = document.getElementById("lang-select");
+  if (!corpusSelect || !langSelect) return;
+  let touched = false;
+  langSelect.addEventListener("change", () => { touched = true; });
+  corpusSelect.addEventListener("change", () => {
+    if (touched) return;
+    const style = corpusSelect.selectedOptions[0]?.dataset.style || "";
+    langSelect.value = style === "jean_paul" ? "de" : "en";
+  });
+})();
+</script>
 {% endif %}
 <div id="throw" class="throw-area"></div>
 {% endblock %}
