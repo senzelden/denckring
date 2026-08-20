@@ -161,6 +161,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+de = [
+    { name = "denckring-de-data" },
+]
 en = [
     { name = "denckring-en-data" },
 ]
@@ -189,6 +192,17 @@ dev = [
 lexicon = [{ name = "wn", specifier = ">=1.1" }]
 
 [[package]]
+name = "denckring-de-data"
+version = "0.1.0"
+source = { editable = "../../packages/denckring-de-data" }
+dependencies = [
+    { name = "denckring" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring", editable = "../../" }]
+
+[[package]]
 name = "denckring-en-data"
 version = "0.1.0"
 source = { editable = "../../packages/denckring-en-data" }
@@ -205,7 +219,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
-    { name = "denckring", extra = ["en"] },
+    { name = "denckring", extra = ["de", "en"] },
     { name = "fastapi" },
     { name = "jinja2" },
     { name = "python-dotenv" },
@@ -223,7 +237,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.69" },
-    { name = "denckring", extras = ["en"], editable = "../../" },
+    { name = "denckring", extras = ["en", "de"], editable = "../../" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
