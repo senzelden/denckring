@@ -122,18 +122,28 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
         # it off `BaseProcedure` because it is optional. Degrade rather than raise
         # if that assumption ever stops holding, as `bench.generate` does.
         if isinstance(procedure, Constructive):
-            word = procedure.apply("", lang="de")
-            # Nearly every draw already passes fit_for_stage (see TURN_ATTEMPTS);
-            # this only ever loops on the rare draw that does not, rather than
-            # trusting the rings' own randomness to never spell one of the words
-            # this stage refuses to show.
-            for _ in range(stage.TURN_ATTEMPTS - 1):
-                if stage.fit_for_stage(word):
+            word = ""
+            # Draw-then-check every iteration, including the last one. An
+            # earlier version drew once, then only re-checked *before*
+            # redrawing on failure — so a run that missed on every one of
+            # TURN_ATTEMPTS draws exited having just redrawn, and that final
+            # draw reached pieces_for(word) below unchecked. That is the
+            # exact "the filter covers four of five paths" defect this whole
+            # round exists to close, even though it would take roughly 50
+            # consecutive misses at the measured ~0.0315% per-draw failure
+            # rate to ever actually happen.
+            for _ in range(stage.TURN_ATTEMPTS):
+                candidate = procedure.apply("", lang="de")
+                if stage.fit_for_stage(candidate):
+                    word = candidate
                     break
-                word = procedure.apply("", lang="de")
+            # Every draw missing is astronomically unlikely, but if it ever
+            # happens, show nothing rather than a word that never passed the
+            # filter — the same honest fallback `find_word`'s `find_failed`
+            # already uses, not a silent unchecked word.
             # The library chose this word; hand back which piece each ring would
             # have to show so the diagram can turn to match, not just the panel.
-            pieces = stage.pieces_for(word)
+            pieces = stage.pieces_for(word) if word else None
     elif form.get("find"):
         found = stage.find_word()
         if found is None:

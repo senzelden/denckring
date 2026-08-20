@@ -354,15 +354,38 @@ def test_fit_for_stage_blocks_spast_and_accepts_the_trade() -> None:
 
 
 def test_fit_for_stage_blocks_schlampen_precisely() -> None:
-    """Ruling 2: "schlampen" is blocked as the exact word, not the broader
-    "schlamp" stem, because "Schlampe" itself is not producible by this
-    device at all (`pieces_for` returns None) while "schlampen" is — and the
-    precise entry leaves "schlampig" (sloppy, an ordinary adjective, also
-    producible) untouched, the same precision already used for "arsch" and
-    "sack"."""
+    """Ruling 2, fix round 3: "schlampen" is blocked as an *exact* whole
+    word (`_BLOCKED_EXACT`), not a substring stem, because "Schlampe"
+    itself is not producible by this device at all (`pieces_for` returns
+    None) while "Schlampen" is. The first version of this ruling matched
+    "schlampen" as a substring, which is precise enough to spare
+    "schlampig" (sloppy) but not "verschlampen" (to mislay something
+    through carelessness) — both ordinary, producible German words, and
+    both pinned here so a future substring regression is caught."""
     assert stage.pieces_for("Schlampe") is None
-    assert stage.fit_for_stage("schlampen") is False
+    assert stage.pieces_for("verschlampen") is not None
+    assert stage.fit_for_stage("Schlampen") is False
     assert stage.fit_for_stage("schlampig") is True
+    assert stage.fit_for_stage("verschlampen") is True
+
+
+def test_turn_them_for_me_never_shows_a_draw_that_was_never_checked(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fix round 3, Important 2: the retry loop used to check the current
+    word, then redraw on failure — so a run that missed on every one of
+    TURN_ATTEMPTS draws exited having just redrawn, and that final,
+    unchecked draw reached the page. The measured ~0.0315% per-draw failure
+    rate makes that need ~50 consecutive misses, which no ordinary test run
+    will ever hit by chance, so the failure path is forced directly here
+    rather than trusted to the odds. With every draw failing, the route must
+    show nothing — not a word that was never checked."""
+    monkeypatch.setattr(stage, "fit_for_stage", lambda word: False)
+    response = client.post("/stage/denckring/act", data={"turn": "1"})
+    assert response.status_code == 200
+    assert "data-pieces=" not in response.text
+    assert "verdict-rings" not in response.text
+    assert "verdict-known" not in response.text
 
 
 def test_rhyme_endings_are_all_curated_and_clean() -> None:
