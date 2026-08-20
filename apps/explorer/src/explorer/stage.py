@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from functools import lru_cache
 from itertools import pairwise
 from pathlib import Path
 
@@ -511,18 +510,20 @@ def queneau_offered() -> list[list[str]]:
     return queneau_alternatives(queneau_source())
 
 
-@lru_cache(maxsize=1)
 def queneau_combinations() -> int:
     """Three alternatives per position to the fourteenth power — computed
     from what actually loaded, never typed in, so a strip added or removed
     could not leave a stale figure on screen.
 
-    Cached: this number cannot change within a process (the strip file is
-    read once, at import-adjacent time from this function's point of view,
-    and never rewritten while the server runs), so recomputing it — a fresh
-    file read and a fresh parse of `queneau_offered()` — on every single
-    poem `queneau_poem` builds, including inside the flip path that runs on
-    every click, bought nothing but repeated work for the same answer.
+    Deliberately not cached, for the same reason `queneau_offered` itself
+    is not: this number is a claim about that same file, computed by
+    reading it, and the two can never be allowed to drift apart. Caching
+    this alone (an earlier version of this function did, briefly) would
+    split the file into a live path and a cached path reading the same
+    source — edit the strip file without restarting the process, and the
+    page would render fresh lines from `queneau_offered` while reporting a
+    stale count from here. Fourteen lines is not enough text for the
+    re-read to cost anything worth trading that guarantee for.
     """
     total = 1
     for options in queneau_offered():
