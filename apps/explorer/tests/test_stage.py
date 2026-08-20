@@ -12,6 +12,8 @@ from explorer import bench, corpora, stage
 from explorer.app import app
 from fastapi.testclient import TestClient
 
+from denckring.core.protocol import LanguagePack
+
 client = TestClient(app)
 
 
@@ -929,43 +931,39 @@ def test_an_unrecognised_lang_falls_back_to_english() -> None:
 _RHYME_PAIRS = [(1, 3), (2, 4), (5, 7), (6, 8), (9, 11), (10, 12), (13, 14)]
 
 
-def _final_word(line: str) -> str:
-    """The word a line ends on, punctuation stripped — what a rhyme pair is
-    actually compared on, not the line's whole text."""
-    return line.rstrip(".,;:!?").split()[-1].lower()
+def _line_rhyme(line: str, pack: LanguagePack) -> tuple[str, frozenset[str], bool]:
+    """A single line's own final word, and the rhyme keys the library's
+    pronouncing dictionary gives it — `denckring.core.prosody.rhyme_keys`,
+    the same lookup `scheme_violations` checks a rhyme scheme with, not a
+    second, ad hoc reading of spelling.
+
+    An earlier version of this test compared final letters directly, on the
+    brief's own instruction that "the strips are built so the final words
+    themselves rhyme". That instruction was wrong about one pair: "trite"
+    was written next to "sight" and "right", and true rhymes though they
+    are, "trite" shares not one literal trailing letter with them. The
+    orthographic workaround that let a literal test pass anyway — strip a
+    trailing silent "e", drop the silent "gh" digraph — was itself unsafe:
+    it collapses vowel length along with the silent letters, so "page"
+    (`EY1 JH`) and "rag" (`AE1 G`) both reduce to "-ag" and would wrongly
+    "match" under it, though they do not rhyme. The pronouncing dictionary
+    gets both cases right without any spelling surgery: `light`, `bright`,
+    `sight`, `trite`, `tonight` and `right` all key to `AY1 T`, and `page`
+    keys to `EY1 JH` alone."""
+    from denckring.core import prosody
+
+    (result,) = prosody.rhyme_keys(line, pack)
+    _, word, keys, exact = result
+    assert exact, f"{word!r} is not in the pronouncing dictionary — fix the strip, not this test"
+    return word, keys, exact
 
 
-def _rhyme_key(word: str) -> str:
-    """The last two letters, which is as far as this project's strips ever
-    need to be trimmed to agree — "day"/"say"/"may" only share two, and a
-    three-letter comparison would cut into the part that is allowed to
-    differ (see `_normalised_rhyme_key` for the one family this alone
-    cannot resolve)."""
-    return word[-2:]
-
-
-def _normalised_rhyme_key(word: str) -> str:
-    """A second reading of the same word with two purely orthographic,
-    non-phonetic reductions applied: a trailing silent "e" dropped, and the
-    silent "gh" digraph removed. Needed for exactly one pair in this
-    project's own strips: "trite" rhymes with "light"/"bright"/"sight" by
-    ear, but shares not one literal trailing letter with them ("trite" ends
-    "e", they end "t") until both spellings of the same English "-ight"/
-    "-ite" rhyme family are reduced this way — "trite" -> "trit" -> "it",
-    "light" -> "light" (no trailing e) -> "lit" -> "it". Applied only as a
-    fallback to `_rhyme_key`, which already resolves every other pair on its
-    own and must not be disturbed by this reduction (stripping a trailing
-    "e" from "time"/"rhyme" would wrongly turn a pair that already agrees
-    into one compared on the wrong letters)."""
-    reduced = word[:-1] if word.endswith("e") and len(word) > 3 else word
-    reduced = reduced.replace("gh", "")
-    return reduced[-2:]
-
-
-def _final_words_rhyme(a: str, b: str) -> bool:
-    """Whether two final words are the kind of match this project's strips
-    were built to guarantee — literal, not phonetic, per the brief."""
-    return _rhyme_key(a) == _rhyme_key(b) or _normalised_rhyme_key(a) == _normalised_rhyme_key(b)
+def _lines_rhyme(line_a: str, line_b: str, pack: LanguagePack) -> bool:
+    """Whether two lines' own final words share a pronunciation, per the
+    library's own rhyme-key lookup — see `_line_rhyme`."""
+    _, keys_a, _ = _line_rhyme(line_a, pack)
+    _, keys_b, _ = _line_rhyme(line_b, pack)
+    return bool(keys_a & keys_b)
 
 
 def test_the_scene_lists_a_real_procedure() -> None:
@@ -1089,32 +1087,35 @@ def test_state_from_text_refuses_the_wrong_shape() -> None:
 
 def test_the_rhyme_scheme_survives_random_draws() -> None:
     """The brief's own property: for a handful of random draws, each pair the
-    ABAB CDCD EFEF GG scheme names ends on the same rhyme. Compared as final
-    words, not phonetics — see `_final_words_rhyme`."""
-
+    ABAB CDCD EFEF GG scheme names ends on the same rhyme — verified against
+    the library's own pronouncing dictionary, not spelling. See `_line_rhyme`
+    for why a literal comparison is not safe here."""
+    pack = stage.pack("en")
     for seed in range(15):
         state = stage.queneau_deal(random.Random(seed))
         poem = stage.queneau_poem(state)
         lines = poem.lines
         for line_a, line_b in _RHYME_PAIRS:
-            word_a = _final_word(lines[line_a - 1])
-            word_b = _final_word(lines[line_b - 1])
-            assert _final_words_rhyme(word_a, word_b), (line_a, line_b, word_a, word_b)
+            assert _lines_rhyme(lines[line_a - 1], lines[line_b - 1], pack), (
+                line_a,
+                line_b,
+                lines[line_a - 1],
+                lines[line_b - 1],
+            )
 
 
 def test_the_rhyme_pairing_holds_for_every_combination_of_alternatives() -> None:
     """Not just a sample of draws: every one of the three alternatives at one
-    end of a pair rhymes, by the same literal test, with every one of the
-    three at the other end — the actual guarantee the brief asks a viewer to
-    be able to trust regardless of which two strips a flip happens to land
-    on together."""
+    end of a pair shares a pronounced rhyme, per the pronouncing dictionary,
+    with every one of the three at the other end — the actual guarantee the
+    brief asks a viewer to be able to trust regardless of which two strips a
+    flip happens to land on together."""
+    pack = stage.pack("en")
     offered = stage.queneau_offered()
     for line_a, line_b in _RHYME_PAIRS:
         for option_a in offered[line_a - 1]:
             for option_b in offered[line_b - 1]:
-                word_a = _final_word(option_a)
-                word_b = _final_word(option_b)
-                assert _final_words_rhyme(word_a, word_b), (line_a, line_b, word_a, word_b)
+                assert _lines_rhyme(option_a, option_b, pack), (line_a, line_b, option_a, option_b)
 
 
 def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
@@ -1186,12 +1187,17 @@ def test_the_flip_route_clamps_a_position_outside_the_strips() -> None:
     assert 'id="strip-0"' in response.text
 
 
-def test_reduced_motion_settles_strip_lines_instead_of_stranding_them() -> None:
-    """The same fix `.slip` needs, for the same reason: `explorer.css`'s
-    blanket `prefers-reduced-motion` rule kills every animation, which would
-    otherwise strand a `.strip-line` at its pre-animation `opacity: 0,
-    rotateX(-85deg)` forever. Read the actual CSS rather than trusting the
-    keyframe alone."""
+def test_reduced_motion_states_the_settled_strip_line_explicitly() -> None:
+    """Unlike `.slip`, `.strip-line`'s own base rule sets no static `opacity`
+    or `transform` outside its `animation` shorthand — so explorer.css's
+    blanket `animation: none !important` under this preference already
+    leaves it at the browser's own defaults (opacity 1, no transform) with
+    nothing to strand it; this rule is belt-and-braces, not load-bearing,
+    for this element (see the comment above it in stage.css). Pinned here
+    anyway, because the rule states plainly what the settled state is meant
+    to be, and a future change that gives `.strip-line` a static
+    pre-animation style must not silently start relying on this having
+    always been correct by coincidence."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
     assert (

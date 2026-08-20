@@ -1158,14 +1158,18 @@
   }
 }
 
-/* explorer.css's blanket `prefers-reduced-motion` rule sets `animation: none
-   !important`, which alone would strand a strip at its pre-animation
-   `opacity: 0, rotateX(-85deg)` forever — motion removed is not the same as
-   the strip having arrived. This is what actually shows it: the settled end
-   state, not a plainer one the motion happened to pass through, the same
-   fix `.slip` above already needs for the same reason. Same selector
-   specificity as the base rule, declared after it, so this wins once the
-   media query is live. */
+/* Belt-and-braces, not load-bearing the way the equivalent rule is for
+   `.slip` above: checked rather than assumed. `.strip-line`'s own base rule
+   sets no static `opacity` or `transform` outside its `animation` shorthand
+   (see above), so explorer.css's blanket `animation: none !important` under
+   this preference already leaves it at the browser's own defaults — opacity
+   1, no transform — with nothing to strand it; unlike `.slip`, which sets
+   `opacity: 0` and a `transform` directly on its base rule and so would
+   genuinely be left invisible without its own override. This rule states
+   the settled values explicitly anyway, in one place, rather than leaving a
+   reader to work out that the defaults happen to already be correct — and
+   so that if `.strip-line` ever gains a static pre-animation style of its
+   own, this stops being redundant without anyone having to notice. */
 @media (prefers-reduced-motion: reduce) {
   .strip-line {
     opacity: 1;
