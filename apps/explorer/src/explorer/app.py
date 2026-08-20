@@ -279,6 +279,41 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     return page(request, "_stage_displaced.html", source=source, produced=produced, report=report)
 
 
+@app.get("/stage/ghazal", response_class=HTMLResponse)
+def stage_ghazal(request: Request, chrome: str = "on") -> HTMLResponse:
+    text = stage.GHAZAL_GOOD
+    report = denckring_check("ghazal", text)
+    return page(
+        request,
+        "stage_ghazal.html",
+        scene=stage.scene("ghazal"),
+        text=text,
+        good_text=stage.GHAZAL_GOOD,
+        broken_text=stage.GHAZAL_BROKEN,
+        reading=stage.ghazal_reading(text),
+        report=report,
+        marked=bench.mark_up(text, report),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/ghazal/act", response_class=HTMLResponse)
+async def stage_ghazal_act(request: Request) -> HTMLResponse:
+    """Check whatever couplets were posted, and mark them up from that same
+    check — nothing here is shown before `check` has actually run on it.
+    """
+    form = dict(await request.form())
+    text = str(form.get("text", ""))
+    report = denckring_check("ghazal", text) if text.strip() else None
+    return page(
+        request,
+        "_stage_couplets.html",
+        reading=stage.ghazal_reading(text) if text.strip() else None,
+        report=report,
+        marked=bench.mark_up(text, report) if report else "",
+    )
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)

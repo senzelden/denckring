@@ -1,0 +1,44 @@
+{% extends "stage.html" %}
+{% block title %}Ghazal{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Traditional &middot; classical Persian and Urdu poetry</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="ghazal-stage">
+  <div class="ghazal-panel" id="couplets">{% include "_stage_couplets.html" %}</div>
+  <div class="control-panel">
+    <form class="actions" id="ghazal-form" hx-post="/stage/ghazal/act" hx-target="#couplets"
+          hx-swap="innerHTML" hx-trigger="submit">
+      <label for="ghazal-text">Couplets</label>
+      <textarea id="ghazal-text" name="text" spellcheck="false">{{ text }}</textarea>
+      <button type="submit">Check it</button>
+    </form>
+    <div class="ghazal-examples">
+      <button type="button" class="quiet" data-text="{{ good_text }}">
+        The satisfying couplets
+      </button>
+      <button type="button" class="quiet" data-text="{{ broken_text }}">
+        The couplet with a broken qafia
+      </button>
+    </div>
+    <p class="ghazal-note">Every carrying line has to close on the radif, with a word right
+    before it &mdash; the qafia &mdash; that rhymes with the one the opening couplet set. Edit
+    the couplets above and check them again: <code>check("ghazal", &hellip;)</code> runs for
+    real each time, on exactly what is in the box, and nothing on this page is shown before it
+    has.</p>
+  </div>
+</div>
+<script>
+// Loading an example only fills the box and asks the form to submit itself —
+// the same request a person typing their own couplets would send, not a
+// second path that could show something the checker never actually saw.
+document.querySelectorAll('.ghazal-examples [data-text]').forEach((button) => {
+  button.addEventListener('click', () => {
+    document.getElementById('ghazal-text').value = button.dataset.text;
+    document.getElementById('ghazal-form').requestSubmit();
+  });
+});
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}
