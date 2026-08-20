@@ -52,6 +52,16 @@ def test_the_index_lists_every_scene() -> None:
         assert scene.title in response.text
 
 
+def test_the_indexs_own_count_comes_from_the_scene_list() -> None:
+    """The caption used to type its own number, and spent three rounds saying
+    "three procedures" over a list of six. It reads `scenes | length` now, so
+    this pins the property rather than the figure: whatever `SCENES` holds is
+    what the page announces, and adding or removing a scene cannot leave the
+    line stale again."""
+    normalised = " ".join(client.get("/stage").text.split())
+    assert f"{len(stage.SCENES)} procedures, driven by hand." in normalised
+
+
 def test_every_scene_names_a_real_procedure() -> None:
     """A scene dramatising a procedure that is not registered would be a scene making
     a claim the library cannot back."""
