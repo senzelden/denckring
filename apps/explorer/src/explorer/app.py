@@ -16,6 +16,7 @@ from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures, get
+from denckring.procedures.syllable_count import line_syllables
 from explorer import bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
@@ -193,6 +194,51 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
         style=chosen.style if chosen else witz.DEFAULT_REGISTER,
         register=chosen.register if chosen else "modern",
         can_read=witz.available(),
+    )
+
+
+@app.get("/stage/arca", response_class=HTMLResponse)
+def stage_arca(request: Request, chrome: str = "on") -> HTMLResponse:
+    return page(
+        request,
+        "stage_arca.html",
+        scene=stage.scene("arca"),
+        tablet=stage.tablet(),
+        lengths=stage.tablet().lengths(),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/arca/act", response_class=HTMLResponse)
+async def stage_arca_act(request: Request) -> HTMLResponse:
+    """Measure the phrase, offer the tablet's columns for that length, and check
+    whichever column was drawn.
+
+    The same `line_syllables` the `arca_musarithmica` procedure itself uses does the
+    measuring here, so the scene cannot drift from what it demonstrates. What the page
+    goes on to say about a drawn column comes from `check` actually running against it,
+    never from a claim this route works out on its own — the house rule every scene on
+    this stage keeps: describe the result, never predict it.
+    """
+    form = dict(await request.form())
+    phrase = str(form.get("phrase", ""))
+    pattern = str(form.get("pattern", ""))
+    measured = line_syllables(phrase, bench.pack_for("en"))
+    syllables = measured[0][1] if measured else 0
+    offered = stage.tablet().patterns(syllables)
+    report = (
+        denckring_check("arca_musarithmica", pattern, source=phrase, pinakes=stage.TABLET)
+        if pattern
+        else None
+    )
+    return page(
+        request,
+        "_stage_column.html",
+        phrase=phrase,
+        syllables=syllables,
+        offered=offered,
+        pattern=pattern,
+        report=report,
     )
 
 

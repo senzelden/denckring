@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from denckring.core import device
+from denckring.core import arca, device
 from explorer import corpora
 
 
@@ -197,3 +197,17 @@ def slips_of(corpus_text: str, throw: str, headword: str = "") -> list[Slip]:
         filed = bool(entry and wanted and any(hw.casefold() == wanted for hw in entry.headwords))
         slips.append(Slip(text=body, domain=domain, filed=filed))
     return slips
+
+
+#: The tablet the golden fixture uses. The mechanism is Kircher's Musurgia Universalis
+#: (1650) book VIII; the patterns are not his, and the scene says so on screen. ADR 0021
+#: is why: this project implements the indexing and leaves the columns opaque.
+TABLET = (
+    '{"tones": ["I", "II", "III"], "syntagmata": {"1": '
+    '{"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+)
+
+
+def tablet() -> arca.Pinakes:
+    """The scene's pattern table, parsed."""
+    return arca.parse(TABLET)
