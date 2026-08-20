@@ -96,28 +96,75 @@ def stage_denckring(request: Request, chrome: str = "on") -> HTMLResponse:
         "stage_denckring.html",
         scene=stage.scene("denckring"),
         rings=stage.rings(),
+        rhyme_endings=stage.RHYME_ENDINGS,
         chrome_off=chrome == "off",
     )
 
 
 @app.post("/stage/denckring/act", response_class=HTMLResponse)
 async def stage_denckring_act(request: Request) -> HTMLResponse:
-    """Check the word the rings currently spell, or turn them to a new one."""
+    """Check the word the rings currently spell, turn them to a new one, or
+    search for one German actually knows.
+
+    Two verdicts, not one — `check("denckring", word)` can never fail for a
+    word the rings themselves produced, which is why a single verdict button
+    told a viewer nothing (see the task brief). "Off the rings" carries that
+    always-true check anyway, with its reason on screen; "a word German
+    knows" is `is_word`, the one that can actually fail.
+    """
     form = dict(await request.form())
     word = str(form.get("word", ""))
     pieces: list[str] | None = None
+    find_failed = False
     if form.get("turn"):
         procedure = get("denckring")
         # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps
         # it off `BaseProcedure` because it is optional. Degrade rather than raise
         # if that assumption ever stops holding, as `bench.generate` does.
         if isinstance(procedure, Constructive):
-            word = procedure.apply("", lang="en")
+            word = procedure.apply("", lang="de")
             # The library chose this word; hand back which piece each ring would
             # have to show so the diagram can turn to match, not just the panel.
             pieces = stage.pieces_for(word)
-    report = denckring_check("denckring", word) if word else None
-    return page(request, "_stage_word.html", word=word, report=report, pieces=pieces)
+    elif form.get("find"):
+        found = stage.find_word()
+        if found is None:
+            word = ""
+            find_failed = True
+        else:
+            word, pieces = found
+    rings_report = denckring_check("denckring", word, lang="de") if word else None
+    known_word = stage.german_pack().is_word(word) if word else False
+    return page(
+        request,
+        "_stage_word.html",
+        word=word,
+        pieces=pieces,
+        rings_report=rings_report,
+        known_word=known_word,
+        find_failed=find_failed,
+        find_attempts=stage.FIND_ATTEMPTS,
+    )
+
+
+@app.post("/stage/denckring/rhyme", response_class=HTMLResponse)
+async def stage_denckring_rhyme(request: Request) -> HTMLResponse:
+    """Lock the medial, final and suffix rings to one curated ending and sweep
+    the initial ring through every letter it offers — the quotation's own
+    recipe for finding rhyme-words, run against the rings rather than only
+    described by them. See `stage.RHYME_ENDINGS` for why the endings on offer
+    are curated rather than the raw lexicon's own `-icken`-style surprises.
+    """
+    form = dict(await request.form())
+    ending = stage.rhyme_ending(str(form.get("ending", "")))
+    sweep = stage.rhyme_sweep(ending) if ending else []
+    return page(
+        request,
+        "_stage_rhyme.html",
+        ending=ending,
+        sweep=sweep,
+        hits=[word for word in sweep if word],
+    )
 
 
 @app.get("/stage/ideenwuerfeln", response_class=HTMLResponse)

@@ -7,7 +7,7 @@
 </header>
 <div class="denckring-stage scene-split">
   <div class="rings-wrap">
-    <svg id="rings" class="rings-svg" viewBox="0 0 400 400" role="img"
+    <svg id="rings" class="rings-svg" viewBox="0 0 600 600" role="img"
          aria-label="Five concentric discs of German word parts">
       {% for slot in rings.slots %}
       <g id="ring-{{ loop.index0 }}" data-ring="{{ loop.index0 }}" data-name="{{ slot.name }}"
@@ -15,20 +15,11 @@
          data-parts="{{ slot.alternatives | join('|') }}"></g>
       {% endfor %}
     </svg>
-    {# Says in words what the legend below now says in numbers: a disc showing
-       twenty parts and a legend saying 120 are not in disagreement. #}
-    <p class="ring-note">Each disc shows a window onto its own ring — never all the parts
-    counted below; turning scrolls the rest through.</p>
-    {# Each band's own part count, read off `rings.slots` rather than typed in —
-       the two figures below are products of these five, and a legend carrying a
-       stale number by hand would be the one place on this page a viewer could
-       catch the arithmetic disagreeing with itself. #}
-    <p class="ring-legend">
-      {% for slot in rings.slots %}
-      <span class="legend-item"><i class="swatch swatch-{{ loop.index0 }}"></i>{{ slot.name }}
-        &middot; {{ slot.alternatives | length }}</span>
-      {% endfor %}
-    </p>
+    {# Says in words what the legend (moved to the right column below) says in
+       numbers: a disc showing twenty parts and a legend saying 120 are not in
+       disagreement. #}
+    <p class="ring-note">A window onto each ring, not all the legend counts — turning scrolls
+    the rest through.</p>
   </div>
   <div class="control-panel">
     <div class="word-panel">
@@ -40,7 +31,18 @@
       <input type="hidden" name="word" id="word-field">
       <button type="submit">Read it</button>
       <button type="submit" name="turn" value="1">Turn them for me</button>
+      <button type="submit" name="find" value="1">Find me one</button>
     </form>
+    {# Each band's own part count, read off `rings.slots` rather than typed in —
+       the two figures below are products of these five, and a legend carrying a
+       stale number by hand would be the one place on this page a viewer could
+       catch the arithmetic disagreeing with itself. #}
+    <p class="ring-legend">
+      {% for slot in rings.slots %}
+      <span class="legend-item"><i class="swatch swatch-{{ loop.index0 }}"></i>{{ slot.name }}
+        &middot; {{ slot.alternatives | length }}</span>
+      {% endfor %}
+    </p>
     <p class="counts">
       <span class="count count-true">{{ "{:,}".format(rings.combinations) }}</span>
       <span class="count-label">readings on these discs</span>
@@ -59,26 +61,43 @@
     each be left blank &mdash; one turn more than each has parts &mdash; so the product is
     {%- for slot in rings.slots %} {{ slot.alternatives | length + (1 if slot.optional else 0) }}
     {%- if not loop.last %} &times;{% endif %}{% endfor %}.</p>
+    <figure class="harsdoerffer-quote">
+      <blockquote lang="de">hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die
+      Reimsilben auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten
+      Ring darzu drehet</blockquote>
+      <p class="quote-gloss">has its use in the invention of rhyme-words, when one seeks the
+      rhyming syllables on the third and fourth rings and turns the rhyming letters of the second
+      ring to them.</p>
+      <figcaption>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae
+      (Erquickstunden)</cite>, Nürnberg 1651. <span class="quote-note">Quoted from secondary
+      sources reproducing the Deliciae, not from the print itself; the translation is this
+      project's own.</span></figcaption>
+    </figure>
+    <div class="rhyme-panel">
+      {# The mode the quotation above describes, run rather than only quoted:
+         lock the medial, final and suffix rings to one curated ending — see
+         `stage.RHYME_ENDINGS` for why curated — and sweep the initial ring
+         through every letter it offers. #}
+      <p class="rhyme-kicker">Rhyme mode — lock a Reimsilbe, turn the second ring through it</p>
+      <form class="rhyme-controls" hx-post="/stage/denckring/rhyme" hx-target="#rhyme-result"
+            hx-trigger="submit">
+        {% for ending in rhyme_endings %}
+        <button type="submit" name="ending" value="{{ ending.label }}">{{ ending.label }}</button>
+        {% endfor %}
+      </form>
+      <div id="rhyme-result">
+        <p class="rhyme-status">choose an ending to sweep the second ring through it</p>
+        <ul class="rhyme-list" id="rhyme-list"></ul>
+      </div>
+    </div>
   </div>
 </div>
-<figure class="harsdoerffer-quote">
-  <blockquote lang="de">hat … seinen Gebrauch in Erfindung der Reimwörter / wann man die
-  Reimsilben auf dem dritten und vierten Ring suchet und die Reimbuchstaben auf dem zweyten Ring
-  darzu drehet</blockquote>
-  <p class="quote-gloss">has its use in the invention of rhyme-words, when one seeks the rhyming
-  syllables on the third and fourth rings and turns the rhyming letters of the second ring to
-  them.</p>
-  <figcaption>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae
-  (Erquickstunden)</cite>, Nürnberg 1651. <span class="quote-note">Quoted from secondary sources
-  reproducing the Deliciae, not from the print itself; the translation is this project's
-  own.</span></figcaption>
-</figure>
 <script>
 // The five discs, drawn and turned entirely here rather than in Jinja, so there
 // is exactly one place — this script — that knows how a ring index becomes an
 // angle and a piece of text. `stage.py` hands over the raw parts; everything
 // about how they are laid out on paper is a rendering decision and belongs here.
-const CENTER = 200;
+const CENTER = 300;
 // Radius of each band's outer edge, and how many of its parts are ever drawn
 // at once. The window narrows toward the hub because that is where a real
 // paper disc would run out of room to write legibly, not an arbitrary cut —
@@ -87,12 +106,25 @@ const CENTER = 200;
 // swatches read the same five, so a band and its swatch cannot be retuned
 // apart and leave the legend saying a colour belongs to a ring it no longer
 // does.
+//
+// Radii and font sizes are the 400-viewBox numbers scaled 1.5x for the
+// 600-viewBox discs, which reproduces the original arc-length-per-glyph
+// ratio exactly — a pure enlargement, nothing to re-tune. The two outer
+// bands then took a genuine widening on top of that: endbuchstabe's window
+// grew 18 -> 24 and nachsylbe's 20 -> 24 (its true total, so that band now
+// shows its whole ring, no scrolling), both checked against the longest
+// alternative either band carries (4 and 7 characters) before shipping —
+// see the task report for the arc-length arithmetic. vorsylbe and
+// anfangsbuchstabe kept their windows: vorsylbe's longest piece ("zwische",
+// 7 characters) was already the tight fit at the old scale, and
+// anfangsbuchstabe is what rhyme mode sweeps end to end, where a wider
+// window would change what a viewer sees mid-sweep for no legibility gain.
 const GEOMETRY = [
-  { rOuter: 54, window: 8, fill: 'var(--ring-0)', labelR: 33, font: 7.2 },
-  { rOuter: 88, window: 14, fill: 'var(--ring-1)', labelR: 71, font: 8 },
-  { rOuter: 122, window: 12, fill: 'var(--ring-2)', labelR: 105, font: 9 },
-  { rOuter: 156, window: 18, fill: 'var(--ring-3)', labelR: 139, font: 8.4 },
-  { rOuter: 190, window: 20, fill: 'var(--ring-4)', labelR: 173, font: 8 },
+  { rOuter: 81, window: 8, fill: 'var(--ring-0)', labelR: 49.5, font: 10.8 },
+  { rOuter: 132, window: 14, fill: 'var(--ring-1)', labelR: 106.5, font: 12 },
+  { rOuter: 183, window: 12, fill: 'var(--ring-2)', labelR: 157.5, font: 13.5 },
+  { rOuter: 234, window: 24, fill: 'var(--ring-3)', labelR: 208.5, font: 12.6 },
+  { rOuter: 285, window: 24, fill: 'var(--ring-4)', labelR: 259.5, font: 12 },
 ];
 const SVGNS = 'http://www.w3.org/2000/svg';
 // A ring's true distance to travel ranges from a handful of parts (the
@@ -128,7 +160,11 @@ function prefersReducedMotion() {
 function setInert(value) {
   inert = value;
   svg.classList.toggle('spinning', inert);
-  document.querySelectorAll('.actions button').forEach((button) => {
+  // `.rhyme-controls` alongside `.actions`: a rhyme sweep turns the same
+  // rings a manual click or "turn them for me" would, so the same refusal
+  // has to cover both button rows, not just the one that happened to start
+  // the current turn.
+  document.querySelectorAll('.actions button, .rhyme-controls button').forEach((button) => {
     button.disabled = inert;
   });
   // aria-disabled, not just the cursor and the buttons — a keyboard user
@@ -344,14 +380,84 @@ function buildRing(ringIndex) {
 [4, 3, 2, 1, 0].forEach(buildRing);
 assemble();
 
-// The five pieces come back on the fragment as `data-pieces`; walk each disc
-// to the piece that produced the word, innermost first and each a beat later
-// than the last, so the word assembles one part at a time rather than
-// appearing all at once — that stagger is the shot worth recording. No
-// pieces on the response (a plain "Read it", or the rare word the rings
-// truly cannot spell) leaves the discs exactly where they were.
+// Rhyme mode: the quotation turned into something the discs actually do,
+// rather than only something written near them. `/stage/denckring/rhyme`
+// (stage.rhyme_sweep) has already run the whole search server-side and sent
+// back one entry per letter the initial ring offers, in ring order — a real
+// word or `""`. This walks that same ring through every position in that
+// order, one true step at a time — the sweep the quotation describes — and
+// grows the list below with whichever positions landed on a real word.
+// Fast enough that the full 60-position lap reads as a sweep, not a wait —
+// there is no blur/settle split here the way a long "turn them for me" spin
+// needs one, because every step is the same one true part.
+const RHYME_STEP_MS = 90;
+
+async function runRhymeSweep(sweepData) {
+  const locked = { 2: sweepData.mittelbuchstabe, 3: sweepData.endbuchstabe,
+    4: sweepData.nachsylbe };
+  const sweep = sweepData.sweep.split('|');
+  const list = document.getElementById('rhyme-list');
+  const status = document.getElementById('rhyme-status');
+  // The fragment already carries the true tally (a no-JS viewer, and the
+  // tests, read it straight from there) — held back here behind "sweeping…"
+  // so a JS-driven viewer never sees the count before the disc has actually
+  // finished the turn that earns it, then restored once it has.
+  const finalStatus = status.textContent;
+  status.textContent = 'sweeping ' + sweepData.label + '…';
+  // A verdict left over from "Read it"/"Turn them for me"/"Find me one" is
+  // about a single checked word, not about the ending the discs are about to
+  // lock to — leaving it up would claim something about a word the discs no
+  // longer spell. Clearing it here is the same rule the word panel already
+  // follows everywhere else: never show a claim the current state didn't
+  // just earn.
+  document.querySelector('#word .word').textContent = ' ';
+  document.querySelectorAll('#word .verdict').forEach((el) => el.remove());
+  setInert(true);
+  // Rings 0 (forced blank — the quotation names only the second, third and
+  // fourth rings), 2, 3 and 4 lock to the chosen ending first, staggered the
+  // same way "turn them for me" staggers its five. Ring 1 is walked
+  // separately below: it has to visit every position in order, not land
+  // once, so it cannot join this same Promise.all.
+  await Promise.all(
+    [0, 2, 3, 4].map(
+      (ringIndex, i) =>
+        new Promise((resolve) => {
+          const piece = ringIndex === 0 ? '' : locked[ringIndex];
+          setTimeout(() => resolve(spinRingTo(ringIndex, piece)), i * 260);
+        })
+    )
+  );
+  await spinRingTo(1, rings[1].parts[0]);
+  for (let i = 0; i < sweep.length; i++) {
+    if (i > 0) await microStep(1, prefersReducedMotion() ? 0 : RHYME_STEP_MS, 1);
+    if (sweep[i]) {
+      const li = document.createElement('li');
+      li.textContent = sweep[i];
+      list.appendChild(li);
+    }
+  }
+  status.textContent = finalStatus;
+  // The rings ended up somewhere "Read it" has never seen — bring the hidden
+  // field back in line with them, the same invariant a manual click or a
+  // spin both keep (see `assemble`), so a "Read it" straight after a sweep
+  // checks what is actually on the discs rather than whatever it last saw.
+  assemble();
+  setInert(false);
+}
+
 document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.target.id === 'rhyme-result') {
+    const data = document.getElementById('rhyme-sweep-data');
+    if (data) runRhymeSweep(data.dataset);
+    return;
+  }
   if (evt.target.id !== 'word') return;
+  // The five pieces come back on the fragment as `data-pieces`; walk each
+  // disc to the piece that produced the word, innermost first and each a
+  // beat later than the last, so the word assembles one part at a time
+  // rather than appearing all at once — that stagger is the shot worth
+  // recording. No pieces on the response (a plain "Read it", or a "find me
+  // one" that ran out of tries) leaves the discs exactly where they were.
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.pieces;
   if (!raw) return;
