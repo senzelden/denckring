@@ -321,21 +321,34 @@ async def stage_arca_act(request: Request) -> HTMLResponse:
     )
 
 
-#: The canonical demonstration sentence: "cat" is the word the caption tells the
-#: catafalque-to-catacomb story about, and every noun in it lands cleanly inside the
-#: shipped noun list (see `stage.displacement`) so the columns always have something
-#: to show, on a machine with no corpus configured and nothing else set up.
-N_PLUS_7_SOURCE = "the cat sat on the table"
+#: The canonical demonstration sentence, one per language the toggle offers.
+#: Not a translation of each other — the same shape (a creature, a piece of
+#: furniture) so that switching the toggle keeps telling the same kind of
+#: joke rather than a different one — and each lands cleanly inside its own
+#: shipped noun list (see `stage.displacement`) so the columns always have
+#: something to show, on a machine with no corpus configured and nothing
+#: else set up. "cat" is the word the reel note tells the catafalque-to-
+#: catacomb story about (see `_stage_reels.html`), which is why that note is
+#: guarded to only ever fire for this exact English pair — the German source
+#: below never produces it.
+N_PLUS_7_SOURCES: dict[str, str] = {
+    "en": "the cat sat on the table",
+    "de": "die Katze saß auf dem Tisch",
+}
 
 
 @app.get("/stage/n_plus_7", response_class=HTMLResponse)
 def stage_n_plus_7(request: Request, chrome: str = "on") -> HTMLResponse:
+    lang = stage.N_PLUS_7_DEFAULT_LANG
+    source = N_PLUS_7_SOURCES[lang]
     return page(
         request,
         "stage_n_plus_7.html",
         scene=stage.scene("n_plus_7"),
-        source=N_PLUS_7_SOURCE,
-        steps=stage.displacement(N_PLUS_7_SOURCE, 7),
+        source=source,
+        steps=stage.displacement(source, 7, lang=lang),
+        default_lang=lang,
+        examples=N_PLUS_7_SOURCES,
         chrome_off=chrome == "off",
     )
 
@@ -348,11 +361,17 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     run here exactly as the library runs them — `displace` produces the text, and
     `denckring_check` is asked to confirm it independently — so there is nothing on
     this page for a viewer to take on faith that the library did not already verify.
+
+    `lang` genuinely changes what comes back, unlike Ideenwürfeln's own toggle: it
+    picks which noun list `displace` walks, so it is threaded into `stage.pack`
+    (by way of `displace`), `stage.displacement` (the reels) and `denckring_check`
+    alike, rather than governing only the reading the way the other scene's does.
     """
     form = dict(await request.form())
     source = str(form.get("source", ""))
-    produced = displace(source, stage.pack(), 7) if source else ""
-    report = denckring_check("n_plus_7", produced, source=source) if source else None
+    lang = bench.as_lang(str(form.get("lang", "")))
+    produced = displace(source, stage.pack(lang), 7) if source else ""
+    report = denckring_check("n_plus_7", produced, source=source, lang=lang) if source else None
     return page(
         request,
         "_stage_displaced.html",
@@ -366,7 +385,7 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
         unchanged=bool(source) and produced == source,
         # The reels show this source too, and the fragment swaps them back out of
         # band; see `_stage_displaced.html`.
-        steps=stage.displacement(source, 7),
+        steps=stage.displacement(source, 7, lang=lang),
     )
 
 
