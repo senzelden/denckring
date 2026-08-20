@@ -1,0 +1,35 @@
+{% set plural = "" if syllables == 1 else "s" %}
+<p class="measure" data-syllables="{{ syllables }}">
+  &ldquo;{{ phrase }}&rdquo; measures <strong>{{ syllables }}</strong> syllable{{ plural }}
+</p>
+{% if not offered %}
+<p class="tablet-limit">This tablet carries no column of {{ syllables }} syllable{{ plural }}
+  &mdash; the box cannot set a phrase of this length at all.</p>
+{% elif not report %}
+<p class="offer-note">The tablet for {{ syllables }} syllables offers {{ offered | length }}
+  column{{ "" if offered | length == 1 else "s" }}:</p>
+<div class="offered-columns">
+  {% for candidate in offered %}
+  <form hx-post="/stage/arca/act" hx-target="#column" hx-swap="innerHTML"
+        style="--i:{{ loop.index0 }}">
+    <input type="hidden" name="phrase" value="{{ phrase }}">
+    <input type="hidden" name="pattern" value="{{ candidate }}">
+    <button type="submit" class="quiet column-choice">
+      {% for number in candidate.split() %}<span class="column-number">{{ number }}</span>{% endfor %}
+    </button>
+  </form>
+  {% endfor %}
+</div>
+{% else %}
+<div class="drawn-column">
+  {% for number in pattern.split() %}<span class="column-number">{{ number }}</span>{% endfor %}
+</div>
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {{ "checked — this column sets the phrase" if report.satisfied
+     else "checked — not one of the tablet's own columns for this phrase" }}
+</p>
+<form hx-post="/stage/arca/act" hx-target="#column" hx-swap="innerHTML">
+  <input type="hidden" name="phrase" value="{{ phrase }}">
+  <button type="submit" class="quiet">Draw again</button>
+</form>
+{% endif %}

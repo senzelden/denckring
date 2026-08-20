@@ -357,3 +357,74 @@ def test_the_witz_disclaimer_survives_a_real_throw(
         "A reading, not a verdict. No <code>Report</code> is produced and no checker "
         "consults\n    it — the Witz is the step no program performs."
     ) in response.text
+
+
+# ── scene three: Arca musarithmica ──────────────────────────────────────────
+
+
+def test_the_arca_scene_uses_a_tablet_that_is_not_kirchers() -> None:
+    """Kircher's own pitch numbers are not shipped, and the golden fixture's tablet is
+    synthetic and says so. The scene must not imply otherwise."""
+    assert "4" in str(sorted(stage.tablet().lengths()))
+    response = client.get("/stage/arca")
+    assert response.status_code == 200
+    assert "not his" in response.text
+
+
+def test_the_pattern_the_scene_offers_really_sets_the_phrase() -> None:
+    from denckring import check
+
+    source = "the cat sat down"
+    pattern = stage.tablet().patterns(4)[0]
+    report = check("arca_musarithmica", pattern, source=source, pinakes=stage.TABLET)
+    assert report.satisfied is True
+
+
+def test_the_arca_scene_renders() -> None:
+    response = client.get("/stage/arca")
+    assert response.status_code == 200
+    assert "Arca musarithmica" in response.text
+
+
+def test_measuring_a_phrase_offers_only_the_tablets_own_columns() -> None:
+    """A bare measurement (no column drawn yet) must offer exactly what
+    `stage.tablet()` carries for that length — nothing invented on the page."""
+    response = client.post("/stage/arca/act", data={"phrase": "the cat sat down"})
+    assert response.status_code == 200
+    assert "4" in response.text
+    for pattern in stage.tablet().patterns(4):
+        assert pattern in response.text
+    # No column has been drawn, so there is nothing yet for `check` to have
+    # verified — the page must not claim a verdict it never produced.
+    assert "verdict" not in response.text
+
+
+def test_drawing_an_offered_column_is_verified_against_the_tablet() -> None:
+    """Choosing one of the tablet's own columns must show the real `check`
+    verdict — the scene's whole claim, made concrete for one phrase."""
+    phrase = "the cat sat down"
+    pattern = stage.tablet().patterns(4)[0]
+    response = client.post("/stage/arca/act", data={"phrase": phrase, "pattern": pattern})
+    assert response.status_code == 200
+    assert "verdict yes" in response.text
+
+
+def test_a_phrase_the_tablet_cannot_set_says_so_plainly() -> None:
+    """ "hello there" measures three syllables, and this tablet only carries
+    columns for four and six — the box cannot set it, which is a fact about
+    the box (ADR 0021), not an error to paper over."""
+    response = client.post("/stage/arca/act", data={"phrase": "hello there"})
+    assert response.status_code == 200
+    assert "3" in response.text
+    assert "no column" in response.text.lower()
+
+
+def test_the_arca_scene_measures_with_the_procedures_own_counter() -> None:
+    """The scene must count syllables the same way `arca_musarithmica` itself
+    does — `line_syllables` — rather than a second, independently drifting way
+    of measuring a phrase."""
+    response = client.post("/stage/arca/act", data={"phrase": "the dog ran home to eat"})
+    assert response.status_code == 200
+    assert "6" in response.text
+    for pattern in stage.tablet().patterns(6):
+        assert pattern in response.text
