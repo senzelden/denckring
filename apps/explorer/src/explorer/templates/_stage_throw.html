@@ -4,11 +4,17 @@
 {% if throw %}
 <div class="throw" data-register="{{ register }}">
   <p class="throw-headword">
-    {% if headword %}Filed under &ldquo;{{ headword }}&rdquo;{% else %}Drawn at random{% endif %}
+    {% if not headword %}Drawn at random
+    {% elif filed %}Filed under &ldquo;{{ headword }}&rdquo;
+    {% else %}Drawn across the whole corpus
+    {% endif %}
   </p>
-  {% if fields_short %}
+  {% if note == "fallback" %}
   <p class="field-note">This headword was not filed across enough fields for a cross-field
     throw — showing a plain draw instead.</p>
+  {% elif note == "widened" %}
+  <p class="field-note">&ldquo;{{ headword }}&rdquo; was too thin to draw three excerpts
+    from — this throw was made across the whole corpus instead.</p>
   {% endif %}
   <div class="slips">
     {% for slip in slips %}

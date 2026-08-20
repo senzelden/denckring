@@ -151,27 +151,32 @@ def corpus_choices() -> list[CorpusChoice]:
     ]
 
 
-#: `IdeenwuerfelnParams.slots`' own default. Repeated here rather than read
-#: from the params schema because the check below runs *before* the throw, to
-#: decide whether to ask for one at all — duplicated, not derived, but the two
-#: are exactly the numbers that would need to change together.
-THROW_SLOTS = 3
-
-
 @dataclass(frozen=True)
 class Slip:
-    """One drawn excerpt, with the field it was filed under."""
+    """One drawn excerpt: the field it was filed under, and whether it is
+    genuinely filed under the headword the throw asked for.
+
+    Both are facts about the entry itself, read back after the draw — not
+    predictions from the request. `apply` widens a too-thin headword pool to
+    the whole corpus without saying so, so a pre-flight guess about the
+    headword's own pool can disagree with what was actually drawn; only the
+    result can't.
+    """
 
     text: str
     domain: str
+    filed: bool
 
 
-def slips_of(corpus_text: str, throw: str) -> list[Slip]:
+def slips_of(corpus_text: str, throw: str, headword: str = "") -> list[Slip]:
     """Match each line a throw produced back to the entry it came from.
 
     The scene's whole point is a collision *across* fields, which is invisible
     in the prose alone — a viewer has to be able to see the field each slip
-    was filed under, not just take `distinct_domains=True` on faith.
+    was filed under, not just take `distinct_domains=True` on faith. Likewise
+    whether a slip is actually filed under `headword`: when the headword's own
+    pool was too thin, `apply` draws from the whole corpus instead, and a slip
+    from that wider draw may not carry the headword at all.
     """
     from denckring.core import corpus as denckring_corpus
     from denckring.core.errors import MalformedCorpus
@@ -181,6 +186,7 @@ def slips_of(corpus_text: str, throw: str) -> list[Slip]:
     except MalformedCorpus:
         return []
     by_text = {entry.text.strip(): entry for entry in parsed.entries()}
+    wanted = headword.casefold() if headword else None
     slips = []
     for line in throw.split("\n"):
         body = line.strip()
@@ -188,28 +194,6 @@ def slips_of(corpus_text: str, throw: str) -> list[Slip]:
             continue
         entry = by_text.get(body)
         domain = entry.domain if entry and entry.domain else "unfiled"
-        slips.append(Slip(text=body, domain=domain))
+        filed = bool(entry and wanted and any(hw.casefold() == wanted for hw in entry.headwords))
+        slips.append(Slip(text=body, domain=domain, filed=filed))
     return slips
-
-
-def domains_available(corpus_text: str, headword: str, needed: int) -> bool:
-    """Whether the headword's own pool actually spans `needed` distinct fields.
-
-    Checked before the throw is asked for, so the page can say plainly that a
-    headword was not filed across enough fields rather than showing a
-    same-field draw as though it were the cross-field collision it asked for
-    — `apply` itself degrades to a plain draw silently when the fields run
-    short, which is right for the library (a throw should not fail just
-    because the corpus is thin) but wrong for a scene whose whole point is
-    showing the distance being crossed.
-    """
-    from denckring.core import corpus as denckring_corpus
-    from denckring.core.errors import MalformedCorpus
-
-    try:
-        parsed = denckring_corpus.parse(corpus_text)
-    except MalformedCorpus:
-        return False
-    pool = parsed.entries(headword or None)
-    domains = {entry.domain for entry in pool if entry.domain}
-    return len(domains) >= needed

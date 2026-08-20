@@ -138,6 +138,13 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     picker offers only corpora `stage.corpus_choices()` knows about, so this
     is the same lookup rather than a second, trustable-or-not copy of the
     same fact.
+
+    What the page says about the draw is read back from the draw, not
+    predicted before it. `apply` silently widens a headword pool too thin to
+    fill `slots` entries to the *whole corpus* — a pre-flight check of the
+    headword's own pool cannot see that widening coming, and would describe a
+    throw that never happened. `stage.slips_of` maps each slip back to its
+    real entry, so `filed` below is what the throw actually did.
     """
     form = dict(await request.form())
     path = str(form.get("corpus_path", ""))
@@ -147,7 +154,6 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
     if problem:
         return page(request, "_stage_throw.html", throw="", problem=problem, headword=headword)
 
-    spans_enough_fields = stage.domains_available(text, headword, stage.THROW_SLOTS)
     params: dict[str, Any] = {"distinct_domains": True}
     if headword:
         params["headword"] = headword
@@ -160,17 +166,33 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
         # for a collision caused.
         produced, trouble = bench.generate("ideenwuerfeln", text, "en", {"headword": headword})
 
+    slips = stage.slips_of(text, produced, headword) if produced else []
+    distinct = len({slip.domain for slip in slips})
+    filed = bool(slips) and all(slip.filed for slip in slips)
+    note = ""
+    if produced and headword:
+        if distinct < len(slips):
+            # Same signal `apply` itself used to fall back to a plain draw —
+            # whichever pool it drew from (the headword's own, or the whole
+            # corpus after widening) did not span enough fields.
+            note = "fallback"
+        elif not filed:
+            # Enough distinct fields, but not from the headword's own pool —
+            # the widening happened, and the slips are honest about it.
+            note = "widened"
+
     return page(
         request,
         "_stage_throw.html",
-        slips=stage.slips_of(text, produced) if produced else [],
+        slips=slips,
         throw=produced,
         problem=trouble,
         headword=headword,
+        filed=filed,
+        note=note,
         style=chosen.style if chosen else witz.DEFAULT_REGISTER,
         register=chosen.register if chosen else "modern",
         can_read=witz.available(),
-        fields_short=bool(produced) and not spans_enough_fields,
     )
 
 

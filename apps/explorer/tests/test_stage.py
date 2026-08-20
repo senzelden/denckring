@@ -197,45 +197,26 @@ def test_slips_of_matches_each_line_back_to_its_field() -> None:
     """A viewer has to be able to see the field each slip was filed under —
     that's what makes a cross-field collision visible rather than merely
     claimed. A line the corpus has no record of (should not happen, but the
-    scene should not crash if it does) is labelled rather than dropped."""
+    scene should not crash if it does) is labelled rather than dropped, and
+    marked as not filed under the headword since nothing backs that claim."""
     import json
 
     text = json.dumps(
         {
             "entries": [
-                {"text": "a fact about beetles", "domain": "Entomologie"},
+                {"text": "a fact about beetles", "domain": "Entomologie", "headwords": ["bug"]},
                 {"text": "a fact about kings", "domain": "Geschichte"},
             ]
         }
     )
-    slips = stage.slips_of(text, "a fact about beetles\na fact about kings\nsomething unfiled")
-    assert [(s.text, s.domain) for s in slips] == [
-        ("a fact about beetles", "Entomologie"),
-        ("a fact about kings", "Geschichte"),
-        ("something unfiled", "unfiled"),
-    ]
-
-
-def test_domains_available_counts_distinct_fields_under_one_headword() -> None:
-    """The pre-flight check the throw route runs before asking `apply` for a
-    cross-field draw — so the page can say a headword wasn't filed across
-    enough fields rather than showing a same-field draw as the real thing."""
-    import json
-
-    text = json.dumps(
-        {
-            "entries": [
-                {"text": "a", "domain": "x", "headwords": ["w"]},
-                {"text": "b", "domain": "y", "headwords": ["w"]},
-                {"text": "c", "domain": "x", "headwords": ["w"]},
-            ]
-        }
+    slips = stage.slips_of(
+        text, "a fact about beetles\na fact about kings\nsomething unfiled", "bug"
     )
-    assert stage.domains_available(text, "w", 2) is True
-    assert stage.domains_available(text, "w", 3) is False
-    # An empty headword falls back to the whole corpus, exactly as `entries()`
-    # and the `/act` route both treat it.
-    assert stage.domains_available(text, "", 2) is True
+    assert [(s.text, s.domain, s.filed) for s in slips] == [
+        ("a fact about beetles", "Entomologie", True),
+        ("a fact about kings", "Geschichte", False),
+        ("something unfiled", "unfiled", False),
+    ]
 
 
 def _write_corpus(tmp_path: Path, entries: list[dict[str, object]]) -> Path:
@@ -307,6 +288,44 @@ def test_a_throw_falls_back_and_says_so_when_a_headword_spans_too_few_fields(
     # Not shown as an error — `.notice` is the checker's own failure colour,
     # and a thin corpus is neither a failure nor the checker's business.
     assert "notice" not in response.text
+
+
+def test_a_thin_headword_pool_is_widened_and_the_page_says_so(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`apply` widens a headword pool too thin to fill `slots` entries to the
+    *whole corpus*, silently — the exact case a pre-flight check of the
+    headword's own pool cannot see coming, because it never looks past that
+    pool. Only one entry is filed under "rare"; the other three fields come
+    from entries with no headword at all, so the throw can find three
+    distinct fields only by reaching past the headword. The page must say
+    that plainly, and must not caption slips that mostly aren't "rare" as if
+    they were "Filed under 'rare'"."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {"text": "excerpt alpha rare", "domain": "Alpha", "headwords": ["rare"]},
+            {"text": "excerpt beta", "domain": "Beta"},
+            {"text": "excerpt gamma", "domain": "Gamma"},
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "rare"},
+    )
+    assert response.status_code == 200
+    for domain in ("Alpha", "Beta", "Gamma"):
+        assert domain in response.text
+    assert (
+        "&ldquo;rare&rdquo; was too thin to draw three excerpts\n"
+        "    from — this throw was made across the whole corpus instead."
+    ) in response.text
+    assert "Filed under" not in response.text
+    assert "Drawn across the whole corpus" in response.text
+    # Not the fallback case — three distinct fields were found, just not from
+    # the headword's own pool, so the fallback wording would be false here.
+    assert "not filed across enough fields" not in response.text
 
 
 def test_the_witz_disclaimer_survives_a_real_throw(
