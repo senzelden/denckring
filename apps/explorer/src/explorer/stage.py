@@ -157,20 +157,12 @@ def german_pack() -> LanguagePack:
 #: the true ones alongside it, on the reasoning that a lost word is a minor
 #: cost and a missed vulgarity is not. Audited in full in the task report.
 #:
-#: Two rulings made after that audit, both checked against what these rings
-#: can actually spell (see the task report's "Ruling 1"/"Ruling 2"):
-#: "spast" is blocked as a stem even though it also costs "spastisch" (a
-#: genuine clinical adjective, and likewise producible) — in German "Spast"
-#: itself is an ableist slur with no innocent reading, so the trade favours
-#: blocking the stem: a missing adjective in a demo costs nothing, a slur in
-#: a recording costs a great deal. "schlampen" is blocked as the exact word,
-#: not the "schlamp" stem: "Schlampe" (the singular) is not producible by
-#: this device at all, but "schlampen" (pieces ['', 'Schl', 'a', 'mp', 'en'])
-#: is, and is the same slur in its plural/verb form. The narrower stem is
-#: enough — and, because matching is substring-based, "schlampen" still
-#: catches nothing else — so "schlampig" (sloppy, an ordinary adjective,
-#: also producible) is left untouched, the same precision already used for
-#: "arsch" and "sack".
+#: Ruling made after that audit (see the task report's "Ruling 1"): "spast"
+#: is blocked as a stem even though it also costs "spastisch" (a genuine
+#: clinical adjective, and likewise producible) — in German "Spast" itself
+#: is an ableist slur with no innocent reading, so the trade favours
+#: blocking the stem: a missing adjective in a demo costs nothing, a slur
+#: in a recording costs a great deal.
 _BLOCKED_STEMS = frozenset(
     {
         # sexual
@@ -196,6 +188,25 @@ _BLOCKED_STEMS = frozenset(
         "zigeuner",
         "kanak",
         "spast",
+    }
+)
+
+#: Exact whole words, not stems — matched only when the entire casefolded
+#: word equals an entry, for a case a stem would take ordinary words down
+#: with it. "schlampen" started life as a "Ruling 2" *stem* entry, on the
+#: claim that it "catches the plural without touching schlampig, so nothing
+#: is lost". That claim was wrong: as a substring, "schlampen" also matches
+#: inside "verschlampen" (to mislay something through carelessness — an
+#: entirely ordinary, producible verb, and one this project's own audit had
+#: already named worth keeping when the broader "schlamp" stem was first
+#: rejected). Matched as a whole word instead, "Schlampen" is still blocked
+#: — "Schlampe", the singular, is not producible by this device at all, so
+#: the plural/verb form is the one that matters — while both "schlampig"
+#: (sloppy) and "verschlampen" survive. The next entry that needs this same
+#: precision — a slur reachable only in one exact inflected form, inside a
+#: longer ordinary word as a stem — belongs here, not in `_BLOCKED_STEMS`.
+_BLOCKED_EXACT = frozenset(
+    {
         "schlampen",
     }
 )
@@ -211,6 +222,8 @@ def fit_for_stage(word: str) -> bool:
     to build for itself.
     """
     folded = word.casefold()
+    if folded in _BLOCKED_EXACT:
+        return False
     return not any(stem in folded for stem in _BLOCKED_STEMS)
 
 
