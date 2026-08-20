@@ -27,7 +27,7 @@
   height: 720px;
   background: var(--paper);
   color: var(--ink);
-  padding: 3rem;
+  padding: 2.1rem 3rem;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -78,21 +78,21 @@
 /* ── scene one: der Denckring ─────────────────────────────────────────── */
 
 .scene-head {
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.6rem;
 }
 
 .scene-kicker {
   font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--lead);
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.15rem;
 }
 
 .scene-head h1 {
   font-family: var(--display);
-  font-size: 2.1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -101,23 +101,21 @@
 
 .denckring-stage {
   display: flex;
-  align-items: center;
-  gap: 3rem;
+  align-items: flex-start;
+  gap: 2.4rem;
 }
 
-/* The five discs, drawn concentrically. Each ring is a full circle sized to its
-   own diameter; the smaller ones sit on top in z-order, so what shows through is
-   only the outer band belonging to the larger ring underneath — the same trick a
-   dartboard uses, not an SVG donut. */
+/* The rings wrapper: the SVG discs, the window disclaimer and the legend that
+   names which band is which — none of which can live on a disc's own face,
+   because every angle on a rotating disc is somewhere text sweeps past. */
 
-.rings {
-  position: relative;
-  width: 460px;
-  height: 460px;
+.rings-wrap {
   flex: none;
+  width: 360px;
+  position: relative;
 }
 
-.rings::before {
+.rings-wrap::before {
   /* Marks the reading line, the way a rubricator marked where to read. */
   content: "";
   position: absolute;
@@ -130,116 +128,117 @@
   z-index: 6;
 }
 
-.ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-sizing: border-box;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.55rem 0.5rem 0;
-  font: inherit;
-  letter-spacing: normal;
-  text-transform: none;
+.rings-svg {
+  display: block;
+  width: 360px;
+  height: 360px;
+}
+
+/* The discs are built and turned in script — see the scene's own <script> —
+   so the geometry here only styles what script produces. */
+
+.ring-disc {
   cursor: pointer;
+  stroke: var(--case-lip);
+  stroke-width: 1;
   transition: filter 120ms ease;
 }
 
-.ring:focus-visible {
-  outline: 2px solid var(--rubric-soft);
-  outline-offset: -3px;
+.ring-disc:hover,
+.ring-disc:focus-visible {
+  filter: brightness(1.06);
+  outline: none;
 }
 
-.ring-name {
-  font-family: var(--mono);
-  font-size: 0.5rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--lead);
+.ring-dial {
+  pointer-events: none;
 }
 
-.ring-turn {
+.ring-part {
   font-family: var(--display);
-  font-size: 0.95rem;
   font-weight: 500;
-  color: var(--ink);
-  margin-top: 0.1rem;
+  fill: var(--ink);
+  user-select: none;
 }
 
-/* A skipped optional ring (prefix or suffix) is turned to an empty piece rather
-   than defaulted to an alternative, so the assembled word stays correct — this
-   is what shows in the band instead of nothing being there at all. */
-.ring-turn:empty::after {
-  content: "\2013";
+.ring-part-hub {
+  fill: var(--paper);
+}
+
+.ring-part-current {
+  font-weight: 700;
+}
+
+/* A blank turn (the skipped prefix or suffix, as the paper rings themselves
+   carry) shows the placeholder dash rather than a word part. */
+.ring-part.blank {
+  fill: var(--lead);
+  font-weight: 400;
+}
+
+.ring-part-hub.blank {
+  fill: rgba(247, 245, 240, 0.7);
+}
+
+.ring-note {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--lead);
+  margin: 0.6rem 0 0;
+}
+
+.ring-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.7rem;
+  margin: 0.5rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
   color: var(--lead);
 }
 
-.ring-0 .ring-turn:empty::after {
-  color: rgba(247, 245, 240, 0.7);
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-/* Each ring restates its own colours on `:hover` — the base button rule (in
-   explorer.css) sets `background`/`border-color` on hover, and a bare `.ring:hover`
-   would lose that property battle by simply not mentioning them. */
-
-.ring-4 { width: 460px; height: 460px; z-index: 1; background: #f2efe7; border: 1px solid var(--case-lip); }
-.ring-4:hover { background: #f2efe7; border-color: var(--rubric-soft); }
-
-.ring-3 { width: 368px; height: 368px; z-index: 2; background: #e8e3d9; border: 1px solid var(--case-lip); }
-.ring-3:hover { background: #e8e3d9; border-color: var(--rubric-soft); }
-
-.ring-2 { width: 276px; height: 276px; z-index: 3; background: #dcd5c5; border: 1px solid var(--case-lip); }
-.ring-2:hover { background: #dcd5c5; border-color: var(--rubric-soft); }
-
-.ring-1 { width: 184px; height: 184px; z-index: 4; background: #c9beaa; border: 1px solid var(--case-lip); }
-.ring-1:hover { background: #c9beaa; border-color: var(--rubric-soft); }
-
-.ring-0 {
-  width: 92px;
-  height: 92px;
-  z-index: 5;
-  justify-content: center;
-  padding-top: 0;
-  background: var(--rubric);
-  border: 1px solid var(--rubric);
+.swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid var(--case-lip);
 }
 
-.ring-0:hover {
-  background: var(--rubric);
-  border-color: var(--paper);
-}
-
-.ring-0 .ring-name {
-  color: rgba(247, 245, 240, 0.75);
-}
-
-.ring-0 .ring-turn {
-  color: var(--paper);
-  font-size: 1.05rem;
-}
+.swatch-0 { background: var(--rubric); }
+.swatch-1 { background: #c9beaa; }
+.swatch-2 { background: #dcd5c5; }
+.swatch-3 { background: #e8e3d9; }
+.swatch-4 { background: #f2efe7; }
 
 .control-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.1rem;
+  padding-top: 0.4rem;
 }
 
 .word-panel {
   background: var(--case-deep);
-  padding: 1.5rem 1.75rem;
+  padding: 1.2rem 1.5rem;
   border-radius: 2px;
-  min-height: 6rem;
+  min-height: 5rem;
   display: flex;
   align-items: center;
 }
 
 .word-panel .word {
   font-family: var(--display);
-  font-size: 2.4rem;
+  font-size: 2.1rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--paper);
@@ -248,10 +247,10 @@
 
 .word-panel .verdict {
   font-family: var(--mono);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin: 0.5rem 0 0;
+  margin: 0.4rem 0 0;
 }
 
 .word-panel .verdict.yes {
@@ -274,7 +273,7 @@
 
 .count {
   font-family: var(--display);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
@@ -287,7 +286,51 @@
 }
 
 .count-label {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   letter-spacing: 0.02em;
   color: var(--lead);
+}
+
+/* The Harsdörffer quotation: what the device was for, in his own words, kept
+   visibly subordinate — smaller and looser than anything above it — because
+   it is the one thing on this page not drawn from the shipped data. */
+
+.harsdoerffer-quote {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0 0;
+  border-top: 1px solid var(--paper-shade);
+}
+
+.harsdoerffer-quote blockquote {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.harsdoerffer-quote .quote-gloss {
+  margin: 0.3rem 0 0;
+  font-family: var(--display);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--lead);
+}
+
+.harsdoerffer-quote figcaption {
+  margin: 0.3rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: var(--lead);
+}
+
+.harsdoerffer-quote cite {
+  font-style: italic;
+}
+
+.harsdoerffer-quote .quote-note {
+  display: block;
+  margin-top: 0.1rem;
 }
