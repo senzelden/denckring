@@ -420,13 +420,19 @@ def test_turn_them_for_me_never_shows_a_draw_that_was_never_checked(
     rate makes that need ~50 consecutive misses, which no ordinary test run
     will ever hit by chance, so the failure path is forced directly here
     rather than trusted to the odds. With every draw failing, the route must
-    show nothing — not a word that was never checked."""
+    show no word that was never checked — and must say so rather than come
+    back as an empty panel, which is what `find_word`'s own failure path has
+    always done and what this one only claimed in a comment to do."""
     monkeypatch.setattr(stage, "fit_for_stage", lambda word: False)
     response = client.post("/stage/denckring/act", data={"turn": "1"})
     assert response.status_code == 200
     assert "data-pieces=" not in response.text
     assert "verdict-rings" not in response.text
     assert "verdict-known" not in response.text
+    normalised = " ".join(response.text.split())
+    assert (
+        f"all {stage.TURN_ATTEMPTS:,} turns landed on something this stage will not show"
+    ) in normalised
 
 
 def test_rhyme_endings_are_all_curated_and_clean() -> None:
@@ -919,6 +925,19 @@ def test_the_n_plus_7_scene_offers_a_language_toggle_defaulting_to_english() -> 
     assert 'data-example="die Katze saß auf dem Tisch" >German</option>' in normalised
 
 
+def test_the_panel_reads_both_dictionary_sizes_off_the_lists_themselves() -> None:
+    """The note naming how large each noun list is used to type both figures
+    as prose. They were right, and they were also the one thing on the page a
+    viewer could catch disagreeing with the data — the same argument the
+    Denckring's legend one scene over makes for generating its own counts. So
+    this pins the property, not the two numbers: whatever the shipped lists
+    hold is what the page says."""
+    response = client.get("/stage/n_plus_7")
+    normalised = " ".join(response.text.split())
+    assert f"English's {len(stage.pack('en').nouns()):,} nouns" in normalised
+    assert f"German's {len(stage.pack('de').nouns()):,}." in normalised
+
+
 def test_a_german_source_displaces_through_the_german_list() -> None:
     """The toggle genuinely changes the output here, unlike Ideenwürfeln's own: German
     walks its own noun list, not the English one read in a different voice."""
@@ -1315,6 +1334,31 @@ def test_a_word_the_lexicon_does_not_know_says_so_distinctly() -> None:
     assert result.problem == "unknown_word"
     assert result.rungs == []
     assert "lexicon does not have" in result.message
+
+
+def test_a_pair_the_search_cannot_even_be_asked_about_says_why() -> None:
+    """The third refusal, and the only one reachable by typing into the
+    scene's own two fields without hitting the lexicon at all: two words of
+    different lengths, an empty field, or anything that is not letters. The
+    search is never run — `apply` would raise `InvalidParams` on it — so the
+    scene answers with the rule instead of a failure, and does not dress the
+    three refusals up as one."""
+    for start, target in (("cold", "warmth"), ("", "warm"), ("co1d", "warm")):
+        result = stage.word_ladder(start, target, "en")
+        assert result.problem == "invalid", (start, target)
+        assert result.rungs == []
+        assert result.message == "both words must be the same length, letters only."
+
+
+def test_the_invalid_pair_case_renders_without_raising() -> None:
+    """Trivially reachable from the scene's own typed fields, so the fragment
+    that renders it is exercised too, not just the function behind it."""
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "cold", "target": "warmth", "lang": "en"}
+    )
+    assert response.status_code == 200
+    assert "both words must be the same length, letters only." in response.text
+    assert "verdict" not in response.text
 
 
 def test_the_two_failure_modes_are_never_the_same_sentence() -> None:
