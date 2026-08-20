@@ -1362,3 +1362,206 @@
   min-width: 6.5rem;
 }
 
+/* ── scene six: haikuization ──────────────────────────────────────────────
+   The quietest scene: no figure/panel split, no diagram, nothing that turns
+   or falls. A centred column, the same move `.poem`'s own scene four makes
+   for the same reason — verse this short set edge to edge would read as a
+   report rather than a page. */
+
+.haiku-stage {
+  max-width: 40rem;
+  margin: 0.4rem auto 0;
+}
+
+.haiku-panel-note {
+  font-family: var(--body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--lead);
+  margin: 0 0 0.45rem;
+}
+
+.haiku-panel-note code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+}
+
+.haiku-form {
+  margin: 0 0 0.4rem;
+}
+
+/* Six lines of verse is what the default source needs and a pasted longer
+   poem should have room to show more of before its own scrollbar (see
+   `.haiku-source` below) takes over — smaller than explorer.css's bare
+   11rem textarea default, which was tuned for the full bench page rather
+   than this stage's own 720px budget. A `<textarea>` always carries its own
+   native scrollbar past whatever fits, so shrinking it costs no content —
+   unlike `.haiku-source` below, nothing here is silently clipped, only
+   scrolled behind an affordance the element already has for free. Measured
+   against the shipped source and against a much longer paste; see the task
+   report. */
+.haiku-form textarea {
+  min-height: 6rem;
+}
+
+.haiku-form .actions {
+  margin-top: 0.35rem;
+}
+
+.haiku-attribution {
+  font-family: var(--body);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--lead);
+  margin: 0 0 0.35rem;
+}
+
+.haiku-area {
+  min-height: 2rem;
+}
+
+/* However long a pasted poem runs, `.stage` clips silently past 720px
+   rather than growing to fit it (see the brief's own house rule) — this
+   scene's own scrollbar, the same move N+7's `.displaced-text` and
+   Ideenwürfeln's `.slips` already make for the same reason. Measured
+   against a much longer paste, not just the six-line default; see the
+   task report for the numbers. */
+.haiku-source {
+  max-height: 13rem;
+  overflow-y: auto;
+  margin: 0 0 0.35rem;
+}
+
+.haiku-line {
+  margin: 0 0 0.15rem;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.haiku-word {
+  display: inline;
+}
+
+/* The word each line's own reduction keeps — set apart in colour, the same
+   "one thing marked apart rather than merely described near it" rule the
+   word ladder's own `.tile.changed` already follows. No motion of its own:
+   the fade below is the whole of this scene's motion, and a kept word
+   doing anything but sitting still while its line dissolves around it
+   would be a second thing to watch instead of one calm one. */
+.haiku-keep {
+  color: var(--rubric);
+  font-weight: 600;
+}
+
+/* Everything a line does not keep, fading out — the dissolve itself. Starts
+   at its own default opacity (1, inherited, never set statically here) and
+   only the animation below ever changes it, so `prefers-reduced-motion`'s
+   blanket `animation: none !important` leaves every word exactly where it
+   would have started: fully visible, nothing stranded. That is deliberate
+   and is this scene's whole answer to the house rule on reduced motion —
+   unlike `.slip`, `.strip-line` and `.rung`, which animate *in* from a
+   hidden start and so need an explicit settled-state override, a word that
+   animates *away* from a visible one needs no override at all: removing
+   the animation leaves it at the visible state it already had.
+
+   Staggered by `--i`, each word's own line (see `HaikuToken.line_index`),
+   not by word — the whole poem dissolves in as many steps as it has lines,
+   not as many as it has words, which is the unit the procedure itself
+   works in and reads as one settled line after another rather than a
+   scatter of individual words. `min()` caps the stagger at eight lines'
+   worth of delay so a much longer paste still finishes dissolving in a
+   bounded, watchable span rather than one that grows without limit. */
+.haiku-fade {
+  animation: haiku-fade 650ms ease-out forwards;
+  animation-delay: calc(200ms + min(var(--i, 0), 8) * 160ms);
+}
+
+@keyframes haiku-fade {
+  to {
+    opacity: 0.16;
+  }
+}
+
+/* Prose's own one-word case is not a special layout, only a line of prose
+   above the same remnant everything else lands in — see the brief's own
+   "prose is a real input". */
+.haiku-prose-note {
+  font-family: var(--body);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--lead);
+  margin: 0 0 0.6rem;
+}
+
+/* The remnant: the shorter poem left standing once the rest has dissolved.
+   `--i` is set from `haiku.line_count` (see the fragment), one more than the
+   highest line index any fade above carries, so this always arrives after
+   the last line has finished dissolving, whatever the source's length — not
+   a fixed delay tuned to the six-line default that a longer paste would
+   fall out of step with. The same `min()` cap as `.haiku-fade`'s own, so the
+   wait before the remnant appears stays bounded too. Starts hidden and
+   arrives, the same idiom `.slip`, `.strip-line` and `.rung` already use,
+   and needs the same explicit reduced-motion override those three already
+   carry — this is the one element on this scene that does, since it is the
+   one element that starts invisible. */
+.haiku-remnant {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 0.45rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--paper-shade);
+  /* The remnant is one word per source line, so a source with many short
+     lines (not merely long ones — `.haiku-source` above already contains
+     those) makes a long remnant that can wrap past a single line. Capped
+     and scrolled the same way, rather than left to push the verdict below
+     it past `.stage`'s own silent 720px clip. Measured against a source of
+     many lines, not just the six-line default; see the task report. */
+  max-height: 4.6rem;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: haiku-remnant-arrive 450ms ease-out forwards;
+  animation-delay: calc(200ms + min(var(--i, 0), 8) * 160ms + 650ms + 200ms);
+}
+
+@keyframes haiku-remnant-arrive {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .haiku-remnant {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scoped past explorer.css's own bare `.verdict` — the check page's proof
+   block, a heading with a rule under it — the same reset every other
+   scene's own verdict already needs. */
+.haiku-area .verdict {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0.4rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.haiku-area .verdict.yes {
+  color: var(--pass);
+}
+
+.haiku-area .verdict.no {
+  color: var(--rubric);
+}
+
