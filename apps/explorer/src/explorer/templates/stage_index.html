@@ -8,4 +8,7 @@
   {% endfor %}
 </ol>
 {% endblock %}
-{% block caption %}Three procedures, driven by hand.{% endblock %}
+{# The count comes from `scenes` itself, never typed: R3 removed two scenes and
+   decremented this line, and the three rounds that added one each incremented
+   nothing, so the page spent six scenes announcing three of them. #}
+{% block caption %}{{ scenes | length }} procedures, driven by hand.{% endblock %}

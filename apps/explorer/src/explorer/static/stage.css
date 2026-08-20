@@ -891,9 +891,12 @@
   max-height: 13rem;
 }
 
-/* The one thing this scene must not blur: a model's reading sits beside two
-   scenes that show real verdicts, so the page says — in running text, not a
-   tooltip — that this is not a third one. */
+/* The one thing this scene must not blur: a model's reading sits among scenes
+   that show real verdicts, so the page says — in running text, not a tooltip —
+   that this is not one of them. Deliberately no count here: the sentence this
+   comment used to carry ("beside two scenes … not a third one") was written
+   when there were three scenes, and went stale twice over as scenes were added
+   and removed. A CSS comment cannot read `SCENES`, so it names none. */
 .disclaimer {
   font-family: var(--body);
   font-size: 0.78rem;
