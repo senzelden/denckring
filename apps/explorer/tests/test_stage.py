@@ -24,6 +24,23 @@ def _label(alternatives: list[str], index: int) -> str:
     return alternatives[index] if index < len(alternatives) else ""
 
 
+def _found_word() -> tuple[str, list[str]]:
+    """`stage.find_word` is a bounded random search over ~21,000 possible real
+    words and can rarely exhaust its budget without a hit — not a bug, just
+    an unlucky draw (`test_find_me_one_can_report_failure_honestly` pins that
+    this can happen at all, with a budget of zero forcing it). The tests
+    calling this one are about what a found word looks like, not about the
+    search's own completeness, so they retry past that rare draw rather than
+    flake on it — three tries makes the whole thing fail only if the same
+    draw goes unlucky three times running, which measured empirically never
+    happened in hundreds of calls (see the task report)."""
+    for _ in range(3):
+        found = stage.find_word()
+        if found is not None:
+            return found
+    raise AssertionError("find_word failed 3 times running — investigate, do not just retry more")
+
+
 def test_the_index_lists_every_scene() -> None:
     response = client.get("/stage")
     assert response.status_code == 200
@@ -236,9 +253,7 @@ def test_the_two_verdicts_are_distinct() -> None:
     assert check("denckring", ring_word, lang="de").satisfied is True
     assert stage.german_pack().is_word(ring_word) is False
 
-    found = stage.find_word()
-    assert found is not None
-    real_word, _pieces = found
+    real_word, _pieces = _found_word()
     assert check("denckring", real_word, lang="de").satisfied is True
     assert stage.german_pack().is_word(real_word) is True
 
@@ -247,9 +262,7 @@ def test_the_word_panel_shows_both_verdicts_distinctly() -> None:
     """The page itself, not just the two facts in isolation: both verdicts
     render, and they disagree on the interesting word the way the facts
     above say they should."""
-    found = stage.find_word()
-    assert found is not None
-    word, _pieces = found
+    word, _pieces = _found_word()
     response = client.post("/stage/denckring/act", data={"word": word})
     normalised = " ".join(response.text.split())
     assert "off the rings — always true" in normalised
@@ -262,9 +275,7 @@ def test_find_me_one_lands_on_a_word_off_the_rings_and_in_the_lexicon() -> None:
     ~4,900 tries a random turn needs on average."""
     from denckring import check
 
-    found = stage.find_word()
-    assert found is not None
-    word, pieces = found
+    word, pieces = _found_word()
     assert check("denckring", word, lang="de").satisfied is True
     assert stage.german_pack().is_word(word) is True
     # The pieces returned are the exact segmentation the discs would spin to,
@@ -279,31 +290,93 @@ def test_find_me_one_can_report_failure_honestly() -> None:
 
 
 def test_find_me_one_route_turns_the_discs_to_a_real_word() -> None:
-    response = client.post("/stage/denckring/act", data={"find": "1"})
-    assert response.status_code == 200
-    assert "data-pieces=" in response.text
+    # A rare failed search (see `_found_word`) would come back through this
+    # same route as `find_failed`, not a "data-pieces" response — retried
+    # here the same way, for the same reason.
+    for _ in range(3):
+        response = client.post("/stage/denckring/act", data={"find": "1"})
+        assert response.status_code == 200
+        if "data-pieces=" in response.text:
+            break
+    else:
+        raise AssertionError("find_word failed 3 times running — investigate, do not retry more")
     assert "a word German knows — yes" in " ".join(response.text.split())
 
 
+def test_find_word_never_returns_a_word_the_blocklist_rejects() -> None:
+    """`find_word`'s own filter, exercised rather than only read — the bug a
+    review caught was exactly this path returning `is_word`-true words with
+    no filter on top at all. Repeated rather than run once, since a single
+    draw proves little about a search over ~21,000 possible real words."""
+    for _ in range(30):
+        word, _pieces = _found_word()
+        assert stage.fit_for_stage(word) is True, word
+
+
+def test_turn_them_for_me_never_returns_a_word_the_blocklist_rejects() -> None:
+    """ "Turn them for me" does not require a real word — that is the point
+    of the "off the rings" verdict — so it is the one path where a random
+    draw could in principle spell a blocked stem inside a nonsense string,
+    not just inside a real word. Run through the actual route, repeatedly,
+    rather than asserted from the retry loop's own logic."""
+    import re
+
+    for _ in range(30):
+        response = client.post("/stage/denckring/act", data={"turn": "1"})
+        assert response.status_code == 200
+        match = re.search(r'<p class="word"[^>]*>([^<]*)</p>', response.text)
+        assert match is not None
+        assert stage.fit_for_stage(match.group(1)) is True, match.group(1)
+
+
+def test_fit_for_stage_rejects_the_known_vulgarities() -> None:
+    """The concrete failure a review caught by hand: `-acken`'s sweep put
+    "Kacken" on screen, and `find_word` had no filter at all. Pinned here
+    against the predicate directly, on the exact words that failure
+    surfaced, plus one inflected form the rings can also assemble around
+    the same stem, so a substring match rather than a whole-word one is
+    load-bearing here rather than incidental."""
+    for word in ("Kacken", "Ficken", "Titten", "verkacken", "gefickt"):
+        assert stage.fit_for_stage(word) is False, word
+    # An ordinary word is not collateral damage of the fix — see stage.py's
+    # own comment on why "schei" and "arsch" were rejected as stems.
+    for word in ("entscheiden", "bescheiden", "erscheinen", "Marsch", "harsch"):
+        assert stage.fit_for_stage(word) is True, word
+
+
 def test_rhyme_endings_are_all_curated_and_clean() -> None:
-    """Every offered ending is one this project chose to show on camera, and
-    every word its sweep can produce is real — the curation the report talks
-    about, pinned rather than only asserted."""
+    """Every offered ending is one this project chose to show on camera for
+    its yield, and every word its sweep can produce is both real and passes
+    `fit_for_stage` — the actual safety property, not the shape of the
+    ending, which `rhyme_sweep` guarantees regardless of what the list
+    contains and so proves nothing about cleanliness on its own."""
     for ending in stage.RHYME_ENDINGS:
         sweep = stage.rhyme_sweep(ending)
         hits = [word for word in sweep if word]
         assert hits, ending.label
         for word in hits:
             assert stage.german_pack().is_word(word) is True
+            assert stage.fit_for_stage(word) is True, word
             assert word.casefold().endswith(
                 (ending.mittelbuchstabe + ending.endbuchstabe + ending.nachsylbe).casefold()
             )
 
 
+def test_the_acken_sweep_no_longer_puts_kacken_on_screen() -> None:
+    """The exact regression a review caught by hand, pinned against the
+    real sweep rather than only the predicate in isolation."""
+    ending = stage.rhyme_ending("-acken")
+    assert ending is not None
+    hits = [word for word in stage.rhyme_sweep(ending) if word]
+    assert "Kacken" not in hits
+    assert "Backen" in hits  # the filter did not overreach into the rest of the list
+
+
 def test_rhyme_sweep_yields_match_the_measured_counts() -> None:
-    """The report's own headline numbers, pinned against the shipped lexicon:
-    -acken 24, -ecken 23, -allen 17."""
-    expected = {"-acken": 24, "-ecken": 23, "-allen": 17}
+    """The report's own headline numbers, pinned against the shipped lexicon
+    once `fit_for_stage` has run: -acken 23 (24 minus "Kacken"), -ecken 23,
+    -allen 17."""
+    expected = {"-acken": 23, "-ecken": 23, "-allen": 17}
     for label, count in expected.items():
         ending = stage.rhyme_ending(label)
         assert ending is not None
@@ -315,8 +388,9 @@ def test_the_rhyme_route_sweeps_a_locked_ending() -> None:
     response = client.post("/stage/denckring/rhyme", data={"ending": "-acken"})
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "24 of 60 real — -acken" in normalised
+    assert "23 of 60 real — -acken" in normalised
     assert "Backen" in normalised
+    assert "Kacken" not in normalised
 
 
 def test_the_rhyme_route_refuses_an_unknown_ending() -> None:
