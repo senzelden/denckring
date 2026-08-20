@@ -31,10 +31,9 @@
   /* The modern corpus speaks in its own material's voice: a preprint blue,
      deliberately nothing the type case carries. */
   --preprint: #4288c4;
-  /* The rubric as a wash, for marking a region rather than a mark: the tablet
-     group a measurement matched, and the N+7 reel's read line, which sits over
-     the darker case and needs the heavier of the two. */
-  --rubric-wash: rgba(179, 18, 29, 0.16);
+  /* The rubric as a wash, for marking a region rather than a mark: the N+7
+     reel's read line, which sits over the dark case and needs a wash strong
+     enough to read against it. */
   --rubric-wash-strong: rgba(179, 18, 29, 0.22);
 }
 
