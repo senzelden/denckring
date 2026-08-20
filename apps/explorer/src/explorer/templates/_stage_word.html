@@ -3,6 +3,15 @@
 <p class="verdict verdict-find no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
   — try again</p>
 {% endif %}
+{# The other search that can come back empty, and it says so the same way:
+   "turn them for me" needs no real word, only one this stage will show, so
+   the only way it runs out is every draw being refused by the filter. Rare
+   past reckoning, and still worth a sentence — the panel used to come back
+   blank, with no verdict and nothing to read. #}
+{% if turn_failed %}
+<p class="verdict verdict-find no">all {{ "{:,}".format(turn_attempts) }} turns landed on
+  something this stage will not show — try again</p>
+{% endif %}
 {% if rings_report %}
 {# `rings_report.satisfied` is read back here, not assumed — the same house
    rule every other verdict on this stage follows, "describe the result,

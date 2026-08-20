@@ -115,6 +115,7 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
     word = str(form.get("word", ""))
     pieces: list[str] | None = None
     find_failed = False
+    turn_failed = False
     if form.get("turn"):
         procedure = get("denckring")
         # `get` is typed as the base class, which has no `apply` — ADR 0002 keeps
@@ -137,9 +138,15 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
                     word = candidate
                     break
             # Every draw missing is astronomically unlikely, but if it ever
-            # happens, show nothing rather than a word that never passed the
-            # filter — the same honest fallback `find_word`'s `find_failed`
-            # already uses, not a silent unchecked word.
+            # happens, say so rather than show a word that never passed the
+            # filter. An empty panel with no verdict and no line of prose was
+            # the earlier answer here, described in this comment as "the same
+            # honest fallback `find_word`'s `find_failed` already uses" — which
+            # it was not: that path renders a sentence saying the search came
+            # up empty. This one now does too, in its own words, so the two
+            # really are the same move.
+            turn_failed = not word
+
             # The library chose this word; hand back which piece each ring would
             # have to show so the diagram can turn to match, not just the panel.
             pieces = stage.pieces_for(word) if word else None
@@ -161,6 +168,8 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
         known_word=known_word,
         find_failed=find_failed,
         find_attempts=stage.FIND_ATTEMPTS,
+        turn_failed=turn_failed,
+        turn_attempts=stage.TURN_ATTEMPTS,
     )
 
 
@@ -285,7 +294,7 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
 #: catacomb story about (see `_stage_reels.html`), which is why that note is
 #: guarded to only ever fire for this exact English pair — the German source
 #: below never produces it.
-N_PLUS_7_SOURCES: dict[str, str] = {
+N_PLUS_7_SOURCES: dict[Lang, str] = {
     "en": "the cat sat on the table",
     "de": "die Katze saß auf dem Tisch",
 }
@@ -303,6 +312,13 @@ def stage_n_plus_7(request: Request, chrome: str = "on") -> HTMLResponse:
         steps=stage.displacement(source, 7, lang=lang),
         default_lang=lang,
         examples=N_PLUS_7_SOURCES,
+        # The two figures the panel's note quotes, read off the lists
+        # themselves rather than typed into the prose. One scene over, the
+        # Denckring's legend generates its counts on the reasoning that a
+        # hand-typed number "would be the one place on this page a viewer
+        # could catch the arithmetic disagreeing with itself"; the same rule
+        # applies to a page that names the size of the dictionary it walks.
+        noun_counts={lang: len(stage.pack(lang).nouns()) for lang in N_PLUS_7_SOURCES},
         chrome_off=chrome == "off",
     )
 
