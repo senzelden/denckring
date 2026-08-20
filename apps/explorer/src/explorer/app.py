@@ -292,7 +292,7 @@ def stage_ghazal(request: Request, chrome: str = "on") -> HTMLResponse:
         broken_text=stage.GHAZAL_BROKEN,
         reading=stage.ghazal_reading(text),
         report=report,
-        marked=bench.mark_up(text, report),
+        marked=bench.mark_up(text, report),  # see stage_ghazal_act below for why this is inert
         chrome_off=chrome == "off",
     )
 
@@ -301,6 +301,15 @@ def stage_ghazal(request: Request, chrome: str = "on") -> HTMLResponse:
 async def stage_ghazal_act(request: Request) -> HTMLResponse:
     """Check whatever couplets were posted, and mark them up from that same
     check — nothing here is shown before `check` has actually run on it.
+
+    `bench.mark_up` is called for the same reason every other checked scene
+    calls it — but every violation `ghazal` raises (`missing_radif`,
+    `broken_qafia`, `unknown_rhyme`) is a whole-line judgement with no
+    character offset, so today this call only ever escapes the text; nothing
+    is actually wrapped in `<mark>`. It stays rather than being dropped: if
+    `ghazal` ever starts carrying offsets, this line begins marking with no
+    change here. The fault a viewer can actually see pointed at is
+    `ghazal_reading`'s own `state-bad` on the offending word, not this call.
     """
     form = dict(await request.form())
     text = str(form.get("text", ""))

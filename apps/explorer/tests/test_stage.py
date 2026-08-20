@@ -578,3 +578,72 @@ def test_a_blank_ghazal_produces_nothing_to_check() -> None:
     assert response.status_code == 200
     assert "verdict" not in response.text
     assert "Nothing to read yet" in response.text
+
+
+def test_a_single_couplet_is_a_whole_ghazal() -> None:
+    """The minimal case: two lines, no couplet after the opening one. The
+    checker's own `carriers` list (`[1, *range(3, len(lines), 2)]`) is empty
+    past index 1 here, so there is nothing left to require — this must read
+    as satisfied, not as a poem too short to judge."""
+    from denckring import check
+
+    two_line = "i cannot find the road tonight\nthe lamps have all been slowed tonight"
+    report = check("ghazal", two_line)
+    assert report.satisfied is True
+    assert report.violations == []
+
+    reading = stage.ghazal_reading(two_line)
+    assert reading is not None
+    assert len(reading.lines) == 2
+    assert reading.radif == "tonight"
+    assert reading.qafia == "road"
+    opening, carrier = reading.lines
+    opening_roles = {(w.role, w.state) for w in opening.words if w.role}
+    assert opening_roles == {("radif", "defines"), ("qafia", "defines")}
+    carrier_roles = {(w.role, w.state) for w in carrier.words if w.role}
+    assert carrier_roles == {("radif", "ok"), ("qafia", "ok")}
+
+
+def test_an_opening_line_with_no_words_sets_no_radif() -> None:
+    """An opening line the pack cannot find a single word on — digits only,
+    here — leaves `radif` and `qafia` both empty rather than raising. Every
+    later carrying line's closing word can then never equal that empty
+    string, so `check` itself raises `missing_radif` (`expected=''`) on each
+    one, and `ghazal_reading` must mark exactly those words `state-bad` —
+    the same real disagreement the checker found, not a guessed one — while
+    leaving their qafia position unscored, matching the checker's own
+    continue-past-an-unmatched-radif behaviour."""
+    from denckring import check
+
+    no_radif = (
+        "42 17\nsome line that ends tonight\nanother free line here\nand closes again tonight"
+    )
+    report = check("ghazal", no_radif)
+    assert report.satisfied is False
+    assert [(v.rule, v.expected) for v in report.violations] == [
+        ("missing_radif", ""),
+        ("missing_radif", ""),
+    ]
+
+    reading = stage.ghazal_reading(no_radif)
+    assert reading is not None
+    assert reading.radif == ""
+    assert reading.qafia == ""
+    opening, first_carrier, free, second_carrier = reading.lines
+    assert opening.words == []
+    assert free.carries is False
+    for line in (first_carrier, second_carrier):
+        assert line.carries is True
+        radif_words = [w for w in line.words if w.role == "radif"]
+        assert [w.state for w in radif_words] == ["bad"]
+        # The checker never even looks at a carrying line's qafia once its
+        # radif has already failed (`_check` `continue`s past it) — neither
+        # does the display, so that word is left with no state at all.
+        qafia_words = [w for w in line.words if w.role == "qafia"]
+        assert [w.state for w in qafia_words] == [""]
+
+    # The page must not print the empty radif/qafia as bare quotation marks.
+    response = client.post("/stage/ghazal/act", data={"text": no_radif})
+    assert response.status_code == 200
+    assert "&ldquo;&rdquo;" not in response.text
+    assert "no word for a" in response.text

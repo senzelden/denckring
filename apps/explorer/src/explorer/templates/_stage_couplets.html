@@ -7,11 +7,21 @@
 {% if not reading %}
 <p class="placeholder">Nothing to read yet &mdash; a ghazal needs at least a couplet.</p>
 {% else %}
+{# Both clauses are guarded independently — an opening line with a single
+   word sets a radif but no qafia, so either half can be empty on its own. #}
 <p class="ghazal-terms">
+  {% if reading.radif %}
   <span class="term">radif</span> &mdash; the word every carrying line closes on:
   &ldquo;{{ reading.radif }}&rdquo;.
+  {% else %}
+  The opening line has no word for a <span class="term">radif</span> to repeat.
+  {% endif %}
+  {% if reading.qafia %}
   <span class="term">qafia</span> &mdash; the rhyme just before it, set here by
   &ldquo;{{ reading.qafia }}&rdquo;.
+  {% elif reading.radif %}
+  No word before it for a <span class="term">qafia</span> to rhyme from, either.
+  {% endif %}
 </p>
 <div class="couplets">
   {% for couplet in reading.lines | batch(2) %}
