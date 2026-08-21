@@ -1519,7 +1519,8 @@ def test_no_german_deal_can_rhyme_a_word_with_itself() -> None:
     words look distinct."""
 
     def final_word(line: str) -> str:
-        return re.findall(r"[^\W\d_]+", line, re.UNICODE)[-1].lower()
+        words: list[str] = re.findall(r"[^\W\d_]+", line, re.UNICODE)
+        return words[-1].lower()
 
     offered = stage.queneau_offered("de")
     for line_a, line_b in _RHYME_PAIRS:
