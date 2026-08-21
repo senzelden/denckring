@@ -1,0 +1,150 @@
+{% extends "stage.html" %}
+{% block title %}Cut-up{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Gysin and Burroughs &middot; Minutes to Go, 1960</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="cutup-stage">
+  {# State one, "the page, uncut": the six lines exactly as they stand, with
+     each word its own inline element at a position that never moves again —
+     the fixed span the tamper control's own words travel from (see the
+     script below, and `_stage_cutup.html`'s own `data-source-index`, which
+     points back at one of these ids). #}
+  <div class="cutup-source">
+    {% for line in source_lines %}
+    <p class="cutup-line">{% for token in line.tokens -%}
+      {%- if token.is_word -%}
+        <span class="cutup-word" id="cutup-src-{{ token.source_index }}">{{ token.text }}</span>
+      {%- else -%}
+        {{ token.text }}
+      {%- endif -%}
+    {%- endfor %}</p>
+    {% endfor %}
+  </div>
+  <div class="actions cutup-actions">
+    <form hx-post="/stage/cut_up/act" hx-target="#cutup-result" hx-swap="innerHTML">
+      <button type="submit">Cut it up</button>
+    </form>
+    {# The point of the scene (see the brief): the same checker, run against
+       a result that could not have come from the scissors, so a viewer sees
+       the validator itself catch the smuggled word rather than a page that
+       merely claims to have checked something. #}
+    <form hx-post="/stage/cut_up/smuggle" hx-target="#cutup-result" hx-swap="innerHTML">
+      <button type="submit" class="quiet cutup-smuggle-button">Smuggle a word in</button>
+    </form>
+  </div>
+  {# States two and three, "the cut" and "the verdict": empty until a button
+     is pressed — no cut has run yet, so there is nothing to check (the same
+     choice N+7's own `#displaced` opens on, and for the same reason). #}
+  <div id="cutup-result" class="cutup-area"></div>
+  {# Reused byte for byte from the scene this one replaces, not quoted from
+     anyone — see `stage.CUT_UP_SOURCE`'s own comment. #}
+  <p class="cutup-attribution">Written for this scene.</p>
+</div>
+<script>
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Never resolves on `transitionend` alone — explorer.css's reduced-motion rule
+// sets `transition: none !important`, under which the transition this function
+// starts would never run and the event would never fire, stranding a word
+// mid-journey; a backgrounded tab or an interrupted transition can drop the
+// event too. So reduced motion is handled explicitly, before any transition is
+// ever started, by jumping straight to the landing position with no motion at
+// all; otherwise a fallback timer, sized to the transition's own duration plus
+// a little slack, resolves the same way the event would — whichever comes
+// first, guarded so only one of them actually settles the word. The same
+// shape `travelColumn` uses in `stage_n_plus_7.html`, generalised from one
+// axis (a reel's own `translateY`) to two (a word's own `translate`).
+function travelWord(el, dx, dy) {
+  if (prefersReducedMotion()) {
+    el.style.transition = 'none';
+    el.style.transform = 'none';
+    return;
+  }
+
+  let settled = false;
+  const settle = () => {
+    if (settled) return;
+    settled = true;
+    el.removeEventListener('transitionend', onEnd);
+    clearTimeout(fallback);
+    el.style.transition = 'none';
+  };
+  const onEnd = (evt) => {
+    if (evt.propertyName === 'transform') settle();
+  };
+
+  // The word already sits at its landing position — it was rendered there,
+  // in normal flow, by the swap that just happened. Jumping it back to where
+  // its source counterpart sits, with no transition, is what makes the
+  // motion that follows read as "arriving" rather than "leaving": the FLIP
+  // technique (First, Last, Invert, Play), computed here as one instance
+  // rather than a shared cascade the way N+7's window of neighbours is.
+  el.style.transition = 'none';
+  el.style.transform = `translate(${dx}px, ${dy}px)`;
+  void el.getBoundingClientRect(); // flush the jump before transitioning back
+  el.addEventListener('transitionend', onEnd);
+  el.style.transition = `transform ${CUTUP_DURATION_MS}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
+  void el.getBoundingClientRect(); // flush, so the transition itself is not skipped
+  el.style.transform = 'translate(0px, 0px)';
+  const fallback = setTimeout(settle, CUTUP_DURATION_MS + 80);
+}
+
+// Budget: the whole cut inside 1.5-2s end to end (the human's own standing
+// complaint is that scenes feel slow). At 47 words — `CUT_UP_SOURCE`'s own
+// count, one more on the tamper control's own result — a per-word stagger
+// anywhere near N+7's 350ms would run to 16s; 25ms keeps the last word
+// starting at 1150ms (46 gaps) or 1175ms (47), landing well inside budget
+// once its own 500ms travel is added. Measured, not just computed from these
+// two constants — see the task report for the real, clocked total.
+const CUTUP_STAGGER_MS = 25;
+const CUTUP_DURATION_MS = 500;
+
+function playCut(container) {
+  const words = container.querySelectorAll('.cutup-result-word');
+  // Every delta is measured up front, before any word has moved — `transform`
+  // does not reflow the page, so one word's own jump cannot move another
+  // word's rect out from under a measurement taken after it.
+  const jobs = Array.from(words).map((el) => {
+    const landing = el.getBoundingClientRect();
+    const sourceId = el.dataset.sourceIndex;
+    let dx = 0;
+    // The tamper control's own word has no source span to travel from (see
+    // `CutUpWord.source_index`) — it drops in from below instead, which
+    // reads as arriving from nowhere on the page rather than from it.
+    let dy = 18;
+    if (sourceId !== '') {
+      const source = document.getElementById(`cutup-src-${sourceId}`);
+      if (source) {
+        const start = source.getBoundingClientRect();
+        dx = start.left - landing.left;
+        dy = start.top - landing.top;
+      }
+    }
+    return { el, dx, dy };
+  });
+  jobs.forEach((job, index) => {
+    if (prefersReducedMotion()) {
+      travelWord(job.el, job.dx, job.dy);
+    } else {
+      setTimeout(() => travelWord(job.el, job.dx, job.dy), index * CUTUP_STAGGER_MS);
+    }
+  });
+}
+
+// `#cutup-result` is a plain (non out-of-band) swap target, unlike N+7's own
+// reels — this scene has no second region an action changes, so there is
+// nothing an out-of-band swap would need to reach past the direct target.
+// `htmx:afterSwap` fires once per such swap, with the target itself on
+// `evt.detail.target`, which is the one moment a freshly rendered cut can
+// start its own journey; nothing else would ever call `playCut` on it.
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.detail.target.id !== 'cutup-result') return;
+  playCut(evt.detail.target);
+});
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}
