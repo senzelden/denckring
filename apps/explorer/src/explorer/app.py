@@ -339,10 +339,9 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
 #: joke rather than a different one — and each lands cleanly inside its own
 #: shipped noun list (see `stage.displacement`) so the columns always have
 #: something to show, on a machine with no corpus configured and nothing
-#: else set up. "cat" is the word the reel note tells the catafalque-to-
-#: catacomb story about (see `_stage_reels.html`), which is why that note is
-#: guarded to only ever fire for this exact English pair — the German source
-#: below never produces it.
+#: else set up. The reel note that used to hang off this exact English pair —
+#: the catafalque-to-catacomb story — was cut in round three's cross-scene
+#: pass: it was prose about a journey the columns already run.
 N_PLUS_7_SOURCES: dict[Lang, str] = {
     "en": "the cat sat on the table",
     "de": "die Katze saß auf dem Tisch",

@@ -204,29 +204,43 @@
    .verdict` shared this same rule until both scenes were removed; N+7's,
    the word ladder's and Cut-up's are what read it now — Cut-up's own arm
    replaces the scene it took this slot from, whose arm read the same rule
-   before that scene was removed in its turn.
+   before that scene was removed in its turn. The sonnet machine's own
+   `.poem-verdict` joined them in round three's cross-scene pass: it had
+   grown a private rule at a fourth size that was, besides, painted
+   `--pass` unconditionally, so a poem the checker refused would still
+   have said so in the colour of a pass.
+
+   Size and margin live here now too. Every scene used to override one or
+   both — 0.8rem here, 0.78rem there, 0.66rem in the sonnet — which is four
+   dialects of one sentence that always says the same kind of thing.
+
    Scene one's `.word-panel .verdict` is deliberately not in here: it sits
    on the dark case, set in uppercase and in the brighter pair of colours
    that survive that ground. */
 .displaced-area .verdict,
 .ladder-wrap .verdict,
-.cutup-area .verdict {
+.cutup-area .verdict,
+.poem-verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
+  margin: 0.5rem 0 0;
   font-family: var(--mono);
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
 }
 
 .displaced-area .verdict.yes,
 .ladder-wrap .verdict.yes,
-.cutup-area .verdict.yes {
+.cutup-area .verdict.yes,
+.poem-verdict.yes {
   color: var(--pass);
 }
 
 .displaced-area .verdict.no,
 .ladder-wrap .verdict.no,
-.cutup-area .verdict.no {
+.cutup-area .verdict.no,
+.poem-verdict.no {
   color: var(--rubric);
 }
 
@@ -235,6 +249,37 @@
    source carries no noun the list knows. */
 .displaced-area .verdict.none {
   color: var(--lead);
+}
+
+/* The one voice for a credit: who owns the material on screen, and where it
+   came from. Six scenes had grown five of these — the plate's own caption,
+   the Witz disclaimer, the sonnet's copyright note, Cut-up's one line, and
+   the Denckring's note about the plate's own ring sizes — at 0.6, 0.66,
+   0.72, 0.72 and 0.78rem, in two different families. Same role, five
+   treatments; a viewer reads the largest as more important than the
+   smallest and none of them is. One size, the mono voice the kicker at the
+   top of every scene already speaks, and the credit at the bottom of a
+   page now rhymes with the attribution at the top of it.
+
+   Deliberately not a place for prose about what the library is doing: the
+   notes that explained the round trip, the language toggle and one reel's
+   dictionary migration were cut in the same pass rather than reset in this
+   voice. A credit names a source; it does not narrate a demonstration the
+   scene is already performing. */
+.scene-credit {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0.6rem 0 0;
+}
+
+.scene-credit code {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
 }
 
 /* ── scene one: der Denckring ─────────────────────────────────────────── */
@@ -524,16 +569,6 @@
   color: var(--rubric);
 }
 
-/* The plate prints its own ring sizes beside this legend's — see
-   `.legend-note` — a second, unrelated discrepancy from the one above. */
-.legend-note {
-  font-family: var(--body);
-  font-size: 0.66rem;
-  line-height: 1.35;
-  color: var(--lead);
-  margin: 0;
-}
-
 /* The plate itself, where the quotation used to sit: the 1651 engraving,
    cropped from the Wolfenbüttel copy, standing in for a paragraph of prose
    about what the device looked like. `object-fit: cover` frames the rings
@@ -555,14 +590,6 @@
   object-fit: cover;
   object-position: 50% 45%;
   border: 1px solid var(--case-lip);
-}
-
-.denckring-plate figcaption {
-  margin: 0.3rem 0 0;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  line-height: 1.4;
-  color: var(--lead);
 }
 
 .denckring-plate figcaption a {
@@ -694,19 +721,6 @@
 
 .throw-form.corpus-picker input[type="text"] {
   width: 12rem;
-}
-
-/* Shared with N+7's and the word ladder's own `.lang-note` — this scene used
-   to carry one too, cut for round three's "less information" pass since it
-   only explained the toggle rather than showing anything, but the class
-   itself stays: two other scenes' templates still render a paragraph with
-   this name and would lose their styling if the rule went with it. */
-.lang-note {
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  line-height: 1.4;
-  color: var(--lead);
-  margin: 0.3rem 0 0.9rem;
 }
 
 /* The headword field's own wrapper (see `_stage_headword_field.html`) is what
@@ -874,7 +888,16 @@
   transition: max-height 160ms ease;
 }
 
+/* `_witz.html` is the bench's own partial, so its note cannot carry the
+   stage's `.scene-credit` class — the bench would inherit it. Scoped here
+   instead, to the same tokens, so the two notes this scene shows under a
+   reading speak in one voice rather than two. */
 .stage #witz .hint {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--lead);
   margin-top: 0.3rem;
 }
 
@@ -899,21 +922,6 @@
 
 .throw:has(.witz-reading) .witz-reading {
   max-height: 13rem;
-}
-
-/* The one thing this scene must not blur: a model's reading sits among scenes
-   that show real verdicts, so the page says — in running text, not a tooltip —
-   that this is not one of them. Deliberately no count here: the sentence this
-   comment used to carry ("beside two scenes … not a third one") was written
-   when there were three scenes, and went stale twice over as scenes were added
-   and removed. A CSS comment cannot read `SCENES`, so it names none. */
-.disclaimer {
-  font-family: var(--body);
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--lead);
-  max-width: var(--measure);
-  margin: 0.6rem 0 0;
 }
 
 /* ── scene three: N+7 ────────────────────────────────────────────────────────
@@ -1019,29 +1027,6 @@
   font-weight: 600;
 }
 
-.n7-note {
-  font-family: var(--body);
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: var(--lead);
-  max-width: var(--measure);
-  margin: 1.4rem 0 0;
-}
-
-.n7-panel-note {
-  font-family: var(--body);
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--lead);
-  margin: 0 0 0.3rem;
-}
-
-.n7-panel-note code {
-  font-family: var(--mono);
-  font-size: 0.85em;
-  color: var(--ink);
-}
-
 /* The source sentence is the thing a viewer types, so it gets a row to
    itself rather than sharing one with the language select — which crushed
    it once already, down to a measured 26px wide, back when both fields sat
@@ -1084,15 +1069,6 @@
 
 .displaced-area {
   min-height: 2rem;
-}
-
-/* The margin and the size, the only two declarations this scene's verdict
-   line ever disagreed with the other two scenes' on; the rest of the rule —
-   the reset past explorer.css's bare `.verdict`, and the pass/fail colours —
-   is shared at the top of this file. */
-.displaced-area .verdict {
-  margin: 0;
-  font-size: 0.8rem;
 }
 
 /* Whatever is typed above comes back here at 1.3rem — a pasted paragraph runs
@@ -1248,14 +1224,6 @@
   font-size: 0.62rem;
 }
 
-.poem-verdict {
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.02em;
-  color: var(--pass);
-  margin: 0.5rem 0 0;
-}
-
 .queneau-panel {
   max-width: 34rem;
   margin: 0.5rem auto 0;
@@ -1273,17 +1241,6 @@
 
 .queneau-panel .actions button {
   padding: 0.42rem 0.9rem;
-}
-
-/* The wording the golden fixture uses for this exact situation — Queneau's
-   own ten sonnets are still in copyright, so what is on screen is not them. */
-.queneau-attribution {
-  font-family: var(--body);
-  font-size: 0.72rem;
-  line-height: 1.4;
-  color: var(--lead);
-  max-width: var(--measure);
-  margin: 0.4rem auto 0;
 }
 
 /* ── scene five: word ladder ──────────────────────────────────────────────
@@ -1304,13 +1261,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-}
-
-/* This scene's own two declarations; the reset past explorer.css's bare
-   `.verdict` and the pass/fail colours are shared at the top of this file. */
-.ladder-wrap .verdict {
-  margin: 0.5rem 0 0;
-  font-size: 0.8rem;
 }
 
 /* One rung arriving after the one above it — the same "each keyframe fires once,
@@ -1485,18 +1435,4 @@
   font-weight: 600;
 }
 
-/* This scene's own two declarations — the reset past explorer.css's bare
-   `.verdict` and the pass/fail colours are shared at the top of this file. */
-.cutup-area .verdict {
-  margin: 0.4rem 0 0;
-  font-size: 0.78rem;
-}
-
-.cutup-attribution {
-  font-family: var(--body);
-  font-size: 0.72rem;
-  line-height: 1.4;
-  color: var(--lead);
-  margin: 0.8rem 0 0;
-}
 
