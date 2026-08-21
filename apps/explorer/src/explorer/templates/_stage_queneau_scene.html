@@ -16,15 +16,32 @@
     <span class="count count-true">{{ "{:,}".format(poem.combinations) }}</span>
     <span class="count-label">poems this set can make</span>
   </p>
-  <form class="actions" hx-post="/stage/cent_mille_milliards/deal" hx-target="#poem"
-        hx-swap="innerHTML">
-    <input type="hidden" name="lang" value="{{ lang }}">
-    <button type="submit">Deal</button>
-  </form>
+  <div class="actions">
+    {# Switching sets is a fresh first paint of whichever one is now named,
+       not a patch onto the poem already showing — see `app.py`'s own
+       `stage_cent_mille_milliards_set` for why a reset, not a carry-over, is
+       the honest response to a change of strips underneath the reader. The
+       picker sits inside the block it swaps, so the swap replaces it too:
+       htmx processes swapped-in content, which rebinds the fresh `<select>`,
+       and re-rendering it here is what keeps `selected` agreeing with the
+       poem above it however the set was last changed. #}
+    <span class="scene-field">
+      <label for="set-select">Strips</label>
+      <select id="set-select" name="lang" hx-get="/stage/cent_mille_milliards/set"
+              hx-target="#queneau-scene" hx-swap="innerHTML">
+        <option value="en" {% if lang == "en" %}selected{% endif %}>English</option>
+        <option value="de" {% if lang == "de" %}selected{% endif %}>German</option>
+      </select>
+    </span>
+    <form hx-post="/stage/cent_mille_milliards/deal" hx-target="#poem" hx-swap="innerHTML">
+      <input type="hidden" name="lang" value="{{ lang }}">
+      <button type="submit">Deal</button>
+    </form>
+  </div>
   {# The wording the golden fixture uses for this exact situation
      (`src/denckring/eval/fixtures/golden/cent_mille_milliards.yaml`) — Queneau
      died in 1976, his ten sonnets are still in copyright and are not shipped, so
      what is on screen was written for this scene. #}
-  <p class="scene-credit">The machine is Queneau's, the strips are not &mdash; his own ten
-    sonnets remain in copyright.</p>
+  <p class="scene-credit">The machine is Queneau's, the strips are not &mdash; his ten
+    sonnets are still in copyright.</p>
 </div>

@@ -11,11 +11,12 @@
   </div>
   <div class="control-panel">
     <form class="actions" hx-post="/stage/n_plus_7/act" hx-target="#displaced" hx-swap="innerHTML">
-      <div class="n7-source-field">
+      <div class="scene-field n7-source-field">
         <label for="source-field">Source</label>
         <input id="source-field" type="text" name="source" value="{{ source }}">
       </div>
       <div class="n7-controls-row">
+        <span class="scene-field">
         <label for="lang-select">Language</label>
         {# `data-sync`: refill the source field from the chosen language's own
            example sentence (see `_stage_sync.html`, and app.py's
@@ -26,6 +27,7 @@
           <option value="de" data-example="{{ examples.de }}"
                   {% if default_lang == "de" %}selected{% endif %}>German</option>
         </select>
+        </span>
         <button type="submit">Displace it</button>
       </div>
     </form>

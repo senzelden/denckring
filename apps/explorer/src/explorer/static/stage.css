@@ -251,6 +251,45 @@
   color: var(--lead);
 }
 
+/* One label, one control, the label above it — on every scene that has a
+   control at all. The three scenes with a form had grown three
+   arrangements of the same two elements: N+7 stacked its source field and
+   laid its language toggle out sideways, the word ladder ran all three of
+   its fields sideways with the labels inline, and Ideenwürfeln ran four
+   controls across one row with the labels between them, so the eye read
+   "CORPUS [box] HEADWORD [box]" as a sentence rather than as a set of
+   fields. Stacked everywhere now, and `.actions` aligns its row on the
+   bottom edge so a button sits on the same line as the boxes beside it
+   rather than floating against their labels. */
+.scene-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+
+.scene-field label {
+  margin-bottom: 0;
+}
+
+/* Chrome does not apply `line-height` to a `<select>`'s inner box, so a select
+   and a text input given identical padding, border and font size in
+   explorer.css come out 46.3px and 43.8px tall — measured, in the browser.
+   With the row aligned on its bottom edge that 2.5px goes straight into the
+   labels above them, which is exactly the misalignment a viewer feels without
+   being able to name. One height, taken from the input's own natural one, so
+   the labels sit on one line and the boxes under them sit on another. */
+.scene-field select,
+.scene-field input[type="text"] {
+  height: 2.9rem;
+}
+
+.control-panel .actions,
+.throw-form.corpus-picker,
+.queneau-panel .actions {
+  align-items: flex-end;
+}
+
 /* The one voice for a credit: who owns the material on screen, and where it
    came from. Six scenes had grown five of these — the plate's own caption,
    the Witz disclaimer, the sonnet's copyright note, Cut-up's one line, and
@@ -272,7 +311,15 @@
   line-height: 1.5;
   letter-spacing: 0.01em;
   color: var(--lead);
-  max-width: var(--measure);
+  /* Not `--measure`. That token is 68ch, set for explorer.css's body sans;
+     `ch` follows whichever font the box is set in, and 68 monospace
+     characters is narrower than any credit on this stage is long — measured,
+     it broke the Denckring's plate note and its figcaption each onto a
+     second line and put that scene 20px past the 720px clip. 88ch is a
+     shade wider than the narrowest column any of these sit in (scene one's
+     panel, 525.6px), so there the container bounds the line and here the
+     measure does, for the two scenes whose credits sit on the full stage. */
+  max-width: 88ch;
   margin: 0.6rem 0 0;
 }
 
@@ -425,6 +472,14 @@
 .denckring-stage .control-panel {
   gap: 0.3rem;
   padding-top: 0;
+}
+
+/* Every child of this column is spaced by its own flex `gap`; `.scene-credit`'s
+   shared top margin, sized for a credit at the foot of a page with room under
+   it, only doubled that gap in the one column on this stage that has none to
+   spare. Measured: leaving it in put this scene 30px over the 720px clip. */
+.denckring-stage .control-panel > .scene-credit {
+  margin-top: 0;
 }
 
 /* explorer.css's own `.actions` carries a 1.1rem margin-top meant for a form
@@ -703,14 +758,12 @@
    but off the edge and forcing everything below it onto its own line. */
 .throw-form.corpus-picker {
   flex-wrap: nowrap;
-  align-items: center;
   border-bottom: none;
   padding-bottom: 0;
   margin-bottom: 0.9rem;
 }
 
 .throw-form.corpus-picker label {
-  margin-bottom: 0;
   white-space: nowrap;
 }
 
@@ -1037,25 +1090,18 @@
   gap: 0.9rem;
 }
 
-.n7-source-field label {
-  margin-bottom: 0.25rem;
-}
-
 /* Larger than explorer.css's own 0.92rem input — this is the field the
    scene is staged around, not an incidental control beside it. */
 .n7-source-field input[type="text"] {
   font-size: 1.25rem;
   padding: 0.6rem 0.75rem;
+  height: auto;
 }
 
 .n7-controls-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.6rem;
-}
-
-.n7-controls-row label {
-  margin-bottom: 0;
 }
 
 /* The select still needs an explicit width — the bare `width: 100%`
@@ -1091,42 +1137,18 @@
 
 /* ── scene four: Cent mille milliards de poèmes ──────────────────────────
    No figure/panel split — the poem itself is the whole figure, the way this
-   scene's own brief asks for a page rather than a control panel. Centred,
-   narrower than the 1280px stage, because verse this short set edge to edge
-   would read as a report rather than a page. Measured in a browser at every
-   state (first paint, mid-deal, chrome off, both strip sets); see the task
-   report for the numbers `.stage`'s 720px clip has to hold. */
-
-/* The set picker shares `.scene-head`'s own row rather than opening a new
-   one: the kicker still spans the full width above (`flex-basis: 100%`,
-   after `.scene-kicker`'s own block layout would otherwise put it beside
-   the title), and the title and the select share the row below it, select
-   pinned to the right by `margin-left: auto`. A whole extra control row
-   was the first draft; this scene is "already among the quieter ones" (the
-   brief's own words for it) and fourteen lines of verse is already the
-   tallest content on this stage, so the picker earns a share of a row that
-   already exists rather than one of its own. */
-.queneau-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.1rem 0.9rem;
-}
-
-.queneau-head .scene-kicker {
-  flex-basis: 100%;
-}
-
-.queneau-set-select {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  padding: 0.2rem 0.4rem;
-}
-
+   scene's own brief asks for a page rather than a control panel. Narrower
+   than the 1280px stage, because verse this short set edge to edge would
+   read as a report rather than a page, and hung off the stage's own left
+   padding rather than centred in it: the kicker, the title, the poem, the
+   controls and the credit all start on one line down the page, which is
+   where the eye has already landed on the five scenes either side of this
+   one. Measured in a browser at every state (first paint, mid-deal, chrome
+   off, both strip sets); see the task report for the numbers `.stage`'s
+   720px clip has to hold. */
 .poem {
   max-width: 34rem;
-  margin: 0.5rem auto 0;
+  margin: 0.5rem 0 0;
 }
 
 .strips {
@@ -1226,8 +1248,7 @@
 
 .queneau-panel {
   max-width: 34rem;
-  margin: 0.5rem auto 0;
-  text-align: center;
+  margin: 0.5rem 0 0;
 }
 
 .queneau-count {
@@ -1235,7 +1256,6 @@
 }
 
 .queneau-panel .actions {
-  justify-content: center;
   margin-top: 0.4rem;
 }
 
@@ -1343,10 +1363,6 @@
    here, not a fallback from a row that no longer fits. Widths are fixed
    rather than left at explorer.css's bare `width: 100%`, which inside a
    flex row would make every field alone claim the whole line. */
-.ladder-stage .control-panel .actions {
-  align-items: center;
-}
-
 .ladder-stage .control-panel .actions input[type="text"] {
   width: 6rem;
   flex: none;
@@ -1366,7 +1382,7 @@
 
 .cutup-stage {
   max-width: 40rem;
-  margin: 0.4rem auto 0;
+  margin: 0.4rem 0 0;
 }
 
 /* State one, "the page, uncut" — set once and never re-rendered; every word

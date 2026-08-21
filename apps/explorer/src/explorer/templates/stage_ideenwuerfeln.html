@@ -13,6 +13,7 @@
 {% else %}
 <form class="throw-form corpus-picker" hx-post="/stage/ideenwuerfeln/act" hx-target="#throw"
       hx-swap="innerHTML">
+  <span class="scene-field">
   <label for="corpus-select">Corpus</label>
   {# `data-sync` names the field this picker fills and the key it reads off the
      chosen option; `data-lang` is the corpus style's own language suggestion,
@@ -32,13 +33,18 @@
     </option>
     {% endfor %}
   </select>
+  </span>
+  <span class="scene-field">
   <label for="headword">Headword</label>
   {% include "_stage_headword_field.html" %}
+  </span>
+  <span class="scene-field">
   <label for="lang-select">Language</label>
   <select id="lang-select" name="lang">
     <option value="en" {% if default_lang == "en" %}selected{% endif %}>English</option>
     <option value="de" {% if default_lang == "de" %}selected{% endif %}>German</option>
   </select>
+  </span>
   <button type="submit">Throw</button>
 </form>
 {% include "_stage_sync.html" %}

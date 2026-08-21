@@ -13,10 +13,15 @@
   </div>
   <div class="control-panel">
     <form class="actions" hx-post="/stage/word_ladder/act" hx-target="#ladder" hx-swap="innerHTML">
+      <span class="scene-field">
       <label for="start-field">Start</label>
       <input id="start-field" type="text" name="start" value="{{ start }}">
+      </span>
+      <span class="scene-field">
       <label for="target-field">Target</label>
       <input id="target-field" type="text" name="target" value="{{ target }}">
+      </span>
+      <span class="scene-field">
       <label for="lang-select">Language</label>
       {# `data-sync`: refill both word fields from the chosen language's own
          example pair (see `_stage_sync.html`, and `WORD_LADDER_EXAMPLES`). #}
@@ -26,6 +31,7 @@
         <option value="de" data-start="{{ examples.de[0] }}" data-target="{{ examples.de[1] }}"
                 {% if default_lang == "de" %}selected{% endif %}>German</option>
       </select>
+      </span>
       <button type="submit">Climb it</button>
     </form>
     {# The toggle genuinely changes the search, the way N+7's own does and Ideenwürfeln's
