@@ -564,66 +564,54 @@ async def stage_word_ladder_act(request: Request) -> HTMLResponse:
     )
 
 
-#: English only — the row declares `[en, de]` but the shipped source poem is
-#: English (see `stage.HAIKUIZATION_SOURCE`) and a German source has not been
-#: written for it, so this scene carries no language toggle at all, unlike
-#: N+7's and the word ladder's own.
-HAIKUIZATION_LANG: Lang = "en"
+#: English only — the row declares `[en]` (see `catalogue.yaml`), so unlike
+#: N+7's and the word ladder's own, this scene carries no language toggle at
+#: all. Widening it is not this task's to do (see the brief's own ruling).
+CUT_UP_LANG: Lang = "en"
 
 
-@app.get("/stage/haikuization", response_class=HTMLResponse)
-def stage_haikuization(request: Request, chrome: str = "on") -> HTMLResponse:
-    source = stage.HAIKUIZATION_SOURCE
-    haiku = stage.haikuize(source, lang=HAIKUIZATION_LANG)
-    report = (
-        denckring_check("haikuization", haiku.remnant, lang=HAIKUIZATION_LANG, source=source)
-        if haiku.remnant
-        else None
-    )
+@app.get("/stage/cut_up", response_class=HTMLResponse)
+def stage_cut_up(request: Request, chrome: str = "on") -> HTMLResponse:
+    """First paint: the page, uncut, and nothing else — no cut has run yet,
+    so there is no result and no verdict to show (the same choice N+7's own
+    `#displaced` opens empty on, for the same reason: "scenes do not
+    autoplay. The recording is a person using the thing")."""
+    source = stage.CUT_UP_SOURCE
     return page(
         request,
-        "stage_haikuization.html",
-        scene=stage.scene("haikuization"),
-        source=source,
-        haiku=haiku,
-        report=report,
-        # First paint shows the poem settled — the dissolve is what the button
-        # does, not what the page does to itself before a recorder has pressed
-        # anything (the stage's own "scenes do not autoplay"). Only
-        # `stage_haikuization_act` below sets this.
-        dissolve=False,
+        "stage_cut_up.html",
+        scene=stage.scene("cut_up"),
+        source_lines=stage.cut_up_source_lines(source, lang=CUT_UP_LANG),
         chrome_off=chrome == "off",
     )
 
 
-@app.post("/stage/haikuization/act", response_class=HTMLResponse)
-async def stage_haikuization_act(request: Request) -> HTMLResponse:
-    """Reduce the posted source to its own line ends, then check the result
-    independently against that same source — the same round trip N+7's and
-    the word ladder's own action routes run between `apply` and `check`.
+@app.post("/stage/cut_up/act", response_class=HTMLResponse)
+async def stage_cut_up_act(request: Request) -> HTMLResponse:
+    """Cut the shipped source into its own words and reassemble them in a
+    fresh order, then check the result independently against that same
+    source — the same round trip N+7's and the word ladder's own action
+    routes run between `apply` and `check`.
 
-    `stage.haikuize` never calls `apply` on a source with no non-blank line,
-    so an empty box comes back with an empty remnant rather than a 500 —
-    that is a real state this editable field can reach, not a malformed one.
+    No seed is threaded through from the client: each press draws its own
+    (`stage.cut_up`'s `seed=None` default), which is what lets the page vary
+    per click while `apps/explorer/tests` pin a seed directly against
+    `stage.cut_up` for a deterministic assertion.
     """
-    form = dict(await request.form())
-    source = str(form.get("source", ""))
-    haiku = stage.haikuize(source, lang=HAIKUIZATION_LANG)
-    report = (
-        denckring_check("haikuization", haiku.remnant, lang=HAIKUIZATION_LANG, source=source)
-        if haiku.remnant
-        else None
-    )
-    return page(
-        request,
-        "_stage_haiku.html",
-        source=source,
-        haiku=haiku,
-        report=report,
-        # The one rendering that plays: a viewer pressed Reduce, so the lines
-        # dissolve and the remnant arrives after them.
-        dissolve=True,
-    )
+    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang=CUT_UP_LANG)
+    report = denckring_check("cut_up", cutup.text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
+    return page(request, "_stage_cutup.html", cutup=cutup, report=report)
+
+
+@app.post("/stage/cut_up/smuggle", response_class=HTMLResponse)
+async def stage_cut_up_smuggle(request: Request) -> HTMLResponse:
+    """The tamper control: the same cut, with one foreign word appended, run
+    through the exact same `check` call the genuine cut above does — so the
+    failing verdict this produces is provably the same machinery as the
+    passing one, not a special-cased message (see the brief)."""
+    cutup = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang=CUT_UP_LANG)
+    report = denckring_check("cut_up", cutup.text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
+    return page(request, "_stage_cutup.html", cutup=cutup, report=report)
 
 
 @app.get("/search", response_class=HTMLResponse)
