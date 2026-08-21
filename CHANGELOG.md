@@ -244,7 +244,14 @@ All notable changes to this project are documented here. The format follows
   Every one also carries `names.de` and `definitions.de`, so the German a row claims
   appears in the row a German reader reads, and a test in the catalogue quality suite
   requires that of every declared language. `semordnilap`, which declared `de` with no
-  German name since long before this batch, is corrected with them.
+  German name since long before this batch, is corrected with them. `cent_mille_milliards`
+  joins them from outside the batch: `check` already accepted a German poem against
+  German strips while the catalogue still declared `languages: [en]`, an assertion wrong
+  in the opposite direction from the others'. It now declares `languages: [en, de]` with
+  `names.de` and `definitions.de`, backed by a German case pair in its golden fixture —
+  a full fourteen-position poem the checker accepts, and the same poem with one line
+  swapped for an alternative from a different position, which it does not — built from
+  the real strips written for the stage scene. Rows declaring German: 38.
 - `tests/test_requires_honesty.py`, guarding `requires` in both directions. One test
   watches through the real `check()` path whether a row's golden fixtures ever reach the
   capabilities it declares; it caught `limerick` on its first run against every
