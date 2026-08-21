@@ -1848,166 +1848,221 @@ def test_reduced_motion_settles_rungs_instead_of_stranding_them() -> None:
     ) in normalised
 
 
-# ── scene six: haikuization ──────────────────────────────────────────────────
+# ── scene six: cut-up ──────────────────────────────────────────────────────
 
 
-def test_the_default_source_reduces_to_its_own_line_ends() -> None:
-    """Assert against the source's own lines, not a hardcoded string — the
-    remnant has to be exactly each line's last word, in order, whatever the
-    shipped source happens to say, not merely what it says today."""
-    from denckring.core.text import line_spans as _line_spans
+def test_cut_up_is_the_sixth_scene_in_place() -> None:
+    """The slot and its position are what the brief pins — replaced in
+    place, not appended, and not merely present somewhere in the list. The
+    scene it replaced is gone from `SCENES` entirely: every slug in the list
+    is now one of the six this stage currently ships."""
+    assert len(stage.SCENES) == 6
+    assert stage.SCENES[5].slug == "cut_up"
+    assert stage.scene("cut_up").procedure_id == "cut_up"
+    assert {scene.slug for scene in stage.SCENES} == {
+        "denckring",
+        "ideenwuerfeln",
+        "n_plus_7",
+        "cent_mille_milliards",
+        "word_ladder",
+        "cut_up",
+    }
+
+
+def test_the_source_tokenises_to_the_47_words_the_task_report_measured() -> None:
+    """Pinned as a belt-and-suspenders check on top of the property test
+    below: the exact count this source was measured to hold when
+    `CUT_UP_SMUGGLE` was picked, not merely "some number of words"."""
+    assert len(stage.cut_up_source_words(stage.CUT_UP_SOURCE)) == 47
+
+
+def test_source_words_matches_word_spans_directly() -> None:
+    """The property, not just the pinned count above: `cut_up_source_words`
+    has to be exactly what `word_spans` (the same call `cut_up.apply` and
+    `cut_up.check` themselves make) finds in the source, whatever the source
+    says today."""
     from denckring.core.text import word_spans as _word_spans
-    from denckring.lang import get_pack
+    from denckring.lang import get_pack as _get_pack
 
-    pack = get_pack("en")
-    expected = [
-        _word_spans(line, pack)[-1][1] for _, line in _line_spans(stage.HAIKUIZATION_SOURCE)
-    ]
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    assert haiku.remnant == " ".join(expected)
+    expected = [word for _, word in _word_spans(stage.CUT_UP_SOURCE, _get_pack("en"))]
+    assert stage.cut_up_source_words(stage.CUT_UP_SOURCE) == expected
 
 
-def test_the_default_remnant_is_the_one_the_brief_verified() -> None:
-    """Pinned as a second, independent assertion on top of the line-ends check
-    above — this is the exact remnant the brief verified before this scene was
-    built, and it reads as a sentence as well as a poem."""
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    assert haiku.remnant == "paper turns word stands language sheet"
+def test_source_lines_reproduce_source_words_in_order() -> None:
+    """`cut_up_source_lines` tokenises line by line, for state one's own
+    rendering; `cut_up_source_words` tokenises the whole text in one pass,
+    the same call `cut_up.apply` and `cut_up.check` themselves make. The
+    animation's own `source_index` numbering only works if both fall in the
+    same order — pinned here rather than assumed."""
+    lines = stage.cut_up_source_lines(stage.CUT_UP_SOURCE)
+    from_lines = [token.text for line in lines for token in line.tokens if token.is_word]
+    assert from_lines == stage.cut_up_source_words(stage.CUT_UP_SOURCE)
 
 
-def test_the_default_remnant_satisfies_the_checker() -> None:
-    from denckring import check
-
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    report = check("haikuization", haiku.remnant, lang="en", source=stage.HAIKUIZATION_SOURCE)
-    assert report.satisfied is True
-
-
-def test_the_scene_renders_the_default_source_and_its_verdict() -> None:
-    response = client.get("/stage/haikuization")
-    assert response.status_code == 200
-    assert "paper turns word stands language sheet" in response.text
-    assert "checked — every word above ends its own line" in response.text
-
-
-def test_first_paint_settles_the_scene_and_the_button_plays_it() -> None:
-    """ "Scenes do not autoplay. The recording is a person using the thing" —
-    and this was the one scene of six whose whole demonstration, the dissolve
-    and the remnant's entrance both, ran on load with nobody touching it, so a
-    recorder who started capture after the page loaded had missed the shot.
-    First paint marks itself `settled`, which cancels both animations; the
-    action's own response carries no such mark and plays them."""
-    first_paint = client.get("/stage/haikuization")
-    assert first_paint.status_code == 200
-    assert 'class="haiku-source settled"' in first_paint.text
-    assert 'class="haiku-remnant settled"' in first_paint.text
-
-    played = client.post("/stage/haikuization/act", data={"source": stage.HAIKUIZATION_SOURCE})
-    assert played.status_code == 200
-    assert 'class="haiku-source"' in played.text
-    assert 'class="haiku-remnant"' in played.text
-
-
-def test_the_settled_state_cancels_both_of_the_scenes_animations() -> None:
-    """The markup above only names a class; this is the half that makes it do
-    something. `.haiku-fade` needs the animation cancelled and nothing else —
-    it starts visible and only the animation moves it — while `.haiku-remnant`
-    carries a static `opacity: 0` on its base rule and would be left invisible
-    by a cancelled animation alone, so its settled values are stated too. Read
-    from the stylesheet, the same way the reduced-motion rules are: no test
-    here runs a browser."""
-    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
-    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    assert ".haiku-source.settled .haiku-fade { animation: none; }" in normalised
-    assert (
-        ".haiku-remnant.settled { animation: none; opacity: 1; transform: none; }"
-    ) in normalised
-
-
-def test_a_prose_source_reduces_to_one_word_correctly() -> None:
-    """Prose has one line, so the reduction is a single word — correct, by the
-    procedure's own rule (see the brief's own "prose is a real input"), and
-    the checker must agree it is correct rather than merely unsurprising."""
-    from denckring import check
-
-    prose = "This is just a plain sentence with no line breaks at all, nothing special."
-    haiku = stage.haikuize(prose, lang="en")
-    assert haiku.prose is True
-    assert haiku.remnant == "special"
-    assert check("haikuization", haiku.remnant, lang="en", source=prose).satisfied is True
-
-
-def test_the_prose_case_renders_its_explanation_not_a_bare_word() -> None:
-    """A single word on screen with nothing beside it would look broken; the
-    explanation is what makes it read as correct instead (see the brief)."""
-    response = client.post(
-        "/stage/haikuization/act",
-        data={
-            "source": "This is just a plain sentence with no line breaks at all, nothing special."
-        },
-    )
-    assert response.status_code == 200
-    normalised = " ".join(response.text.split())
-    assert "haiku-prose-note" in response.text
-    assert "the procedure keeps line ends, and this" in normalised
-    assert "checked — every word above ends its own line" in normalised
-
-
-def test_a_multi_line_source_does_not_carry_the_prose_note() -> None:
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    assert haiku.prose is False
-
-
-def test_an_empty_source_does_not_raise() -> None:
-    haiku = stage.haikuize("", lang="en")
-    assert haiku.lines == []
-    assert haiku.remnant == ""
-    response = client.post("/stage/haikuization/act", data={"source": ""})
-    assert response.status_code == 200
-    assert "Nothing to reduce yet" in response.text
-
-
-def test_a_whitespace_only_source_does_not_raise_either() -> None:
-    """`line_spans` counts a blank line as no line at all, so a source of
-    pure whitespace has to reach the same empty-box handling a genuinely
-    empty field does, rather than the `NoCandidateWord` `apply` itself would
-    raise on it."""
-    haiku = stage.haikuize("   \n\n  \n", lang="en")
-    assert haiku.lines == []
-    assert haiku.remnant == ""
-
-
-def test_every_word_shown_is_marked_word_or_gap_never_both() -> None:
-    """The token reconstruction has to cover the whole line with no overlap
-    and no gap of its own — otherwise the rendered line would silently drop
-    or duplicate a character of the source it claims to show verbatim."""
+def test_source_lines_render_every_character_of_the_source_verbatim() -> None:
+    """The token reconstruction has to cover each line with no overlap and no
+    gap — otherwise state one would silently drop or duplicate a character
+    of the source it claims to show exactly as typed, punctuation and line
+    breaks included."""
     from denckring.core.text import line_spans as _line_spans
 
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    for line, source_line in zip(
-        haiku.lines,
-        [text for _, text in _line_spans(stage.HAIKUIZATION_SOURCE)],
-        strict=True,
-    ):
-        assert "".join(token.text for token in line.tokens) == source_line
+    lines = stage.cut_up_source_lines(stage.CUT_UP_SOURCE)
+    originals = [text for _, text in _line_spans(stage.CUT_UP_SOURCE)]
+    for line, original in zip(lines, originals, strict=True):
+        assert "".join(token.text for token in line.tokens) == original
 
 
-def test_exactly_one_word_per_line_is_marked_kept() -> None:
-    haiku = stage.haikuize(stage.HAIKUIZATION_SOURCE, lang="en")
-    for line in haiku.lines:
-        kept = [token for token in line.tokens if token.is_word and token.kept]
-        assert len(kept) == 1
+def test_the_smuggled_word_is_verified_absent_from_the_source_not_assumed() -> None:
+    """The brief's own instruction: verify `CUT_UP_SMUGGLE` is not one of the
+    source's own words rather than assume it, and say so if it were not.
+    Measured (see the task report): it is absent, so `helicopter` stands."""
+    folded = {word.casefold() for word in stage.cut_up_source_words(stage.CUT_UP_SOURCE)}
+    assert stage.CUT_UP_SMUGGLE.casefold() not in folded
 
 
-def test_reduced_motion_settles_the_remnant_instead_of_stranding_it() -> None:
-    """`.haiku-remnant` starts hidden (`opacity: 0`) and only its own
-    animation ever brings it to `opacity: 1` — the same pattern `.slip`,
-    `.strip-line` and `.rung` already need an explicit reduced-motion
-    override for, since explorer.css's blanket `animation: none !important`
-    would otherwise strand it invisible forever."""
+def test_cut_up_matches_the_procedures_own_shuffle_for_a_spread_of_seeds() -> None:
+    """`stage.cut_up` reimplements the shuffle (parallel index and word
+    arrays under one seed) rather than calling `apply` and matching text back
+    onto the source afterwards. That reimplementation is only safe because
+    `random.shuffle` consumes randomness keyed to a sequence's *length*, never
+    its content — pinned here across a spread of seeds rather than trusted as
+    an argument, so the two can never quietly drift apart."""
+    from denckring.core.protocol import Constructive
+    from denckring.core.registry import get
+
+    procedure = get("cut_up")
+    assert isinstance(procedure, Constructive)
+    for seed in (0, 1, 7, 42, 1000):
+        cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=seed)
+        assert cutup.text == procedure.apply(stage.CUT_UP_SOURCE, lang="en", seed=seed)
+
+
+def test_a_cut_up_of_the_source_carries_every_word_with_multiplicity() -> None:
+    """Provenance, counted: the result's own words, folded, must be exactly
+    the source's own words, folded — the property `check` itself verifies,
+    pinned here independently of the checker."""
+    from collections import Counter
+
+    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
+    source_count = Counter(w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE))
+    result_count = Counter(w.text.casefold() for w in cutup.result_words)
+    assert source_count == result_count
+
+
+def test_the_default_source_cut_up_satisfies_the_checker() -> None:
+    """Pinned with a fixed seed, per the brief's own instruction, so this
+    assertion is deterministic rather than a draw that could rarely fail."""
+    from denckring import check
+
+    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
+    report = check("cut_up", cutup.text, lang="en", source=stage.CUT_UP_SOURCE)
+    assert report.satisfied is True
+    assert report.metrics["words"] == 47
+    assert report.metrics["source_words"] == 47
+
+
+def test_cut_up_smuggled_appends_exactly_the_smuggle_word_with_no_source_index() -> None:
+    genuine = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
+    smuggled = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang="en", seed=3)
+    assert smuggled.result_words[:-1] == genuine.result_words
+    assert smuggled.result_words[-1].text == stage.CUT_UP_SMUGGLE
+    assert smuggled.result_words[-1].source_index is None
+
+
+def test_the_smuggled_cut_up_fails_the_checker_naming_the_rule_and_the_word() -> None:
+    """Not just `satisfied is False` — a test that only checked the boolean
+    would pass if the page failed for the wrong reason (see the brief). The
+    violation itself has to name the rule and the word."""
+    from denckring import check
+
+    smuggled = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang="en", seed=3)
+    report = check("cut_up", smuggled.text, lang="en", source=stage.CUT_UP_SOURCE)
+    assert report.satisfied is False
+    violations = [v for v in report.violations if v.rule == "word_not_in_source"]
+    assert len(violations) == 1
+    assert violations[0].found == stage.CUT_UP_SMUGGLE
+    assert violations[0].offset is not None
+
+
+def test_first_paint_shows_the_source_and_nothing_cut_yet() -> None:
+    """ "Scenes do not autoplay. The recording is a person using the thing" —
+    so first paint carries the page, uncut, and an empty result region, the
+    same choice N+7's own `#displaced` opens on for the same reason."""
+    response = client.get("/stage/cut_up")
+    assert response.status_code == 200
+    for word in stage.cut_up_source_words(stage.CUT_UP_SOURCE):
+        assert f">{word}<" in response.text
+    # The page, not a flattened word list: the source's own punctuation and
+    # its six line breaks both have to survive — state one shows "the six
+    # lines as they stand" (see the brief), not the words alone.
+    assert response.text.count('class="cutup-line"') == 6
+    # Both gaps sit right after a word's own closing tag, not in a contiguous
+    # run of plain text — a comma closes the first line
+    # (see `test_source_lines_render_every_character_of_the_source_verbatim`
+    # for the property this is one instance of), and "cut-out" tokenises to
+    # two words either side of a literal hyphen.
+    assert "</span>,</p>" in response.text
+    assert "</span>-<span" in response.text
+    assert 'id="cutup-result" class="cutup-area"></div>' in response.text
+    # The class name itself appears in the page's own script (as a selector
+    # for the JS this scene's buttons trigger), so the markup that would
+    # actually render a result word is what has to be checked absent, not
+    # the bare class name.
+    assert '<span class="cutup-result-word' not in response.text
+    assert '<p class="verdict' not in response.text
+
+
+_RESULT_WORD_RE = re.compile(r'<span class="cutup-result-word[^"]*"[^>]*>([^<]*)</span>')
+
+
+def test_the_act_route_carries_every_word_of_the_cut_up() -> None:
+    """The result region has to carry every one of the source's own words,
+    with multiplicity, whatever order the (unpinned, per-click) seed put them
+    in — the property, not the exact text, since the route itself never
+    pins a seed."""
+    from collections import Counter
+
+    response = client.post("/stage/cut_up/act")
+    assert response.status_code == 200
+    found = _RESULT_WORD_RE.findall(response.text)
+    assert Counter(w.casefold() for w in found) == Counter(
+        w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE)
+    )
+    assert 'class="verdict cutup-verdict yes"' in response.text
+
+
+def test_the_smuggle_route_carries_the_source_plus_one_foreign_word_and_fails() -> None:
+    from collections import Counter
+
+    response = client.post("/stage/cut_up/smuggle")
+    assert response.status_code == 200
+    found = _RESULT_WORD_RE.findall(response.text)
+    expected = Counter(w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE))
+    expected[stage.CUT_UP_SMUGGLE.casefold()] += 1
+    assert Counter(w.casefold() for w in found) == expected
+    assert 'class="verdict cutup-verdict no"' in response.text
+    normalised = " ".join(response.text.split())
+    assert "word not in source" in normalised
+    assert stage.CUT_UP_SMUGGLE in response.text
+
+
+def test_cut_up_result_words_are_inline_block_so_a_transform_can_apply() -> None:
+    """A `transform` does nothing on a non-replaced inline box (CSS
+    Transforms Level 1) — the box model an ordinary `display: inline` span
+    carries. Read from the stylesheet, the same way the reduced-motion rules
+    elsewhere on this page are: no test here runs a browser, and animation
+    timing itself is not something a test client can observe."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    assert (
-        "@media (prefers-reduced-motion: reduce) { .haiku-remnant { opacity: 1; "
-        "transform: none; } }"
-    ) in normalised
+    assert ".cutup-result-word { display: inline-block; }" in normalised
+
+
+def test_cutup_area_reads_the_shared_three_way_verdict_group() -> None:
+    """The trap the brief names: the old sixth scene's own container class
+    shared a three-way rule with N+7's and the word ladder's own, and
+    deleting the whole block rather than renaming its one arm would have
+    broken both other scenes. This pins that `.cutup-area` took over that
+    arm rather than the group being deleted."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict" in normalised

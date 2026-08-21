@@ -1,0 +1,21 @@
+{# States two and three: the cut result, and the one line saying whether
+   `check` accepts it. Rendered fresh by both `/act` and `/smuggle` — the
+   same partial either way, so the failing verdict the tamper control
+   produces is provably the same markup and the same `check` call as the
+   passing one, never a special case of its own (see the brief). #}
+<p class="cutup-result">
+  {%- for word in cutup.result_words -%}
+  <span class="cutup-result-word{{ ' cutup-smuggled' if word.source_index is none }}"
+    data-source-index="{{ word.source_index if word.source_index is not none else '' }}"
+  >{{ word.text }}</span>{{ ' ' if not loop.last }}
+  {%- endfor -%}
+</p>
+<p class="verdict cutup-verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {%- if report.satisfied -%}
+  checked &mdash; every one of {{ report.metrics.words | int }} words above is the page's own
+  {%- else -%}
+  {% set violation = report.violations[0] %}
+  checked &mdash; {{ violation.rule.replace('_', ' ') }} at offset {{ violation.offset }}:
+  &ldquo;{{ violation.found }}&rdquo; is not the page's own
+  {%- endif -%}
+</p>

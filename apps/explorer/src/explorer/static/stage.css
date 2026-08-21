@@ -176,9 +176,10 @@
    byte; the `.verdict` rule further down was shared by three scenes before
    Arca and Ghazal, its other two users, were removed, and it said it was kept
    here for "whichever scene next reaches for it". Two scenes then reached for
-   it and wrote their own copies instead — the word ladder's and
-   haikuization's, identical to N+7's but for a margin and a font size. All
-   three read from here now, and keep only those two declarations of their
+   it and wrote their own copies instead — the word ladder's and Cut-up's
+   predecessor's, identical to N+7's but for a margin and a font size. All
+   three read from here now (Cut-up's own scene inherited its predecessor's
+   slot and this same arm), and keep only those two declarations of their
    own, in their own sections. */
 
 /* Figure on the left, controls on the right: scenes one and three. */
@@ -200,14 +201,16 @@
    block, which is a heading with a rule under it, where this is one line of
    small caps. A class beats one regardless of source order, so this needs
    not fight it. Arca's `.column-area .verdict` and Ghazal's `.ghazal-panel
-   .verdict` shared this same rule until both scenes were removed; N+7's, the
-   word ladder's and haikuization's are what read it now. Scene one's
-   `.word-panel .verdict` is deliberately not in here: it sits on the dark
-   case, set in uppercase and in the brighter pair of colours that survive
-   that ground. */
+   .verdict` shared this same rule until both scenes were removed; N+7's,
+   the word ladder's and Cut-up's are what read it now — Cut-up's own arm
+   replaces the scene it took this slot from, whose arm read the same rule
+   before that scene was removed in its turn.
+   Scene one's `.word-panel .verdict` is deliberately not in here: it sits
+   on the dark case, set in uppercase and in the brighter pair of colours
+   that survive that ground. */
 .displaced-area .verdict,
 .ladder-wrap .verdict,
-.haiku-area .verdict {
+.cutup-area .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
@@ -217,13 +220,13 @@
 
 .displaced-area .verdict.yes,
 .ladder-wrap .verdict.yes,
-.haiku-area .verdict.yes {
+.cutup-area .verdict.yes {
   color: var(--pass);
 }
 
 .displaced-area .verdict.no,
 .ladder-wrap .verdict.no,
-.haiku-area .verdict.no {
+.cutup-area .verdict.no {
   color: var(--rubric);
 }
 
@@ -1404,224 +1407,96 @@
   min-width: 6.5rem;
 }
 
-/* ── scene six: haikuization ──────────────────────────────────────────────
-   The quietest scene: no figure/panel split, no diagram, nothing that turns
-   or falls. A centred column, the same move `.poem`'s own scene four makes
-   for the same reason — verse this short set edge to edge would read as a
-   report rather than a page. */
+/* ── scene six: cut-up ──────────────────────────────────────────────────
+   The quietest scene, the same move this slot's own predecessor made
+   before it: no figure/panel split, no diagram, nothing that turns. Unlike
+   that scene, nothing here is editable — the source is fixed, so there is
+   no field, no textarea, and no attribution note beyond the one line saying
+   these six lines were written for this scene rather than quoted. */
 
-.haiku-stage {
+.cutup-stage {
   max-width: 40rem;
   margin: 0.4rem auto 0;
 }
 
-.haiku-panel-note {
-  font-family: var(--body);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--lead);
-  margin: 0 0 0.45rem;
+/* State one, "the page, uncut" — set once and never re-rendered; every word
+   this scene ever animates measures its journey's start from a span in
+   here (see the script). No `display: inline-block` needed on `.cutup-word`,
+   unlike the result words below: nothing here ever carries a `transform`. */
+.cutup-source {
+  margin: 0 0 0.9rem;
 }
 
-.haiku-panel-note code {
-  font-family: var(--mono);
-  font-size: 0.85em;
-  color: var(--ink);
-}
-
-.haiku-form {
-  margin: 0 0 0.4rem;
-}
-
-/* Six lines of verse is what the default source needs and a pasted longer
-   poem should have room to show more of before its own scrollbar (see
-   `.haiku-source` below) takes over — smaller than explorer.css's bare
-   11rem textarea default, which was tuned for the full bench page rather
-   than this stage's own 720px budget. A `<textarea>` always carries its own
-   native scrollbar past whatever fits, so shrinking it costs no content —
-   unlike `.haiku-source` below, nothing here is silently clipped, only
-   scrolled behind an affordance the element already has for free. Measured
-   against the shipped source and against a much longer paste; see the task
-   report. */
-.haiku-form textarea {
-  min-height: 6rem;
-}
-
-.haiku-form .actions {
-  margin-top: 0.35rem;
-}
-
-.haiku-attribution {
-  font-family: var(--body);
-  font-size: 0.72rem;
-  line-height: 1.4;
-  color: var(--lead);
-  margin: 0 0 0.35rem;
-}
-
-.haiku-area {
-  min-height: 2rem;
-}
-
-/* However long a pasted poem runs, `.stage` clips silently past 720px
-   rather than growing to fit it (see the brief's own house rule) — this
-   scene's own scrollbar, the same move N+7's `.displaced-text` and
-   Ideenwürfeln's `.slips` already make for the same reason. Measured
-   against a much longer paste, not just the six-line default; see the
-   task report for the numbers. */
-.haiku-source {
-  max-height: 13rem;
-  overflow-y: auto;
-  margin: 0 0 0.35rem;
-}
-
-.haiku-line {
+.cutup-line {
   margin: 0 0 0.15rem;
   font-family: var(--display);
-  font-size: 1.05rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.6;
   color: var(--ink);
 }
 
-.haiku-word {
+.cutup-line:last-child {
+  margin-bottom: 0;
+}
+
+.cutup-word {
   display: inline;
 }
 
-/* The word each line's own reduction keeps — set apart in colour, the same
-   "one thing marked apart rather than merely described near it" rule the
-   word ladder's own `.tile.changed` already follows. No motion of its own:
-   the fade below is the whole of this scene's motion, and a kept word
-   doing anything but sitting still while its line dissolves around it
-   would be a second thing to watch instead of one calm one. */
-.haiku-keep {
+.cutup-actions {
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+}
+
+/* States two and three, "the cut" and "the verdict" — empty until a button
+   is pressed (see `stage_cut_up.html`'s own `#cutup-result`). A reserved
+   height keeps the button row from jumping down the page the moment the
+   first cut lands, the same reason `.displaced-area` and `.ladder-wrap`
+   both carry one. */
+.cutup-area {
+  min-height: 3.4rem;
+}
+
+.cutup-result {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+
+/* `display: inline-block`, unlike `.cutup-word` above: this is the element
+   `travelWord` gives a `transform` to, and a `transform` does nothing on a
+   non-replaced inline box (CSS Transforms Level 1) — the box model an
+   ordinary `display: inline` span carries. `inline-block` keeps the word
+   flowing with its neighbours exactly as `.cutup-word` does, while giving
+   `transform` a box it can actually move. */
+.cutup-result-word {
+  display: inline-block;
+}
+
+/* The tamper control's own word, set apart in colour the same way the word
+   ladder's own `.tile.changed` marks the one thing on that scene worth
+   distinguishing rather than merely describing in prose beside it. Read
+   alongside the verdict below, not instead of it — the colour says which
+   word is foreign, the verdict says why that matters. */
+.cutup-smuggled {
   color: var(--rubric);
   font-weight: 600;
 }
 
-/* Everything a line does not keep, fading out — the dissolve itself. Starts
-   at its own default opacity (1, inherited, never set statically here) and
-   only the animation below ever changes it, so `prefers-reduced-motion`'s
-   blanket `animation: none !important` leaves every word exactly where it
-   would have started: fully visible, nothing stranded. That is deliberate
-   and is this scene's whole answer to the house rule on reduced motion —
-   unlike `.slip`, `.strip-line` and `.rung`, which animate *in* from a
-   hidden start and so need an explicit settled-state override, a word that
-   animates *away* from a visible one needs no override at all: removing
-   the animation leaves it at the visible state it already had.
-
-   Staggered by `--i`, each word's own line (see `HaikuToken.line_index`),
-   not by word — the whole poem dissolves in as many steps as it has lines,
-   not as many as it has words, which is the unit the procedure itself
-   works in and reads as one settled line after another rather than a
-   scatter of individual words. `min()` caps the stagger at eight lines'
-   worth of delay so a much longer paste still finishes dissolving in a
-   bounded, watchable span rather than one that grows without limit. */
-.haiku-fade {
-  animation: haiku-fade 650ms ease-out forwards;
-  animation-delay: calc(200ms + min(var(--i, 0), 8) * 160ms);
-}
-
-@keyframes haiku-fade {
-  to {
-    opacity: 0.16;
-  }
-}
-
-/* First paint: the source exactly as it stands, nothing dissolving. The
-   dissolve is what the Reduce button performs, not what the page performs on
-   itself before anyone has touched it — the spec's own "scenes do not
-   autoplay. The recording is a person using the thing", which this scene was
-   the last of six still breaking. `.settled` is what the fragment marks its
-   own first rendering with (see `_stage_haiku.html`); the action's response
-   carries no such mark, so its words fade the way they always did.
-
-   Cancelling the animation is the whole of it here, and is safe: a
-   `.haiku-fade` word starts at its inherited opacity of 1 and only the
-   animation ever moves it, so with the animation gone it is simply visible —
-   the same reason this scene needs no reduced-motion override for these
-   words either. */
-.haiku-source.settled .haiku-fade {
-  animation: none;
-}
-
-/* Prose's own one-word case is not a special layout, only a line of prose
-   above the same remnant everything else lands in — see the brief's own
-   "prose is a real input". */
-.haiku-prose-note {
-  font-family: var(--body);
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: var(--lead);
-  margin: 0 0 0.6rem;
-}
-
-/* The remnant: the shorter poem left standing once the rest has dissolved.
-   `--i` is set from `haiku.line_count` (see the fragment), one more than the
-   highest line index any fade above carries, so this always arrives after
-   the last line has finished dissolving, whatever the source's length — not
-   a fixed delay tuned to the six-line default that a longer paste would
-   fall out of step with. The same `min()` cap as `.haiku-fade`'s own, so the
-   wait before the remnant appears stays bounded too. Starts hidden and
-   arrives, the same idiom `.slip`, `.strip-line` and `.rung` already use,
-   and needs the same explicit reduced-motion override those three already
-   carry — this is the one element on this scene that does, since it is the
-   one element that starts invisible. */
-.haiku-remnant {
-  font-family: var(--display);
-  font-size: 1.35rem;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--ink);
-  margin: 0.45rem 0 0;
-  padding-top: 0.45rem;
-  border-top: 1px solid var(--paper-shade);
-  /* The remnant is one word per source line, so a source with many short
-     lines (not merely long ones — `.haiku-source` above already contains
-     those) makes a long remnant that can wrap past a single line. Capped
-     and scrolled the same way, rather than left to push the verdict below
-     it past `.stage`'s own silent 720px clip. Measured against a source of
-     many lines, not just the six-line default; see the task report. */
-  max-height: 4.6rem;
-  overflow-y: auto;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: haiku-remnant-arrive 450ms ease-out forwards;
-  animation-delay: calc(200ms + min(var(--i, 0), 8) * 160ms + 650ms + 200ms);
-}
-
-@keyframes haiku-remnant-arrive {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* First paint again: the remnant is already there, under a source that has
-   not dissolved. Unlike `.haiku-fade` above, cancelling the animation is not
-   enough — this element carries a static `opacity: 0` on its base rule, and
-   an animation removed from it would leave it invisible rather than settled
-   (the same trap `prefers-reduced-motion` sets for it, answered the same
-   way). So the settled values are stated here as well, and this two-class
-   selector outranks both the base rule and the reduced-motion override
-   below, which sets the same two values anyway. */
-.haiku-remnant.settled {
-  animation: none;
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .haiku-remnant {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* This scene's own two declarations — the quietest of the three, a step
-   smaller than N+7's and the ladder's. The reset past explorer.css's bare
+/* This scene's own two declarations — the reset past explorer.css's bare
    `.verdict` and the pass/fail colours are shared at the top of this file. */
-.haiku-area .verdict {
+.cutup-area .verdict {
   margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+}
+
+.cutup-attribution {
+  font-family: var(--body);
   font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--lead);
+  margin: 0.8rem 0 0;
 }
 
