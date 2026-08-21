@@ -1255,12 +1255,21 @@
   margin: 0;
 }
 
-.queneau-panel .actions {
-  margin-top: 0.4rem;
+.queneau-count .count-true {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.queneau-panel .actions button {
-  padding: 0.42rem 0.9rem;
+.queneau-count .count-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
+}
+
+.queneau-panel .actions {
+  margin-top: 0.4rem;
 }
 
 /* ── scene five: word ladder ──────────────────────────────────────────────
