@@ -1,6 +1,6 @@
 <p class="word"{% if pieces is not none %} data-positions="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
 {% if find_failed %}
-<p class="verdict verdict-find no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
+<p class="verdict no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
   — try again</p>
 {% endif %}
 {# The other search that can come back empty, and it says so the same way:
@@ -9,7 +9,7 @@
    past reckoning, and still worth a sentence — the panel used to come back
    blank, with no verdict and nothing to read. #}
 {% if turn_failed %}
-<p class="verdict verdict-find no">all {{ "{:,}".format(turn_attempts) }} turns landed on
+<p class="verdict no">all {{ "{:,}".format(turn_attempts) }} turns landed on
   something this stage will not show — try again</p>
 {% endif %}
 {% if rings_report %}
