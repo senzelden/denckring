@@ -21,8 +21,7 @@ cases:
     lang: de
     source: >-
       constructed example; the fourteen strips are the German set written
-      for the "Cent mille milliards de poèmes" stage scene
-      (apps/explorer/src/explorer/data/queneau_strips_de.txt), copied here
+      for the "Cent mille milliards de poèmes" stage scene, copied here
       verbatim. `text` is the first alternative at every position — the
       catalogue's own `languages: [en, de]` for this row needs at least one
       German case behind it (`test_declared_languages_have_a_fixture`), and
