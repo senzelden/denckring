@@ -12,8 +12,6 @@
     </div>
   </div>
   <div class="control-panel">
-    <p class="n7-panel-note">This runs the library's own round trip: <code>apply</code>
-    searches for the ladder below, and <code>check</code> then confirms it independently.</p>
     <form class="actions" hx-post="/stage/word_ladder/act" hx-target="#ladder" hx-swap="innerHTML">
       <label for="start-field">Start</label>
       <input id="start-field" type="text" name="start" value="{{ start }}">
@@ -33,9 +31,9 @@
     {# The toggle genuinely changes the search, the way N+7's own does and Ideenwürfeln's
        does not: it picks which lexicon `apply` and `check` walk, so English and German can
        find entirely different ladders to the same destination — see app.py's own
-       `stage_word_ladder_act` for how `lang` reaches `stage.word_ladder` and `check` alike. #}
-    <p class="lang-note">Language picks which lexicon <code>apply</code> and <code>check</code>
-      search, so English and German can find different ladders to the same word.</p>
+       `stage_word_ladder_act` for how `lang` reaches `stage.word_ladder` and `check` alike.
+       The paragraph that used to say so in prose is gone: switching the toggle shows it,
+       and the verdict under the figure is the round trip this panel used to describe. #}
     {% include "_stage_sync.html" %}
   </div>
 </div>

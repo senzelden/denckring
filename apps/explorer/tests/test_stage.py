@@ -1076,14 +1076,6 @@ def test_the_n_plus_7_scene_renders() -> None:
     assert "catacomb" in response.text
 
 
-def test_the_n_plus_7_scene_names_the_wordnet_migration() -> None:
-    """The catafalque-to-catacomb story is the caption this scene exists to
-    tell — pin the actual wording, not just that some note is present."""
-    response = client.get("/stage/n_plus_7")
-    assert "catafalque" in response.text
-    assert "Open English WordNet" in response.text
-
-
 def test_a_displaced_text_is_shown_beside_its_real_verdict() -> None:
     """Both halves of the round trip: `displace` produces the text, and
     `check` confirms it against the very source that was posted."""
@@ -1117,9 +1109,7 @@ def test_a_source_with_no_noun_is_not_called_a_displacement() -> None:
 def test_displacing_a_new_source_re_renders_the_reels() -> None:
     """Every other scene here re-renders everything its action touched. Reels
     still reading "cat" beside a panel displacing something else would be this
-    scene's own version of describing what it did not do — and the caption that
-    tells the catafalque story goes with them, since it is true of one word on
-    one reel."""
+    scene's own version of describing what it did not do."""
     response = client.post("/stage/n_plus_7/act", data={"source": "the dog ran home"})
     assert response.status_code == 200
     assert 'id="n7-reels"' in response.text
@@ -1127,7 +1117,6 @@ def test_displacing_a_new_source_re_renders_the_reels() -> None:
     assert "doggedness" in response.text
     assert "homefolk" in response.text
     assert "catacomb" not in response.text
-    assert "catafalque" not in response.text
 
 
 def test_a_blank_source_produces_nothing_to_check() -> None:
@@ -1165,9 +1154,8 @@ def test_a_german_source_displaces_through_the_german_list() -> None:
     assert "Katzenbesitzerin" in response.text
     assert "Tischbürste" in response.text
     assert "verdict yes" in response.text
-    # The catafalque story is English's own — a German reel must never carry it.
+    # English's own reel words must never survive a German displacement.
     assert "catacomb" not in response.text
-    assert "catafalque" not in response.text
 
 
 def test_the_german_reel_shows_the_words_a_noun_travels_past() -> None:
@@ -2028,7 +2016,12 @@ def test_the_act_route_carries_every_word_of_the_cut_up() -> None:
     assert Counter(w.casefold() for w in found) == Counter(
         w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE)
     )
-    assert 'class="verdict cutup-verdict yes"' in response.text
+    # `cutup-verdict` existed only to disambiguate from the shared `.verdict`
+    # in this assertion; no other scene's verdict carried a scene-specific
+    # class, and the fragment this route returns holds exactly one verdict,
+    # so the shared class alone is already unambiguous here.
+    assert '<p class="verdict yes">' in response.text
+    assert response.text.count('<p class="verdict') == 1
 
 
 def test_the_smuggle_route_carries_the_source_plus_one_foreign_word_and_fails() -> None:
@@ -2040,7 +2033,8 @@ def test_the_smuggle_route_carries_the_source_plus_one_foreign_word_and_fails() 
     expected = Counter(w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE))
     expected[stage.CUT_UP_SMUGGLE.casefold()] += 1
     assert Counter(w.casefold() for w in found) == expected
-    assert 'class="verdict cutup-verdict no"' in response.text
+    assert '<p class="verdict no">' in response.text
+    assert response.text.count('<p class="verdict') == 1
     normalised = " ".join(response.text.split())
     assert "word not in source" in normalised
     assert stage.CUT_UP_SMUGGLE in response.text
@@ -2057,12 +2051,36 @@ def test_cut_up_result_words_are_inline_block_so_a_transform_can_apply() -> None
     assert ".cutup-result-word { display: inline-block; }" in normalised
 
 
-def test_cutup_area_reads_the_shared_three_way_verdict_group() -> None:
+def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
     """The trap the brief names: the old sixth scene's own container class
-    shared a three-way rule with N+7's and the word ladder's own, and
-    deleting the whole block rather than renaming its one arm would have
-    broken both other scenes. This pins that `.cutup-area` took over that
-    arm rather than the group being deleted."""
+    shared a rule with N+7's and the word ladder's own, and deleting the
+    whole block rather than renaming its one arm would have broken both
+    other scenes. This pins that `.cutup-area` took over that arm rather
+    than the group being deleted — and that the sonnet's own verdict, which
+    had grown a private rule at a fourth size, reads the same group now.
+
+    Size and margin are pinned here too. They were the two declarations
+    every scene used to override, which is how one sentence came to be set
+    four ways."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    assert ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict" in normalised
+    group = ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, .poem-verdict"
+    assert group in normalised
+    body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
+    assert "font-size: 0.78rem;" in body
+    assert "margin: 0.5rem 0 0;" in body
+    # No scene may quietly take its size or margin back in a rule of its own.
+    # Compared against whole selector lists, not substrings: `.poem-verdict`
+    # is the tail of the shared list above and would match a naive `in`.
+    stripped = re.sub(r"/\*.*?\*/", " ", normalised, flags=re.S)
+    selectors = {
+        " ".join(block.split("{", 1)[0].split()) for block in stripped.split("}") if "{" in block
+    }
+    assert selectors.isdisjoint(
+        {
+            ".displaced-area .verdict",
+            ".ladder-wrap .verdict",
+            ".cutup-area .verdict",
+            ".poem-verdict",
+        }
+    )

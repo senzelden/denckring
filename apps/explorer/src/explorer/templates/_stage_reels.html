@@ -37,14 +37,3 @@
   {% endfor %}
 </div>
 {% endif %}
-{# The catafalque story is true of one word on one reel, so it is told only
-   while that reel is actually on screen — a source edited away from "cat"
-   must not leave the note explaining a journey the columns no longer show. #}
-{% set catacomb = steps | selectattr("word", "equalto", "cat")
-                        | selectattr("replacement", "equalto", "catacomb") | list %}
-{% if catacomb %}
-<p class="n7-note">Here &ldquo;cat&rdquo; lands on &ldquo;catacomb&rdquo;. It landed on
-&ldquo;catafalque&rdquo; until this project's English lexicon moved from Princeton WordNet
-3.1 to Open English WordNet 2024 &mdash; a procedure is only as stable as the dictionary
-underneath it.</p>
-{% endif %}

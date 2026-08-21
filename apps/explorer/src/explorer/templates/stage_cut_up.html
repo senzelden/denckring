@@ -31,7 +31,7 @@
        the validator itself catch the smuggled word rather than a page that
        merely claims to have checked something. #}
     <form hx-post="/stage/cut_up/smuggle" hx-target="#cutup-result" hx-swap="innerHTML">
-      <button type="submit" class="quiet cutup-smuggle-button">Smuggle a word in</button>
+      <button type="submit" class="quiet">Smuggle a word in</button>
     </form>
   </div>
   {# States two and three, "the cut" and "the verdict": empty until a button
@@ -40,7 +40,7 @@
   <div id="cutup-result" class="cutup-area"></div>
   {# Reused byte for byte from the scene this one replaces, not quoted from
      anyone — see `stage.CUT_UP_SOURCE`'s own comment. #}
-  <p class="cutup-attribution">Written for this scene.</p>
+  <p class="scene-credit">Written for this scene.</p>
 </div>
 <script>
 function prefersReducedMotion() {
