@@ -1,19 +1,16 @@
 {% extends "stage.html" %}
 {% block title %}Cent mille milliards de poèmes{% endblock %}
 {% block main %}
-<header class="scene-head queneau-head">
+{# The head is the same four lines on all six scenes: kicker, title, nothing
+   else. This one used to carry the strip-set picker on the title's own
+   baseline row, which pushed its `h1` 1.6px below every other scene's and,
+   because explorer.css gives every `select` `width: 100%`, wrapped the
+   picker onto a line of its own spanning the whole 1280px stage. The picker
+   now sits with the Deal button, which is where the other three scenes'
+   language toggles already sit. #}
+<header class="scene-head">
   <p class="scene-kicker">Raymond Queneau &middot; Cent mille milliards de poèmes, 1961</p>
   <h1>{{ scene.title }}</h1>
-  {# Switching sets is a fresh first paint of whichever one is now named, not
-     a patch onto the poem already showing — see `app.py`'s own
-     `stage_cent_mille_milliards_set` for why a reset, not a carry-over, is
-     the honest response to a change of strips underneath the reader. #}
-  <select id="set-select" name="lang" class="queneau-set-select"
-          hx-get="/stage/cent_mille_milliards/set" hx-target="#queneau-scene"
-          hx-swap="innerHTML" aria-label="Strip set">
-    <option value="en" {% if lang == "en" %}selected{% endif %}>English strips</option>
-    <option value="de" {% if lang == "de" %}selected{% endif %}>German strips</option>
-  </select>
 </header>
 <div id="queneau-scene">
   {% include "_stage_queneau_scene.html" %}
