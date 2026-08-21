@@ -1501,6 +1501,33 @@ def test_the_german_rhyme_pairing_holds_by_the_only_check_available() -> None:
                 )
 
 
+def test_no_german_deal_can_rhyme_a_word_with_itself() -> None:
+    """The German counterpart to `test_no_deal_can_rhyme_a_word_with_itself`,
+    which could only be written for English because `rhyme_keys` cannot run
+    on the German pack at all (see
+    `test_the_german_pack_ships_no_phonemes_so_rhyme_keys_cannot_run`).
+
+    The property is the same and does not need phonemes to state: a pair the
+    scheme names must rhyme, and `_german_rhyme_suffix` is satisfied by a
+    word rhymed with itself, so the exhaustive pairing test above would pass
+    while both ends of a pair could deal the same final word. An identical
+    rhyme is as weak in German practice as in English, and a viewer can deal
+    one — 4,782,969 poems is a lot of chances.
+
+    Compared on the final word `_german_rhyme_suffix` itself extracts, not on
+    the raw line, so punctuation and capitalisation cannot make two identical
+    words look distinct."""
+
+    def final_word(line: str) -> str:
+        return re.findall(r"[^\W\d_]+", line, re.UNICODE)[-1].lower()
+
+    offered = stage.queneau_offered("de")
+    for line_a, line_b in _RHYME_PAIRS:
+        words_a = {final_word(option) for option in offered[line_a - 1]}
+        words_b = {final_word(option) for option in offered[line_b - 1]}
+        assert not (words_a & words_b), (line_a, line_b, sorted(words_a & words_b))
+
+
 def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
     response = client.get("/stage/cent_mille_milliards")
     assert response.status_code == 200
@@ -1557,6 +1584,21 @@ def test_the_set_route_falls_back_to_english_for_an_unknown_lang() -> None:
     response = client.get("/stage/cent_mille_milliards/set", params={"lang": "fr"})
     assert response.status_code == 200
     assert "The paper discs are turning in the light." in response.text
+
+
+def test_the_scene_itself_falls_back_to_english_for_an_unknown_lang() -> None:
+    """The `/set` route's own fallback was covered at this level; the scene
+    route's was not, though it reads the same `lang` off the query string and
+    narrows it the same way. A hand-typed `?lang=xyz` must first-paint the
+    English strips rather than raising at the route."""
+    response = client.get("/stage/cent_mille_milliards", params={"lang": "xyz"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert "The paper discs are turning in the light." in normalised
+    assert "Fünf Scheiben aus Papier, und etwas Zeit." not in normalised
+    # The picker follows the set that actually painted, never the unknown
+    # value that was asked for.
+    assert '<option value="en" selected>English</option>' in normalised
 
 
 def test_the_poem_state_carries_which_set_it_belongs_to() -> None:
