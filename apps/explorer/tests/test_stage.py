@@ -2421,7 +2421,7 @@ def test_the_hold_release_source_gates_its_submit_on_no_wheel_still_held() -> No
     assert gate < body.index(".requestSubmit()")
 
 
-def test_the_turning_placeholder_is_rearmed_not_set_once_on_a_transition() -> None:
+def test_the_hold_source_rearms_the_turning_placeholder_from_every_path() -> None:
     """The other half of the same fix, also source-level (see above). A
     verdict swapping in under a wheel that is still turning has to be put
     back to the placeholder, so `setVerdictTurning` is called from every
@@ -2434,10 +2434,10 @@ def test_the_turning_placeholder_is_rearmed_not_set_once_on_a_transition() -> No
     start = re.search(r"function onHoldStart\(\) \{(.*?)\n\}", script, re.S)
     assert start is not None
     assert "setVerdictTurning();" in start.group(1)
-    assert "if (activeHolds === 1) refreshControls();" in start.group(1)
+    assert "if (activeHolds === 1) {" in start.group(1)  # the transition still gates the rest
 
 
-def test_a_step_under_a_still_held_button_is_deferred_not_dropped() -> None:
+def test_the_step_source_defers_a_round_trips_ticks_rather_than_dropping_them() -> None:
     """Source-level again. A round trip that owns the wheels used to make
     `stepWheel` discard the ticks of a button whose finger was still down —
     invisible on a 20ms local response, several real steps on a slow link.
@@ -2454,12 +2454,25 @@ def test_a_step_under_a_still_held_button_is_deferred_not_dropped() -> None:
     assert "flushDeferredSteps();" in clear.group(1)
 
 
-def test_the_reading_panel_announces_its_own_changes() -> None:
-    """Six readings and a verdict change under a held button; without a live
-    region a screen reader is told none of it."""
+def test_the_reading_markup_declares_one_scoped_live_region() -> None:
+    """Markup, which is all this can see (the announcements themselves are a
+    browser's, and were measured — see the task report). Six readings and a
+    verdict change under a held button, and the panel is rewritten wholesale
+    on every step, so the live region is deliberately *not* the panel: one
+    stable, atomic status line outside the swapped region carries the
+    chamber and its verdict, and nothing announces the six rows."""
     response = client.get("/stage/llull_figure")
     normalised = " ".join(response.text.split())
-    assert '<div class="llull-reading-panel" id="llull-reading" aria-live="polite">' in normalised
+    assert 'id="llull-reading" aria-live' not in normalised
+    assert 'id="llull-status" role="status" aria-live="polite" aria-atomic="true"' in normalised
+    assert 'class="visually-hidden"' in normalised
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    css = " ".join(css_path.read_text(encoding="utf-8").split())
+    # Clipped, never `display: none` — a hidden live region announces nothing.
+    assert ".visually-hidden {" in css
+    body = css.split(".visually-hidden {", 1)[1].split("}", 1)[0]
+    assert "display: none" not in body
+    assert "clip-path: inset(50%);" in body
 
 
 def test_hold_turn_cadence_is_an_attach_option_not_only_a_module_constant() -> None:

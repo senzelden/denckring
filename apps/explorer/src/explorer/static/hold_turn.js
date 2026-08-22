@@ -117,14 +117,22 @@ window.HoldTurn = (function () {
         // `preventDefault` above (which keeps a press from starting a text
         // selection or a drag) also suppresses the focus a click would
         // otherwise give this button -- which left the `blur` listener
-        // below dead for every pointer hold, reachable only by keyboard.
+        // below dead for a pointer hold, reachable only by keyboard.
         // Focusing explicitly restores it, and `preventScroll` keeps the
-        // gesture from jumping a scrolled page. Deliberately *after*
-        // `start`: pressing a second button while a first is held blurs
-        // that first one, and doing it in this order means the hold count
-        // passes 2 rather than dipping through 0 and firing a read of
-        // wheels that are still moving.
-        if (btn.focus) {
+        // gesture from jumping a scrolled page.
+        //
+        // Mouse only, and that restriction is measured rather than
+        // cautious: focus is exclusive, so a second press moves it and
+        // blurs the first button, ending a hold that a finger is still on.
+        // With two fingers on two rings, wheel I stopped after its opening
+        // step while wheel III went on turning (`activeHolds` 1, not 2).
+        // A mouse has one pointer and cannot make two simultaneous holds,
+        // so gating on the pointer type keeps the focus ring exactly where
+        // the blur path is worth having and leaves touch and pen their
+        // two-handed gesture. Deliberately *after* `start`, so that even
+        // for a mouse the hold count passes 2 rather than dipping through 0
+        // and firing a read of wheels that are still moving.
+        if (evt.pointerType === 'mouse' && btn.focus) {
           try {
             btn.focus({ preventScroll: true });
           } catch (e) {

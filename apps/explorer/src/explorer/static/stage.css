@@ -182,6 +182,24 @@
    slot and this same arm), and keep only those two declarations of their
    own, in their own sections. */
 
+/* Text for a screen reader and nobody else: a live region has to be in the
+   accessible tree, so `display: none`/`visibility: hidden` would take it out
+   of the announcement it exists to make. Clipped to nothing instead. Written
+   unscoped, in this shared section, because a scoped announcement is a thing
+   any scene with moving parts will want. Scene seven is the first user. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Figure on the left, controls on the right: scenes one and three. */
 .scene-split {
   display: flex;
