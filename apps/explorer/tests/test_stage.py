@@ -1885,9 +1885,10 @@ def test_reduced_motion_settles_rungs_instead_of_stranding_them() -> None:
 def test_cut_up_is_the_sixth_scene_in_place() -> None:
     """The slot and its position are what the brief pins — replaced in
     place, not appended, and not merely present somewhere in the list. The
-    scene it replaced is gone from `SCENES` entirely: every slug in the list
-    is now one of the six this stage currently ships."""
-    assert len(stage.SCENES) == 6
+    scene it replaced is gone from `SCENES` entirely, and scene seven
+    (`llull_figure`, added after cut-up) does not disturb cut-up's own
+    position — it is appended, not inserted."""
+    assert len(stage.SCENES) == 7
     assert stage.SCENES[5].slug == "cut_up"
     assert stage.scene("cut_up").procedure_id == "cut_up"
     assert {scene.slug for scene in stage.SCENES} == {
@@ -1897,6 +1898,7 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
         "cent_mille_milliards",
         "word_ladder",
         "cut_up",
+        "llull_figure",
     }
 
 
@@ -2104,10 +2106,14 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
 
     Size and margin are pinned here too. They were the two declarations
     every scene used to override, which is how one sentence came to be set
-    four ways."""
+    four ways. Scene seven's own `.llull-reading-panel .verdict` joined the
+    same group rather than writing a private copy — see the task report."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    group = ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, .poem-verdict"
+    group = (
+        ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, "
+        ".poem-verdict, .llull-reading-panel .verdict"
+    )
     assert group in normalised
     body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
     assert "font-size: 0.78rem;" in body
@@ -2125,5 +2131,252 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
             ".ladder-wrap .verdict",
             ".cutup-area .verdict",
             ".poem-verdict",
+            ".llull-reading-panel .verdict",
         }
     )
+
+
+# ── scene seven: Llull's rotating figure ─────────────────────────────────────
+
+
+def test_llull_glosses_cover_exactly_the_figures_letters_at_every_level() -> None:
+    """The brief's own instruction: a test asserting the gloss table covers
+    exactly the figure's nine letters at all six levels, so a future change
+    to the figure data cannot silently leave a term untranslated — and so
+    that a stray extra entry (a typo'd letter, a level that no longer
+    exists) is caught too, not just a missing one."""
+    figure = stage.llull_figure_data()
+    assert set(stage.LLULL_LEVELS) == set(figure.level_names())
+    for level in stage.LLULL_LEVELS:
+        assert set(stage.LLULL_GLOSSES[level]) == set(figure.letters)
+
+
+def test_the_librarys_own_apply_example_still_holds() -> None:
+    """The brief's own worked examples, pinned directly against the library
+    — not this scene's code, which never calls `apply` itself, but the
+    ground truth the scene's design leans on."""
+    from denckring.core.protocol import Constructive
+    from denckring.core.registry import get
+
+    procedure = get("llull_figure")
+    assert isinstance(procedure, Constructive)
+    assert procedure.apply("", lang="en", seed=1) == "Bonitas Potestas Gloria"
+    assert procedure.apply("", lang="en", seed=5, arity=2) == "Aeternitas Sapientia"
+    assert procedure.apply("", lang="en", seed=5, level="relative") == "Medium Aequalitas Minoritas"
+
+
+def test_llull_positions_are_true_indices_not_text_search() -> None:
+    """`llull_positions` must hand back each letter's own place in the
+    figure's alphabet — the index a wheel is turned to, never a piece of
+    text a client would have to search a wheel's own parts for (see the
+    house rule this pins, shared with `pieces_for`)."""
+    alphabet = stage.llull_alphabet()
+    assert alphabet == ["B", "C", "D", "E", "F", "G", "H", "I", "K"]
+    assert stage.llull_positions(["B", "C", "D"]) == [0, 1, 2]
+    assert stage.llull_positions(["K", "B"]) == [8, 0]
+
+
+def test_llull_default_letters_open_on_b_c_d() -> None:
+    """First paint's own chamber, deterministic — the alphabet's own first
+    combination, matching the brief's own worked example table exactly."""
+    assert stage.llull_default_letters(3) == ["B", "C", "D"]
+    assert stage.llull_default_letters(2) == ["B", "C"]
+
+
+def test_llull_random_letters_are_always_a_real_registered_chamber() -> None:
+    """`Figure.chambers` is `itertools.combinations`, so every draw is
+    `arity` distinct letters by construction — pinned across a spread of
+    seeds rather than trusted."""
+    figure = stage.llull_figure_data()
+    for seed in range(30):
+        letters = stage.llull_random_letters(3, rng=random.Random(seed))
+        assert len(letters) == 3
+        assert len(set(letters)) == 3
+        assert "".join(sorted(letters)) in figure.chambers(3)
+
+
+def test_llull_letters_from_text_rejects_anything_outside_the_alphabet() -> None:
+    assert stage.llull_letters_from_text("BCD") == ["B", "C", "D"]
+    assert stage.llull_letters_from_text("b c d") == ["B", "C", "D"]
+    # Duplicates travel through unchanged — a hand-turned chamber can
+    # genuinely repeat a letter, and that is `check`'s own business to
+    # refuse, not this parser's.
+    assert stage.llull_letters_from_text("BB") == ["B", "B"]
+    assert stage.llull_letters_from_text("BJ") is None  # J is not in the alphabet
+    assert stage.llull_letters_from_text("") is None
+    assert stage.llull_letters_from_text("123") is None
+
+
+def test_llull_arity_narrows_to_the_two_offered_values() -> None:
+    assert stage.llull_arity("3") == 3
+    assert stage.llull_arity("2") == 2
+    assert stage.llull_arity("9") == 3
+    assert stage.llull_arity("not a number") == 3
+    assert stage.llull_arity("") == 3
+
+
+def test_llull_client_data_carries_every_letter_at_every_level() -> None:
+    """The JSON blob a held wheel reads locally (see the scene's own
+    script) has to carry the same Latin and gloss the server-rendered panel
+    does, for every letter of the alphabet — a partial table would leave a
+    held wheel landing on a letter with nothing to show for it."""
+    data = stage.llull_client_data()
+    assert data["levelOrder"] == list(stage.LLULL_LEVELS)
+    figure = stage.llull_figure_data()
+    for level in stage.LLULL_LEVELS:
+        for letter in figure.letters:
+            entry = data["levels"][level][letter]
+            assert entry["latin"] == figure.levels[level][letter]
+            assert entry["gloss"] == stage.LLULL_GLOSSES[level][letter]
+
+
+def test_first_paint_shows_the_default_chamber_and_satisfies_check() -> None:
+    """The scene renders, and the chamber it opens on satisfies a real
+    `check()` — the brief's own first requirement."""
+    from denckring import check
+
+    response = client.get("/stage/llull_figure")
+    assert response.status_code == 200
+    assert 'data-arity="3"' in response.text
+    assert '<p class="llull-chamber" data-arity="3">B C D</p>' in response.text
+    report = check("llull_figure", "BCD", lang="en", figure=stage.LLULL_FIGURE_ID, arity=3)
+    assert report.satisfied is True
+    assert report.metrics["chambers"] == 84
+
+
+def test_first_paint_shows_all_six_levels_with_latin_and_gloss() -> None:
+    """Every one of the six tables, each with the chamber's Latin *and* its
+    English gloss — the brief's own second requirement."""
+    response = client.get("/stage/llull_figure")
+    normalised = " ".join(response.text.split())
+    expected = [
+        ("Bonitas", "goodness"),
+        ("Magnitudo", "greatness"),
+        ("Aeternitas", "eternity"),
+        ("Differentia", "difference"),
+        ("Concordantia", "concordance"),
+        ("Contrarietas", "contrariety"),
+        ("Utrum", "whether?"),
+        ("Quid", "what?"),
+        ("De quo", "of what?"),
+        ("Deus", "God"),
+        ("Angelus", "angel"),
+        ("Caelum", "heaven"),
+        ("Iustitia", "justice"),
+        ("Prudentia", "prudence"),
+        ("Fortitudo", "fortitude"),
+        ("Avaritia", "avarice"),
+        ("Gula", "gluttony"),
+        ("Luxuria", "lust"),
+    ]
+    for latin, gloss in expected:
+        assert f'<span class="llull-latin">{latin}</span>' in normalised
+        # The parentheses around a gloss are CSS-generated content
+        # (`.llull-gloss::before`/`::after`, see `stage.css`), not markup —
+        # so the plain text is what a rendered response actually carries.
+        assert f'<span class="llull-gloss">{gloss}</span>' in normalised
+    for level in stage.LLULL_LEVELS:
+        assert f'<dt class="llull-level-name">{level}</dt>' in response.text
+
+
+def test_arity_two_yields_a_two_principle_chamber_and_36_count() -> None:
+    """The brief's own third requirement: arity 2 yields a two-principle
+    chamber and a chamber count of 36."""
+    response = client.post("/stage/llull_figure/act", data={"set_arity": "2"})
+    assert response.status_code == 200
+    assert 'data-arity="2"' in response.text
+    assert 'data-positions="0|1"' in response.text
+    assert '<p class="llull-chamber" data-arity="2" data-positions="0|1">B C</p>' in response.text
+    normalised = " ".join(response.text.split())
+    assert "36" in normalised
+    assert "chambers at this arity" in normalised
+    assert "a genuine chamber of 2 distinct principles" in normalised
+
+
+def test_turn_the_wheels_draws_a_real_distinct_chamber_with_positions() -> None:
+    """Not pinned to one draw (the route itself never pins a seed) — the
+    property: whatever comes back is `arity` distinct letters from the
+    figure's own alphabet, each with a true wheel position to animate to."""
+    response = client.post("/stage/llull_figure/act", data={"turn": "1", "arity": "3"})
+    assert response.status_code == 200
+    match = re.search(r'data-arity="3" data-positions="([\d|]+)">([^<]+)<', response.text)
+    assert match is not None
+    positions = [int(p) for p in match.group(1).split("|")]
+    letters = match.group(2).split(" ")
+    assert len(letters) == 3
+    assert len(set(letters)) == 3
+    figure = stage.llull_figure_data()
+    assert [figure.letters[p] for p in positions] == letters
+
+
+def test_reading_a_hand_turned_duplicate_fails_with_repeated_principle() -> None:
+    """The organic fail case: two wheels landed, by hand, on the same
+    letter. `check` refuses it by name — the same "the validator is the
+    eval" shape cut-up's own tamper control demonstrates, reached here
+    without a special-cased smuggle button."""
+    from denckring import check
+
+    response = client.post("/stage/llull_figure/act", data={"chamber": "BB", "arity": "2"})
+    assert response.status_code == 200
+    assert '<p class="llull-chamber" data-arity="2">B B</p>' in response.text
+    normalised = " ".join(response.text.split())
+    assert '<p class="verdict no">' in normalised
+    assert "repeated principle: B" in normalised
+    report = check("llull_figure", "BB", lang="en", figure=stage.LLULL_FIGURE_ID, arity=2)
+    assert report.satisfied is False
+    assert report.violations[0].rule == "repeated_principle"
+
+
+def test_a_malformed_read_falls_back_to_the_aritys_own_default_with_positions() -> None:
+    """A stale or hand-crafted `chamber` field (never one this page's own
+    script sends) falls back to the arity's own default chamber, and the
+    discs are told to sync back to it — `data-positions` present, unlike a
+    genuine "Read it" of wheels already sitting where they are."""
+    response = client.post("/stage/llull_figure/act", data={"chamber": "ZZ!!", "arity": "2"})
+    assert response.status_code == 200
+    assert '<p class="llull-chamber" data-arity="2" data-positions="0|1">B C</p>' in response.text
+
+
+def test_a_plain_read_of_wheels_already_in_place_carries_no_positions() -> None:
+    """The complementary case: a chamber the wheels genuinely show needs no
+    animation, so the response carries no `data-positions` at all."""
+    response = client.post("/stage/llull_figure/act", data={"chamber": "BCD", "arity": "3"})
+    assert response.status_code == 200
+    assert '<p class="llull-chamber" data-arity="3">B C D</p>' in response.text
+    assert "data-positions" not in response.text
+
+
+def test_hold_turn_js_is_shared_and_wired_into_every_stage_page() -> None:
+    """Not a private script of this scene's own template: `hold_turn.js`
+    lives in `static/` and `stage.html` includes it for every scene, so a
+    follow-up giving scene one the same hold-to-turn controls needs only to
+    call `HoldTurn.attach` — the interaction itself, and its release-safety
+    net, does not need writing twice."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    assert js_path.is_file()
+    js = js_path.read_text(encoding="utf-8")
+    assert "window.HoldTurn" in js
+    assert "data-hold-ring" in js
+    assert "data-hold-dir" in js
+    # Release has to be reachable more than one way — pointer, keyboard, and
+    # the two "something took focus/visibility away" backstops.
+    for event in ("pointerup", "pointercancel", "lostpointercapture", "keyup"):
+        assert event in js
+    assert "visibilitychange" in js
+
+    stage_html = (
+        Path(__file__).parent.parent / "src" / "explorer" / "templates" / "stage.html"
+    ).read_text(encoding="utf-8")
+    assert '<script src="/static/hold_turn.js"></script>' in stage_html
+
+
+def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
+    """The look lives in `stage.css`'s own shared-machinery section, under
+    bare `.hold-controls`/`.hold-btn` selectors — not `.llull-` prefixed —
+    so scene one can join it without a second, private copy."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    assert ".hold-controls {" in normalised
+    assert ".hold-btn {" in normalised
+    assert ".llull-hold" not in normalised
+    assert ".llull-controls" not in normalised

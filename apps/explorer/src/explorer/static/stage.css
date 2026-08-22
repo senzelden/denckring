@@ -220,7 +220,8 @@
 .displaced-area .verdict,
 .ladder-wrap .verdict,
 .cutup-area .verdict,
-.poem-verdict {
+.poem-verdict,
+.llull-reading-panel .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
@@ -233,14 +234,16 @@
 .displaced-area .verdict.yes,
 .ladder-wrap .verdict.yes,
 .cutup-area .verdict.yes,
-.poem-verdict.yes {
+.poem-verdict.yes,
+.llull-reading-panel .verdict.yes {
   color: var(--pass);
 }
 
 .displaced-area .verdict.no,
 .ladder-wrap .verdict.no,
 .cutup-area .verdict.no,
-.poem-verdict.no {
+.poem-verdict.no,
+.llull-reading-panel .verdict.no {
   color: var(--rubric);
 }
 
@@ -327,6 +330,60 @@
   font-family: inherit;
   font-size: inherit;
   color: var(--ink);
+}
+
+/* Hold-to-turn: a pair of step buttons per turnable ring, wired up by
+   `hold_turn.js` (see that file for the interaction itself — this is only
+   its look). One `.hold-group` per ring, a label and its two `.hold-btn`s;
+   `data-hold-ring`/`data-hold-dir` are what the shared script reads, not
+   anything styled here. Scene seven (`stage_llull_figure.html`) is the
+   first to use this group; it is written scene-agnostic on purpose, so
+   scene one's own rings can join it later without a second, private copy —
+   see the task report for what that adoption needs. */
+.hold-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.5rem 0 0;
+}
+
+.hold-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hold-group.hold-group-inactive {
+  opacity: 0.4;
+}
+
+.hold-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lead);
+}
+
+.hold-btn {
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 1rem;
+  line-height: 1;
+  /* `touch-action: none` keeps a touch-held press from also trying to
+     scroll or zoom the page underneath it while it repeats. */
+  touch-action: none;
+  user-select: none;
+}
+
+.hold-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* ── scene one: der Denckring ─────────────────────────────────────────── */
@@ -1461,3 +1518,180 @@
 }
 
 
+
+/* ── scene seven: Llull's rotating figure ─────────────────────────────────
+   Figure on the left, reading on the right — scenes one, three and five's
+   own split, reused unchanged (`.scene-split`, `.control-panel`). Three
+   wheels rather than five, and every one of them carries the same nine
+   letters in the same order, so there is no windowing to fake the way
+   scene one's own script needs for a ring of over a hundred parts — all
+   nine sectors of every wheel are drawn once and simply turn. */
+
+/* A wider gap than `.control-panel`'s own default (1.1rem) — the right
+   column's four children (the note, the reading panel, the actions, the
+   credit) came out roughly 54px short of the wheels beside them at the
+   default gap, leaving the two columns visibly unbalanced even though the
+   page as a whole still cleared its 720px budget. Scene one and four's own
+   two columns bottom out within 4px of each other (measured); this closes
+   the same gap here rather than leaving the right column looking
+   unfinished under a taller left one. */
+.llull-stage .control-panel {
+  gap: 1.3rem;
+}
+
+.wheels-wrap {
+  flex: none;
+  width: 620px;
+  position: relative;
+}
+
+.wheels-wrap::before {
+  /* The same reading mark scene one's own rings carry, at the same 12
+     o'clock position — the two volvelles share the gesture, not just the
+     word. */
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 11px solid var(--rubric);
+  z-index: 6;
+}
+
+.wheels-svg {
+  display: block;
+  /* Sized to leave the hold-to-turn row beneath it (see `.hold-controls`)
+     room inside the 720px stage without crowding the bottom edge — measured
+     with the row in place, not guessed; see the task report. */
+  width: 542px;
+  height: 542px;
+  margin: 0 auto;
+}
+
+.wheel-disc {
+  stroke: var(--case-lip);
+  stroke-width: 1;
+}
+
+.wheel-disc-0 { fill: var(--ring-0); }
+.wheel-disc-1 { fill: var(--ring-1); }
+.wheel-disc-2 { fill: var(--ring-2); }
+
+.wheel-dial {
+  pointer-events: none;
+}
+
+.wheel-letter {
+  font-family: var(--display);
+  font-weight: 500;
+  fill: var(--ink);
+  user-select: none;
+}
+
+.wheel-disc-0 ~ .wheel-dial .wheel-letter {
+  fill: var(--paper);
+}
+
+.wheel-letter-current {
+  font-weight: 700;
+}
+
+/* At arity 2 the outermost wheel takes no part in the chamber — shown,
+   dimmed, rather than hidden, so a viewer can see it is there and simply
+   not turning (the same "shown, not removed" choice a Denckring slot's own
+   `optional` blank makes). */
+.wheel-inactive {
+  opacity: 0.35;
+}
+
+.llull-reading-panel {
+  background: var(--paper-shade);
+  border: 1px solid var(--case-lip);
+  border-radius: 2px;
+  padding: 0.85rem 1.1rem;
+}
+
+.llull-chamber {
+  margin: 0 0 0.5rem;
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+}
+
+.llull-levels {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+.llull-level-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.llull-level-name {
+  flex: none;
+  width: 5.2rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lead);
+}
+
+.llull-level-terms {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 0.85rem;
+  line-height: 1.42;
+  color: var(--ink);
+}
+
+.llull-latin {
+  font-style: italic;
+}
+
+.llull-gloss {
+  color: var(--lead);
+}
+
+.llull-gloss::before {
+  content: "(";
+}
+
+.llull-gloss::after {
+  content: ")";
+}
+
+.llull-count {
+  margin: 0.5rem 0 0;
+}
+
+.llull-count .count-true {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.llull-count .count-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
+}
+
+/* A held wheel's step lands the panel above in a client-rendered preview
+   (see the scene's own script) rather than a real, checked verdict — this
+   is the neutral placeholder that stands in for the verdict while that is
+   true, the same role `.displaced-area .verdict.none` plays when N+7 has
+   nothing to judge. Not `.yes`/`.no`: a claim neither of those colours has
+   earned yet. */
+.llull-reading-panel .verdict.turning {
+  color: var(--lead);
+}
