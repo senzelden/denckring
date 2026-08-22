@@ -46,7 +46,7 @@
   <div class="control-panel">
     <p class="scene-note">The same letters name a different triad depending which of the six
       tables they are read against.</p>
-    <div class="llull-reading-panel" id="llull-reading">
+    <div class="llull-reading-panel" id="llull-reading" aria-live="polite">
       {% with positions=none %}
       {% include "_stage_llull_reading.html" %}
       {% endwith %}
@@ -91,6 +91,14 @@ const wheels = [];
 const LLULL_DATA = JSON.parse(document.getElementById('llull-data').textContent);
 let arity = Number(document.querySelector('#llull-reading .llull-chamber').dataset.arity);
 let inert = false; // a server round trip owns the wheels right now
+// Whether that round trip is one that will *move* the wheels (a turn, an
+// arity switch) or merely read where they already are. A hold-release read
+// moves nothing, so there is no reason for it to take the hold controls
+// away from a viewer for its duration — see `refreshControls`.
+let wheelsOwned = true;
+// Set for exactly one submit, by `releaseRead`, and read back synchronously
+// by `htmx:beforeRequest` (which `requestSubmit` reaches in the same task).
+let releaseSubmit = false;
 let activeHolds = 0; // wheels currently being turned by hand
 
 function prefersReducedMotion() {
@@ -217,8 +225,13 @@ function renderLocalReading(letters) {
   if (chamberEl) chamberEl.textContent = letters.join(' ');
 }
 
-function setVerdictTurning(value) {
-  if (!value) return; // the release swap below replaces the verdict with a real one
+// The panel's one honest state while a wheel is moving: the six readings
+// below stay true letter by letter, but whether *this* chamber is a genuine
+// one is a claim only the server's own `check()` can make, so the verdict
+// is a placeholder until the wheels are at rest. Idempotent, and called
+// from every path that can put a real verdict on screen under a wheel that
+// is still turning — never once, on a transition.
+function setVerdictTurning() {
   const verdict = document.querySelector('#llull-reading .verdict');
   if (!verdict) return;
   verdict.className = 'verdict turning';
@@ -234,7 +247,14 @@ function refreshControls() {
     const active = i < arity;
     group.classList.toggle('hold-group-inactive', !active);
     group.querySelectorAll('.hold-btn').forEach((btn) => {
-      btn.disabled = inert || !active;
+      // Disabled only while a round trip is actually going to move these
+      // wheels. A hold-release read leaves them alone, and disabling them
+      // for it made the controls dead under a finger that pressed during
+      // the response — measured as a whole hold doing nothing at all on a
+      // 20ms local round trip, and it would be the whole round trip on a
+      // slow link. Steps taken in that window are deferred, not dropped
+      // (`stepWheel`), and replayed by `clearInert`.
+      btn.disabled = (inert && wheelsOwned) || !active;
     });
   });
 }
@@ -252,28 +272,81 @@ function refreshControls() {
 // chain before it reads the wheels at all, so the two can never race.
 let pendingStep = Promise.resolve();
 
+// Steps a still-held button asked for while `inert` was true, per wheel,
+// as a net advance.
+const deferredAdvance = new Map();
+
 // A held wheel steps entirely on the client — see `renderLocalReading` for
 // why a network request per step is the wrong shape here (roughly five a
-// second; see the task report). `inert` still refuses a step outright while
-// a server round trip owns the wheels (a turn or an arity switch in
-// flight), the same "refused, not queued" rule scene one's own `turnOne`
-// follows.
-function stepWheel(wheelIndex, dir) {
-  if (inert) return pendingStep;
+// second; see the task report). `advance` is whatever the caller means by
+// one move: ±1 from a held button, and the accumulated catch-up below.
+// While a server round trip owns the wheels (`inert` — a turn or an arity
+// switch in flight) a step still does not land, but it is now deferred
+// rather than refused outright, unlike scene one's own `turnOne`: nothing a
+// finger still on the button asked for is thrown away.
+function stepWheel(wheelIndex, advance) {
+  if (inert) {
+    // Not dropped: a button whose finger is still down goes on ticking
+    // through a round trip, and silently discarding those steps is
+    // invisible on a 20ms local response and loses several real steps on a
+    // slow link. They are accumulated per wheel instead and replayed as one
+    // catch-up step once the swap has landed (`flushDeferredSteps`). A net
+    // advance rather than a list, because nine letters means a long stall
+    // is only ever worth its own remainder — a stuck request cannot queue a
+    // minute of animation.
+    deferredAdvance.set(wheelIndex, (deferredAdvance.get(wheelIndex) || 0) + advance);
+    return pendingStep;
+  }
   pendingStep = pendingStep.then(async () => {
-    await microStep(wheelIndex, prefersReducedMotion() ? 0 : STEP_MS, dir);
+    await microStep(wheelIndex, prefersReducedMotion() ? 0 : STEP_MS, advance);
     renderLocalReading(currentLetters());
     assemble();
   });
   return pendingStep;
 }
 
+// Replay what a still-held button asked for during a round trip, once the
+// wheels are the client's again. Each wheel's net advance is taken the
+// short way round (nine letters, so ±4 at most is ever needed), as a single
+// step rather than a stored-up run of them.
+function flushDeferredSteps() {
+  if (deferredAdvance.size === 0) return;
+  const queued = [...deferredAdvance.entries()];
+  deferredAdvance.clear();
+  let moved = false;
+  queued.forEach(([wheelIndex, advance]) => {
+    let net = ((advance % 9) + 9) % 9;
+    if (net > 4) net -= 9;
+    if (net === 0) return;
+    moved = true;
+    void stepWheel(wheelIndex, net);
+  });
+  // A caught-up wheel needs its verdict checked like any other — and if a
+  // hold is still running, `releaseRead`'s own gate declines and leaves the
+  // submitting to that hold's release.
+  if (moved) void releaseRead();
+}
+
+// The one place `inert` is given back, so every path that hands the wheels
+// back to the client also replays whatever was held down while they were
+// not.
+function clearInert() {
+  inert = false;
+  wheelsOwned = true;
+  refreshControls();
+  flushDeferredSteps();
+}
+
 function onHoldStart() {
   activeHolds++;
-  if (activeHolds === 1) {
-    setVerdictTurning(true);
-    refreshControls();
-  }
+  // Re-armed on *every* hold start rather than only on the 0-to-1
+  // transition: a read that was already in flight when this hold began
+  // lands a real, checked verdict in the panel a moment later, and this
+  // wheel is still turning under it. `htmx:afterSwap` re-arms for that
+  // case too; this covers the reverse order, where the swap had already
+  // landed before the finger came down.
+  setVerdictTurning();
+  if (activeHolds === 1) refreshControls();
 }
 
 // Once every held wheel has stopped, the preview panel a viewer has been
@@ -329,9 +402,26 @@ async function releaseRead() {
     await awaited;
   } while (pendingStep !== awaited);
   releasePending = false;
+  // Draining proves the queue is empty *this instant* — which a hold
+  // satisfies twice a second all by itself, in the ~70ms between one 130ms
+  // step landing and the next 200ms repeat being queued. A tap on one wheel
+  // followed within that window by a press on another used to exit the
+  // drain through the gap and submit while the second button was still
+  // down; the server's checked verdict then swapped in over the
+  // placeholder and, since nothing re-armed it, stayed there while the
+  // wheels went on turning underneath. So the queue being empty is not the
+  // condition — every hold being over is. The hold still running will call
+  // this again when it stops, so there is nothing to do here but put the
+  // placeholder back, in case an earlier read's own swap replaced it.
+  if (activeHolds > 0) {
+    setVerdictTurning();
+    return;
+  }
   if (inert) return;
   assemble();
+  releaseSubmit = true;
   document.querySelector('.actions').requestSubmit();
+  releaseSubmit = false;
 }
 
 function updateWheelActive() {
@@ -408,16 +498,19 @@ document.body.addEventListener('htmx:beforeRequest', (evt) => {
     return;
   }
   inert = true;
+  wheelsOwned = !releaseSubmit;
   refreshControls();
 });
 
 document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.target.id !== 'llull-reading') return;
   const chamberEl = document.querySelector('#llull-reading .llull-chamber');
-  const finish = () => {
-    inert = false;
-    refreshControls();
-  };
+  // The swap brings a whole new verdict element with it, checked for the
+  // chamber that was submitted. If a wheel is being held right now, that
+  // chamber is already out of date — the placeholder goes straight back on,
+  // and the hold's own release will ask for a fresh one.
+  if (activeHolds > 0) setVerdictTurning();
+  const finish = clearInert;
   if (!chamberEl) {
     finish();
     return;
@@ -454,14 +547,8 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
 // A request that never gets a swap at all — a network failure, a non-2xx
 // response — would otherwise leave `inert` stuck true forever, since every
 // path above only clears it from inside `htmx:afterSwap`.
-document.body.addEventListener('htmx:responseError', () => {
-  inert = false;
-  refreshControls();
-});
-document.body.addEventListener('htmx:sendError', () => {
-  inert = false;
-  refreshControls();
-});
+document.body.addEventListener('htmx:responseError', clearInert);
+document.body.addEventListener('htmx:sendError', clearInert);
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
