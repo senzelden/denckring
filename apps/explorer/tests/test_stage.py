@@ -2406,7 +2406,7 @@ def test_the_hold_release_source_gates_its_submit_on_no_wheel_still_held() -> No
     ~70ms gap between one step landing and the next repeat being queued, and
     submit while the second button was still down — is out of its reach
     entirely. The browser measurement that does cover it is
-    `hold-race.mjs`, beside the task report.
+    `tests/browser/hold-race.mjs`.
 
     What this can hold on to is that the gate has not gone away: the release
     path must consult `activeHolds` *before* it submits, and the only
@@ -2422,19 +2422,46 @@ def test_the_hold_release_source_gates_its_submit_on_no_wheel_still_held() -> No
 
 
 def test_the_hold_source_rearms_the_turning_placeholder_from_every_path() -> None:
-    """The other half of the same fix, also source-level (see above). A
-    verdict swapping in under a wheel that is still turning has to be put
-    back to the placeholder, so `setVerdictTurning` is called from every
-    path that can leave a real one on screen mid-hold — a hold starting, a
-    drain declining to submit, and a swap landing while a hold runs — never
-    once, on the `activeHolds` 0-to-1 transition."""
+    """The other half of the same fix, also source-level (see above), and the
+    name is only true if *each* path is pinned separately — an earlier version
+    of this counted call sites against a threshold it had outgrown, so any one
+    of them could be deleted and stay green. Four paths can leave a real
+    verdict on screen under a wheel that is about to move or is already
+    moving, and each is asserted where it lives:
+
+    1. a hold starting (every start, not the `activeHolds` 0-to-1 transition);
+    2. the drain declining to submit because a hold is still running;
+    3. a swap landing while a hold runs;
+    4. the deferred catch-up replaying after a swap has already put a real
+       verdict up — the fix that closed this finding's second instance.
+    """
     script = _llull_scene_script()
     assert "function setVerdictTurning() {" in script  # no unused parameter, no dead branch
-    assert script.count("setVerdictTurning()") >= 4  # the definition and its three callers
-    start = re.search(r"function onHoldStart\(\) \{(.*?)\n\}", script, re.S)
-    assert start is not None
-    assert "setVerdictTurning();" in start.group(1)
-    assert "if (activeHolds === 1) {" in start.group(1)  # the transition still gates the rest
+
+    def body_of(pattern: str) -> str:
+        match = re.search(pattern + r"(.*?)\n\}", script, re.S)
+        assert match is not None, pattern
+        return match.group(1)
+
+    # 1. every hold start, and the transition still gates the control refresh
+    start = body_of(r"function onHoldStart\(\) \{")
+    assert "setVerdictTurning();" in start
+    assert "if (activeHolds === 1) {" in start
+    assert "refreshControls();" in start
+    # 2. the drain, which re-arms instead of submitting while a hold runs
+    release = body_of(r"async function releaseRead\(\) \{")
+    gate = release.index("if (activeHolds > 0) {")
+    assert "setVerdictTurning();" in release[gate:]
+    assert gate < release.index(".requestSubmit()")
+    # 3. a swap landing mid-hold
+    assert "if (activeHolds > 0) setVerdictTurning();" in script
+    # 4. the catch-up replay, before it submits again
+    flush = body_of(r"function flushDeferredSteps\(\) \{")
+    assert "setVerdictTurning();" in flush
+    assert flush.index("setVerdictTurning();") < flush.index("releaseRead()")
+    # backstop: the definition and its four callers. A fifth caller is welcome
+    # and should be pinned above rather than left to this line.
+    assert script.count("setVerdictTurning()") >= 5
 
 
 def test_the_step_source_defers_a_round_trips_ticks_rather_than_dropping_them() -> None:
@@ -2442,7 +2469,7 @@ def test_the_step_source_defers_a_round_trips_ticks_rather_than_dropping_them() 
     `stepWheel` discard the ticks of a button whose finger was still down —
     invisible on a 20ms local response, several real steps on a slow link.
     They are accumulated per wheel now and replayed when the wheels come
-    back (`hold-slow-link.mjs`, beside the task report, measures the real
+    back (`tests/browser/hold-slow-link.mjs` measures the real
     thing: three ticks asked for during an 800ms response, three letters
     moved)."""
     script = _llull_scene_script()
@@ -2473,6 +2500,23 @@ def test_the_reading_markup_declares_one_scoped_live_region() -> None:
     body = css.split(".visually-hidden {", 1)[1].split("}", 1)[0]
     assert "display: none" not in body
     assert "clip-path: inset(50%);" in body
+
+
+def test_the_hold_turn_source_focuses_a_mouse_hold_and_only_a_mouse_hold() -> None:
+    """Source-level, like the scene's own guards: `preventDefault` on
+    `pointerdown` suppresses the focus a click would give the button, which
+    left the `blur` release path unreachable for a pointer hold. Focusing
+    explicitly restores it — but focus is exclusive, so doing it for touch
+    ended a second finger's hold on another wheel (measured: `activeHolds` 1
+    instead of 2, see `tests/browser/hold-two-finger.mjs`). The pointer-type
+    gate is what keeps both, and nothing else in the suite pins it."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "evt.pointerType === 'mouse'" in js
+    assert js.count(".focus(") >= 1
+    # the gate and the focus call are the same statement, not two neighbours
+    gate = js.index("evt.pointerType === 'mouse'")
+    assert js.index("btn.focus({ preventScroll: true })") > gate
 
 
 def test_hold_turn_cadence_is_an_attach_option_not_only_a_module_constant() -> None:
