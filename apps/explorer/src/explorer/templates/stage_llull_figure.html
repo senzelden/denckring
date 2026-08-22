@@ -1,0 +1,467 @@
+{% extends "stage.html" %}
+{% block title %}Llullian figure{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Ramon Llull &middot; Ars generalis ultima, 1305-1308</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="llull-stage scene-split">
+  <div class="wheels-wrap">
+    <svg id="wheels" class="wheels-svg" viewBox="0 0 600 600" role="img"
+         aria-label="Three concentric wheels bearing the nine Llullian letters">
+      {% for i in range(3) %}
+      {# Every wheel carries the same nine letters, the figure's own
+         alphabet — a chamber is which letter each wheel shows, not where in
+         its own ring that letter sits, so `data-letters` is identical on
+         all three. `data-default-index` seeds first paint on the alphabet's
+         own first chamber (`stage.llull_default_letters`, "B C D"), the
+         same true-index seeding scene one's own rings use. #}
+      <g id="wheel-{{ i }}" data-wheel="{{ i }}"
+         data-letters="{{ alphabet | join('|') }}"
+         data-default-index="{{ positions[i] if i < positions | length else 0 }}"
+         data-active="{{ 'true' if i < chamber.arity else 'false' }}"></g>
+      {% endfor %}
+    </svg>
+    {# The mandatory hold-to-turn controls: a clockwise/anticlockwise pair
+       per wheel, wired up by the shared `hold_turn.js` (see `stage.html`'s
+       own script include and this scene's own script below). Real buttons,
+       not styled `<div>`s, so a keyboard user reaches them the ordinary
+       way. #}
+    <div class="hold-controls" id="wheel-holds">
+      {% for i in range(3) %}
+      {% set wheel_name = ['I', 'II', 'III'][i] %}
+      <div class="hold-group{{ '' if i < chamber.arity else ' hold-group-inactive' }}"
+           data-wheel-index="{{ i }}">
+        <span class="hold-label">wheel {{ wheel_name }}</span>
+        <button type="button" class="hold-btn" data-hold-ring="{{ i }}" data-hold-dir="-1"
+                aria-label="Turn wheel {{ wheel_name }} anticlockwise"
+                {{ 'disabled' if i >= chamber.arity }}>&lsaquo;</button>
+        <button type="button" class="hold-btn" data-hold-ring="{{ i }}" data-hold-dir="1"
+                aria-label="Turn wheel {{ wheel_name }} clockwise"
+                {{ 'disabled' if i >= chamber.arity }}>&rsaquo;</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="control-panel">
+    <p class="scene-note">The same letters name a different triad depending which of the six
+      tables they are read against.</p>
+    <div class="llull-reading-panel" id="llull-reading">
+      {% with positions=none %}
+      {% include "_stage_llull_reading.html" %}
+      {% endwith %}
+    </div>
+    <form class="actions" hx-post="/stage/llull_figure/act" hx-target="#llull-reading"
+          hx-swap="innerHTML" hx-trigger="submit">
+      <input type="hidden" name="chamber" id="chamber-field" value="{{ chamber.letters | join('') }}">
+      <input type="hidden" name="arity" id="arity-field" value="{{ chamber.arity }}">
+      <button type="submit">Read it</button>
+      <button type="submit" name="turn" value="1">Turn the wheels</button>
+      <button type="submit" name="set_arity" value="3">Three principles</button>
+      <button type="submit" name="set_arity" value="2">Two principles</button>
+    </form>
+    <p class="scene-credit">Nine letters, B to K &mdash; J is skipped. The ancestor of scene
+      one: both are volvelles (see the catalogue's <code>ars_combinatoria</code> row).</p>
+  </div>
+</div>
+<script type="application/json" id="llull-data">{{ llull_data_json | safe }}</script>
+<script>
+// The three wheels: drawn and turned entirely here, the same idea as scene
+// one's own rings (`stage_denckring.html`) — but every wheel here carries
+// the same nine letters in the same order, so there is no windowing to
+// fake: all nine sectors are drawn once and simply turn, forward or back,
+// by index — never by searching a wheel's own letters for matching text
+// (see `stage.llull_positions`' own note on why, and `hold_turn.js`'s).
+const CENTER = 300;
+const GEOMETRY = [
+  { rOuter: 110, labelR: 84, font: 22 },
+  { rOuter: 195, labelR: 165, font: 25 },
+  { rOuter: 280, labelR: 246, font: 28 },
+];
+const SVGNS = 'http://www.w3.org/2000/svg';
+const ANGLE_STEP = 360 / 9;
+// One wheel stepping one letter. Combined with `HoldTurn`'s own 260ms
+// initial delay and 200ms repeat, a held control steps roughly five times a
+// second once it settles into its steady repeat — see the task report for
+// the measured rate, not just this arithmetic.
+const STEP_MS = 130;
+
+const svg = document.getElementById('wheels');
+const wheels = [];
+const LLULL_DATA = JSON.parse(document.getElementById('llull-data').textContent);
+let arity = Number(document.querySelector('#llull-reading .llull-chamber').dataset.arity);
+let inert = false; // a server round trip owns the wheels right now
+let activeHolds = 0; // wheels currently being turned by hand
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function label(wheel, index) {
+  return wheel.letters[index];
+}
+
+function renderDial(wheelIndex) {
+  const w = wheels[wheelIndex];
+  for (let k = 0; k < 9; k++) {
+    const el = w.spokeEls[k];
+    el.textContent = label(w, (w.index + k + 9) % 9);
+  }
+}
+
+// One micro-step: rotate the dial by one letter's worth of angle (`advance`
+// true positions, positive clockwise or negative anticlockwise), then, once
+// the transition ends, advance the true index by that many, redraw the nine
+// spokes around it and snap the rotation silently back to zero. The
+// redrawn spoke 0 is already the letter that step landed on, so the reset
+// is invisible — the same trick scene one's own rings use, generalised to
+// run backwards too (Denckring's own `advance` is always positive; a
+// negative one here just rotates the other way).
+//
+// A `duration` of 0 (reduced motion) skips the transform entirely rather
+// than setting a rotation only to snap it away moments later. Otherwise,
+// never resolves on `transitionend` alone — the house rule: `explorer.css`
+// sets `transition: none !important` under `prefers-reduced-motion`, which
+// beats this function's own inline transition, so under that preference the
+// event would never fire; a backgrounded tab or an interrupted transition
+// can drop it too. A fallback timer, sized to the requested duration plus a
+// little slack, resolves the same way — whichever comes first wins.
+function microStep(wheelIndex, duration, advance) {
+  const w = wheels[wheelIndex];
+  const finish = () => {
+    w.index = (w.index + advance + 900) % 9;
+    w.dial.style.transition = 'none';
+    w.dial.style.transform = 'rotate(0deg)';
+    renderDial(wheelIndex);
+  };
+  if (duration <= 0) {
+    finish();
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      w.dial.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+      finish();
+      void w.dial.getBoundingClientRect(); // flush, so the reset is not itself animated
+      resolve();
+    };
+    const onEnd = () => settle();
+    w.dial.addEventListener('transitionend', onEnd);
+    w.dial.style.transition = `transform ${duration}ms ease`;
+    void w.dial.getBoundingClientRect(); // flush, so the transition itself is not skipped
+    w.dial.style.transform = `rotate(${-advance * ANGLE_STEP}deg)`;
+    const fallback = setTimeout(settle, duration + 50);
+  });
+}
+
+// A full jump to a server-chosen target (a turn, or an arity switch) —
+// always forward, one true step at a time, the same choice scene one's own
+// `spinRingTo` makes. Nine letters is small enough that no blur/settle
+// split is needed the way a 120-part ring does; every step is the same
+// length.
+async function spinWheelTo(wheelIndex, target) {
+  const w = wheels[wheelIndex];
+  const forward = (target - w.index + 9) % 9;
+  if (forward === 0) return;
+  if (prefersReducedMotion()) {
+    await microStep(wheelIndex, 0, forward);
+    return;
+  }
+  for (let i = 0; i < forward; i++) {
+    await microStep(wheelIndex, STEP_MS, 1);
+  }
+}
+
+function currentLetters() {
+  const letters = [];
+  for (let i = 0; i < arity; i++) {
+    letters.push(label(wheels[i], wheels[i].index));
+  }
+  return letters;
+}
+
+// The hidden fields a plain "Read it" (or a hold-release's own programmatic
+// submit, see `releaseRead`) posts back — the single place that reads the
+// wheels' own state and writes it down, the same role scene one's own
+// `assemble` plays for its five rings.
+function assemble() {
+  document.getElementById('chamber-field').value = currentLetters().join('');
+  document.getElementById('arity-field').value = String(arity);
+}
+
+// A held wheel's own live preview: every one of the six tables, read
+// straight off `LLULL_DATA` — the figure's own Latin and its English gloss,
+// embedded once on the page — for whichever letters the wheels show right
+// now. Always a true statement about individual letters, so it stays
+// truthful on every step without a network round trip; the verdict is a
+// different kind of claim (whether *this* chamber is a genuine one) and is
+// never approximated here — see `releaseRead`.
+function renderLocalReading(letters) {
+  const rows = document.querySelectorAll('#llull-reading .llull-level-terms');
+  LLULL_DATA.levelOrder.forEach((level, i) => {
+    const row = rows[i];
+    if (!row) return;
+    row.innerHTML = letters
+      .map((letter) => {
+        const term = LLULL_DATA.levels[level][letter];
+        return `<span class="llull-term"><span class="llull-latin">${term.latin}</span> ` +
+          `<span class="llull-gloss">${term.gloss}</span></span>`;
+      })
+      .join(' &middot; ');
+  });
+  const chamberEl = document.querySelector('#llull-reading .llull-chamber');
+  if (chamberEl) chamberEl.textContent = letters.join(' ');
+}
+
+function setVerdictTurning(value) {
+  if (!value) return; // the release swap below replaces the verdict with a real one
+  const verdict = document.querySelector('#llull-reading .verdict');
+  if (!verdict) return;
+  verdict.className = 'verdict turning';
+  verdict.textContent = 'turning…';
+}
+
+function refreshControls() {
+  const blocked = inert || activeHolds > 0;
+  document.querySelectorAll('.actions button').forEach((btn) => {
+    btn.disabled = blocked;
+  });
+  document.querySelectorAll('.hold-group').forEach((group, i) => {
+    const active = i < arity;
+    group.classList.toggle('hold-group-inactive', !active);
+    group.querySelectorAll('.hold-btn').forEach((btn) => {
+      btn.disabled = inert || !active;
+    });
+  });
+}
+
+// Every step's own animation-plus-settle is chained onto this, one after
+// another, rather than left to run loose — `onHoldStop` fires the instant a
+// pointer or key releases, which can land in the middle of the *last*
+// step's own ~130-270ms `microStep` still awaiting its transition. A release
+// that submitted "Read it" right then would post the hidden field's still-
+// stale value from before that last step finished, while the panel's own
+// local render (see `renderLocalReading`, itself only called once that
+// step's `await` resolves) would go on to land *after* the server's
+// response had already swapped the panel — overwriting a correct, checked
+// verdict's markup with mismatched letters. `releaseRead` awaits this same
+// chain before it reads the wheels at all, so the two can never race.
+let pendingStep = Promise.resolve();
+
+// A held wheel steps entirely on the client — see `renderLocalReading` for
+// why a network request per step is the wrong shape here (roughly five a
+// second; see the task report). `inert` still refuses a step outright while
+// a server round trip owns the wheels (a turn or an arity switch in
+// flight), the same "refused, not queued" rule scene one's own `turnOne`
+// follows.
+function stepWheel(wheelIndex, dir) {
+  if (inert) return pendingStep;
+  pendingStep = pendingStep.then(async () => {
+    await microStep(wheelIndex, prefersReducedMotion() ? 0 : STEP_MS, dir);
+    renderLocalReading(currentLetters());
+    assemble();
+  });
+  return pendingStep;
+}
+
+function onHoldStart() {
+  activeHolds++;
+  if (activeHolds === 1) {
+    setVerdictTurning(true);
+    refreshControls();
+  }
+}
+
+// Once every held wheel has stopped, the preview panel a viewer has been
+// watching becomes a real, checked verdict — a plain submit of the same
+// form "Read it" itself uses, so the server sees no difference between a
+// hand-turned chamber and one confirmed by clicking "Read it" outright.
+//
+// Deliberately no `refreshControls()` call here, unlike `onHoldStart`'s own:
+// the buttons are already disabled (`activeHolds` was still positive a
+// moment ago), and `releaseRead` below is about to submit — re-enabling
+// them for the brief window before that submit's own `htmx:beforeRequest`
+// sets `inert` would open exactly the race that awaiting `pendingStep`
+// closes on the read side: a second action (another click of "Turn the
+// wheels", say) landing in a gap where nothing was actually blocked. Left
+// alone, the buttons stay disabled straight through into the request that
+// is already on its way, and `htmx:afterSwap` is what re-enables them, the
+// same as every other action on this form.
+function onHoldStop() {
+  activeHolds = Math.max(0, activeHolds - 1);
+  if (activeHolds === 0) {
+    void releaseRead();
+  }
+}
+
+// Guards against a release-then-immediately-re-hold landing two calls to
+// this function on top of each other: both would drain the same queue
+// below, and without this flag both could go on to submit once it empties.
+// Only the first of the two actually submits; the second finds
+// `releasePending` already true and returns having done nothing, which is
+// correct — the wheels the first submit is about to read already include
+// whatever the second hold's own steps added to the queue before this
+// drained it.
+let releasePending = false;
+
+async function releaseRead() {
+  if (releasePending) return;
+  releasePending = true;
+  // `await pendingStep` once is not enough: `pendingStep` only snapshots
+  // whichever step was queued *before* this line ran, and a step from a
+  // wheel still being held — or a second wheel pressed a beat later, while
+  // this was already waiting — chains itself onto a *new* `pendingStep`
+  // after that snapshot was taken. Awaiting the stale snapshot alone would
+  // resolve, read, and submit before that later step had actually moved its
+  // wheel or updated the panel — a real race, caught by a stress test
+  // hammering two wheels a few dozen milliseconds apart (see the task
+  // report). Draining in a loop — reread `pendingStep`, and go around again
+  // if it changed while this was awaiting the last one — keeps going until
+  // nothing new was queued during the final wait, which is the only point
+  // every wheel is actually guaranteed to be at rest.
+  let awaited;
+  do {
+    awaited = pendingStep;
+    await awaited;
+  } while (pendingStep !== awaited);
+  releasePending = false;
+  if (inert) return;
+  assemble();
+  document.querySelector('.actions').requestSubmit();
+}
+
+function updateWheelActive() {
+  wheels.forEach((w, i) => {
+    w.active = i < arity;
+    w.g.classList.toggle('wheel-inactive', !w.active);
+  });
+}
+
+function buildWheel(wheelIndex) {
+  const g = document.getElementById('wheel-' + wheelIndex);
+  const geo = GEOMETRY[wheelIndex];
+  const letters = g.dataset.letters.split('|');
+
+  const disc = document.createElementNS(SVGNS, 'circle');
+  disc.setAttribute('cx', String(CENTER));
+  disc.setAttribute('cy', String(CENTER));
+  disc.setAttribute('r', String(geo.rOuter));
+  disc.setAttribute('class', 'wheel-disc wheel-disc-' + wheelIndex);
+  g.appendChild(disc);
+
+  const dial = document.createElementNS(SVGNS, 'g');
+  dial.setAttribute('class', 'wheel-dial');
+  g.appendChild(dial);
+
+  const spokeEls = [];
+  for (let k = 0; k < 9; k++) {
+    const angle = k * ANGLE_STEP;
+    const rad = (angle * Math.PI) / 180;
+    const x = CENTER + geo.labelR * Math.sin(rad);
+    const y = CENTER - geo.labelR * Math.cos(rad);
+    const text = document.createElementNS(SVGNS, 'text');
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(y));
+    text.setAttribute('transform', `rotate(${angle}, ${x}, ${y})`);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'wheel-letter' + (k === 0 ? ' wheel-letter-current' : ''));
+    text.style.fontSize = geo.font + 'px';
+    dial.appendChild(text);
+    spokeEls.push(text);
+  }
+
+  const defaultIndex = Number(g.dataset.defaultIndex);
+  const active = g.dataset.active === 'true';
+  wheels[wheelIndex] = { g, dial, letters, index: defaultIndex, spokeEls, active };
+  g.classList.toggle('wheel-inactive', !active);
+  renderDial(wheelIndex);
+}
+
+// Painted largest first so the smaller wheels sit on top and only their own
+// band shows — the same dartboard trick scene one's own rings use, not an
+// SVG donut.
+[2, 1, 0].forEach((i) => svg.appendChild(document.getElementById('wheel-' + i)));
+[2, 1, 0].forEach(buildWheel);
+assemble();
+
+HoldTurn.attach(document.getElementById('wheel-holds'), {
+  step: (ring, dir) => {
+    void stepWheel(ring, dir);
+  },
+  start: onHoldStart,
+  stop: onHoldStop,
+});
+
+// Every submit of `.actions` — a click, or a hold-release's own programmatic
+// one — sets `inert` synchronously here, before the request is even sent,
+// the same reason scene one's own `htmx:beforeRequest` listener does: the
+// window between a click and its response is exactly when a second click
+// could start a second, independent mutation of the same wheel state.
+document.body.addEventListener('htmx:beforeRequest', (evt) => {
+  if (!evt.target.matches('.actions')) return;
+  if (inert) {
+    evt.preventDefault();
+    return;
+  }
+  inert = true;
+  refreshControls();
+});
+
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.target.id !== 'llull-reading') return;
+  const chamberEl = document.querySelector('#llull-reading .llull-chamber');
+  const finish = () => {
+    inert = false;
+    refreshControls();
+  };
+  if (!chamberEl) {
+    finish();
+    return;
+  }
+  arity = Number(chamberEl.dataset.arity);
+  updateWheelActive();
+  const raw = chamberEl.dataset.positions;
+  if (!raw) {
+    finish();
+    return;
+  }
+  const positions = raw.split('|').map(Number);
+  // Staggering each wheel's own start (scene one's own idiom for "turn them
+  // for me") is motion in its own right, on top of each wheel's own
+  // transition — under reduced motion every wheel has to be at its landing
+  // position immediately, not one after another 220ms apart, so the stagger
+  // itself is skipped rather than only the per-step transition inside it.
+  const settle = prefersReducedMotion()
+    ? Promise.all(positions.map((target, i) => spinWheelTo(i, target)))
+    : Promise.all(
+        positions.map(
+          (target, i) =>
+            new Promise((resolve) => {
+              setTimeout(() => resolve(spinWheelTo(i, target)), i * 220);
+            })
+        )
+      );
+  settle.then(() => {
+    assemble();
+    finish();
+  });
+});
+
+// A request that never gets a swap at all — a network failure, a non-2xx
+// response — would otherwise leave `inert` stuck true forever, since every
+// path above only clears it from inside `htmx:afterSwap`.
+document.body.addEventListener('htmx:responseError', () => {
+  inert = false;
+  refreshControls();
+});
+document.body.addEventListener('htmx:sendError', () => {
+  inert = false;
+  refreshControls();
+});
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

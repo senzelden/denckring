@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -611,6 +612,81 @@ async def stage_cut_up_smuggle(request: Request) -> HTMLResponse:
     cutup = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang=CUT_UP_LANG)
     report = denckring_check("cut_up", cutup.text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
     return page(request, "_stage_cutup.html", cutup=cutup, report=report)
+
+
+@app.get("/stage/llull_figure", response_class=HTMLResponse)
+def stage_llull_figure(request: Request, chrome: str = "on") -> HTMLResponse:
+    """First paint: the alphabet's own first chamber at arity 3 — B, C, D —
+    deterministic the way every other scene's own first paint is (see
+    `stage.llull_default_letters`)."""
+    arity = 3
+    letters = stage.llull_default_letters(arity)
+    chamber = stage.llull_chamber(letters, arity)
+    report = denckring_check(
+        "llull_figure", chamber.text, lang="en", figure=stage.LLULL_FIGURE_ID, arity=arity
+    )
+    return page(
+        request,
+        "stage_llull_figure.html",
+        scene=stage.scene("llull_figure"),
+        alphabet=stage.llull_alphabet(),
+        chamber=chamber,
+        report=report,
+        positions=stage.llull_positions(chamber.letters),
+        llull_data_json=json.dumps(stage.llull_client_data()),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/llull_figure/act", response_class=HTMLResponse)
+async def stage_llull_figure_act(request: Request) -> HTMLResponse:
+    """Read the wheels exactly as they now stand, turn them to a fresh random
+    chamber, or switch how many principles a chamber holds — one form, three
+    named buttons, the same shape `stage_denckring_act` already answers for
+    "Read it"/"Turn them for me"/"Find me one".
+
+    A hold-to-turn release on the client (see the scene's own script)
+    submits this same form programmatically once the last held wheel stops,
+    so the "read" branch below is reached exactly as often by a hand-turned
+    chamber as by a plain click of "Read it" — the panel a viewer watches
+    during a hold is a client-side preview (`stage.llull_client_data`); this
+    route is what turns it into a real, checked verdict.
+    """
+    form = dict(await request.form())
+    positions: list[int] | None = None
+
+    if form.get("set_arity"):
+        arity = stage.llull_arity(str(form["set_arity"]))
+        letters = stage.llull_default_letters(arity)
+        positions = stage.llull_positions(letters)
+    else:
+        arity = stage.llull_arity(str(form.get("arity", "3")))
+        if form.get("turn"):
+            letters = stage.llull_random_letters(arity)
+            positions = stage.llull_positions(letters)
+        else:
+            parsed = stage.llull_letters_from_text(str(form.get("chamber", "")))
+            if parsed is not None and len(parsed) == arity:
+                letters = parsed
+            else:
+                # A stale or malformed hidden field — never one this page's
+                # own script sends — falls back to the arity's own default
+                # chamber, and the discs are told to sync back to it rather
+                # than left showing whatever they actually had.
+                letters = stage.llull_default_letters(arity)
+                positions = stage.llull_positions(letters)
+
+    chamber = stage.llull_chamber(letters, arity)
+    report = denckring_check(
+        "llull_figure", chamber.text, lang="en", figure=stage.LLULL_FIGURE_ID, arity=arity
+    )
+    return page(
+        request,
+        "_stage_llull_reading.html",
+        chamber=chamber,
+        report=report,
+        positions=positions,
+    )
 
 
 @app.get("/search", response_class=HTMLResponse)
