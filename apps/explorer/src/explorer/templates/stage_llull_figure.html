@@ -46,11 +46,21 @@
   <div class="control-panel">
     <p class="scene-note">The same letters name a different triad depending which of the six
       tables they are read against.</p>
-    <div class="llull-reading-panel" id="llull-reading" aria-live="polite">
+    <div class="llull-reading-panel" id="llull-reading">
       {% with positions=none %}
       {% include "_stage_llull_reading.html" %}
       {% endwith %}
     </div>
+    {# The scene's announcement to a screen reader, and the whole of it.
+       `aria-live` on the panel itself covered the chamber, all six level
+       rows and the verdict — and the script rewrites that whole region on
+       every step, so a held button announced the lot five times a second,
+       which is noise, not access. This line is stable (outside the swapped
+       region, so it is never replaced, only rewritten), atomic, and carries
+       just the two things that are actually news: which chamber the wheels
+       came to rest on and what `check` said about it. #}
+    <p class="visually-hidden" id="llull-status" role="status" aria-live="polite"
+       aria-atomic="true"></p>
     <form class="actions" hx-post="/stage/llull_figure/act" hx-target="#llull-reading"
           hx-swap="innerHTML" hx-trigger="submit">
       <input type="hidden" name="chamber" id="chamber-field" value="{{ chamber.letters | join('') }}">
@@ -238,6 +248,25 @@ function setVerdictTurning() {
   verdict.textContent = 'turning…';
 }
 
+// One short sentence into the status line above — never the panel's own six
+// rows, and never per step.
+function announce(text) {
+  const status = document.getElementById('llull-status');
+  if (status) status.textContent = text;
+}
+
+// What a viewer can see the moment the wheels stop: the chamber they landed
+// on and the verdict `check` gave it. Skipped while a hold is still running
+// or while the verdict is the placeholder — there is nothing settled to say
+// yet, and the release that follows will say it.
+function announceReading() {
+  if (activeHolds > 0) return;
+  const chamberEl = document.querySelector('#llull-reading .llull-chamber');
+  const verdictEl = document.querySelector('#llull-reading .verdict');
+  if (!chamberEl || !verdictEl || verdictEl.classList.contains('turning')) return;
+  announce(chamberEl.textContent.trim() + ': ' + verdictEl.textContent.trim());
+}
+
 function refreshControls() {
   const blocked = inert || activeHolds > 0;
   document.querySelectorAll('.actions button').forEach((btn) => {
@@ -324,7 +353,18 @@ function flushDeferredSteps() {
   // A caught-up wheel needs its verdict checked like any other — and if a
   // hold is still running, `releaseRead`'s own gate declines and leaves the
   // submitting to that hold's release.
-  if (moved) void releaseRead();
+  //
+  // The placeholder goes back up first, and this is not belt and braces: the
+  // swap that just landed put a real verdict on screen for the chamber the
+  // *previous* read submitted, and the catch-up below moves the wheels off
+  // it. Without this the panel carried that stale verdict over the new
+  // letters for a whole further round trip — measured at ~790ms against an
+  // 800ms response, i.e. exactly as long as the link is slow, which is the
+  // only condition this deferral exists for at all.
+  if (moved) {
+    setVerdictTurning();
+    void releaseRead();
+  }
 }
 
 // The one place `inert` is given back, so every path that hands the wheels
@@ -346,7 +386,10 @@ function onHoldStart() {
   // case too; this covers the reverse order, where the swap had already
   // landed before the finger came down.
   setVerdictTurning();
-  if (activeHolds === 1) refreshControls();
+  if (activeHolds === 1) {
+    refreshControls();
+    announce('Turning the wheels.');
+  }
 }
 
 // Once every held wheel has stopped, the preview panel a viewer has been
@@ -513,6 +556,7 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   const finish = clearInert;
   if (!chamberEl) {
     finish();
+    announceReading();
     return;
   }
   arity = Number(chamberEl.dataset.arity);
@@ -520,6 +564,7 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   const raw = chamberEl.dataset.positions;
   if (!raw) {
     finish();
+    announceReading();
     return;
   }
   const positions = raw.split('|').map(Number);
@@ -541,6 +586,7 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   settle.then(() => {
     assemble();
     finish();
+    announceReading();
   });
 });
 
