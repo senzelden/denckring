@@ -11,6 +11,7 @@ import random
 from dataclasses import dataclass
 from itertools import pairwise
 from pathlib import Path
+from typing import Any
 
 from denckring.core import device
 from denckring.core.errors import InvalidParams, NoCandidateWord
@@ -75,6 +76,12 @@ SCENES: list[Scene] = [
         title="Cut-up",
         procedure_id="cut_up",
         caption="Gysin and Burroughs, 1960. Cut the page; every word must still be the page's own.",
+    ),
+    Scene(
+        slug="llull_figure",
+        title="Llullian figure",
+        procedure_id="llull_figure",
+        caption="Ramon Llull, 1305-08. Turn the wheels; the same chamber reads six ways.",
     ),
 ]
 
@@ -1122,3 +1129,279 @@ def cut_up_smuggled(source: str, lang: Lang = "en", seed: int | None = None) -> 
     genuine = cut_up(source, lang, seed)
     tampered = [*genuine.result_words, CutUpWord(text=CUT_UP_SMUGGLE, source_index=None)]
     return CutUp(source_words=genuine.source_words, result_words=tampered)
+
+
+# ── scene seven: Llull's rotating figure ─────────────────────────────────────
+# Ramon Llull, Ars generalis ultima (1305-08): nine letters, B to K — J is
+# skipped — each carrying six tables at once. Turning three concentric wheels
+# aligns one letter across all of them; the same chamber of letters reads six
+# different ways depending on which table is consulted. This is the ancestor
+# of scene one — both are volvelles, and the catalogue's own `ars_combinatoria`
+# row lists `llull_figure` and `denckring` as its instances.
+
+#: The one figure this scene ever reads. `figure` is a real parameter of
+#: `llull_figure` — the procedure can read any shipped figure — but this
+#: scene only ever turns the wheels of its one, so the id is a constant here
+#: rather than a control on the page.
+LLULL_FIGURE_ID = "llull_ternary"
+
+#: The only two arities this scene's own toggle offers, narrowed the same way
+#: `queneau_lang` narrows a strip-set request to a value the picker actually
+#: sends, so a stale or hand-crafted request can never reach `Figure.chambers`
+#: as anything else.
+LLULL_ARITIES: tuple[int, ...] = (3, 2)
+
+#: The six tables, in the order the brief's own comparison sets them out — not
+#: `Figure.level_names()`'s alphabetical order (`absolute, questions,
+#: relative, subjects, vices, virtues`), which would split the two principle
+#: tables apart and read as a shuffled deck rather than the brief's own table.
+LLULL_LEVELS: tuple[str, ...] = (
+    "absolute",
+    "relative",
+    "questions",
+    "subjects",
+    "virtues",
+    "vices",
+)
+
+#: English glosses for every letter at every level — collated against the
+#: Stanford Encyclopedia of Philosophy's own table (see the task's
+#: `primary-source.md`) and held here, not in the library's figure YAML:
+#: `apply`/`check` read the Latin names alone, and an unused `gloss` field on
+#: published data would raise a question ("which language? does `check`
+#: accept a gloss?") this task is not scoped to answer. A test asserts this
+#: table covers exactly the figure's own nine letters at all six levels, so a
+#: future change to the figure data cannot silently leave a term untranslated.
+LLULL_GLOSSES: dict[str, dict[str, str]] = {
+    "absolute": {
+        "B": "goodness",
+        "C": "greatness",
+        "D": "eternity",
+        "E": "power",
+        "F": "wisdom",
+        "G": "will",
+        "H": "virtue",
+        "I": "truth",
+        "K": "glory",
+    },
+    "relative": {
+        "B": "difference",
+        "C": "concordance",
+        "D": "contrariety",
+        "E": "beginning",
+        "F": "middle",
+        "G": "end",
+        "H": "majority",
+        "I": "equality",
+        "K": "minority",
+    },
+    "questions": {
+        "B": "whether?",
+        "C": "what?",
+        "D": "of what?",
+        "E": "why?",
+        "F": "how much?",
+        "G": "of what quality?",
+        "H": "when?",
+        "I": "where?",
+        "K": "how, and with what?",
+    },
+    "subjects": {
+        "B": "God",
+        "C": "angel",
+        "D": "heaven",
+        "E": "man",
+        "F": "the imaginative",
+        "G": "the sensitive",
+        "H": "the vegetative",
+        "I": "the elemental",
+        "K": "the instrumental",
+    },
+    "virtues": {
+        "B": "justice",
+        "C": "prudence",
+        "D": "fortitude",
+        "E": "temperance",
+        "F": "faith",
+        "G": "hope",
+        "H": "charity",
+        "I": "patience",
+        "K": "compassion",
+    },
+    "vices": {
+        "B": "avarice",
+        "C": "gluttony",
+        "D": "lust",
+        "E": "pride",
+        "F": "sloth",
+        "G": "envy",
+        "H": "wrath",
+        "I": "lying",
+        "K": "inconstancy",
+    },
+}
+
+
+def llull_figure_data() -> device.Figure:
+    """The one figure this scene reads — cached by the library itself
+    (`device.load_figure`'s own `lru_cache`), so calling this freely costs
+    nothing."""
+    return device.load_figure(LLULL_FIGURE_ID)
+
+
+def llull_alphabet() -> list[str]:
+    """The figure's own nine letters, B to K, in the fixed order every wheel
+    carries them — every wheel shows the same alphabet; a chamber is which
+    letter each wheel shows, not where in its own ring that letter sits."""
+    return list(llull_figure_data().letters)
+
+
+def llull_arity(value: str) -> int:
+    """Narrow a request string to an arity this scene's own toggle actually
+    offers — 3 for anything else, the same fallback `queneau_lang` gives an
+    unrecognised strip set."""
+    try:
+        parsed = int(value)
+    except ValueError:
+        return 3
+    return parsed if parsed in LLULL_ARITIES else 3
+
+
+@dataclass(frozen=True)
+class LlullTerm:
+    """One letter of a chamber, read at one level: the Latin the figure's own
+    data carries, and the English gloss `LLULL_GLOSSES` holds beside it."""
+
+    letter: str
+    latin: str
+    gloss: str
+
+
+@dataclass(frozen=True)
+class LlullReading:
+    """One table's own reading of a chamber — one term per letter, in
+    chamber order."""
+
+    level: str
+    terms: list[LlullTerm]
+
+
+@dataclass(frozen=True)
+class LlullChamber:
+    """A chamber, prepared for the page: the letters the wheels show, and the
+    readings each of `LLULL_LEVELS` gives them. Carries no verdict of its
+    own — `app.py` calls a real `check()` against `.text`, the same
+    "prepare here, check there" split every other scene's own route keeps."""
+
+    letters: list[str]
+    arity: int
+    readings: list[LlullReading]
+
+    @property
+    def text(self) -> str:
+        """The chamber exactly as the wheels show it — what `check` reads.
+        Bare letters, not one of the six spelled-out readings: the verdict
+        this earns is the wheels' own claim, not a claim about any one
+        table."""
+        return "".join(self.letters)
+
+
+def llull_readings(letters: list[str]) -> list[LlullReading]:
+    """`letters`, read at each of `LLULL_LEVELS` in turn — the six-ways-at-
+    once the scene exists to show. Works even when `letters` repeats one (a
+    hand-turned chamber can): each position is looked up on its own, so a
+    repeated letter simply repeats its own row rather than raising."""
+    figure = llull_figure_data()
+    return [
+        LlullReading(
+            level=level,
+            terms=[
+                LlullTerm(
+                    letter=letter,
+                    latin=figure.levels[level][letter],
+                    gloss=LLULL_GLOSSES[level][letter],
+                )
+                for letter in letters
+            ],
+        )
+        for level in LLULL_LEVELS
+    ]
+
+
+def llull_chamber(letters: list[str], arity: int) -> LlullChamber:
+    """One chamber, prepared for the page: its letters and their six
+    readings."""
+    return LlullChamber(letters=letters, arity=arity, readings=llull_readings(letters))
+
+
+def llull_positions(letters: list[str]) -> list[int]:
+    """Each letter's own true index on a wheel — every wheel carries the
+    figure's full nine-letter alphabet in the same order (`figure.letters`),
+    so a wheel is positioned by this index, never by searching a wheel's own
+    parts for matching text. The same rule `pieces_for` keeps for the
+    Denckring's own rings (`endbuchstabe` repeats two of its 120 parts, so a
+    ring positioned by matching text can only ever land on the first
+    occurrence) — nothing on this figure's nine letters repeats, but the rule
+    the client script follows is the same rule either way, not a coincidence
+    that happens to also hold here."""
+    figure = llull_figure_data()
+    return [figure.letters.index(letter) for letter in letters]
+
+
+def llull_default_letters(arity: int) -> list[str]:
+    """First paint: the alphabet's own first chamber — B, C[, D] —
+    deterministic, the way every other scene's own first paint is (see
+    `DEFAULT_WORD`, `queneau_initial_state`), rather than a draw a test would
+    have to pin against randomness."""
+    figure = llull_figure_data()
+    return list(figure.chambers(arity)[0])
+
+
+def llull_random_letters(arity: int, rng: random.Random | None = None) -> list[str]:
+    """Turn the wheels: one of the figure's own registered chambers at
+    `arity`, drawn at random — always `arity` distinct letters, by
+    construction (`Figure.chambers` is `itertools.combinations`)."""
+    figure = llull_figure_data()
+    chooser = rng if rng is not None else random.Random()
+    return list(chooser.choice(figure.chambers(arity)))
+
+
+def llull_letters_from_text(text: str) -> list[str] | None:
+    """Parse a hand-turned chamber back from the wheels' own hidden field —
+    the letters exactly as the discs show them, duplicates and all: a hand
+    turn can land two wheels on the same letter, and that is a real chamber
+    `check` correctly refuses, not a state this parser should hide. `None`
+    for anything that is not letters drawn from the figure's own alphabet —
+    a stale or hand-crafted request, never one this page's own script
+    sends."""
+    figure = llull_figure_data()
+    letters = [ch for ch in text.upper() if ch.isalpha()]
+    if not letters or any(letter not in figure.letters for letter in letters):
+        return None
+    return letters
+
+
+def llull_client_data() -> dict[str, Any]:
+    """Every letter's Latin and English at every level, as one JSON-ready
+    structure — embedded once on the page so a held wheel can redraw the
+    reading panel locally, on every step, without a round trip for each one.
+    A held control repeats roughly five times a second (see the task report
+    for the measured rate); a real network request per step would leave the
+    panel chasing a queue of stale responses rather than showing the wheel
+    actually on screen right now. The verdict is never approximated this
+    way — it always comes from a real `check()` call, deferred to release;
+    see the scene's own script."""
+    figure = llull_figure_data()
+    return {
+        "levels": {
+            level: {
+                letter: {
+                    "latin": figure.levels[level][letter],
+                    "gloss": LLULL_GLOSSES[level][letter],
+                }
+                for letter in figure.letters
+            }
+            for level in LLULL_LEVELS
+        },
+        "levelOrder": list(LLULL_LEVELS),
+    }

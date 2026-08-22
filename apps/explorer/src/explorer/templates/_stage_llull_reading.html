@@ -1,0 +1,39 @@
+{# The chamber's letters, then all six of the figure's own tables at once —
+   the device's whole point, landed on one page — and the verdict a real
+   `check()` call gives it. `data-arity`/`data-positions` live on this first
+   `<p>`, not on the wrapper `#llull-reading` around this partial (see
+   `stage_llull_figure.html`): an `innerHTML` swap of that wrapper replaces
+   this content but not the wrapper's own attributes, so anything the script
+   needs to read back after a swap has to sit on something the swap actually
+   replaces. `positions` is set only when the wheels themselves must move to
+   match what the server chose — a turn, an arity switch, or a stale/hand-
+   crafted "Read it" falling back to the arity's own default chamber — never
+   on a plain read of wheels already sitting where they are. #}
+<p class="llull-chamber" data-arity="{{ chamber.arity }}"
+   {%- if positions is not none %} data-positions="{{ positions | join('|') }}"{% endif %}>{{
+  chamber.letters | join(' ') }}</p>
+<dl class="llull-levels">
+  {% for reading in chamber.readings %}
+  <div class="llull-level-row">
+    <dt class="llull-level-name">{{ reading.level }}</dt>
+    <dd class="llull-level-terms">
+      {%- for term in reading.terms -%}
+      <span class="llull-term"><span class="llull-latin">{{ term.latin }}</span>
+        <span class="llull-gloss">{{ term.gloss }}</span></span>{{ ' &middot; ' | safe if not loop.last }}
+      {%- endfor -%}
+    </dd>
+  </div>
+  {% endfor %}
+</dl>
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {%- if report.satisfied -%}
+  checked &mdash; a genuine chamber of {{ report.metrics.principles | int }} distinct principles
+  {%- else -%}
+  {% set violation = report.violations[0] %}
+  checked &mdash; {{ violation.rule.replace('_', ' ') }}: {{ violation.found }}
+  {%- endif -%}
+</p>
+<p class="llull-count">
+  <span class="count count-true">{{ "{:,}".format(report.metrics.chambers | int) }}</span>
+  <span class="count-label">chambers at this arity</span>
+</p>
