@@ -2242,6 +2242,15 @@ def test_first_paint_shows_the_default_chamber_and_satisfies_check() -> None:
     report = check("llull_figure", "BCD", lang="en", figure=stage.LLULL_FIGURE_ID, arity=3)
     assert report.satisfied is True
     assert report.metrics["chambers"] == 84
+    # Not two facts side by side — the page shows B C D, and B C D happens to
+    # pass — but one: the verdict the page renders is this report's own,
+    # down to the numbers it quotes.
+    normalised = " ".join(response.text.split())
+    assert '<p class="verdict yes">' in normalised
+    principles = int(report.metrics["principles"])
+    assert f"checked &mdash; a genuine chamber of {principles} distinct principles" in normalised
+    chambers = int(report.metrics["chambers"])
+    assert f'<span class="count count-true">{chambers:,}</span>' in normalised
 
 
 def test_first_paint_shows_all_six_levels_with_latin_and_gloss() -> None:
@@ -2380,3 +2389,91 @@ def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
     assert ".hold-btn {" in normalised
     assert ".llull-hold" not in normalised
     assert ".llull-controls" not in normalised
+
+
+def _llull_scene_script() -> str:
+    """The scene's own inline script, as the page actually ships it."""
+    body = client.get("/stage/llull_figure").text
+    match = re.search(r"<script>\n(.*?)\n</script>", body, re.S)
+    assert match is not None
+    return match.group(1)
+
+
+def test_the_hold_release_source_gates_its_submit_on_no_wheel_still_held() -> None:
+    """A source-level guard, and named as one: the test client runs no
+    JavaScript, so the drain's own race — a tap on one wheel followed within
+    ~50ms by a press on another, which used to exit the drain through the
+    ~70ms gap between one step landing and the next repeat being queued, and
+    submit while the second button was still down — is out of its reach
+    entirely. The browser measurement that does cover it is
+    `hold-race.mjs`, beside the task report.
+
+    What this can hold on to is that the gate has not gone away: the release
+    path must consult `activeHolds` *before* it submits, and the only
+    `requestSubmit` in the scene must be the one behind that gate."""
+    script = _llull_scene_script()
+    release = re.search(r"async function releaseRead\(\) \{(.*?)\n\}", script, re.S)
+    assert release is not None
+    body = release.group(1)
+    assert body.count(".requestSubmit()") == 1
+    assert script.count(".requestSubmit()") == 1
+    gate = body.index("activeHolds > 0")
+    assert gate < body.index(".requestSubmit()")
+
+
+def test_the_turning_placeholder_is_rearmed_not_set_once_on_a_transition() -> None:
+    """The other half of the same fix, also source-level (see above). A
+    verdict swapping in under a wheel that is still turning has to be put
+    back to the placeholder, so `setVerdictTurning` is called from every
+    path that can leave a real one on screen mid-hold — a hold starting, a
+    drain declining to submit, and a swap landing while a hold runs — never
+    once, on the `activeHolds` 0-to-1 transition."""
+    script = _llull_scene_script()
+    assert "function setVerdictTurning() {" in script  # no unused parameter, no dead branch
+    assert script.count("setVerdictTurning()") >= 4  # the definition and its three callers
+    start = re.search(r"function onHoldStart\(\) \{(.*?)\n\}", script, re.S)
+    assert start is not None
+    assert "setVerdictTurning();" in start.group(1)
+    assert "if (activeHolds === 1) refreshControls();" in start.group(1)
+
+
+def test_a_step_under_a_still_held_button_is_deferred_not_dropped() -> None:
+    """Source-level again. A round trip that owns the wheels used to make
+    `stepWheel` discard the ticks of a button whose finger was still down —
+    invisible on a 20ms local response, several real steps on a slow link.
+    They are accumulated per wheel now and replayed when the wheels come
+    back (`hold-slow-link.mjs`, beside the task report, measures the real
+    thing: three ticks asked for during an 800ms response, three letters
+    moved)."""
+    script = _llull_scene_script()
+    step = re.search(r"function stepWheel\(wheelIndex, advance\) \{(.*?)\n\}", script, re.S)
+    assert step is not None
+    assert "deferredAdvance.set" in step.group(1)
+    clear = re.search(r"function clearInert\(\) \{(.*?)\n\}", script, re.S)
+    assert clear is not None
+    assert "flushDeferredSteps();" in clear.group(1)
+
+
+def test_the_reading_panel_announces_its_own_changes() -> None:
+    """Six readings and a verdict change under a held button; without a live
+    region a screen reader is told none of it."""
+    response = client.get("/stage/llull_figure")
+    normalised = " ".join(response.text.split())
+    assert '<div class="llull-reading-panel" id="llull-reading" aria-live="polite">' in normalised
+
+
+def test_hold_turn_cadence_is_an_attach_option_not_only_a_module_constant() -> None:
+    """The adoption precondition scene one needs: `HoldTurn.REPEAT_MS` is a
+    copy of a closure constant, so assigning to it does nothing. A scene
+    that wants its own rate — scene one's 120-part rings and 220ms `turnOne`
+    may well — passes it to `attach`, per attachment, so one scene's
+    preference cannot become another's surprise."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "handlers.initialDelayMs" in js
+    assert "handlers.repeatMs" in js
+    # and the timers actually use the resolved options, not the defaults
+    assert "setTimeout(tick, repeatMs)" in js
+    assert "setTimeout(tick, initialDelayMs)" in js
+    assert "const DEFAULT_INITIAL_DELAY_MS" in js
+    assert "const DEFAULT_REPEAT_MS" in js
