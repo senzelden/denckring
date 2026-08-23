@@ -1888,8 +1888,10 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
     place, not appended, and not merely present somewhere in the list. The
     scene it replaced is gone from `SCENES` entirely, and scene seven
     (`llull_figure`, added after cut-up) does not disturb cut-up's own
-    position — it is appended, not inserted."""
-    assert len(stage.SCENES) == 7
+    position — it is appended, not inserted, and so is scene eight
+    (`poesie_automat`) after it. The length is deliberately not pinned: it
+    would have to be edited by every round that adds a scene, which makes it a
+    line people change without reading rather than a guard."""
     assert stage.SCENES[5].slug == "cut_up"
     assert stage.scene("cut_up").procedure_id == "cut_up"
     assert {scene.slug for scene in stage.SCENES} == {
@@ -1900,6 +1902,7 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
         "word_ladder",
         "cut_up",
         "llull_figure",
+        "poesie_automat",
     }
 
 
@@ -2521,7 +2524,7 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
     group = (
         ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, "
-        ".poem-verdict, .llull-reading-panel .verdict"
+        ".poem-verdict, .llull-reading-panel .verdict, .automat-reading .verdict"
     )
     assert group in normalised
     body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
@@ -2541,6 +2544,7 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
             ".cutup-area .verdict",
             ".poem-verdict",
             ".llull-reading-panel .verdict",
+            ".automat-reading .verdict",
         }
     )
 
@@ -2804,7 +2808,7 @@ def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
     # warns about.
     assert (
         ".cutup-area .verdict.turning, .llull-reading-panel .verdict.turning, "
-        ".word-panel .verdict.turning {"
+        ".word-panel .verdict.turning, .automat-reading .verdict.turning {"
     ) in normalised
     assert normalised.count(".verdict.turning {") == 1
 
@@ -3245,8 +3249,15 @@ def test_both_volvelles_declare_their_figure_grabbable() -> None:
     css = " ".join(css_path.read_text(encoding="utf-8").split())
     figure = css.split(".turnable-figure {", 1)[1].split("}", 1)[0]
     assert "touch-action: none;" in figure
-    assert ".turnable-figure .ring-disc, .turnable-figure .wheel-disc { cursor: grab; }" in css
+    assert (
+        ".turnable-figure .ring-disc, .turnable-figure .wheel-disc, .turnable-figure .flap "
+        "{ cursor: grab; }"
+    ) in css
     assert "cursor: grabbing;" in css
-    for scene in ("denckring", "llull_figure"):
+    # Scene eight is not a volvelle and its drums do not sweep an angle, but it
+    # is the third scene whose figure is taken hold of, and the affordance and
+    # the `touch-action` that makes a touch gesture possible at all are the
+    # same two declarations. It joins the group rather than copying it.
+    for scene in ("denckring", "llull_figure", "poesie_automat"):
         markup = " ".join(client.get(f"/stage/{scene}").text.split())
         assert "turnable-figure" in markup
