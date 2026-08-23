@@ -3,47 +3,50 @@ lang: de
 cases:
   - name: eine-anzeige-die-der-automat-zeigen-kann
     source: >-
-      constructed example; produced by spinning the board (seed 0), then checked.
-      The schema is Enzensberger's; the 360 fillers are original to this project,
-      as the catalogue row and the device file both say.
+      constructed example; produced by spinning the board (seed 5), then checked.
+      The seed was chosen rather than taken: no word stem repeats anywhere in the
+      six lines, and no preposition heads more than three of the thirty-six
+      flaps, so the case shows the board rather than an unlucky draw from it. The
+      schema is Enzensberger's; the 360 fillers are original to this project, as
+      the catalogue row and the device file both say.
     text: |-
-      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
-      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
-      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
-      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
-      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
-      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: true
   - name: eine-zweite-anzeige-die-keine-klappe-wiederholt
     source: >-
-      constructed example; seed 8, chosen because all thirty-six of its modules
+      constructed example; seed 82, chosen because all thirty-six of its modules
       show a different flap from the case above — so the pair covers 72 flaps
-      rather than 30 twice. That disjointness is not taken on trust: it was
-      found by segmenting both texts back to flap indices and comparing, and
-      `test_the_two_positive_fixtures_share_no_flap` re-derives it on every run.
-      Seed 11 stood here first and shared six modules; the claim was wrong and
-      the seed was replaced rather than the sentence quietly dropped.
+      rather than 30 twice — and because it repeats no word stem either. That
+      disjointness is not taken on trust: the seed was found by segmenting
+      candidate texts back to flap indices and comparing, and
+      `test_the_two_positive_fixtures_share_no_flap` re-derives it from this file
+      on every run rather than reading it here.
     text: |-
-      Jeden Montag schrumpft die Zufahrt im Nebel überall gegen Gebühr
-      Der Winterdienst unter Zeitdruck in der Sackgasse seither ohne Anhörung trotz aller Einwände
-      In den Vororten rauscht der Estrich tagelang seit dem Hochwasser seit der Zusammenlegung
-      Die Nachfrage unter Auflagen stellenweise unter Umständen in der Vermittlung gegen jede Vernunft
-      Die Volkszählung wartet vorübergehend seit der Übergabe in der Zulassungsstelle seit der Neuordnung
-      Im Sommer der Sachbearbeiter unter Verdacht unter Volllast abschnittsweise zwischen zwei Aktenzeichen
+      Montags vergilbt das Werk gegen bar inzwischen über Nacht
+      Die Ampel unter Eis am Zaun vielerorts bei Wind von Süden
+      Im Depot schimmelt das Gleis zumeist unter Null in Sicht
+      Der Turm ohne Zeugen sicherlich um drei bei Frost in Serie
+      Die Fracht zittert erneut nach Bedarf auf Reisen gegen Hitze
+      Abends das Tor auf Posten mit Glas mitunter ab Dienstag
     params: {}
     satisfied: true
   - name: ein-wort-das-auf-keiner-klappe-steht
     source: >-
-      constructed counterexample; the first case with "der Rundfunk" in line 3
-      replaced by "der Fernsehturm", which stands on no flap of that module
+      constructed counterexample; the first case with "die Kantine" in line 3
+      replaced by "die Werkstatt", which stands on no flap of that module
     text: |-
-      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
-      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
-      Neben dem Umspannwerk knistert der Fernsehturm seitdem im Kreisverkehr vor dem Aufzug
-      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
-      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
-      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Werkstatt bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: false
     min_score: 0.8
@@ -55,21 +58,21 @@ cases:
       per line, which is what makes the count a product of thirty-six tens
       rather than of six.
     text: |-
-      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
-      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
-      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
-      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
-      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
-      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: false
   - name: eine-zeile-zu-wenig
     source: constructed counterexample; the board has six rows and shows six
     text: |-
-      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
-      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
-      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
-      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
-      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
     params: {}
     satisfied: false
