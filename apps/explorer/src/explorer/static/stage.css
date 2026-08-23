@@ -1955,6 +1955,13 @@
    the script's own steps read it from here. */
 .flap-board {
   --flap-h: 2.9rem;
+  /* The size the whole layout was measured at (see `.flap-cell`). A custom
+     property because it is not always the size the board ends up at: the drums
+     are sized by their own words, so the board's width belongs to the face,
+     and a face that is not IBM Plex Mono is wider. The scene measures itself
+     once the fonts have settled and steps this down until the widest line
+     fits — see `fitBoard`. */
+  --flap-font: 0.875rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -2023,7 +2030,7 @@
      columns aligned across all six lines, is 155 characters and measures
      1316.68px — 132.68px too wide. Every figure here was read off the rendered
      board by `tests/browser/flap-board.mjs widths`. */
-  font-size: 0.875rem;
+  font-size: var(--flap-font);
   /* No letter-spacing: 134 characters would pay for it 134 times. */
   letter-spacing: 0;
   white-space: nowrap;
