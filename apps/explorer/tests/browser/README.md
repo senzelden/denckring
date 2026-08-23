@@ -16,15 +16,15 @@ are the case the shared module was written scene-agnostic for.
 
 ## Running them
 
-Playwright here is Node's (v1.62.1 when these were written); the Python
-package is not installed, and this repo has no `package.json`. An ES module
-resolves its imports from its own directory upwards, so Playwright has to sit
-in a `node_modules` above these files — `apps/explorer/node_modules` is the
-nearest place that is not the repo root:
+Playwright here is Node's (v1.62.1, pinned); the Python package is not
+installed. An ES module resolves its imports from its own directory upwards,
+so Playwright has to sit in a `node_modules` above these files —
+`apps/explorer` carries the manifest and lockfile for exactly that, and the
+tree itself is gitignored:
 
 ```console
-npm install --prefix apps/explorer playwright   # untracked, and NOT gitignored — delete it after
-npx playwright install chromium                 # browsers cache in ~/.cache/ms-playwright
+npm ci --prefix apps/explorer     # installs the pinned playwright 1.62.1
+npx playwright install chromium   # browsers cache in ~/.cache/ms-playwright
 
 uv run --project apps/explorer explorer --port 8477
 BASE=http://127.0.0.1:8477 node apps/explorer/tests/browser/hold-race.mjs stress 25
@@ -47,5 +47,5 @@ clean run there proves nothing.
 | `hold-slow-link.mjs` | Whether a hold spanning a slow round trip loses its steps: compares the ticks the held button produced with the letters the wheel actually moved. |
 | `hold-blur-release.mjs` | The `blur` → `stop` release path for a *mouse* hold: steps before blurring the active element, and steps after. |
 | `hold-two-finger.mjs` | Two simultaneous touch holds on two wheels (CDP touch events on a `hasTouch` context), with the `pointerdown`/`focus`/`blur` trace. Pins that focusing a button never ends another finger's hold. |
-| `drag-turn.mjs` | Drag-to-turn on either scene: `sweep`/`back` turn one ring 90 degrees each way, sampling the dial's own transform and the panel beside it every 4 degrees *while the pointer is still down* — the requirement is that the ring moves under the finger, so a run that only checks where it landed proves nothing. `wrap` crosses the ring's own seam both ways; `contend` puts a second finger on that ring's step button mid-grab (the grab is meant to win); `two-finger` drags two rings at once with CDP touch; `regrab` grabs again while the previous release's read is still in flight (`DELAY`, default 600ms) and counts samples where the panel disagreed with the rings' own indices. Takes `[scene] [mode] [ring]`; `REDUCED=1` runs under `reducedMotion: 'reduce'`, where the drag must still work and the snap lands at once. |
+| `drag-turn.mjs` | Drag-to-turn on either scene: `sweep`/`back` turn one ring 90 degrees each way, sampling the dial's own transform and the panel beside it every 4 degrees *while the pointer is still down* — the requirement is that the ring moves under the finger, so a run that only checks where it landed proves nothing. `wrap` crosses the ring's own seam both ways; `contend` puts a second finger on that ring's step button mid-grab (the grab is meant to win); `two-finger` drags two rings at once with CDP touch; `regrab` grabs again while the previous release's read is still in flight (`DELAY`, default 600ms) and counts samples where the panel disagreed with the rings' own indices; and `release-inside` *lets go* inside that same window, which is the case `regrab` cannot see — with no hand down when the swap lands, nothing re-arms the panel, so the only thing that can save it is the read the drag owes. Takes `[scene] [mode] [ring]`; `REDUCED=1` runs under `reducedMotion: 'reduce'`, where the drag must still work and the snap lands at once. |
 | `hold-announcements.mjs` | What the status line says and how often across a hold and the read that follows, against the panel's own mutation count. |

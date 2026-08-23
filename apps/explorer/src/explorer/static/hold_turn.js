@@ -264,11 +264,11 @@ window.HoldTurn = (function () {
   //                    since the last call (an integer, often 0), and the
   //                    dial should now sit `residualDeg` degrees off the
   //                    detent it has been committed to
-  //   release(ring, info) -> the pointer is up. `info` carries
-  //                    `residualDeg` (what is left to snap away),
-  //                    `detents` (net whole detents this drag committed),
-  //                    `moved` and `tap` (no detent crossed and the sweep
-  //                    never left `tapSlopDeg` -- a press, not a turn)
+  //   release(ring, residualDeg) -> the pointer is up, and this is what is
+  //                    left to snap away. Deliberately the whole report: a
+  //                    press that crossed no detent is not distinguished
+  //                    from one that did, because a volvelle does not turn
+  //                    when you rest a hand on it and lift it off again.
   function attachDrag(root, handlers) {
     const ringAt = handlers.ringAt;
     const centerOf = handlers.center;
@@ -276,7 +276,6 @@ window.HoldTurn = (function () {
     const onGrab = handlers.grab || function () {};
     const onTurn = handlers.turn;
     const onRelease = handlers.release || function () {};
-    const tapSlopDeg = positiveOr(handlers.tapSlopDeg, 0);
 
     // Keyed by pointer id, not a single "the drag": two fingers on two rings
     // is a gesture a five-ring volvelle invites, and it is the same
@@ -299,12 +298,7 @@ window.HoldTurn = (function () {
           // Already gone; the release below is what matters.
         }
       }
-      onRelease(drag.ring, {
-        residualDeg: drag.residual,
-        detents: drag.committed,
-        moved: drag.committed !== 0,
-        tap: drag.committed === 0 && Math.abs(drag.sweep) <= tapSlopDeg,
-      });
+      onRelease(drag.ring, drag.residual);
     }
 
     root.addEventListener('pointerdown', (evt) => {

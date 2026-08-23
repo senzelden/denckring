@@ -352,12 +352,17 @@ function microStep(ringIndex, duration, advance) {
 // faster and animate shorter to match — the two numbers have to move
 // together, because a step animation longer than the repeat queues steps
 // faster than they can land.
-const FAST_RING_PARTS = 48;
+// A free choice, not a derived one: these five rings hold 50, 60, 12, 120 and
+// 24 parts, so any threshold above 24 and at or below 50 gives the identical
+// partition — the three large rings fast, the two small ones at the shared
+// default. Named for what it is rather than left at 48, which is also the
+// count the plate prints for ring I and would read as arithmetic.
+const FAST_RING_MIN_PARTS = 48;
 const FAST_REPEAT_MS = 100;
 const SLOW_REPEAT_MS = 200;
 
 function isFastRing(ringIndex) {
-  return rings[ringIndex].total >= FAST_RING_PARTS;
+  return rings[ringIndex].total >= FAST_RING_MIN_PARTS;
 }
 
 function repeatMsFor(ringIndex) {
@@ -446,6 +451,11 @@ let pendingStep = Promise.resolve();
 // net advance.
 const deferredAdvance = new Map();
 
+// A *read* owed rather than a step: see `dragCommit`. A drag's movement can
+// never be deferred, so what it leaves behind when it turns a disc during a
+// round trip is the obligation to check where that disc actually ended up.
+let deferredRead = false;
+
 // One hand-driven step of one disc. `advance` is whatever the caller means
 // by one move: ±1 from a held button or the keyboard, and the accumulated
 // catch-up below. Always by *index* — never by the text a ring happens to
@@ -477,10 +487,15 @@ function stepRing(ringIndex, advance) {
 // of 120 that is at worst 60 parts, not the several hundred a long stall
 // could otherwise accumulate.
 function flushDeferredSteps() {
-  if (deferredAdvance.size === 0) return;
+  // Both kinds of debt are settled here, because this is the one place the
+  // discs come back to the client: a held button's deferred ticks, which
+  // still have to be *moved*, and a drag's deferred read, whose movement
+  // already happened under the finger and only wants checking.
+  let moved = deferredRead;
+  deferredRead = false;
+  if (deferredAdvance.size === 0 && !moved) return;
   const queued = [...deferredAdvance.entries()];
   deferredAdvance.clear();
-  let moved = false;
   queued.forEach(([ringIndex, advance]) => {
     const total = rings[ringIndex].total;
     let net = ((advance % total) + total) % total;
@@ -583,6 +598,20 @@ function figureCenter() {
 // caller replaces with the residual a moment later.
 function dragCommit(ringIndex, delta) {
   if (!delta) return;
+  // A drag cannot defer its *movement* the way a held button's ticks are
+  // deferred (`stepRing`) — the disc is under the finger, and moving it late
+  // is the one thing this gesture is not. What it defers instead is the
+  // *read*: a disc turned during a round trip has left the word that round
+  // trip is about, so a fresh check is owed the moment the discs are the
+  // client's again. Without this, a drag that both started *and ended*
+  // inside a read's own round trip left the server's verdicts standing over
+  // discs they were never about — "a word German knows — no" over `Aas`,
+  // which German does — and with no hand still down when the swap landed,
+  // nothing re-armed the placeholder and nothing ever re-read. It did not
+  // decay: the false verdict simply stayed. Measured from a 300ms response
+  // upwards; `clearInert` is what settles it, through the same
+  // `flushDeferredSteps` the held button's own debt goes through.
+  if (inert) deferredRead = true;
   const r = rings[ringIndex];
   r.index = (((r.index + delta) % r.total) + r.total) % r.total;
   renderDial(ringIndex);
@@ -801,9 +830,6 @@ HoldTurn.attachDrag(svg, {
   // worth of angle — `angleStep` already knows, and it differs per ring
   // (45° on the eight-spoke hub, 15° on the twenty-four-spoke rim).
   angleStep: (ring) => angleStep(rings[ring]),
-  // A press that never left this much of the disc's own angle is a press,
-  // not a turn — see the tap below.
-  tapSlopDeg: 2,
   grab: (ring) => {
     dragging.add(ring);
     svg.classList.add('grabbing');
@@ -820,19 +846,21 @@ HoldTurn.attachDrag(svg, {
     r.dial.style.transition = 'none';
     r.dial.style.transform = `rotate(${residualDeg}deg)`;
   },
-  release: (ring, info) => {
+  release: (ring, residualDeg) => {
     // `onHoldStop` — and with it the read — only once the snap has settled:
     // `activeHolds` stays positive through the settle, so the gate in
     // `releaseRead` cannot let a checked verdict land over a disc that is
     // still visibly moving.
-    void snapRing(ring, info.residualDeg).then(() => {
+    //
+    // A press that turned nothing turns nothing. This scene used to advance
+    // one part on a click, and carrying that over as a "tap" was measured
+    // doing the wrong thing: a hand rested on a disc for two seconds and
+    // lifted off advanced it, and a grab this scene deliberately refused to
+    // move still moved on release. Single-stepping is the step buttons' job
+    // and the keyboard's, both of which this scene now has.
+    void snapRing(ring, residualDeg).then(() => {
       dragging.delete(ring);
       if (dragging.size === 0) svg.classList.remove('grabbing');
-      // A press that turned nothing keeps this scene's own click-to-turn:
-      // one part forward, the behaviour a click on a disc has always had.
-      // Queued after `dragging` is given up, or `stepRing` would decline it
-      // as belonging to the grab.
-      if (info.tap) void stepRing(ring, 1);
       onHoldStop();
     });
   },
