@@ -7,7 +7,7 @@
 </header>
 <div class="denckring-stage scene-split">
   <div class="rings-wrap">
-    <svg id="rings" class="rings-svg" viewBox="0 0 600 600" role="img"
+    <svg id="rings" class="rings-svg turnable-figure" viewBox="0 0 600 600" role="img"
          aria-label="Five concentric discs of German word parts">
       {% for slot in rings.slots %}
       {# `data-default-index` seeds first paint on Harsdörffer's own example,
@@ -20,6 +20,32 @@
          data-default-index="{{ pieces[loop.index0] }}"></g>
       {% endfor %}
     </svg>
+    {# The step controls, one pair per disc, wired up by the shared
+       `hold_turn.js` — the same block scene seven carries, and the reason it
+       was written scene-agnostic. They are the keyboard path: real
+       `<button>`s a viewer can tab to and hold with Enter or Space, which is
+       what the drag on the discs themselves can never be.
+
+       Labelled I to V, not by slot name: five German compound names
+       (`anfangsbuchstabe` is sixteen characters) would wrap this row onto a
+       second line and cost the stage its bottom margin, and this scene
+       already calls its discs by numeral — the rhyme panel below says "ring
+       II". The names are on each button's `aria-label`, where a screen
+       reader gets the real thing, and in the legend opposite. #}
+    <div class="hold-controls" id="ring-holds">
+      {% for slot in rings.slots %}
+      {% set ring_name = ['I', 'II', 'III', 'IV', 'V'][loop.index0] %}
+      <div class="hold-group" data-ring-index="{{ loop.index0 }}">
+        <span class="hold-label">{{ ring_name }}</span>
+        <button type="button" class="hold-btn" data-hold-ring="{{ loop.index0 }}"
+                data-hold-dir="-1"
+                aria-label="Turn the {{ slot.name }} disc back">&lsaquo;</button>
+        <button type="button" class="hold-btn" data-hold-ring="{{ loop.index0 }}"
+                data-hold-dir="1"
+                aria-label="Turn the {{ slot.name }} disc on">&rsaquo;</button>
+      </div>
+      {% endfor %}
+    </div>
   </div>
   <div class="control-panel">
     <p class="scene-note">The rings give <q lang="de">blinde oder deutunglose Wörter</q>
@@ -29,6 +55,13 @@
         {% include "_stage_word.html" %}
       </div>
     </div>
+    {# The scene's announcement to a screen reader, and the whole of it —
+       the same one scoped line scene seven settled on rather than an
+       `aria-live` around the whole panel, which a held button re-announces
+       several times a second. Outside the swapped `#word`, so it is
+       rewritten and never replaced. #}
+    <p class="visually-hidden" id="denckring-status" role="status" aria-live="polite"
+       aria-atomic="true"></p>
     <form class="actions" hx-post="/stage/denckring/act" hx-target="#word" hx-trigger="submit">
       <input type="hidden" name="word" id="word-field">
       <button type="submit">Read it</button>
@@ -143,38 +176,77 @@ const SETTLE_MS = [260, 190, 130, 80]; // the last four true steps, slowing to a
 const svg = document.getElementById('rings');
 const rings = [];
 
-// Whether anything on the stage is mid-turn. A per-ring `spinning` flag
-// looked sufficient but wasn't: a manual click landing on a ring that is
+// Whether a server round trip owns the discs. A per-ring `spinning` flag
+// looked sufficient but wasn't: a hand-turn landing on a ring that is
 // mid-spin, or a second "Turn them for me" landing before the first spin has
 // reached every ring, would each find that one ring's flag already true and
 // just silently drop the request — leaving that ring stranded on whatever it
 // was already turning to while the panel had already moved on to a new word.
-// So the whole assembly goes inert together: while anything is moving, no
-// new turn can start at all, refused rather than queued (it reads better on
+// So the whole assembly goes inert together: while a spin is running, no new
+// turn can start at all, refused rather than queued (it reads better on
 // camera than a request that visibly waits its turn), and the discs show it
-// — not-allowed cursor, buttons disabled — rather than quietly eating clicks.
+// — not-allowed cursor, buttons disabled — rather than quietly eating the
+// gesture. What has changed since is that "a round trip is in flight" and "a
+// round trip is going to *move* these discs" are no longer the same thing:
+// see `wheelsOwned` below.
 let inert = false;
+// Whether the round trip that owns the rings is one that will *move* them (a
+// turn, a find, a rhyme sweep) or one that only reads where they already
+// are. A hold- or drag-release read moves nothing, so there is no reason for
+// it to take the discs away from a hand that is still on them — scene seven
+// measured that mistake as a whole gesture producing no movement at all
+// while a slow response was in flight.
+let wheelsOwned = true;
+// Set for exactly one submit, by `releaseRead`, and read back synchronously
+// by `htmx:beforeRequest` (which `requestSubmit` reaches in the same task).
+let releaseSubmit = false;
+let activeHolds = 0; // discs currently being turned by hand
+// Discs a finger is turning directly, by index. A drag owns its ring
+// outright for the duration of the grab: a step button still held down (two
+// fingers, one on each) would otherwise write the same `r.index` and the
+// same `transform` from the other side and the two would fight over the
+// dial. The drag wins, and the held button's ticks for that one ring are
+// dropped while it does.
+const dragging = new Set();
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function setInert(value) {
-  inert = value;
-  svg.classList.toggle('spinning', inert);
+function refreshControls() {
+  // The discs are refused only while a round trip is actually going to move
+  // them. A release-read leaves them exactly where they are, and taking the
+  // controls away for it would kill a gesture still under a finger.
+  const owned = inert && wheelsOwned;
+  svg.classList.toggle('spinning', owned);
   // `.rhyme-controls` alongside `.actions`: a rhyme sweep turns the same
-  // rings a manual click or "turn them for me" would, so the same refusal
+  // rings a hand-turn or "turn them for me" would, so the same refusal
   // has to cover both button rows, not just the one that happened to start
-  // the current turn.
+  // the current turn. Both are also refused while a disc is being turned by
+  // hand — a second, server-driven mutation of the same indices is exactly
+  // what `inert` exists to prevent, and a hand on a disc is one too.
   document.querySelectorAll('.actions button, .rhyme-controls button').forEach((button) => {
-    button.disabled = inert;
+    button.disabled = inert || activeHolds > 0;
   });
   // aria-disabled, not just the cursor and the buttons — a keyboard user
   // gets no cursor to read, and the Enter/Space handler below checks this
   // same attribute rather than silently doing nothing.
   document.querySelectorAll('.ring-disc').forEach((disc) => {
-    disc.setAttribute('aria-disabled', String(inert));
+    disc.setAttribute('aria-disabled', String(owned));
   });
+  document.querySelectorAll('#ring-holds .hold-btn').forEach((button) => {
+    button.disabled = owned;
+  });
+}
+
+// The one place `inert` is given back, so every path that hands the discs
+// back to the client also replays whatever was held down while they were
+// not (see `flushDeferredSteps`).
+function clearInert() {
+  inert = false;
+  wheelsOwned = true;
+  refreshControls();
+  flushDeferredSteps();
 }
 
 function label(ring, index) {
@@ -224,7 +296,14 @@ function angleStep(r) {
 function microStep(ringIndex, duration, advance) {
   const r = rings[ringIndex];
   const finish = () => {
-    r.index = (r.index + advance) % r.total;
+    // Biased positive before the remainder: JavaScript's `%` keeps the
+    // dividend's sign, so `(0 + -1) % 120` is `-1`, not `119`. Nothing here
+    // ever asked for a negative `advance` until a disc could be turned
+    // backwards; `renderDial`'s own `(r.index + k) % r.total` then carried
+    // that negative index straight into `r.parts[-1]`, which is `undefined`.
+    // One `r.total` is enough while `advance` stays within ±`r.total`, which
+    // every caller here keeps it to.
+    r.index = (r.index + advance + r.total) % r.total;
     r.dial.style.transition = 'none';
     r.dial.style.transform = 'rotate(0deg)';
     renderDial(ringIndex);
@@ -248,22 +327,301 @@ function microStep(ringIndex, duration, advance) {
     r.dial.addEventListener('transitionend', onEnd);
     r.dial.style.transition = `transform ${duration}ms ease`;
     void r.dial.getBoundingClientRect(); // flush, so the transition itself is not skipped
-    r.dial.style.transform = `rotate(-${advance * angleStep(r)}deg)`;
+    // The sign goes *inside* the interpolation, not in the template. Written
+    // as `rotate(-${advance * ...})` this produced the literal string
+    // `rotate(--45deg)` for `advance = -1`; the browser rejects the whole
+    // declaration, `style.transform` reads back `""`, and the disc silently
+    // does not move at all — measured, not reasoned about.
+    r.dial.style.transform = `rotate(${-advance * angleStep(r)}deg)`;
     const fallback = setTimeout(settle, duration + 50);
   });
 }
 
-// A click on a disc: one deliberate turn, the others holding — the manual
-// control the brief asks for, live on the disc itself rather than a button
-// beside it. Its own fixed, unhurried duration — a single step never needs
-// the blur/settle split a many-step spin does. Refused outright while
-// anything else is moving, rather than silently ignored — see `inert` above.
-function turnOne(ringIndex) {
-  if (inert) return;
-  setInert(true);
-  microStep(ringIndex, prefersReducedMotion() ? 0 : 220, 1).then(() => {
-    setInert(false);
+// ── Turning a disc by hand ───────────────────────────────────────────────
+//
+// Two gestures, one model. A step button held down repeats through
+// `hold_turn.js`'s `attach`; a finger or a mouse on the disc itself turns it
+// live through the same file's `attachDrag`. Both land here, both count as
+// "a disc is being turned by hand", and both leave the panel opposite in the
+// same honest state until the discs are at rest.
+
+// One step's animation, and the cadence a held button repeats at, per ring.
+// The shared default (260ms, then 200ms) is right for a ring a viewer can
+// cross in a few seconds; `endbuchstabe` has 120 parts, and at that rate a
+// full lap is nearly half a minute of holding. The three larger rings tick
+// faster and animate shorter to match — the two numbers have to move
+// together, because a step animation longer than the repeat queues steps
+// faster than they can land.
+const FAST_RING_PARTS = 48;
+const FAST_REPEAT_MS = 100;
+const SLOW_REPEAT_MS = 200;
+
+function isFastRing(ringIndex) {
+  return rings[ringIndex].total >= FAST_RING_PARTS;
+}
+
+function repeatMsFor(ringIndex) {
+  return isFastRing(ringIndex) ? FAST_REPEAT_MS : SLOW_REPEAT_MS;
+}
+
+function stepMsFor(ringIndex) {
+  return isFastRing(ringIndex) ? 70 : 130;
+}
+
+// The settle when a grabbed disc is let go. A volvelle has discrete
+// positions, so a drag that stops between two of them clicks into the nearer
+// one rather than resting askew. No momentum: paper has friction, and a
+// flick stops where the finger stopped.
+const SNAP_MS = 150;
+
+// The word the discs spell right now, straight off their own indices. A true
+// statement about where the rings are, and cheap enough to make on every
+// step; the two verdicts are a different kind of claim (is this a reading of
+// these rings, does German know it) and only the server can make them, so
+// they are never approximated here — see `setVerdictTurning`.
+function renderLocalWord() {
+  const el = document.querySelector('#word .word');
+  if (el) el.textContent = rings.map((r) => label(r, r.index)).join('');
+}
+
+// The panel's one honest state while a disc is moving. Both verdicts are
+// replaced rather than removed — two lines out and one in would shorten the
+// panel and shift everything under it every time a hand touched a disc — and
+// both say what they are waiting on. Idempotent, and called from every path
+// that can leave a real, checked verdict standing over a ring that has since
+// moved; never once, on a transition.
+const TURNING_VERDICTS = [
+  { cls: 'verdict-rings', text: 'off the rings — turning…' },
+  { cls: 'verdict-known', text: 'a word German knows — turning…' },
+];
+
+function setVerdictTurning() {
+  const panel = document.getElementById('word');
+  if (!panel) return;
+  panel.querySelectorAll('.verdict').forEach((el) => {
+    if (!el.classList.contains('turning')) el.remove();
+  });
+  TURNING_VERDICTS.forEach((line) => {
+    if (panel.querySelector('.verdict.turning.' + line.cls)) return;
+    const el = document.createElement('p');
+    el.className = 'verdict turning ' + line.cls;
+    el.textContent = line.text;
+    panel.appendChild(el);
+  });
+}
+
+// One short sentence into the status line beside the panel — never the panel
+// itself, which is rewritten several times a second while a disc turns.
+function announce(text) {
+  const status = document.getElementById('denckring-status');
+  if (status) status.textContent = text;
+}
+
+// What a viewer can see the moment the discs stop: the word they landed on
+// and what the two checks said about it. Skipped while a hand is still on a
+// disc, or while the verdicts are the placeholder — there is nothing settled
+// to say yet, and the release that follows will say it.
+function announceReading() {
+  if (activeHolds > 0) return;
+  const wordEl = document.querySelector('#word .word');
+  const verdicts = document.querySelectorAll('#word .verdict');
+  if (!wordEl || verdicts.length === 0) return;
+  if (document.querySelector('#word .verdict.turning')) return;
+  const said = [];
+  verdicts.forEach((el) => said.push(el.textContent.replace(/\s+/g, ' ').trim()));
+  announce(wordEl.textContent.trim() + ': ' + said.join('; '));
+}
+
+// Every step's own animation-plus-settle is chained onto this rather than
+// left to run loose: a release fires the instant a pointer or key lets go,
+// which can land in the middle of the last step's own `microStep`. A release
+// that submitted "Read it" right then would post the hidden field's still-
+// stale value, and that last step's own local render would land *after* the
+// server's response had already swapped the panel — overwriting a correct,
+// checked verdict with a word that no longer matched it. `releaseRead`
+// drains this same chain before it reads the discs at all.
+let pendingStep = Promise.resolve();
+
+// Steps a still-held button asked for while `inert` was true, per ring, as a
+// net advance.
+const deferredAdvance = new Map();
+
+// One hand-driven step of one disc. `advance` is whatever the caller means
+// by one move: ±1 from a held button or the keyboard, and the accumulated
+// catch-up below. Always by *index* — never by the text a ring happens to
+// show, which `endbuchstabe` (120 parts, two of them repeated) cannot be
+// positioned by at all.
+function stepRing(ringIndex, advance) {
+  if (dragging.has(ringIndex)) return pendingStep; // the grab owns this ring
+  if (inert) {
+    // Not dropped: a button whose finger is still down goes on ticking
+    // through a round trip, and discarding those steps is invisible on a
+    // 20ms local response and loses the whole gesture on a slow link. They
+    // are accumulated per ring instead and replayed as one catch-up step
+    // once the swap has landed (`flushDeferredSteps`) — a net rather than a
+    // list, because a stalled request must not queue a minute of animation.
+    deferredAdvance.set(ringIndex, (deferredAdvance.get(ringIndex) || 0) + advance);
+    return pendingStep;
+  }
+  pendingStep = pendingStep.then(async () => {
+    await microStep(ringIndex, prefersReducedMotion() ? 0 : stepMsFor(ringIndex), advance);
+    renderLocalWord();
     assemble();
+  });
+  return pendingStep;
+}
+
+// Replay what a still-held button asked for during a round trip, once the
+// discs are the client's again. Each ring's net advance is taken the short
+// way round, as a single step rather than a stored-up run of them: on a ring
+// of 120 that is at worst 60 parts, not the several hundred a long stall
+// could otherwise accumulate.
+function flushDeferredSteps() {
+  if (deferredAdvance.size === 0) return;
+  const queued = [...deferredAdvance.entries()];
+  deferredAdvance.clear();
+  let moved = false;
+  queued.forEach(([ringIndex, advance]) => {
+    const total = rings[ringIndex].total;
+    let net = ((advance % total) + total) % total;
+    if (net > total / 2) net -= total;
+    if (net === 0) return;
+    moved = true;
+    void stepRing(ringIndex, net);
+  });
+  // The swap that just landed put a real verdict on screen for the word the
+  // *previous* read submitted, and the catch-up below moves the discs off
+  // it. The placeholder goes back up first, or that stale verdict stands
+  // over the new word for a whole further round trip.
+  if (moved) {
+    setVerdictTurning();
+    void releaseRead();
+  }
+}
+
+function onHoldStart() {
+  activeHolds++;
+  // Re-armed on *every* start rather than only on the 0-to-1 transition: a
+  // read that was already in flight when this one began lands a real,
+  // checked verdict in the panel a moment later, with this disc still
+  // turning under it. `htmx:afterSwap` re-arms for that case too; this
+  // covers the reverse order, where the swap had already landed before the
+  // hand came down.
+  setVerdictTurning();
+  if (activeHolds === 1) {
+    refreshControls();
+    announce('Turning the discs.');
+  }
+}
+
+function onHoldStop() {
+  activeHolds = Math.max(0, activeHolds - 1);
+  if (activeHolds === 0) {
+    void releaseRead();
+  }
+}
+
+// Guards a release-then-immediately-re-hold landing two calls on top of each
+// other: both would drain the same queue, and without this both could go on
+// to submit once it empties.
+let releasePending = false;
+
+// Once every held disc has stopped, the preview a viewer has been watching
+// becomes a real, checked verdict — a plain submit of the same form "Read
+// it" itself uses, so the server sees no difference between a hand-turned
+// word and one confirmed by clicking "Read it" outright.
+async function releaseRead() {
+  if (releasePending) return;
+  releasePending = true;
+  // Awaiting `pendingStep` once is not enough: it only snapshots whichever
+  // step was queued *before* this line ran, and a step from a disc still
+  // being held — or a second disc grabbed a beat later — chains itself onto
+  // a *new* `pendingStep` after that snapshot was taken. Drain in a loop
+  // until nothing new was queued during the final wait.
+  let awaited;
+  do {
+    awaited = pendingStep;
+    await awaited;
+  } while (pendingStep !== awaited);
+  releasePending = false;
+  // An empty queue is not the condition — every hold being over is. A hold
+  // satisfies "the queue is empty" twice a second all by itself, in the gap
+  // between one step landing and the next repeat being queued, and a read
+  // submitted through that gap lands a checked verdict over discs that go on
+  // turning underneath it. The hold still running will call this again when
+  // it stops; there is nothing to do here but put the placeholder back, in
+  // case an earlier read's own swap replaced it.
+  if (activeHolds > 0) {
+    setVerdictTurning();
+    return;
+  }
+  if (inert) return;
+  assemble();
+  releaseSubmit = true;
+  document.querySelector('.actions').requestSubmit();
+  releaseSubmit = false;
+}
+
+// Where the figure's centre actually is on screen, asked of the SVG itself
+// rather than worked out from `getBoundingClientRect` and the viewBox: the
+// element is styled in CSS pixels and the viewBox is its own 600-unit space,
+// and `getScreenCTM` is the one thing that knows the mapping between them
+// however the stylesheet is retuned.
+function figureCenter() {
+  const ctm = svg.getScreenCTM();
+  const point = svg.createSVGPoint();
+  point.x = CENTER;
+  point.y = CENTER;
+  const mapped = point.matrixTransform(ctm);
+  return { x: mapped.x, y: mapped.y };
+}
+
+// One detent crossed under the finger. Deliberately not `microStep`: there
+// is nothing to animate — the pointer is already where the disc should be,
+// and the transform the drag itself writes is what shows the movement. So
+// this is `microStep`'s `finish` without the transform reset, which the
+// caller replaces with the residual a moment later.
+function dragCommit(ringIndex, delta) {
+  if (!delta) return;
+  const r = rings[ringIndex];
+  r.index = (((r.index + delta) % r.total) + r.total) % r.total;
+  renderDial(ringIndex);
+  renderLocalWord();
+  assemble();
+}
+
+// The settle onto the nearest detent. Never resolves on `transitionend`
+// alone — `explorer.css` kills every transition under
+// `prefers-reduced-motion`, so the event would never come. Under that
+// preference the disc simply lands, which is right: the drag itself is
+// direct manipulation, not animation, and only the settle is theatre.
+function snapRing(ringIndex, residualDeg) {
+  const r = rings[ringIndex];
+  const land = () => {
+    r.dial.style.transition = 'none';
+    r.dial.style.transform = 'rotate(0deg)';
+  };
+  if (!residualDeg || prefersReducedMotion()) {
+    land();
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      r.dial.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+      land();
+      void r.dial.getBoundingClientRect();
+      resolve();
+    };
+    const onEnd = () => settle();
+    r.dial.addEventListener('transitionend', onEnd);
+    r.dial.style.transition = `transform ${SNAP_MS}ms ease`;
+    void r.dial.getBoundingClientRect();
+    r.dial.style.transform = 'rotate(0deg)';
+    const fallback = setTimeout(settle, SNAP_MS + 50);
   });
 }
 
@@ -335,15 +693,24 @@ function buildRing(ringIndex) {
   disc.setAttribute('role', 'button');
   disc.setAttribute('aria-label', 'Turn the ' + g.dataset.name + ' disc');
   disc.setAttribute('aria-disabled', 'false');
-  disc.addEventListener('click', () => turnOne(ringIndex));
+  // No `click` listener any more: a press on a disc is a grab now (see
+  // `HoldTurn.attachDrag` below), and a press that turns nothing is reported
+  // back as a tap, which steps the disc once — the same single turn a click
+  // has always given this scene, from inside the gesture rather than beside
+  // it. Two handlers for one press would step it twice.
   disc.addEventListener('keydown', (evt) => {
     if (evt.key !== 'Enter' && evt.key !== ' ') return;
     evt.preventDefault();
     // Respect the same refusal a mouse gets from `inert`/the cursor change
-    // — `turnOne` would no-op anyway, but a keyboard user gets nothing to
-    // see from a cursor, so the attribute has to carry the refusal instead.
+    // — a keyboard user gets nothing to see from a cursor, so the attribute
+    // has to carry the refusal instead.
     if (disc.getAttribute('aria-disabled') === 'true') return;
-    turnOne(ringIndex);
+    if (evt.repeat) return;
+    // Through the same pair a held button reports, so one keyed turn arms
+    // the placeholder and reads the discs afterwards exactly as a hold does.
+    onHoldStart();
+    void stepRing(ringIndex, 1);
+    onHoldStop();
   });
   g.appendChild(disc);
 
@@ -402,6 +769,74 @@ function buildRing(ringIndex) {
 });
 [4, 3, 2, 1, 0].forEach(buildRing);
 assemble();
+
+// The step buttons beneath the discs. `#ring-holds` sits outside `#word`,
+// the only region htmx ever swaps here, so this one call wires them for the
+// life of the page — `attach` scans its container once and knows nothing
+// about controls rendered later.
+HoldTurn.attach(document.getElementById('ring-holds'), {
+  step: (ring, dir) => {
+    void stepRing(ring, dir);
+  },
+  start: onHoldStart,
+  stop: onHoldStop,
+  repeatMs: repeatMsFor,
+});
+
+// Grab a disc and it turns with your hand. The hit test is the SVG's own:
+// the discs are painted largest first so each smaller one covers the last,
+// and `.ring-dial` is `pointer-events: none`, so whatever the pointer is
+// over resolves to exactly one `[data-ring]` group — the band the pointer is
+// physically in, not the nearest one or the topmost `<g>` in document order.
+HoldTurn.attachDrag(svg, {
+  ringAt: (evt) => {
+    // A round trip that is going to move these discs itself owns them; a
+    // read of where they already are does not.
+    if (inert && wheelsOwned) return null;
+    const g = evt.target.closest ? evt.target.closest('[data-ring]') : null;
+    return g ? Number(g.dataset.ring) : null;
+  },
+  center: figureCenter,
+  // One detent is one *true part*, which on a windowed ring is one spoke's
+  // worth of angle — `angleStep` already knows, and it differs per ring
+  // (45° on the eight-spoke hub, 15° on the twenty-four-spoke rim).
+  angleStep: (ring) => angleStep(rings[ring]),
+  // A press that never left this much of the disc's own angle is a press,
+  // not a turn — see the tap below.
+  tapSlopDeg: 2,
+  grab: (ring) => {
+    dragging.add(ring);
+    svg.classList.add('grabbing');
+    // The same start every held button reports, so `activeHolds`, the
+    // placeholder and the submit gate all cover a drag without knowing it
+    // is one.
+    onHoldStart();
+  },
+  turn: (ring, delta, residualDeg) => {
+    dragCommit(ring, delta);
+    const r = rings[ring];
+    // No transition: the disc is under the finger. Anything eased here
+    // would be lag, which is the one thing this gesture cannot have.
+    r.dial.style.transition = 'none';
+    r.dial.style.transform = `rotate(${residualDeg}deg)`;
+  },
+  release: (ring, info) => {
+    // `onHoldStop` — and with it the read — only once the snap has settled:
+    // `activeHolds` stays positive through the settle, so the gate in
+    // `releaseRead` cannot let a checked verdict land over a disc that is
+    // still visibly moving.
+    void snapRing(ring, info.residualDeg).then(() => {
+      dragging.delete(ring);
+      if (dragging.size === 0) svg.classList.remove('grabbing');
+      // A press that turned nothing keeps this scene's own click-to-turn:
+      // one part forward, the behaviour a click on a disc has always had.
+      // Queued after `dragging` is given up, or `stepRing` would decline it
+      // as belonging to the grab.
+      if (info.tap) void stepRing(ring, 1);
+      onHoldStop();
+    });
+  },
+});
 
 // Rhyme mode: the quotation turned into something the discs actually do,
 // rather than only something written near them. `/stage/denckring/rhyme`
@@ -473,11 +908,11 @@ async function runRhymeSweep(sweepData) {
   }
   status.textContent = finalStatus;
   // The rings ended up somewhere "Read it" has never seen — bring the hidden
-  // field back in line with them, the same invariant a manual click or a
-  // spin both keep (see `assemble`), so a "Read it" straight after a sweep
-  // checks what is actually on the discs rather than whatever it last saw.
+  // field back in line with them, the same invariant a hand-turn or a spin
+  // both keep (see `assemble`), so a "Read it" straight after a sweep checks
+  // what is actually on the discs rather than whatever it last saw.
   assemble();
-  setInert(false);
+  clearInert();
 }
 
 // Every submit of `.actions` or `.rhyme-controls` sets `inert` synchronously
@@ -490,14 +925,19 @@ async function runRhymeSweep(sweepData) {
 // a "Read it" and a "Find me one" a moment apart — are strictly ordered by
 // the single-threaded event loop: whichever runs its handler first wins,
 // and the second finds `inert` already true and is refused outright, the
-// same "refused, not queued" rule `turnOne` already followed.
+// same "refused, not queued" rule a hand-turn on a disc still follows.
 document.body.addEventListener('htmx:beforeRequest', (evt) => {
   if (!evt.target.matches('.actions, .rhyme-controls')) return;
   if (inert) {
     evt.preventDefault();
     return;
   }
-  setInert(true);
+  inert = true;
+  // A release-read is the one round trip that will not move these discs, and
+  // `releaseRead` set this flag one statement before `requestSubmit`, which
+  // reaches this handler on the same JS turn.
+  wheelsOwned = !releaseSubmit;
+  refreshControls();
 });
 
 // Every request `.actions`/`.rhyme-controls` sends must eventually clear
@@ -511,11 +951,22 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     if (data) {
       runRhymeSweep(data.dataset); // clears `inert` itself once the sweep ends
     } else {
-      setInert(false);
+      clearInert();
     }
     return;
   }
   if (evt.target.id !== 'word') return;
+  // The swap brings whole new verdict elements with it, checked for the word
+  // that was submitted, and the word itself printed from the same parts. If
+  // a disc is being turned right now both are already out of date — the
+  // placeholder goes straight back on, and the word is re-rendered from
+  // where the discs actually are, or the panel shows the server's older
+  // reading until the next step crosses a detent. A drag can rest between
+  // two of them for as long as a hand likes.
+  if (activeHolds > 0) {
+    setVerdictTurning();
+    renderLocalWord();
+  }
   // The five positions come back on the fragment as `data-positions`; walk
   // each disc to the position that produced the word, innermost first and
   // each a beat later than the last, so the word assembles one part at a
@@ -525,7 +976,8 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.positions;
   if (!raw) {
-    setInert(false);
+    clearInert();
+    announceReading();
     return;
   }
   const positions = raw.split('|').map(Number);
@@ -537,8 +989,9 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
         })
     )
   ).then(() => {
-    setInert(false);
+    clearInert();
     assemble();
+    announceReading();
   });
 });
 
@@ -548,8 +1001,8 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
 // `htmx:afterSwap`. Neither is expected from this app's own routes, but a
 // stage that can freeze itself for the rest of a recording over one dropped
 // request is worse than one extra safety net.
-document.body.addEventListener('htmx:responseError', () => setInert(false));
-document.body.addEventListener('htmx:sendError', () => setInert(false));
+document.body.addEventListener('htmx:responseError', clearInert);
+document.body.addEventListener('htmx:sendError', clearInert);
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
