@@ -2692,6 +2692,19 @@ def test_the_drag_source_owes_a_read_for_a_ring_turned_during_a_round_trip() -> 
         clear = re.search(r"function clearInert\(\) \{(.*?)\n\}", script, re.S)
         assert clear is not None
         assert "flushDeferredSteps();" in clear.group(1)
+        # The choke point itself, pinned rather than left true by luck. What
+        # makes this a funnel and not a fourth way to move a ring is that the
+        # debt has one writer and one consumer, and that the consumer has one
+        # caller. Each of the four previous instances of this defect arrived by
+        # a movement path that did not go where the others went, so a second
+        # consumer appearing later is exactly the shape to guard against — and
+        # every assertion above would still pass if one did.
+        code = "\n".join(line for line in script.splitlines() if not line.strip().startswith("//"))
+        # `let deferredRead = false;`, the write in the mover, and the read and
+        # the clear in `flushDeferredSteps` — four, and no fifth.
+        assert code.count("deferredRead") == 4, mover
+        # The definition, and `clearInert` as its only caller.
+        assert code.count("flushDeferredSteps") == 2, mover
 
 
 def test_the_denckring_source_turns_its_rings_backwards_by_index() -> None:
