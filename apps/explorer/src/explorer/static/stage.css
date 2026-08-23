@@ -710,17 +710,6 @@
   color: var(--rubric-soft);
 }
 
-/* A disc being turned by hand lands the word above in a client-rendered
-   preview (see the scene's own script) rather than a real, checked verdict —
-   these are the neutral placeholders that stand in for the two while that is
-   true, the same role `.llull-reading-panel .verdict.turning` plays on scene
-   seven. Not `.yes`/`.no`: neither colour has been earned yet. Both lines
-   stay, so the panel does not change height every time a hand touches a
-   disc. */
-.word-panel .verdict.turning {
-  color: var(--lead);
-}
-
 /* The counter and its own arithmetic, folded into one paragraph rather than
    a panel of grid cells and a note underneath: the true count, the struck
    figure the literature repeats, why it is struck (its own prime factors
@@ -1749,12 +1738,17 @@
   color: var(--lead);
 }
 
-/* A held wheel's step lands the panel above in a client-rendered preview
-   (see the scene's own script) rather than a real, checked verdict — this
-   is the neutral placeholder that stands in for the verdict while that is
-   true, the same role `.displaced-area .verdict.none` plays when N+7 has
-   nothing to judge. Not `.yes`/`.no`: a claim neither of those colours has
-   earned yet. */
-.llull-reading-panel .verdict.turning {
+/* A wheel or disc being turned by hand lands the panel above in a
+   client-rendered preview (see each scene's own script) rather than a real,
+   checked verdict — this is the neutral placeholder that stands in for the
+   verdict while that is true, the same role `.displaced-area .verdict.none`
+   plays when N+7 has nothing to judge. Not `.yes`/`.no`: a claim neither of
+   those colours has earned yet. Both volvelles, in one rule: scene one shipped
+   a byte-identical copy of this in its own section for one round, which is
+   exactly the drift the shared-machinery note at the top of this file warns
+   about. Scene one puts the placeholder on *both* its verdict lines rather
+   than collapsing them to one, so its panel keeps its height under a hand. */
+.llull-reading-panel .verdict.turning,
+.word-panel .verdict.turning {
   color: var(--lead);
 }
