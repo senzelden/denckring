@@ -160,6 +160,29 @@ supply the reading:
 denckring check ideenwuerfeln throw.txt --source my-excerpts.json
 ```
 
+### Bringing your own device
+
+A device — the Denckring's rings, Llull's figure or the Poesie-Automat's board — ships
+with its own word-lists, but they do not have to be the only ones. Set
+`DENCKRING_DEVICE_PATH` to a colon-separated list of directories, and `denckring.core.
+device.load` searches them, in order, before the directory this package ships — so a
+directory earlier on the path can add a device under a new id, or shadow a packaged one
+under an existing id:
+
+```console
+DENCKRING_DEVICE_PATH=/path/to/my/devices denckring check denckring wort --device my_rings
+```
+
+Each directory holds one YAML file per device, named `<id>.yaml`, in the shape the
+packaged devices already use (see `src/denckring/data/devices/`). A directory that does
+not exist, or cannot be read, is skipped rather than raised on — a stale entry in the
+environment does not stop a packaged device from loading.
+
+What this does not give you: no schema versioning beyond ordinary YAML/Pydantic
+validation, no record of where a loaded device actually came from, and if a device on
+the path shadows a packaged id, the packaged device is simply not what ran — `load` has
+no way to say so, so a caller who needs to know must control what it puts on the path.
+
 ## The explorer
 
 A local browser for the catalogue and a bench for trying procedures on your own text,
