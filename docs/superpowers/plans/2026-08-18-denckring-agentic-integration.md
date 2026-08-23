@@ -183,6 +183,8 @@ Add one `code` line to each of the fifteen. Use the snake_case of the class name
 | `UnknownFigure` | `unknown_figure` |
 | `UnknownLevel` | `unknown_level` |
 | `DuplicatePack` | `duplicate_pack` |
+| `MalformedDevice` | `malformed_device` |
+| `MalformedFigure` | `malformed_figure` |
 
 - [x] **Step 5: Override `detail()` where there is something to say**
 

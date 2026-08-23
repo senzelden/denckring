@@ -41,10 +41,10 @@ def test_codes_are_unique() -> None:
     assert not duplicates, f"duplicate codes: {duplicates}"
 
 
-def test_there_are_fourteen_subclasses() -> None:
+def test_there_are_sixteen_subclasses() -> None:
     """Pins the inventory. If this fails, a class was added or removed and the
     codes table in the spec needs the same edit."""
-    assert len(subclasses()) == 14
+    assert len(subclasses()) == 16
 
 
 def test_to_dict_carries_code_and_message() -> None:

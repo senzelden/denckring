@@ -170,7 +170,7 @@ directory earlier on the path can add a device under a new id, or shadow a packa
 under an existing id:
 
 ```console
-DENCKRING_DEVICE_PATH=/path/to/my/devices denckring check denckring wort --device my_rings
+DENCKRING_DEVICE_PATH=/path/to/my/devices denckring check denckring wort.txt --param device=my_rings
 ```
 
 Each directory holds one YAML file per device, named `<id>.yaml`, in the shape the
@@ -182,6 +182,13 @@ What this does not give you: no schema versioning beyond ordinary YAML/Pydantic
 validation, no record of where a loaded device actually came from, and if a device on
 the path shadows a packaged id, the packaged device is simply not what ran — `load` has
 no way to say so, so a caller who needs to know must control what it puts on the path.
+The id itself is untrusted input and is validated down to a bare name — no path
+separators, no `..`, not absolute — so a cartridge must live *in* a directory on the
+path; it cannot be addressed by giving it a path of its own. A relative entry in
+`DENCKRING_DEVICE_PATH` resolves against the process's current working directory at
+call time, not against wherever the variable was set, so a caller who sets it once and
+later changes directory gets silent misses under the same skip-quietly contract as a
+directory that never existed.
 
 ## The explorer
 

@@ -87,3 +87,19 @@ def test_no_description_sends_the_model_to_a_tool_that_is_not_there() -> None:
     for tool in tools:
         referenced = set(re.findall(r"`(\w+)`", tool.description or ""))
         assert not referenced & internal, f"{tool.name} names an internal function"
+
+
+def test_a_device_path_that_escapes_its_search_directories_is_data_not_a_leak() -> None:
+    """The path a client supplies for `device` is exactly as untrusted as any other param.
+
+    `check_text_tool` passes `params` straight through to `check(...)`, so a model
+    asking for `device="../../etc/passwd"` reaches `device.load` directly — the same
+    route the CLI's `--param device=...` takes. The fix lives in `device.load`
+    (`tests/test_device.py` covers it in depth); this pins that the MCP tool, which is
+    what actually exposes `device` to a model, surfaces the rejection as ordinary data
+    rather than as a transport failure — or as a loaded file.
+    """
+    result = check_text_tool(
+        "denckring", "wort", {"device": "../../../../../../etc/passwd"}, lang="de"
+    )
+    assert result["code"] == "unknown_device"

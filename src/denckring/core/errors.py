@@ -225,6 +225,41 @@ class MalformedCorpus(DenckringError):
         super().__init__(f"That corpus cannot be read: {reason}")
 
 
+class MalformedDevice(DenckringError):
+    """A device file exists under a valid id, but its content cannot be read.
+
+    Raised instead of letting the underlying YAML or Pydantic error escape.
+    Both quote fragments of the file's own content in their default message
+    — harmless for a device this package ships, not harmless for one read
+    from `DENCKRING_DEVICE_PATH`, which is arbitrary user-authored YAML.
+    `reason` is deliberately short and holds nothing read from the file
+    itself: a parser exception's class name, or a count of validation
+    errors, never a value out of the document.
+    """
+
+    code = "malformed_device"
+
+    def __init__(self, path: str, reason: str) -> None:
+        self.path = path
+        super().__init__(f"The device at {path!r} cannot be read: {reason}")
+
+    def detail(self) -> dict[str, Any]:
+        return {"path": self.path}
+
+
+class MalformedFigure(DenckringError):
+    """The same failure mode as `MalformedDevice`, for a figure file."""
+
+    code = "malformed_figure"
+
+    def __init__(self, path: str, reason: str) -> None:
+        self.path = path
+        super().__init__(f"The figure at {path!r} cannot be read: {reason}")
+
+    def detail(self) -> dict[str, Any]:
+        return {"path": self.path}
+
+
 class UnknownFigure(DenckringError):
     code = "unknown_figure"
 

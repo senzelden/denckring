@@ -377,10 +377,42 @@ All notable changes to this project are documented here. The format follows
   so after the fact. The environment is read on every call rather than cached at import
   time, and the on-disk read `load` used to memoise by `device_id` alone is now memoised
   by the resolved path instead — a cache keyed on the id would have kept answering a
-  changed environment with whatever device it saw first.
+  changed environment with whatever device it saw first. A device or figure id is
+  validated to a bare filename stem before it is ever joined to a directory (see Fixed,
+  below), so a cartridge lives *in* a directory on the path and cannot be addressed by
+  a path of its own; a relative directory on the path resolves against the process's
+  working directory at call time, so changing directory after setting the variable can
+  turn into silent misses under the same skip-quietly contract.
 
 ### Fixed
 
+- `device.load` and `device.load_figure` built a filename by interpolating the caller's
+  id directly — `directory / f"{item_id}.yaml"` — which `Path` does not make safe:
+  `Path.__truediv__` silently discards the left operand when the right is absolute, and
+  a `..` segment is never rejected. An id of `/etc/passwd` or `../../etc/passwd` read
+  that file and returned it as though it were a device. This predates
+  `DENCKRING_DEVICE_PATH` — the same interpolation was already present for both loaders
+  when they only ever read the packaged directory — but the cartridge is what turns a
+  latent gap into a routine one: it multiplies the directories an id can escape from and
+  documents "point this at your own files" as a supported feature. It is reachable from
+  outside the process, not only from Python: `DeviceParams.device` is a bare `str`, an
+  MCP client supplies it directly via `mcp/server.py`'s `**(params or {})`, and the CLI
+  reaches it through `--param device=...`. Both loaders now validate an id as a bare
+  filename stem — no separators, no `..`, never absolute — through one shared helper,
+  and independently confirm the resolved path is inside the directory it was joined to,
+  so the rule and the filesystem agree. An id that fails either check is treated exactly
+  as an id no directory offers: `UnknownDevice`/`UnknownFigure`, not a different error.
+- A cartridge file that failed to parse as YAML, or parsed but did not fit the `Device`/
+  `Figure` schema, let the raw `yaml.YAMLError` or Pydantic `ValidationError` escape.
+  Both exceptions quote content from the file in their default message — a YAML parse
+  error echoes a snippet of the source around the failure, and a Pydantic error echoes
+  each offending value back — which is a content-disclosure path once a cartridge is by
+  design arbitrary user-authored YAML, and it broke the contract `mcp/server.py` states
+  in its own docstring: only a `DenckringError` is ever converted to data for a model to
+  act on. Both loaders now raise `MalformedDevice`/`MalformedFigure` — new
+  `DenckringError` subclasses alongside `MalformedTable` and `MalformedCorpus` — naming
+  the path and a short, content-free reason (an exception's class name, or a count of
+  validation errors) instead.
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
