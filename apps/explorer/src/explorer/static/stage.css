@@ -1256,8 +1256,9 @@
    read as a report rather than a page, and hung off the stage's own left
    padding rather than centred in it: the kicker, the title, the poem, the
    controls and the credit all start on one line down the page, which is
-   where the eye has already landed on the five scenes either side of this
-   one. Measured in a browser at every state (first paint, mid-deal, chrome
+   where the eye has already landed on every other scene. (This sentence used
+   to count the scenes; it was stale by two before anyone noticed, so it counts
+   nothing now.) Measured in a browser at every state (first paint, mid-deal, chrome
    off, both strip sets); see the task report for the numbers `.stage`'s
    720px clip has to hold. */
 .poem {
