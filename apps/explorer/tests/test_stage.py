@@ -2442,6 +2442,104 @@ def test_the_cut_lands_at_once_under_reduced_motion() -> None:
     assert "addEventListener('transitionend'" not in script
 
 
+def test_the_cut_source_frees_itself_when_a_request_never_comes_back() -> None:
+    """A source-level guard, and named as one; the browser reproduction is
+    `tests/browser/cut-blade.mjs wedge`.
+
+    `inert` is set before the request goes out and cleared in
+    `htmx:afterSwap` — and htmx does not swap on a non-2xx, so a 500 or a
+    dropped connection left it true forever. That is a *liveness* failure,
+    which the token and the placeholder cannot see: they are about a verdict
+    being stale, and here no verdict ever arrives. Measured before this
+    existed, with the route stubbed, both a 500 and an aborted request left
+    `{inert: true, cutDisabled: true, freshDisabled: true}` — every control
+    on the scene dead for the rest of the session — and moving a blade did
+    not recover it, because the gate reads `inert` too.
+
+    Both volvelles already carried these two lines. This scene now does."""
+    script = _cut_up_scene_script()
+    failed = re.search(r"function requestFailed\(\) \{(.*?)\n\}", script, re.S)
+    assert failed is not None
+    body = failed.group(1)
+    assert "inert = false;" in body
+    assert "refreshControls();" in body
+    assert "document.body.addEventListener('htmx:responseError', requestFailed);" in script
+    assert "document.body.addEventListener('htmx:sendError', requestFailed);" in script
+    # The same safety net the two volvelles carry, reached the same way.
+    for other in (_denckring_scene_script(), _llull_scene_script()):
+        assert "document.body.addEventListener('htmx:responseError', clearInert);" in other
+        assert "document.body.addEventListener('htmx:sendError', clearInert);" in other
+
+
+def test_the_placeholder_describes_the_page_not_what_happened_to_it() -> None:
+    """A source-level guard, and named as one.
+
+    Three paths reach the placeholder — a blade moved, the fresh-sheet
+    button, and a request that never came back — and a message naming any
+    one of them is wrong on the other two. So it names the page's own state
+    instead: the sheet is whole and nothing is cut, or it is in pieces no
+    verdict ever came back for. Both readings are true whichever path
+    arrived at them."""
+    script = _cut_up_scene_script()
+    turning = re.search(r"function setVerdictCutting\(\) \{(.*?)\n\}", script, re.S)
+    assert turning is not None
+    body = turning.group(1)
+    assert "cutState === 'cut'" in body
+    assert "the check did not come back" in body
+    assert "nothing cut" in body
+    # And nothing the page can *say* claims a blade moved when none did.
+    # Comments are stripped first: the code says why the old wording went,
+    # and that explanation must not be what fails this.
+    code = "\n".join(line for line in script.splitlines() if not line.strip().startswith("//"))
+    assert "the blade moved" not in code
+
+
+def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
+    """The trap the brief names: the old sixth scene's own container class
+    shared a rule with N+7's and the word ladder's own, and deleting the
+    whole block rather than renaming its one arm would have broken both
+    other scenes. This pins that `.cutup-area` took over that arm rather
+    than the group being deleted — and that the sonnet's own verdict, which
+    had grown a private rule at a fourth size, reads the same group now.
+
+    Size and margin are pinned here too. They were the two declarations
+    every scene used to override, which is how one sentence came to be set
+    four ways. Scene seven's own `.llull-reading-panel .verdict` joined the
+    same group rather than writing a private copy — see the task report.
+
+    Restored after the blade round deleted it. Scene six was rewritten from
+    the ground up that round and this went with the rewrite, which is
+    exactly the failure it exists to catch: four of the five scenes it
+    protects have nothing to do with cut-up, and the group it guards
+    survived untouched with nothing left pinning it."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
+    group = (
+        ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, "
+        ".poem-verdict, .llull-reading-panel .verdict"
+    )
+    assert group in normalised
+    body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
+    assert "font-size: 0.78rem;" in body
+    assert "margin: 0.5rem 0 0;" in body
+    # No scene may quietly take its size or margin back in a rule of its own.
+    # Compared against whole selector lists, not substrings: `.poem-verdict`
+    # is the tail of the shared list above and would match a naive `in`.
+    stripped = re.sub(r"/\*.*?\*/", " ", normalised, flags=re.S)
+    selectors = {
+        " ".join(block.split("{", 1)[0].split()) for block in stripped.split("}") if "{" in block
+    }
+    assert selectors.isdisjoint(
+        {
+            ".displaced-area .verdict",
+            ".ladder-wrap .verdict",
+            ".cutup-area .verdict",
+            ".poem-verdict",
+            ".llull-reading-panel .verdict",
+        }
+    )
+
+
 # ── scene seven: Llull's rotating figure ─────────────────────────────────────
 
 
