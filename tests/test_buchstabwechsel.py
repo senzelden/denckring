@@ -1,9 +1,15 @@
 """Buchstabwechsel — Harsdörffer's letter-exchange, not a copy of `anagram`.
 
-Pins the two ways Rule II (p. 514 of the *Erquickstunden*, 1651) differs from
-plain multiset equality: `h` is exempt from the count, and `u`/`i` must never be
-read as `v`/`j`. See `PRIMARY-SOURCE.md` and the module docstring in
-`denckring/procedures/buchstabwechsel.py` for the transcription and reasoning.
+Pins Rule II (p. 514 of the *Erquickstunden*, 1651). Only the h-exemption is a
+genuine behavioural difference from `anagram`'s multiset equality; the u/i-not-
+v/j prohibition is a rule Harsdörffer states explicitly but which `anagram`
+already satisfies by construction — its `fold_diacritics` never merged those
+letters — so the tests below pin that prohibition against future regression,
+not against a difference from `anagram` that exists today. See
+`PRIMARY-SOURCE.md`, the module docstring in
+`denckring/procedures/buchstabwechsel.py`, and the catalogue row's `notes` for
+the transcription, the reasoning, and the correction of an earlier, wrong claim
+that `anagram` would accept the swap.
 """
 
 import pytest
@@ -44,7 +50,10 @@ def test_a_plain_anagram_would_reject_the_dropped_h_but_this_row_accepts_it() ->
 def test_iohann_against_johann_fails() -> None:
     """Pinned per the brief: Rule II's "das u und i die Stimmer nicht für v und j
     setzend" refuses exactly the Latin-alphabet habit of writing I for
-    consonantal J. A checker that folded i/j together would accept this."""
+    consonantal J. `anagram` already rejects this pair too (see
+    `test_anagram_also_rejects_i_for_j_but_this_row_states_the_rule` below); a
+    checker whose folding merged i with j would not, which is the regression
+    this test guards against."""
     report = check("buchstabwechsel", "Iohann", lang="de", source="Johann")
     assert report.satisfied is False
     rules = {v.rule for v in report.violations}
@@ -58,15 +67,23 @@ def test_u_read_as_v_fails() -> None:
     assert report.satisfied is False
 
 
-def test_a_plain_anagram_would_wrongly_accept_u_for_v() -> None:
-    """`anagram`'s multiset equality under `fold_diacritics` does not merge u/v
-    either — this documents that the distinction buchstabwechsel pins is not
-    something anagram already gets wrong, only something anagram never states as
-    a rule at all. Both reject the same swap here; the difference is Rule II
-    says so explicitly, which is why this is `attested: author-stated` where
-    `anagram` is `attested: codified`."""
+def test_anagram_also_rejects_i_for_j_but_this_row_states_the_rule() -> None:
+    """Correction of an earlier draft: this row's own notes used to claim a
+    plain anagram check would wrongly *accept* an i-for-j or u-for-v swap, making
+    the prohibition a second reason buchstabwechsel is not a duplicate of
+    `anagram`. Measured, that is false — `anagram`'s `fold_diacritics` is
+    case-folding plus NFKD combining-mark stripping, which never merged those
+    letters, so `anagram` already rejects both pairs below on its own. Both
+    procedures give the same verdict here; the difference is that Harsdörffer
+    states the u/i-not-v/j prohibition as a rule (Rule II) and this row pins it
+    with its own test, so a future change to `fold_diacritics` that introduced
+    the merge would be caught here even if nothing else noticed. The genuine,
+    load-bearing reason this row is not a duplicate of `anagram` is the
+    h-exemption alone — see the tests above."""
     assert check("anagram", "Uater", lang="de", source="Vater").satisfied is False
     assert check("buchstabwechsel", "Uater", lang="de", source="Vater").satisfied is False
+    assert check("anagram", "Iohann", lang="de", source="Johann").satisfied is False
+    assert check("buchstabwechsel", "Iohann", lang="de", source="Johann").satisfied is False
 
 
 def test_missing_and_surplus_letters_are_reported_outside_h() -> None:

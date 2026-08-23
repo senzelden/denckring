@@ -978,10 +978,9 @@ procedures:
     definitions:
       en: >-
         A personal name whose letters are all rearranged into other words, with
-        the breath-sound h freely inserted or omitted and the vowels u and i
-        never read as the consonants v and j. Not an anagram: the checker holds
-        u, v, i and j apart and lets h differ between source and candidate,
-        which plain letter-for-letter anagram equality does not.
+        the breath-sound h freely inserted or omitted between source and
+        candidate. Not an anagram: `anagram` requires every letter, including h,
+        to match exactly, which a genuine Wechselschluß need not.
       de: >-
         Ein Personenname, dessen sämtliche Buchstaben zu anderen Wörtern
         umgestellt werden; der Hauchlaut h darf eingerückt oder übergangen
@@ -1032,7 +1031,22 @@ procedures:
       seyn als von dessen Namen sie ausgesuchet ist" (can belong to no one but the
       person whose name it was drawn from) — so `source` is meant to be a personal
       name, which this row cannot verify: German capitalises every noun, so
-      capitalisation is no test of namehood.
+      capitalisation is no test of namehood. Correction: an earlier draft of
+      this row also claimed that a plain anagram check would wrongly accept a
+      u-for-v or i-for-j swap, and that this was a second, independent reason
+      the row is not a duplicate of `anagram`. Measured against this codebase,
+      that is false — `anagram`'s `fold_diacritics` is case-folding plus NFKD
+      combining-mark stripping, which never merged those letters, so `anagram`
+      already rejects `check("anagram", "Uater", lang="de", source="Vater")`
+      and `check("anagram", "Iohann", lang="de", source="Johann")` on its own.
+      The genuine, load-bearing, mutation-tested reason this row exists is the
+      h-exemption alone. The u/i-not-v/j prohibition is still real — Harsdörffer
+      states it, and `test_buchstabwechsel.py` pins it against a future change
+      to `fold_diacritics` that might introduce the merge — but it was never a
+      point of difference from `anagram`, and this note records the correction
+      rather than silently dropping the earlier, wrong claim (the way the
+      `llull_figure` row records that 504 is the ordered-triple count, not
+      Llull's own).
 
   - id: letter_bank
     names: { en: Letter bank }

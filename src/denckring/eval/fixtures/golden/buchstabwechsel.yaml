@@ -14,9 +14,11 @@ cases:
     source: >-
       the pinned counterexample from the brief: Iohann is the Latin-alphabet
       practice of writing I for consonantal J, which Rule II explicitly refuses
-      ("das u und i die Stimmer nicht für v und j setzend"). A plain anagram
-      checker that folded i/j together would accept this; holding them apart, as
-      this row does, rejects it — surplus i, missing j.
+      ("das u und i die Stimmer nicht für v und j setzend"). `anagram` already
+      rejects this pair too — its `fold_diacritics` never merged i with j — so
+      this case is not a different verdict from `anagram`'s but Harsdörffer's
+      own rule pinned against a future change to `fold_diacritics` that might
+      introduce the merge: surplus i, missing j.
     text: Iohann
     params: { source: Johann }
     satisfied: false
