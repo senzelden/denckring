@@ -33,7 +33,7 @@ def test_a_catalogued_but_unimplemented_procedure_is_grey() -> None:
 def test_the_board_renders_with_the_scoreboard_line() -> None:
     response = client.get("/board")
     assert response.status_code == 200
-    assert "152 catalogued" in response.text
+    assert "153 catalogued" in response.text
 
 
 def test_a_tile_is_readable_and_not_just_an_id() -> None:
