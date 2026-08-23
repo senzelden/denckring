@@ -1,0 +1,22 @@
+procedure: buchstabwechsel
+lang: de
+cases:
+  - name: johann-h-omitted
+    source: >-
+      constructed example on Harsdörffer's own name Johann (Rule I, p. 514: "als
+      Johann"). "Anjon" rearranges Johann's other letters (j, o, a, n, n) and
+      passes over the h entirely — "übergangen", the second half of Rule II's
+      exemption — which a plain anagram check would reject as a missing letter.
+    text: Anjon
+    params: { source: Johann }
+    satisfied: true
+  - name: iohann-i-for-j-rejected
+    source: >-
+      the pinned counterexample from the brief: Iohann is the Latin-alphabet
+      practice of writing I for consonantal J, which Rule II explicitly refuses
+      ("das u und i die Stimmer nicht für v und j setzend"). A plain anagram
+      checker that folded i/j together would accept this; holding them apart, as
+      this row does, rejects it — surplus i, missing j.
+    text: Iohann
+    params: { source: Johann }
+    satisfied: false
