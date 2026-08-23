@@ -198,7 +198,7 @@ publish, or on a site presenting your fork as the original, is the line.
 
 ## The catalogue as data
 
-The catalogue is 152 sourced procedures and is a contribution in its own right — useful
+The catalogue is 153 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.
 
 ```console
