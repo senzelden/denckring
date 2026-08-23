@@ -1,5 +1,7 @@
 """Enzensberger's flap-board, and the line grouping the Device model grew for it."""
 
+import re
+
 import pytest
 
 from denckring import check, get
@@ -122,6 +124,138 @@ def test_a_spun_poem_reads_back_as_the_flaps_it_was_spun_from() -> None:
             slot.alternatives.index(flap) for slot, flap in zip(BOARD.slots, turned, strict=True)
         ]
         assert flap_indices(spun(seed)) == expected, f"seed {seed} reads back as other flaps"
+
+
+# ── the echo detector ──────────────────────────────────────────────────────
+#
+# Two flaps of one line that carry the same word read as a defect rather than as
+# the machine being strange: "Der Hafen ... am Hafen". Comparing word forms is
+# not enough, because German inflects — "vor Tagen" and "bei Tag" are the same
+# word and an exact sweep calls them different. So flaps are compared by a
+# stripped stem.
+#
+# The stemmer is deliberately crude and deliberately does *not* decompound:
+# "Montag" and "Tage" stay distinct, as do "Umlauf" and "Vorlauf". Decompounding
+# German with a rule would report far more pairs than it should, and the pairs it
+# would find are ones a reader does not hear as repetition. What it does catch is
+# plural and case endings and the umlaut that often comes with them, which is the
+# class that actually escapes an exact sweep.
+
+_UMLAUTS = str.maketrans({"ä": "a", "ö": "o", "ü": "u", "ß": "ss"})
+
+#: Longest first, so "-ern" is tried before "-er" and "-en" before "-n".
+_ENDINGS = ("ern", "en", "er", "es", "em", "e", "n", "s")
+
+#: Articles and prepositions repeat by construction — every PP module carries the
+#: same preposition series — so they are not what this looks at.
+# fmt: off
+_FUNCTION_WORDS = frozenset([
+    "der", "die", "das", "dem", "den",
+    "im", "am", "in", "auf", "unter", "über", "ohne", "gegen", "nach", "seit",
+    "mit", "aus", "bei", "vor", "trotz", "zu", "zur", "ab", "laut", "um",
+    "von", "an", "durch", "per",
+])
+# fmt: on
+
+
+def stem(word: str) -> str:
+    """`word` with its umlauts folded and at most one inflectional ending removed.
+
+    Stripping stops before the stem falls under three characters, which keeps
+    "Eis" from becoming "Ei" and "Not" from colliding with everything short.
+    """
+    base = word.casefold().translate(_UMLAUTS)
+    for ending in _ENDINGS:
+        if base.endswith(ending) and len(base) - len(ending) >= 3:
+            return base[: -len(ending)]
+    return base
+
+
+def content_stems(filler: str) -> set[str]:
+    return {stem(word) for word in filler.split() if word.casefold() not in _FUNCTION_WORDS}
+
+
+def test_the_stemmer_folds_the_endings_it_claims_to() -> None:
+    """The detector below is only worth having if this is right, and a stemmer
+    that quietly stopped folding would make it pass by finding nothing."""
+    assert stem("Tagen") == stem("Tag")
+    assert stem("Jahren") == stem("Jahre")
+    assert stem("Häfen") == stem("Hafen")
+    assert stem("Wachen") == stem("Wache")
+    # Not decompounded, and not over-stripped.
+    assert stem("Montag") != stem("Tage")
+    assert stem("Umlauf") != stem("Vorlauf")
+    assert stem("Eis") == "eis"
+
+
+def test_no_line_can_show_one_word_twice() -> None:
+    """No two modules of a line carry the same word, however inflected."""
+    for number in BOARD.lines:
+        slots = BOARD.for_line(number).slots
+        reached: dict[str, dict[int, set[str]]] = {}
+        for position, slot in enumerate(slots):
+            for alternative in slot.alternatives:
+                for key in content_stems(alternative):
+                    reached.setdefault(key, {}).setdefault(position, set()).add(alternative)
+        echoes = {key: spread for key, spread in reached.items() if len(spread) > 1}
+        assert not echoes, f"line {number + 1} can show one word twice: {echoes}"
+
+
+def test_no_line_can_show_two_incompatible_time_anchors() -> None:
+    """Absurdity is the machine's business; contradiction is not.
+
+    `Der Frost gedeiht` is strange and stays — the board is allowed to be strange.
+    Two clock times in one line are not strange but broken, because they fix the
+    same event at two hours, and the same goes for two calendar `seit` anchors and
+    for two months. So each family is confined to a single module per line, where
+    alternatives can never co-occur, which is also why all ten clock times survive
+    on a board of only six lines.
+
+    Families the line is deliberately *not* drawn around: `seit Jahren` beside
+    `über Nacht`, or `um acht` beside `gegen Abend`, which differ in granularity
+    and stack as a reader would stack them.
+    """
+    families = {
+        "clock time": re.compile(
+            r"^[Uu]m (eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf)$"
+        ),
+        "seit anchor": re.compile(r"^[Ss]eit "),
+        # Only the punctual "im <month>" form. "ab Mai" and "zu Ostern" name a
+        # start and a date rather than a when, and stack with a month without
+        # contradicting it.
+        "month or season": re.compile(
+            r"^[Ii]m (Januar|Februar|März|April|Mai|Juni|Juli|August|September"
+            r"|Oktober|November|Dezember|Winter|Frühjahr|Sommer|Herbst)$"
+        ),
+    }
+    for name, pattern in families.items():
+        for number in BOARD.lines:
+            bearing = {
+                position: [a for a in slot.alternatives if pattern.search(a)]
+                for position, slot in enumerate(BOARD.for_line(number).slots)
+                if any(pattern.search(a) for a in slot.alternatives)
+            }
+            assert len(bearing) <= 1, f"line {number + 1} can show two of {name}: {bearing}"
+
+    clock = families["clock time"]
+    total = sum(1 for slot in BOARD.slots for a in slot.alternatives if clock.match(a))
+    assert total == 10, f"the board carries {total} clock times, not ten"
+
+
+def test_the_positive_fixtures_show_no_word_twice() -> None:
+    """The within-line rule cannot reach across lines, and a showcase poem that
+    says "Der Kies" in line 2 and "mit Kies" in line 4 is an unlucky draw being
+    presented as what the board does. The two positive fixtures are chosen, so
+    they are held to the stricter rule the modules cannot enforce."""
+    for case in harness.golden_cases():
+        if case.procedure != "poesie_automat" or not case.satisfied:
+            continue
+        seen: dict[str, list[str]] = {}
+        for word in case.text.split():
+            if word.casefold() not in _FUNCTION_WORDS:
+                seen.setdefault(stem(word), []).append(word)
+        repeated = {key: words for key, words in seen.items() if len(words) > 1}
+        assert not repeated, f"{case.name} repeats {repeated}"
 
 
 # ── check ──────────────────────────────────────────────────────────────────

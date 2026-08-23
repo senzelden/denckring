@@ -3,46 +3,50 @@ lang: de
 cases:
   - name: eine-anzeige-die-der-automat-zeigen-kann
     source: >-
-      constructed example; produced by spinning the board (seed 0), then checked.
-      The schema is Enzensberger's; the 360 fillers are original to this project,
-      as the catalogue row and the device file both say.
+      constructed example; produced by spinning the board (seed 5), then checked.
+      The seed was chosen rather than taken: no word stem repeats anywhere in the
+      six lines, and no preposition heads more than three of the thirty-six
+      flaps, so the case shows the board rather than an unlucky draw from it. The
+      schema is Enzensberger's; the 360 fillers are original to this project, as
+      the catalogue row and the device file both say.
     text: |-
-      Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
-      Der Kies gegen Nässe laut Liste anscheinend vor Mittag aus Blech
-      Im Schacht knistert das Gleis seitdem ohne Halt vor Gericht
-      Der Hafen mit Kies zuweilen über Eck gegen Rost in Serie
-      Die Straße gedeiht fortan mit Ansage in Reserve auf Umwegen
-      Um sechs das Gelände vor dem Amt nach Wunsch vormals im Moor
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: true
   - name: eine-zweite-anzeige-die-keine-klappe-wiederholt
     source: >-
-      constructed example; seed 8, chosen because all thirty-six of its modules
+      constructed example; seed 82, chosen because all thirty-six of its modules
       show a different flap from the case above — so the pair covers 72 flaps
-      rather than 30 twice. That disjointness is not taken on trust: the seed was
-      found by segmenting candidate texts back to flap indices and comparing, and
+      rather than 30 twice — and because it repeats no word stem either. That
+      disjointness is not taken on trust: the seed was found by segmenting
+      candidate texts back to flap indices and comparing, and
       `test_the_two_positive_fixtures_share_no_flap` re-derives it from this file
       on every run rather than reading it here.
     text: |-
-      Im Winter dröhnt die Halle unter Strom überall am Rand
-      Die Brücke unter Eis aus Beton seither nach Frost ab Ostern
-      Am Kanal rauscht das Moos vorerst seit Juni laut Gesetz
-      Die Anzeige nach Antrag monatelang in Ketten bei Tag aus Glas
-      Der Regen wartet scheinbar seit Herbst im Umlauf seit Beginn
-      Nachts die Wache in Trümmern ohne Uhr hierzulande vor Montag
+      Montags vergilbt das Werk gegen bar inzwischen über Nacht
+      Die Ampel unter Eis am Zaun vielerorts bei Wind von Süden
+      Im Depot schimmelt das Gleis zumeist unter Null in Sicht
+      Der Turm ohne Zeugen sicherlich um drei bei Frost in Serie
+      Die Fracht zittert erneut nach Bedarf auf Reisen gegen Hitze
+      Abends das Tor auf Posten mit Glas mitunter ab Dienstag
     params: {}
     satisfied: true
   - name: ein-wort-das-auf-keiner-klappe-steht
     source: >-
-      constructed counterexample; the first case with "das Gleis" in line 3
-      replaced by "das Stellwerk", which stands on no flap of that module
+      constructed counterexample; the first case with "die Kantine" in line 3
+      replaced by "die Werkstatt", which stands on no flap of that module
     text: |-
-      Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
-      Der Kies gegen Nässe laut Liste anscheinend vor Mittag aus Blech
-      Im Schacht knistert das Stellwerk seitdem ohne Halt vor Gericht
-      Der Hafen mit Kies zuweilen über Eck gegen Rost in Serie
-      Die Straße gedeiht fortan mit Ansage in Reserve auf Umwegen
-      Um sechs das Gelände vor dem Amt nach Wunsch vormals im Moor
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Werkstatt bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: false
     min_score: 0.8
@@ -54,21 +58,21 @@ cases:
       per line, which is what makes the count a product of thirty-six tens
       rather than of six.
     text: |-
-      Die Straße gedeiht fortan mit Ansage in Reserve auf Umwegen
-      Der Kies gegen Nässe laut Liste anscheinend vor Mittag aus Blech
-      Im Schacht knistert das Gleis seitdem ohne Halt vor Gericht
-      Der Hafen mit Kies zuweilen über Eck gegen Rost in Serie
-      Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
-      Um sechs das Gelände vor dem Amt nach Wunsch vormals im Moor
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Freitags das Gerüst am Fenster im Abseits unentwegt aus Zement
     params: {}
     satisfied: false
   - name: eine-zeile-zu-wenig
     source: constructed counterexample; the board has six rows and shows six
     text: |-
-      Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
-      Der Kies gegen Nässe laut Liste anscheinend vor Mittag aus Blech
-      Im Schacht knistert das Gleis seitdem ohne Halt vor Gericht
-      Der Hafen mit Kies zuweilen über Eck gegen Rost in Serie
-      Die Straße gedeiht fortan mit Ansage in Reserve auf Umwegen
+      Am Ersten schrumpft das Amt mit Bedacht immer laut Ansage
+      Der Asphalt im Regen über Land vermutlich auf Dauer laut Akte
+      Hinter Glas altert die Kantine bekanntlich vor der Tür per Zufall
+      Die Fabrik auf Antrag monatelang trotz Wind unter Last ab sofort
+      Das Blech kreist anderswo vor Nässe vor Sonntag bei Hitze
     params: {}
     satisfied: false
