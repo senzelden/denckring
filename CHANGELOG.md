@@ -344,6 +344,26 @@ All notable changes to this project are documented here. The format follows
   before publishing a modified version.
 - `denckring --version`. `__version__` was exported from the library and unreachable from
   the command line.
+- `poesie_automat`, Enzensberger's Landsberger Poesieautomat: a flap-board of six lines
+  by six modules by ten alternatives, so 10^36 six-line poems. `check` cuts each line
+  into its six modules and asks whether every piece is one of that module's ten
+  alternatives; `apply` presses the button. The count is recomputed from the shipped
+  modules rather than quoted, and `Device.combinations` returns it as an integer —
+  `metrics["combinations"]` is a float and cannot hold a 37-digit number exactly.
+  Enzensberger died in 2022 and his word lists are in copyright until 2092, so all 360
+  fillers in `data/devices/poesieautomat_2000.yaml` were written for this project; the
+  mechanism is what the row catalogues, on the same footing as the substitute strips the
+  `cent_mille_milliards` fixture carries for Queneau. Three design rules make *every* one
+  of the 10^36 readings grammatical German rather than most of them: the article is
+  folded into the noun, everything after the subject is an adjunct, and every verb is
+  intransitive third person singular present.
+- An optional `line` on `Slot`, with `Device.lines` and `Device.for_line`, so one device
+  can hold several lines. Additive: a device file that never mentions `line` — which is
+  every existing one — reads as a single line and behaves exactly as before.
+- An optional `separator` on `device.segment`, defaulting to the empty string. The
+  Denckring's rings concatenate with nothing between them; a board whose flaps carry
+  whole words sets it to a space, and the same backtracking walk then splits a line into
+  modules rather than a second segmentation being written.
 
 ### Fixed
 

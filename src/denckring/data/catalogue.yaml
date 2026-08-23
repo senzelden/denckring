@@ -3307,3 +3307,67 @@ procedures:
       No tablet ships. Kircher's own runs to many pages of Musurgia Universalis book
       VIII and has not been transcribed into anything this project could verify.
 
+
+  - id: poesie_automat
+    names:
+      en: Poetry automat
+      de: Landsberger Poesieautomat
+      fr: Automate à poésie
+    definitions:
+      en: >-
+        A flap-board of six lines by six modules by ten alternatives, composing a
+        six-line poem at the push of a button — ten to the thirty-sixth of them.
+        The checker asks whether a given poem is one the board admits: each line is
+        cut into its six modules and every piece must be one of that module's ten
+        alternatives.
+      de: >-
+        Eine Fallblattanzeige aus sechs Zeilen mal sechs Modulen mal zehn
+        Alternativen, die auf Knopfdruck ein sechszeiliges Gedicht setzt — zehn
+        hoch sechsunddreißig davon. Der Prüfer fragt, ob ein gegebenes Gedicht
+        eines ist, das der Automat zeigen kann: jede Zeile wird in ihre sechs
+        Module zerlegt, und jedes Stück muss eine der zehn Alternativen dieses
+        Moduls sein.
+      fr: >-
+        Un tableau à volets de six lignes sur six modules sur dix alternatives,
+        composant un poème de six vers à la pression d'un bouton.
+    source: >-
+      Hans Magnus Enzensberger, Einladung zu einem Poesie-Automaten (conceived
+      1974); machine realised for Lyrik am Lech, Landsberg am Lech, 2000
+    family: permutation
+    attribution: primary
+    checkability: self
+    attested: author-stated
+    aliases: [Poesieautomat, Einladung zu einem Poesie-Automaten]
+    kind: both
+    languages: [de]
+    requires: []
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Write six lines of six blocks each; after the subject everything is an
+        adjunct, and every verb is intransitive third person singular present.
+      de: >-
+        Schreibe sechs Zeilen aus je sechs Bausteinen; nach dem Subjekt folgen nur
+        noch Angaben, und jedes Verb steht intransitiv in der dritten Person
+        Singular.
+    notes: >-
+      Six lines, six modules, ten alternatives: 10^36, and all four numbers are
+      stated by the German Wikipedia article on the Landsberger Poesieautomat. The
+      figure is recomputed from the shipped modules rather than quoted, and it is
+      an integer — `metrics["combinations"]` is a float and cannot hold it exactly.
+      No lexicon of Enzensberger's ships here. He died in 2022, so his word lists
+      are in copyright until 2092; the mechanism is not, and it is the mechanism
+      this row catalogues. The 360 fillers in
+      `data/devices/poesieautomat_2000.yaml` were written for this project without
+      reference to his lists, on the same footing as the substitute strips the
+      `cent_mille_milliards` fixture carries for Queneau. How they were made is
+      what can be said; word-for-word non-overlap with a list this project has
+      never read could not be checked, and is not claimed. Three design rules are what make every one of the 10^36
+      readings grammatical German rather than most of them: the article is folded
+      into the noun so agreement never crosses a module boundary, everything after
+      the subject is an adjunct, and every verb is intransitive third person
+      singular present. Lines 2, 4 and 6 carry no predicate at all, which the
+      sources give as the feature that made the automat programmable in the first
+      place. Grammaticality is a property of the module design and is verified by
+      reading generated poems, not by the checker: `check` asks only whether a poem
+      is one the board admits.

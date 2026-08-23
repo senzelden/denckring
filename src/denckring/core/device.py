@@ -28,11 +28,18 @@ DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
 
 
 class Slot(BaseModel):
-    """One ring, or one interchangeable position."""
+    """One ring, or one interchangeable position.
+
+    `line` groups slots that belong to the same line of a multi-line device. It
+    defaults to 0, so a device whose YAML never mentions it — Harsdörffer's
+    rings, which spell one word — reads as a single line and behaves exactly as
+    before. A flap-board composing a six-line poem numbers its slots 0 to 5.
+    """
 
     name: str
     alternatives: list[str]
     optional: bool = False
+    line: int = 0
 
     def matches(self, piece: str) -> bool:
         folded = piece.casefold()
@@ -49,11 +56,34 @@ class Device(BaseModel):
 
     @property
     def combinations(self) -> int:
-        """How many readings the device admits, counting a skip as an option."""
+        """How many readings the device admits, counting a skip as an option.
+
+        An `int`, never a float: a six-line board of six ten-way modules admits
+        10^36 poems, which no float can hold exactly and Python's integers can.
+        """
         total = 1
         for slot in self.slots:
             total *= len(slot.alternatives) + (1 if slot.optional else 0)
         return total
+
+    @property
+    def lines(self) -> list[int]:
+        """The line numbers the slots carry, in order. `[0]` for a flat device."""
+        return sorted({slot.line for slot in self.slots})
+
+    def for_line(self, line: int) -> Device:
+        """The slots of one line, as a device in their own right.
+
+        Returning a `Device` rather than a bare list is what lets `segment`,
+        `select`, `spin` and `combinations` be asked about one line without any
+        of them learning what a line is.
+        """
+        return Device(
+            id=f"{self.id}#{line}",
+            name=f"{self.name}, line {line}",
+            source=self.source,
+            slots=[slot for slot in self.slots if slot.line == line],
+        )
 
 
 @lru_cache(maxsize=8)
@@ -66,34 +96,53 @@ def load(device_id: str) -> Device:
     return Device.model_validate(raw)
 
 
-def segment(text: str, device: Device) -> list[str] | None:
+def segment(text: str, device: Device, *, separator: str = "") -> list[str] | None:
     """Cut `text` into one piece per slot, in order, or return None.
 
     Slots marked optional may contribute nothing. Returns the first reading
     found; a word the rings can spell in more than one way is still just
     producible, so the first is as good as any.
+
+    `separator` is what stands between two neighbouring pieces. It defaults to
+    the empty string, which is Harsdörffer's rings: the parts concatenate with
+    nothing between them. A board whose flaps carry whole words sets it to a
+    space, and the same backtracking walk then splits a line into modules.
+
+    A separator is expected before a piece only if some earlier slot actually
+    contributed one, so a skipped optional slot leaves no orphaned separator
+    behind — that is what `emitted` tracks. No device this package ships
+    reaches that bookkeeping: the rings have optional slots and no separator,
+    the flap-board has a separator and no optional slots. It is exercised by a
+    synthetic device in `tests/test_poesie_automat.py` rather than by any
+    shipped data, because a branch defended in prose and reached by nothing is
+    a branch nobody has checked.
     """
     target = text.casefold()
+    joint = separator.casefold()
 
-    def walk(position: int, index: int) -> list[str] | None:
+    def walk(position: int, index: int, emitted: bool) -> list[str] | None:
         if index == len(device.slots):
             return [] if position == len(target) else None
         slot = device.slots[index]
-        # Longest alternatives first, so a greedy-looking reading is preferred
-        # and the common case terminates sooner.
-        for alternative in sorted(slot.alternatives, key=len, reverse=True):
-            folded = alternative.casefold()
-            if target.startswith(folded, position):
-                rest = walk(position + len(folded), index + 1)
-                if rest is not None:
-                    return [alternative, *rest]
+        start: int | None = position
+        if emitted and joint:
+            start = position + len(joint) if target.startswith(joint, position) else None
+        if start is not None:
+            # Longest alternatives first, so a greedy-looking reading is preferred
+            # and the common case terminates sooner.
+            for alternative in sorted(slot.alternatives, key=len, reverse=True):
+                folded = alternative.casefold()
+                if target.startswith(folded, start):
+                    rest = walk(start + len(folded), index + 1, True)
+                    if rest is not None:
+                        return [alternative, *rest]
         if slot.optional:
-            rest = walk(position, index + 1)
+            rest = walk(position, index + 1, emitted)
             if rest is not None:
                 return ["", *rest]
         return None
 
-    return walk(0, 0)
+    return walk(0, 0, False)
 
 
 def select(pieces: list[str], device: Device) -> list[bool]:
