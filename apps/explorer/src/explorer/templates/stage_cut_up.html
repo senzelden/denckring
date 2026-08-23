@@ -6,38 +6,74 @@
   <h1>{{ scene.title }}</h1>
 </header>
 <div class="cutup-stage">
-  {# State one, "the page, uncut": the six lines exactly as they stand, with
-     each word its own inline element at a position that never moves again —
-     the fixed span the tamper control's own words travel from (see the
-     script below, and `_stage_cutup.html`'s own `data-source-index`, which
-     points back at one of these ids). #}
-  <div class="cutup-source">
-    {% for line in source_lines %}
-    <p class="cutup-line">{% for token in line.tokens -%}
-      {%- if token.is_word -%}
-        <span class="cutup-word" id="cutup-src-{{ token.source_index }}">{{ token.text }}</span>
-      {%- else -%}
-        {{ token.text }}
-      {%- endif -%}
-    {%- endfor %}</p>
-    {% endfor %}
+  {# The sheet: the page itself, the four pieces it becomes, and the two
+     blades lying across it. All three layers share one positioning context,
+     because the pieces have to start life exactly where the page's own
+     lines are and the blades have to be measured against the same box. #}
+  <div class="cutup-sheet" id="cutup-sheet">
+    {# State one, "the page, uncut": the six lines exactly as they stand,
+       each word its own inline element. The spans are not decoration — the
+       server tokenised this text with the same `word_spans` call `check`
+       itself makes, so their character extents are the authority on where a
+       word begins and ends, and therefore on whether the vertical blade has
+       landed in a gap or through a word. See `wordAt` in the script. #}
+    <div class="cutup-page" id="cutup-page">
+      {% for line in source_lines %}
+      <p class="cutup-line">{% for token in line.tokens -%}
+        {%- if token.is_word -%}
+          <span class="cutup-word" id="cutup-src-{{ token.source_index }}">{{ token.text }}</span>
+        {%- else -%}
+          {{ token.text }}
+        {%- endif -%}
+      {%- endfor %}</p>
+      {% endfor %}
+    </div>
+    {# State two, "the cut": four quadrants, built by the script from the
+       page above at the moment the blades are used, and empty until then. #}
+    <div class="cutup-pieces" id="cutup-pieces" hidden></div>
+    {# The blades. `role="slider"` and the arrow keys, so the cut can be
+       positioned without a pointer at all — and so that path arms the
+       placeholder through the same choke point a drag does. #}
+    <div class="cutup-blades" id="cutup-blades">
+      <div class="cutup-blade cutup-blade-v" id="cutup-blade-v" tabindex="0"
+        role="slider" aria-label="Vertical cut, across every line"
+        aria-valuemin="0" aria-valuenow="0" aria-valuemax="0" aria-valuetext="">
+        <span class="cutup-grip cutup-grip-v" aria-hidden="true">&#9986;</span>
+      </div>
+      <div class="cutup-blade cutup-blade-h" id="cutup-blade-h" tabindex="0"
+        role="slider" aria-label="Horizontal cut, between two lines"
+        aria-valuemin="1" aria-valuenow="3" aria-valuemax="5" aria-valuetext="">
+        <span class="cutup-grip cutup-grip-h" aria-hidden="true">&#9986;</span>
+      </div>
+    </div>
   </div>
   <div class="actions cutup-actions">
-    <form hx-post="/stage/cut_up/act" hx-target="#cutup-result" hx-swap="innerHTML">
-      <button type="submit">Cut it up</button>
+    {# The cut is committed by this button rather than by letting go of a
+       blade. Two reasons, and the first is the act itself: you line the
+       scissors up and *then* you cut, and a cut that fired on every release
+       would make positioning impossible — the sheet would be in pieces
+       before it was aimed. The second is that the two beats below only read
+       as a cut if they start from a settled blade. #}
+    <form id="cutup-form" hx-post="/stage/cut_up/act"
+      hx-target="#cutup-result" hx-swap="innerHTML">
+      {# What `check` is given, filled from the assembled quadrants
+         themselves the instant before this is submitted — see
+         `readAssembledText`. Never recomputed from the source on the
+         server: the text checked has to be the text on screen. #}
+      <input type="hidden" name="text" id="cutup-text" value="">
+      <button type="button" id="cutup-cut">Cut it</button>
     </form>
-    {# The point of the scene (see the brief): the same checker, run against
-       a result that could not have come from the scissors, so a viewer sees
-       the validator itself catch the smuggled word rather than a page that
-       merely claims to have checked something. #}
-    <form hx-post="/stage/cut_up/smuggle" hx-target="#cutup-result" hx-swap="innerHTML">
-      <button type="submit" class="quiet">Smuggle a word in</button>
-    </form>
+    {# A cut page cannot be cut again, so this is how the viewer gets back to
+       a whole one without having to nudge a blade to do it. It goes through
+       the same `invalidate` every blade movement does — one choke point, not
+       a second path that could forget the verdict standing over the old
+       cut. #}
+    <button type="button" id="cutup-fresh" class="quiet">Fresh sheet</button>
   </div>
-  {# States two and three, "the cut" and "the verdict": empty until a button
-     is pressed — no cut has run yet, so there is nothing to check (the same
-     choice N+7's own `#displaced` opens on, and for the same reason). #}
+  {# State three, "the verdict": empty until a cut has actually been made,
+     the same choice N+7's own `#displaced` opens on. #}
   <div id="cutup-result" class="cutup-area"></div>
+  <p class="visually-hidden" id="cutup-status" role="status" aria-live="polite"></p>
   {# Reused byte for byte from the scene this one replaces, not quoted from
      anyone — see `stage.CUT_UP_SOURCE`'s own comment. #}
   <p class="scene-credit">Written for this scene.</p>
@@ -47,104 +83,547 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// Never resolves on `transitionend` alone — explorer.css's reduced-motion rule
-// sets `transition: none !important`, under which the transition this function
-// starts would never run and the event would never fire, stranding a word
-// mid-journey; a backgrounded tab or an interrupted transition can drop the
-// event too. So reduced motion is handled explicitly, before any transition is
-// ever started, by jumping straight to the landing position with no motion at
-// all; otherwise a fallback timer, sized to the transition's own duration plus
-// a little slack, resolves the same way the event would — whichever comes
-// first, guarded so only one of them actually settles the word. The same
-// shape `travelColumn` uses in `stage_n_plus_7.html`, generalised from one
-// axis (a reel's own `translateY`) to two (a word's own `translate`).
-function travelWord(el, dx, dy) {
+const sheetEl = document.getElementById('cutup-sheet');
+const pageEl = document.getElementById('cutup-page');
+const piecesEl = document.getElementById('cutup-pieces');
+const bladesEl = document.getElementById('cutup-blades');
+const bladeVEl = document.getElementById('cutup-blade-v');
+const bladeHEl = document.getElementById('cutup-blade-h');
+const formEl = document.getElementById('cutup-form');
+const textEl = document.getElementById('cutup-text');
+const cutBtn = document.getElementById('cutup-cut');
+const freshBtn = document.getElementById('cutup-fresh');
+const resultEl = document.getElementById('cutup-result');
+const statusEl = document.getElementById('cutup-status');
+const lineEls = Array.from(pageEl.querySelectorAll('.cutup-line'));
+
+// The three beats of the cut. Budget: the whole thing inside 1.5-2s (the
+// human's own standing complaint is that scenes feel slow). Measured end to
+// end in a real browser rather than added up from these three — see the task
+// report for the clocked total.
+const CUT_SEPARATE_MS = 420; // beat one: the sheet comes apart along both lines
+const CUT_MOVE_MS = 620;     // beat two: the quarters travel to D A over B C
+const CUT_CLOSE_MS = 260;    // the join closes up
+const CUT_GAP_PX = 12;       // how far apart the quarters stand while travelling
+
+// ── measuring the page ─────────────────────────────────────────────────────
+//
+// Everything the cut needs to know about the printed page, measured once,
+// before anything has moved. Per line: its text, the x of every character
+// boundary and every character's own midpoint, the word extents the server
+// tokenised, and where the line sits in the page's box.
+//
+// The character midpoints are what a blade at some x is resolved against —
+// a straight cut through proportional type falls between two *characters*,
+// not at a column — and the word extents are what decides whether that
+// landing is in a gap or through a word. Both come from the real text.
+let geom = null;
+
+function charMetrics(lineEl, pageLeft) {
+  const walker = document.createTreeWalker(lineEl, NodeFilter.SHOW_TEXT);
+  const mids = [];
+  const edges = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    const text = node.nodeValue;
+    for (let i = 0; i < text.length; i++) {
+      const range = document.createRange();
+      range.setStart(node, i);
+      range.setEnd(node, i + 1);
+      const rect = range.getBoundingClientRect();
+      if (edges.length === 0) edges.push(rect.left - pageLeft);
+      mids.push((rect.left + rect.right) / 2 - pageLeft);
+      edges.push(rect.right - pageLeft);
+    }
+  }
+  return { mids: mids, edges: edges };
+}
+
+function wordExtents(lineEl) {
+  // Character offsets of each `word_spans` word within this line, read off
+  // the very spans the server rendered them into. Not a client-side
+  // re-tokenisation: this scene's whole verdict turns on where a word ends,
+  // and there is exactly one authority on that.
+  const words = [];
+  let offset = 0;
+  Array.from(lineEl.childNodes).forEach((node) => {
+    const text = node.textContent;
+    if (node.nodeType === 1 && node.classList.contains('cutup-word')) {
+      words.push({ el: node, start: offset, end: offset + text.length });
+    }
+    offset += text.length;
+  });
+  return words;
+}
+
+function measure() {
+  const pageRect = pageEl.getBoundingClientRect();
+  const lines = lineEls.map((el) => {
+    const rect = el.getBoundingClientRect();
+    const metrics = charMetrics(el, pageRect.left);
+    return {
+      el: el,
+      text: el.textContent,
+      mids: metrics.mids,
+      edges: metrics.edges,
+      words: wordExtents(el),
+      top: rect.top - pageRect.top,
+      height: rect.height,
+    };
+  });
+  // The five places the horizontal blade can rest: the gaps between the six
+  // lines. A detent, unlike the vertical blade — paper is cut between lines
+  // or it is not, and a horizontal cut through the middle of a row of type
+  // would shred every word on it rather than demonstrate anything.
+  const gaps = [0];
+  for (let i = 1; i < lines.length; i++) {
+    gaps.push((lines[i - 1].top + lines[i - 1].height + lines[i].top) / 2);
+  }
+  return { width: pageRect.width, height: pageRect.height, lines: lines, gaps: gaps };
+}
+
+// How many characters of `line` fall left of a blade at `x`.
+function splitIndex(line, x) {
+  let k = 0;
+  while (k < line.mids.length && line.mids[k] < x) k++;
+  return k;
+}
+
+// The word a split at `k` falls *inside*, or null if it fell in a gap. A
+// split at a word's own boundary is in a gap: the hyphen of "cut-out" is
+// between two words as far as `word_spans` is concerned, so cutting there
+// costs nothing, and this is why the extents come from the server's own
+// tokenisation rather than from splitting on whitespace here.
+function wordAt(line, k) {
+  for (const word of line.words) {
+    if (word.start < k && k < word.end) return word;
+  }
+  return null;
+}
+
+// ── blade state ────────────────────────────────────────────────────────────
+let bladeX = 0;    // the vertical cut, in px from the page's left edge
+let gapIndex = 3;  // the horizontal cut, as "after this many lines"
+let activeBlades = 0;
+let cutState = 'whole'; // 'whole' | 'cutting' | 'cut'
+let inert = false;      // a check is in flight
+// Bumped by every path that can move a blade. A verdict is only allowed to
+// stand if the token it was asked under is still the current one — see
+// `invalidate` and the `htmx:afterSwap` handler.
+let cutToken = 0;
+
+function clampX(x) {
+  return Math.max(0, Math.min(geom.width, x));
+}
+
+function drawBlades() {
+  bladeVEl.style.transform = `translateX(${bladeX}px)`;
+  bladeHEl.style.transform = `translateY(${geom.gaps[gapIndex]}px)`;
+  bladeVEl.setAttribute('aria-valuemax', String(Math.round(geom.width)));
+  bladeVEl.setAttribute('aria-valuenow', String(Math.round(bladeX)));
+  bladeHEl.setAttribute('aria-valuenow', String(gapIndex));
+  let through = 0;
+  geom.lines.forEach((line) => {
+    const word = wordAt(line, splitIndex(line, bladeX));
+    line.words.forEach((w) => w.el.classList.toggle('cutup-cut-through', w === word));
+    if (word) through++;
+  });
+  bladeVEl.setAttribute(
+    'aria-valuetext',
+    through === 0
+      ? 'in a gap on every line'
+      : `through ${through} word${through === 1 ? '' : 's'}`
+  );
+  bladeHEl.setAttribute('aria-valuetext', `after line ${gapIndex} of ${geom.lines.length}`);
+}
+
+function refreshControls() {
+  cutBtn.disabled = inert || activeBlades > 0 || cutState !== 'whole';
+  freshBtn.disabled = inert || activeBlades > 0 || cutState === 'whole';
+}
+
+function announce(text) {
+  statusEl.textContent = text;
+}
+
+// The scene's one honest state while a blade is being moved: whatever the
+// last cut was checked against is no longer on the table. Called from every
+// path that can move a blade, and from the swap handler when a verdict
+// arrives for a cut the viewer has already undone. Not `.yes`/`.no` — a
+// claim neither of those colours has earned.
+function setVerdictCutting() {
+  resultEl.innerHTML =
+    '<p class="verdict turning">the blade moved &mdash; cut again</p>';
+}
+
+// The invariant, at its choke point. Anything that moves a blade goes
+// through here first: the sheet becomes whole again, any verdict standing
+// over the old cut is replaced by the placeholder, and the token every
+// in-flight check was asked under stops being current.
+function invalidate() {
+  cutToken++;
+  if (cutState !== 'whole') restoreWhole();
+  if (inert || resultEl.childElementCount > 0) setVerdictCutting();
+  refreshControls();
+}
+
+function restoreWhole() {
+  cutState = 'whole';
+  piecesEl.hidden = true;
+  piecesEl.textContent = '';
+  pageEl.hidden = false;
+  sheetEl.style.transition = 'none';
+  sheetEl.style.height = `${geom.height}px`;
+  bladesEl.classList.remove('cutup-blades-down');
+}
+
+// ── building the four quadrants ────────────────────────────────────────────
+
+function pieceLine(line, k, side) {
+  const p = document.createElement('p');
+  p.className = 'cutup-piece-line';
+  const word = wordAt(line, k);
+  const text = line.text;
+  if (side === 'left') {
+    if (word) {
+      p.appendChild(document.createTextNode(text.slice(0, word.start).trimStart()));
+      const frag = document.createElement('span');
+      frag.className = 'cutup-fragment';
+      frag.textContent = text.slice(word.start, k);
+      p.appendChild(frag);
+    } else {
+      p.appendChild(document.createTextNode(text.slice(0, k).trim()));
+    }
+  } else {
+    if (word) {
+      const frag = document.createElement('span');
+      frag.className = 'cutup-fragment';
+      frag.textContent = text.slice(k, word.end);
+      p.appendChild(frag);
+      p.appendChild(document.createTextNode(text.slice(word.end).trimEnd()));
+    } else {
+      p.appendChild(document.createTextNode(text.slice(k).trim()));
+    }
+  }
+  return p;
+}
+
+function buildPiece(key, rows, side, box) {
+  const div = document.createElement('div');
+  div.className = `cutup-piece cutup-piece-${key}`;
+  div.dataset.piece = key;
+  div.style.left = `${box.left}px`;
+  div.style.top = `${box.top}px`;
+  div.style.width = `${box.width}px`;
+  div.style.height = `${box.height}px`;
+  rows.forEach((row) => {
+    const p = pieceLine(row.line, row.k, side);
+    p.style.top = `${row.line.top - box.top}px`;
+    div.appendChild(p);
+  });
+  piecesEl.appendChild(div);
+  return div;
+}
+
+// A, B, C, D are the page's own four quarters, clockwise from the top left:
+// A top-left, B top-right, C bottom-left, D bottom-right. The rearrangement
+// Gysin's method calls for is **D A over B C** — the bottom-right quarter
+// takes the top-left corner, and you read across the join.
+function buildPieces() {
+  piecesEl.textContent = '';
+  const vx = bladeX;
+  const vy = geom.gaps[gapIndex];
+  const W = geom.width;
+  const H = geom.height;
+  const top = geom.lines.slice(0, gapIndex).map((line) => ({
+    line: line,
+    k: splitIndex(line, vx),
+  }));
+  const bottom = geom.lines.slice(gapIndex).map((line) => ({
+    line: line,
+    k: splitIndex(line, vx),
+  }));
+  const boxes = {
+    a: { left: 0, top: 0, width: vx, height: vy },
+    b: { left: vx, top: 0, width: W - vx, height: vy },
+    c: { left: 0, top: vy, width: vx, height: H - vy },
+    d: { left: vx, top: vy, width: W - vx, height: H - vy },
+  };
+  const els = {
+    a: buildPiece('a', top, 'left', boxes.a),
+    b: buildPiece('b', top, 'right', boxes.b),
+    c: buildPiece('c', bottom, 'left', boxes.c),
+    d: buildPiece('d', bottom, 'right', boxes.d),
+  };
+  const rowH = Math.max(vy, H - vy);
+  // Where each quarter ends up, as a translation from where it was cut.
+  const moves = {
+    a: { dx: W - vx, dy: 0, sx: -1, sy: -1 },
+    b: { dx: -vx, dy: rowH, sx: 1, sy: -1 },
+    c: { dx: W - vx, dy: rowH - vy, sx: -1, sy: 1 },
+    d: { dx: -vx, dy: -vy, sx: 1, sy: 1 },
+  };
+  return { els: els, moves: moves, assembledHeight: rowH * 2 };
+}
+
+// The text the page is showing, read out of the quadrants themselves in the
+// order the eye reads them: the top row's two pieces, then the bottom row's.
+// This is the only thing ever submitted for checking. Nothing recomputes the
+// arrangement server-side — what `check` receives has to be what is on
+// screen, so it is read off the screen.
+function readAssembledText() {
+  const rowsOf = (key) =>
+    Array.from(
+      piecesEl.querySelectorAll(`[data-piece="${key}"] .cutup-piece-line`)
+    ).map((el) => el.textContent.trim());
+  const out = [];
+  [['d', 'a'], ['b', 'c']].forEach(([leftKey, rightKey]) => {
+    const left = rowsOf(leftKey);
+    const right = rowsOf(rightKey);
+    const count = Math.max(left.length, right.length);
+    for (let i = 0; i < count; i++) {
+      const row = [left[i] || '', right[i] || ''].filter((s) => s !== '').join(' ');
+      if (row !== '') out.push(row);
+    }
+  });
+  return out.join('\n');
+}
+
+// ── the cut itself ─────────────────────────────────────────────────────────
+//
+// Never waits on `transitionend`: explorer.css sets `transition: none
+// !important` under `prefers-reduced-motion`, so the event would never fire
+// and the quarters would be stranded halfway. Reduced motion is handled
+// first, by landing every quarter on its final position with no motion at
+// all; otherwise the three beats are chained on timers sized to their own
+// durations, which cannot be dropped by an interrupted or backgrounded
+// transition either. The same shape `travelColumn` uses in
+// `stage_n_plus_7.html`.
+function playCut() {
+  const token = cutToken;
+  const built = buildPieces();
+  pageEl.hidden = true;
+  piecesEl.hidden = false;
+  bladesEl.classList.add('cutup-blades-down');
+
+  const place = (ms, offsetScale) => {
+    Object.keys(built.els).forEach((key) => {
+      const el = built.els[key];
+      const move = built.moves[key];
+      const gx = move.sx * CUT_GAP_PX * offsetScale.gap;
+      const gy = move.sy * CUT_GAP_PX * offsetScale.gap;
+      const dx = move.dx * offsetScale.travel + gx;
+      const dy = move.dy * offsetScale.travel + gy;
+      el.style.transition = ms > 0 ? `transform ${ms}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none';
+      el.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+  };
+
   if (prefersReducedMotion()) {
-    el.style.transition = 'none';
-    el.style.transform = 'none';
-    return;
+    place(0, { gap: 0, travel: 1 });
+    sheetEl.style.height = `${built.assembledHeight}px`;
+    return Promise.resolve(token);
   }
 
-  let settled = false;
-  const settle = () => {
-    if (settled) return;
-    settled = true;
-    el.removeEventListener('transitionend', onEnd);
-    clearTimeout(fallback);
-    el.style.transition = 'none';
-  };
-  const onEnd = (evt) => {
-    if (evt.propertyName === 'transform') settle();
-  };
-
-  // The word already sits at its landing position — it was rendered there,
-  // in normal flow, by the swap that just happened. Jumping it back to where
-  // its source counterpart sits, with no transition, is what makes the
-  // motion that follows read as "arriving" rather than "leaving": the FLIP
-  // technique (First, Last, Invert, Play), computed here as one instance
-  // rather than a shared cascade the way N+7's window of neighbours is.
-  el.style.transition = 'none';
-  el.style.transform = `translate(${dx}px, ${dy}px)`;
-  void el.getBoundingClientRect(); // flush the jump before transitioning back
-  el.addEventListener('transitionend', onEnd);
-  el.style.transition = `transform ${CUTUP_DURATION_MS}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
-  void el.getBoundingClientRect(); // flush, so the transition itself is not skipped
-  el.style.transform = 'translate(0px, 0px)';
-  const fallback = setTimeout(settle, CUTUP_DURATION_MS + 80);
+  return new Promise((resolve) => {
+    // Beat one: the sheet comes apart along both lines.
+    place(CUT_SEPARATE_MS, { gap: 1, travel: 0 });
+    setTimeout(() => {
+      if (token !== cutToken) return resolve(token);
+      // Beat two: the quarters travel, still held apart, to D A over B C.
+      place(CUT_MOVE_MS, { gap: 1, travel: 1 });
+      sheetEl.style.transition = `height ${CUT_MOVE_MS}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
+      sheetEl.style.height = `${built.assembledHeight}px`;
+      setTimeout(() => {
+        if (token !== cutToken) return resolve(token);
+        // And the join closes up.
+        place(CUT_CLOSE_MS, { gap: 0, travel: 1 });
+        setTimeout(() => resolve(token), CUT_CLOSE_MS);
+      }, CUT_MOVE_MS);
+    }, CUT_SEPARATE_MS);
+  });
 }
 
-// Budget: the whole cut inside 1.5-2s end to end (the human's own standing
-// complaint is that scenes feel slow). At 47 words — `CUT_UP_SOURCE`'s own
-// count, one more on the tamper control's own result — a per-word stagger
-// anywhere near N+7's 350ms would run to 16s; 25ms keeps the last word
-// starting at 1150ms (46 gaps) or 1175ms (47), landing well inside budget
-// once its own 500ms travel is added. Measured, not just computed from these
-// two constants — see the task report for the real, clocked total.
-const CUTUP_STAGGER_MS = 25;
-const CUTUP_DURATION_MS = 500;
+async function cutItUp() {
+  if (cutState !== 'whole' || inert || activeBlades > 0) return;
+  cutState = 'cutting';
+  refreshControls();
+  announce('Cutting the page.');
+  const token = await playCut();
+  // A blade grabbed mid-animation has already put the sheet back together
+  // (`invalidate`); there is nothing left to check and nothing to submit.
+  if (token !== cutToken) return;
+  cutState = 'cut';
+  refreshControls();
+  textEl.value = readAssembledText();
+  formEl.requestSubmit();
+}
 
-function playCut(container) {
-  const words = container.querySelectorAll('.cutup-result-word');
-  // Every delta is measured up front, before any word has moved — `transform`
-  // does not reflow the page, so one word's own jump cannot move another
-  // word's rect out from under a measurement taken after it.
-  const jobs = Array.from(words).map((el) => {
-    const landing = el.getBoundingClientRect();
-    const sourceId = el.dataset.sourceIndex;
-    let dx = 0;
-    // The tamper control's own word has no source span to travel from (see
-    // `CutUpWord.source_index`) — it drops in from below instead, which
-    // reads as arriving from nowhere on the page rather than from it.
-    let dy = 18;
-    if (sourceId !== '') {
-      const source = document.getElementById(`cutup-src-${sourceId}`);
-      if (source) {
-        const start = source.getBoundingClientRect();
-        dx = start.left - landing.left;
-        dy = start.top - landing.top;
-      }
-    }
-    return { el, dx, dy };
-  });
-  jobs.forEach((job, index) => {
-    if (prefersReducedMotion()) {
-      travelWord(job.el, job.dx, job.dy);
+// ── the blades, under the hand ─────────────────────────────────────────────
+//
+// The same gesture as the two volvelles': pointer down grabs, the blade
+// follows the pointer live while held, release settles. Shared with them at
+// the module rather than copied — `HoldTurn.attachLinearDrag` is
+// `attachDrag`'s sibling, with the same release registry, the same pointer
+// capture and the same "a release reports and does nothing else" rule. Only
+// the arithmetic differs: a blade slides along an axis and has no centre to
+// sweep about. See `hold_turn.js`.
+function beginBladeMove() {
+  activeBlades++;
+  invalidate();
+  announce('Moving the blade.');
+}
+
+function endBladeMove() {
+  activeBlades = Math.max(0, activeBlades - 1);
+  refreshControls();
+  if (activeBlades === 0) announce(bladeVEl.getAttribute('aria-valuetext'));
+}
+
+HoldTurn.attachLinearDrag(bladesEl, {
+  bladeAt: (evt) => {
+    const blade = evt.target.closest('.cutup-blade');
+    if (!blade) return null;
+    return blade === bladeHEl ? 'h' : 'v';
+  },
+  axis: (key) => (key === 'h' ? 'y' : 'x'),
+  origin: () => {
+    // The blade layer's own box, which is the page's box: measured fresh on
+    // every grab rather than cached, because the page above it can have been
+    // scrolled since the last one.
+    const rect = bladesEl.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  },
+  grab: () => {
+    beginBladeMove();
+  },
+  move: (key, offset) => {
+    if (key === 'v') {
+      bladeX = clampX(offset);
     } else {
-      setTimeout(() => travelWord(job.el, job.dx, job.dy), index * CUTUP_STAGGER_MS);
+      // The horizontal blade has detents — the five gaps between the six
+      // lines — so it follows the pointer to the nearest of them rather
+      // than to an arbitrary y that would land it through a row of type.
+      let best = 1;
+      for (let i = 1; i < geom.gaps.length; i++) {
+        if (Math.abs(geom.gaps[i] - offset) < Math.abs(geom.gaps[best] - offset)) best = i;
+      }
+      gapIndex = best;
     }
-  });
+    drawBlades();
+  },
+  release: () => {
+    endBladeMove();
+  },
+});
+
+// The keyboard path moves a blade too, so it arms through the same choke
+// point the drag does — an invariant that only held for the pointer would
+// be no invariant at all.
+function bladeKey(evt, key) {
+  const alongX = key === 'v'; // the vertical blade is the one that slides in x
+  const back = evt.key === (alongX ? 'ArrowLeft' : 'ArrowUp');
+  const fwd = evt.key === (alongX ? 'ArrowRight' : 'ArrowDown');
+  if (!back && !fwd) return;
+  evt.preventDefault();
+  beginBladeMove();
+  if (alongX) {
+    bladeX = clampX(bladeX + (fwd ? 4 : -4));
+  } else {
+    gapIndex = Math.max(1, Math.min(geom.gaps.length - 1, gapIndex + (fwd ? 1 : -1)));
+  }
+  drawBlades();
+  endBladeMove();
 }
 
-// `#cutup-result` is a plain (non out-of-band) swap target, unlike N+7's own
-// reels — this scene has no second region an action changes, so there is
-// nothing an out-of-band swap would need to reach past the direct target.
-// `htmx:afterSwap` fires once per such swap, with the target itself on
-// `evt.detail.target`, which is the one moment a freshly rendered cut can
-// start its own journey; nothing else would ever call `playCut` on it.
+bladeVEl.addEventListener('keydown', (evt) => bladeKey(evt, 'v'));
+bladeHEl.addEventListener('keydown', (evt) => bladeKey(evt, 'h'));
+cutBtn.addEventListener('click', () => {
+  void cutItUp();
+});
+freshBtn.addEventListener('click', () => {
+  invalidate();
+  announce('A fresh sheet.');
+});
+
+// ── the round trip ─────────────────────────────────────────────────────────
+let submittedToken = 0;
+
+document.body.addEventListener('htmx:beforeRequest', (evt) => {
+  if (evt.target !== formEl) return;
+  inert = true;
+  submittedToken = cutToken;
+  refreshControls();
+});
+
 document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.detail.target.id !== 'cutup-result') return;
-  playCut(evt.detail.target);
+  inert = false;
+  // The invariant, at the other end. The swap brings a real, checked verdict
+  // with it — about the arrangement that was submitted. If a blade has moved
+  // since (the token has changed, or one is under a hand right now), that
+  // arrangement is no longer what the page is showing: `invalidate` has
+  // already put the whole sheet back, so the placeholder is the only true
+  // thing to say, and it goes straight back on.
+  //
+  // Deliberately lighter than the volvelles' machinery, and for a reason
+  // that is a property of this scene rather than a shortcut: moving a ring
+  // leaves a *new* arrangement that still owes a fresh read, which is why
+  // scenes one and seven have to defer and settle that debt. Moving a blade
+  // leaves *no* cut at all — the correct end state is no verdict, which the
+  // placeholder already is — so there is no read to owe and nothing to
+  // replay. Re-arming is the whole of it.
+  if (cutToken !== submittedToken || activeBlades > 0 || cutState !== 'cut') {
+    setVerdictCutting();
+  } else {
+    const verdict = resultEl.querySelector('.verdict');
+    if (verdict) announce(verdict.textContent.trim());
+  }
+  refreshControls();
 });
+
+// ── first paint ────────────────────────────────────────────────────────────
+function layout() {
+  geom = measure();
+  sheetEl.style.height = `${geom.height}px`;
+  bladesEl.style.width = `${geom.width}px`;
+  bladeVEl.style.height = `${geom.height}px`;
+  bladeHEl.style.width = `${geom.width}px`;
+}
+
+// Open on a cut that is clean on every line it can be: the failure this
+// scene demonstrates should be something a viewer *does* with the blade, not
+// the state they find it in. Candidates are the midpoints of the gaps
+// between words on every line, scored by how many lines they miss a word on,
+// ties broken towards the middle of the page.
+function bestColumn() {
+  const candidates = [];
+  geom.lines.forEach((line) => {
+    for (let k = 1; k < line.text.length; k++) {
+      if (wordAt(line, k) === null) candidates.push(line.edges[k]);
+    }
+  });
+  const middle = geom.width / 2;
+  let best = middle;
+  let bestScore = -1;
+  candidates.forEach((x) => {
+    let score = 0;
+    geom.lines.forEach((line) => {
+      if (wordAt(line, splitIndex(line, x)) === null) score++;
+    });
+    if (score > bestScore || (score === bestScore && Math.abs(x - middle) < Math.abs(best - middle))) {
+      bestScore = score;
+      best = x;
+    }
+  });
+  return best;
+}
+
+layout();
+bladeX = clampX(bestColumn());
+gapIndex = 3;
+drawBlades();
+refreshControls();
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}

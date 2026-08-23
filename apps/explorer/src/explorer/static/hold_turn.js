@@ -1,5 +1,5 @@
-// Shared turn-a-ring interaction, in two gestures a scene can take either or
-// both of.
+// Shared direct-manipulation interaction, in three gestures a scene can take
+// any of.
 //
 // `attach` is **hold-to-turn**: press and hold a step button and it repeats
 // at a fixed cadence -- forward or back -- until released, however release
@@ -16,6 +16,12 @@
 // The two coexist: neither replaces the other, and both feed the same scene
 // callbacks, so a scene's "a ring is being moved by hand" state covers them
 // equally.
+//
+// `attachLinearDrag` is the same grab-follow-release gesture for a thing that
+// slides along one axis instead of turning about a centre -- scene six's two
+// cut lines. It shares this file's release registry, pointer capture and
+// per-pointer bookkeeping with `attachDrag`; only the arithmetic differs,
+// because a blade has no centre and no detent angle. See its own comment.
 //
 // Generic on purpose: this file knows nothing about SVG, discs, letters or
 // word parts. A scene wires the hold up by handing over a container holding
@@ -357,6 +363,108 @@ window.HoldTurn = (function () {
     root.addEventListener('lostpointercapture', (evt) => finish(evt.pointerId));
   }
 
+  // ── Drag-a-blade, along one axis ─────────────────────────────────────
+  //
+  // The same gesture as `attachDrag` above -- pointer down grabs, the thing
+  // follows the pointer live while held, release settles -- for a thing that
+  // slides in a straight line rather than turning about a centre. Scene six
+  // (`stage_cut_up.html`) has two of them: the horizontal and vertical cut
+  // lines a viewer positions before cutting the page into quadrants.
+  //
+  // It is a sibling of `attachDrag`, not a wrapper of it. Everything the two
+  // share is here and shared for real: the same page-level `active` registry,
+  // so a blur or a backgrounded tab lets go of a blade exactly as it lets go
+  // of a ring; the same pointer capture on `root`, so a finger that strays
+  // off the blade keeps dragging it; the same `Map` keyed by pointer id; and
+  // the same rule that a release reports and does nothing else -- no tap, no
+  // step, no momentum. What is genuinely different is only the arithmetic:
+  // a blade has no centre, no detent angle and nothing to unwrap, so
+  // `angleAt`/`shortestArc`/the detent accounting have no meaning for it and
+  // faking a centre and an `angleStep` to reuse them would be a lie about the
+  // gesture. This file therefore owns, for a blade, exactly what it owns for
+  // a ring: where the pointer is in the thing's own frame. Clamping, snapping
+  // and drawing stay with the scene.
+  //
+  // handlers:
+  //   bladeAt(evt)  -> a blade key, or null/undefined to refuse this grab
+  //   axis(key)     -> 'x' or 'y'
+  //   origin(key)   -> {x, y} in client coordinates: the zero of the blade's
+  //                    own track, so the scene gets an offset along it rather
+  //                    than a raw client coordinate it would have to convert
+  //   grab(key)     -> a blade has been taken hold of
+  //   move(key, offset) -> the pointer is this many pixels along the track
+  //   release(key, offset) -> the pointer is up, at this offset
+  function attachLinearDrag(root, handlers) {
+    const bladeAt = handlers.bladeAt;
+    const axisOf = handlers.axis;
+    const originOf = handlers.origin;
+    const onGrab = handlers.grab || function () {};
+    const onMove = handlers.move;
+    const onRelease = handlers.release || function () {};
+
+    const drags = new Map();
+
+    function offsetOf(drag, evt) {
+      return drag.axis === 'y' ? evt.clientY - drag.origin.y : evt.clientX - drag.origin.x;
+    }
+
+    function finish(pointerId) {
+      const drag = drags.get(pointerId);
+      if (!drag) return;
+      // Deleted first, for the same reason `attachDrag`'s own `finish` does:
+      // releasing capture fires `lostpointercapture`, which lands right back
+      // here and must find nothing left to do.
+      drags.delete(pointerId);
+      active.delete(drag.stop);
+      if (root.hasPointerCapture && root.hasPointerCapture(pointerId)) {
+        try {
+          root.releasePointerCapture(pointerId);
+        } catch (e) {
+          // Already gone; the release below is what matters.
+        }
+      }
+      onRelease(drag.key, drag.offset);
+    }
+
+    root.addEventListener('pointerdown', (evt) => {
+      if (evt.button !== undefined && evt.button !== 0) return;
+      const key = bladeAt(evt);
+      if (key === null || key === undefined) return;
+      // Only now: a refused grab must leave the event alone.
+      evt.preventDefault();
+      const drag = {
+        key: key,
+        axis: axisOf(key) === 'y' ? 'y' : 'x',
+        origin: originOf(key),
+      };
+      drag.offset = offsetOf(drag, evt);
+      drag.stop = () => finish(evt.pointerId);
+      drags.set(evt.pointerId, drag);
+      active.add(drag.stop);
+      if (root.setPointerCapture) {
+        try {
+          root.setPointerCapture(evt.pointerId);
+        } catch (e) {
+          // An enhancement, not a requirement.
+        }
+      }
+      onGrab(drag.key);
+      onMove(drag.key, drag.offset);
+    });
+
+    root.addEventListener('pointermove', (evt) => {
+      const drag = drags.get(evt.pointerId);
+      if (!drag) return;
+      evt.preventDefault();
+      drag.offset = offsetOf(drag, evt);
+      onMove(drag.key, drag.offset);
+    });
+
+    root.addEventListener('pointerup', (evt) => finish(evt.pointerId));
+    root.addEventListener('pointercancel', (evt) => finish(evt.pointerId));
+    root.addEventListener('lostpointercapture', (evt) => finish(evt.pointerId));
+  }
+
   // The two cadence numbers are exported for a scene that wants to describe
   // or measure the default -- they are copies, and assigning to them does
   // nothing. `attach`'s own `initialDelayMs`/`repeatMs` options are the way
@@ -364,6 +472,7 @@ window.HoldTurn = (function () {
   return {
     attach,
     attachDrag,
+    attachLinearDrag,
     INITIAL_DELAY_MS: DEFAULT_INITIAL_DELAY_MS,
     REPEAT_MS: DEFAULT_REPEAT_MS,
   };

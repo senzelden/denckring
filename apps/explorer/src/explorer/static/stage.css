@@ -1491,11 +1491,12 @@
   min-width: 6.5rem;
 }
 
-/* ── scene six: cut-up ──────────────────────────────────────────────────
-   The quietest scene, the same move this slot's own predecessor made
-   before it: no figure/panel split, no diagram, nothing that turns. Unlike
-   that scene, nothing here is editable — the source is fixed, so there is
-   no field, no textarea, and no attribution note beyond the one line saying
+/* ── scene six: cut-up ────────────────────────────────────────────────────
+   The quietest scene of the seven in furniture, and the most physical in
+   what it does: the six lines as a printed page, two blades lying across
+   it, and the page itself coming apart into four quarters when they are
+   used. Nothing here is editable — the source is fixed, so there is no
+   field, no textarea, and no attribution note beyond the one line saying
    these six lines were written for this scene rather than quoted. */
 
 .cutup-stage {
@@ -1503,73 +1504,198 @@
   margin: 0.4rem 0 0;
 }
 
-/* State one, "the page, uncut" — set once and never re-rendered; every word
-   this scene ever animates measures its journey's start from a span in
-   here (see the script). No `display: inline-block` needed on `.cutup-word`,
-   unlike the result words below: nothing here ever carries a `transform`. */
-.cutup-source {
+/* The sheet: one positioning context shared by the page, the four pieces it
+   becomes, and the blades. The pieces have to start life exactly where the
+   page's own lines are, and the blades are measured against the same box, so
+   all three are absolute inside this one. Its height is set by the script
+   from the page's own measured height, and grown when the quarters
+   rearrange into two ragged rows.
+
+   `touch-action: none` for the same reason `.turnable-figure` carries it: a
+   blade drag is a drag, and a touch device that treated it as the start of a
+   scroll would take the gesture away mid-cut. */
+.cutup-sheet {
+  position: relative;
   margin: 0 0 0.9rem;
+  touch-action: none;
 }
 
-.cutup-line {
-  margin: 0 0 0.15rem;
+/* State one, "the page, uncut". `width: max-content` and `nowrap`: the six
+   lines are a page, and a page's own line breaks are where they were set —
+   a line that wrapped would put a seventh row under the blades that the cut
+   knows nothing about. */
+.cutup-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+}
+
+/* One face for the page and for the quarters it becomes, in one rule rather
+   than two copies: a quarter that set its type even slightly differently
+   would not read as the same sheet, cut. */
+.cutup-line,
+.cutup-piece-line {
+  margin: 0;
+  white-space: nowrap;
   font-family: var(--display);
   font-size: 1.1rem;
   line-height: 1.6;
   color: var(--ink);
-}
-
-.cutup-line:last-child {
-  margin-bottom: 0;
 }
 
 .cutup-word {
   display: inline;
 }
 
-.cutup-actions {
-  margin-top: 0;
-  margin-bottom: 0.6rem;
+/* The word the vertical blade is standing in *right now*, marked live as it
+   moves — this is the eye's connection between where the blade is and the
+   fragments the verdict is about to name. A wash rather than a colour: the
+   word is still whole at this point, and colouring it would pre-empt
+   `.cutup-fragment` below, which is the thing that has actually been cut. */
+.cutup-cut-through {
+  background: rgba(179, 18, 29, 0.14);
 }
 
-/* States two and three, "the cut" and "the verdict" — empty until a button
-   is pressed (see `stage_cut_up.html`'s own `#cutup-result`). A reserved
-   height keeps the button row from jumping down the page the moment the
-   first cut lands, the same reason `.displaced-area` and `.ladder-wrap`
-   both carry one. */
-.cutup-area {
-  min-height: 3.4rem;
+/* State two, "the cut": four quarters of real paper. Each is a window on the
+   lines that fall inside it — `overflow: hidden`, so a blade that landed
+   mid-glyph leaves half of it on this piece and half on the other, which is
+   what scissors do. The shadow is what makes them separate sheets rather
+   than a diagram of one. */
+.cutup-pieces {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.cutup-result {
-  font-family: var(--display);
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--ink);
-  margin: 0 0 0.5rem;
+.cutup-piece {
+  position: absolute;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: 0 2px 7px rgba(20, 17, 15, 0.22);
 }
 
-/* `display: inline-block`, unlike `.cutup-word` above: this is the element
-   `travelWord` gives a `transform` to, and a `transform` does nothing on a
-   non-replaced inline box (CSS Transforms Level 1) — the box model an
-   ordinary `display: inline` span carries. `inline-block` keeps the word
-   flowing with its neighbours exactly as `.cutup-word` does, while giving
-   `transform` a box it can actually move. */
-.cutup-result-word {
-  display: inline-block;
+.cutup-piece-line {
+  position: absolute;
+  left: 0;
 }
 
-/* The tamper control's own word, set apart in colour the same way the word
-   ladder's own `.tile.changed` marks the one thing on that scene worth
-   distinguishing rather than merely describing in prose beside it. Read
-   alongside the verdict below, not instead of it — the colour says which
-   word is foreign, the verdict says why that matters. */
-.cutup-smuggled {
+/* A word the blade went through, on the piece that now holds part of it.
+   Read alongside the verdict below, not instead of it — the colour says
+   which pieces are not words, the verdict says why that matters. The same
+   move the word ladder's own `.tile.changed` makes. */
+.cutup-fragment {
   color: var(--rubric);
   font-weight: 600;
 }
 
+/* The blades. The layer is inert; only the two blades in it take a pointer,
+   so a press anywhere else on the page behaves normally. Each is a wide,
+   transparent grab strip with a hairline drawn down its middle — a
+   one-pixel line is not something a hand can catch. */
+.cutup-blades {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
 
+.cutup-blade {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.cutup-blade:focus-visible {
+  outline: 2px solid var(--rubric);
+}
+
+.cutup-blade-v {
+  top: 0;
+  left: 0;
+  width: 15px;
+  margin-left: -7px;
+  cursor: col-resize;
+}
+
+.cutup-blade-v::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  border-left: 1px dashed var(--rubric);
+}
+
+.cutup-blade-h {
+  top: 0;
+  left: 0;
+  height: 15px;
+  margin-top: -7px;
+  cursor: row-resize;
+}
+
+.cutup-blade-h::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  border-top: 1px dashed var(--rubric);
+}
+
+.cutup-grip {
+  position: absolute;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--rubric);
+  user-select: none;
+}
+
+.cutup-grip-v {
+  top: -1.15rem;
+  left: 7px;
+  transform: translateX(-50%);
+}
+
+.cutup-grip-h {
+  left: -1.2rem;
+  top: 7px;
+  transform: translateY(-50%);
+}
+
+/* The scissors put down: once the page is in pieces the blades are still
+   lying where they were left, but they are no longer what the eye should be
+   reading. */
+.cutup-blades-down {
+  opacity: 0.3;
+}
+
+.cutup-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+}
+
+/* State three, "the verdict" — empty until a cut has actually been made (see
+   `stage_cut_up.html`'s own `#cutup-result`). A reserved height keeps the
+   button row from jumping the moment the first verdict lands, the same
+   reason `.displaced-area` and `.ladder-wrap` both carry one. */
+.cutup-area {
+  min-height: 3.4rem;
+}
+
+/* The fragments the checker named, listed under the verdict line. */
+.cutup-violations {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--rubric);
+}
 
 /* ── scene seven: Llull's rotating figure ─────────────────────────────────
    Figure on the left, reading on the right — scenes one, three and five's
@@ -1748,6 +1874,7 @@
    exactly the drift the shared-machinery note at the top of this file warns
    about. Scene one puts the placeholder on *both* its verdict lines rather
    than collapsing them to one, so its panel keeps its height under a hand. */
+.cutup-area .verdict.turning,
 .llull-reading-panel .verdict.turning,
 .word-panel .verdict.turning {
   color: var(--lead);

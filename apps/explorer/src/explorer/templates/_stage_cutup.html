@@ -1,21 +1,26 @@
-{# States two and three: the cut result, and the one line saying whether
-   `check` accepts it. Rendered fresh by both `/act` and `/smuggle` — the
-   same partial either way, so the failing verdict the tamper control
-   produces is provably the same markup and the same `check` call as the
-   passing one, never a special case of its own (see the brief). #}
-<p class="cutup-result">
-  {%- for word in cutup.result_words -%}
-  <span class="cutup-result-word{{ ' cutup-smuggled' if word.source_index is none }}"
-    data-source-index="{{ word.source_index if word.source_index is not none else '' }}"
-  >{{ word.text }}</span>{{ ' ' if not loop.last }}
-  {%- endfor -%}
-</p>
-<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+{# State three: the one line saying whether `check` accepts the arrangement
+   the page is showing, and — when it does not — every fragment the blade
+   made, by name, rule and offset.
+
+   Nothing here re-prints the cut. The four quarters are already on screen,
+   and the text checked was read out of them (`readAssembledText`), so a
+   second rendering here would be a second copy that could drift from what
+   the checker was actually given. `data-checked` carries that exact text
+   back instead, so the page can be held to it. #}
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}"
+  data-checked="{{ text }}">
   {%- if report.satisfied -%}
-  checked &mdash; every one of {{ report.metrics.words | int }} words above is the page's own
+  checked &mdash; every one of {{ report.metrics.words | int }} words across the join is the page&rsquo;s own
   {%- else -%}
-  {% set violation = report.violations[0] %}
-  checked &mdash; {{ violation.rule.replace('_', ' ') }} at offset {{ violation.offset }}:
-  &ldquo;{{ violation.found }}&rdquo; is not the page's own
+  checked &mdash; the blade went through {{ report.violations | length }}
+  word{{ '' if report.violations | length == 1 else 's' }}
   {%- endif -%}
 </p>
+{%- if not report.satisfied %}
+<ul class="cutup-violations">
+  {%- for violation in report.violations %}
+  <li>{{ violation.rule.replace('_', ' ') }} at offset {{ violation.offset }}:
+    &ldquo;{{ violation.found }}&rdquo; &mdash; {{ violation.expected }}</li>
+  {%- endfor %}
+</ul>
+{%- endif %}
