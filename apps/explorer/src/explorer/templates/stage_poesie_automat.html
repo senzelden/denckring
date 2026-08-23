@@ -574,12 +574,52 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   clearInert();
 });
 
+// ── the board's own width ──────────────────────────────────────────────────
+//
+// Every drum is exactly as wide as its own longest flap, which means the
+// board's width belongs to the *face*. At 14px IBM Plex Mono the widest line
+// measures 1148.68px against the 1184px the stage leaves; with the webfont
+// blocked, the fallback measured 1204.05px — twenty pixels of the board
+// clipped off the right edge, silently, because `.stage` is `overflow:
+// hidden`. Both figures are from a browser, not from an advance width times a
+// character count.
+//
+// So the board asks itself whether it fits, once the fonts have actually
+// arrived, and steps the cell size down until it does. On the face this scene
+// was measured for the first size is the answer and nothing moves.
+function widestLine() {
+  return Math.max(
+    ...lineEls.map((lineEl) => {
+      const drumEls = Array.from(lineEl.querySelectorAll('.flap'));
+      const gap = parseFloat(getComputedStyle(lineEl).gap) || 0;
+      return (
+        drumEls.reduce((total, el) => total + el.getBoundingClientRect().width, 0) +
+        gap * (drumEls.length - 1)
+      );
+    })
+  );
+}
+
+function fitBoard() {
+  const room = boardEl.clientWidth;
+  for (let size = 14; size >= 10; size -= 0.5) {
+    boardEl.style.setProperty('--flap-font', `${size}px`);
+    if (widestLine() <= room) return size;
+  }
+  return 10;
+}
+
 // ── first paint ────────────────────────────────────────────────────────────
 // The drums are already where the server put them (`positions`, rendered into
 // each strip's own transform), and the verdict beside them is a real `check()`
 // of the poem those flaps spell. Nothing to do here but make the controls
-// agree with the state.
+// agree with the state and check the board fits the stage.
 refreshControls();
+fitBoard();
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(fitBoard);
+}
+window.addEventListener('resize', fitBoard);
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
