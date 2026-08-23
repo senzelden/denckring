@@ -12,8 +12,10 @@
   {%- if report.satisfied -%}
   checked &mdash; every one of {{ report.metrics.words | int }} words across the join is the page&rsquo;s own
   {%- else -%}
-  checked &mdash; the blade went through {{ report.violations | length }}
-  word{{ '' if report.violations | length == 1 else 's' }}
+  checked &mdash; {{ report.violations | length }}
+  piece{{ '' if report.violations | length == 1 else 's' }} across the join
+  {{ 'is' if report.violations | length == 1 else 'are' }} not
+  {{ 'a word' if report.violations | length == 1 else 'words' }}
   {%- endif -%}
 </p>
 {%- if not report.satisfied %}
