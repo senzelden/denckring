@@ -41,7 +41,18 @@
 # reichlich, überwiegend), which scope over the adjunct that follows them
 # ("teilweise unter Eis") and so need no verb either.
 #
-# A fifth constraint is about the display and not about German: no filler is
+# A fifth rule is about what two modules of one line may say at once. No word
+# reaches a line from two different modules, compared with inflection folded, so
+# no line can read "Der Hafen ... am Hafen"; and each family of mutually
+# exclusive time anchors — clock times, calendar `seit`, "im <Monat>" — sits in
+# a single module per line, where alternatives can never co-occur. That is why
+# all ten clock times fit on a board of six lines. Absurdity is deliberately not
+# constrained: "Der Frost gedeiht" stays, because the machine is allowed to be
+# strange. It is contradiction that reads as broken rather than as strange, and
+# `test_no_line_can_show_one_word_twice` and
+# `test_no_line_can_show_two_incompatible_time_anchors` hold the line.
+#
+# A sixth constraint is about the display and not about German: no filler is
 # longer than eleven characters. The board renders letter by letter into
 # character cells, so a line costs six fillers plus five spaces, and eleven
 # caps the widest line the modules can assemble at 71 columns. Umlauts and ß
@@ -118,7 +129,7 @@ slots:
       - "nach Plan"
       - "gegen bar"
       - "auf Abruf"
-      - "seit Tagen"
+      - "aus Stahl"
       - "bei Regen"
       - "mit Bedacht"
       - "vor Ort"
@@ -184,10 +195,10 @@ slots:
       - "aus Beton"
       - "trotz Rost"
       - "an Bord"
-      - "ab Montag"
+      - "um acht"
       - "laut Liste"
       - "um vier"
-      - "von Norden"
+      - "um fünf"
   - name: Adverb
     line: 1
     alternatives:
@@ -210,7 +221,7 @@ slots:
       - "nach Frost"
       - "gegen Abend"
       - "auf Dauer"
-      - "seit April"
+      - "aus Ton"
       - "bei Wind"
       - "mit Stempel"
       - "vor Mittag"
@@ -225,7 +236,7 @@ slots:
       - "zu Ostern"
       - "ab Ostern"
       - "laut Akte"
-      - "um acht"
+      - "ab Montag"
       - "von Süden"
   # ── Zeile 3 ────────────────────────────────────────────────────────
   - name: Ortsangabe
@@ -299,7 +310,7 @@ slots:
       - "am Kai"
       - "in Sicht"
       - "über Jahre"
-      - "aus Zufall"
+      - "per Zufall"
       - "trotz Eis"
       - "zur Stunde"
       - "ab Herbst"
@@ -326,7 +337,7 @@ slots:
       - "im Beton"
       - "ohne Zeugen"
       - "unter Zwang"
-      - "nach Antrag"
+      - "auf Antrag"
       - "gegen Ende"
       - "auf Halde"
       - "seit März"
@@ -354,8 +365,8 @@ slots:
       - "über Eck"
       - "aus Stein"
       - "trotz Wind"
-      - "auf Probe"
-      - "ab Freitag"
+      - "um drei"
+      - "um elf"
       - "im Freien"
       - "um zehn"
       - "vor Tagen"
@@ -368,8 +379,8 @@ slots:
       - "nach Abzug"
       - "gegen Rost"
       - "auf Vorrat"
-      - "seit Juli"
-      - "bei Tag"
+      - "aus Draht"
+      - "bei Frost"
       - "mit Blech"
       - "vor Beginn"
   - name: Adjunkt
@@ -383,7 +394,7 @@ slots:
       - "auf dem Kai"
       - "ab sofort"
       - "im Graben"
-      - "um elf"
+      - "ab Freitag"
       - "vor Schluss"
   # ── Zeile 5 ────────────────────────────────────────────────────────
   - name: Subjekt
@@ -460,7 +471,7 @@ slots:
       - "nach Gehör"
       - "gegen Hitze"
       - "auf Umwegen"
-      - "seit Beginn"
+      - "aus Eisen"
       - "bei Hitze"
       - "mit Vorlauf"
       - "vor Anker"
@@ -502,7 +513,7 @@ slots:
       - "auf Posten"
       - "ab morgen"
       - "im Kiosk"
-      - "um fünf"
+      - "von Norden"
       - "vor dem Amt"
   - name: Adjunkt
     line: 5
@@ -513,7 +524,7 @@ slots:
       - "nach Wunsch"
       - "gegen Lärm"
       - "auf Zuruf"
-      - "seit heute"
+      - "aus Blei"
       - "bei Sturm"
       - "mit Glas"
       - "vor dem Bau"
@@ -541,5 +552,5 @@ slots:
       - "auf Abstand"
       - "ab Dienstag"
       - "im Moor"
-      - "um drei"
+      - "auf Probe"
       - "vor Montag"
