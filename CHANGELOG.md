@@ -364,6 +364,20 @@ All notable changes to this project are documented here. The format follows
   Denckring's rings concatenate with nothing between them; a board whose flaps carry
   whole words sets it to a space, and the same backtracking walk then splits a line into
   modules rather than a second segmentation being written.
+- `DENCKRING_DEVICE_PATH`, a colon-separated list of directories `device.load` searches
+  before the packaged one — a device's word-lists no longer have to be ours. Directories
+  earlier on the path are tried first, so one can both add a new device id and shadow a
+  packaged one under an existing id, which is documented as deliberate rather than left
+  to be discovered. Unset, behaviour is unchanged: the packaged directory is still all
+  that is searched. A directory on the path that does not exist or cannot be read is
+  skipped quietly, so a stale entry does not stop a packaged device from loading. What it
+  does not add: no schema versioning beyond ordinary validation, and no record of where a
+  resolved device actually came from — a caller who needs to know whether a packaged
+  device was shadowed must control what it puts on the path, because `load` cannot say
+  so after the fact. The environment is read on every call rather than cached at import
+  time, and the on-disk read `load` used to memoise by `device_id` alone is now memoised
+  by the resolved path instead — a cache keyed on the id would have kept answering a
+  changed environment with whatever device it saw first.
 
 ### Fixed
 
