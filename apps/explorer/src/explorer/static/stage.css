@@ -1500,8 +1500,22 @@
    these six lines were written for this scene rather than quoted. */
 
 .cutup-stage {
-  max-width: 40rem;
   margin: 0.4rem 0 0;
+}
+
+/* The sheet's column, fixed the way `.scene-figure` is, so the panel beside
+   it takes whatever is left. Wide enough for the page at the size below, and
+   with room at the left and top for the two blades' grips, which hang
+   outside the page's own box. */
+.cutup-sheet-column {
+  flex: none;
+  width: 756px;
+  padding: 0.2rem 0 0 1.7rem;
+}
+
+.cutup-panel {
+  flex: 1;
+  min-width: 0;
 }
 
 /* The sheet: one positioning context shared by the page, the four pieces it
@@ -1516,8 +1530,17 @@
    scroll would take the gesture away mid-cut. */
 .cutup-sheet {
   position: relative;
-  margin: 0 0 0.9rem;
   touch-action: none;
+}
+
+/* What the sheet is lying on. The box above is reserved at the tallest the
+   rearranged page can be, and this is centred in it — so cutting the page
+   does not move the scene down the stage, and the blank space below is the
+   same before and after. */
+.cutup-table {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 /* State one, "the page, uncut". `width: max-content` and `nowrap`: the six
@@ -1533,14 +1556,25 @@
 
 /* One face for the page and for the quarters it becomes, in one rule rather
    than two copies: a quarter that set its type even slightly differently
-   would not read as the same sheet, cut. */
+   would not read as the same sheet, cut.
+
+   Fixed pitch, and double-spaced, because *Minutes to Go* was typewritten —
+   and because on this scene the face is not decoration. A straight cut is
+   one x across six lines, and in a proportional face those six lines put a
+   space at that x essentially never: measured on this source in the display
+   face, of the 725 columns across the page **not one** in the interior
+   missed a word on all six lines, so the passing verdict — the finding this
+   scene is built on — was unreachable by hand. In fixed pitch the same six
+   lines share a character grid, and column 26 is a gap on every one of
+   them. The face is what makes the clean cut a thing a viewer can actually
+   make. */
 .cutup-line,
 .cutup-piece-line {
   margin: 0;
   white-space: nowrap;
-  font-family: var(--display);
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  line-height: 2.1;
   color: var(--ink);
 }
 

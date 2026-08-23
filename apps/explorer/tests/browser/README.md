@@ -1,6 +1,6 @@
-# Browser reproductions — the two volvelles' hold- and drag-to-turn
+# Browser reproductions — the two volvelles' turning, and scene six's blades
 
-Seven Playwright scripts. They are **not** run by `pytest`, or by anything else
+Eight Playwright scripts. They are **not** run by `pytest`, or by anything else
 automatically: each one drives a real browser against a running server, and
 several of them deliberately take seconds per run. They live here because
 they are the only real coverage of this interaction — `pytest` drives
@@ -12,7 +12,9 @@ this code three times; the harness that reproduced it should outlive the task.
 Six of them drive scene seven (`/stage/llull_figure`); `drag-turn.mjs` drives
 either volvelle, because scene one (`/stage/denckring`) adopted the same
 interaction in the drag round and its five windowed rings of differing sizes
-are the case the shared module was written scene-agnostic for.
+are the case the shared module was written scene-agnostic for. `cut-blade.mjs`
+drives scene six (`/stage/cut_up`), whose whole cut happens in the browser —
+two blades, four quarters, and a verdict on text read back out of them.
 
 ## Running them
 
@@ -49,3 +51,4 @@ clean run there proves nothing.
 | `hold-two-finger.mjs` | Two simultaneous touch holds on two wheels (CDP touch events on a `hasTouch` context), with the `pointerdown`/`focus`/`blur` trace. Pins that focusing a button never ends another finger's hold. |
 | `drag-turn.mjs` | Drag-to-turn on either scene: `sweep`/`back` turn one ring 90 degrees each way, sampling the dial's own transform and the panel beside it every 4 degrees *while the pointer is still down* — the requirement is that the ring moves under the finger, so a run that only checks where it landed proves nothing. `wrap` crosses the ring's own seam both ways; `contend` puts a second finger on that ring's step button mid-grab (the grab is meant to win); `two-finger` drags two rings at once with CDP touch; `regrab` grabs again while the previous release's read is still in flight (`DELAY`, default 600ms) and counts samples where the panel disagreed with the rings' own indices; and `release-inside` *lets go* inside that same window, which is the case `regrab` cannot see — with no hand down when the swap lands, nothing re-arms the panel, so the only thing that can save it is the read the drag owes. Takes `[scene] [mode] [ring]`; `REDUCED=1` runs under `reducedMotion: 'reduce'`, where the drag must still work and the snap lands at once. |
 | `hold-announcements.mjs` | What the status line says and how often across a hold and the read that follows, against the panel's own mutation count. |
+| `cut-blade.mjs` | Scene six's blades and its cut. `drag` samples a blade's position *while the pointer is still down* — the requirement is that it moves under the hand, so a run that only checked where it landed would prove nothing. `clean` positions the vertical blade in a column the page itself says misses every word, cuts, and compares the text the quarters are showing with the `data-checked` the verdict came back carrying. `through` puts it inside words instead and reads the named fragments back. `stale` moves a blade *during* the check's round trip (`DELAY`, default 600ms) and counts real verdicts left standing over a page that has changed since — the invariant this codebase has had broken four times. `frames` writes first paint, a frame mid-cut and the cut page to `OUT`, and reports the cut's clocked length and the scene's own content extent. `REDUCED=1` runs under `reducedMotion: 'reduce'`, where the quarters must land at once and the blades must still drag. |
