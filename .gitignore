@@ -27,3 +27,8 @@ apps/explorer/.env
 
 # Subagent-driven-development scratch workspace (ledgers, briefs, review packages).
 .superpowers/
+
+# Node modules for the explorer's browser reproductions (apps/explorer/tests/browser).
+# The manifest and lockfile beside them ARE tracked, so `npm ci --prefix apps/explorer`
+# reinstalls exactly what those scripts were verified against; the 19MB tree is not.
+apps/explorer/node_modules/
