@@ -106,10 +106,16 @@ def segment(text: str, device: Device, *, separator: str = "") -> list[str] | No
     `separator` is what stands between two neighbouring pieces. It defaults to
     the empty string, which is Harsdörffer's rings: the parts concatenate with
     nothing between them. A board whose flaps carry whole words sets it to a
-    space, and the same backtracking walk then splits a line into modules. A
-    separator is expected before a piece only if some earlier slot actually
+    space, and the same backtracking walk then splits a line into modules.
+
+    A separator is expected before a piece only if some earlier slot actually
     contributed one, so a skipped optional slot leaves no orphaned separator
-    behind.
+    behind — that is what `emitted` tracks. No device this package ships
+    reaches that bookkeeping: the rings have optional slots and no separator,
+    the flap-board has a separator and no optional slots. It is exercised by a
+    synthetic device in `tests/test_poesie_automat.py` rather than by any
+    shipped data, because a branch defended in prose and reached by nothing is
+    a branch nobody has checked.
     """
     target = text.casefold()
     joint = separator.casefold()
