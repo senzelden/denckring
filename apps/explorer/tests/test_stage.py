@@ -2354,8 +2354,16 @@ def test_the_blade_drag_reuses_the_shared_pointer_module() -> None:
     assert "root.setPointerCapture(evt.pointerId);" in linear
     assert "drags.set(evt.pointerId, drag);" in linear
     assert "root.addEventListener('lostpointercapture', (evt) => finish(evt.pointerId));" in linear
-    # live, on every move — not on release
-    assert "onMove(drag.key, drag.offset);" in linear
+    # Live, on every move — not on release. Pinned inside the `pointermove`
+    # handler itself: the grab reports an offset too, and a guard that only
+    # looked for the call would pass on a blade that jumped once and then
+    # sat still until the pointer came up.
+    moves = re.search(
+        r"root\.addEventListener\('pointermove', \(evt\) => \{(.*?)\n    \}\);", linear, re.S
+    )
+    assert moves is not None
+    assert "drag.offset = offsetOf(drag, evt);" in moves.group(1)
+    assert "onMove(drag.key, drag.offset);" in moves.group(1)
     script = _cut_up_scene_script()
     assert "HoldTurn.attachLinearDrag(bladesEl, {" in script
     move = re.search(r"  move: \(key, offset\) => \{(.*?)\n  \},", script, re.S)
@@ -2363,18 +2371,59 @@ def test_the_blade_drag_reuses_the_shared_pointer_module() -> None:
     assert "drawBlades();" in move.group(1)
 
 
-def test_the_cut_lands_at_once_under_reduced_motion() -> None:
-    """A source-level guard, and named as one — the house rule this project
-    has been bitten by: `explorer.css` sets `transition: none !important`
-    under `prefers-reduced-motion`, so a `transitionend` that a chained
-    animation waited on would never fire and the quarters would be stranded
-    halfway across the page.
+def test_the_page_re_measures_itself_once_its_type_has_arrived() -> None:
+    """A source-level guard, and named as one, for a defect measured in a
+    real browser rather than reasoned about.
 
-    Reduced motion is therefore handled before any transition is started, by
-    placing every quarter on its final position with no motion at all, and
-    the three beats are otherwise chained on timers rather than events. The
-    blades keep working either way — nothing about the drag is inside this
-    branch."""
+    Every cut this scene makes is decided by where each character of the page
+    sits, measured with a `Range` per character. That measurement runs in an
+    inline script at parse time — before the webfont this page is set in has
+    necessarily loaded. Measured against the fallback, every boundary was out
+    by about a seventh: a left quarter 595px wide holding 689px of text,
+    clipped mid-word at an edge the arithmetic had never seen, and a blade
+    that cut somewhere other than where it was drawn. So the page measures
+    itself again when the fonts have actually settled, and again if it is
+    resized."""
+    script = _cut_up_scene_script()
+    assert "document.fonts.ready.then(() => relayout(true));" in script
+    assert "window.addEventListener('resize', () => relayout(false));" in script
+    relayout = re.search(r"function relayout\(reaim\) \{(.*?)\n\}", script, re.S)
+    assert relayout is not None
+    body = relayout.group(1)
+    assert "layout();" in body
+    assert "drawBlades();" in body
+    # A re-measure invalidates a cut made against the old measurement, the
+    # same way moving a blade does.
+    assert "if (cutState !== 'whole') invalidate();" in body
+    # The character metrics themselves come from a real Range per character,
+    # not from an assumed advance width.
+    assert "range.setStart(node, i);" in script
+    assert "range.getBoundingClientRect();" in script
+
+
+def test_the_cut_lands_at_once_under_reduced_motion() -> None:
+    """A source-level guard, and named as one, for two separate things.
+
+    The house rule first: `explorer.css` sets `transition: none !important`
+    under `prefers-reduced-motion`, so an animation that waited on
+    `transitionend` would never be told to go on and would strand its
+    quarters halfway across the page. This scene cannot be bitten by that,
+    because it never listens for the event at all — its three beats are
+    chained on timers sized to their own durations, which an interrupted or
+    backgrounded transition cannot drop either.
+
+    Then promptness, which is a separate claim and is what the branch below
+    is actually for. The brief requires the quarters to *arrive* at once
+    under reduced motion, and chained timers do not do that by themselves —
+    measured in a real browser with the branch deleted, the cut still landed
+    correctly (every transition having been killed, each step applied
+    instantly) but took **1390.0ms** of dead waiting to do it, against
+    **94.3ms** with the branch. So the branch is not what keeps the quarters
+    from being stranded; it is what keeps them from arriving a second and a
+    half late.
+
+    The blades keep working either way — nothing about the drag is inside
+    this branch."""
     script = _cut_up_scene_script()
     play = re.search(r"function playCut\(\) \{(.*?)\n\}\n", script, re.S)
     assert play is not None
