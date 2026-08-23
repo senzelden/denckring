@@ -404,6 +404,36 @@
   opacity: 0.45;
 }
 
+/* Drag-to-turn: the other half of the same interaction (see `hold_turn.js`'s
+   `attachDrag`). Written here, unscoped, beside the hold controls it is the
+   companion of, because both volvelles want it identically and a second
+   private copy is how the two would drift apart.
+
+   `touch-action: none` on the figure is not decoration — without it a touch
+   drag on the discs scrolls the page instead of turning a ring, and the
+   gesture is simply unavailable on a touchscreen. `user-select: none` stops
+   a mouse drag from selecting the letters it passes over.
+
+   The cursor is the whole affordance: `grab` says this is a thing you take
+   hold of, `grabbing` says you have. `.grabbing` is put on the figure by the
+   scene for as long as any ring is held, so the cursor does not flick back
+   to `grab` the moment the pointer strays off the disc it is turning. */
+.turnable-figure {
+  touch-action: none;
+  user-select: none;
+}
+
+.turnable-figure .ring-disc,
+.turnable-figure .wheel-disc {
+  cursor: grab;
+}
+
+.turnable-figure.grabbing,
+.turnable-figure.grabbing .ring-disc,
+.turnable-figure.grabbing .wheel-disc {
+  cursor: grabbing;
+}
+
 /* ── scene one: der Denckring ─────────────────────────────────────────── */
 
 .scene-head {
@@ -458,8 +488,12 @@
 
 .rings-svg {
   display: block;
-  width: 580px;
-  height: 580px;
+  /* Sized to leave the step-button row beneath it (see `.hold-controls`)
+     room inside the 720px stage without crowding the bottom edge — 580px
+     until that row arrived, re-measured with it in place rather than
+     guessed; see the task report for both columns' numbers. */
+  width: 542px;
+  height: 542px;
   /* Centred in the wider wrap, because the reading mark above sits at its
      50% and the two must agree. */
   margin: 0 auto;
@@ -674,6 +708,17 @@
 
 .word-panel .verdict.no {
   color: var(--rubric-soft);
+}
+
+/* A disc being turned by hand lands the word above in a client-rendered
+   preview (see the scene's own script) rather than a real, checked verdict —
+   these are the neutral placeholders that stand in for the two while that is
+   true, the same role `.llull-reading-panel .verdict.turning` plays on scene
+   seven. Not `.yes`/`.no`: neither colour has been earned yet. Both lines
+   stay, so the panel does not change height every time a hand touches a
+   disc. */
+.word-panel .verdict.turning {
+  color: var(--lead);
 }
 
 /* The counter and its own arithmetic, folded into one paragraph rather than
