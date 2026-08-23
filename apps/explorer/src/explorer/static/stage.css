@@ -2026,7 +2026,7 @@
      (the advance is quantised to whole pixels), and that line's six drums with
      their own padding and the gaps between them measure 1148.68px against the
      1184px the stage leaves between its margins. At 15px the advance goes to
-     9px and the same line needs 1277px, which does not. A literal board, its
+     9px and the same line measures 1277.69px, which does not. A literal board, its
      columns aligned across all six lines, is 155 characters and measures
      1316.68px — 132.68px too wide. Every figure here was read off the rendered
      board by `tests/browser/flap-board.mjs widths`. */
