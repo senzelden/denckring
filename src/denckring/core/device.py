@@ -12,7 +12,9 @@ the free monosyllable already take.
 
 from __future__ import annotations
 
+import os
 import random
+import re
 from functools import lru_cache
 from importlib.resources import files
 from itertools import combinations
@@ -20,11 +22,124 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
-from denckring.core.errors import UnknownDevice, UnknownFigure, UnknownLevel
+from denckring.core.errors import (
+    MalformedDevice,
+    MalformedFigure,
+    UnknownDevice,
+    UnknownFigure,
+    UnknownLevel,
+)
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
+
+#: Colon-separated directories searched, in order, before `DEVICE_DIR`. Read at
+#: call time rather than cached at import time, so a caller can change it
+#: between two calls in the same process — the cache in `load` is keyed to
+#: match, see there.
+DEVICE_PATH_ENV = "DENCKRING_DEVICE_PATH"
+
+
+def _device_search_path() -> tuple[Path, ...]:
+    """Extra device directories from `DENCKRING_DEVICE_PATH`, then the packaged one.
+
+    Extra directories come first, so a directory earlier on the path shadows
+    both `DEVICE_DIR` and any later directory that ships a device of the same
+    id. A directory that does not exist, or is not readable, is skipped rather
+    than raised on: a stale entry in someone's environment must not break
+    loading a device that *is* packaged. `is_dir` itself can raise on a
+    directory whose parent is unreadable, which is exactly the same "skip it
+    quietly" case, so that is caught here too rather than left to surface from
+    deeper inside `load`.
+    """
+    raw = os.environ.get(DEVICE_PATH_ENV, "")
+    extra = [Path(entry) for entry in raw.split(":") if entry]
+    searchable = []
+    for directory in [*extra, DEVICE_DIR]:
+        try:
+            if directory.is_dir():
+                searchable.append(directory)
+        except OSError:
+            continue
+    return tuple(searchable)
+
+
+#: A bare filename stem: letters, digits, `_` and `-`, nothing else. Every id
+#: this package ships, and every id `scripts/new_procedure.py` can generate,
+#: matches it — this is not a restriction any real device or figure id needs
+#: to test against.
+_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
+
+
+def _valid_id(item_id: str) -> bool:
+    """Whether `item_id` is safe to interpolate into a filename.
+
+    `directory / f"{item_id}.yaml"` is only as safe as `item_id`:
+    `Path.__truediv__` silently discards the left operand when the right is
+    absolute, and a `..` segment is never rejected by `Path` at all — so an
+    id of `/etc/passwd` or `../../etc/passwd` reads a file `load` never
+    searched for and never meant to offer. A bare name rules out both. This
+    applies to every id this module reads from a caller, not only a
+    cartridge one: `load_figure` shares it, because the same interpolation
+    was the same shape before this module ever grew a search path.
+    """
+    return bool(_ID_PATTERN.fullmatch(item_id))
+
+
+def _locate(directory: Path, item_id: str) -> Path | None:
+    """`{item_id}.yaml` inside `directory`, or None if it is not safely there.
+
+    None is returned — never raised — for every reason the file cannot
+    answer `item_id`: the id is not a bare name, the directory cannot be
+    listed, the file does not exist, or (belt and braces alongside
+    `_valid_id`) the resolved path turns out not to be inside the resolved
+    directory after all — which also catches a directory that is itself a
+    symlink pointing somewhere unexpected. A caller treats None exactly like
+    a missing file: keep searching, or report not-found. That is also the
+    right response to a rejected id — a caller asking for `"../x"` is asking
+    for a device that does not exist, not for a different kind of error.
+    """
+    if not _valid_id(item_id):
+        return None
+    candidate = directory / f"{item_id}.yaml"
+    try:
+        if not candidate.is_file():
+            return None
+        resolved_dir = directory.resolve()
+        resolved_candidate = candidate.resolve()
+    except OSError:
+        return None
+    try:
+        resolved_candidate.relative_to(resolved_dir)
+    except ValueError:
+        return None
+    return candidate
+
+
+def _safe_reason(exc: Exception) -> str:
+    """A short, content-free description of why a device/figure file failed.
+
+    Never includes anything read from the file itself: a YAML parser's
+    default message quotes a snippet of the source around the error, and a
+    Pydantic `ValidationError`'s default message echoes each offending value
+    back — both are exactly the payload `MalformedDevice`/`MalformedFigure`
+    exist to keep out of a message a caller might display, log or hand to a
+    model.
+    """
+    if isinstance(exc, yaml.YAMLError):
+        return f"invalid YAML ({type(exc).__name__})"
+    if isinstance(exc, ValidationError):
+        return f"does not match the schema ({len(exc.errors())} error(s))"
+    return type(exc).__name__
+
+
+def _device_ids(directory: Path) -> set[str]:
+    """Every device id `directory` offers, or an empty set if it cannot be listed."""
+    try:
+        return {path.stem for path in directory.glob("*.yaml")}
+    except OSError:
+        return set()
 
 
 class Slot(BaseModel):
@@ -86,14 +201,78 @@ class Device(BaseModel):
         )
 
 
-@lru_cache(maxsize=8)
 def load(device_id: str) -> Device:
-    """Read a device by id from the shipped data."""
-    path = DEVICE_DIR / f"{device_id}.yaml"
-    if not path.is_file():
-        raise UnknownDevice(device_id, sorted(p.stem for p in DEVICE_DIR.glob("*.yaml")))
-    raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return Device.model_validate(raw)
+    """Read a device by id, from `DENCKRING_DEVICE_PATH` or the shipped data.
+
+    `DENCKRING_DEVICE_PATH` is a colon-separated list of directories, read from
+    the environment on every call — there is no process-wide setter, so the
+    only way to change it is to change the environment. Each directory is
+    searched for `{device_id}.yaml` *before* the directory this package ships,
+    in the order given, and the first match wins. That makes shadowing a
+    packaged device deliberate and available: put a directory ahead of the
+    packaged one on the path, give a file in it the same id, and it is what
+    `load` returns instead.
+
+    A user-supplied device is data the library reads, nothing more: there is
+    no schema versioning beyond what `Device.model_validate` already enforces,
+    no record of where a resolved device actually came from, and if it
+    shadows a packaged id, the packaged device is not what ran — `load`
+    itself has no way to tell a caller that a result came from a shadow
+    rather than from the package, so a caller who needs to know must control
+    what it puts on the path.
+
+    A directory on the path that does not exist, or cannot be listed, is
+    skipped quietly rather than raising, so a stale entry in someone's
+    environment does not break loading a device that ships with the package.
+
+    `device_id` must be a bare filename stem (letters, digits, `_` and `-`);
+    it is never accepted as a path. A cartridge lives *in* a directory on the
+    path — it cannot be addressed by giving `device_id` a separator, `..`, or
+    an absolute path to point somewhere else entirely, which `Path` would
+    otherwise allow. An id that fails this check is treated exactly like an
+    id no directory offers: not found, not a different kind of error.
+
+    Raises `UnknownDevice` naming every id findable across the whole search
+    path — the packaged directory and every extra one — not only the
+    packaged directory, because that error's job is to say what the caller
+    could have said instead. Raises `MalformedDevice` if a matching file
+    exists but its content is not readable as a device — invalid YAML, or
+    YAML that does not fit the schema — rather than letting the underlying
+    parser or validation error escape with a fragment of the file's own
+    content in its message.
+    """
+    search = _device_search_path()
+    for directory in search:
+        candidate = _locate(directory, device_id)
+        if candidate is not None:
+            return _load_path(candidate)
+    available = sorted(set().union(*(_device_ids(directory) for directory in search)))
+    raise UnknownDevice(device_id, available)
+
+
+@lru_cache(maxsize=8)
+def _load_path(path: Path) -> Device:
+    """Read and validate one device file. Cached on the resolved path.
+
+    Caching here rather than in `load` is what keeps `DENCKRING_DEVICE_PATH`
+    safe to change between two calls for the same `device_id`: `load` resolves
+    the search path — and therefore which file answers a given id — on every
+    call, uncached, and only the read of one already-resolved file is memoised.
+    A cache keyed on `device_id` alone would go stale the moment the
+    environment changed and a different file started answering the same id.
+
+    Raises `MalformedDevice` — never a raw `yaml.YAMLError` or Pydantic
+    `ValidationError` — because `load` reaching here means `path` came off
+    `_locate`, which by now may have resolved to arbitrary user-authored
+    YAML rather than only this package's own. Both underlying exceptions
+    quote content from the file in their default message; `MalformedDevice`
+    does not, and it is what callers already catch as a `DenckringError`.
+    """
+    try:
+        raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
+        return Device.model_validate(raw)
+    except (yaml.YAMLError, ValidationError) as exc:
+        raise MalformedDevice(str(path), _safe_reason(exc)) from exc
 
 
 def segment(text: str, device: Device, *, separator: str = "") -> list[str] | None:
@@ -215,16 +394,48 @@ class Figure(BaseModel):
         return ["".join(combo) for combo in combinations(self.letters, arity)]
 
 
-@lru_cache(maxsize=8)
 def load_figure(figure_id: str) -> Figure:
-    """Read a figure by id from the shipped data."""
-    path = FIGURE_DIR / f"{figure_id}.yaml"
-    if not path.is_file():
+    """Read a figure by id from the shipped data.
+
+    `figure_id` is validated exactly as `load`'s `device_id` is — a bare
+    filename stem, never a path — and for the same reason: `FIGURE_DIR /
+    f"{figure_id}.yaml"` would otherwise let an id of `/etc/passwd` or
+    `../../etc/passwd` read a file this function never meant to offer.
+    `load_figure` has no search path to shadow through, but the
+    interpolation was the same shape, so it gets the same guard via `_locate`
+    rather than a second, easier-to-miss copy of it.
+
+    Raises `UnknownFigure` for an id no directory offers, including one that
+    fails the bare-name check — a rejected id is asking for a figure that
+    does not exist, not for a different kind of error. Raises
+    `MalformedFigure`, not a raw YAML or Pydantic error, if a matching file
+    exists but cannot be read as a figure.
+    """
+    path = _locate(FIGURE_DIR, figure_id)
+    if path is None:
         raise UnknownFigure(figure_id, sorted(p.stem for p in FIGURE_DIR.glob("*.yaml")))
-    raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
-    # `label` sits alongside the letters in each level; it documents, it does not map.
-    raw["levels"] = {
-        name: {k: v for k, v in table.items() if k != "label"}
-        for name, table in raw["levels"].items()
-    }
-    return Figure.model_validate(raw)
+    return _load_figure_path(path)
+
+
+@lru_cache(maxsize=8)
+def _load_figure_path(path: Path) -> Figure:
+    """Read and validate one figure file. Cached on the resolved path.
+
+    `FIGURE_DIR` never changes at runtime, so caching by `figure_id` would be
+    just as safe here as caching by path — unlike `_load_path`, this loader
+    has no mutable search path to go stale against. Caching by path anyway
+    keeps the two loaders the same shape, which is what let this file's
+    security fix apply to both from one guard instead of two.
+    """
+    try:
+        raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
+        # `label` sits alongside the letters in each level; it documents, it does not map.
+        raw["levels"] = {
+            name: {k: v for k, v in table.items() if k != "label"}
+            for name, table in raw["levels"].items()
+        }
+        return Figure.model_validate(raw)
+    except (yaml.YAMLError, ValidationError) as exc:
+        raise MalformedFigure(str(path), _safe_reason(exc)) from exc
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise MalformedFigure(str(path), f"malformed levels table ({type(exc).__name__})") from exc

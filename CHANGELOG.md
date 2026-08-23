@@ -356,7 +356,15 @@ All notable changes to this project are documented here. The format follows
   `cent_mille_milliards` fixture carries for Queneau. Three design rules make *every* one
   of the 10^36 readings grammatical German rather than most of them: the article is
   folded into the noun, everything after the subject is an adjunct, and every verb is
-  intransitive third person singular present.
+  intransitive third person singular present. A fourth constraint is about the display
+  rather than about German: the board renders letter by letter into character cells, so
+  no filler exceeds eleven characters and no line the modules can assemble is wider than
+  71 columns — both pinned by `test_no_flap_is_wider_than_the_board`. Two further
+  constraints keep the strangeness on the right side of broken: no word reaches a line
+  from two modules, compared with German inflection folded, and each family of mutually
+  exclusive time anchors — when on the clock, since when, from when, how long ago, which
+  month — sits in one module per line, so `Der Frost gedeiht` is possible and `um fünf
+  ... um drei` is not, while roles that differ still stack.
 - An optional `line` on `Slot`, with `Device.lines` and `Device.for_line`, so one device
   can hold several lines. Additive: a device file that never mentions `line` — which is
   every existing one — reads as a single line and behaves exactly as before.
@@ -364,9 +372,55 @@ All notable changes to this project are documented here. The format follows
   Denckring's rings concatenate with nothing between them; a board whose flaps carry
   whole words sets it to a space, and the same backtracking walk then splits a line into
   modules rather than a second segmentation being written.
+- `DENCKRING_DEVICE_PATH`, a colon-separated list of directories `device.load` searches
+  before the packaged one — a device's word-lists no longer have to be ours. Directories
+  earlier on the path are tried first, so one can both add a new device id and shadow a
+  packaged one under an existing id, which is documented as deliberate rather than left
+  to be discovered. Unset, behaviour is unchanged: the packaged directory is still all
+  that is searched. A directory on the path that does not exist or cannot be read is
+  skipped quietly, so a stale entry does not stop a packaged device from loading. What it
+  does not add: no schema versioning beyond ordinary validation, and no record of where a
+  resolved device actually came from — a caller who needs to know whether a packaged
+  device was shadowed must control what it puts on the path, because `load` cannot say
+  so after the fact. The environment is read on every call rather than cached at import
+  time, and the on-disk read `load` used to memoise by `device_id` alone is now memoised
+  by the resolved path instead — a cache keyed on the id would have kept answering a
+  changed environment with whatever device it saw first. A device or figure id is
+  validated to a bare filename stem before it is ever joined to a directory (see Fixed,
+  below), so a cartridge lives *in* a directory on the path and cannot be addressed by
+  a path of its own; a relative directory on the path resolves against the process's
+  working directory at call time, so changing directory after setting the variable can
+  turn into silent misses under the same skip-quietly contract.
 
 ### Fixed
 
+- `device.load` and `device.load_figure` built a filename by interpolating the caller's
+  id directly — `directory / f"{item_id}.yaml"` — which `Path` does not make safe:
+  `Path.__truediv__` silently discards the left operand when the right is absolute, and
+  a `..` segment is never rejected. An id of `/etc/passwd` or `../../etc/passwd` read
+  that file and returned it as though it were a device. This predates
+  `DENCKRING_DEVICE_PATH` — the same interpolation was already present for both loaders
+  when they only ever read the packaged directory — but the cartridge is what turns a
+  latent gap into a routine one: it multiplies the directories an id can escape from and
+  documents "point this at your own files" as a supported feature. It is reachable from
+  outside the process, not only from Python: `DeviceParams.device` is a bare `str`, an
+  MCP client supplies it directly via `mcp/server.py`'s `**(params or {})`, and the CLI
+  reaches it through `--param device=...`. Both loaders now validate an id as a bare
+  filename stem — no separators, no `..`, never absolute — through one shared helper,
+  and independently confirm the resolved path is inside the directory it was joined to,
+  so the rule and the filesystem agree. An id that fails either check is treated exactly
+  as an id no directory offers: `UnknownDevice`/`UnknownFigure`, not a different error.
+- A cartridge file that failed to parse as YAML, or parsed but did not fit the `Device`/
+  `Figure` schema, let the raw `yaml.YAMLError` or Pydantic `ValidationError` escape.
+  Both exceptions quote content from the file in their default message — a YAML parse
+  error echoes a snippet of the source around the failure, and a Pydantic error echoes
+  each offending value back — which is a content-disclosure path once a cartridge is by
+  design arbitrary user-authored YAML, and it broke the contract `mcp/server.py` states
+  in its own docstring: only a `DenckringError` is ever converted to data for a model to
+  act on. Both loaders now raise `MalformedDevice`/`MalformedFigure` — new
+  `DenckringError` subclasses alongside `MalformedTable` and `MalformedCorpus` — naming
+  the path and a short, content-free reason (an exception's class name, or a count of
+  validation errors) instead.
 - Two language packs claiming one language were resolved silently by load order. They
   now raise `DuplicatePack` naming both, since answers that depend on installation
   order are the failure ADR 0004 exists to prevent.
