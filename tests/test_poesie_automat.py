@@ -176,13 +176,33 @@ def content_stems(filler: str) -> set[str]:
 
 
 def test_the_stemmer_folds_the_endings_it_claims_to() -> None:
-    """The detector below is only worth having if this is right, and a stemmer
-    that quietly stopped folding would make it pass by finding nothing."""
+    """This is the *only* guard on the stemmer, so it pins every ending.
+
+    The detector below stays green with `stem` reduced to `casefold` — the shipped
+    lexicon has no exact-form echo either — so nothing else in the suite would
+    notice the folding being weakened. Each ending therefore gets an assertion
+    that fails if that one entry is dropped from `_ENDINGS`, and the two longest
+    are checked against the shorter ending they must be tried before.
+    """
+    assert stem("Fenstern") == "fenst"  # -ern, and it beats -er and -n
+    assert stem("Tagen") == "tag"  # -en, and it beats -n
+    assert stem("Wasser") == "wass"  # -er
+    assert stem("Hauses") == "haus"  # -es, and it beats -e and -s
+    assert stem("gutem") == "gut"  # -em
+    assert stem("Ecke") == "eck"  # -e
+    assert stem("Bahn") == "bah"  # -n; the crudeness the short list buys
+    assert stem("Montags") == "montag"  # -s
+
+    # Umlauts are folded, so a plural that takes one still matches its singular.
+    assert stem("Häfen") == stem("Hafen")
+    assert stem("Straße") == stem("Strasse")
+
+    # The pairs the detector exists to catch.
     assert stem("Tagen") == stem("Tag")
     assert stem("Jahren") == stem("Jahre")
-    assert stem("Häfen") == stem("Hafen")
     assert stem("Wachen") == stem("Wache")
-    # Not decompounded, and not over-stripped.
+
+    # Not decompounded, and not stripped below three characters.
     assert stem("Montag") != stem("Tage")
     assert stem("Umlauf") != stem("Vorlauf")
     assert stem("Eis") == "eis"
@@ -206,20 +226,31 @@ def test_no_line_can_show_two_incompatible_time_anchors() -> None:
 
     `Der Frost gedeiht` is strange and stays — the board is allowed to be strange.
     Two clock times in one line are not strange but broken, because they fix the
-    same event at two hours, and the same goes for two calendar `seit` anchors and
-    for two months. So each family is confined to a single module per line, where
-    alternatives can never co-occur, which is also why all ten clock times survive
-    on a board of only six lines.
+    same event at two hours. The test is over families of *time anchor*, and two
+    anchors of one family fix the same event twice however the words differ. So
+    each family is confined to a single module per line, where alternatives can
+    never co-occur — which is also why all ten clock times survive on a board of
+    only six lines.
 
-    Families the line is deliberately *not* drawn around: `seit Jahren` beside
-    `über Nacht`, or `um acht` beside `gegen Abend`, which differ in granularity
-    and stack as a reader would stack them.
+    The families are semantic roles, not prepositions that happen to look alike.
+    Deliberately *not* drawn around: `um acht` beside `gegen Abend` and `ab Mai`
+    beside `Im November`, which differ in granularity; `seit X` beside `ab Y`,
+    where a retrospective anchor and a prospective one is ordinary German; and
+    `Freitags` beside `ab Dienstag`, which is a recurrence beside a start.
     """
     families = {
         "clock time": re.compile(
             r"^[Uu]m (eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf)$"
         ),
+        # Retrospective anchors: since when.
         "seit anchor": re.compile(r"^[Ss]eit "),
+        # Prospective anchors: from when. The same role as `seit`, pointing the
+        # other way, and just as unable to be given twice.
+        "ab anchor": re.compile(r"^[Aa]b "),
+        # "vor" as a distance into the past — `vor Jahren`, `vor Tagen`. Not
+        # `vor Beginn` or `vor Schluss`, which order an event against another
+        # event rather than measuring back from now.
+        "vor how long ago": re.compile(r"^[Vv]or (Jahren|Monaten|Wochen|Tagen|Stunden|Minuten)$"),
         # Only the punctual "im <month>" form. "ab Mai" and "zu Ostern" name a
         # start and a date rather than a when, and stack with a month without
         # contradicting it.

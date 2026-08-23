@@ -44,9 +44,13 @@
 # A fifth rule is about what two modules of one line may say at once. No word
 # reaches a line from two different modules, compared with inflection folded, so
 # no line can read "Der Hafen ... am Hafen"; and each family of mutually
-# exclusive time anchors — clock times, calendar `seit`, "im <Monat>" — sits in
-# a single module per line, where alternatives can never co-occur. That is why
-# all ten clock times fit on a board of six lines. Absurdity is deliberately not
+# exclusive time anchors sits in a single module per line, where alternatives can
+# never co-occur. That is why all ten clock times fit on a board of six lines.
+# The families are semantic roles rather than prepositions that look alike: when
+# on the clock, since when (`seit`), from when (`ab`), how long ago (`vor Jahren`,
+# `vor Tagen`), and which month. Two anchors of one role fix the same event twice.
+# Roles that differ still stack, and are meant to: `seit X` beside `ab Y`, `um
+# acht` beside `gegen Abend`, `ab Mai` beside `Im November`. Absurdity is not
 # constrained: "Der Frost gedeiht" stays, because the machine is allowed to be
 # strange. It is contradiction that reads as broken rather than as strange, and
 # `test_no_line_can_show_one_word_twice` and
@@ -342,7 +346,7 @@ slots:
       - "auf Halde"
       - "seit März"
       - "bei Eis"
-      - "mit Kies"
+      - "vor Tagen"
       - "vor Jahren"
   - name: Adverb
     line: 3
@@ -369,7 +373,7 @@ slots:
       - "um elf"
       - "im Freien"
       - "um zehn"
-      - "vor Tagen"
+      - "mit Kies"
   - name: Adjunkt
     line: 3
     alternatives:
@@ -511,7 +515,7 @@ slots:
       - "aus Holz"
       - "trotz Hitze"
       - "auf Posten"
-      - "ab morgen"
+      - "auf Probe"
       - "im Kiosk"
       - "von Norden"
       - "vor dem Amt"
@@ -552,5 +556,5 @@ slots:
       - "auf Abstand"
       - "ab Dienstag"
       - "im Moor"
-      - "auf Probe"
+      - "ab morgen"
       - "vor Montag"
