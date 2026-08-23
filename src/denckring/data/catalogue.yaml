@@ -3277,12 +3277,14 @@ procedures:
       stated by the German Wikipedia article on the Landsberger Poesieautomat. The
       figure is recomputed from the shipped modules rather than quoted, and it is
       an integer — `metrics["combinations"]` is a float and cannot hold it exactly.
-      Not one word of Enzensberger's lexicon ships here. He died in 2022, so his
-      word lists are in copyright until 2092; the mechanism is not, and it is the
-      mechanism this row catalogues. The 360 fillers in
-      `data/devices/poesieautomat_2000.yaml` were written for this project, on the
-      same footing as the substitute strips the `cent_mille_milliards` fixture
-      carries for Queneau. Three design rules are what make every one of the 10^36
+      No lexicon of Enzensberger's ships here. He died in 2022, so his word lists
+      are in copyright until 2092; the mechanism is not, and it is the mechanism
+      this row catalogues. The 360 fillers in
+      `data/devices/poesieautomat_2000.yaml` were written for this project without
+      reference to his lists, on the same footing as the substitute strips the
+      `cent_mille_milliards` fixture carries for Queneau. How they were made is
+      what can be said; word-for-word non-overlap with a list this project has
+      never read could not be checked, and is not claimed. Three design rules are what make every one of the 10^36
       readings grammatical German rather than most of them: the article is folded
       into the noun so agreement never crosses a module boundary, everything after
       the subject is an adjunct, and every verb is intransitive third person
