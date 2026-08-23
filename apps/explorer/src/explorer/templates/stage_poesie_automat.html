@@ -1,0 +1,585 @@
+{% extends "stage.html" %}
+{% block title %}Poesie-Automat{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Hans Magnus Enzensberger &middot; Landsberger Poesieautomat, 2000</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+{# The board: six lines of six drums, each drum a window on a strip of flaps.
+   Not a `.scene-split` — every other scene puts its figure in a 620px column
+   with the panel beside it, and this one cannot: the widest line needs 134
+   characters of width and there is nothing like that left over beside a
+   figure. The board takes the full stage and its panel sits underneath.
+
+   **A departure from a literal board, and it is deliberate.** On the machine
+   in Landsberg the drums stand in six true columns, every module the same
+   width as the one above it. That board is 155 characters wide — the widest
+   module of each column, summed — and 155 characters does not fit 1280px at
+   any size worth recording. Sizing each drum to its own module's widest flap
+   instead brings the widest line to 134 characters, which does fit. So the
+   columns here are the machine's, not the eye's: a drum is as wide as its own
+   ten flaps and no wider, and drums on different lines do not line up. Both
+   figures are exact character counts over the shipped device (a test derives
+   them); the rendered widths are in the task report. #}
+<div class="automat-stage">
+  <div class="flap-board turnable-figure" id="flap-board">
+    {% set ns = namespace(slot=0) %}
+    {% for line in board.lines %}
+    <div class="flap-line" data-line="{{ line.number }}">
+      {% for module in line.modules %}
+      {% set slot = ns.slot %}
+      {% set ns.slot = ns.slot + 1 %}
+      {# `role="slider"`, real focus, and the arrow keys — so a drum can be
+         turned without a pointer at all, and so that path arms the
+         placeholder through the same choke point a drag does. The module's
+         name is in the label rather than being the label: five of the six
+         modules on line 2 are called `Adjunkt`, so position is the only
+         identity a drum has. #}
+      <div class="flap" id="flap-{{ slot }}" data-slot="{{ slot }}"
+           data-index="{{ positions[slot] }}" tabindex="0" role="slider"
+           aria-label="line {{ line.number + 1 }}, module {{ loop.index }} ({{ module.name }})"
+           aria-valuemin="1" aria-valuemax="{{ module.alternatives | length }}"
+           aria-valuenow="{{ positions[slot] + 1 }}"
+           aria-valuetext="{{ module.alternatives[positions[slot]] }}">
+        {# The strip carries the module's ten flaps **three times**, and the
+           drum rests on the middle turn.
+
+           The drum is a window one cell tall and the strip is translated by
+           whole cells, so a drum that ran past its last flap would have to
+           jump nine cells back to reach the first — visibly, and in the wrong
+           direction. Repeating the flaps removes the jump: cell *k* and cell
+           *k* + 10 show the same words, so the position can be brought back
+           onto the middle turn at any moment with the transition off and
+           nothing on screen changes.
+
+           Three turns rather than two, and the middle one rather than the
+           first, because of the hand. A drum under a finger rests *between*
+           two flaps, up to half a cell either way, so there has to be a real
+           cell above the window and a real cell below it at every resting
+           position. On two turns with the drum parked on the first, dragging
+           down past the top flap showed the blank above the strip — measured,
+           in a browser, before this was three. A clatter is at most nine
+           steps and starts on the middle turn, so it can never run off the
+           third.
+
+           It is also what sizes the drum: the strip is as wide as its widest
+           cell, so every drum comes out exactly as wide as its own longest
+           flap without anything measuring a font. #}
+        <div class="flap-strip"
+             style="transform: translateY(calc(var(--flap-h) * {{ -(module.alternatives | length + positions[slot]) }}))">
+          {% for turn in range(3) %}{% for alternative in module.alternatives %}
+          <span class="flap-cell">{{ alternative }}</span>
+          {%- endfor %}{% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="automat-panel">
+    {# The departure, said in the scene's own voice rather than only in a
+       comment — a viewer looking at drums that do not line up is owed the
+       reason. #}
+    <p class="scene-note">A literal board sets its drums in six true columns, every module as
+      wide as the widest anywhere above or below it. That board is 155 characters across and
+      does not fit this stage at a size worth reading. Sized to its own line instead, the
+      widest line needs 134 &mdash; so the columns here are the machine&rsquo;s, not the eye&rsquo;s.</p>
+    {# One button, because the machine had one. "Read the board" is the second
+       half of the same form and not a second machine: it checks the flaps as
+       they now stand, which is what a drum turned by hand needs and what the
+       release of a drag submits for itself. #}
+    <form class="actions" id="automat-form" hx-post="/stage/poesie_automat/act"
+          hx-target="#automat-reading" hx-swap="innerHTML" hx-trigger="submit">
+      {# What `check` is given, filled from the drums' own windows the instant
+         before this is submitted — see `readBoard`. Never recomputed from the
+         seed on the server: the poem checked has to be the poem on the
+         board. #}
+      <input type="hidden" name="poem" id="automat-poem" value="">
+      <button type="submit" name="press" value="1" id="automat-press">Press the button</button>
+      <button type="submit" id="automat-read">Read the board</button>
+    </form>
+    <div class="automat-reading" id="automat-reading">
+      {% include "_stage_flaps.html" %}
+    </div>
+    {# The exact count, as a power. `dev.combinations` is a Python `int` and
+       holds 10^36 exactly; `metrics["combinations"]` is the same number
+       through a float and comes out `1e+36`, so it is never what this line
+       reads. Thirty-seven digits on a stage read as a smear rather than a
+       number, so the page prints the power — and only when the count really
+       is one (see `stage.power_of_ten`). #}
+    <p class="automat-count">
+      <span class="count count-true">{% if exponent is not none %}10<sup>{{ exponent }}</sup>{%
+        else %}{{ "{:,}".format(board.combinations) }}{% endif %}</span>
+      <span class="count-label">poems this board can show</span>
+    </p>
+    {# The scene's whole announcement to a screen reader: stable, atomic, and
+       outside the swapped region, so a clatter of 36 drums does not read the
+       board out flap by flap. Scene seven's own lesson. #}
+    <p class="visually-hidden" id="automat-status" role="status" aria-live="polite"
+       aria-atomic="true"></p>
+    <p class="scene-credit">Enzensberger&rsquo;s mechanism, not his words: he died in 2022 and
+      his lists are in copyright until 2092, so the 360 flaps here were written for this
+      project (see the catalogue&rsquo;s <code>poesie_automat</code> row and the device file).</p>
+  </div>
+</div>
+<script>
+// The flap-board, driven entirely here. Enzensberger specified an
+// electromechanical split-flap display of the railway-platform kind and the
+// machine built for *Lyrik am Lech* is one, so the clatter below is the object
+// rather than a decoration on it: a drum sent from flap a to flap b runs
+// through every flap in between, and the board resolves in a wave because the
+// drums are started one after another.
+//
+// Everything steps by **index**. Nothing here ever finds a flap by the words
+// written on it — the same rule `hold_turn.js`, `stage.pieces_for` and
+// `stage.llull_positions` keep, for the reason scene one learned the hard way.
+const FLAPS = 10;   // flaps on every drum, from the device file
+// The strip carries the flaps three times and the drum rests on the middle
+// turn, so there is always a real cell above the window and a real cell below
+// it for a hand resting between two flaps. `HOME` is the first cell of that
+// middle turn; `pos` is a position on the strip, in cells, and `flapIndex` is
+// the number that means anything outside this file.
+const HOME = FLAPS;
+
+// One flap of one drum. Short enough to clatter, long enough to see a word go
+// past. The transition on the strip is the same length, so the steps run into
+// one another rather than stopping between each.
+const FLAP_MS = 60;
+// How far apart two neighbouring drums start, in reading order — this is what
+// makes the board resolve in a wave rather than in unison. The whole press is
+// budgeted 1.5-2.5s; what it actually clocks is in the task report, measured
+// in the page rather than added up from these two numbers.
+const STAGGER_MS = 34;
+// A drum let go between two flaps clicks into the nearer one. Same length and
+// the same reason as both volvelles' own snap.
+const SNAP_MS = 150;
+// One flap under the arrow keys — a step, not a clatter.
+const STEP_MS = 130;
+
+const boardEl = document.getElementById('flap-board');
+const formEl = document.getElementById('automat-form');
+const poemEl = document.getElementById('automat-poem');
+const pressBtn = document.getElementById('automat-press');
+const readBtn = document.getElementById('automat-read');
+const readingEl = document.getElementById('automat-reading');
+const statusEl = document.getElementById('automat-status');
+const lineEls = Array.from(boardEl.querySelectorAll('.flap-line'));
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// ── the drums ──────────────────────────────────────────────────────────────
+const drums = Array.from(boardEl.querySelectorAll('.flap')).map((el) => ({
+  el: el,
+  strip: el.querySelector('.flap-strip'),
+  cells: Array.from(el.querySelectorAll('.flap-cell')),
+  pos: HOME + Number(el.dataset.index),
+  residual: 0,   // px off the detent, while a hand is on it
+  baseline: null, // where in the drum the hand first came down
+  committed: 0,  // whole flaps handed over since that grab
+}));
+
+function flapIndex(slot) {
+  return ((drums[slot].pos % FLAPS) + FLAPS) % FLAPS;
+}
+
+// The cell actually standing in the drum's window. Everything that asks what a
+// drum *says* asks this — the words come off the board, never out of a copy of
+// the device kept beside it.
+function windowCell(slot) {
+  return drums[slot].cells[drums[slot].pos];
+}
+
+// One cell's height, asked of the drum itself rather than parsed out of the
+// custom property — the drag's arithmetic has to be in the same pixels the
+// browser laid the board out in.
+function flapHeight(slot) {
+  return drums[slot].el.getBoundingClientRect().height;
+}
+
+// The strip, drawn where it now stands. `ms` of 0 means land immediately —
+// which is what a drag writes on every move (the drum is under the finger, so
+// anything eased would be lag) and what reduced motion gets everywhere.
+function drawDrum(slot, ms, residualPx) {
+  const d = drums[slot];
+  d.residual = residualPx || 0;
+  const off = d.residual ? ` + ${d.residual.toFixed(2)}px` : '';
+  d.strip.style.transition = ms > 0 ? `transform ${ms}ms cubic-bezier(0.35, 0, 0.2, 1)` : 'none';
+  d.strip.style.transform = `translateY(calc(var(--flap-h) * ${-d.pos}${off}))`;
+}
+
+// What the drum now says, into the accessible tree and onto the element the
+// tests read. Never the other way round: the words come from the cell that is
+// actually in the window.
+function syncDrum(slot) {
+  const d = drums[slot];
+  const index = flapIndex(slot);
+  d.el.dataset.index = String(index);
+  d.el.setAttribute('aria-valuenow', String(index + 1));
+  d.el.setAttribute('aria-valuetext', windowCell(slot).textContent.trim());
+}
+
+// Back onto the middle turn, ready for a hand. Invisible by construction: cell
+// `k` and cell `k + 10` carry the same words, so a position moved by a whole
+// turn changes nothing on screen.
+function normalise(slot) {
+  const d = drums[slot];
+  d.pos = HOME + (((d.pos - HOME) % FLAPS) + FLAPS) % FLAPS;
+}
+
+// The poem the board is showing, read out of the cells themselves — the flap
+// in each drum's window, in reading order. This is the only thing ever
+// submitted for checking. Nothing recomputes it from the seed the server
+// pressed the button with: what `check` receives has to be what is on the
+// board, including whatever a hand has turned since.
+function readBoard() {
+  return lineEls
+    .map((lineEl) =>
+      Array.from(lineEl.querySelectorAll('.flap'))
+        .map((el) => windowCell(Number(el.dataset.slot)).textContent.trim())
+        .join(' ')
+    )
+    .join('\n');
+}
+
+// ── state ──────────────────────────────────────────────────────────────────
+let inert = false;       // a round trip is in flight
+let clattering = false;  // the board is running under its own power
+let activeDrums = 0;     // drums under a hand right now
+let deferredRead = false; // a drum moved during a round trip; a read is owed
+// Bumped by every path that can move a drum. A verdict is only allowed to
+// stand if the token it was asked under is still the current one.
+let boardToken = 0;
+let submittedToken = 0;
+
+function refreshControls() {
+  const blocked = inert || clattering || activeDrums > 0;
+  pressBtn.disabled = blocked;
+  readBtn.disabled = blocked;
+}
+
+function announce(text) {
+  statusEl.textContent = text;
+}
+
+// The scene's one honest state whenever there is no checked verdict to show.
+// Which of the two things it says is decided by **the board's own state**, not
+// by what happened to it — the lesson scene six had to learn: four paths reach
+// here (the clatter, a drum grabbed, a verdict overtaken before it landed, and
+// a request that never came back) and a message naming any one of them is
+// wrong on the other three. Either something is moving, or nothing is and no
+// verdict has been earned for the flaps now showing. Both are true from every
+// path. Not `.yes`/`.no`: a claim neither of those colours has earned.
+function setVerdictTurning() {
+  const verdict = readingEl.querySelector('.verdict');
+  if (!verdict) return;
+  verdict.className = 'verdict turning';
+  verdict.removeAttribute('data-checked');
+  verdict.textContent =
+    clattering || activeDrums > 0
+      ? 'the flaps are still running'
+      : 'no verdict for the flaps now showing';
+}
+
+// The invariant, at its choke point. Anything that changes what the board
+// shows goes through here first: any verdict standing over the old poem is
+// replaced by the placeholder, and the token every in-flight check was asked
+// under stops being current.
+function invalidate() {
+  boardToken++;
+  setVerdictTurning();
+  refreshControls();
+}
+
+function announceReading() {
+  const verdict = readingEl.querySelector('.verdict');
+  if (!verdict || verdict.classList.contains('turning')) return;
+  announce(verdict.textContent.trim());
+}
+
+// ── the clatter ────────────────────────────────────────────────────────────
+//
+// Never waits on `transitionend`: `explorer.css` sets `transition: none
+// !important` under `prefers-reduced-motion`, so the event would never fire
+// and every drum would be stranded on its first flap. The steps are chained on
+// timers sized to their own durations instead — the same shape scenes three
+// and six use.
+function runDrum(slot, target) {
+  const distance = (target - flapIndex(slot) + FLAPS) % FLAPS;
+  // A module already showing the flap it has been sent to does not move, which
+  // is what the machine does too.
+  if (distance === 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    let done = 0;
+    const tick = () => {
+      drums[slot].pos += 1;
+      drawDrum(slot, FLAP_MS, 0);
+      syncDrum(slot);
+      done++;
+      if (done < distance) {
+        setTimeout(tick, FLAP_MS);
+      } else {
+        setTimeout(() => {
+          normalise(slot);
+          drawDrum(slot, 0, 0);
+          resolve();
+        }, FLAP_MS);
+      }
+    };
+    setTimeout(tick, slot * STAGGER_MS);
+  });
+}
+
+// Every drum straight to its flap, no motion at all. Reduced motion asks for
+// the end state immediately, and the end state of a press is the poem the
+// board was sent to.
+function landBoard(targets) {
+  targets.forEach((target, slot) => {
+    drums[slot].pos = HOME + target;
+    drawDrum(slot, 0, 0);
+    syncDrum(slot);
+  });
+}
+
+function clatterTo(targets) {
+  if (prefersReducedMotion()) {
+    landBoard(targets);
+    return Promise.resolve();
+  }
+  return Promise.all(targets.map((target, slot) => runDrum(slot, target)));
+}
+
+// ── turning a drum by hand ─────────────────────────────────────────────────
+//
+// `HoldTurn.attachLinearDrag`, not `attachDrag`: a split-flap drum turns about
+// a horizontal axis that runs *into* the screen's plane, so what a hand sees
+// and takes hold of is a strip travelling straight up and down. There is no
+// centre on screen to sweep an angle about, and inventing one to reuse the
+// volvelles' arithmetic would be a lie about the gesture — which is the
+// distinction that file already draws between its two drags.
+const dragging = new Set();
+
+function stepDrum(slot, advance) {
+  drums[slot].pos += advance;
+  normalise(slot);
+  syncDrum(slot);
+}
+
+function beginDrumMove() {
+  activeDrums++;
+  // Re-armed on every grab rather than only the first: a read already in
+  // flight when this one began lands a real verdict a moment later, and this
+  // drum is moving under it.
+  invalidate();
+  if (activeDrums === 1) announce('Turning a drum by hand.');
+}
+
+function endDrumMove() {
+  activeDrums = Math.max(0, activeDrums - 1);
+  refreshControls();
+  if (activeDrums === 0) releaseRead();
+}
+
+// The board has stopped moving and owes a fresh, checked verdict for whatever
+// it now shows. A round trip already in flight is not raced: the debt is
+// recorded and settled by `clearInert` the moment the board is the client's
+// again — without that, a drum turned and let go entirely inside one round
+// trip left the placeholder up with nothing left to take it down.
+function releaseRead() {
+  if (activeDrums > 0 || clattering) return;
+  if (inert) {
+    deferredRead = true;
+    return;
+  }
+  submitRead();
+}
+
+function submitRead() {
+  poemEl.value = readBoard();
+  formEl.requestSubmit();
+}
+
+HoldTurn.attachLinearDrag(boardEl, {
+  bladeAt: (evt) => {
+    // A board running under its own power owns its drums; you cannot stop a
+    // flap module with your hand, and letting a grab land mid-clatter would
+    // mean two writers on one strip.
+    if (clattering) return null;
+    const el = evt.target.closest ? evt.target.closest('.flap') : null;
+    return el ? Number(el.dataset.slot) : null;
+  },
+  axis: () => 'y',
+  origin: (slot) => {
+    // The drum's own box, measured fresh on every grab.
+    const rect = drums[slot].el.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  },
+  grab: (slot) => {
+    const d = drums[slot];
+    d.baseline = null;
+    d.committed = 0;
+    dragging.add(slot);
+    boardEl.classList.add('grabbing');
+    beginDrumMove();
+  },
+  move: (slot, offset) => {
+    const d = drums[slot];
+    // `attachLinearDrag` reports where the pointer is along the track, and the
+    // first such report is the grab itself. That first offset is the zero this
+    // gesture is measured from — the drum must not jump to put the pointer at
+    // its top edge.
+    if (d.baseline === null) {
+      d.baseline = offset;
+      return;
+    }
+    const height = flapHeight(slot);
+    const travelled = offset - d.baseline;
+    // The strip follows the hand: dragging down brings the flap *above* into
+    // the window, so a downward travel is a negative advance. Same sign the
+    // volvelles' own `Math.round(-sweep / step)` carries, for the same reason.
+    const target = Math.round(-travelled / height);
+    const delta = target - d.committed;
+    d.committed = target;
+    if (delta) stepDrum(slot, delta);
+    drawDrum(slot, 0, travelled + target * height);
+  },
+  release: (slot) => {
+    // `endDrumMove` — and with it the read — only once the snap has settled:
+    // `activeDrums` stays positive through it, so the gate in `releaseRead`
+    // cannot let a checked verdict land over a drum still visibly moving.
+    snapDrum(slot).then(() => {
+      dragging.delete(slot);
+      if (dragging.size === 0) boardEl.classList.remove('grabbing');
+      endDrumMove();
+    });
+  },
+});
+
+// The settle onto the nearest flap. Never resolves on `transitionend` alone —
+// the house rule; under reduced motion the drum simply lands, which is right,
+// because the drag itself is direct manipulation and only the settle is
+// theatre.
+function snapDrum(slot) {
+  const residual = drums[slot].residual;
+  if (!residual || prefersReducedMotion()) {
+    drawDrum(slot, 0, 0);
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    drawDrum(slot, SNAP_MS, 0);
+    setTimeout(resolve, SNAP_MS);
+  });
+}
+
+// The keyboard moves a drum too, so it arms through the same choke point the
+// drag does — an invariant that only held for the pointer would be no
+// invariant at all.
+function drumKey(evt, slot) {
+  const down = evt.key === 'ArrowDown';
+  const up = evt.key === 'ArrowUp';
+  if (!down && !up) return;
+  if (clattering) return;
+  evt.preventDefault();
+  beginDrumMove();
+  stepDrum(slot, down ? -1 : 1);
+  drawDrum(slot, prefersReducedMotion() ? 0 : STEP_MS, 0);
+  endDrumMove();
+}
+
+drums.forEach((d, slot) => {
+  d.el.addEventListener('keydown', (evt) => drumKey(evt, slot));
+});
+
+// ── the round trip ─────────────────────────────────────────────────────────
+document.body.addEventListener('htmx:beforeRequest', (evt) => {
+  if (evt.target !== formEl) return;
+  if (inert) {
+    evt.preventDefault();
+    return;
+  }
+  inert = true;
+  submittedToken = boardToken;
+  refreshControls();
+});
+
+// The one place `inert` is given back, so every path that hands the board back
+// to the client also settles whatever it owes.
+function clearInert() {
+  inert = false;
+  refreshControls();
+  if (!deferredRead) return;
+  deferredRead = false;
+  // A hand still down will submit for itself when it lets go.
+  if (activeDrums > 0) return;
+  submitRead();
+}
+
+// A request that never gets a swap at all — a network failure, a non-2xx
+// response — would otherwise leave `inert` stuck true **forever**, because the
+// swap handler below is the only other place it goes back to false. That is
+// not a staleness bug, which is what the token is for; it is a liveness one,
+// and the placeholder machinery cannot see it. All three of the other
+// interactive scenes carry these two lines and a cross-scene test pins that
+// they do.
+//
+// Deliberately not `clearInert`: a read that failed would settle its own debt
+// by submitting another read, which would fail in its own turn, and the scene
+// would sit in a retry loop for the rest of the recording. The debt is dropped
+// instead, the placeholder stands, and both buttons come back — a viewer can
+// press either one.
+function requestFailed() {
+  inert = false;
+  deferredRead = false;
+  setVerdictTurning();
+  refreshControls();
+}
+document.body.addEventListener('htmx:responseError', requestFailed);
+document.body.addEventListener('htmx:sendError', requestFailed);
+
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.detail.target.id !== 'automat-reading') return;
+  const verdict = readingEl.querySelector('.verdict');
+  const raw = verdict ? verdict.dataset.positions : '';
+  if (raw) {
+    // The press. The reply carries no verdict, only where the drums are to be
+    // sent — so the board is free to change without anything true being
+    // contradicted while it does.
+    inert = false;
+    // `clattering` before `invalidate`, and the order is load-bearing: the
+    // placeholder reads the board's own state to decide which of its two true
+    // things to say, so a board about to run has to be running by the time it
+    // is asked.
+    clattering = true;
+    invalidate();
+    refreshControls();
+    announce('The flaps are running.');
+    clatterTo(raw.split('|').map(Number)).then(() => {
+      clattering = false;
+      refreshControls();
+      // And now, at rest, the board asks what it is showing.
+      releaseRead();
+    });
+    return;
+  }
+  // A read: a real, checked verdict, about the poem that was submitted. If a
+  // drum has moved since — the token has changed, or one is under a hand right
+  // now, or the board is running — that poem is not what the board is showing,
+  // and the placeholder is the only true thing to say.
+  if (boardToken !== submittedToken || activeDrums > 0 || clattering) {
+    setVerdictTurning();
+  } else {
+    announceReading();
+  }
+  clearInert();
+});
+
+// ── first paint ────────────────────────────────────────────────────────────
+// The drums are already where the server put them (`positions`, rendered into
+// each strip's own transform), and the verdict beside them is a real `check()`
+// of the poem those flaps spell. Nothing to do here but make the controls
+// agree with the state.
+refreshControls();
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

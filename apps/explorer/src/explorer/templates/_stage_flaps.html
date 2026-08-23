@@ -1,0 +1,28 @@
+{# The one thing this scene ever swaps: what the checker says about the poem
+   the drums are showing, or — on a press — where the drums are to be sent.
+
+   Exactly one of the two is ever set. `positions` is the reply to a press:
+   the 36 flap indices `apply`'s poem spells, with **no verdict**, because at
+   that moment the board is still showing the previous poem and a verdict
+   printed here would stand over it for the whole length of the clatter.
+   `report` is the reply to a read: a real `check()` of the text the page sent
+   up, which is the text read out of the drums' own windows.
+
+   `data-positions` and `data-checked` live on this `<p>` rather than on the
+   `#automat-reading` wrapper around it, for the reason
+   `_stage_llull_reading.html` gives: an `innerHTML` swap replaces this
+   content and not the wrapper's attributes, so anything the script reads back
+   after a swap has to sit on something the swap actually replaces. #}
+<p class="verdict {{ 'turning' if report is none else ('yes' if report.satisfied else 'no') }}"
+  {%- if positions is not none %} data-positions="{{ positions | join('|') }}"{% endif %}
+  {%- if text is not none %} data-checked="{{ text }}"{% endif %}>
+  {%- if report is none -%}
+  the flaps are still running
+  {%- elif report.satisfied -%}
+  checked &mdash; all {{ report.metrics.lines | int }} lines are ones this board can show,
+  {{ report.metrics.modules | int }} modules deep
+  {%- else -%}
+  {% set violation = report.violations[0] %}
+  checked &mdash; {{ violation.rule.replace('_', ' ') }}: {{ violation.expected }}
+  {%- endif -%}
+</p>
