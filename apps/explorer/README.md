@@ -50,14 +50,17 @@ there; and the result marks the offending characters inline using the offsets ev
 
 `/board` lays out every golden case in the catalogue and runs each one live, so
 it is slow by design — that is the coverage picture, run for real rather than
-cached. `/stage` holds six recordable demo scenes at a fixed size for
-screen capture. Neither needs a corpus except the Ideenwürfeln scene, which
+cached. `/stage` holds the recordable demo scenes at a fixed size for screen
+capture — one per procedure it depicts, listed by the page itself rather than
+counted here, because a number in this sentence has been wrong twice. Neither needs a corpus except the Ideenwürfeln scene, which
 explains itself in the page when `DENCKRING_CORPORA` is unset.
 
 The Python suite executes no JavaScript. What is guarded by tests is the markup,
 the routes and the procedures behind them; the scenes' actual behaviour in a
-browser — the discs spinning and landing, the reduced-motion paths, the layout
-fitting 1280×720 — is verified by hand and by no test at all. That gap is worth
+browser — the discs spinning and landing, the flaps clattering, the
+reduced-motion paths, the layout fitting 1280×720 — is verified by hand, and by
+the Playwright reproductions under `tests/browser/`, which `pytest` does not
+run. That gap is worth
 naming plainly: checking scenes by eye in this stage caught eight real bugs a
 Python test could not have seen, including four of five discs painted over one
 another and, in N+7, a language select that claimed the whole form row and left
