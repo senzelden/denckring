@@ -52,8 +52,9 @@ there; and the result marks the offending characters inline using the offsets ev
 it is slow by design — that is the coverage picture, run for real rather than
 cached. `/stage` holds the recordable demo scenes at a fixed size for screen
 capture — one per procedure it depicts, listed by the page itself rather than
-counted here, because a number in this sentence has been wrong twice. Neither needs a corpus except the Ideenwürfeln scene, which
-explains itself in the page when `DENCKRING_CORPORA` is unset.
+counted here, because a number in this sentence has been wrong twice. Neither
+needs a corpus except the Ideenwürfeln scene, which explains itself in the page
+when `DENCKRING_CORPORA` is unset.
 
 The Python suite executes no JavaScript. What is guarded by tests is the markup,
 the routes and the procedures behind them; the scenes' actual behaviour in a

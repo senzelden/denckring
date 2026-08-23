@@ -1501,6 +1501,11 @@ def automat_poem(positions: list[int]) -> str:
     The inverse of `automat_positions`, and the page's own first paint reads
     from here — so what the drums show at first paint and what `check` is
     asked about are one string built once, not two built twice.
+
+    Every flap index is checked against its own module rather than folded into
+    range: a `10` on a ten-flap drum is a caller that has miscounted, and
+    rendering flap 0 for it would turn that into a poem that looks fine and is
+    about a board nobody asked for.
     """
     machine = device.load(POESIE_AUTOMAT_DEVICE)
     if len(positions) != len(machine.slots):
@@ -1508,11 +1513,17 @@ def automat_poem(positions: list[int]) -> str:
             "poesie_automat",
             f"the board has {len(machine.slots)} modules, not {len(positions)} flaps",
         )
+    for slot, flap in zip(machine.slots, positions, strict=True):
+        if not 0 <= flap < len(slot.alternatives):
+            raise InvalidParams(
+                "poesie_automat",
+                f"module {slot.name!r} on line {slot.line + 1} has "
+                f"{len(slot.alternatives)} flaps, so there is no flap {flap}",
+            )
     flaps = iter(positions)
     return "\n".join(
         POESIE_AUTOMAT_SEPARATOR.join(
-            slot.alternatives[next(flaps) % len(slot.alternatives)]
-            for slot in machine.for_line(number).slots
+            slot.alternatives[next(flaps)] for slot in machine.for_line(number).slots
         )
         for number in machine.lines
     )
