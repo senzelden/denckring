@@ -15,6 +15,7 @@ from explorer.app import app
 from fastapi.testclient import TestClient
 
 from denckring import check as denckring_check
+from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, LanguagePack
 
 client = TestClient(app)
@@ -3249,11 +3250,16 @@ def test_the_denckring_step_source_defers_a_round_trips_ticks_and_yields_to_a_gr
     assert "if (dragging.has(wheelIndex)) return pendingStep;" in llull
 
 
-def test_both_volvelles_declare_their_figure_grabbable() -> None:
+def test_every_scene_you_take_hold_of_declares_its_figure_grabbable() -> None:
     """The affordance and the thing that makes a touch drag possible at all,
-    in shared CSS rather than two private copies. Without `touch-action:
+    in shared CSS rather than a private copy per scene. Without `touch-action:
     none` the gesture scrolls the page instead of turning a ring, so this is
-    not decoration."""
+    not decoration.
+
+    Named for the three scenes it now covers rather than for the two it began
+    with: scene eight is not a volvelle — its drums slide rather than sweep —
+    but it is a figure a hand takes hold of, and it wants the same two
+    declarations."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     css = " ".join(css_path.read_text(encoding="utf-8").split())
     figure = css.split(".turnable-figure {", 1)[1].split("}", 1)[0]
@@ -3369,7 +3375,12 @@ def test_first_paint_is_a_settled_board_and_a_real_verdict() -> None:
     for line in board.lines:
         for module in line.modules:
             assert f'aria-valuetext="{html.escape(module.alternatives[0])}"' in body
-    assert body.count('role="slider"') == 36
+    # Focusable *and* a slider, matched together: a drum that declared the role
+    # without a tab stop would be a slider no keyboard could reach. Matched as
+    # one string rather than counted separately, so the scene's own prose about
+    # the role cannot make up the difference.
+    assert body.count('tabindex="0" role="slider"') == 36
+    assert body.count('aria-orientation="vertical"') == 36
 
 
 def test_the_count_is_the_exact_integer_rendered_as_a_power() -> None:
@@ -3518,7 +3529,10 @@ def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_a_drum(
     assert "invalidate();" in begin.group(1)
     grab = re.search(r"  grab: \(slot\) => \{(.*?)\n  \},", script, re.S)
     assert grab is not None
-    assert "beginDrumMove();" in grab.group(1)
+    assert "grabDrum(slot);" in grab.group(1)
+    grab_drum = re.search(r"function grabDrum\(slot\) \{(.*?)\n\}", script, re.S)
+    assert grab_drum is not None
+    assert "beginDrumMove();" in grab_drum.group(1)
     key = re.search(r"function drumKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
     assert key is not None
     assert "beginDrumMove();" in key.group(1)
@@ -3534,6 +3548,11 @@ def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_a_drum(
     assert swap is not None
     press = swap.group(1).split("if (raw) {", 1)[1]
     assert press.index("clattering = true;") < press.index("invalidate();")
+    # And the machine takes the board from any hand still on it before it
+    # starts — `clattering` is already true when it does, so the drums it lets
+    # go of cannot ask for a read on their way out.
+    assert press.index("clattering = true;") < press.index("releaseHeldDrums();")
+    assert press.index("releaseHeldDrums();") < press.index("invalidate();")
     # and the submit is gated while anything is moving
     refresh = re.search(r"function refreshControls\(\) \{(.*?)\n\}", script, re.S)
     assert refresh is not None
@@ -3579,11 +3598,24 @@ def test_the_flap_source_refuses_a_verdict_for_a_board_that_has_moved_since() ->
     assert release is not None
     assert "if (activeDrums > 0 || clattering) return;" in release.group(1)
     assert "deferredRead = true;" in release.group(1)
-    clear = re.search(r"function clearInert\(\) \{(.*?)\n\}", script, re.S)
+    clear = re.search(r"function clearInert\(settle\) \{(.*?)\n\}", script, re.S)
     assert clear is not None
-    assert "inert = false;" in clear.group(1)
-    assert "deferredRead = false;" in clear.group(1)
-    assert "submitRead();" in clear.group(1)
+    body = clear.group(1)
+    assert "inert = false;" in body
+    assert "deferredRead = false;" in body
+    # The debt is read out and cleared *before* the decision, so no path can
+    # leave it recorded: `settle` chooses whether it is paid, never whether it
+    # survives.
+    assert body.index("const owed = deferredRead;") < body.index("deferredRead = false;")
+    assert "if (settle && owed && activeDrums === 0) submitRead();" in body
+    # Exactly one caller settles, and it is the read branch. The press branch
+    # drops it, because the clatter it is about to start moves every drum on
+    # the board and its own read covers the result; leaving it settled cost a
+    # third round trip (measured: 3 POSTs against 2 for press-plus-one-key).
+    assert script.count("clearInert(true);") == 1
+    assert "clearInert(true);" in swap.group(1).rsplit("if (raw) {", 1)[-1]
+    press_branch = swap.group(1).split("if (raw) {", 1)[1].split("return;", 1)[0]
+    assert "clearInert(false);" in press_branch
 
 
 def test_the_flap_source_frees_itself_when_a_request_never_comes_back() -> None:
@@ -3604,11 +3636,16 @@ def test_the_flap_source_frees_itself_when_a_request_never_comes_back() -> None:
     failed = re.search(r"function requestFailed\(\) \{(.*?)\n\}", script, re.S)
     assert failed is not None
     body = failed.group(1)
-    assert "inert = false;" in body
-    assert "deferredRead = false;" in body
+    # It goes through the one place `inert` is given back, rather than writing
+    # its own copy of that accounting — and passes `false`, so the read this
+    # scene may owe is dropped rather than answered with one more request into
+    # a link that is not replying.
+    assert "clearInert(false);" in body
+    assert "clearInert(true)" not in body
     assert "setVerdictTurning();" in body
-    assert "refreshControls();" in body
-    assert "submitRead();" not in body
+    # The placeholder goes up while `inert` still describes what the viewer is
+    # looking at.
+    assert body.index("setVerdictTurning();") < body.index("clearInert(false);")
     assert "document.body.addEventListener('htmx:responseError', requestFailed);" in script
     assert "document.body.addEventListener('htmx:sendError', requestFailed);" in script
 
@@ -3721,6 +3758,133 @@ def test_the_scene_turns_a_drum_by_index_and_never_by_the_words_on_it() -> None:
     assert module.count("function attach") == 3
 
 
+def test_reading_the_board_is_never_a_native_submit() -> None:
+    """A source-level guard, and named as one; the browser reproduction is
+    `tests/browser/flap-board.mjs read`.
+
+    The defect it exists for, measured before it was written: "Read the board"
+    was a `type="submit"` button, a native submit posts the hidden field
+    exactly as it stands, and the only thing that ever *fills* that field is
+    `readBoard()`. So clicking it from first paint put `poem=` on the wire and
+    landed `checked — missing line: a line the 6 modules of line 1 can spell`
+    — a real, red `check()` verdict standing over a board that was perfectly
+    valid, which is the invariant this scene is built around, reached by the
+    one path that never went near a drum.
+
+    It is a plain button now and goes through `releaseRead`, the same gate and
+    the same read a drag's own release goes through. The press button stays a
+    real submitter, because its branch is the one that ignores the field."""
+    body = _automat_page()
+    assert '<button type="button" id="automat-read">' in body
+    assert '<button type="submit" name="press" value="1" id="automat-press">' in body
+    assert body.count('type="submit"') == 1
+    script = _automat_scene_script()
+    click = re.search(r"readBtn\.addEventListener\('click', \(\) => \{(.*?)\n\}\);", script, re.S)
+    assert click is not None
+    assert "releaseRead();" in click.group(1)
+    # And the field is filled from the drums, by that one path, immediately
+    # before the submit — never left to whatever it happened to hold.
+    submit = re.search(r"function submitRead\(\) \{(.*?)\n\}", script, re.S)
+    assert submit is not None
+    assert "poemEl.value = readBoard();" in submit.group(1)
+
+
+def test_a_round_trip_that_will_move_the_board_owns_the_drums_and_a_read_does_not() -> None:
+    """A source-level guard, and named as one; the browser reproduction is
+    `tests/browser/flap-board.mjs contend`.
+
+    Measured before the fix: a grab begun during an in-flight *press* survived
+    into the clatter — 23 consecutive samples with the board clattering under a
+    hand, two writers on one strip. `bladeAt` refused only while `clattering`,
+    and `clattering` does not become true until the press's reply lands.
+
+    The refusal is not widened to every round trip, and that is deliberate.
+    Scene seven split exactly this distinction into `wheelsOwned` after
+    measuring what the blunt version costs: a read owns nothing, so taking the
+    drums away from a hand for its duration is dead controls for the whole of
+    every round trip, which on a slow link is the whole of a slow link.
+    Verified here rather than assumed — with the refusal widened to bare
+    `inert`, the scene's own `stale` reproduction cannot get a grab to start at
+    all and measures nothing. So a press owns the board and a read does not."""
+    script = _automat_scene_script()
+    blade = re.search(r"  bladeAt: \(evt\) => \{(.*?)\n  \},", script, re.S)
+    assert blade is not None
+    assert "if (clattering || (inert && boardOwned)) return null;" in blade.group(1)
+    before = re.search(
+        r"document\.body\.addEventListener\('htmx:beforeRequest', \(evt\) => \{(.*?)\n\}\);",
+        script,
+        re.S,
+    )
+    assert before is not None
+    assert "boardOwned = pressRequested;" in before.group(1)
+    assert "pressRequested = false;" in before.group(1)
+    # The flag is set by the press button's own click, which a keyboard
+    # activation of a button fires too — so this is not a pointer-only path.
+    press_click = re.search(
+        r"pressBtn\.addEventListener\('click', \(\) => \{(.*?)\n\}\);", script, re.S
+    )
+    assert press_click is not None
+    assert "pressRequested = true;" in press_click.group(1)
+    # Belt and braces on top of the refusal: a hand that is somehow still down
+    # when the machine takes the board is let go of, and stops writing its
+    # strip either way.
+    move = re.search(r"  move: \(slot, offset\) => \{(.*?)\n  \},", script, re.S)
+    assert move is not None
+    assert "if (clattering || !held.has(slot)) return;" in move.group(1)
+    release_held = re.search(r"function releaseHeldDrums\(\) \{(.*?)\n\}", script, re.S)
+    assert release_held is not None
+    assert "letGoDrum(slot);" in release_held.group(1)
+    # Letting go twice — once by the press, once by the pointer that is still
+    # to come up — must not double-count. The set is what makes it idempotent.
+    let_go = re.search(r"function letGoDrum\(slot\) \{(.*?)\n\}", script, re.S)
+    assert let_go is not None
+    assert "if (!held.delete(slot)) return;" in let_go.group(1)
+
+
+def test_a_drum_answers_every_key_its_role_promises() -> None:
+    """`role="slider"` is a promise about a keyboard, not a label. A widget
+    that declares it and then does nothing on Home, End, Page Up or Page Down
+    is advertising keys it has not implemented — which is what this scene did
+    for a round, with the arrows alone.
+
+    The sign follows the drag's, because they are the same gesture: down
+    brings the flap above into the window, so Arrow Down and Page Down step
+    backwards through the module, and Home and End go to the first and last
+    flap the way a slider's minimum and maximum do."""
+    script = _automat_scene_script()
+    advance = re.search(r"function keyAdvance\(evt, slot\) \{(.*?)\n\}", script, re.S)
+    assert advance is not None
+    body = advance.group(1)
+    for key in ("ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"):
+        assert f"case '{key}':" in body
+    assert "return -index;" in body  # Home, the minimum
+    assert "return FLAPS - 1 - index;" in body  # End, the maximum
+    # Every one of them goes through the same choke point the drag does.
+    key_handler = re.search(r"function drumKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
+    assert key_handler is not None
+    handler = key_handler.group(1)
+    assert "const advance = keyAdvance(evt, slot);" in handler
+    assert "if (advance === null) return;" in handler
+    assert "beginDrumMove();" in handler
+    assert handler.index("beginDrumMove();") < handler.index("stepDrum(")
+
+
+def test_the_board_names_a_flap_that_is_not_on_the_module() -> None:
+    """`automat_poem` folded its indices with `% len(slot.alternatives)` two
+    lines after a length check that raises. A `10` on a ten-flap drum is a
+    caller that has miscounted, and rendering flap 0 for it turns that into a
+    poem that looks fine and is about a board nobody asked for."""
+    good = stage.automat_default_positions()
+    with pytest.raises(InvalidParams):
+        stage.automat_poem([*good[:-1], 10])
+    with pytest.raises(InvalidParams):
+        stage.automat_poem([*good[:-1], -1])
+    with pytest.raises(InvalidParams):
+        stage.automat_poem(good[:-1])
+    # And the honest case still works.
+    assert stage.automat_positions(stage.automat_poem(good)) == good
+
+
 def test_the_board_checks_it_fits_the_stage_once_the_face_has_arrived() -> None:
     """A source-level guard, and named as one, and it exists because of a
     measurement rather than a worry.
@@ -3747,7 +3911,13 @@ def test_the_board_checks_it_fits_the_stage_once_the_face_has_arrived() -> None:
     body = fit.group(1)
     assert "const room = boardEl.clientWidth;" in body
     assert "boardEl.style.setProperty('--flap-font', `${size}px`);" in body
-    assert "if (widestLine() <= room) return size;" in body
+    assert "boardEl.dataset.fits = 'true';" in body
+    # And it does not end by silently doing the thing it exists to prevent. A
+    # board that will not fit even at the smallest size this is willing to set
+    # says so, in the console and on the board itself.
+    assert "boardEl.dataset.fits = 'false';" in body
+    assert "console.warn(" in body
+    assert body.index("dataset.fits = 'false'") > body.index("dataset.fits = 'true'")
     # The width is measured, never derived from an advance times a count.
     widest = re.search(r"function widestLine\(\) \{(.*?)\n\}", script, re.S)
     assert widest is not None
@@ -3776,4 +3946,20 @@ def test_the_clatter_runs_every_flap_in_between_and_starts_the_drums_apart() -> 
     assert "if (done < distance) {" in body
     # and each drum starts later than the one before it
     assert "setTimeout(tick, slot * STAGGER_MS);" in body
-    assert re.search(r"const STAGGER_MS = \d+;", script) is not None
+    # The constant, not merely its use site. `\d+` matched `0` here, and a
+    # `STAGGER_MS` of 0 resolves the whole board in unison — which the brief
+    # forbids in as many words — with this guard and all 237 others green.
+    # That is the third time in this project a guard's name has outrun its
+    # assertions. The real constraint is not a number in the source at all,
+    # and `tests/browser/flap-board.mjs wave` is what measures it: the span
+    # between the first drum starting and the last, and the dwell between one
+    # flap arriving and the next. Measured over 30 presses, the span is
+    # 1121.9-1192.8ms against a 500ms floor, and at `STAGGER_MS = 0` it is
+    # 0.8-3.3ms and that mode reports FAIL. What is pinned here is only that
+    # the two constants are positive, which is the part a Python test can see.
+    stagger = re.search(r"const STAGGER_MS = (\d+(?:\.\d+)?);", script)
+    assert stagger is not None
+    assert float(stagger.group(1)) > 0
+    flap = re.search(r"const FLAP_MS = (\d+(?:\.\d+)?);", script)
+    assert flap is not None
+    assert float(flap.group(1)) > 0

@@ -29,14 +29,15 @@
       {% for module in line.modules %}
       {% set slot = ns.slot %}
       {% set ns.slot = ns.slot + 1 %}
-      {# `role="slider"`, real focus, and the arrow keys — so a drum can be
-         turned without a pointer at all, and so that path arms the
-         placeholder through the same choke point a drag does. The module's
-         name is in the label rather than being the label: five of the six
-         modules on line 2 are called `Adjunkt`, so position is the only
-         identity a drum has. #}
+      {# `role="slider"`, real focus, and the whole keyboard that role promises
+         — the arrows, Page Up/Down and Home/End — so a drum can be turned
+         without a pointer at all, and so that path arms the placeholder
+         through the same choke point a drag does. The module's name is in the
+         label rather than being the label: five of the six modules on line 2
+         are called `Adjunkt`, so position is the only identity a drum has. #}
       <div class="flap" id="flap-{{ slot }}" data-slot="{{ slot }}"
            data-index="{{ positions[slot] }}" tabindex="0" role="slider"
+           aria-orientation="vertical"
            aria-label="line {{ line.number + 1 }}, module {{ loop.index }} ({{ module.name }})"
            aria-valuemin="1" aria-valuemax="{{ module.alternatives | length }}"
            aria-valuenow="{{ positions[slot] + 1 }}"
@@ -96,7 +97,15 @@
          board. #}
       <input type="hidden" name="poem" id="automat-poem" value="">
       <button type="submit" name="press" value="1" id="automat-press">Press the button</button>
-      <button type="submit" id="automat-read">Read the board</button>
+      {# `type="button"`, not `submit`, and it is load-bearing. A native submit
+         posts the hidden field as it stands, and the only thing that ever
+         fills that field is `readBoard()` — so this button used to post an
+         empty poem and land a red verdict over a board that was perfectly
+         valid. Measured: `poem=` on the wire, and `checked — missing line: a
+         line the 6 modules of line 1 can spell` on screen at first paint. It
+         goes through `releaseRead` now, the same gate and the same read a
+         drag's own release goes through. #}
+      <button type="button" id="automat-read">Read the board</button>
     </form>
     <div class="automat-reading" id="automat-reading">
       {% include "_stage_flaps.html" %}
@@ -245,6 +254,17 @@ function readBoard() {
 
 // ── state ──────────────────────────────────────────────────────────────────
 let inert = false;       // a round trip is in flight
+// Whether that round trip is one that will *move* the board (a press) or
+// merely read where it already stands. The distinction is scene seven's own
+// `wheelsOwned`, taken for the same reason it exists there: a read owns
+// nothing, so there is no cause for it to take the drums away from a hand for
+// its duration, and on a slow link that would be the whole round trip. A press
+// does own them — the clatter is about to write every strip on the board — so
+// a grab must not be allowed to begin inside its flight and survive into it.
+let boardOwned = false;
+// Set by the press button's own click and read back synchronously in
+// `htmx:beforeRequest`, which a click reaches in the same task.
+let pressRequested = false;
 let clattering = false;  // the board is running under its own power
 let activeDrums = 0;     // drums under a hand right now
 let deferredRead = false; // a drum moved during a round trip; a read is owed
@@ -358,7 +378,33 @@ function clatterTo(targets) {
 // centre on screen to sweep an angle about, and inventing one to reuse the
 // volvelles' arithmetic would be a lie about the gesture — which is the
 // distinction that file already draws between its two drags.
-const dragging = new Set();
+// Drums under a pointer right now. The set, rather than a bare count, is what
+// makes letting go idempotent: the press branch lets go of anything still held
+// before the machine takes the board, and the pointer's own `release` then
+// finds nothing left to do.
+const held = new Set();
+
+function grabDrum(slot) {
+  if (held.has(slot)) return;
+  held.add(slot);
+  boardEl.classList.add('grabbing');
+  beginDrumMove();
+}
+
+function letGoDrum(slot) {
+  if (!held.delete(slot)) return;
+  if (held.size === 0) boardEl.classList.remove('grabbing');
+  endDrumMove();
+}
+
+// The machine is taking the board. Anything still under a hand is let go of
+// first, so a grab and the clatter can never be writing one strip at once.
+function releaseHeldDrums() {
+  Array.from(held).forEach((slot) => {
+    drawDrum(slot, 0, 0);
+    letGoDrum(slot);
+  });
+}
 
 function stepDrum(slot, advance) {
   drums[slot].pos += advance;
@@ -404,8 +450,12 @@ HoldTurn.attachLinearDrag(boardEl, {
   bladeAt: (evt) => {
     // A board running under its own power owns its drums; you cannot stop a
     // flap module with your hand, and letting a grab land mid-clatter would
-    // mean two writers on one strip.
-    if (clattering) return null;
+    // mean two writers on one strip. A press still in flight owns them for the
+    // same reason — the clatter it is about to start is the machine's, and a
+    // grab begun in that window used to survive straight into it (measured: 23
+    // consecutive samples with the board clattering under a hand). A *read* in
+    // flight owns nothing and is deliberately not refused; see `boardOwned`.
+    if (clattering || (inert && boardOwned)) return null;
     const el = evt.target.closest ? evt.target.closest('.flap') : null;
     return el ? Number(el.dataset.slot) : null;
   },
@@ -419,11 +469,12 @@ HoldTurn.attachLinearDrag(boardEl, {
     const d = drums[slot];
     d.baseline = null;
     d.committed = 0;
-    dragging.add(slot);
-    boardEl.classList.add('grabbing');
-    beginDrumMove();
+    grabDrum(slot);
   },
   move: (slot, offset) => {
+    // The machine has taken the board since this grab began. The hand stops
+    // writing this strip; nothing else here can.
+    if (clattering || !held.has(slot)) return;
     const d = drums[slot];
     // `attachLinearDrag` reports where the pointer is along the track, and the
     // first such report is the grab itself. That first offset is the zero this
@@ -448,11 +499,7 @@ HoldTurn.attachLinearDrag(boardEl, {
     // `endDrumMove` — and with it the read — only once the snap has settled:
     // `activeDrums` stays positive through it, so the gate in `releaseRead`
     // cannot let a checked verdict land over a drum still visibly moving.
-    snapDrum(slot).then(() => {
-      dragging.delete(slot);
-      if (dragging.size === 0) boardEl.classList.remove('grabbing');
-      endDrumMove();
-    });
+    snapDrum(slot).then(() => letGoDrum(slot));
   },
 });
 
@@ -475,20 +522,67 @@ function snapDrum(slot) {
 // The keyboard moves a drum too, so it arms through the same choke point the
 // drag does — an invariant that only held for the pointer would be no
 // invariant at all.
+//
+// The full set a `role="slider"` promises, not just the arrows: a widget that
+// declares that role and then does nothing on Home, End, Page Up or Page Down
+// is advertising keys it has not implemented. `advance` is in flaps, and the
+// sign follows the drag's — down brings the flap above into the window, so
+// Arrow Down and Page Down step backwards through the module, and Home and End
+// go to the first and last flap the way a slider's minimum and maximum do.
+function keyAdvance(evt, slot) {
+  const index = flapIndex(slot);
+  switch (evt.key) {
+    case 'ArrowUp':
+      return 1;
+    case 'ArrowDown':
+      return -1;
+    case 'PageUp':
+      return 5;
+    case 'PageDown':
+      return -5;
+    case 'Home':
+      return -index;
+    case 'End':
+      return FLAPS - 1 - index;
+    default:
+      return null;
+  }
+}
+
 function drumKey(evt, slot) {
-  const down = evt.key === 'ArrowDown';
-  const up = evt.key === 'ArrowUp';
-  if (!down && !up) return;
+  const advance = keyAdvance(evt, slot);
+  if (advance === null) return;
   if (clattering) return;
   evt.preventDefault();
   beginDrumMove();
-  stepDrum(slot, down ? -1 : 1);
-  drawDrum(slot, prefersReducedMotion() ? 0 : STEP_MS, 0);
+  // Home and End on a drum already at its first or last flap ask for nothing,
+  // and asking for nothing is still a legitimate press: the drum stays put and
+  // the read that follows is about a board that has not changed.
+  if (advance !== 0) {
+    stepDrum(slot, advance);
+    drawDrum(slot, prefersReducedMotion() ? 0 : STEP_MS, 0);
+  }
   endDrumMove();
 }
 
 drums.forEach((d, slot) => {
   d.el.addEventListener('keydown', (evt) => drumKey(evt, slot));
+});
+
+// The press button is a real submitter and carries its own `press=1`; all this
+// records is *which* kind of round trip is about to start, read back
+// synchronously in `htmx:beforeRequest` (which a click reaches in the same
+// task). A keyboard activation of a button fires a click too, so this is not a
+// pointer-only path.
+pressBtn.addEventListener('click', () => {
+  pressRequested = true;
+});
+
+// And the read button is not a submitter at all — see its own comment in the
+// markup. It goes through the same gate and the same read a drag's release
+// does, which is the only thing that ever fills the hidden field.
+readBtn.addEventListener('click', () => {
+  releaseRead();
 });
 
 // ── the round trip ─────────────────────────────────────────────────────────
@@ -499,20 +593,31 @@ document.body.addEventListener('htmx:beforeRequest', (evt) => {
     return;
   }
   inert = true;
+  boardOwned = pressRequested;
+  pressRequested = false;
   submittedToken = boardToken;
   refreshControls();
 });
 
 // The one place `inert` is given back, so every path that hands the board back
-// to the client also settles whatever it owes.
-function clearInert() {
+// to the client goes through the same accounting.
+//
+// `settle` says what to do with a read this scene owes — a drum turned while
+// the round trip was in flight. The read branch settles it, because the board
+// really is showing something nothing has checked. The other two paths drop
+// it, and each has its own reason: a press is about to move every drum on the
+// board, so a read owed for the board as it stood is not merely stale but
+// about a board that will not exist a second and a half from now, and the
+// clatter's own read covers it; and a request that has just failed is not
+// worth answering with one more request into a link that is not replying.
+function clearInert(settle) {
   inert = false;
-  refreshControls();
-  if (!deferredRead) return;
+  boardOwned = false;
+  const owed = deferredRead;
   deferredRead = false;
+  refreshControls();
   // A hand still down will submit for itself when it lets go.
-  if (activeDrums > 0) return;
-  submitRead();
+  if (settle && owed && activeDrums === 0) submitRead();
 }
 
 // A request that never gets a swap at all — a network failure, a non-2xx
@@ -523,16 +628,16 @@ function clearInert() {
 // interactive scenes carry these two lines and a cross-scene test pins that
 // they do.
 //
-// Deliberately not `clearInert`: a read that failed would settle its own debt
-// by submitting another read, which would fail in its own turn, and the scene
-// would sit in a retry loop for the rest of the recording. The debt is dropped
-// instead, the placeholder stands, and both buttons come back — a viewer can
-// press either one.
+// `clearInert(false)`, so the read this scene may owe is dropped rather than
+// paid: answering a request that has just failed with another request is one
+// more into a link that is not replying, and the placeholder already says the
+// true thing. (It is one extra request and not a loop — a dropped debt is not
+// re-recorded — but it is still a request nobody asked for.) The placeholder
+// goes up first, while `inert` still describes the board a viewer is looking
+// at.
 function requestFailed() {
-  inert = false;
-  deferredRead = false;
   setVerdictTurning();
-  refreshControls();
+  clearInert(false);
 }
 document.body.addEventListener('htmx:responseError', requestFailed);
 document.body.addEventListener('htmx:sendError', requestFailed);
@@ -545,14 +650,15 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     // The press. The reply carries no verdict, only where the drums are to be
     // sent — so the board is free to change without anything true being
     // contradicted while it does.
-    inert = false;
-    // `clattering` before `invalidate`, and the order is load-bearing: the
+    // `clattering` before everything else, and the order is load-bearing: the
     // placeholder reads the board's own state to decide which of its two true
     // things to say, so a board about to run has to be running by the time it
-    // is asked.
+    // is asked, and `releaseHeldDrums` below must let go into a board that is
+    // already the machine's.
     clattering = true;
+    releaseHeldDrums();
+    clearInert(false);
     invalidate();
-    refreshControls();
     announce('The flaps are running.');
     clatterTo(raw.split('|').map(Number)).then(() => {
       clattering = false;
@@ -571,7 +677,7 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   } else {
     announceReading();
   }
-  clearInert();
+  clearInert(true);
 });
 
 // ── the board's own width ──────────────────────────────────────────────────
@@ -600,12 +706,28 @@ function widestLine() {
   );
 }
 
+// This function exists because silent clipping is unacceptable, so it must not
+// end by silently clipping. If the board will not fit even at the smallest size
+// this is willing to set, it says so — in the console, with both measurements,
+// and on the board itself as `data-fits="false"`, which is what the browser
+// reproduction reads. Below 10px the board would not be worth recording
+// anyway, so shrinking further would trade one silent failure for another.
 function fitBoard() {
   const room = boardEl.clientWidth;
+  let widest = 0;
   for (let size = 14; size >= 10; size -= 0.5) {
     boardEl.style.setProperty('--flap-font', `${size}px`);
-    if (widestLine() <= room) return size;
+    widest = widestLine();
+    if (widest <= room) {
+      boardEl.dataset.fits = 'true';
+      return size;
+    }
   }
+  boardEl.dataset.fits = 'false';
+  console.warn(
+    `flap-board: the widest line is ${widest.toFixed(2)}px and the board has ` +
+      `${room.toFixed(2)}px, even at 10px. The board is being clipped.`
+  );
   return 10;
 }
 
