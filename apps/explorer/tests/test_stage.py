@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import html
+import importlib.util
 import math
+import os
 import random
 import re
 from itertools import pairwise
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 from explorer import bench, corpora, stage
@@ -17,6 +20,7 @@ from fastapi.testclient import TestClient
 from denckring import check as denckring_check
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, LanguagePack
+from denckring.procedures.poesie_automat import SEPARATOR as AUTOMAT_SEPARATOR
 
 client = TestClient(app)
 
@@ -640,8 +644,6 @@ def test_the_scene_renders_without_any_corpus() -> None:
     never shipped). `corpora.available` is a plain function with nothing to clear —
     it re-globs the directory on every call, so pointing the env var elsewhere is
     the whole setup."""
-    import os
-
     original = os.environ.get("DENCKRING_CORPORA")
     os.environ["DENCKRING_CORPORA"] = "/nonexistent-for-this-test"
     try:
@@ -3257,7 +3259,7 @@ def test_every_scene_you_take_hold_of_declares_its_figure_grabbable() -> None:
     not decoration.
 
     Named for the three scenes it now covers rather than for the two it began
-    with: scene eight is not a volvelle — its drums slide rather than sweep —
+    with: scene eight is not a volvelle — its modules slide rather than sweep —
     but it is a figure a hand takes hold of, and it wants the same two
     declarations."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
@@ -3265,13 +3267,13 @@ def test_every_scene_you_take_hold_of_declares_its_figure_grabbable() -> None:
     figure = css.split(".turnable-figure {", 1)[1].split("}", 1)[0]
     assert "touch-action: none;" in figure
     assert (
-        ".turnable-figure .ring-disc, .turnable-figure .wheel-disc, .turnable-figure .flap "
-        "{ cursor: grab; }"
+        ".turnable-figure .ring-disc, .turnable-figure .wheel-disc, "
+        ".turnable-figure .board-module { cursor: grab; }"
     ) in css
     assert "cursor: grabbing;" in css
-    # Scene eight is not a volvelle and its drums do not sweep an angle, but it
-    # is the third scene whose figure is taken hold of, and the affordance and
-    # the `touch-action` that makes a touch gesture possible at all are the
+    # Scene eight is not a volvelle and its modules do not sweep an angle, but
+    # it is the third scene whose figure is taken hold of, and the affordance
+    # and the `touch-action` that makes a touch gesture possible at all are the
     # same two declarations. It joins the group rather than copying it.
     for scene in ("denckring", "llull_figure", "poesie_automat"):
         markup = " ".join(client.get(f"/stage/{scene}").text.split())
@@ -3289,119 +3291,665 @@ def _automat_scene_script() -> str:
     return match.group(1)
 
 
-def _automat_page() -> str:
-    return str(client.get("/stage/poesie_automat").text)
+def _automat_page(device: str | None = None) -> str:
+    query = f"?device={device}" if device else ""
+    return str(client.get(f"/stage/poesie_automat{query}").text)
 
 
-def test_the_boards_two_layouts_measure_134_and_155_characters() -> None:
-    """The measurement the whole scene's layout turns on, derived from the
-    shipped device rather than quoted from the brief.
-
-    A drum is as wide as the widest of its own ten flaps. Sized per line
-    (**A**), the widest line is its six drums plus the five gaps between
-    them; aligned into six true columns across all six lines (**B**), every
-    column is as wide as the widest module standing anywhere in it. A is 134
-    characters and B is 155, and that difference is why this board's drums do
-    not line up.
-
-    Characters, not pixels: what the browser makes of them is measured in
-    `tests/browser/flap-board.mjs widths`, and the figures it reported are in
-    the CSS beside the rule they decided and in the task report.
-    """
-    board = stage.flap_board()
-    per_line = [[len(module.widest) for module in line.modules] for line in board.lines]
-    a = max(sum(widths) + len(widths) - 1 for widths in per_line)
-    columns = [max(widths[j] for widths in per_line) for j in range(len(per_line[0]))]
-    b = sum(columns) + len(columns) - 1
-    assert a == 134
-    assert b == 155
-    # And the scene says so on the page rather than only in a comment: a
-    # viewer looking at drums that do not line up is owed the reason.
-    note = html.unescape(" ".join(_automat_page().split()))
-    assert "155 characters across and does not fit this stage" in note
-    assert "the widest line needs 134" in note
-
-
-def test_no_module_repeats_a_flap() -> None:
-    """Why `automat_positions` may look a flap up by its text at all.
-
-    The rule everywhere else in this codebase is that a position is an index
-    and never the words printed at it — scene one's `endbuchstabe` repeats two
-    of its 120 parts, so a ring found by matching text can only ever land on
-    the first occurrence. Nothing on this board repeats within a module, which
-    is what makes the one text-to-index lookup on the server unambiguous. If
-    that ever stops being true this test says so, rather than the scene
-    quietly sending a drum to the wrong flap.
-    """
-    for line in stage.flap_board().lines:
-        for module in line.modules:
-            folded = [alternative.casefold() for alternative in module.alternatives]
-            assert len(set(folded)) == len(folded)
-
-
-def test_the_board_reads_back_every_poem_it_presses() -> None:
-    """`automat_positions` and `automat_poem` are inverses, over poems the
-    library itself composes — so what the client is told to show and what the
-    server built it from cannot drift apart."""
-    for seed in range(12):
-        poem, positions = stage.automat_press(seed)
-        assert len(positions) == 36
-        assert stage.automat_poem(positions) == poem
-        assert stage.automat_positions(poem) == positions
-        assert denckring_check("poesie_automat", poem, lang="de").satisfied
-
-
-def test_the_board_refuses_a_poem_it_cannot_show() -> None:
-    """`None`, not an exception and not a guess: a text with the wrong number
-    of lines, and a text of the right shape whose words are not on any
-    drum."""
-    assert stage.automat_positions("nothing like a poem") is None
-    poem = stage.automat_poem(stage.automat_default_positions())
-    assert stage.automat_positions(poem + "\na seventh line") is None
-    assert stage.automat_positions(poem.replace("Morgens", "Mittwochs", 1)) is None
-
-
-def test_first_paint_is_a_settled_board_and_a_real_verdict() -> None:
-    """Every drum on its own first flap, deterministic, with a checked verdict
-    for the poem those flaps spell — the scene does not autoplay, and it does
-    not open on a claim it has not earned."""
-    assert stage.automat_default_positions() == [0] * 36
-    body = _automat_page()
-    assert 'class="verdict yes"' in body
-    assert "checked &mdash; all 6 lines are ones this board can show" in body
-    # Every drum's first flap is the one in its window, and the drum says so
-    # in the accessible tree too.
-    board = stage.flap_board()
-    for line in board.lines:
-        for module in line.modules:
-            assert f'aria-valuetext="{html.escape(module.alternatives[0])}"' in body
-    # Focusable *and* a slider, matched together: a drum that declared the role
-    # without a tab stop would be a slider no keyboard could reach. Matched as
-    # one string rather than counted separately, so the scene's own prose about
-    # the role cannot make up the difference.
-    assert body.count('tabindex="0" role="slider"') == 36
-    assert body.count('aria-orientation="vertical"') == 36
-
-
-def test_the_count_is_the_exact_integer_rendered_as_a_power() -> None:
-    """`dev.combinations` is a Python `int` and holds 10^36 exactly;
-    `metrics["combinations"]` is the same number through a float and comes out
-    `1e+36`. The page prints the power, and never the float."""
-    board = stage.flap_board()
-    assert board.combinations == 10**36
-    assert stage.power_of_ten(board.combinations) == 36
-    body = _automat_page()
-    assert "10<sup>36</sup>" in body
-    # Neither the float nor the thirty-seven digits reach the page.
-    assert "1e+36" not in body
-    assert str(10**36) not in body
-    template = (
+def _automat_template() -> str:
+    return (
         Path(__file__).parent.parent
         / "src"
         / "explorer"
         / "templates"
         / "stage_poesie_automat.html"
     ).read_text(encoding="utf-8")
+
+
+def _stage_css() -> str:
+    return (Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css").read_text(
+        encoding="utf-8"
+    )
+
+
+#: Both cartridges, by id, in the order the switcher shows them.
+CARTRIDGES = [cartridge.device_id for cartridge in stage.AUTOMAT_CARTRIDGES]
+
+
+def test_the_board_is_seventy_one_columns_and_the_cap_that_makes_it() -> None:
+    """The measurement the whole scene's layout turns on, derived from the
+    devices rather than quoted from the brief.
+
+    The board renders letter by letter into character cells, so a line costs
+    six flaps plus the five spaces between them. Eleven characters is the cap
+    every filler of both cartridges is written to, and six of those plus five
+    spaces is **71 columns** — which is the width of the board, for both
+    cartridges, because the cap is the same on both.
+
+    Characters, not pixels. What 71 columns comes to on the rendered stage is
+    measured by `tests/browser/flap-board.mjs widths`, and the figures it
+    reported are in the task report: 1184px of usable width, 16.676px a cell,
+    26px of type in it, `data-fits=true`. Nothing here asserts a pixel — a
+    Python test that did would be asserting arithmetic it had done itself.
+
+    This replaces `test_the_boards_two_layouts_measure_134_and_155_characters`,
+    which pinned the drum geometry the board no longer has."""
+    assert stage.FLAP_CAP == 11
+    assert stage.BOARD_COLUMNS == 71
+    # Derived, not restated: six of the cap plus the five separators between
+    # them is the column count.
+    modules_per_line = 6
+    separator = len(AUTOMAT_SEPARATOR)
+    derived = modules_per_line * stage.FLAP_CAP + (modules_per_line - 1) * separator
+    assert derived == stage.BOARD_COLUMNS
+    # And the page really is that wide, on both cartridges, six rows of it.
+    for device in CARTRIDGES:
+        body = _automat_page(device)
+        assert f'data-columns="{stage.BOARD_COLUMNS}"' in body
+        assert body.count('class="cell"') == 6 * stage.BOARD_COLUMNS
+
+
+def test_both_cartridges_fit_the_same_seventy_one_column_board() -> None:
+    """Two halves, and neither implies the other: a flap longer than the cap
+    is unshowable on its own, and six flaps that each fit can still assemble a
+    line wider than the board. So the per-flap maximum and the widest line
+    each cartridge's modules can spell are both derived here from the files.
+
+    The packaged board reaches the full 71 on its sixth line; the explorer's
+    own cartridge reaches 68. Both are under the board and both are computed,
+    not quoted."""
+    widest_line = {}
+    for device in CARTRIDGES:
+        board = stage.flap_board(device)
+        for line in board.lines:
+            for module in line.modules:
+                for flap in module.alternatives:
+                    assert len(flap) <= stage.FLAP_CAP, f"{device}: {flap!r} is {len(flap)}"
+        widest_line[device] = max(
+            sum(max(len(flap) for flap in module.alternatives) for module in line.modules)
+            + len(line.modules)
+            - 1
+            for line in board.lines
+        )
+        assert widest_line[device] <= stage.BOARD_COLUMNS
+    assert widest_line["poesieautomat_2000"] == 71
+    assert widest_line["poesieautomat_pokemon"] == 68
+
+
+def test_the_second_cartridge_is_the_explorers_and_not_the_packages() -> None:
+    """Where the Pokemon cartridge lives, and why, checked rather than
+    described.
+
+    Its subjects are the German names of first-generation Pokemon creatures,
+    which are third-party trademarks; the catalogue's data ships under CC BY
+    4.0, which is a licence to redistribute, and a trademark is not this
+    project's to license onward. So the file sits under `apps/explorer`, which
+    is `Private :: Do Not Upload`, and the library finds it through
+    `DENCKRING_DEVICE_PATH` — the mechanism that landed in the library for
+    exactly this — rather than through the packaged device directory."""
+    from explorer import env
+
+    from denckring.core.device import DEVICE_DIR, DEVICE_PATH_ENV
+
+    here = env.DEVICE_DIR / "poesieautomat_pokemon.yaml"
+    assert here.is_file()
+    # Not in the package, by any name.
+    assert not (DEVICE_DIR / "poesieautomat_pokemon.yaml").exists()
+    assert not any(path.name.startswith("poesieautomat_p") for path in DEVICE_DIR.glob("*.yaml"))
+    # The explorer puts its own directory on the search path, and does it
+    # idempotently — `--reload` re-imports this module in a subprocess and a
+    # test may call `load` again.
+    original = os.environ.get(DEVICE_PATH_ENV)
+    try:
+        env.put_devices_on_the_path()
+        env.put_devices_on_the_path()
+        entries = os.environ[DEVICE_PATH_ENV].split(":")
+        assert entries[0] == str(env.DEVICE_DIR)
+        assert entries.count(str(env.DEVICE_DIR)) == 1
+        # An operator's own cartridge directory is kept, and this one goes in
+        # front of it. The interesting case is the one the early return does
+        # *not* cover: the directory already on the path but not at its head,
+        # where a naive prepend leaves it there twice.
+        os.environ[DEVICE_PATH_ENV] = f"/somewhere-else:{env.DEVICE_DIR}"
+        env.put_devices_on_the_path()
+        assert os.environ[DEVICE_PATH_ENV] == f"{env.DEVICE_DIR}:/somewhere-else"
+    finally:
+        if original is None:
+            os.environ.pop(DEVICE_PATH_ENV, None)
+        else:
+            os.environ[DEVICE_PATH_ENV] = original
+    # And the reasoning is written down where the file is, not only here.
+    header = here.read_text(encoding="utf-8").split("id: ", 1)[0]
+    assert "trademark" in header
+    assert "CC BY 4.0" in header
+    assert "DENCKRING_DEVICE_PATH" in header
+    assert "Private :: Do Not Upload" in header
+    # And the register it is written in, and the register it is not.
+    assert "Mueller" in header
+    assert "2065" in header
+    assert "individual common words" in header
+
+
+def test_the_pokemon_cartridge_keeps_the_boards_own_shape() -> None:
+    """Same machine, different flaps: six lines of six modules of ten, 10^36,
+    every filler distinct across the whole device, and every flap a whole
+    number of space-separated words.
+
+    That last one is not cosmetic. `_first_module_that_fails` asks the first
+    *k* modules to spell a *word* prefix of a line, which is only the right
+    question if no module boundary can fall inside a word."""
+    board = stage.flap_board("poesieautomat_pokemon")
+    assert [line.number for line in board.lines] == [0, 1, 2, 3, 4, 5]
+    assert [len(line.modules) for line in board.lines] == [6] * 6
+    assert {len(module.alternatives) for module in board.modules} == {10}
+    assert board.combinations == 10**36
+    fillers = [flap.casefold() for module in board.modules for flap in module.alternatives]
+    assert len(fillers) == 360
+    assert len(set(fillers)) == 360
+    for module in board.modules:
+        for flap in module.alternatives:
+            assert flap == flap.strip(), repr(flap)
+            assert " ".join(flap.split()) == flap, repr(flap)
+            assert flap
+
+
+def _root_poesie_automat_tests() -> ModuleType:
+    """The packaged board's own detectors, from the root suite, by path.
+
+    Imported rather than copied, so the rule the explorer's cartridge is held
+    to cannot drift from the rule the packaged one is held to. Loaded from an
+    explicit path rather than by name: `denckring`'s editable install happens
+    to put the repository's own `tests/` directory on `sys.path`, so a plain
+    `import test_poesie_automat` works here by an accident of packaging rather
+    than by intent — checked, and it does not work outside pytest at all.
+    """
+    path = Path(__file__).resolve().parents[3] / "tests" / "test_poesie_automat.py"
+    assert path.is_file(), path
+    spec = importlib.util.spec_from_file_location("_root_poesie_automat", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_root_suites_stemmer_is_what_this_one_borrows() -> None:
+    """The harness for the two tests below, checked before they lean on it.
+
+    A previous round in this project scored a mutation as caught by a test that
+    did not exist. So: the module really is the root suite's file, the function
+    really is imported from it, and it really folds — a `content_stems` that
+    had quietly become the identity would leave both detectors below green over
+    a lexicon that echoed."""
+    module = _root_poesie_automat_tests()
+    assert module.__file__ is not None
+    assert module.__file__.endswith("/tests/test_poesie_automat.py")
+    assert "apps/explorer" not in module.__file__
+    stems = module.content_stems
+    # It folds inflection, and it drops the function words a PP module repeats
+    # by construction.
+    assert stems("vor Tagen") == {"tag"}
+    assert stems("bei Tag") == {"tag"}
+    assert stems("im Schlamm") == {"schlamm"}
+    assert stems("Straße") == stems("Strasse")
+    # And it is not the identity, which is the way this could rot silently.
+    assert stems("vor Tagen") != {"Tagen"}
+
+
+def test_the_pokemon_cartridge_shows_no_word_twice_on_one_line() -> None:
+    """The packaged board's own echo detector, run over the explorer's
+    cartridge — imported from the root suite rather than copied, so the two
+    cannot drift.
+
+    Two flaps of one line carrying the same word read as a defect rather than
+    as the machine being strange: `Karpador ... am Karpador`. German inflects,
+    so the comparison is over a stripped stem and not over word forms."""
+    content_stems = _root_poesie_automat_tests().content_stems
+    board = stage.flap_board("poesieautomat_pokemon")
+    for line in board.lines:
+        reached: dict[str, dict[int, set[str]]] = {}
+        for position, module in enumerate(line.modules):
+            for flap in module.alternatives:
+                for key in content_stems(flap):
+                    reached.setdefault(key, {}).setdefault(position, set()).add(flap)
+        echoes = {key: spread for key, spread in reached.items() if len(spread) > 1}
+        assert not echoes, f"line {line.number + 1} can show one word twice: {echoes}"
+
+
+def test_the_pokemon_cartridge_shows_no_two_incompatible_time_anchors() -> None:
+    """The packaged board's other semantic detector, over the same families and
+    for the same reason: absurdity is the machine's business, contradiction is
+    not. Two anchors of one role fix the same event twice, so each family is
+    confined to a single module per line where its alternatives can never
+    co-occur."""
+    families = {
+        "clock time": re.compile(
+            r"^[Uu]m (eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf)$"
+        ),
+        "seit anchor": re.compile(r"^[Ss]eit "),
+        "ab anchor": re.compile(r"^[Aa]b "),
+        "vor how long ago": re.compile(r"^[Vv]or (Jahren|Monaten|Wochen|Tagen|Stunden|Minuten)$"),
+        "month or season": re.compile(
+            r"^[Ii]m (Januar|Februar|März|April|Mai|Juni|Juli|August|September"
+            r"|Oktober|November|Dezember|Winter|Frühjahr|Sommer|Herbst)$"
+        ),
+    }
+    board = stage.flap_board("poesieautomat_pokemon")
+    for name, pattern in families.items():
+        for line in board.lines:
+            bearing = {
+                position: [flap for flap in module.alternatives if pattern.search(flap)]
+                for position, module in enumerate(line.modules)
+                if any(pattern.search(flap) for flap in module.alternatives)
+            }
+            assert len(bearing) <= 1, f"line {line.number + 1} shows two of {name}: {bearing}"
+
+
+def test_no_module_of_either_cartridge_repeats_a_flap() -> None:
+    """Why `automat_positions` may look a flap up by its text at all.
+
+    The rule everywhere else in this codebase is that a position is an index
+    and never the words printed at it. Nothing on either board repeats within
+    a module, which is what makes the one text-to-index lookup on the server
+    unambiguous. If that ever stops being true this test says so, rather than
+    the scene quietly sending a module to the wrong flap."""
+    for device in CARTRIDGES:
+        for module in stage.flap_board(device).modules:
+            folded = [flap.casefold() for flap in module.alternatives]
+            assert len(set(folded)) == len(folded), device
+
+
+def test_either_cartridge_reads_back_every_poem_it_presses() -> None:
+    """`automat_positions` and `automat_poem` are inverses over poems the
+    library itself composes — so what the client is told to show and what the
+    server built it from cannot drift apart — and every one of those poems is
+    a poem `check` accepts on the board it came from."""
+    for device in CARTRIDGES:
+        for seed in range(12):
+            poem, positions = stage.automat_press(device, seed)
+            assert len(positions) == 36
+            assert stage.automat_poem(positions, device) == poem
+            assert stage.automat_positions(poem, device) == positions
+            assert denckring_check("poesie_automat", poem, lang="de", device=device).satisfied
+
+
+def test_the_board_shows_capitals_without_widening_a_flap() -> None:
+    """Display uppercase, submit what is displayed — and the one character
+    where those two pull against each other.
+
+    `"ß".upper()` is `"SS"`. Two characters where the device file has one
+    would make a flap wider on the board than it is in the lexicon and push a
+    line past its column count, silently. So the sharp s becomes U+1E9E, the
+    capital sharp s, which is one character; and it costs nothing at the other
+    end, because `"ẞ".casefold()` and `"ß".casefold()` are both `"ss"`, which
+    is exactly what `device.segment` compares. A board showing `REGELMÄẞIG`
+    submits something `check` reads as `regelmäßig`."""
+    assert stage.automat_display("ß") == "ẞ"
+    assert len(stage.automat_display("ß")) == 1
+    assert "ß".upper() == "SS"  # the trap, stated
+    assert stage.automat_display("regelmäßig") == "REGELMÄẞIG"
+    assert "REGELMÄẞIG".casefold() == "regelmäßig".casefold()
+    # Every flap of both cartridges keeps its width through the display, and
+    # every one of them is still a flap `check` recognises after it.
+    for device in CARTRIDGES:
+        board = stage.flap_board(device)
+        for module in board.modules:
+            for flap in module.alternatives:
+                shown = stage.automat_display(flap)
+                assert len(shown) == len(flap), (device, flap)
+                assert shown.casefold() == flap.casefold()
+        # And a whole poem in capitals checks out, which is what the page
+        # actually posts.
+        poem = stage.automat_poem(stage.automat_default_positions(device), device)
+        shown_poem = "\n".join(stage.automat_display(line) for line in poem.splitlines())
+        assert shown_poem != poem
+        assert denckring_check("poesie_automat", shown_poem, lang="de", device=device).satisfied
+
+
+def test_the_alphabet_is_computed_from_the_loaded_device() -> None:
+    """A cell travelling from one character to another turns through every
+    character in between, so the alphabet is not decoration — it is what the
+    animation walks. Computed from the flaps the loaded cartridge actually
+    carries, never a hardcoded A-Z.
+
+    The two cartridges are what makes that testable rather than a matter of
+    taste: the packaged board's 360 fillers contain no C, Q, X or Y, and the
+    Pokemon cartridge's do. A board on the packaged lexicon that rolled
+    through Q, X and Y would be showing letters no flap can ever ask for."""
+    alphabets = {device: stage.automat_alphabet(device) for device in CARTRIDGES}
+    landsberg = alphabets["poesieautomat_2000"]
+    pokemon = alphabets["poesieautomat_pokemon"]
+    assert landsberg != pokemon
+    for missing in "QXY":
+        assert missing not in landsberg
+        assert missing in pokemon
+    for device, alphabet in alphabets.items():
+        board = stage.flap_board(device)
+        used = {stage.BLANK}
+        for module in board.modules:
+            used.update("".join(module.flaps))
+        # Exactly what is used, nothing more and nothing less.
+        assert set(alphabet) == used, device
+        assert len(alphabet) == len(set(alphabet)), device
+        # Blank first, because that is where a cell rests when the line's text
+        # does not reach it — and it is `sorted`, so a filler that ever brought
+        # a hyphen or a digit would take its place without this being edited.
+        assert alphabet[0] == stage.BLANK
+        assert list(alphabet) == sorted(alphabet)
+        assert "ẞ" in alphabet and "ß" not in alphabet
+    # And the page hands the client the alphabet the server computed, per
+    # cartridge, rather than letting it guess.
+    for cartridge in stage.AUTOMAT_CARTRIDGES:
+        payload = stage.automat_payload(cartridge)
+        assert payload["alphabet"] == alphabets[cartridge.device_id]
+
+
+def test_the_row_is_centred_by_a_floor_on_both_sides() -> None:
+    """The server draws the first row of cells and the client redraws it on
+    every turn, so the two have to centre a line the same way — and CPython's
+    own `str.center` is the trap.
+
+    `str.center` puts the odd extra space on the **left** when both the margin
+    and the width are odd (`left = marg // 2 + (marg & width & 1)`), and the
+    board is 71 columns. The client centres with a plain floor. Used
+    unthinkingly, every line of odd length would have been drawn one cell away
+    from where the client would redraw it — visible as the whole row stepping
+    sideways the first time any module turned."""
+    # `left = marg // 2 + (marg & width & 1)`: the odd extra cell goes to the
+    # left only when the margin and the width are *both* odd.
+    assert "abcd".center(9) == "   abcd  "  # margin 5, width 9, both odd: extra left
+    assert "abc".center(8) == "  abc   "  # margin 5, width 8: width even, extra right
+    # The board is 71 columns, so every line of even length has an odd margin
+    # and every one of those would have disagreed by a whole cell.
+    assert "ab".center(71).index("ab") == 35
+    assert (71 - 2) // 2 == 34
+    # Not hypothetical for this lexicon: the poem both boards open on has rows
+    # `center` would have drawn one cell left of where the client redraws them.
+    disagreements = 0
+    for device in CARTRIDGES:
+        board = stage.flap_board(device)
+        for row in stage.automat_rows(board, stage.automat_default_positions(device)):
+            if row.cells != row.cells.strip().center(stage.BOARD_COLUMNS):
+                disagreements += 1
+    assert disagreements > 0
+    source = (Path(__file__).parent.parent / "src" / "explorer" / "stage.py").read_text(
+        encoding="utf-8"
+    )
+    layout = source.split("def automat_line(", 1)[1].split("\ndef ", 1)[0]
+    assert ".center(" not in layout
+    assert "left = (BOARD_COLUMNS - len(text)) // 2" in layout
+    # And the client's own arithmetic, character for character.
+    script = _automat_scene_script()
+    client_layout = re.search(r"function layout\(line\) \{(.*?)\n\}", script, re.S)
+    assert client_layout is not None
+    assert "const left = Math.floor((COLUMNS - text.length) / 2);" in client_layout.group(1)
+    assert (
+        "cells: ' '.repeat(left) + text + ' '.repeat(COLUMNS - left - text.length),"
+        in client_layout.group(1)
+    )
+    # The property itself, over every flap of every module of both cartridges:
+    # the row is exactly the board's width, and each module's span points at
+    # the characters that module is spelling.
+    for device in CARTRIDGES:
+        board = stage.flap_board(device)
+        for line in board.lines:
+            for choice in range(10):
+                flaps = [module.flaps[choice] for module in line.modules]
+                cells, spans = stage.automat_line(flaps)
+                assert len(cells) == stage.BOARD_COLUMNS
+                for flap, (start, span) in zip(flaps, spans, strict=True):
+                    assert span == len(flap)
+                    assert cells[start : start + span] == flap
+                assert cells.strip() == AUTOMAT_SEPARATOR.join(flaps)
+
+
+def test_the_module_handles_sit_over_the_cells_their_flaps_spell() -> None:
+    """A module is not an element on this board — it is a run of cells, and the
+    run moves when a neighbouring module turns to a longer or shorter flap.
+    What a hand takes hold of is a transparent handle laid over that run.
+
+    So the handle has to be placed from the same layout the cells are drawn
+    from, at first paint and on every redraw. The server writes `--start` and
+    `--span` in cells; the script rewrites them from `drawBoard`, which is the
+    one place the board is drawn at all."""
+    board = stage.flap_board()
+    positions = stage.automat_default_positions()
+    rows = stage.automat_rows(board, positions)
+    body = _automat_page()
+    for row in rows:
+        for slot_in_line, (start, span) in enumerate(row.spans):
+            slot = row.number * 6 + slot_in_line
+            assert f'id="module-{slot}" data-slot="{slot}"' in body
+            assert f'style="--start: {start}; --span: {span}"' in body
+    assert body.count('class="board-module"') == 36
+    script = _automat_scene_script()
+    place = re.search(r"function placeModules\(line, spans\) \{(.*?)\n\}", script, re.S)
+    assert place is not None
+    assert "el.style.setProperty('--start', String(spans[position][0]));" in place.group(1)
+    assert "el.style.setProperty('--span', String(spans[position][1]));" in place.group(1)
+    draw = re.search(r"function drawBoard\(cap, stagger\) \{(.*?)\n\}", script, re.S)
+    assert draw is not None
+    assert "placeModules(line, drawn.spans);" in draw.group(1)
+    # And the handle is over the cells rather than under them. The cells carry
+    # `z-index` on their own leaves and their own hinge; without a stacking
+    # context of their own those climbed past the handles and the grab was
+    # refused on every press — measured with `elementFromPoint` at a module's
+    # own centre, which returned the glyph inside a cell.
+    css = " ".join(_stage_css().split())
+    assert "isolation: isolate;" in css
+    modules_rule = css.split(".board-modules {", 1)[1].split("}", 1)[0]
+    assert "position: absolute;" in modules_rule
+    assert "inset: 0;" in modules_rule
+    assert "z-index: 2;" in modules_rule
+
+
+def test_a_cell_is_two_halves_and_a_fold() -> None:
+    """A source-level guard, and named as one; `tests/browser/flap-board.mjs
+    roll` and `frames` are what show it turning.
+
+    The defect this scene was rebuilt for: the board used to slide whole
+    phrases on `translateY`, which is the N+7 reel technique and not a
+    split-flap display at all. A cell is two static halves and two leaves; the
+    front leaf hangs from the hinge and falls away, uncovering the static top
+    that already carries the next character, and the back leaf swings up from
+    edge-on. `rotateX`, `transform-origin` at the hinge, and backfaces
+    hidden."""
+    body = _automat_page()
+    # Four faces to a cell, on every one of them.
+    for face in ("cell-top", "cell-bottom", "cell-front", "cell-back"):
+        assert body.count(f'class="{face}"') == 6 * stage.BOARD_COLUMNS
+    css = " ".join(_stage_css().split())
+    assert ".cell-front { z-index: 2; transform-origin: bottom center; }" in css
+    assert ".cell-back { z-index: 2; transform-origin: top center; }" in css
+    assert (
+        ".cell.folding .cell-front, .cell.folding .cell-back { backface-visibility: hidden; }"
+    ) in css
+    assert ".cell.folding { perspective: 90px; }" in css
+    script = _automat_scene_script()
+    fold = re.search(r"function foldCell\(cell, next, settling\) \{(.*?)\n\}", script, re.S)
+    assert fold is not None
+    body = fold.group(1)
+    assert "cell.back.style.transform = 'rotateX(90deg)';" in body
+    assert "cell.front.style.transform = 'rotateX(-90deg)';" in body
+    assert "cell.back.style.transform = 'rotateX(0deg)';" in body
+    # The front leaf falls first and the back one only afterwards.
+    assert body.index("rotateX(-90deg)") < body.index("rotateX(0deg)")
+    # Nothing on this board slides. That is the whole point of the rebuild, so
+    # it is asserted on code with the comments stripped rather than on prose.
+    code = re.sub(r"//.*", "", script)
+    assert "translateY" not in code
+    scene_css = _stage_css().split("scene eight: Enzensberger's Poesie-Automat", 1)[1]
+    assert "translateY" not in scene_css
+    assert "flap-strip" not in scene_css
+    assert "flap-cell" not in scene_css
+    # And the last fold of a roll lands with an overshoot, which is what makes
+    # it read as a mechanism rather than as a fade. The easing has to *be* one
+    # that overshoots — a cubic-bezier whose second control point is past 1 —
+    # and it has to be reached only on the settling fold.
+    settle = re.search(r"const SETTLE = 'cubic-bezier\(([^)]*)\)';", script)
+    assert settle is not None
+    controls = [float(value) for value in settle.group(1).split(",")]
+    assert controls[1] > 1 or controls[3] > 1, controls
+    assert "foldCell(cell, next, done === steps - 1);" in script
+    assert "(settling ? SETTLE : RISE)" in script
+
+
+def test_a_cell_turns_through_every_character_in_between() -> None:
+    """A source-level guard, and named as one, and it is deliberately **not**
+    the guard on the wave.
+
+    What a Python test can see is the shape: a rolling cell advances by one
+    place in the alphabet at a time and takes its next character from the
+    alphabet rather than from its target, so it cannot cut to the answer; the
+    distance it has to cover is the forward distance around the alphabet; and
+    a journey longer than the cap is *seated* short of its target so that what
+    is left is still a real roll of exactly `MAX_ROLL` folds.
+
+    What a Python test cannot see is whether the board resolves as a wave. The
+    guard this replaces asserted `const STAGGER_MS = \\d+`, and `\\d+` matches
+    `0` — so a board resolving in unison passed its own test with every other
+    guard green. The floor is measured instead, in a real browser, by
+    `tests/browser/flap-board.mjs wave`.
+
+    That mode took two attempts and the first one was wrong the same way. Its
+    floor was the *span* between the first cell folding and the last, and with
+    `STAGGER_MS` set to 0 the span still measured 2618-3038ms and the mode said
+    PASS — on a board of 426 cells the main thread spreads the folds out
+    whether or not anything asked it to, so a floor on the span measures
+    congestion. It measures *where* the folding cells are instead: the band of
+    columns folding at one moment (12-23 as shipped, 61-65 at zero, ceiling 35)
+    and how far the front of that band advances over the clatter (38.5-53.9
+    columns as shipped, 1.2-13.2 at zero, floor 20). Both go red at zero, and
+    both were run at zero to check that they do.
+
+    All this pins is that the three constants are positive, which is the part a
+    Python test can honestly see."""
+    script = _automat_scene_script()
+    roll = re.search(r"function rollCell\(cell, want, cap, delay\) \{(.*?)\n\}\n", script, re.S)
+    assert roll is not None
+    body = roll.group(1)
+    # One place at a time, out of the alphabet, never toward the target.
+    assert "const next = alphabet[(alphabetIndex(cell.char) + 1) % alphabet.length];" in body
+    assert "let steps = stepsBetween(cell.char, want);" in body
+    assert "if (done < steps) tick();" in body
+    # The cap seats the cell short and leaves a real roll behind it.
+    assert "if (steps > cap) {" in body
+    assert "landCell(cell, alphabet[((alphabetIndex(want) - cap) % size + size) % size]);" in body
+    assert "steps = cap;" in body
+    steps = re.search(r"function stepsBetween\(from, to\) \{(.*?)\n\}", script, re.S)
+    assert steps is not None
+    assert "((alphabetIndex(to) - alphabetIndex(from)) % size + size) % size" in steps.group(1)
+    # Each column starts later than the one before it — the wave's shape, not
+    # its size.
+    draw = re.search(r"function drawBoard\(cap, stagger\) \{(.*?)\n\}", script, re.S)
+    assert draw is not None
+    assert "jobs.push(rollCell(cell, want, cap, column * stagger));" in draw.group(1)
+    for name in ("FOLD_MS", "STAGGER_MS", "MAX_ROLL"):
+        found = re.search(rf"const {name} = (\d+(?:\.\d+)?);", script)
+        assert found is not None
+        assert float(found.group(1)) > 0
+    # A hand's own step is one fold and no stagger, because a module step
+    # changes several cells to unrelated characters at once and there is no
+    # journey to walk.
+    assert re.search(r"const HAND_ROLL = 1;", script) is not None
+    step = re.search(r"function stepModule\(slot, advance\) \{(.*?)\n\}", script, re.S)
+    assert step is not None
+    assert "return drawBoard(HAND_ROLL, 0);" in step.group(1)
+
+
+def test_a_resting_cell_holds_no_three_dimensional_transform() -> None:
+    """A source-level guard, and named as one, and it exists because of a
+    measurement rather than a worry.
+
+    A leaf holding a 3D transform with a hidden backface is a composited layer
+    whether or not it is moving, and this board has 852 of them. Clocked in a
+    real browser with `flap-board.mjs wave`: one press cost **4505ms** with the
+    leaves always composited, **1824ms** with them taken out of the paint
+    entirely, against a **1492ms** floor with nothing drawn at all. So the
+    perspective and the hidden backfaces are switched on by a class for the
+    ~64ms a cell is actually turning, both leaves rest at `transform: none`,
+    and the resting back leaf is invisible because it lies flat over a static
+    half showing the same character rather than because it is edge-on."""
+    script = _automat_scene_script()
+    land = re.search(r"function landCell\(cell, character\) \{(.*?)\n\}", script, re.S)
+    assert land is not None
+    body = land.group(1)
+    assert "cell.el.classList.remove('folding');" in body
+    assert "cell.front.style.transform = 'none';" in body
+    assert "cell.back.style.transform = 'none';" in body
+    fold = re.search(r"function foldCell\(cell, next, settling\) \{(.*?)\n\}", script, re.S)
+    assert fold is not None
+    assert "cell.el.classList.add('folding');" in fold.group(1)
+    css = " ".join(_stage_css().split())
+    # The 3D lives behind the class and nowhere else *on this board*: the
+    # cell's own perspective and hidden backface each appear once, and each
+    # appears inside a `.cell.folding` rule. (Scene six's own cut has a
+    # perspective and a backface of its own, further up the sheet, so the
+    # count is taken over scene eight's section rather than over the file.)
+    scene_css = " ".join(
+        _stage_css().split("scene eight: Enzensberger's Poesie-Automat", 1)[1].split()
+    )
+    assert scene_css.count("perspective:") == 1
+    assert scene_css.count("backface-visibility:") == 1
+    assert ".cell.folding { perspective: 90px; }" in css
+    assert (
+        ".cell.folding .cell-front, .cell.folding .cell-back { backface-visibility: hidden; }"
+    ) in css
+    resting_cell = css.split(".cell {", 1)[1].split("}", 1)[0]
+    assert "perspective" not in resting_cell
+    # And a glyph is only written where it is not already showing: the guarded
+    # write took the clatter from a 2870ms median to a 2215ms one.
+    assert "function write(element, character) {" in script
+    assert "if (element.textContent !== character) element.textContent = character;" in script
+    assert "textContent = " not in re.sub(r"//.*", "", land.group(1))
+
+
+def test_first_paint_is_a_settled_board_and_a_real_verdict() -> None:
+    """Every module on its own first flap, deterministic, with a checked
+    verdict for the poem those flaps spell — the scene does not autoplay, and
+    it does not open on a claim it has not earned.
+
+    And the cells the server drew really are that poem, in the capitals the
+    board shows, centred in the row."""
+    for device in CARTRIDGES:
+        assert stage.automat_default_positions(device) == [0] * 36
+        body = _automat_page(device)
+        assert 'class="verdict yes"' in body
+        assert "checked &mdash; all 6 lines are ones this board can show" in body
+        board = stage.flap_board(device)
+        rows = stage.automat_rows(board, stage.automat_default_positions(device))
+        for row in rows:
+            assert len(row.cells) == stage.BOARD_COLUMNS
+            for character in row.cells:
+                assert f'<div class="cell" data-char="{html.escape(character)}">' in body
+            assert row.cells.strip() in " ".join(
+                stage.automat_display(line) for line in [row.cells]
+            )
+        # Every module says what it is showing, in the device's own case.
+        for line in board.lines:
+            for module in line.modules:
+                assert f'aria-valuetext="{html.escape(module.alternatives[0])}"' in body
+        # Focusable *and* a slider, matched together: a module that declared
+        # the role without a tab stop would be a slider no keyboard could
+        # reach.
+        assert body.count('tabindex="0" role="slider"') == 36
+        assert body.count('aria-orientation="vertical"') == 36
+        # And the 426 cells are not read out one character at a time.
+        assert body.count('<div class="board-cells" aria-hidden="true">') == 6
+
+
+def test_the_count_is_the_exact_integer_rendered_as_a_power() -> None:
+    """`dev.combinations` is a Python `int` and holds 10^36 exactly;
+    `metrics["combinations"]` is the same number through a float and comes out
+    `1e+36`. The page prints the power, and never the float."""
+    for device in CARTRIDGES:
+        board = stage.flap_board(device)
+        assert board.combinations == 10**36
+        assert stage.power_of_ten(board.combinations) == 36
+        body = _automat_page(device)
+        assert "10<sup>36</sup>" in body
+        assert "1e+36" not in body
+        assert str(10**36) not in body
+    template = _automat_template()
     assert "metrics.combinations" not in template
     assert "metrics['combinations']" not in template
 
@@ -3419,49 +3967,102 @@ def test_power_of_ten_refuses_a_count_that_is_not_one() -> None:
     assert stage.power_of_ten(-10) is None
 
 
-def test_the_press_branch_sends_the_drums_somewhere_and_says_nothing_else() -> None:
+def test_the_press_branch_sends_the_modules_somewhere_and_says_nothing_else() -> None:
     """The reply to a press carries the 36 flaps `apply` chose and **no
     verdict**. That is the invariant at the moment it is easiest to break: the
     board is still showing the previous poem and will go on showing it for the
     whole length of the clatter, so anything printed here that looked like a
-    verdict would stand over a poem it was not about for a second and a
-    half."""
-    response = client.post("/stage/poesie_automat/act", data={"press": "1"})
-    assert response.status_code == 200
-    body = response.text
-    assert 'class="verdict turning"' in body
-    assert "checked" not in body
-    match = re.search(r'data-positions="([^"]+)"', body)
-    assert match is not None
-    positions = [int(value) for value in match.group(1).split("|")]
-    assert len(positions) == 36
-    assert all(0 <= value < 10 for value in positions)
-    # And they are flaps a real poem is made of.
-    assert stage.automat_positions(stage.automat_poem(positions)) == positions
+    verdict would stand over a poem it was not about for two seconds."""
+    for device in CARTRIDGES:
+        response = client.post("/stage/poesie_automat/act", data={"press": "1", "device": device})
+        assert response.status_code == 200
+        body = response.text
+        assert 'class="verdict turning"' in body
+        assert "checked" not in body
+        match = re.search(r'data-positions="([^"]+)"', body)
+        assert match is not None
+        positions = [int(value) for value in match.group(1).split("|")]
+        assert len(positions) == 36
+        assert all(0 <= value < 10 for value in positions)
+        # And they are flaps a real poem of *that* board is made of.
+        assert stage.automat_positions(stage.automat_poem(positions, device), device) == positions
 
 
 def test_the_read_branch_checks_the_text_it_was_handed() -> None:
-    """The other branch: whatever the page says the drums are showing is what
-    `check` is asked about, right or wrong."""
+    """The other branch: whatever the page says the cells are showing is what
+    `check` is asked about, right or wrong — including the capitals, because
+    what is checked has to be what is on screen."""
     good = stage.automat_poem(stage.automat_default_positions())
-    response = client.post("/stage/poesie_automat/act", data={"poem": good})
+    shown = "\n".join(stage.automat_display(line) for line in good.splitlines())
+    response = client.post("/stage/poesie_automat/act", data={"poem": shown})
     assert 'class="verdict yes"' in response.text
-    assert f'data-checked="{html.escape(good)}"' in response.text
-    bad = good.replace("Morgens", "Mittwochs", 1)
+    assert f'data-checked="{html.escape(shown)}"' in response.text
+    bad = shown.replace("MORGENS", "MITTWOCHS", 1)
     response = client.post("/stage/poesie_automat/act", data={"poem": bad})
     assert 'class="verdict no"' in response.text
     assert "module not on the board" in response.text
 
 
+def test_the_check_runs_against_the_cartridge_the_board_is_showing() -> None:
+    """The switcher's half of the invariant, and the one the token machinery
+    cannot cover: a verdict is only honest about the device it was checked
+    against.
+
+    A poem off the Pokemon board is not a poem the Landsberg board can show
+    and the other way round, so the same text gets opposite verdicts depending
+    on which cartridge is in the machine. The cartridge showing goes up with
+    every request rather than being remembered on the server, because the
+    board is turned in the browser and the server has no other way to know."""
+    poems = {}
+    for device in CARTRIDGES:
+        poem = stage.automat_poem(stage.automat_default_positions(device), device)
+        poems[device] = "\n".join(stage.automat_display(line) for line in poem.splitlines())
+    for device, poem in poems.items():
+        right = client.post("/stage/poesie_automat/act", data={"poem": poem, "device": device})
+        assert 'class="verdict yes"' in right.text, device
+        other = next(candidate for candidate in CARTRIDGES if candidate != device)
+        wrong = client.post("/stage/poesie_automat/act", data={"poem": poem, "device": other})
+        assert 'class="verdict no"' in wrong.text, (device, other)
+    # The field the client fills, and the page it starts on.
+    for device in CARTRIDGES:
+        body = _automat_page(device)
+        assert f'<input type="hidden" name="device" id="automat-device" value="{device}">' in body
+    script = _automat_scene_script()
+    assert "deviceEl.value = cart.id;" in script
+
+
+def test_the_scene_refuses_a_cartridge_it_does_not_carry() -> None:
+    """The switcher's value arrives from a client, and `device.load` will read
+    any YAML sitting in a directory on the search path. So the set of loadable
+    boards is fixed in the server, where a client cannot widen it — an id this
+    scene does not offer is refused rather than passed through."""
+    assert stage.automat_cartridge(None).device_id == "poesieautomat_2000"
+    assert stage.automat_cartridge("").device_id == "poesieautomat_2000"
+    for device in CARTRIDGES:
+        assert stage.automat_cartridge(device).device_id == device
+    for refused in ("harsdoerffer_1651", "../../etc/passwd", "poesieautomat", "queneau"):
+        with pytest.raises(InvalidParams):
+            stage.automat_cartridge(refused)
+    # And the route goes through it rather than round it.
+    app_src = (Path(__file__).parent.parent / "src" / "explorer" / "app.py").read_text(
+        encoding="utf-8"
+    )
+    route = app_src.split("async def stage_poesie_automat_act", 1)[1].split("\n@app.", 1)[0]
+    assert 'cartridge = stage.automat_cartridge(str(form.get("device", "")))' in route
+    assert 'form.get("device")' not in route.replace('str(form.get("device", ""))', "OK").replace(
+        'form.get("device", "")', "OK"
+    )
+
+
 def test_the_automat_route_never_recomputes_the_poem_from_the_seed() -> None:
     """A source-level guard, and named as one; `tests/browser/flap-board.mjs
-    press` is what measures it, by comparing the drums' own cells against the
-    `data-checked` the verdict came back with.
+    press` is what measures it, by comparing the cells' own characters against
+    the `data-checked` the verdict came back with.
 
     The read branch takes the posted text and nothing else. A route that
     pressed the button again and checked *that* poem would be judging a
     second, invisible board that merely resembled the one on screen — and
-    would have nothing at all to say about a drum a viewer turned by hand
+    would have nothing at all to say about a module a viewer turned by hand
     afterwards."""
     app_src = (Path(__file__).parent.parent / "src" / "explorer" / "app.py").read_text(
         encoding="utf-8"
@@ -3469,53 +4070,56 @@ def test_the_automat_route_never_recomputes_the_poem_from_the_seed() -> None:
     route = app_src.split("async def stage_poesie_automat_act", 1)[1].split("\n@app.", 1)[0]
     read = route.split('if form.get("press"):', 1)[1].split("return page", 1)[1]
     assert 'text = str(form.get("poem", ""))' in read
-    assert 'denckring_check("poesie_automat", text,' in read
+    assert 'denckring_check(\n        "poesie_automat",\n        text,' in read
     # `automat_press` is reached from the press branch and from nowhere else.
-    assert route.count("automat_press()") == 1
-    assert route.index("automat_press()") < route.index('form.get("poem"')
+    assert route.count("automat_press(") == 1
+    assert route.index("automat_press(") < route.index('form.get("poem"')
 
 
-def test_the_flap_source_reads_the_poem_out_of_the_drums_own_cells() -> None:
+def test_the_flap_source_reads_the_poem_out_of_the_cells_themselves() -> None:
     """A source-level guard, and named as one: the test client runs no
     JavaScript, so what the page actually reads off the board is out of its
-    reach. `tests/browser/flap-board.mjs press` and `drag` are what measure
-    it.
+    reach. `tests/browser/flap-board.mjs press`, `drag` and `swap` are what
+    measure it, each by comparing `readBoard()` against the `data-checked` the
+    verdict came back carrying.
 
     What this holds on to is the shape that makes it true. The poem is read
-    from the cell standing in each drum's window — the element on screen, by
-    `textContent` — and that read is the last thing to happen before the
-    submit, so nothing can be shown that was not checked or checked that was
-    not shown. There is no second copy of the device on the client for it to
-    read instead."""
+    out of the cells' own characters, row by row — not from the model beside
+    them, and not from the cartridge's word list — and that read is the last
+    thing to happen before the submit, so nothing can be shown that was not
+    checked or checked that was not shown."""
     script = _automat_scene_script()
-    window = re.search(r"function windowCell\(slot\) \{(.*?)\n\}", script, re.S)
-    assert window is not None
-    assert "drums[slot].cells[drums[slot].pos]" in window.group(1)
     read = re.search(r"function readBoard\(\) \{(.*?)\n\}", script, re.S)
     assert read is not None
     body = read.group(1)
-    assert "windowCell(Number(el.dataset.slot)).textContent.trim()" in body
+    assert ".map((row) => row.map((cell) => cell.char).join('').trim())" in body
+    assert "positions" not in body
+    assert "cart." not in body
     submit = re.search(r"function submitRead\(\) \{(.*?)\n\}", script, re.S)
     assert submit is not None
     assert "poemEl.value = readBoard();" in submit.group(1)
     assert submit.group(1).index("readBoard()") < submit.group(1).index("requestSubmit()")
-    # And what a drum *says* is read the same way, so the accessible tree and
-    # the checked text can never disagree.
-    sync = re.search(r"function syncDrum\(slot\) \{(.*?)\n\}", script, re.S)
-    assert sync is not None
-    assert "windowCell(slot).textContent.trim()" in sync.group(1)
+    # A cell's own character and the character it is *showing* are written
+    # together, in one place, so the two cannot come apart.
+    land = re.search(r"function landCell\(cell, character\) \{(.*?)\n\}", script, re.S)
+    assert land is not None
+    assert "cell.char = character;" in land.group(1)
+    assert "cell.el.dataset.char = character;" in land.group(1)
+    assert "write(cell.bottom, character);" in land.group(1)
+    assert script.count("cell.char = ") == 1
 
 
-def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_a_drum() -> None:
+def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_the_board() -> None:
     """A source-level guard, and named as one; `tests/browser/flap-board.mjs
-    stale` is what measures it in a real browser.
+    stale` and `swap` are what measure it in a real browser.
 
     The invariant this codebase has had broken five times: a real `check()`
     verdict must never stand over a state the viewer has since changed. A
-    drum is such a state, and so is the whole board while it is clattering.
-    Every path that can change what the board shows — the pointer drag's own
-    `grab`, the arrow keys, and the press's own clatter — goes through one
-    choke point, which replaces any standing verdict with the placeholder and
+    module is such a state, the board while it is clattering is another, and a
+    **cartridge swap is the sixth way to change it**. Every path that can
+    change what the board shows — the pointer drag's own `grab`, the arrow
+    keys, the press's own clatter, and the switcher — goes through one choke
+    point, which replaces any standing verdict with the placeholder and
     invalidates the token any in-flight check was asked under."""
     script = _automat_scene_script()
     invalidate = re.search(r"function invalidate\(\) \{(.*?)\n\}", script, re.S)
@@ -3523,21 +4127,21 @@ def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_a_drum(
     body = invalidate.group(1)
     assert "boardToken++;" in body
     assert "setVerdictTurning();" in body
-    begin = re.search(r"function beginDrumMove\(\) \{(.*?)\n\}", script, re.S)
+    begin = re.search(r"function beginModuleMove\(\) \{(.*?)\n\}", script, re.S)
     assert begin is not None
-    assert "activeDrums++;" in begin.group(1)
+    assert "activeModules++;" in begin.group(1)
     assert "invalidate();" in begin.group(1)
     grab = re.search(r"  grab: \(slot\) => \{(.*?)\n  \},", script, re.S)
     assert grab is not None
-    assert "grabDrum(slot);" in grab.group(1)
-    grab_drum = re.search(r"function grabDrum\(slot\) \{(.*?)\n\}", script, re.S)
-    assert grab_drum is not None
-    assert "beginDrumMove();" in grab_drum.group(1)
-    key = re.search(r"function drumKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
+    assert "grabModule(slot);" in grab.group(1)
+    grab_module = re.search(r"function grabModule\(slot\) \{(.*?)\n\}", script, re.S)
+    assert grab_module is not None
+    assert "beginModuleMove();" in grab_module.group(1)
+    key = re.search(r"function moduleKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
     assert key is not None
-    assert "beginDrumMove();" in key.group(1)
-    assert key.group(1).index("beginDrumMove();") < key.group(1).index("stepDrum(")
-    # The clatter arms it too, and arms it as a board that is *running* — the
+    assert "beginModuleMove();" in key.group(1)
+    assert key.group(1).index("beginModuleMove();") < key.group(1).index("stepModule(")
+    # The clatter arms it, and arms it as a board that is *running* — the
     # placeholder reads the board's own state for which of its two true things
     # to say, so the flag has to be set before the choke point is called.
     swap = re.search(
@@ -3548,17 +4152,27 @@ def test_the_flap_source_arms_the_placeholder_from_every_path_that_moves_a_drum(
     assert swap is not None
     press = swap.group(1).split("if (raw) {", 1)[1]
     assert press.index("clattering = true;") < press.index("invalidate();")
-    # And the machine takes the board from any hand still on it before it
-    # starts — `clattering` is already true when it does, so the drums it lets
-    # go of cannot ask for a read on their way out.
-    assert press.index("clattering = true;") < press.index("releaseHeldDrums();")
-    assert press.index("releaseHeldDrums();") < press.index("invalidate();")
-    # and the submit is gated while anything is moving
+    assert press.index("clattering = true;") < press.index("releaseHeldModules();")
+    assert press.index("releaseHeldModules();") < press.index("invalidate();")
+    # And the cartridge swap, in the same order and for the same reason. This
+    # is the sixth way to change the board, and it is the one this round added.
+    cartridge = re.search(r"function swapCartridge\(id\) \{(.*?)\n\}", script, re.S)
+    assert cartridge is not None
+    body = cartridge.group(1)
+    assert "clattering = true;" in body
+    assert "releaseHeldModules();" in body
+    assert "invalidate();" in body
+    assert body.index("clattering = true;") < body.index("invalidate();")
+    assert body.index("invalidate();") < body.index("loadCartridge(id)")
+    assert "releaseRead();" in body
+    # and the submit is gated while anything is moving, the switcher included
     refresh = re.search(r"function refreshControls\(\) \{(.*?)\n\}", script, re.S)
     assert refresh is not None
-    assert "const blocked = inert || clattering || activeDrums > 0;" in refresh.group(1)
-    assert "pressBtn.disabled = blocked;" in refresh.group(1)
-    assert "readBtn.disabled = blocked;" in refresh.group(1)
+    body = refresh.group(1)
+    assert "const blocked = inert || clattering || activeModules > 0;" in body
+    assert "pressBtn.disabled = blocked;" in body
+    assert "readBtn.disabled = blocked;" in body
+    assert "input.disabled = blocked;" in body
 
 
 def test_the_flap_source_refuses_a_verdict_for_a_board_that_has_moved_since() -> None:
@@ -3566,16 +4180,16 @@ def test_the_flap_source_refuses_a_verdict_for_a_board_that_has_moved_since() ->
     `tests/browser/flap-board.mjs stale`.
 
     The other end of the same invariant, and the exact case the volvelles'
-    own Critical was: the viewer turns a drum *during* the check's round trip,
-    and the real, checked verdict lands afterwards over a board that is no
-    longer showing what it was checked against. The token the request was
+    own Critical was: the viewer turns a module *during* the check's round
+    trip, and the real, checked verdict lands afterwards over a board that is
+    no longer showing what it was checked against. The token the request was
     submitted under is compared with the current one on the swap, and a
     verdict that has been overtaken is replaced by the placeholder.
 
-    Unlike scene six, a moved drum leaves a *new* poem that still owes a fresh
-    read — the placeholder is not the correct end state here, it is only the
-    honest one until the read lands. So the debt is recorded and settled the
-    moment the board is the client's again."""
+    A moved module leaves a *new* poem that still owes a fresh read — the
+    placeholder is not the correct end state here, it is only the honest one
+    until the read lands. So the debt is recorded and settled the moment the
+    board is the client's again."""
     script = _automat_scene_script()
     before = re.search(
         r"document\.body\.addEventListener\('htmx:beforeRequest', \(evt\) => \{(.*?)\n\}\);",
@@ -3591,12 +4205,12 @@ def test_the_flap_source_refuses_a_verdict_for_a_board_that_has_moved_since() ->
     )
     assert swap is not None
     body = swap.group(1)
-    assert "if (boardToken !== submittedToken || activeDrums > 0 || clattering) {" in body
+    assert "if (boardToken !== submittedToken || activeModules > 0 || clattering) {" in body
     assert body.index("setVerdictTurning();") < body.index("announceReading();")
     # The debt, and the one place it is settled.
     release = re.search(r"function releaseRead\(\) \{(.*?)\n\}", script, re.S)
     assert release is not None
-    assert "if (activeDrums > 0 || clattering) return;" in release.group(1)
+    assert "if (activeModules > 0 || clattering) return;" in release.group(1)
     assert "deferredRead = true;" in release.group(1)
     clear = re.search(r"function clearInert\(settle\) \{(.*?)\n\}", script, re.S)
     assert clear is not None
@@ -3607,11 +4221,10 @@ def test_the_flap_source_refuses_a_verdict_for_a_board_that_has_moved_since() ->
     # leave it recorded: `settle` chooses whether it is paid, never whether it
     # survives.
     assert body.index("const owed = deferredRead;") < body.index("deferredRead = false;")
-    assert "if (settle && owed && activeDrums === 0) submitRead();" in body
+    assert "if (settle && owed && activeModules === 0) submitRead();" in body
     # Exactly one caller settles, and it is the read branch. The press branch
-    # drops it, because the clatter it is about to start moves every drum on
-    # the board and its own read covers the result; leaving it settled cost a
-    # third round trip (measured: 3 POSTs against 2 for press-plus-one-key).
+    # drops it, because the clatter it is about to start moves every cell on
+    # the board and its own read covers the result.
     assert script.count("clearInert(true);") == 1
     assert "clearInert(true);" in swap.group(1).rsplit("if (raw) {", 1)[-1]
     press_branch = swap.group(1).split("if (raw) {", 1)[1].split("return;", 1)[0]
@@ -3624,22 +4237,18 @@ def test_the_flap_source_frees_itself_when_a_request_never_comes_back() -> None:
 
     `inert` is set before the request goes out and cleared in
     `htmx:afterSwap` — and htmx does not swap on a non-2xx, so a 500 or a
-    dropped connection would leave it true forever and both buttons dead for
-    the rest of the recording. That is a *liveness* failure, which the token
-    and the placeholder cannot see: they are about a verdict being stale, and
-    here no verdict ever arrives. Scene six was sent back for exactly this.
+    dropped connection would leave it true forever and every control on the
+    scene dead for the rest of the recording. That is a *liveness* failure,
+    which the token and the placeholder cannot see: they are about a verdict
+    being stale, and here no verdict ever arrives.
 
-    Deliberately not `clearInert`: that settles a read this scene may owe,
-    and a read submitted in answer to a failed request would fail in its own
-    turn and owe another. The debt is dropped instead."""
+    Deliberately not `clearInert(true)`: that settles a read this scene may
+    owe, and a read submitted in answer to a failed request would fail in its
+    own turn and owe another. The debt is dropped instead."""
     script = _automat_scene_script()
     failed = re.search(r"function requestFailed\(\) \{(.*?)\n\}", script, re.S)
     assert failed is not None
     body = failed.group(1)
-    # It goes through the one place `inert` is given back, rather than writing
-    # its own copy of that accounting — and passes `false`, so the read this
-    # scene may owe is dropped rather than answered with one more request into
-    # a link that is not replying.
     assert "clearInert(false);" in body
     assert "clearInert(true)" not in body
     assert "setVerdictTurning();" in body
@@ -3654,18 +4263,19 @@ def test_the_placeholder_describes_the_board_not_what_happened_to_it() -> None:
     """A source-level guard, and named as one, and scene six's own lesson
     taken second-hand rather than re-learned.
 
-    Four paths reach the placeholder — the clatter, a drum under a hand, a
-    verdict overtaken before it landed, and a request that never came back —
-    and a message naming any one of them is wrong on the other three. So it
-    names the board's own state instead: either something is moving, or
-    nothing is and no verdict has been earned for the flaps now showing."""
+    Five paths reach the placeholder now — the clatter, a module under a hand,
+    a cartridge swapped, a verdict overtaken before it landed, and a request
+    that never came back — and a message naming any one of them is wrong on
+    the other four. So it names the board's own state instead: either
+    something is moving, or nothing is and no verdict has been earned for the
+    letters now showing."""
     script = _automat_scene_script()
     turning = re.search(r"function setVerdictTurning\(\) \{(.*?)\n\}", script, re.S)
     assert turning is not None
     body = turning.group(1)
-    assert "clattering || activeDrums > 0" in body
+    assert "clattering || activeModules > 0" in body
     assert "the flaps are still running" in body
-    assert "no verdict for the flaps now showing" in body
+    assert "no verdict for the letters now showing" in body
     # Never `.yes`/`.no`, and never a stale `data-checked` left underneath it.
     assert "verdict.className = 'verdict turning';" in body
     assert "verdict.removeAttribute('data-checked');" in body
@@ -3675,78 +4285,71 @@ def test_the_placeholder_describes_the_board_not_what_happened_to_it() -> None:
     code = re.sub(r"//.*", "", script)
     assert "the check did not come back" not in code
     assert "the board has changed" not in code
+    assert "the cartridge" not in code.split("verdict.textContent =")[1].split(";")[0]
     # One assignment, and it is the one above: no other line on the page puts
     # words into the verdict.
     assert code.count("verdict.textContent =") == 1
+    # And the placeholder the *server* renders on a press says the same thing,
+    # so the two cannot drift.
+    include = (
+        Path(__file__).parent.parent / "src" / "explorer" / "templates" / "_stage_flaps.html"
+    ).read_text(encoding="utf-8")
+    assert "the flaps are still running" in include
 
 
 def test_the_flap_source_never_waits_on_a_transition_alone() -> None:
     """The house rule: `explorer.css` sets `transition: none !important` under
     `prefers-reduced-motion`, so `transitionend` never fires there — a clatter
-    chained on it would strand every drum on its first flap. The steps and the
-    snap are chained on timers sized to their own durations instead, and
-    reduced motion takes a separate branch that lands everything at once.
+    chained on it would strand every cell on its first character. The folds
+    are chained on timers sized to their own durations instead, and reduced
+    motion takes a separate branch that lands every cell at once.
 
     Comments are stripped first: the code says why, and that explanation must
-    not be what satisfies this."""
+    not be what satisfies this. Measured in the browser by
+    `flap-board.mjs press` under `REDUCED=1`: the whole clatter clocked 12ms
+    with 0 folds, and `wave` reports no cell folding at all."""
     script = _automat_scene_script()
     code = "\n".join(line for line in script.splitlines() if not line.strip().startswith("//"))
     assert "transitionend" not in code
     assert "addEventListener('transitionend'" not in script
-    clatter = re.search(r"function clatterTo\(targets\) \{(.*?)\n\}", script, re.S)
-    assert clatter is not None
-    assert "if (prefersReducedMotion()) {" in clatter.group(1)
-    assert "landBoard(targets);" in clatter.group(1)
-    assert clatter.group(1).index("landBoard") < clatter.group(1).index("runDrum")
-    land = re.search(r"function landBoard\(targets\) \{(.*?)\n\}", script, re.S)
-    assert land is not None
-    assert "drawDrum(slot, 0, 0);" in land.group(1)
+    roll = re.search(r"function rollCell\(cell, want, cap, delay\) \{(.*?)\n\}\n", script, re.S)
+    assert roll is not None
+    body = roll.group(1)
+    assert "if (prefersReducedMotion()) {" in body
+    assert "landCell(cell, want);" in body
+    assert body.index("prefersReducedMotion") < body.index("const run = ++cell.run;")
+    # The stagger goes to zero under reduced motion too — a wave of instant
+    # landings is still a wave, and reduced motion asks for the end state.
+    assert script.count("prefersReducedMotion() ? 0 : STAGGER_MS") == 2
     # And a drag still works under reduced motion: only the settle is theatre.
-    snap = re.search(r"function snapDrum\(slot\) \{(.*?)\n\}", script, re.S)
-    assert snap is not None
-    assert "if (!residual || prefersReducedMotion()) {" in snap.group(1)
+    settle = re.search(r"function settleModule\(slot\) \{(.*?)\n\}", script, re.S)
+    assert settle is not None
+    assert "if (prefersReducedMotion()) return Promise.resolve();" in settle.group(1)
 
 
-def test_the_strip_carries_three_turns_and_the_drum_rests_on_the_middle_one() -> None:
-    """A source-level guard, and named as one. Measured in a browser before it
-    was written: with two turns and the drum parked on the first, dragging
-    down past the top flap exposed the blank above the strip, because a hand
-    can rest half a cell either side of a detent and there was no cell above
-    to show.
-
-    Three turns, resting on the middle, means there is always a real cell
-    above the window and a real cell below it. A clatter is at most nine steps
-    and starts on the middle turn, so it can never run off the third."""
-    body = _automat_page()
-    board = stage.flap_board()
-    # Every flap of every module, three times over.
-    assert body.count('class="flap-cell"') == 36 * 10 * 3
-    first = board.lines[0].modules[0]
-    assert body.count(f">{first.alternatives[0]}</span>") == 3
-    # And the drum opens on the middle turn: flap 0 of a ten-flap module is
-    # cell 10, so first paint's own transform is -10 cells, not 0.
-    assert "translateY(calc(var(--flap-h) * -10))" in body
-    script = _automat_scene_script()
-    assert "const HOME = FLAPS;" in script
-    normalise = re.search(r"function normalise\(slot\) \{(.*?)\n\}", script, re.S)
-    assert normalise is not None
-    assert "d.pos = HOME + (((d.pos - HOME) % FLAPS) + FLAPS) % FLAPS;" in normalise.group(1)
-
-
-def test_the_scene_turns_a_drum_by_index_and_never_by_the_words_on_it() -> None:
+def test_the_scene_turns_a_module_by_index_and_never_by_the_words_on_it() -> None:
     """The rule `hold_turn.js`, `pieces_for` and `llull_positions` all keep.
-    The client is handed the flap *numbers* the server worked out and moves
-    drums by adding to them; nothing on the page searches a module's flaps for
-    matching text, and there is no copy of the device on the client to search.
-    """
+
+    The client does hold both cartridges' word lists now, because a character
+    board has to know what letters to spell — but it only ever *indexes* them.
+    A module's position is a number, a step is arithmetic on that number, and
+    nothing on the page searches a module's flaps for matching text. The one
+    `indexOf` on the page is over the **alphabet**, looking up where a
+    character sits so the roll can walk to the next one, which is the same
+    kind of index lookup and not a text search for a flap."""
     script = _automat_scene_script()
-    step = re.search(r"function stepDrum\(slot, advance\) \{(.*?)\n\}", script, re.S)
+    step = re.search(r"function stepModule\(slot, advance\) \{(.*?)\n\}", script, re.S)
     assert step is not None
-    assert "drums[slot].pos += advance;" in step.group(1)
+    assert "positions[slot] = ((positions[slot] + advance) % size + size) % size;" in step.group(1)
+    layout = re.search(r"function layout\(line\) \{(.*?)\n\}", script, re.S)
+    assert layout is not None
+    assert "cart.modules[slot].flaps[positions[slot]]" in layout.group(1)
     code = "\n".join(line for line in script.splitlines() if not line.strip().startswith("//"))
-    assert "indexOf(" not in code
-    assert "textContent ===" not in code
-    # The drag is `attachLinearDrag`: a split-flap drum turns about an axis
+    for search in ("flaps.indexOf", "words.indexOf", "flaps.find", "textContent ==="):
+        assert search not in code
+    for found in re.findall(r"(\w+)\.indexOf\(", code):
+        assert found in {"alphabet"}, found
+    # The drag is `attachLinearDrag`: a split-flap module turns about an axis
     # that runs into the screen, so there is no centre on the page to sweep an
     # angle about. Scene eight is the second user of the linear gesture and
     # adds no third shape to the shared module.
@@ -3768,8 +4371,7 @@ def test_reading_the_board_is_never_a_native_submit() -> None:
     `readBoard()`. So clicking it from first paint put `poem=` on the wire and
     landed `checked — missing line: a line the 6 modules of line 1 can spell`
     — a real, red `check()` verdict standing over a board that was perfectly
-    valid, which is the invariant this scene is built around, reached by the
-    one path that never went near a drum.
+    valid.
 
     It is a plain button now and goes through `releaseRead`, the same gate and
     the same read a drag's own release goes through. The press button stays a
@@ -3782,30 +4384,26 @@ def test_reading_the_board_is_never_a_native_submit() -> None:
     click = re.search(r"readBtn\.addEventListener\('click', \(\) => \{(.*?)\n\}\);", script, re.S)
     assert click is not None
     assert "releaseRead();" in click.group(1)
-    # And the field is filled from the drums, by that one path, immediately
-    # before the submit — never left to whatever it happened to hold.
     submit = re.search(r"function submitRead\(\) \{(.*?)\n\}", script, re.S)
     assert submit is not None
     assert "poemEl.value = readBoard();" in submit.group(1)
 
 
-def test_a_round_trip_that_will_move_the_board_owns_the_drums_and_a_read_does_not() -> None:
+def test_a_round_trip_that_will_move_the_board_owns_it_and_a_read_does_not() -> None:
     """A source-level guard, and named as one; the browser reproduction is
     `tests/browser/flap-board.mjs contend`.
 
-    Measured before the fix: a grab begun during an in-flight *press* survived
-    into the clatter — 23 consecutive samples with the board clattering under a
-    hand, two writers on one strip. `bladeAt` refused only while `clattering`,
-    and `clattering` does not become true until the press's reply lands.
+    Measured before the fix, on the drum board this replaces: a grab begun
+    during an in-flight *press* survived into the clatter — 23 consecutive
+    samples with the board clattering under a hand, two writers on one strip.
+    `bladeAt` refused only while `clattering`, and `clattering` does not become
+    true until the press's reply lands.
 
     The refusal is not widened to every round trip, and that is deliberate.
     Scene seven split exactly this distinction into `wheelsOwned` after
     measuring what the blunt version costs: a read owns nothing, so taking the
-    drums away from a hand for its duration is dead controls for the whole of
-    every round trip, which on a slow link is the whole of a slow link.
-    Verified here rather than assumed — with the refusal widened to bare
-    `inert`, the scene's own `stale` reproduction cannot get a grab to start at
-    all and measures nothing. So a press owns the board and a read does not."""
+    board away from a hand for its duration is dead controls for the whole of
+    every round trip, which on a slow link is the whole of a slow link."""
     script = _automat_scene_script()
     blade = re.search(r"  bladeAt: \(evt\) => \{(.*?)\n  \},", script, re.S)
     assert blade is not None
@@ -3818,37 +4416,44 @@ def test_a_round_trip_that_will_move_the_board_owns_the_drums_and_a_read_does_no
     assert before is not None
     assert "boardOwned = pressRequested;" in before.group(1)
     assert "pressRequested = false;" in before.group(1)
-    # The flag is set by the press button's own click, which a keyboard
-    # activation of a button fires too — so this is not a pointer-only path.
     press_click = re.search(
         r"pressBtn\.addEventListener\('click', \(\) => \{(.*?)\n\}\);", script, re.S
     )
     assert press_click is not None
     assert "pressRequested = true;" in press_click.group(1)
+    # The keyboard is refused on the same terms as the pointer. It was not, for
+    # one round: a key pressed inside a press's own flight moved a module the
+    # clatter was about to overwrite.
+    key = re.search(r"function moduleKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
+    assert key is not None
+    assert "if (clattering || (inert && boardOwned)) return;" in key.group(1)
     # Belt and braces on top of the refusal: a hand that is somehow still down
-    # when the machine takes the board is let go of, and stops writing its
-    # strip either way.
+    # when the machine takes the board is let go of, and stops writing either
+    # way.
     move = re.search(r"  move: \(slot, offset\) => \{(.*?)\n  \},", script, re.S)
     assert move is not None
     assert "if (clattering || !held.has(slot)) return;" in move.group(1)
-    release_held = re.search(r"function releaseHeldDrums\(\) \{(.*?)\n\}", script, re.S)
+    release_held = re.search(r"function releaseHeldModules\(\) \{(.*?)\n\}", script, re.S)
     assert release_held is not None
-    assert "letGoDrum(slot);" in release_held.group(1)
-    # Letting go twice — once by the press, once by the pointer that is still
+    assert "Array.from(held).forEach((slot) => letGoModule(slot));" in release_held.group(1)
+    # Letting go twice — once by the machine, once by the pointer that is still
     # to come up — must not double-count. The set is what makes it idempotent.
-    let_go = re.search(r"function letGoDrum\(slot\) \{(.*?)\n\}", script, re.S)
+    let_go = re.search(r"function letGoModule\(slot\) \{(.*?)\n\}", script, re.S)
     assert let_go is not None
     assert "if (!held.delete(slot)) return;" in let_go.group(1)
+    # And a swap cannot start inside a round trip at all.
+    cartridge = re.search(r"function swapCartridge\(id\) \{(.*?)\n\}", script, re.S)
+    assert cartridge is not None
+    assert "if (clattering || inert) return;" in cartridge.group(1)
 
 
-def test_a_drum_answers_every_key_its_role_promises() -> None:
+def test_a_module_answers_every_key_its_role_promises() -> None:
     """`role="slider"` is a promise about a keyboard, not a label. A widget
     that declares it and then does nothing on Home, End, Page Up or Page Down
-    is advertising keys it has not implemented — which is what this scene did
-    for a round, with the arrows alone.
+    is advertising keys it has not implemented.
 
     The sign follows the drag's, because they are the same gesture: down
-    brings the flap above into the window, so Arrow Down and Page Down step
+    brings the flap above into view, so Arrow Down and Page Down step
     backwards through the module, and Home and End go to the first and last
     flap the way a slider's minimum and maximum do."""
     script = _automat_scene_script()
@@ -3858,20 +4463,25 @@ def test_a_drum_answers_every_key_its_role_promises() -> None:
     for key in ("ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"):
         assert f"case '{key}':" in body
     assert "return -index;" in body  # Home, the minimum
-    assert "return FLAPS - 1 - index;" in body  # End, the maximum
-    # Every one of them goes through the same choke point the drag does.
-    key_handler = re.search(r"function drumKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
-    assert key_handler is not None
-    handler = key_handler.group(1)
-    assert "const advance = keyAdvance(evt, slot);" in handler
-    assert "if (advance === null) return;" in handler
-    assert "beginDrumMove();" in handler
-    assert handler.index("beginDrumMove();") < handler.index("stepDrum(")
+    assert "return size - 1 - index;" in body  # End, the maximum
+    # The bounds come from the cartridge that is loaded, not from a constant —
+    # the two cartridges are both ten deep today and a third need not be.
+    assert "const size = cart.modules[slot].flaps.length;" in body
+    # Every one of them goes through the same choke point the drag does, and
+    # the read waits for the fold it started.
+    handler = re.search(r"function moduleKey\(evt, slot\) \{(.*?)\n\}", script, re.S)
+    assert handler is not None
+    body = handler.group(1)
+    assert "const advance = keyAdvance(evt, slot);" in body
+    assert "if (advance === null) return;" in body
+    assert "beginModuleMove();" in body
+    assert body.index("beginModuleMove();") < body.index("stepModule(")
+    assert "moved.then(() => endModuleMove());" in body
 
 
 def test_the_board_names_a_flap_that_is_not_on_the_module() -> None:
     """`automat_poem` folded its indices with `% len(slot.alternatives)` two
-    lines after a length check that raises. A `10` on a ten-flap drum is a
+    lines after a length check that raises. A `10` on a ten-flap module is a
     caller that has miscounted, and rendering flap 0 for it turns that into a
     poem that looks fine and is about a board nobody asked for."""
     good = stage.automat_default_positions()
@@ -3881,85 +4491,101 @@ def test_the_board_names_a_flap_that_is_not_on_the_module() -> None:
         stage.automat_poem([*good[:-1], -1])
     with pytest.raises(InvalidParams):
         stage.automat_poem(good[:-1])
-    # And the honest case still works.
-    assert stage.automat_positions(stage.automat_poem(good)) == good
+    # And the honest case still works, on either cartridge.
+    for device in CARTRIDGES:
+        assert stage.automat_positions(stage.automat_poem(good, device), device) == good
 
 
-def test_the_board_checks_it_fits_the_stage_once_the_face_has_arrived() -> None:
+def test_the_board_sizes_itself_to_the_stage_once_the_face_has_arrived() -> None:
     """A source-level guard, and named as one, and it exists because of a
     measurement rather than a worry.
 
-    Every drum is exactly as wide as its own longest flap, so the board's
-    width belongs to the face. At 14px IBM Plex Mono the widest line measures
-    1148.68px against the 1184px the stage leaves; with the webfont blocked in
-    a browser the fallback measured 1204.05px — twenty pixels of the board
-    clipped off the right edge, silently, because `.stage` is `overflow:
-    hidden`. Both figures are in the task report, off the rendered page.
+    71 cells have to fit the width the stage leaves and the letters in them
+    have to be worth reading. The cell pitch is arithmetic — the stage's own
+    `clientWidth` over 71 — but the *type* in it belongs to the face, and a
+    monospaced advance is not reliably 0.6em. The drum board this replaces was
+    clipped by twenty pixels with the webfont blocked, silently, because
+    `.stage` is `overflow: hidden`. So the advance is measured off a probe
+    glyph in the board's own face, at first paint, again once the fonts have
+    actually settled, and again on a resize.
 
-    So the cell size is a custom property rather than a constant, and the
-    board steps it down until the widest line fits — checked at first paint,
-    again once the fonts have actually settled (the moment scene six's own
-    measurement had to wait for), and again on a resize. On the face this
-    scene was measured for the first size is the answer and nothing moves."""
-    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
-    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    assert "--flap-font: 0.875rem;" in normalised
-    assert "font-size: var(--flap-font);" in normalised
+    Measured by `tests/browser/flap-board.mjs widths`: 1184px of room, 16.676px
+    a cell, 26px of type in it, `data-fits=true` on both cartridges."""
+    css = " ".join(_stage_css().split())
+    assert "--cell-w: 16px;" in css
+    assert "--cell-font: 14px;" in css
+    assert "width: var(--cell-w);" in css
+    assert "font-size: var(--cell-font);" in css
     script = _automat_scene_script()
     fit = re.search(r"function fitBoard\(\) \{(.*?)\n\}", script, re.S)
     assert fit is not None
     body = fit.group(1)
     assert "const room = boardEl.clientWidth;" in body
-    assert "boardEl.style.setProperty('--flap-font', `${size}px`);" in body
+    assert "const cellW = room / COLUMNS;" in body
+    assert "boardEl.style.setProperty('--cell-w', cellW.toFixed(3) + 'px');" in body
+    assert "boardEl.style.setProperty('--cell-font', size.toFixed(1) + 'px');" in body
     assert "boardEl.dataset.fits = 'true';" in body
-    # And it does not end by silently doing the thing it exists to prevent. A
-    # board that will not fit even at the smallest size this is willing to set
-    # says so, in the console and on the board itself.
+    # The advance is measured, never assumed — and the measurement is what the
+    # type size is actually taken from. Asserting only that `advanceRatio`
+    # contains a measurement is not enough: replacing the call with a hardcoded
+    # `0.6` leaves the function intact and unused, and that mutation escaped
+    # until this line was added.
+    advance = re.search(r"function advanceRatio\(\) \{(.*?)\n\}", script, re.S)
+    assert advance is not None
+    assert "probe.getBoundingClientRect().width" in advance.group(1)
+    assert "probe.textContent = 'MMMMMMMMMM';" in script
+    assert "const byWidth = cellW / advanceRatio();" in body
+    assert "const size = Math.floor(Math.min(byWidth, cellH * GLYPH_OF_CELL) * 10) / 10;" in body
+    # And it does not end by silently doing the thing it exists to prevent: a
+    # board that can only carry type nobody could read says so, in the console
+    # and on the board itself.
     assert "boardEl.dataset.fits = 'false';" in body
     assert "console.warn(" in body
-    assert body.index("dataset.fits = 'false'") > body.index("dataset.fits = 'true'")
-    # The width is measured, never derived from an advance times a count.
-    widest = re.search(r"function widestLine\(\) \{(.*?)\n\}", script, re.S)
-    assert widest is not None
-    assert "el.getBoundingClientRect().width" in widest.group(1)
-    assert "getComputedStyle(lineEl).gap" in widest.group(1)
+    assert body.index("dataset.fits = 'false'") < body.index("dataset.fits = 'true'")
+    assert "if (size < MIN_FONT_PX) {" in body
+    minimum = re.search(r"const MIN_FONT_PX = (\d+);", script)
+    assert minimum is not None
+    assert int(minimum.group(1)) >= 8
     # And all three moments it is asked.
     assert "\nfitBoard();" in script
     assert "document.fonts.ready.then(fitBoard);" in script
     assert "window.addEventListener('resize', fitBoard);" in script
 
 
-def test_the_clatter_runs_every_flap_in_between_and_starts_the_drums_apart() -> None:
-    """The character of a split-flap display, and the reason to build this
-    scene at all: a drum sent from flap a to flap b passes through every flap
-    between them rather than cutting to the answer, and the drums are started
-    one after another so the board resolves in a wave. What the whole press
-    actually clocks is measured in `tests/browser/flap-board.mjs press`; this
-    pins the shape that produces it."""
+def test_the_client_starts_on_the_cartridge_the_server_drew() -> None:
+    """A defect the browser reproduction found, pinned so it cannot come back.
+
+    The route accepts `?device=`, so the cells the server has already drawn are
+    not always the first cartridge's — but the client took its model from the
+    head of the list. Measured on
+    `/stage/poesie_automat?device=poesieautomat_pokemon`: the Pokemon board was
+    painted, the client held the Landsberg modules, and the first press wrote
+    Landsberg words into the cells and then checked them against the Pokemon
+    device — `checked — module not on the board: one of the 10 alternatives for
+    module 2 (Verb) of line 1`, over a board showing exactly what it had been
+    told to show.
+
+    The model is read off the hidden field the form posts, which is the same
+    value the route was answered with, so the cells and the model cannot start
+    out disagreeing."""
     script = _automat_scene_script()
-    run = re.search(r"function runDrum\(slot, target\) \{(.*?)\n\}\n", script, re.S)
-    assert run is not None
-    body = run.group(1)
-    # forward, one flap at a time, the whole way round
-    assert "const distance = (target - flapIndex(slot) + FLAPS) % FLAPS;" in body
-    assert "drums[slot].pos += 1;" in body
-    assert "if (done < distance) {" in body
-    # and each drum starts later than the one before it
-    assert "setTimeout(tick, slot * STAGGER_MS);" in body
-    # The constant, not merely its use site. `\d+` matched `0` here, and a
-    # `STAGGER_MS` of 0 resolves the whole board in unison — which the brief
-    # forbids in as many words — with this guard and all 237 others green.
-    # That is the third time in this project a guard's name has outrun its
-    # assertions. The real constraint is not a number in the source at all,
-    # and `tests/browser/flap-board.mjs wave` is what measures it: the span
-    # between the first drum starting and the last, and the dwell between one
-    # flap arriving and the next. Measured over 30 presses, the span is
-    # 1121.9-1192.8ms against a 500ms floor, and at `STAGGER_MS = 0` it is
-    # 0.8-3.3ms and that mode reports FAIL. What is pinned here is only that
-    # the two constants are positive, which is the part a Python test can see.
-    stagger = re.search(r"const STAGGER_MS = (\d+(?:\.\d+)?);", script)
-    assert stagger is not None
-    assert float(stagger.group(1)) > 0
-    flap = re.search(r"const FLAP_MS = (\d+(?:\.\d+)?);", script)
-    assert flap is not None
-    assert float(flap.group(1)) > 0
+    assert (
+        "CARTRIDGES.filter((c) => c.id === document.getElementById('automat-device').value)[0] ||"
+        in script
+    )
+    # Both payloads reach the page, and each carries its own board.
+    for device in CARTRIDGES:
+        body = _automat_page(device)
+        for other in CARTRIDGES:
+            assert f'"id": "{other}"' in body
+        assert f'value="{device}">' in body
+    payloads = [stage.automat_payload(c) for c in stage.AUTOMAT_CARTRIDGES]
+    assert [payload["id"] for payload in payloads] == CARTRIDGES
+    for payload in payloads:
+        assert len(payload["modules"]) == 36
+        assert payload["positions"] == [0] * 36
+        assert payload["columns"] == stage.BOARD_COLUMNS
+        for module in payload["modules"]:
+            assert len(module["flaps"]) == 10
+            assert len(module["words"]) == 10
+            assert module["flaps"] == [stage.automat_display(w) for w in module["words"]]

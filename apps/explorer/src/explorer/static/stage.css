@@ -428,14 +428,14 @@
 
 .turnable-figure .ring-disc,
 .turnable-figure .wheel-disc,
-.turnable-figure .flap {
+.turnable-figure .board-module {
   cursor: grab;
 }
 
 .turnable-figure.grabbing,
 .turnable-figure.grabbing .ring-disc,
 .turnable-figure.grabbing .wheel-disc,
-.turnable-figure.grabbing .flap {
+.turnable-figure.grabbing .board-module {
   cursor: grabbing;
 }
 
@@ -1932,110 +1932,242 @@
 }
 
 /* ── scene eight: Enzensberger's Poesie-Automat ────────────────────────────
-   A split-flap board of the railway-platform kind — six lines, six modules,
-   ten flaps each. Dark modules with light lettering on the paper stage, the
-   way the machine itself reads and the way scene one's own `.word-panel`
-   already sits a dark panel on this ground.
+   A split-flap letter board of the railway-platform kind. Not word strips:
+   Enzensberger specified a board whose letters arrive *Buchstabe für
+   Buchstabe*, so this is six rows of 71 character cells and each cell is two
+   leaves and a hinge.
+
+   71 is the geometry and it is derived, not chosen: a line is six flaps and
+   the five spaces between them, and no flap is wider than eleven characters.
+   Both cartridges are written to that cap, so both play on this board.
 
    Deliberately not `.scene-split`. Every other figure on this stage lives in
-   a 620px column with its panel beside it; the widest line of this board is
-   134 characters and there is nothing like that width left over next to a
-   figure. The board takes the whole stage and its panel sits underneath. The
-   scene's own template says why the drums are sized per line rather than
-   aligned into six true columns across the board: a literal board is 155
-   characters wide and does not fit at any size worth recording. */
+   a 620px column with its panel beside it; 71 monospaced columns will not fit
+   beside anything. The board takes the whole stage and its panel sits
+   underneath. */
 .automat-stage {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.1rem;
 }
 
-/* One cell of one drum, and therefore the drum's own window: the strip inside
-   is translated by whole multiples of this, so the height belongs to the board
-   rather than to any one rule below it and both the template's first paint and
-   the script's own steps read it from here. */
-.flap-board {
-  --flap-h: 2.9rem;
-  /* The size the whole layout was measured at (see `.flap-cell`). A custom
-     property because it is not always the size the board ends up at: the drums
-     are sized by their own words, so the board's width belongs to the face,
-     and a face that is not IBM Plex Mono is wider. The scene measures itself
-     once the fonts have settled and steps this down until the widest line
-     fits — see `fitBoard`. */
-  --flap-font: 0.875rem;
+/* The three numbers the whole board is drawn from. All three are set in
+   pixels by `fitBoard` once the face has actually arrived — the cell width is
+   the stage's own width divided by 71, and the type size is whatever that
+   width can carry, *measured* off a probe glyph rather than assumed to be
+   0.6em. The values here are only what the first paint uses before the script
+   has run; the figures the board settles at are in the task report. */
+.letter-board {
+  --cell-w: 16px;
+  --cell-h: 26px;
+  --cell-font: 14px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0;
+  border-radius: 3px;
+  background: var(--case-deep);
 }
 
-.flap-line {
+/* One line: 71 cells, and six invisible handles laid over them. The handles
+   are positioned in cell widths, so the row and its handles cannot disagree
+   about where a module is. */
+.board-line {
+  position: relative;
+  height: var(--cell-h);
+}
+
+.board-cells {
   display: flex;
-  gap: 0.5rem;
+  height: 100%;
 }
 
-/* A module: a window one cell tall on a strip of thirty. `overflow: hidden` is
-   what makes it a window; the width is whatever the widest flap on the strip
-   needs, which is how a drum comes out exactly as wide as its own longest
-   alternative without anything measuring a font. */
-.flap {
+/* One character cell: two static halves and two leaves, on a perspective of
+   its own so the fold reads as a fold rather than as a squash. */
+.cell {
   position: relative;
   flex: none;
-  height: var(--flap-h);
-  padding: 0 0.4rem;
-  overflow: hidden;
-  border-radius: 2px;
-  background: var(--case-deep);
-  /* The two leaves of a flap module: the top half sits a shade lighter than
-     the bottom, the way a lit board does. */
-  background-image: linear-gradient(
-    rgba(255, 255, 255, 0.07) 0 50%,
-    rgba(0, 0, 0, 0.18) 50% 100%
-  );
-  touch-action: none;
-  user-select: none;
+  width: var(--cell-w);
+  height: var(--cell-h);
+  font-family: var(--mono);
+  font-size: var(--cell-font);
+  /* 71 cells would pay for tracking 71 times, and the cell width is already
+     the tracking. */
+  letter-spacing: 0;
+  color: var(--paper);
+  background: #14120f;
+  /* A stacking context of the cell's own, so the `z-index` on its leaves and
+     its hinge means "inside this cell" rather than "inside whatever ancestor
+     happens to be one". Without it those two `z-index`es climbed past the
+     module handles laid over the row, and the handles stopped being hittable
+     at all — measured: `elementFromPoint` at a module's own centre returned
+     the glyph inside a cell, `closest('.board-module')` was null, and the
+     grab was refused on every press. `isolation` rather than a `z-index`,
+     because the cell wants a stacking context and not a place in one. */
+  isolation: isolate;
+  /* The seam between one flap unit and the next. An inset shadow rather than a
+     gap or a border, because 71 cells would pay for either one 71 times and the
+     cell pitch is the board's whole geometry. */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.45);
 }
 
-/* The hinge: the seam the leaf falls across. Over the strip, and never in the
-   way of a pointer that is trying to take hold of the drum. */
-.flap::after {
+/* The hinge, and the light: a lit board's upper leaf sits a shade brighter
+   than its lower one, and the seam between them is the darkest line on it. */
+.cell::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   top: 50%;
-  border-top: 1px solid rgba(0, 0, 0, 0.55);
+  z-index: 3;
+  border-top: 1px solid rgba(0, 0, 0, 0.7);
   pointer-events: none;
 }
 
-.flap:focus-visible {
+.cell > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+/* The 3D, and it is on only while a cell is turning. A leaf holding a 3D
+   transform with a hidden backface is a composited layer whether or not it is
+   moving, and 852 of them cost 2.7 seconds of main thread across one press —
+   measured, see `foldCell`. So the perspective and the hidden backfaces come
+   on with this class and go off again the moment the cell lands, and a board
+   at rest is 852 plain boxes. */
+.cell.folding {
+  perspective: 90px;
+}
+
+.cell.folding .cell-front,
+.cell.folding .cell-back {
+  backface-visibility: hidden;
+}
+
+/* Each half clips a glyph drawn at the *cell's* full height, so the top half
+   shows the top of the letter and the bottom half the bottom of the same
+   letter — one typeface, one baseline, cut across the hinge. */
+.cell span {
+  display: block;
+  height: var(--cell-h);
+  line-height: var(--cell-h);
+  white-space: pre;
+}
+
+.cell-top,
+.cell-front {
+  top: 0;
+  align-items: flex-start;
+  background: linear-gradient(#2b2823, #221f1b);
+}
+
+.cell-bottom,
+.cell-back {
+  bottom: 0;
+  align-items: flex-end;
+  background: linear-gradient(#1b1815, #131110);
+}
+
+/* The two leaves, and the fold itself. The front leaf hangs from the hinge and
+   falls away (0deg to -90deg), uncovering the static top half that already
+   carries the next character; the back leaf swings up into place from
+   edge-on. Backfaces hidden on both, so neither is ever seen from behind. */
+/* At rest both leaves lie flat, each over the static half that carries the same
+   character, so neither is visible as a separate thing and neither holds a
+   transform. The fold puts the back one edge-on and drops the front one away;
+   `foldCell` says why that order is what it is. */
+.cell-front {
+  z-index: 2;
+  transform-origin: bottom center;
+}
+
+.cell-back {
+  z-index: 2;
+  transform-origin: top center;
+}
+
+/* The six handles: one per module, laid over the cells that module's flap is
+   currently spelling, and moved by the script whenever a flap of a different
+   length turns up. Transparent — what a viewer takes hold of is the letters
+   underneath — but a real focus stop and a real `role="slider"`, so the board
+   can be turned with no pointer at all. */
+.board-modules {
+  position: absolute;
+  inset: 0;
+  /* Over the cells. They are `isolation: isolate`, so this only has to beat
+     their own zero and not the threes inside them. */
+  z-index: 2;
+}
+
+.board-module {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--cell-w) * var(--start));
+  width: calc(var(--cell-w) * var(--span));
+  border-radius: 2px;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+}
+
+.board-module:focus-visible {
   outline: 2px solid var(--rubric);
   outline-offset: 1px;
 }
 
-.flap-strip {
-  display: block;
-  will-change: transform;
+/* A module under a hand. Faint on purpose: the letters are the figure and a
+   highlight bright enough to compete with them would be reading the module
+   rather than the poem. */
+.board-module.held {
+  background: rgba(196, 138, 63, 0.18);
 }
 
-.flap-cell {
-  display: block;
-  height: var(--flap-h);
-  line-height: var(--flap-h);
-  font-family: var(--mono);
-  /* 14px. Measured, not chosen: the widest line of this board is 134
-     characters, IBM Plex Mono advances 8px a character at both 13px and 14px
-     (the advance is quantised to whole pixels), and that line's six drums with
-     their own padding and the gaps between them measure 1148.68px against the
-     1184px the stage leaves between its margins. At 15px the advance goes to
-     9px and the same line measures 1277.69px, which does not. A literal board, its
-     columns aligned across all six lines, is 155 characters and measures
-     1316.68px — 132.68px too wide. Every figure here was read off the rendered
-     board by `tests/browser/flap-board.mjs widths`. */
-  font-size: var(--flap-font);
-  /* No letter-spacing: 134 characters would pay for it 134 times. */
-  letter-spacing: 0;
-  white-space: nowrap;
-  color: var(--paper);
+/* The switcher: which set of flaps is in the machine. Two radios styled as one
+   plate, because it is a choice between two named things rather than a toggle
+   with an on and an off. */
+.cartridge-switch {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cartridge-switch legend {
+  padding: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
+}
+
+.cartridge-switch .cartridge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.cartridge-switch label {
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.cartridge-switch input:disabled + label {
+  color: var(--lead);
+  cursor: default;
+}
+
+.cartridge-note {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--lead);
 }
 
 .automat-panel {
