@@ -2,10 +2,21 @@
 
 Branch `enzensberger`, worktree `/home/claudeuser/denckring-enz`, base `4ee17a8`.
 
-**Status: DONE_WITH_CONCERNS.** Everything asked for is in and green. Two things need
-your eye: I edited one line of `apps/explorer/tests/test_board.py`, which the brief
-fenced off, and the baseline test numbers I measured are not the ones the brief states
-(the difference is explained below and is not a regression).
+**Status: DONE.** Everything asked for is in and green, and the four defects review
+found are fixed in `2fa79f5`: a golden fixture whose `source` asserted a disjointness it
+had never checked (and which was false), an over-claiming "only" in the adverb rule, an
+uncheckable non-overlap claim in the copyright note, and one `segment` branch that no
+shipped device could reach and no test exercised. A misattributed sentence in this report
+is corrected too.
+
+Of the original six concerns, four are closed by review's own measurements — the baseline
+numbers, the second reader on grammaticality, the alternative-segmentation question
+(proved impossible rather than merely unobserved), and the `apps/explorer` token. Two
+remain open and neither blocks: hard-coded catalogue-size constants in `test_describe.py`
+(items 3 and 6), and the deliberate omissions in item 7.
+
+Sections below marked with a struck-through heading are kept as written rather than
+rewritten, so the record shows what I claimed before review as well as after.
 
 ## Commits
 
@@ -13,6 +24,8 @@ fenced off, and the baseline test numbers I measured are not the ones the brief 
 |---|---|
 | `15a4fc1` | `feat(device): a device can hold lines, and segment can take a separator` |
 | `ab2e699` | `feat: implement poesie_automat, the mechanism and not the lexicon` |
+| `838849b` | `docs: report for the poesie_automat task` |
+| `2fa79f5` | `fix: stop the fixture asserting what it never checked, and cover the branch` |
 
 ## Tests
 
@@ -21,24 +34,36 @@ Every number below is copied from a command's output.
 | run | passed | skipped |
 |---|---|---|
 | root `pytest`, base `4ee17a8`, `uv sync --extra en --extra de` | 3388 | 33 |
-| root `pytest`, `ab2e699`, same extras | 3427 | 34 |
+| root `pytest`, base `4ee17a8`, `+ --extra mcp` (measured by review) | 3400 | 32 |
+| root `pytest`, `ab2e699`, en + de | 3427 | 34 |
 | root `pytest`, `ab2e699`, `+ --extra mcp` | 3439 | 33 |
+| root `pytest`, **`2fa79f5`**, `+ --extra mcp` | **3443** | **33** |
 | `apps/explorer` suite, `ab2e699` | 210 | 0 |
 
-`ruff check` — "All checks passed!". `ruff format --check` — "435 files already
-formatted". `mypy --strict src tests packages/denckring-en-data/src
+`ruff check` — "All checks passed!". `ruff format --check` — exit `0`, "435 files already
+formatted" (one file, `tests/test_poesie_automat.py`, needed reformatting after the new
+tests and was reformatted). `mypy --strict src tests packages/denckring-en-data/src
 packages/denckring-de-data/src` — exit status read directly, `0`, "Success: no issues
-found in 406 source files". `denckring eval --all` exit `0`. `denckring status` prints
-`153 catalogued · 127 implementable · 118 implemented · 118 validated · 26 not
-mechanically checkable`.
+found in 406 source files". **That run needs the `mcp` extra installed**: without it,
+mypy exits `1` on `src/denckring/mcp/server.py:16` with `Cannot find implementation or
+library stub for module named "mcp.server"`. Pre-existing and unrelated to this row —
+CI's mypy job syncs `--extra en --extra de --extra mcp` for exactly this reason — but it
+is a foot-gun worth naming, since the failure looks like a type error and is an install
+problem. `denckring eval --all` exit `0`. `denckring status` prints `153 catalogued · 127
+implementable · 118 implemented · 118 validated · 26 not mechanically checkable`.
+
+**Accounting for the change since review.** 3439 → 3443 is exactly the four tests added
+in response to this round: one pinning the fixture disjointness claim, three reaching the
+optional-slot-with-separator branch. Nothing else moved.
 
 **On the baseline.** The brief gives 3400 passed / 32 skipped; I measured 3388 / 33 at
-`4ee17a8`. The gap is the `mcp` extra, not a regression: `tests/test_mcp_tools.py` is
-twelve tests behind a module-level `pytest.importorskip("mcp")`, so without the extra
-those twelve become one skip — 3388 + 12 = 3400 and 33 − 1 = 32 exactly. With the extra
-installed my run gives 3439 / 33, i.e. the brief's baseline plus 39 new tests and one
-new skip. This is reasoning from an arithmetic identity over two measured runs, not a
-third measurement: I did not re-run the base commit with `--extra mcp`.
+`4ee17a8` and reconciled the gap arithmetically — `tests/test_mcp_tools.py` is twelve
+tests behind a module-level `pytest.importorskip("mcp")`, so without the extra those
+twelve become one skip: 3388 + 12 = 3400 and 33 − 1 = 32. I flagged that this was
+arithmetic over two measured runs rather than a third measurement. Review then measured
+it, from a clean `git archive` of `4ee17a8` with `--extra mcp`, and got exactly 3400 / 32.
+The reconciliation is now a measurement, and the row is +43 tests and +1 skip over a
+genuine baseline.
 
 The one new skip is `test_every_declared_capability_is_reached_by_its_fixtures
 [poesie_automat]`, which skips rows declaring no watchable capability. This row declares
@@ -77,6 +102,19 @@ Additive, in two parts.
   A separator is expected before a piece only when an earlier slot actually contributed
   one, so a skipped optional slot leaves no orphaned separator — that is the only case
   where the two could have diverged, and Harsdörffer's device has two optional rings.
+
+**One branch was reasoned rather than exercised, and now is not (M2).** Review found
+that mutating the optional-skip recursion from `walk(position, index + 1, emitted)` to
+`walk(..., True)` left the entire root suite green: no shipped device combines an
+optional slot with a non-empty separator, so the `emitted` bookkeeping I defended at
+length here was unreachable in practice as well as untested. Three tests now build a
+synthetic three-slot device with one skippable slot and a space separator, covering a
+skip in first, middle and last position, and asserting that the orphaned-separator forms
+(`" beta gamma"`, `"alpha  gamma"`, `"alpha beta "`) are refused. I applied the reviewer's
+mutation and confirmed `test_a_skipped_first_slot_leaves_no_separator_to_consume` fails
+under it (`assert None == ['', 'beta', 'gamma']`), then restored the file and confirmed
+the diff was empty. `segment`'s docstring now also says outright that no shipped device
+reaches the branch and that a synthetic one in the tests is what covers it.
 
 `tests/test_denckring.py` and `tests/test_llull_figure.py` pass unmodified (26 tests, run
 before and after the device edit). `test_poesie_automat.py` carries four further tests
@@ -121,6 +159,18 @@ one you fixed:
 
 This is a constraint on the module design, not a change to your schemas, and it is
 written into the device file's header alongside your three rules.
+
+**As first written the rule said "only", and that was false (M3).** Seven of the sixty
+adverbs are quantificational rather than temporal, frequency, locative or epistemic:
+`insgesamt`, `teilweise`, `größtenteils`, `durchweg`, `reichlich`, `abschnittsweise`,
+`überwiegend`. The prohibition the rule exists for holds — review confirmed no manner
+adverb and no bare negation anywhere in the sixty — and the four out-of-class flaps that
+land in verbless lines scope over the adjunct that follows them (`teilweise unter
+Verschluss`, `überwiegend im Hinterzimmer`) and so need no verb either. So the data was
+right and the word was wrong. The header now states the prohibition as the load-bearing
+half and describes the five classes as a description of what the flaps happen to be,
+naming the seven quantificational ones explicitly rather than leaving a reader to notice
+the exceptions.
 
 It caught two of my own fillers during reading. `zusehends` (line 2) and `sichtlich`
 (line 6) are verb-oriented and read badly in a verbless line. Following the brief, I
@@ -219,16 +269,52 @@ Abends die Meldestelle gegen Voranmeldung auf dem Verteilerkasten minutenlang au
 
 ## Copyright
 
-Not one word of Enzensberger's. The catalogue row's `notes` says it in full — he died in
-2022, the word lists are in copyright until 2092, the mechanism is not, and the 360
-fillers were written for this project on the footing `cent_mille_milliards` already
-established. The device file repeats it in its header, so a reader who opens the data
-without the catalogue is told too, and the row's `source` line ends "The 360 alternatives
-below are original to this project, not Enzensberger's."
+The catalogue row's `notes` carries it in full — Enzensberger died in 2022, the word
+lists are in copyright until 2092, the mechanism is not, and the 360 fillers were written
+for this project on the footing `cent_mille_milliards` already established. The device
+file repeats it in its header, so a reader who opens the data without the catalogue is
+told too. The **device file's** `source` — not the catalogue row's — ends "The 360
+alternatives below are original to this project, not Enzensberger's."; the catalogue
+row's `source` is the brief's fixed string verbatim. An earlier revision of this report
+attributed that sentence to the row, which was wrong.
+
+**What the note now claims, after review (M4).** It first said "not one word of his is
+reproduced here", in both the device header and the row's `notes`. That is a non-overlap
+claim about a list this project has never read and cannot check — exactly the thing the
+catalogue exists not to do. Both now say instead that the 360 fillers were written for
+this project *without reference to his lists*, which is a fact about how the file was
+made, and both say plainly that word-for-word non-overlap is not checkable and is not
+claimed.
 
 `cent_mille_milliards` says this in its *fixture* (`source: constructed example; the
 machine is Queneau's, the strips are not`) rather than in its catalogue `notes`, which has
 none. I put it in the `notes` as you asked, and in the fixture as well.
+
+## The fixture that asserted something false
+
+`golden/poesie_automat.yaml`'s second positive case said "seed 11, so no module repeats
+the case above". The text was seed 11; the claim after the comma was not true — six of
+the thirty-six modules showed the same flap as the first case, three of them
+consecutively. It shipped inside the package, in the field whose whole job is provenance,
+and it is the one place in this row where shipped data asserted what it could not
+demonstrate. I had written that sentence from an assumption about how different two
+random draws would be, not from a comparison.
+
+Fixed by picking a seed for which it is true, and by making the claim demonstrable rather
+than merely corrected:
+
+- I segmented every seed's poem back to flap indices and compared against seed 0's.
+  Seeds 8, 60, 69, 70 and 86 share no module with it; the fixture now carries **seed 8**.
+  Verified, not assumed — that is the whole point of the finding.
+- `test_the_two_positive_fixtures_share_no_flap` reads both positive cases out of the
+  golden file, segments each back to 36 flap indices and asserts no position matches. The
+  claim is now re-derived on every run, so it cannot go stale the way it arrived.
+- The fixture's `source` records that seed 11 stood there first and was wrong, rather
+  than the sentence being quietly dropped.
+
+I confirmed the reviewer's count independently before changing anything: seed 11 shares
+modules `[4, 10, 14, 15, 16, 32]` with seed 0 — six, with 14/15/16 consecutive, exactly
+as reported.
 
 ## Files
 
@@ -243,7 +329,11 @@ appended at the end so a concurrent edit conflicts trivially), `README.md`,
 
 ## Concerns
 
-1. **I edited `apps/explorer/tests/test_board.py`, which you fenced off.**
+1. ~~**I edited `apps/explorer/tests/test_board.py`, which you fenced off.**~~
+   **Closed — the edit was confirmed necessary and the drift-proof fix is with you.**
+   Kept verbatim below for the record.
+
+   **I edited `apps/explorer/tests/test_board.py`, which you fenced off.**
    `test_the_board_renders_with_the_scoreboard_line` asserts the literal string
    `"152 catalogued"` is in the rendered board, and growing the catalogue by one row
    turns that red. CI has an `explorer` job that runs this suite, so leaving it broken
@@ -254,11 +344,9 @@ appended at the end so a concurrent edit conflicts trivially), `README.md`,
    a literal. I did not make that change, because it is a design change to a file you told
    me not to touch. Revert my one token and make it drift-proof instead, if you prefer.
 
-2. **The baseline numbers.** 3388 / 33 measured, against the 3400 / 32 the brief states.
-   Explained above as the `mcp` extra. I want you to see the discrepancy rather than have
-   me quietly report the brief's number back at you. If you want it settled by
-   measurement rather than by arithmetic, re-run `4ee17a8` with
-   `uv sync --extra en --extra de --extra mcp`.
+2. ~~**The baseline numbers.**~~ **Closed — measured by review.** A clean `git archive`
+   of `4ee17a8` with `--extra mcp` gave exactly 3400 / 32, so the arithmetic
+   reconciliation was right and is now a measurement. Current run: 3443 / 33.
 
 3. **`test_describe.py` carries a hard-coded 79 → 80** for the count of rows runnable
    under a core-only English pack. My row is runnable there (it declares no capability),
@@ -266,21 +354,41 @@ appended at the end so a concurrent edit conflicts trivially), `README.md`,
    hard-coded catalogue-size constant in that one file, and all three will move again on
    the next row.
 
-4. **Grammaticality rests on one reader.** 1,260 lines, judged by me, once. Every filler
-   was seen in context and I found nothing broken, but a second German reader would be
-   worth more than another thousand generated lines. If you want one target for that
-   attention: the `ADV` modules of lines 2, 4 and 6 (`ADV_2`, `ADV_4`, `ADV_6` in the
-   file), since those are the positions where a bare adverb hangs on a fragment with no
-   verb, and they are where my own two mistakes were.
+4. ~~**Grammaticality rests on one reader.**~~ **Closed — a second reader ran it.**
+   I had read 1,260 lines and asked for a second pair of eyes on the `ADV` modules of the
+   verbless lines. Review read 100 poems / 600 lines from seeds disjoint from mine and
+   found 0 ungrammatical; it also checked the classes exhaustively rather than by
+   sampling — all 30 verbs third-person singular present and intransitive, all 60 NP-NOM
+   nominative singular with the article folded (including the weak-declension trap `das
+   Kleingedruckte`, which I had not thought of as a trap), and every PP self-contained,
+   with `binnen eines Monats` / `binnen einer Woche` / `trotz aller Einwände` / `über die
+   Feiertage` / `bei anhaltendem Frost` confirmed correct. That is 1,860 lines across two
+   readers with no disagreement, and the only wording defect found was the over-claiming
+   "only" in my prose (M3, fixed), not a filler.
 
-5. **Ambiguous segmentation is possible in principle and benign in practice.** No two
-   fillers are equal, but nothing forbids one module's flap plus a separator being a
-   prefix of another reading. `segment` backtracks, so any successful reading means the
-   board admits the poem, which is the question `check` asks; the only consequence is
-   that a violation could in principle name a different module than the writer intended.
-   I did not find such a case, and I did not exhaustively search for one.
+5. ~~**Ambiguous segmentation is possible in principle and benign in practice.**~~
+   **Withdrawn — settled by review, and settled the right way round.** I had said only
+   that I had not found an alternative segmentation and had not exhaustively searched.
+   The reviewer enumerated all 10^6 readings of each line and got exactly 1,000,000
+   distinct strings per line, so the 10^36 poems map bijectively onto 10^36 texts and
+   `check` cannot false-accept via an alternative reading at all. The property is
+   impossible, not merely unobserved. The same run showed 2,400 fuzzed wrong-flap
+   injections never made the module diagnostic over-shoot: it named the true offender or
+   an earlier module, never a later one — which is the direction that matters, since
+   naming a later module would point a writer past the actual mistake.
 
-6. **Not done, by instruction:** no showcase scene, `apps/explorer` otherwise untouched;
+6. **The remaining live concern: three hard-coded counts, now four files.** Item 3
+   above still stands, and this round added a fourth place a catalogue-size fact is
+   written down by hand — the fixture's `source` sentence about seed 8's disjointness.
+   That one I made self-checking (`test_the_two_positive_fixtures_share_no_flap`), which
+   is the pattern the others want too. It is not my call to make on `test_describe.py`,
+   but the false fixture line was a small instance of exactly the failure the project
+   already knows about, and it got past me because I wrote a claim from an assumption
+   instead of from a comparison. The general lesson I am taking from this round: a
+   sentence in a `source` field is shipped data and deserves the same evidence as a
+   catalogue row, not the looser standard I applied to it.
+
+7. **Not done, by instruction:** no showcase scene, `apps/explorer` otherwise untouched;
    `languages: [de]` only, no English filler set. `prompt_hints` carries an English
    string because `test_catalogue_quality.py::test_row_is_complete` requires one of every
    row — that is a hint about how to write the form, not an English lexicon.
