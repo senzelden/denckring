@@ -689,6 +689,61 @@ async def stage_llull_figure_act(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/stage/poesie_automat", response_class=HTMLResponse)
+def stage_poesie_automat(request: Request, chrome: str = "on") -> HTMLResponse:
+    """First paint: a board at rest, every drum on its own first flap, and a
+    real `check()` verdict for the poem those flaps spell.
+
+    Deterministic, the way every other scene's first paint is — the press of
+    the button is the thing a viewer does on camera, not something the page
+    has already done for them.
+    """
+    positions = stage.automat_default_positions()
+    board = stage.flap_board()
+    report = denckring_check(
+        "poesie_automat", stage.automat_poem(positions), lang=stage.POESIE_AUTOMAT_LANG
+    )
+    return page(
+        request,
+        "stage_poesie_automat.html",
+        scene=stage.scene("poesie_automat"),
+        board=board,
+        positions=positions,
+        report=report,
+        text=None,
+        exponent=stage.power_of_ten(board.combinations),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/poesie_automat/act", response_class=HTMLResponse)
+async def stage_poesie_automat_act(request: Request) -> HTMLResponse:
+    """Two branches, one form, the shape `stage_llull_figure_act` already has.
+
+    **Press the button.** `apply` composes a poem — the library's own choice,
+    under its own seed — and the reply carries nothing but the 36 flap indices
+    that spell it and the placeholder. No verdict: the drums have not moved
+    yet, and a verdict printed here would stand over a board still showing the
+    previous poem for the whole length of the clatter.
+
+    **Read the board.** The text arrives from the client because it has to:
+    the drums are turned in the browser, by a clatter and by hand, and what
+    `check` is given must be what is on the board. `stage_poesie_automat.html`
+    reads it out of the flap cells actually in the drums' windows and posts it
+    here (see `readBoard`). A route that recomputed the poem from the seed
+    would be checking a second, invisible board that merely resembled the one
+    on screen — and would have nothing at all to say about a drum a viewer
+    turned by hand afterwards.
+    """
+    form = dict(await request.form())
+    if form.get("press"):
+        _, positions = stage.automat_press()
+        return page(request, "_stage_flaps.html", report=None, positions=positions, text=None)
+    text = str(form.get("poem", ""))
+    report = denckring_check("poesie_automat", text, lang=stage.POESIE_AUTOMAT_LANG)
+    return page(request, "_stage_flaps.html", report=report, positions=None, text=text)
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)
