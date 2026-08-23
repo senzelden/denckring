@@ -2050,6 +2050,46 @@ def test_a_cut_through_a_word_fails_and_the_checker_names_every_fragment() -> No
     assert {"nothing", "together"} <= folded
 
 
+def test_a_straight_column_of_this_source_can_miss_every_word() -> None:
+    """The property the scene's passing verdict depends on, and the reason
+    the page is set in fixed pitch.
+
+    A blade is one straight line across six lines of type. For the clean cut
+    to be something a viewer can actually make, some column has to fall in a
+    gap on all six at once. In a proportional face it does not: measured in a
+    real browser on the display face this scene used to carry, of the 725
+    columns across the page **not one** in the interior missed a word on all
+    six lines. On a character grid the same source has three, of which one —
+    column 26 — is interior, and it is the cut the page opens on.
+
+    Computed here from `word_spans`, the same tokenisation the checker uses,
+    so a change to the source that took the last clean column away fails
+    here rather than quietly making the passing case unreachable."""
+    from denckring.core.text import word_spans as _word_spans
+    from denckring.lang import get_pack as _get_pack
+
+    pack = _get_pack("en")
+    lines = stage.CUT_UP_SOURCE.split("\n")
+    extents = [
+        [(offset, offset + len(word)) for offset, word in _word_spans(line, pack)] for line in lines
+    ]
+    clean = [
+        column
+        for column in range(max(len(line) for line in lines) + 1)
+        if all(not any(s < column < e for s, e in line) for line in extents)
+    ]
+    # 0 and 50 are the margins — a cut there is a horizontal cut alone.
+    assert clean == [0, 26, 50]
+    assert [line[:26].strip().split()[-1] for line in lines] == [
+        "more",
+        "whenever",
+        "parts",
+        "yet",
+        "everything",
+        "folded",
+    ]
+
+
 def test_first_paint_shows_the_page_uncut_with_two_blades_and_no_verdict() -> None:
     """ "Scenes do not autoplay. The recording is a person using the thing" —
     so first paint carries the page, uncut, the two blades lying across it,
@@ -2113,7 +2153,7 @@ def test_the_act_route_names_every_fragment_a_torn_cut_made() -> None:
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
     assert '<p class="verdict no"' in normalised
-    assert "the blade went through 4 words" in normalised
+    assert "4 pieces across the join are not words" in normalised
     assert normalised.count("<li>word not in source at offset") == 4
     for fragment in ("noth", "toget", "ing", "her"):
         assert f"&ldquo;{fragment}&rdquo;" in normalised
@@ -2147,9 +2187,14 @@ def test_the_page_and_its_quarters_set_type_from_one_css_rule() -> None:
     group = ".cutup-line, .cutup-piece-line {"
     assert group in normalised
     body = normalised.split(group, 1)[1].split("}", 1)[0]
-    assert "font-family: var(--display);" in body
-    assert "font-size: 1.1rem;" in body
-    assert "line-height: 1.6;" in body
+    # Fixed pitch, and not by taste: measured on this source in the display
+    # face, not one interior column of the 725 across the page missed a word
+    # on all six lines, so the passing verdict was unreachable by hand. In
+    # fixed pitch the six lines share a character grid and column 26 is a gap
+    # on every one of them.
+    assert "font-family: var(--mono);" in body
+    assert "font-size: 1.5rem;" in body
+    assert "line-height: 2.1;" in body
     assert "white-space: nowrap;" in body
     # A quarter is a window on the lines inside it: a blade that landed
     # mid-glyph has to leave half of it on each piece.

@@ -5,12 +5,24 @@
   <p class="scene-kicker">Gysin and Burroughs &middot; Minutes to Go, 1960</p>
   <h1>{{ scene.title }}</h1>
 </header>
-<div class="cutup-stage">
+<div class="cutup-stage scene-split">
+  {# The sheet, in its own column: the split four other scenes use, for the
+     same reason they use it — the thing itself on the left at a size worth
+     looking at, what the checker says about it on the right. #}
+  <div class="cutup-sheet-column">
   {# The sheet: the page itself, the four pieces it becomes, and the two
      blades lying across it. All three layers share one positioning context,
      because the pieces have to start life exactly where the page's own
      lines are and the blades have to be measured against the same box. #}
   <div class="cutup-sheet" id="cutup-sheet">
+    {# The table the sheet lies on. Its box is reserved at the tallest the
+       rearranged page can ever be — the horizontal blade can sit in any of
+       the five gaps, and the two ragged rows a cut near the top or bottom
+       produces are half again as deep as the page itself — and whatever is
+       on it is centred in that box. So the page does not jump down the
+       stage when it is cut, and the scene's own height is the same before
+       and after. #}
+    <div class="cutup-table" id="cutup-table">
     {# State one, "the page, uncut": the six lines exactly as they stand,
        each word its own inline element. The spans are not decoration — the
        server tokenised this text with the same `word_spans` call `check`
@@ -46,7 +58,14 @@
         <span class="cutup-grip cutup-grip-h" aria-hidden="true">&#9986;</span>
       </div>
     </div>
+    </div>
   </div>
+  {# Reused byte for byte from the scene this one replaces, not quoted from
+     anyone — see `stage.CUT_UP_SOURCE`'s own comment. Under the sheet,
+     where a printed page carries its own imprint. #}
+  <p class="scene-credit">Written for this scene.</p>
+  </div>
+  <div class="cutup-panel">
   <div class="actions cutup-actions">
     {# The cut is committed by this button rather than by letting go of a
        blade. Two reasons, and the first is the act itself: you line the
@@ -74,9 +93,7 @@
      the same choice N+7's own `#displaced` opens on. #}
   <div id="cutup-result" class="cutup-area"></div>
   <p class="visually-hidden" id="cutup-status" role="status" aria-live="polite"></p>
-  {# Reused byte for byte from the scene this one replaces, not quoted from
-     anyone — see `stage.CUT_UP_SOURCE`'s own comment. #}
-  <p class="scene-credit">Written for this scene.</p>
+  </div>
 </div>
 <script>
 function prefersReducedMotion() {
@@ -84,6 +101,7 @@ function prefersReducedMotion() {
 }
 
 const sheetEl = document.getElementById('cutup-sheet');
+const tableEl = document.getElementById('cutup-table');
 const pageEl = document.getElementById('cutup-page');
 const piecesEl = document.getElementById('cutup-pieces');
 const bladesEl = document.getElementById('cutup-blades');
@@ -272,9 +290,14 @@ function restoreWhole() {
   piecesEl.hidden = true;
   piecesEl.textContent = '';
   pageEl.hidden = false;
-  sheetEl.style.transition = 'none';
-  sheetEl.style.height = `${geom.height}px`;
+  tableEl.style.transition = 'none';
+  tableEl.style.top = `${centredTop(geom.height)}px`;
   bladesEl.classList.remove('cutup-blades-down');
+}
+
+// Where something `h` tall sits on the reserved table.
+function centredTop(h) {
+  return (geom.reserved - h) / 2;
 }
 
 // ── building the four quadrants ────────────────────────────────────────────
@@ -421,7 +444,8 @@ function playCut() {
 
   if (prefersReducedMotion()) {
     place(0, { gap: 0, travel: 1 });
-    sheetEl.style.height = `${built.assembledHeight}px`;
+    tableEl.style.transition = 'none';
+    tableEl.style.top = `${centredTop(built.assembledHeight)}px`;
     return Promise.resolve(token);
   }
 
@@ -432,8 +456,8 @@ function playCut() {
       if (token !== cutToken) return resolve(token);
       // Beat two: the quarters travel, still held apart, to D A over B C.
       place(CUT_MOVE_MS, { gap: 1, travel: 1 });
-      sheetEl.style.transition = `height ${CUT_MOVE_MS}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
-      sheetEl.style.height = `${built.assembledHeight}px`;
+      tableEl.style.transition = `top ${CUT_MOVE_MS}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
+      tableEl.style.top = `${centredTop(built.assembledHeight)}px`;
       setTimeout(() => {
         if (token !== cutToken) return resolve(token);
         // And the join closes up.
@@ -585,7 +609,17 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
 // ── first paint ────────────────────────────────────────────────────────────
 function layout() {
   geom = measure();
-  sheetEl.style.height = `${geom.height}px`;
+  // The tallest the rearranged page can be, over every gap the horizontal
+  // blade can rest in: two rows, each as deep as the deeper of the two
+  // quarters in it. Reserved once, so the scene never changes height.
+  geom.reserved = Math.max(
+    ...geom.gaps
+      .slice(1)
+      .map((y) => 2 * Math.max(y, geom.height - y))
+  );
+  sheetEl.style.height = `${geom.reserved}px`;
+  tableEl.style.width = `${geom.width}px`;
+  tableEl.style.top = `${centredTop(geom.height)}px`;
   bladesEl.style.width = `${geom.width}px`;
   bladeVEl.style.height = `${geom.height}px`;
   bladeHEl.style.width = `${geom.width}px`;
@@ -619,11 +653,34 @@ function bestColumn() {
   return best;
 }
 
+// Re-measure and re-aim. The blade keeps its position as a fraction of the
+// page's width, because the thing it is aimed at has moved with the page.
+function relayout(reaim) {
+  const fraction = geom && geom.width ? bladeX / geom.width : null;
+  if (cutState !== 'whole') invalidate();
+  layout();
+  bladeX = reaim || fraction === null ? clampX(bestColumn()) : clampX(fraction * geom.width);
+  drawBlades();
+}
+
 layout();
 bladeX = clampX(bestColumn());
 gapIndex = 3;
 drawBlades();
 refreshControls();
+
+// The page is measured character by character, and at first paint the
+// display face has not necessarily arrived yet — this scene's own type is a
+// webfont, and measuring against the fallback put every character boundary
+// out by about a seventh, which is a blade that cuts somewhere other than
+// where it is drawn. Measured, before this line existed: a left quarter 595px
+// wide holding text 689px long, clipped mid-word at an edge the arithmetic
+// had never seen. So the page re-measures itself when the fonts have
+// actually settled, and again if it is ever resized.
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => relayout(true));
+}
+window.addEventListener('resize', () => relayout(false));
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}
