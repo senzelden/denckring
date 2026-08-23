@@ -2389,6 +2389,12 @@ def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
     assert ".hold-btn {" in normalised
     assert ".llull-hold" not in normalised
     assert ".llull-controls" not in normalised
+    # The `turning…` placeholder's colour is one rule for both volvelles, not
+    # a copy per scene — scene one shipped a byte-identical duplicate of it
+    # for a round, which is the drift this file's own shared-machinery note
+    # warns about.
+    assert ".llull-reading-panel .verdict.turning, .word-panel .verdict.turning {" in normalised
+    assert normalised.count(".verdict.turning {") == 1
 
 
 def _denckring_scene_script() -> str:
@@ -2608,26 +2614,84 @@ def test_the_drag_source_turns_a_ring_under_the_pointer_not_on_release() -> None
 
 
 def test_the_drag_source_counts_a_grab_as_a_hold_and_reads_after_the_snap() -> None:
-    """The invariant, extended to the new gesture. A drag is a third way to
-    move a ring, so it has to arm the `turning…` placeholder for the whole
-    grab and count toward the same "a ring is being moved" state the submit
-    gate reads — and the read must wait for the settle, not fire at the
-    instant the pointer lifts, or a checked verdict lands over a ring still
-    visibly moving to its detent.
+    """The invariant, extended to the new gesture. A drag is a fourth way to
+    move a ring (`stepWheel` funnels two of the others and `spinWheelTo`
+    reaches `microStep` directly), so it has to arm the `turning…`
+    placeholder for the whole grab and count toward the same "a ring is being
+    moved" state the submit gate reads — and the read must wait for the
+    settle, not fire at the instant the pointer lifts, or a checked verdict
+    lands over a ring still visibly moving to its detent.
 
     Both are structural here: `grab` goes through the same `onHoldStart`
     every held button uses, and `onHoldStop` is called from inside the snap's
-    own `.then`, so `activeHolds` stays positive until the ring has landed."""
+    own `.then`, so `activeHolds` stays positive until the ring has landed.
+
+    A release also does nothing *but* snap and stop. Scene one used to step
+    one part on a press that crossed no detent, carrying over its old
+    click-to-turn; measured, a hand rested on a disc for two seconds and
+    lifted off advanced it, and a grab the scene had deliberately refused to
+    move still moved. Single-stepping belongs to the step buttons and the
+    keyboard, both of which scene one now has."""
     for script in (_denckring_scene_script(), _llull_scene_script()):
         grab = re.search(r"  grab: \(ring\) => \{(.*?)\n  \},", script, re.S)
         assert grab is not None
         assert "onHoldStart();" in grab.group(1)
-        release = re.search(r"  release: \(ring, info\) => \{(.*?)\n  \},", script, re.S)
+        release = re.search(r"  release: \(ring, residualDeg\) => \{(.*?)\n  \},", script, re.S)
         assert release is not None
         body = release.group(1)
-        snap = re.search(r"(snapRing|snapWheel)\(ring, info\.residualDeg\)\.then\(", body)
+        snap = re.search(r"(snapRing|snapWheel)\(ring, residualDeg\)\.then\(", body)
         assert snap is not None
         assert body.index("onHoldStop();") > snap.start()
+        # No step of any kind on the way out, and no tap to trigger one.
+        # Comments are stripped first: the code says why the tap went, and
+        # that explanation must not be what satisfies this.
+        code = "\n".join(line for line in body.splitlines() if not line.strip().startswith("//"))
+        assert "stepRing(" not in code
+        assert "stepWheel(" not in code
+        assert "tap" not in code
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    assert "tapSlopDeg" not in js_path.read_text(encoding="utf-8")
+
+
+def test_the_drag_source_owes_a_read_for_a_ring_turned_during_a_round_trip() -> None:
+    """The Critical this round closed, source-level and named as one; the
+    browser measurement is `tests/browser/drag-turn.mjs release-inside`.
+
+    A release-read leaves `wheelsOwned` false, which deliberately lets a
+    viewer grab a ring again while that read is still in flight. If the
+    second gesture also *ends* before the response lands, nothing is being
+    held when the swap arrives — so `htmx:afterSwap` skips its re-arm,
+    `releaseRead` has already returned at `if (inert)`, and the server's real,
+    checked verdict stands over rings it was never about. It did not decay:
+    scene one showed "a word German knows — no" over `Aas`, which German
+    does, permanently.
+
+    A drag cannot defer its movement — that is the whole gesture — so what it
+    defers is the *read*. `dragCommit` records the debt while `inert`, and
+    `flushDeferredSteps` settles it from `clearInert`, the one place the rings
+    come back to the client, exactly as it settles a held button's deferred
+    ticks. Note the earlier re-arm guard passes either way: the missing piece
+    was a re-read, not a re-arm."""
+    for script, mover in (
+        (_denckring_scene_script(), "dragCommit(ringIndex, delta)"),
+        (_llull_scene_script(), "dragCommit(wheelIndex, delta)"),
+    ):
+        commit = re.search(r"function " + re.escape(mover) + r" \{(.*?)\n\}", script, re.S)
+        assert commit is not None, mover
+        assert "if (inert) deferredRead = true;" in commit.group(1)
+        flush = re.search(r"function flushDeferredSteps\(\) \{(.*?)\n\}", script, re.S)
+        assert flush is not None
+        body = flush.group(1)
+        # consumed once, before anything can return early on it
+        assert "let moved = deferredRead;" in body
+        assert "deferredRead = false;" in body
+        assert body.index("let moved = deferredRead;") < body.index("return;")
+        assert "if (deferredAdvance.size === 0 && !moved) return;" in body
+        # and an owed read is actually asked for
+        assert body.index("releaseRead()") > body.index("if (moved) {")
+        clear = re.search(r"function clearInert\(\) \{(.*?)\n\}", script, re.S)
+        assert clear is not None
+        assert "flushDeferredSteps();" in clear.group(1)
 
 
 def test_the_denckring_source_turns_its_rings_backwards_by_index() -> None:

@@ -5,7 +5,8 @@
 //   BASE=... node drag-turn.mjs [scene] [mode] [ring]
 //
 //     scene  denckring | llull_figure          (default denckring)
-//     mode   sweep | back | wrap | contend | two-finger | regrab  (default sweep)
+//     mode   sweep | back | wrap | contend | two-finger | regrab |
+//            release-inside                              (default sweep)
 //     ring   which ring to grab                (default: outermost)
 //
 // `sweep` drags one ring 90 degrees clockwise, sampling the dial's own
@@ -216,6 +217,7 @@ if (MODE === 'sweep' || MODE === 'back') {
   // the grab captures it, so the button never even sees a press. The drag is
   // meant to win — `stepRing` declines a ring the grab owns — and the ring
   // must move by exactly what the *drag* asked for, which here is nothing.
+  // Nothing at all: a grab that refuses to move no longer steps on release.
   const geo = await geometry(RING);
   const box = await page.locator(`.hold-btn[data-hold-ring="${RING}"][data-hold-dir="1"]`).boundingBox();
   const finger = { x: geo.cx, y: geo.cy - geo.radius, id: 1 };
@@ -320,6 +322,58 @@ if (MODE === 'sweep' || MODE === 'back') {
       (realVerdict.length ? ` (e.g. ${JSON.stringify(realVerdict[0].verdictText)})` : '') +
       `; at rest holds=${rest.holds} shown=${JSON.stringify(rest.shown)} ` +
       `model=${JSON.stringify(rest.truth)} verdict=${JSON.stringify(rest.verdictText)}`
+  );
+} else if (MODE === 'release-inside') {
+  // Turn a ring, let go (which submits a read), then turn it again *and let
+  // go again* while that read is still in flight. Nothing is being held when
+  // the response arrives, so every "a hand is on it" re-arm is skipped — and
+  // the question is whether anything at all goes back and re-reads the rings.
+  const delay = Number(process.env.DELAY || 600);
+  await page.route('**/act', async (route) => {
+    await sleep(delay);
+    await route.continue();
+  });
+  const geo = await geometry(RING);
+  const first = await sample(RING);
+  const at = (deg) => {
+    const rad = (deg * Math.PI) / 180;
+    return { x: geo.cx + geo.radius * Math.sin(rad), y: geo.cy - geo.radius * Math.cos(rad) };
+  };
+  const drag = async (from, to, step) => {
+    await page.mouse.move(at(from).x, at(from).y);
+    await page.mouse.down();
+    for (let d = from + step; Math.abs(d - from) <= Math.abs(to - from); d += step) {
+      await page.mouse.move(at(d).x, at(d).y);
+    }
+    await page.mouse.up();
+  };
+  // `BACK=1` makes the second drag undo the first exactly, so the rings end
+  // where they started and the panel — if nothing re-reads — is left showing
+  // the intermediate word with a verdict that is not merely stale but false
+  // of what is on screen.
+  const outbound = 60;
+  await drag(0, outbound, 8);
+  // Wait for the read to actually go out rather than guessing at the snap's
+  // length: `inert` turns true on `htmx:beforeRequest`, in the same task the
+  // programmatic submit runs in.
+  await page.waitForFunction(() => inert === true, null, { timeout: 5000 });
+  const submitted = await sample(RING);
+  await drag(0, process.env.BACK ? -outbound : -Math.round(outbound * 0.75), -8);
+  const released = await sample(RING);
+  // Everything the page could still do: the response, its swap, and any
+  // re-read that swap triggers.
+  await sleep(delay + 1500);
+  const rest = await sample(RING);
+  const stale = rest.shown !== rest.truth;
+  console.log(
+    `${SCENE} ring ${RING} release-inside (POST delayed ${delay}ms` +
+      (process.env.REDUCED ? ', reduced motion' : '') +
+      `): read submitted with the ring at ${submitted.index}, second drag ended it at ` +
+      `${released.index} with the response still in flight (activeHolds at release ` +
+      `${released.holds}); started at ${first.index}; ` +
+      `AT REST ${stale ? 'STALE' : 'ok'} — panel ${JSON.stringify(rest.shown)} vs rings ` +
+      `${JSON.stringify(rest.truth)}, verdict ${JSON.stringify(rest.verdictText)}, ` +
+      `holds=${rest.holds} placeholder=${rest.placeholder}`
   );
 } else {
   console.log(`unknown mode ${MODE}`);

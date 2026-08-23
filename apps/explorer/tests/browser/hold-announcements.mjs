@@ -1,7 +1,7 @@
 // What the status line actually says, and how often, across a hold and the
 // read that follows it.
 import { chromium } from 'playwright';
-const BASE = 'http://127.0.0.1:8477';
+const BASE = process.env.BASE || 'http://127.0.0.1:8477';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });

@@ -320,6 +320,11 @@ let pendingStep = Promise.resolve();
 // as a net advance.
 const deferredAdvance = new Map();
 
+// A *read* owed rather than a step: see `dragCommit`. A drag's movement can
+// never be deferred, so what it leaves behind when it turns a wheel during a
+// round trip is the obligation to check where that wheel actually ended up.
+let deferredRead = false;
+
 // A held wheel steps entirely on the client — see `renderLocalReading` for
 // why a network request per step is the wrong shape here (roughly five a
 // second; see the task report). `advance` is whatever the caller means by
@@ -356,10 +361,15 @@ function stepWheel(wheelIndex, advance) {
 // short way round (nine letters, so ±4 at most is ever needed), as a single
 // step rather than a stored-up run of them.
 function flushDeferredSteps() {
-  if (deferredAdvance.size === 0) return;
+  // Both kinds of debt are settled here, because this is the one place the
+  // wheels come back to the client: a held button's deferred ticks, which
+  // still have to be *moved*, and a drag's deferred read, whose movement
+  // already happened under the finger and only wants checking.
+  let moved = deferredRead;
+  deferredRead = false;
+  if (deferredAdvance.size === 0 && !moved) return;
   const queued = [...deferredAdvance.entries()];
   deferredAdvance.clear();
-  let moved = false;
   queued.forEach(([wheelIndex, advance]) => {
     let net = ((advance % 9) + 9) % 9;
     if (net > 4) net -= 9;
@@ -567,6 +577,19 @@ function figureCenter() {
 // caller replaces with the residual a moment later.
 function dragCommit(wheelIndex, delta) {
   if (!delta) return;
+  // A drag cannot defer its *movement* the way a held button's ticks are
+  // deferred (`stepWheel`) — the wheel is under the finger, and moving it
+  // late is the one thing this gesture is not. What it defers instead is the
+  // *read*: a wheel turned during a round trip has left the chamber that
+  // round trip is about, so a fresh check is owed the moment the wheels are
+  // the client's again. Without this, a drag that both started *and ended*
+  // inside a read's own round trip left the server's verdict standing over
+  // wheels it was never about — and with no hand still down when the swap
+  // landed, nothing re-armed the placeholder and nothing ever re-read. It
+  // did not decay: the false verdict simply stayed. Measured from a 300ms
+  // response upwards; `clearInert` is what settles it, through the same
+  // `flushDeferredSteps` the held button's own debt goes through.
+  if (inert) deferredRead = true;
   const w = wheels[wheelIndex];
   w.index = (((w.index + delta) % 9) + 9) % 9;
   renderDial(wheelIndex);
@@ -643,12 +666,12 @@ HoldTurn.attachDrag(svg, {
     w.dial.style.transition = 'none';
     w.dial.style.transform = `rotate(${residualDeg}deg)`;
   },
-  release: (ring, info) => {
+  release: (ring, residualDeg) => {
     // `onHoldStop` — and with it the read — only after the snap has
     // settled: `activeHolds` stays positive through the settle, so the
     // gate in `releaseRead` cannot let a checked verdict land over a wheel
     // that is still visibly moving.
-    void snapWheel(ring, info.residualDeg).then(() => {
+    void snapWheel(ring, residualDeg).then(() => {
       dragging.delete(ring);
       if (dragging.size === 0) svg.classList.remove('grabbing');
       onHoldStop();
