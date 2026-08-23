@@ -264,14 +264,25 @@ function announce(text) {
   statusEl.textContent = text;
 }
 
-// The scene's one honest state while a blade is being moved: whatever the
-// last cut was checked against is no longer on the table. Called from every
-// path that can move a blade, and from the swap handler when a verdict
-// arrives for a cut the viewer has already undone. Not `.yes`/`.no` — a
-// claim neither of those colours has earned.
+// The scene's one honest state whenever there is no checked verdict to
+// show — called from every path that can move a blade, from the swap
+// handler when a verdict arrives for a cut the viewer has already undone,
+// and from the failure handler below. Not `.yes`/`.no`: a claim neither of
+// those colours has earned.
+//
+// Which of the two things it says is decided by **the page's own state**,
+// not by what happened to it: the sheet is either whole, in which case
+// nothing is cut and nothing could have been checked, or it is in pieces
+// that no verdict ever came back for. Saying "a blade moved" was wrong the
+// moment a second path reached this — the fresh-sheet button moves none,
+// and neither does a request that fails.
 function setVerdictCutting() {
   resultEl.innerHTML =
-    '<p class="verdict turning">the blade moved &mdash; cut again</p>';
+    '<p class="verdict turning">' +
+    (cutState === 'cut'
+      ? 'the check did not come back &mdash; cut it again'
+      : 'nothing cut &mdash; the page is whole') +
+    '</p>';
 }
 
 // The invariant, at its choke point. Anything that moves a blade goes
@@ -583,6 +594,31 @@ document.body.addEventListener('htmx:beforeRequest', (evt) => {
   submittedToken = cutToken;
   refreshControls();
 });
+
+// A request that never gets a swap at all — a network failure, a non-2xx
+// response — would otherwise leave `inert` stuck true **forever**, because
+// the swap handler below is the only place it goes back to false. That is
+// not a staleness bug, which is what the token above is for; it is a
+// liveness one, and the placeholder machinery cannot see it. Measured
+// before these lines existed, with the route stubbed:
+//
+//   500   {inert:true, cutDisabled:true, freshDisabled:true}
+//         after moving a blade: still {inert:true, cutDisabled:true}
+//   abort {inert:true, cutDisabled:true, freshDisabled:true}
+//
+// Both controls dead for the rest of the session, and moving a blade could
+// not recover it — the gate reads `inert`, and nothing else clears it.
+// Neither failure is expected from this app's own routes, but a stage that
+// can freeze itself for the rest of a recording over one dropped request is
+// worse than one extra safety net. Both volvelles carry the same two lines,
+// for the same reason.
+function requestFailed() {
+  inert = false;
+  setVerdictCutting();
+  refreshControls();
+}
+document.body.addEventListener('htmx:responseError', requestFailed);
+document.body.addEventListener('htmx:sendError', requestFailed);
 
 document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.detail.target.id !== 'cutup-result') return;

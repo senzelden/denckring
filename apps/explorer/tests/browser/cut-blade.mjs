@@ -17,6 +17,11 @@
 //           600ms) and count real verdicts left standing over a page that is
 //           no longer showing what was checked. The invariant this codebase
 //           has had broken four times.
+//   wedge   stub the route with a 500, and separately with an aborted
+//           request, and read back whether the scene can still be driven.
+//           htmx does not swap on a non-2xx, so the flag the submit gate
+//           reads has no other path back to false — a liveness failure, not
+//           a staleness one. Takes `500` (default) or `abort`.
 //   frames  first paint, a frame mid-cut, and the cut page with its verdict,
 //           written to `OUT` (default /tmp). Also reports the clocked length
 //           of the whole cut and the scene's own content extent.
@@ -335,9 +340,48 @@ async function runFrames(page) {
   await page.screenshot({ path: `${OUT}/cutup-clean.png` });
 }
 
+// ── wedge ───────────────────────────────────────────────────────────────────
+// A request that never gets a swap must not take the scene with it.
+async function runWedge(page) {
+  const kind = process.argv[3] === 'abort' ? 'abort' : '500';
+  await page.route('**/stage/cut_up/act', async (route) => {
+    if (kind === 'abort') await route.abort('failed');
+    else await route.fulfill({ status: 500, body: 'nope' });
+  });
+  const controls = () =>
+    page.evaluate(() => ({
+      inert: inert,
+      cutState: cutState,
+      cutDisabled: document.getElementById('cutup-cut').disabled,
+      freshDisabled: document.getElementById('cutup-fresh').disabled,
+      says: (() => {
+        const v = document.querySelector('#cutup-result .verdict');
+        return v ? v.textContent.trim() : null;
+      })(),
+    }));
+  await page.click('#cutup-cut');
+  await page.waitForTimeout(2500);
+  log(`${kind}: ${JSON.stringify(await controls())}`);
+  // Can a hand get the scene back? Move a blade, the way a viewer would.
+  const box = await bladeBox(page, 'v');
+  await page.mouse.move(box.x, box.y);
+  await page.mouse.down();
+  await page.mouse.move(box.x - 60, box.y, { steps: 5 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  log(`  after moving a blade: ${JSON.stringify(await controls())}`);
+}
+
 const browser = await chromium.launch();
 const page = await open(browser);
-const modes = { drag: runDrag, clean: runClean, through: runThrough, stale: runStale, frames: runFrames };
+const modes = {
+  drag: runDrag,
+  clean: runClean,
+  through: runThrough,
+  stale: runStale,
+  wedge: runWedge,
+  frames: runFrames,
+};
 if (!modes[mode]) {
   log(`unknown mode ${mode}; one of ${Object.keys(modes).join(', ')}`);
 } else {
