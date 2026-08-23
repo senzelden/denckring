@@ -7,7 +7,7 @@
 </header>
 <div class="llull-stage scene-split">
   <div class="wheels-wrap">
-    <svg id="wheels" class="wheels-svg" viewBox="0 0 600 600" role="img"
+    <svg id="wheels" class="wheels-svg turnable-figure" viewBox="0 0 600 600" role="img"
          aria-label="Three concentric wheels bearing the nine Llullian letters">
       {% for i in range(3) %}
       {# Every wheel carries the same nine letters, the figure's own
@@ -95,6 +95,21 @@ const ANGLE_STEP = 360 / 9;
 // second once it settles into its steady repeat — see the task report for
 // the measured rate, not just this arithmetic.
 const STEP_MS = 130;
+// The settle when a grabbed wheel is let go: a volvelle has discrete
+// positions, so a drag that stops between two of them clicks into the
+// nearer one rather than resting askew. Short and eased — long enough to
+// read as a settle, short enough that the checked verdict which follows it
+// does not feel withheld. No momentum: paper has friction, and a flick here
+// stops where the finger stopped.
+const SNAP_MS = 150;
+
+// Wheels a finger is turning directly right now, by index. A drag owns its
+// wheel outright for the duration of the grab: a step button still held
+// down (two fingers, one on each) would otherwise write the same
+// `w.index` and the same `transform` from the other side, and the two would
+// fight over the dial. The drag wins, and the held button's ticks for that
+// one wheel are dropped while it does.
+const dragging = new Set();
 
 const svg = document.getElementById('wheels');
 const wheels = [];
@@ -311,9 +326,11 @@ const deferredAdvance = new Map();
 // one move: ±1 from a held button, and the accumulated catch-up below.
 // While a server round trip owns the wheels (`inert` — a turn or an arity
 // switch in flight) a step still does not land, but it is now deferred
-// rather than refused outright, unlike scene one's own `turnOne`: nothing a
-// finger still on the button asked for is thrown away.
+// rather than refused outright: nothing a finger still on the button asked
+// for is thrown away. (Scene one's own `turnOne`, which used to refuse
+// outright, is gone — it adopted this same shape in the drag round.)
 function stepWheel(wheelIndex, advance) {
+  if (dragging.has(wheelIndex)) return pendingStep; // the grab owns this wheel
   if (inert) {
     // Not dropped: a button whose finger is still down goes on ticking
     // through a round trip, and silently discarding those steps is
@@ -529,6 +546,116 @@ HoldTurn.attach(document.getElementById('wheel-holds'), {
   stop: onHoldStop,
 });
 
+// Where the figure's centre actually is on screen, asked of the SVG itself
+// rather than worked out from `getBoundingClientRect` and the viewBox: the
+// element is styled in CSS pixels and the viewBox is its own 600-unit
+// space, and `getScreenCTM` is the one thing that knows the mapping between
+// them however the stylesheet is retuned.
+function figureCenter() {
+  const ctm = svg.getScreenCTM();
+  const point = svg.createSVGPoint();
+  point.x = CENTER;
+  point.y = CENTER;
+  const mapped = point.matrixTransform(ctm);
+  return { x: mapped.x, y: mapped.y };
+}
+
+// One detent crossed under the finger. Deliberately not `microStep`: there
+// is nothing to animate — the pointer is already where the wheel should be,
+// and the transform the drag itself is writing is what shows the movement.
+// So this is `microStep`'s `finish` without the transform reset, which the
+// caller replaces with the residual a moment later.
+function dragCommit(wheelIndex, delta) {
+  if (!delta) return;
+  const w = wheels[wheelIndex];
+  w.index = (((w.index + delta) % 9) + 9) % 9;
+  renderDial(wheelIndex);
+  renderLocalReading(currentLetters());
+  assemble();
+}
+
+// The settle onto the nearest detent. Never resolves on `transitionend`
+// alone — the same house rule `microStep` follows, and for the same reason:
+// `explorer.css` kills every transition under `prefers-reduced-motion`, so
+// the event would never come. Under that preference the wheel simply lands,
+// which is right — the drag itself is direct manipulation, not animation,
+// and only the settle is theatre.
+function snapWheel(wheelIndex, residualDeg) {
+  const w = wheels[wheelIndex];
+  const land = () => {
+    w.dial.style.transition = 'none';
+    w.dial.style.transform = 'rotate(0deg)';
+  };
+  if (!residualDeg || prefersReducedMotion()) {
+    land();
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      w.dial.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+      land();
+      void w.dial.getBoundingClientRect();
+      resolve();
+    };
+    const onEnd = () => settle();
+    w.dial.addEventListener('transitionend', onEnd);
+    w.dial.style.transition = `transform ${SNAP_MS}ms ease`;
+    void w.dial.getBoundingClientRect();
+    w.dial.style.transform = 'rotate(0deg)';
+    const fallback = setTimeout(settle, SNAP_MS + 50);
+  });
+}
+
+// Grab a wheel and it turns with your hand. The hit test is the SVG's own:
+// the discs are painted largest first so each smaller one covers the last,
+// and `.wheel-dial` is `pointer-events: none`, so whatever the pointer is
+// over resolves to exactly one `[data-wheel]` group — the band the pointer
+// is actually in, not the nearest.
+HoldTurn.attachDrag(svg, {
+  ringAt: (evt) => {
+    // A round trip that is going to move these wheels itself owns them; so
+    // does an inactive wheel, which takes no part in the chamber at all.
+    if (inert && wheelsOwned) return null;
+    const g = evt.target.closest ? evt.target.closest('[data-wheel]') : null;
+    if (!g) return null;
+    const index = Number(g.dataset.wheel);
+    return index < arity ? index : null;
+  },
+  center: figureCenter,
+  angleStep: () => ANGLE_STEP,
+  grab: (ring) => {
+    dragging.add(ring);
+    svg.classList.add('grabbing');
+    // The same start every held button reports, so `activeHolds`, the
+    // `turning…` placeholder and the submit gate all cover a drag without
+    // knowing it is one.
+    onHoldStart();
+  },
+  turn: (ring, delta, residualDeg) => {
+    dragCommit(ring, delta);
+    const w = wheels[ring];
+    // No transition: the wheel is under the finger. Anything eased here
+    // would be lag, which is the one thing this gesture cannot have.
+    w.dial.style.transition = 'none';
+    w.dial.style.transform = `rotate(${residualDeg}deg)`;
+  },
+  release: (ring, info) => {
+    // `onHoldStop` — and with it the read — only after the snap has
+    // settled: `activeHolds` stays positive through the settle, so the
+    // gate in `releaseRead` cannot let a checked verdict land over a wheel
+    // that is still visibly moving.
+    void snapWheel(ring, info.residualDeg).then(() => {
+      dragging.delete(ring);
+      if (dragging.size === 0) svg.classList.remove('grabbing');
+      onHoldStop();
+    });
+  },
+});
+
 // Every submit of `.actions` — a click, or a hold-release's own programmatic
 // one — sets `inert` synchronously here, before the request is even sent,
 // the same reason scene one's own `htmx:beforeRequest` listener does: the
@@ -549,10 +676,17 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (evt.target.id !== 'llull-reading') return;
   const chamberEl = document.querySelector('#llull-reading .llull-chamber');
   // The swap brings a whole new verdict element with it, checked for the
-  // chamber that was submitted. If a wheel is being held right now, that
-  // chamber is already out of date — the placeholder goes straight back on,
-  // and the hold's own release will ask for a fresh one.
-  if (activeHolds > 0) setVerdictTurning();
+  // chamber that was submitted, and a chamber line printed from the same
+  // letters. If a wheel is being held right now both are already out of
+  // date — the placeholder goes straight back on, and the six rows and the
+  // chamber are re-rendered from where the wheels actually are, or the panel
+  // shows the server's older letters until the next step crosses a detent.
+  // A drag can rest between two of them for as long as a hand likes, so
+  // "it corrects itself on the next tick" is not good enough here.
+  if (activeHolds > 0) {
+    setVerdictTurning();
+    renderLocalReading(currentLetters());
+  }
   const finish = clearInert;
   if (!chamberEl) {
     finish();
