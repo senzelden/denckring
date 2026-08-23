@@ -1364,20 +1364,34 @@ def llull_client_data() -> dict[str, Any]:
 # display of the railway-platform kind: six lines of six modules, ten flaps
 # each, so one press of the button composes one of 10^36 poems.
 #
+# The board renders **letter by letter into character cells** — Enzensberger's
+# own description, and what every split-flap display in the field does. A line
+# costs six flaps plus the five spaces between them, no flap is wider than
+# eleven characters, and so a line is at most 71 columns. That figure is the
+# whole geometry of the scene and it is derived here rather than quoted.
+#
 # The board is data and the data is not Enzensberger's — he died in 2022 and
 # his word lists are in copyright until 2092. The 360 fillers in
 # `denckring/data/devices/poesieautomat_2000.yaml` were written for this
 # project; the catalogue row and the device file both say so, and so does the
 # scene's own credit line.
 
-#: The one board this scene ever shows. `device` is a real parameter of
-#: `poesie_automat`, but this scene only turns the flaps of the machine that
-#: actually stood in Landsberg, so the id is a constant here rather than a
-#: control on the page. The same choice `LLULL_FIGURE_ID` makes.
-POESIE_AUTOMAT_DEVICE = "poesieautomat_2000"
-
 #: The row is `languages: [de]`, so there is no toggle and nothing to narrow.
 POESIE_AUTOMAT_LANG: Lang = "de"
+
+#: Character cells per line, and the cap on one flap that produces it: six
+#: flaps of at most eleven characters, plus the five spaces between them. Both
+#: cartridges are written to the same cap, so both play on the same board.
+#: `test_no_flap_is_wider_than_the_board` in the root suite holds the packaged
+#: device to it and `test_both_cartridges_fit_the_same_71_column_board` holds
+#: the explorer's own.
+FLAP_CAP = 11
+BOARD_COLUMNS = 71
+
+#: What a cell shows in place of nothing. A real board's unset flap is blank,
+#: and blank is a position on the drum like any other — it is the first
+#: character of the alphabet below, so a cell can roll to it and away from it.
+BLANK = " "
 
 # What stands between two modules on a line is the procedure's own `SEPARATOR`,
 # imported at the top of this file rather than retyped: a board whose flaps ever
@@ -1386,27 +1400,87 @@ POESIE_AUTOMAT_LANG: Lang = "de"
 
 
 @dataclass(frozen=True)
+class Cartridge:
+    """One set of flaps this scene can load into the board.
+
+    `device_id` is the only thing that reaches the library; the label and the
+    note are the page's. A cartridge is *named here* rather than accepted from
+    the client, so the switcher cannot be pointed at an arbitrary device by
+    editing a form value — see `automat_cartridge`.
+    """
+
+    device_id: str
+    label: str
+    note: str
+
+
+#: The two sets of flaps, in the order the switcher shows them. The first is
+#: the machine that actually stood in Landsberg and is what the scene opens on.
+#:
+#: The second lives under `apps/explorer` and is found through
+#: `DENCKRING_DEVICE_PATH` (see `explorer.env`), never through the packaged
+#: device directory: its subjects are Pokemon creature names, which are
+#: third-party trademarks, and the catalogue's data ships under CC BY 4.0. The
+#: device file's own header carries that reasoning at length.
+AUTOMAT_CARTRIDGES = (
+    Cartridge(
+        device_id="poesieautomat_2000",
+        label="Landsberg 2000",
+        note="the machine's own flaps",
+    ),
+    Cartridge(
+        device_id="poesieautomat_pokemon",
+        label="Pokémon-Kassette",
+        note="a second cartridge, explorer-only",
+    ),
+)
+
+#: What the scene opens on, and what a request naming no cartridge gets.
+POESIE_AUTOMAT_DEVICE = AUTOMAT_CARTRIDGES[0].device_id
+
+
+def automat_cartridge(device_id: str | None) -> Cartridge:
+    """The cartridge `device_id` names, or the default.
+
+    An id the scene does not offer is refused rather than passed through to
+    `device.load`. The switcher is a control on a page and its value arrives
+    from a client, and `device.load` will happily read any YAML file sitting in
+    a directory on the search path — so the set of loadable boards is fixed
+    here, in the server, where a client cannot widen it.
+    """
+    for cartridge in AUTOMAT_CARTRIDGES:
+        if cartridge.device_id == device_id:
+            return cartridge
+    if device_id is None or device_id == "":
+        return AUTOMAT_CARTRIDGES[0]
+    raise InvalidParams(
+        "poesie_automat",
+        f"{device_id!r} is not a cartridge this scene carries; "
+        f"try one of {[c.device_id for c in AUTOMAT_CARTRIDGES]}",
+    )
+
+
+@dataclass(frozen=True)
 class FlapModule:
-    """One module of the board: a drum, and the ten flaps written on it.
+    """One module of the board: ten flaps, and where they will stand.
 
     `name` is the module's own part of speech from the device file
     (`Zeitangabe`, `Adverb`, five different `Adjunkt`s on one line), which is
     why nothing addresses a module by name — the position within the line is
     the identity, here and in the scene's own markup.
+
+    `alternatives` are the device's own strings and `flaps` are the same
+    strings as the board shows them, in capitals. Both are kept: the capitals
+    are what goes into the cells and therefore what is checked, and the
+    device's own case is what a screen reader is given.
     """
 
     name: str
     alternatives: list[str]
 
     @property
-    def widest(self) -> str:
-        """The longest of the ten flaps, which is what the drum has to be wide
-        enough for. Longest by character count, not by rendered width — this
-        module does no typography; it is the page that sizes a drum, and it
-        does it by stacking all ten flaps in the drum itself and letting the
-        widest one win (see `stage_poesie_automat.html`). Kept because the
-        layout finding is about *this* string and a test names it."""
-        return max(self.alternatives, key=len)
+    def flaps(self) -> list[str]:
+        return [automat_display(alternative) for alternative in self.alternatives]
 
 
 @dataclass(frozen=True)
@@ -1426,10 +1500,15 @@ class FlapBoard:
     #: which is the same number through a float and comes out `1e+36`.
     combinations: int
 
+    @property
+    def modules(self) -> list[FlapModule]:
+        """Every module in slot order — the order `positions` is indexed in."""
+        return [module for line in self.lines for module in line.modules]
 
-def flap_board() -> FlapBoard:
-    """The Landsberg board as the shipped device file has it."""
-    machine = device.load(POESIE_AUTOMAT_DEVICE)
+
+def flap_board(device_id: str | None = None) -> FlapBoard:
+    """The board as the named cartridge has it."""
+    machine = device.load(automat_cartridge(device_id).device_id)
     return FlapBoard(
         lines=[
             FlapLine(
@@ -1443,6 +1522,150 @@ def flap_board() -> FlapBoard:
         ],
         combinations=machine.combinations,
     )
+
+
+def automat_display(text: str) -> str:
+    """`text` as the board shows it: capitals, and the same number of columns.
+
+    `"ß".upper()` is `"SS"` — two characters — which would make a flap wider on
+    the board than it is in the device file and push a line past its column
+    count. So the sharp s becomes the capital sharp s, U+1E9E, which is one
+    character and is what German capital-setting does. It costs nothing at the
+    other end: `"ẞ".casefold()` and `"ß".casefold()` are both `"ss"`, so a
+    board showing `REGELMÄẞIG` submits a word `check` still reads as
+    `regelmäßig` — which is the whole requirement, that what is checked is what
+    is on screen. `test_the_board_shows_capitals_without_widening_a_flap` pins
+    both halves.
+    """
+    return text.replace("ß", "ẞ").upper()
+
+
+def automat_alphabet(device_id: str | None = None) -> str:
+    """Every character the named cartridge's flaps can put in a cell, in order.
+
+    Computed from the device rather than assumed: the packaged board's fillers
+    contain no C, Q, X or Y and the Pokemon cartridge's do, so a hardcoded A-Z
+    would give both boards drums with characters on them that no flap can ever
+    ask for — and the roll between two characters passes through every
+    character in between, so the alphabet is not decoration, it is what the
+    animation walks.
+
+    Blank first, because a blank is where a cell rests when its line's text
+    does not reach it, and because a space sorts first by code point anyway —
+    the ordering is `sorted`, not a table, so a filler that ever introduced a
+    hyphen or a digit would take its place in it without this function being
+    edited.
+    """
+    machine = device.load(automat_cartridge(device_id).device_id)
+    characters = {BLANK}
+    for slot in machine.slots:
+        for alternative in slot.alternatives:
+            characters.update(automat_display(alternative))
+    return "".join(sorted(characters))
+
+
+def automat_line(flaps: list[str]) -> tuple[str, list[tuple[int, int]]]:
+    """One line's 71 cells, and which cells each of its six modules owns.
+
+    The six flaps are joined by the separator `check` itself walks and the
+    result is centred in the board — a real letter board writes a string into
+    a row of cells, and a poem centred in the row is what that looks like. A
+    module's flap is a run of consecutive cells inside it, and the run moves
+    when a neighbouring module turns to a longer or shorter flap, which is why
+    the spans are computed here for whatever the board is showing rather than
+    fixed once.
+
+    Returns the row exactly `BOARD_COLUMNS` wide. A line the modules cannot
+    fit is a device that broke the cap, and it is refused rather than clipped:
+    a board silently dropping the end of a line is the failure this whole
+    geometry exists to prevent.
+    """
+    text = POESIE_AUTOMAT_SEPARATOR.join(flaps)
+    if len(text) > BOARD_COLUMNS:
+        raise InvalidParams(
+            "poesie_automat",
+            f"{text!r} needs {len(text)} columns and the board has {BOARD_COLUMNS}",
+        )
+    # Padded by hand rather than by `str.center`, and that is not fussiness:
+    # CPython's `center` puts the odd extra space on the *left* when both the
+    # margin and the width are odd (`left = marg // 2 + (marg & width & 1)`),
+    # and the board is 71 columns wide. The client centres the same line as
+    # flaps turn and does it with a plain floor, so a row laid out here would
+    # have sat one cell off from the same row laid out there for every flap of
+    # odd length. `test_the_board_lays_out_a_row_the_same_on_both_sides` walks
+    # every flap of every module through both.
+    left = (BOARD_COLUMNS - len(text)) // 2
+    spans: list[tuple[int, int]] = []
+    at = left
+    for flap in flaps:
+        spans.append((at, len(flap)))
+        at += len(flap) + len(POESIE_AUTOMAT_SEPARATOR)
+    return BLANK * left + text + BLANK * (BOARD_COLUMNS - left - len(text)), spans
+
+
+@dataclass(frozen=True)
+class BoardRow:
+    """What one line of the board is showing: 71 characters and six spans."""
+
+    number: int
+    cells: str
+    spans: list[tuple[int, int]]
+
+
+def automat_rows(board: FlapBoard, positions: list[int]) -> list[BoardRow]:
+    """The six rows of cells those 36 flaps spell, ready to render.
+
+    The server's own first paint goes through here, and so does every
+    measurement a test makes of it — the client recomputes the same rows as
+    flaps turn, and `test_the_board_lays_out_the_same_row_in_both_languages`
+    holds the two implementations to the same answer.
+    """
+    flaps = iter(positions)
+    rows: list[BoardRow] = []
+    for line in board.lines:
+        showing = [module.flaps[next(flaps)] for module in line.modules]
+        cells, spans = automat_line(showing)
+        rows.append(BoardRow(number=line.number, cells=cells, spans=spans))
+    return rows
+
+
+def automat_payload(cartridge: Cartridge) -> dict[str, Any]:
+    """Everything the page needs to drive one cartridge, as plain JSON.
+
+    Both cartridges are handed over at first paint and the switcher is then a
+    local swap. That is a deliberate choice and it is what makes the swap read
+    as *loading different flaps into the same machine*: the 426 cells are
+    already on the page and stay there, and what changes is which words the
+    modules can show. The check that follows is still a real round trip against
+    the device the board is now showing — see `stage_poesie_automat_act`.
+
+    Flaps go over in capitals, which is what the cells display and therefore
+    what is submitted; the device's own case goes over beside them for the
+    accessible tree. Nothing here sends a poem: the client composes rows out of
+    flap indices exactly as `automat_rows` does.
+    """
+    board = flap_board(cartridge.device_id)
+    return {
+        "id": cartridge.device_id,
+        "label": cartridge.label,
+        "note": cartridge.note,
+        "columns": BOARD_COLUMNS,
+        "alphabet": automat_alphabet(cartridge.device_id),
+        "exponent": power_of_ten(board.combinations),
+        "combinations": f"{board.combinations:,}",
+        "lines": [[module.name for module in line.modules] for line in board.lines],
+        "modules": [
+            {
+                "line": line.number,
+                "name": module.name,
+                "flaps": module.flaps,
+                "words": module.alternatives,
+            }
+            for line in board.lines
+            for module in line.modules
+        ],
+        "positions": automat_default_positions(cartridge.device_id),
+    }
 
 
 def power_of_ten(count: int) -> int | None:
@@ -1461,22 +1684,23 @@ def power_of_ten(count: int) -> int | None:
     return exponent if 10**exponent == count else None
 
 
-def automat_positions(poem: str) -> list[int] | None:
+def automat_positions(poem: str, device_id: str | None = None) -> list[int] | None:
     """The 36 flap indices that spell `poem`, one per module in slot order, or
     `None` if the board cannot show it.
 
     An *index* per module, never the flap's text: the same rule `pieces_for`
     keeps for the Denckring's rings and `llull_positions` for Llull's wheels.
-    Nothing on this board repeats a flap within a module (a test pins that),
+    Nothing on either board repeats a flap within a module (a test pins that),
     so a text lookup would in fact land right here today — the rule is the
     rule either way, and the client is handed the number the server already
     worked out rather than a string to go searching for.
 
     Built on the same `device.segment` walk `poesie_automat._reading` makes,
     with the procedure's own separator, so a poem this accepts is exactly a
-    poem `check` accepts.
+    poem `check` accepts. Case is folded inside `segment`, so the board's own
+    capitals read back as the device's mixed case.
     """
-    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    machine = device.load(automat_cartridge(device_id).device_id)
     found = line_spans(poem)
     if len(found) != len(machine.lines):
         return None
@@ -1495,19 +1719,19 @@ def automat_positions(poem: str) -> list[int] | None:
     return positions
 
 
-def automat_poem(positions: list[int]) -> str:
-    """The poem those 36 flaps spell, as six lines.
+def automat_poem(positions: list[int], device_id: str | None = None) -> str:
+    """The poem those 36 flaps spell, as six lines, in the device's own case.
 
-    The inverse of `automat_positions`, and the page's own first paint reads
-    from here — so what the drums show at first paint and what `check` is
-    asked about are one string built once, not two built twice.
+    The inverse of `automat_positions`. What the *cells* show is this run
+    through `automat_display` and centred (see `automat_rows`); this is the
+    poem itself, which is what a first-paint `check()` is asked about.
 
     Every flap index is checked against its own module rather than folded into
     range: a `10` on a ten-flap drum is a caller that has miscounted, and
     rendering flap 0 for it would turn that into a poem that looks fine and is
     about a board nobody asked for.
     """
-    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    machine = device.load(automat_cartridge(device_id).device_id)
     if len(positions) != len(machine.slots):
         raise InvalidParams(
             "poesie_automat",
@@ -1529,34 +1753,36 @@ def automat_poem(positions: list[int]) -> str:
     )
 
 
-def automat_default_positions() -> list[int]:
-    """First paint: every drum on its own first flap.
+def automat_default_positions(device_id: str | None = None) -> list[int]:
+    """First paint: every module on its own first flap.
 
     Deterministic, the way every other scene's first paint is (see
     `llull_default_letters`, `queneau_initial_state`) — the recording starts
     from a board at rest, and pressing the button is the thing a viewer does,
-    not something the page has already done for them.
+    not something the page has already done for them. A cartridge swap lands on
+    the same resting board for the same reason.
     """
-    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    machine = device.load(automat_cartridge(device_id).device_id)
     return [0] * len(machine.slots)
 
 
-def automat_press(seed: int | None = None) -> tuple[str, list[int]]:
+def automat_press(device_id: str | None = None, seed: int | None = None) -> tuple[str, list[int]]:
     """Press the button: the poem the library's own `apply` composes, and the
     36 flaps that spell it.
 
     `apply` is what makes the choice — this scene demonstrates the procedure,
     so the poem is the procedure's, not a draw made here. The flaps come back
     from reading that poem against the board, which is the only way the client
-    can be told where to send its drums; the *verdict* is never taken from
-    here, it is a separate `check()` of the text read back off the drums once
+    can be told where to send its cells; the *verdict* is never taken from
+    here, it is a separate `check()` of the text read back off the cells once
     they have stopped (see the scene's own script and `stage_poesie_automat`'s
     two branches).
     """
+    cartridge = automat_cartridge(device_id)
     procedure = get("poesie_automat")
     assert isinstance(procedure, Constructive)
-    poem = procedure.apply("", lang=POESIE_AUTOMAT_LANG, seed=seed)
-    positions = automat_positions(poem)
+    poem = procedure.apply("", lang=POESIE_AUTOMAT_LANG, seed=seed, device=cartridge.device_id)
+    positions = automat_positions(poem, cartridge.device_id)
     if positions is None:
         # Unreachable by construction: `apply` selects one alternative per
         # module and joins them with the same separator `automat_positions`
