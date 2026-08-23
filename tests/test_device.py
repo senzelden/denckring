@@ -17,7 +17,7 @@ import pytest
 from denckring import check
 from denckring.core import device as devices
 from denckring.core.device import DEVICE_PATH_ENV
-from denckring.core.errors import UnknownDevice
+from denckring.core.errors import MalformedDevice, MalformedFigure, UnknownDevice, UnknownFigure
 
 TWO_SLOT_DEVICE = """\
 id: {id}
@@ -192,3 +192,218 @@ slots:
     )
     monkeypatch.setenv(DEVICE_PATH_ENV, f"{first_dir}:{second_dir}")
     assert devices.load("ordering").slots[0].alternatives == ["from-first"]
+
+
+# ── the id is untrusted input: absolute paths, `..`, separators, symlinks ──────
+
+BROKEN_YAML = "id: [unclosed\n"
+
+WRONG_SHAPE_YAML = """\
+id: wrongshape
+name: has a value the message must never echo
+source: tests/test_device.py
+slots: "not-a-list-of-slots-CANARY-VALUE"
+"""
+
+WRONG_SHAPE_FIGURE_YAML = """\
+id: wrongshape
+name: has a value the message must never echo
+source: tests/test_device.py
+letters: "not-a-list-of-letters-CANARY-VALUE"
+levels: {}
+"""
+
+
+def test_an_absolute_device_id_does_not_escape_the_search_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`Path.__truediv__` discards the left operand when the right is absolute.
+
+    Without a guard, `directory / f"{device_id}.yaml"` for an absolute
+    `device_id` is just `Path(device_id)` — the search directory is never
+    consulted at all, and any file on the machine the process can read
+    answers as though it were a device.
+    """
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_SLOT_DEVICE.format(id="secret"))
+    search_dir = tmp_path / "search"
+    search_dir.mkdir()
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(search_dir))
+
+    with pytest.raises(UnknownDevice):
+        devices.load(str(outside / "secret"))
+
+
+def test_a_traversal_device_id_does_not_escape_the_search_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`Path` never rejects a `..` segment; a bare-name check must."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_SLOT_DEVICE.format(id="secret"))
+    search_dir = tmp_path / "search"
+    search_dir.mkdir()
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(search_dir))
+
+    with pytest.raises(UnknownDevice):
+        devices.load(f"../{outside.name}/secret")
+
+
+def test_a_separator_in_a_device_id_is_rejected_even_without_traversal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A `/` in the id is refused on its own, not only when it happens to traverse."""
+    search_dir = tmp_path / "search"
+    sub = search_dir / "sub"
+    sub.mkdir(parents=True)
+    _write(sub, "inner", TWO_SLOT_DEVICE.format(id="inner"))
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(search_dir))
+
+    with pytest.raises(UnknownDevice):
+        devices.load("sub/inner")
+
+
+def test_a_symlinked_device_file_pointing_outside_its_directory_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A valid-looking id can still resolve outside the directory it is trusted in.
+
+    The id pattern alone cannot catch this: `leaked` is a perfectly bare name.
+    Only checking that the resolved file is actually inside the resolved search
+    directory catches a symlink, placed in an otherwise-trusted directory, whose
+    target is not.
+    """
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_SLOT_DEVICE.format(id="secret"))
+    search_dir = tmp_path / "search"
+    search_dir.mkdir()
+    (search_dir / "leaked.yaml").symlink_to(outside / "secret.yaml")
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(search_dir))
+
+    with pytest.raises(UnknownDevice):
+        devices.load("leaked")
+
+
+def test_malformed_yaml_in_a_device_raises_a_denckring_error_without_the_content(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write(tmp_path, "broken", BROKEN_YAML)
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(tmp_path))
+
+    with pytest.raises(MalformedDevice) as excinfo:
+        devices.load("broken")
+    message = str(excinfo.value)
+    assert "unclosed" not in message
+
+
+def test_valid_yaml_the_wrong_shape_raises_a_denckring_error_without_the_content(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write(tmp_path, "wrongshape", WRONG_SHAPE_YAML)
+    monkeypatch.setenv(DEVICE_PATH_ENV, str(tmp_path))
+
+    with pytest.raises(MalformedDevice) as excinfo:
+        devices.load("wrongshape")
+    exc = excinfo.value
+    assert "CANARY-VALUE" not in str(exc)
+    assert "CANARY-VALUE" not in str(exc.to_dict())
+
+
+# ── the same three escapes and two malformed-content cases, for load_figure ────
+
+TWO_LEVEL_FIGURE = """\
+id: {id}
+name: A test figure
+source: tests/test_device.py, not a real figure
+letters: ["A", "B"]
+levels:
+  absolute:
+    A: "Alpha"
+    B: "Beta"
+"""
+
+
+def test_an_absolute_figure_id_does_not_escape_figure_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_LEVEL_FIGURE.format(id="secret"))
+    figures_dir = tmp_path / "figures"
+    figures_dir.mkdir()
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(UnknownFigure):
+        devices.load_figure(str(outside / "secret"))
+
+
+def test_a_traversal_figure_id_does_not_escape_figure_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_LEVEL_FIGURE.format(id="secret"))
+    figures_dir = tmp_path / "figures"
+    figures_dir.mkdir()
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(UnknownFigure):
+        devices.load_figure(f"../{outside.name}/secret")
+
+
+def test_a_separator_in_a_figure_id_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    figures_dir = tmp_path / "figures"
+    sub = figures_dir / "sub"
+    sub.mkdir(parents=True)
+    _write(sub, "inner", TWO_LEVEL_FIGURE.format(id="inner"))
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(UnknownFigure):
+        devices.load_figure("sub/inner")
+
+
+def test_a_symlinked_figure_file_pointing_outside_figure_dir_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    _write(outside, "secret", TWO_LEVEL_FIGURE.format(id="secret"))
+    figures_dir = tmp_path / "figures"
+    figures_dir.mkdir()
+    (figures_dir / "leaked.yaml").symlink_to(outside / "secret.yaml")
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(UnknownFigure):
+        devices.load_figure("leaked")
+
+
+def test_malformed_yaml_in_a_figure_raises_a_denckring_error_without_the_content(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    figures_dir = tmp_path / "figures"
+    figures_dir.mkdir()
+    _write(figures_dir, "broken", BROKEN_YAML)
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(MalformedFigure) as excinfo:
+        devices.load_figure("broken")
+    assert "unclosed" not in str(excinfo.value)
+
+
+def test_valid_yaml_the_wrong_shape_raises_a_denckring_error_for_a_figure_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    figures_dir = tmp_path / "figures"
+    figures_dir.mkdir()
+    _write(figures_dir, "wrongshape", WRONG_SHAPE_FIGURE_YAML)
+    monkeypatch.setattr(devices, "FIGURE_DIR", figures_dir)
+
+    with pytest.raises(MalformedFigure) as excinfo:
+        devices.load_figure("wrongshape")
+    exc = excinfo.value
+    assert "CANARY-VALUE" not in str(exc)
+    assert "CANARY-VALUE" not in str(exc.to_dict())
