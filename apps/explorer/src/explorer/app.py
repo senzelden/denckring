@@ -588,30 +588,30 @@ def stage_cut_up(request: Request, chrome: str = "on") -> HTMLResponse:
 
 @app.post("/stage/cut_up/act", response_class=HTMLResponse)
 async def stage_cut_up_act(request: Request) -> HTMLResponse:
-    """Cut the shipped source into its own words and reassemble them in a
-    fresh order, then check the result independently against that same
-    source — the same round trip N+7's and the word ladder's own action
-    routes run between `apply` and `check`.
+    """Check the arrangement the page is showing, against the shipped source.
 
-    No seed is threaded through from the client: each press draws its own
-    (`stage.cut_up`'s `seed=None` default), which is what lets the page vary
-    per click while `apps/explorer/tests` pin a seed directly against
-    `stage.cut_up` for a deterministic assertion.
+    The text arrives from the client because it *has* to: the cut is made in
+    the browser, by two blades a viewer positions by hand, and the four
+    quarters that result are what the page displays. `stage_cut_up.html`
+    reads that text back out of the quarters themselves and posts it here, so
+    what `check` is given is what is on screen, character for character. A
+    route that recomputed the arrangement from `CUT_UP_SOURCE` would be
+    checking a second, invisible cut-up that merely resembled the one the
+    viewer made.
+
+    Deliberately **not** `cut_up.apply`. `apply` shuffles the source's
+    individual words, which is a different method from the one this scene
+    depicts — Gysin's quadrant cut moves words in blocks, and only ever the
+    blocks two straight cuts produce. `check` is what this scene
+    demonstrates, and it accepts a quadrant rearrangement: a clean cut of
+    this source is 47 words against 47 source words with no violations, and
+    a cut through a word is caught by name (both measured — see the task
+    report). Please do not "fix" this back to `apply`.
     """
-    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang=CUT_UP_LANG)
-    report = denckring_check("cut_up", cutup.text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
-    return page(request, "_stage_cutup.html", cutup=cutup, report=report)
-
-
-@app.post("/stage/cut_up/smuggle", response_class=HTMLResponse)
-async def stage_cut_up_smuggle(request: Request) -> HTMLResponse:
-    """The tamper control: the same cut, with one foreign word appended, run
-    through the exact same `check` call the genuine cut above does — so the
-    failing verdict this produces is provably the same machinery as the
-    passing one, not a special-cased message (see the brief)."""
-    cutup = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang=CUT_UP_LANG)
-    report = denckring_check("cut_up", cutup.text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
-    return page(request, "_stage_cutup.html", cutup=cutup, report=report)
+    form = await request.form()
+    text = str(form.get("text", ""))
+    report = denckring_check("cut_up", text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
+    return page(request, "_stage_cutup.html", report=report, text=text)
 
 
 @app.get("/stage/llull_figure", response_class=HTMLResponse)
