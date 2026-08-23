@@ -2391,6 +2391,14 @@ def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
     assert ".llull-controls" not in normalised
 
 
+def _denckring_scene_script() -> str:
+    """Scene one's own inline script, as the page actually ships it."""
+    body = client.get("/stage/denckring").text
+    match = re.search(r"<script>\n(.*?)\n</script>", body, re.S)
+    assert match is not None
+    return match.group(1)
+
+
 def _llull_scene_script() -> str:
     """The scene's own inline script, as the page actually ships it."""
     body = client.get("/stage/llull_figure").text
@@ -2453,8 +2461,16 @@ def test_the_hold_source_rearms_the_turning_placeholder_from_every_path() -> Non
     gate = release.index("if (activeHolds > 0) {")
     assert "setVerdictTurning();" in release[gate:]
     assert gate < release.index(".requestSubmit()")
-    # 3. a swap landing mid-hold
-    assert "if (activeHolds > 0) setVerdictTurning();" in script
+    # 3. a swap landing mid-hold — which also has to redraw the six rows from
+    #    where the wheels actually are, or the swap's own (older) chamber
+    #    stands under a hand that is resting between two detents
+    after_swap = re.search(r"'htmx:afterSwap', \(evt\) => \{(.*?)\n\}\);", script, re.S)
+    assert after_swap is not None
+    swap = after_swap.group(1)
+    assert "if (activeHolds > 0) {" in swap
+    guarded = swap[swap.index("if (activeHolds > 0) {") :]
+    assert "setVerdictTurning();" in guarded
+    assert "renderLocalReading(currentLetters());" in guarded
     # 4. the catch-up replay, before it submits again
     flush = body_of(r"function flushDeferredSteps\(\) \{")
     assert "setVerdictTurning();" in flush
@@ -2522,9 +2538,9 @@ def test_the_hold_turn_source_focuses_a_mouse_hold_and_only_a_mouse_hold() -> No
 def test_hold_turn_cadence_is_an_attach_option_not_only_a_module_constant() -> None:
     """The adoption precondition scene one needs: `HoldTurn.REPEAT_MS` is a
     copy of a closure constant, so assigning to it does nothing. A scene
-    that wants its own rate — scene one's 120-part rings and 220ms `turnOne`
-    may well — passes it to `attach`, per attachment, so one scene's
-    preference cannot become another's surprise."""
+    that wants its own rate — scene one's 120-part rings did — passes it to
+    `attach`, per attachment, so one scene's preference cannot become
+    another's surprise."""
     js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
     js = js_path.read_text(encoding="utf-8")
     assert "handlers.initialDelayMs" in js
@@ -2534,3 +2550,214 @@ def test_hold_turn_cadence_is_an_attach_option_not_only_a_module_constant() -> N
     assert "setTimeout(tick, initialDelayMs)" in js
     assert "const DEFAULT_INITIAL_DELAY_MS" in js
     assert "const DEFAULT_REPEAT_MS" in js
+
+
+def test_hold_turn_cadence_may_also_be_a_function_of_the_ring() -> None:
+    """The adoption precondition scene one actually needed. Its five rings run
+    from 12 parts to 120, and one number cannot suit both — a rate that reads
+    as deliberate on `mittelbuchstabe` is most of a minute of holding to cross
+    `endbuchstabe`. So a cadence option may be a function of the ring, resolved
+    per hold rather than per attachment, and scene one passes one."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "function msFor(option, ring, dir, fallback) {" in js
+    assert "typeof option === 'function' ? option(ring, dir) : option" in js
+    # and both cadences go through it, so neither is a plain number only
+    assert "msFor(handlers.repeatMs, ring, dir, DEFAULT_REPEAT_MS)" in js
+    assert "msFor(handlers.initialDelayMs, ring, dir, DEFAULT_INITIAL_DELAY_MS)" in js
+    script = _denckring_scene_script()
+    assert "repeatMs: repeatMsFor," in script
+
+
+def test_the_drag_source_turns_a_ring_under_the_pointer_not_on_release() -> None:
+    """A source-level guard, and named as one: the test client runs no
+    JavaScript, so whether the ring actually follows a finger is out of its
+    reach. `tests/browser/drag-turn.mjs` is what measures it (22 of 22
+    samples carrying a live transform while the pointer was down, worst
+    residual half a detent).
+
+    What this holds on to is the shape that makes it true: the shared module
+    reports whole detents *and* the fraction between them as the pointer
+    moves, and each scene's `turn` callback writes that fraction straight to
+    the dial with the transition explicitly off. A `turn` that queued an
+    animation, or that only ran on release, would be the one thing this
+    gesture cannot be."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "function attachDrag(root, handlers) {" in js
+    assert "attachDrag," in js  # exported alongside `attach`
+    # committed whole detents, and the residual, both handed over on move
+    assert "const target = Math.round(-drag.sweep / drag.step);" in js
+    assert "drag.residual = drag.sweep + target * drag.step;" in js
+    assert "onTurn(drag.ring, delta, drag.residual);" in js
+    # the sweep is unwrapped, so crossing twelve o'clock is a small move
+    assert "function shortestArc(delta) {" in js
+    assert "if (d > 180) d -= 360;" in js
+    assert "if (d <= -180) d += 360;" in js
+    # per pointer id, so two fingers can turn two rings
+    assert "const drags = new Map();" in js
+    assert "drags.set(evt.pointerId, drag);" in js
+
+    for script in (_denckring_scene_script(), _llull_scene_script()):
+        turn = re.search(r"  turn: \(ring, delta, residualDeg\) => \{(.*?)\n  \},", script, re.S)
+        assert turn is not None
+        body = turn.group(1)
+        assert "dragCommit(ring, delta);" in body
+        assert ".dial.style.transition = 'none';" in body
+        assert ".dial.style.transform = `rotate(${residualDeg}deg)`;" in body
+
+
+def test_the_drag_source_counts_a_grab_as_a_hold_and_reads_after_the_snap() -> None:
+    """The invariant, extended to the new gesture. A drag is a third way to
+    move a ring, so it has to arm the `turning…` placeholder for the whole
+    grab and count toward the same "a ring is being moved" state the submit
+    gate reads — and the read must wait for the settle, not fire at the
+    instant the pointer lifts, or a checked verdict lands over a ring still
+    visibly moving to its detent.
+
+    Both are structural here: `grab` goes through the same `onHoldStart`
+    every held button uses, and `onHoldStop` is called from inside the snap's
+    own `.then`, so `activeHolds` stays positive until the ring has landed."""
+    for script in (_denckring_scene_script(), _llull_scene_script()):
+        grab = re.search(r"  grab: \(ring\) => \{(.*?)\n  \},", script, re.S)
+        assert grab is not None
+        assert "onHoldStart();" in grab.group(1)
+        release = re.search(r"  release: \(ring, info\) => \{(.*?)\n  \},", script, re.S)
+        assert release is not None
+        body = release.group(1)
+        snap = re.search(r"(snapRing|snapWheel)\(ring, info\.residualDeg\)\.then\(", body)
+        assert snap is not None
+        assert body.index("onHoldStop();") > snap.start()
+
+
+def test_the_denckring_source_turns_its_rings_backwards_by_index() -> None:
+    """Source-level, for the two defects that made scene one one-directional.
+    Both were reproduced in a browser before being fixed (see the task
+    report): `(0 + -1) % 120` is `-1` in JavaScript, and `` `rotate(-${advance
+    * angleStep(r)}deg)` `` builds the literal `rotate(--45deg)`, which the
+    browser rejects outright — `style.transform` reads back `""` and the disc
+    does not move at all.
+
+    Both are guarded by their fixed form *and* by the absence of the broken
+    one, because either alone can be reintroduced without the other."""
+    script = _denckring_scene_script()
+    assert "r.index = (r.index + advance + r.total) % r.total;" in script
+    assert "r.index = (r.index + advance) % r.total;" not in script
+    assert "r.dial.style.transform = `rotate(${-advance * angleStep(r)}deg)`;" in script
+    assert "`rotate(-${advance * angleStep(r)}deg)`" not in script
+    # and the drag commits the same way, on rings whose totals differ
+    assert "r.index = (((r.index + delta) % r.total) + r.total) % r.total;" in script
+
+
+def test_the_denckring_markup_carries_step_buttons_outside_the_swapped_region() -> None:
+    """Markup, which is what a test client can see. Scene one never had the
+    hold controls; it has them now, one pair per ring, as real `<button>`s so
+    a keyboard reaches them — and in `#ring-holds`, which sits outside `#word`,
+    the only region htmx ever swaps here. `HoldTurn.attach` scans its
+    container once, so a control rendered by a later swap would be silently
+    unwired."""
+    body = client.get("/stage/denckring").text
+    normalised = " ".join(body.split())
+    assert 'class="hold-controls" id="ring-holds"' in normalised
+    for ring in range(5):
+        for direction in ("-1", "1"):
+            assert (
+                f'<button type="button" class="hold-btn" data-hold-ring="{ring}" '
+                f'data-hold-dir="{direction}"' in normalised
+            )
+    # every button names the ring it turns, in the device's own German
+    for name in stage.rings().slots:
+        assert f'aria-label="Turn the {name.name} disc back"' in normalised
+        assert f'aria-label="Turn the {name.name} disc on"' in normalised
+    # the controls are not inside the swapped `#word`
+    word_start = normalised.index('<div id="word">')
+    word_end = normalised.index("</form>", word_start)
+    assert 'id="ring-holds"' not in normalised[word_start:word_end]
+
+
+def test_the_denckring_markup_declares_one_scoped_live_region() -> None:
+    """The same choice scene seven settled on, for the same reason: the word
+    panel is rewritten on every step of a held or dragged disc, so announcing
+    the panel would announce it several times a second. One stable, atomic
+    status line outside the swapped region instead."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert 'id="word" aria-live' not in normalised
+    assert 'id="denckring-status" role="status" aria-live="polite" aria-atomic="true"' in normalised
+
+
+def test_the_denckring_source_rearms_the_turning_placeholder_from_every_path() -> None:
+    """Scene one's copy of the invariant three rounds went into on scene
+    seven: a real, checked verdict must never stand over discs that have
+    since moved. The same four paths can leave one there, and each is pinned
+    where it lives — a hold or a grab starting, the drain declining to submit
+    while a hand is still down, a swap landing mid-hold, and the deferred
+    catch-up replaying after a swap has already put a real verdict up.
+
+    Source-level, and named as one; `tests/browser/drag-turn.mjs` is what
+    actually watches the panel while a disc turns."""
+    script = _denckring_scene_script()
+    assert "function setVerdictTurning() {" in script
+
+    def body_of(pattern: str) -> str:
+        match = re.search(pattern + r"(.*?)\n\}", script, re.S)
+        assert match is not None, pattern
+        return match.group(1)
+
+    start = body_of(r"function onHoldStart\(\) \{")
+    assert "setVerdictTurning();" in start
+    assert "if (activeHolds === 1) {" in start
+    assert "refreshControls();" in start
+    release = body_of(r"async function releaseRead\(\) \{")
+    gate = release.index("if (activeHolds > 0) {")
+    assert "setVerdictTurning();" in release[gate:]
+    assert gate < release.index(".requestSubmit()")
+    assert release.count(".requestSubmit()") == 1
+    assert script.count(".requestSubmit()") == 1
+    after_swap = re.search(r"'htmx:afterSwap', \(evt\) => \{(.*?)\n\}\);", script, re.S)
+    assert after_swap is not None
+    guarded = after_swap.group(1)
+    guarded = guarded[guarded.index("if (activeHolds > 0) {") :]
+    assert "setVerdictTurning();" in guarded
+    assert "renderLocalWord();" in guarded
+    flush = body_of(r"function flushDeferredSteps\(\) \{")
+    assert "setVerdictTurning();" in flush
+    assert flush.index("setVerdictTurning();") < flush.index("releaseRead()")
+    assert script.count("setVerdictTurning()") >= 5
+
+
+def test_the_denckring_step_source_defers_a_round_trips_ticks_and_yields_to_a_grab() -> None:
+    """Two refusals in one function, and they are not the same refusal. A
+    round trip that owns the discs defers a still-held button's ticks rather
+    than dropping them (scene seven measured the difference as a whole
+    gesture producing nothing on a slow link); a *grab* on that ring drops
+    them outright, because the hand on the disc is the more direct claim on
+    it and the two would otherwise fight over the same transform. Measured
+    for real in `tests/browser/drag-turn.mjs contend`: 700ms of a held step
+    button on a ring a second finger was grabbing moved it no detents."""
+    script = _denckring_scene_script()
+    step = re.search(r"function stepRing\(ringIndex, advance\) \{(.*?)\n\}", script, re.S)
+    assert step is not None
+    body = step.group(1)
+    assert "if (dragging.has(ringIndex)) return pendingStep;" in body
+    assert "deferredAdvance.set" in body
+    clear = re.search(r"function clearInert\(\) \{(.*?)\n\}", script, re.S)
+    assert clear is not None
+    assert "flushDeferredSteps();" in clear.group(1)
+    llull = _llull_scene_script()
+    assert "if (dragging.has(wheelIndex)) return pendingStep;" in llull
+
+
+def test_both_volvelles_declare_their_figure_grabbable() -> None:
+    """The affordance and the thing that makes a touch drag possible at all,
+    in shared CSS rather than two private copies. Without `touch-action:
+    none` the gesture scrolls the page instead of turning a ring, so this is
+    not decoration."""
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    css = " ".join(css_path.read_text(encoding="utf-8").split())
+    figure = css.split(".turnable-figure {", 1)[1].split("}", 1)[0]
+    assert "touch-action: none;" in figure
+    assert ".turnable-figure .ring-disc, .turnable-figure .wheel-disc { cursor: grab; }" in css
+    assert "cursor: grabbing;" in css
+    for scene in ("denckring", "llull_figure"):
+        markup = " ".join(client.get(f"/stage/{scene}").text.split())
+        assert "turnable-figure" in markup
