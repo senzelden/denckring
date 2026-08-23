@@ -12,6 +12,7 @@ the free monosyllable already take.
 
 from __future__ import annotations
 
+import os
 import random
 from functools import lru_cache
 from importlib.resources import files
@@ -25,6 +26,59 @@ from pydantic import BaseModel, Field
 from denckring.core.errors import UnknownDevice, UnknownFigure, UnknownLevel
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
+
+#: Colon-separated directories searched, in order, before `DEVICE_DIR`. Read at
+#: call time rather than cached at import time, so a caller can change it
+#: between two calls in the same process — the cache in `load` is keyed to
+#: match, see there.
+DEVICE_PATH_ENV = "DENCKRING_DEVICE_PATH"
+
+
+def _device_search_path() -> tuple[Path, ...]:
+    """Extra device directories from `DENCKRING_DEVICE_PATH`, then the packaged one.
+
+    Extra directories come first, so a directory earlier on the path shadows
+    both `DEVICE_DIR` and any later directory that ships a device of the same
+    id. A directory that does not exist, or is not readable, is skipped rather
+    than raised on: a stale entry in someone's environment must not break
+    loading a device that *is* packaged. `is_dir` itself can raise on a
+    directory whose parent is unreadable, which is exactly the same "skip it
+    quietly" case, so that is caught here too rather than left to surface from
+    deeper inside `load`.
+    """
+    raw = os.environ.get(DEVICE_PATH_ENV, "")
+    extra = [Path(entry) for entry in raw.split(":") if entry]
+    searchable = []
+    for directory in [*extra, DEVICE_DIR]:
+        try:
+            if directory.is_dir():
+                searchable.append(directory)
+        except OSError:
+            continue
+    return tuple(searchable)
+
+
+def _device_file(directory: Path, device_id: str) -> Path | None:
+    """`{device_id}.yaml` in `directory`, or None — including on a permission error.
+
+    A directory can pass `Path.is_dir()` and still refuse a stat on the file
+    inside it (no execute bit, a network mount that dropped mid-search); that
+    is the same "skip it quietly" contract `_device_search_path` applies to a
+    missing directory, so it is applied here too.
+    """
+    candidate = directory / f"{device_id}.yaml"
+    try:
+        return candidate if candidate.is_file() else None
+    except OSError:
+        return None
+
+
+def _device_ids(directory: Path) -> set[str]:
+    """Every device id `directory` offers, or an empty set if it cannot be listed."""
+    try:
+        return {path.stem for path in directory.glob("*.yaml")}
+    except OSError:
+        return set()
 
 
 class Slot(BaseModel):
@@ -86,12 +140,55 @@ class Device(BaseModel):
         )
 
 
-@lru_cache(maxsize=8)
 def load(device_id: str) -> Device:
-    """Read a device by id from the shipped data."""
-    path = DEVICE_DIR / f"{device_id}.yaml"
-    if not path.is_file():
-        raise UnknownDevice(device_id, sorted(p.stem for p in DEVICE_DIR.glob("*.yaml")))
+    """Read a device by id, from `DENCKRING_DEVICE_PATH` or the shipped data.
+
+    `DENCKRING_DEVICE_PATH` is a colon-separated list of directories, read from
+    the environment on every call — there is no process-wide setter, so the
+    only way to change it is to change the environment. Each directory is
+    searched for `{device_id}.yaml` *before* the directory this package ships,
+    in the order given, and the first match wins. That makes shadowing a
+    packaged device deliberate and available: put a directory ahead of the
+    packaged one on the path, give a file in it the same id, and it is what
+    `load` returns instead.
+
+    A user-supplied device is data the library reads, nothing more: there is
+    no schema versioning beyond what `Device.model_validate` already enforces,
+    no record of where a resolved device actually came from, and if it
+    shadows a packaged id, the packaged device is not what ran — `load`
+    itself has no way to tell a caller that a result came from a shadow
+    rather than from the package, so a caller who needs to know must control
+    what it puts on the path.
+
+    A directory on the path that does not exist, or cannot be listed, is
+    skipped quietly rather than raising, so a stale entry in someone's
+    environment does not break loading a device that ships with the package.
+
+    Raises `UnknownDevice` naming every id findable across the whole search
+    path — the packaged directory and every extra one — not only the
+    packaged directory, because that error's job is to say what the caller
+    could have said instead.
+    """
+    search = _device_search_path()
+    for directory in search:
+        candidate = _device_file(directory, device_id)
+        if candidate is not None:
+            return _load_path(candidate)
+    available = sorted(set().union(*(_device_ids(directory) for directory in search)))
+    raise UnknownDevice(device_id, available)
+
+
+@lru_cache(maxsize=8)
+def _load_path(path: Path) -> Device:
+    """Read and validate one device file. Cached on the resolved path.
+
+    Caching here rather than in `load` is what keeps `DENCKRING_DEVICE_PATH`
+    safe to change between two calls for the same `device_id`: `load` resolves
+    the search path — and therefore which file answers a given id — on every
+    call, uncached, and only the read of one already-resolved file is memoised.
+    A cache keyed on `device_id` alone would go stale the moment the
+    environment changed and a different file started answering the same id.
+    """
     raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
     return Device.model_validate(raw)
 
