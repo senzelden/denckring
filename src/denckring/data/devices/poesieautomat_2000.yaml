@@ -19,11 +19,11 @@
 # German, and they are constraints on the design of the modules rather than on
 # the storage:
 #
-#   1. The article is folded into the noun ("die Verwaltung", "der Beton"), so
-#      case and gender agreement never has to be computed across modules.
+#   1. The article is folded into the noun ("der Beton", "die Uhr", "das Eis"),
+#      so case and gender agreement never has to be computed across modules.
 #   2. Everything after the subject is an adjunct. Prepositional phrases and
 #      adverbs stack freely and agree with nothing; the case lives inside the
-#      phrase ("in den Vororten", "ohne Anlass").
+#      phrase ("im Nebel", "ohne Anlass").
 #   3. Every verb is third person singular present and intransitive. Singular
 #      because every subject is a nominative singular; intransitive because a
 #      transitive verb would want an object the schema does not guarantee. No
@@ -34,11 +34,21 @@
 # its load-bearing half is the prohibition: no adverb module carries a manner
 # adverb or a bare negation. Lines 2, 4 and 6 have no predicate, and either of
 # those reads as broken German with no verb to modify. What the sixty flaps are
-# instead is a description rather than a further rule — temporal, frequency,
-# locative and epistemic adverbs, plus seven quantificational ones (insgesamt,
-# teilweise, größtenteils, durchweg, reichlich, abschnittsweise, überwiegend),
-# which scope over the adjunct that follows them ("teilweise unter Verschluss")
-# and so need no verb either.
+# instead is a description rather than a further rule — temporal and duration
+# adverbs ("inzwischen", "wochenlang"), frequency ("immer", "bisweilen"),
+# locative ("überall", "andernorts"), epistemic ("angeblich", "vermutlich"),
+# and six quantificational ones (insgesamt, teilweise, zumeist, durchweg,
+# reichlich, überwiegend), which scope over the adjunct that follows them
+# ("teilweise unter Eis") and so need no verb either.
+#
+# A fifth constraint is about the display and not about German: no filler is
+# longer than eleven characters. The board renders letter by letter into
+# character cells, so a line costs six fillers plus five spaces, and eleven
+# caps the widest line the modules can assemble at 71 columns. Umlauts and ß
+# are one character each. `test_no_flap_is_wider_than_the_board` pins both the
+# per-flap cap and the assembled width; a longer filler is a line that would
+# not fit on the board at a legible cell size, which is why the lexicon is made
+# of short concrete nouns and plain verbs rather than of office prose.
 #
 # Line schemas, as fixed in the brief for this row:
 #
@@ -64,54 +74,54 @@ slots:
     line: 0
     alternatives:
       - "Morgens"
+      - "Mittags"
+      - "Montags"
       - "Im Winter"
-      - "Nach Feierabend"
-      - "Jeden Montag"
-      - "Seit Jahren"
-      - "Gegen Mittag"
-      - "Kurz vor Ladenschluss"
       - "Im November"
-      - "Nach der Sitzung"
-      - "Zwischen zwei Terminen"
+      - "Seit Jahren"
+      - "Um sieben"
+      - "Im Frühjahr"
+      - "Nach Jahren"
+      - "Am Ersten"
   - name: Verb
     line: 0
     alternatives:
-      - "verschwindet"
+      - "schweigt"
       - "wächst"
       - "zerfällt"
-      - "schweigt"
       - "rostet"
       - "schrumpft"
       - "dröhnt"
       - "gefriert"
       - "vergilbt"
       - "stockt"
+      - "knirscht"
   - name: Subjekt
     line: 0
     alternatives:
-      - "die Verwaltung"
+      - "der Wind"
+      - "das Eis"
       - "der Beton"
-      - "das Vertrauen"
-      - "die Statistik"
-      - "der Ausschuss"
-      - "das Protokoll"
-      - "die Zufahrt"
-      - "der Zement"
-      - "das Gutachten"
-      - "die Auskunft"
+      - "die Uhr"
+      - "der Zaun"
+      - "das Amt"
+      - "die Halle"
+      - "der Ruß"
+      - "das Werk"
+      - "die Sirene"
   - name: Adjunkt
     line: 0
     alternatives:
-      - "ohne Anlass"
-      - "auf dem Papier"
       - "im Nebel"
-      - "unter Vorbehalt"
+      - "ohne Anlass"
+      - "unter Strom"
+      - "nach Plan"
+      - "gegen bar"
+      - "auf Abruf"
+      - "seit Tagen"
       - "bei Regen"
-      - "trotz der Bedenken"
-      - "seit dem Frühjahr"
-      - "mit Verspätung"
-      - "zwischen den Zeilen"
-      - "laut Verordnung"
+      - "mit Bedacht"
+      - "vor Ort"
   - name: Adverb
     line: 0
     alternatives:
@@ -128,64 +138,64 @@ slots:
   - name: Adjunkt
     line: 0
     alternatives:
-      - "gegen Gebühr"
-      - "in der Zwischenzeit"
-      - "über Nacht"
-      - "aus Gewohnheit"
-      - "nach Aktenlage"
-      - "vor der Schranke"
       - "am Rand"
-      - "an der Rampe"
-      - "binnen einer Woche"
-      - "zu Protokoll"
+      - "in Reihe"
+      - "über Nacht"
+      - "aus Not"
+      - "trotz Sturm"
+      - "zu Hause"
+      - "ab Mai"
+      - "laut Ansage"
+      - "um die Ecke"
+      - "von jeher"
   # ── Zeile 2 ────────────────────────────────────────────────────────
   - name: Subjekt
     line: 1
     alternatives:
-      - "Die Behörde"
-      - "Der Winterdienst"
-      - "Das Verfahren"
-      - "Die Grundsteuer"
-      - "Der Bauzaun"
-      - "Das Fundbüro"
-      - "Die Ampelanlage"
       - "Der Nebel"
-      - "Das Amtsblatt"
-      - "Die Restlaufzeit"
+      - "Die Brücke"
+      - "Das Wasser"
+      - "Der Asphalt"
+      - "Die Ampel"
+      - "Das Depot"
+      - "Der Kies"
+      - "Die Fähre"
+      - "Das Gitter"
+      - "Die Schicht"
   - name: Adjunkt
     line: 1
     alternatives:
-      - "im Wirtschaftsteil"
-      - "ohne Begründung"
-      - "unter Zeitdruck"
-      - "bei anhaltendem Frost"
-      - "auf dem Dienstweg"
-      - "seit der Umstellung"
-      - "laut Satzung"
-      - "mit Rückwirkung"
-      - "trotz der Umbauten"
-      - "zwischen den Baustellen"
+      - "im Regen"
+      - "ohne Grund"
+      - "unter Eis"
+      - "nach Regen"
+      - "gegen Nässe"
+      - "auf Sand"
+      - "seit Mai"
+      - "bei Ebbe"
+      - "mit Draht"
+      - "vor Ablauf"
   - name: Adjunkt
     line: 1
     alternatives:
-      - "nach Dienstschluss"
-      - "über der Einfahrt"
-      - "aus Versehen"
-      - "in der Sackgasse"
-      - "gegen Aufpreis"
-      - "unter Aufsicht"
-      - "am Nebeneingang"
-      - "ohne Umschweife"
-      - "binnen eines Monats"
-      - "zu ebener Erde"
+      - "am Zaun"
+      - "in Betrieb"
+      - "über Land"
+      - "aus Beton"
+      - "trotz Rost"
+      - "an Bord"
+      - "ab Montag"
+      - "laut Liste"
+      - "um vier"
+      - "von Norden"
   - name: Adverb
     line: 1
     alternatives:
       - "wieder"
       - "vermutlich"
-      - "mittlerweile"
+      - "nunmehr"
       - "andernorts"
-      - "gelegentlich"
+      - "bisweilen"
       - "anscheinend"
       - "vielerorts"
       - "jahrelang"
@@ -194,43 +204,43 @@ slots:
   - name: Adjunkt
     line: 1
     alternatives:
-      - "unter Verschluss"
-      - "auf eigene Kosten"
-      - "im Bereitschaftsdienst"
-      - "ohne Anhörung"
-      - "seit der Kündigung"
-      - "gegen den Trend"
+      - "im Schnee"
+      - "ohne Licht"
+      - "unter Glas"
+      - "nach Frost"
+      - "gegen Abend"
+      - "auf Dauer"
+      - "seit April"
+      - "bei Wind"
       - "mit Stempel"
-      - "bei Dienstantritt"
-      - "vor dem Schalter"
-      - "zwischen Tür und Angel"
+      - "vor Mittag"
   - name: Adjunkt
     line: 1
     alternatives:
-      - "in der Statistik"
-      - "nach Vereinbarung"
-      - "unter Tage"
-      - "aus Rücksicht"
-      - "auf dem Rangierbahnhof"
-      - "ohne Ankündigung"
-      - "trotz aller Einwände"
-      - "seit der Sanierung"
-      - "am Schaltkasten"
-      - "über dem Innenhof"
+      - "am Hang"
+      - "in Deckung"
+      - "über Tage"
+      - "aus Blech"
+      - "trotz Flut"
+      - "zu Ostern"
+      - "ab Ostern"
+      - "laut Akte"
+      - "um acht"
+      - "von Süden"
   # ── Zeile 3 ────────────────────────────────────────────────────────
   - name: Ortsangabe
     line: 2
     alternatives:
-      - "In den Vororten"
-      - "Auf dem Betriebshof"
-      - "Hinter dem Bahndamm"
-      - "In der Kantine"
-      - "Am Stadtrand"
-      - "Unter der Brücke"
-      - "In der Aktenkammer"
-      - "Auf dem Parkdeck"
-      - "Neben dem Umspannwerk"
-      - "Im Treppenhaus"
+      - "Am Kanal"
+      - "Im Depot"
+      - "Auf dem Hof"
+      - "Hinter Glas"
+      - "Unter Putz"
+      - "Am Bahndamm"
+      - "Im Keller"
+      - "Vor dem Tor"
+      - "Im Schacht"
+      - "Am Ufer"
   - name: Verb
     line: 2
     alternatives:
@@ -247,16 +257,16 @@ slots:
   - name: Subjekt
     line: 2
     alternatives:
-      - "die Belegschaft"
-      - "der Fahrplan"
-      - "das Formular"
-      - "die Wetterlage"
-      - "der Rundfunk"
-      - "das Sperrgut"
-      - "die Hausordnung"
+      - "der Kran"
+      - "das Kabel"
+      - "die Kohle"
       - "der Estrich"
-      - "das Kabelnetz"
-      - "die Zuständigkeit"
+      - "das Gleis"
+      - "die Pumpe"
+      - "der Staub"
+      - "das Moos"
+      - "die Kantine"
+      - "der Schnee"
   - name: Adverb
     line: 2
     alternatives:
@@ -265,64 +275,64 @@ slots:
       - "seitdem"
       - "nebenan"
       - "regelmäßig"
-      - "augenscheinlich"
       - "zunehmend"
       - "tagelang"
       - "vorerst"
-      - "größtenteils"
+      - "zumeist"
+      - "mehrmals"
   - name: Adjunkt
     line: 2
     alternatives:
-      - "auf dem Abstellgleis"
-      - "im Kreisverkehr"
-      - "unter freiem Himmel"
-      - "nach Ladenschluss"
-      - "gegen Vorkasse"
-      - "ohne Not"
-      - "seit dem Hochwasser"
-      - "mit Nachdruck"
-      - "zwischen den Jahren"
-      - "bei Ostwind"
+      - "im Frost"
+      - "ohne Halt"
+      - "unter Null"
+      - "nach Norden"
+      - "gegen Regen"
+      - "auf Zeit"
+      - "seit Juni"
+      - "bei Nebel"
+      - "mit Mühe"
+      - "vor der Tür"
   - name: Adjunkt
     line: 2
     alternatives:
-      - "im Untergeschoss"
-      - "unter Denkmalschutz"
-      - "auf dem Flur"
-      - "ohne Widerspruch"
-      - "gegen Ende der Frist"
-      - "nach Gehör"
-      - "in der Anlage"
-      - "seit der Zusammenlegung"
-      - "mit Bedacht"
-      - "vor dem Aufzug"
+      - "am Kai"
+      - "in Sicht"
+      - "über Jahre"
+      - "aus Zufall"
+      - "trotz Eis"
+      - "zur Stunde"
+      - "ab Herbst"
+      - "laut Gesetz"
+      - "um neun"
+      - "vor Gericht"
   # ── Zeile 4 ────────────────────────────────────────────────────────
   - name: Subjekt
     line: 3
     alternatives:
-      - "Die Kommission"
-      - "Der Kies"
-      - "Das Wartezimmer"
-      - "Die Umgehungsstraße"
-      - "Der Aktenschrank"
-      - "Das Klingelschild"
-      - "Die Genehmigung"
-      - "Der Hausmeister"
-      - "Das Leitungswasser"
-      - "Die Nachfrage"
+      - "Die Fabrik"
+      - "Der Kanal"
+      - "Das Archiv"
+      - "Die Bahn"
+      - "Der Hafen"
+      - "Das Ufer"
+      - "Die Mauer"
+      - "Der Turm"
+      - "Das Lager"
+      - "Die Anzeige"
   - name: Adjunkt
     line: 3
     alternatives:
-      - "ohne Beleg"
-      - "auf Abruf"
-      - "im Halbschatten"
-      - "unter Auflagen"
-      - "nach Maßgabe der Satzung"
-      - "gegen Erstattung"
-      - "seit dem Stichtag"
-      - "in der Sprechstunde"
-      - "bei laufendem Betrieb"
-      - "über die Feiertage"
+      - "im Beton"
+      - "ohne Zeugen"
+      - "unter Zwang"
+      - "nach Antrag"
+      - "gegen Ende"
+      - "auf Halde"
+      - "seit März"
+      - "bei Eis"
+      - "mit Kies"
+      - "vor Jahren"
   - name: Adverb
     line: 3
     alternatives:
@@ -331,64 +341,64 @@ slots:
       - "längst"
       - "ringsum"
       - "ständig"
-      - "erwiesenermaßen"
-      - "stellenweise"
+      - "sicherlich"
       - "monatelang"
       - "künftig"
       - "durchweg"
+      - "zuweilen"
   - name: Adjunkt
     line: 3
     alternatives:
-      - "im Randbereich"
-      - "unter Umständen"
-      - "auf dem Hinterhof"
-      - "aus Kostengründen"
-      - "ohne Aufsehen"
-      - "nach Zeitplan"
-      - "seit dem letzten Bescheid"
-      - "in der Frühschicht"
-      - "mit knapper Mehrheit"
-      - "zwischen den Fronten"
+      - "am Deich"
+      - "in Ketten"
+      - "über Eck"
+      - "aus Stein"
+      - "trotz Wind"
+      - "auf Probe"
+      - "ab Freitag"
+      - "im Freien"
+      - "um zehn"
+      - "vor Tagen"
   - name: Adjunkt
     line: 3
     alternatives:
-      - "unter Ausschluss"
-      - "auf dem Wochenmarkt"
-      - "im Windschatten"
-      - "nach Rücksprache"
-      - "gegen Entgelt"
-      - "ohne Beteiligung"
-      - "seit dem Wintereinbruch"
-      - "in der Vermittlung"
-      - "bei Glatteis"
-      - "vor der Zufahrtsschranke"
+      - "im Dunkeln"
+      - "ohne Dach"
+      - "unter Last"
+      - "nach Abzug"
+      - "gegen Rost"
+      - "auf Vorrat"
+      - "seit Juli"
+      - "bei Tag"
+      - "mit Blech"
+      - "vor Beginn"
   - name: Adjunkt
     line: 3
     alternatives:
-      - "im Zwischengeschoss"
-      - "unter der Hand"
-      - "nach Kassenschluss"
-      - "gegen jede Vernunft"
-      - "auf dem Werksgelände"
-      - "ohne Gewähr"
-      - "seit der Verlegung"
-      - "in der Poststelle"
-      - "mit Verzögerung"
-      - "über den Dächern"
+      - "am Steg"
+      - "in Serie"
+      - "über Bord"
+      - "aus Glas"
+      - "trotz Kälte"
+      - "auf dem Kai"
+      - "ab sofort"
+      - "im Graben"
+      - "um elf"
+      - "vor Schluss"
   # ── Zeile 5 ────────────────────────────────────────────────────────
   - name: Subjekt
     line: 4
     alternatives:
-      - "Die Volkszählung"
-      - "Der Asphalt"
-      - "Das Gedächtnis"
-      - "Die Verkehrsinsel"
-      - "Der Prüfbericht"
-      - "Das Betriebsklima"
-      - "Die Sperrfrist"
       - "Der Regen"
-      - "Das Zwischenlager"
-      - "Die Tagesordnung"
+      - "Die Straße"
+      - "Das Blech"
+      - "Der Frost"
+      - "Die Sperre"
+      - "Das Signal"
+      - "Der Draht"
+      - "Die Fracht"
+      - "Das Fenster"
+      - "Der Zement"
   - name: Verb
     line: 4
     alternatives:
@@ -407,129 +417,129 @@ slots:
     alternatives:
       - "erneut"
       - "mutmaßlich"
-      - "nachträglich"
       - "anderswo"
       - "stundenlang"
-      - "erkennbar"
-      - "streckenweise"
-      - "jahrzehntelang"
-      - "vorübergehend"
+      - "zeitweilig"
       - "reichlich"
+      - "tagsüber"
+      - "fortan"
+      - "scheinbar"
+      - "neulich"
   - name: Adjunkt
     line: 4
     alternatives:
-      - "ohne Rückmeldung"
-      - "im Bestand"
-      - "unter Beobachtung"
-      - "nach Aktenzeichen"
-      - "gegen Nachweis"
-      - "auf dem Papierweg"
-      - "seit der Übergabe"
-      - "in der Umlaufmappe"
-      - "mit Sicherheitsabstand"
-      - "bei Nachtfrost"
+      - "im Tunnel"
+      - "ohne Frist"
+      - "unter Dampf"
+      - "nach Bedarf"
+      - "gegen Sturm"
+      - "auf Rädern"
+      - "seit Herbst"
+      - "bei Nacht"
+      - "mit Ansage"
+      - "vor Nässe"
   - name: Adjunkt
     line: 4
     alternatives:
-      - "im Schriftverkehr"
-      - "unter Vorbehalt des Widerrufs"
-      - "nach Rangordnung"
-      - "gegen Ende des Quartals"
-      - "auf dem Betriebsgelände"
-      - "ohne Zutun"
-      - "seit dem Gutachten"
-      - "in der Zulassungsstelle"
-      - "mit Nachtrag"
-      - "zwischen Aktendeckeln"
+      - "am Tresen"
+      - "in Reserve"
+      - "über Mittag"
+      - "aus Sorge"
+      - "trotz Lärm"
+      - "auf Reisen"
+      - "ab Mittwoch"
+      - "im Umlauf"
+      - "um zwölf"
+      - "vor Sonntag"
   - name: Adjunkt
     line: 4
     alternatives:
-      - "im Verteiler"
-      - "unter Vollbelegung"
-      - "nach Rechnungsstellung"
-      - "gegen Kaution"
-      - "auf dem Vorplatz"
-      - "ohne Vorwarnung"
-      - "seit der Neuordnung"
-      - "in der Kartei"
-      - "mit Wirkung vom Ersten"
-      - "zwischen den Regalen"
+      - "im Lager"
+      - "ohne Antrag"
+      - "unter Wert"
+      - "nach Gehör"
+      - "gegen Hitze"
+      - "auf Umwegen"
+      - "seit Beginn"
+      - "bei Hitze"
+      - "mit Vorlauf"
+      - "vor Anker"
   # ── Zeile 6 ────────────────────────────────────────────────────────
   - name: Zeitangabe
     line: 5
     alternatives:
       - "Abends"
+      - "Nachts"
+      - "Freitags"
       - "Im Sommer"
-      - "Vor Dienstbeginn"
-      - "Jeden Freitag"
-      - "Seit dem Umbau"
-      - "Gegen Abend"
-      - "Kurz nach Mitternacht"
       - "Im Februar"
-      - "Nach der Zählung"
-      - "Zwischen zwei Schichten"
+      - "Seit Wochen"
+      - "Um sechs"
+      - "Im Herbst"
+      - "Im August"
+      - "Seit Ostern"
   - name: Subjekt
     line: 5
     alternatives:
-      - "die Buchhaltung"
-      - "der Zaun"
-      - "das Archiv"
-      - "die Bushaltestelle"
-      - "der Sachbearbeiter"
-      - "das Mischwasser"
-      - "die Meldestelle"
+      - "der Bahnhof"
+      - "die Kammer"
+      - "das Gerüst"
+      - "der Dienst"
+      - "die Wache"
+      - "das Gelände"
       - "der Aushang"
-      - "das Kleingedruckte"
-      - "die Rückfrage"
+      - "die Rampe"
+      - "das Tor"
+      - "der Nachbar"
   - name: Adjunkt
     line: 5
     alternatives:
-      - "im Fahrplanwechsel"
-      - "unter Verdacht"
-      - "nach Meldeschluss"
-      - "gegen Voranmeldung"
-      - "auf dem Grundstück"
-      - "ohne Aktenzeichen"
-      - "seit der Bauabnahme"
-      - "in der Registratur"
-      - "mit Empfangsbestätigung"
-      - "zwischen zwei Anrufen"
+      - "am Fenster"
+      - "in Trümmern"
+      - "über Wasser"
+      - "aus Holz"
+      - "trotz Hitze"
+      - "auf Posten"
+      - "ab morgen"
+      - "im Kiosk"
+      - "um fünf"
+      - "vor dem Amt"
   - name: Adjunkt
     line: 5
     alternatives:
-      - "im Kellergeschoss"
-      - "unter Volllast"
-      - "nach Betriebsschluss"
-      - "gegen Ende der Woche"
-      - "auf dem Verteilerkasten"
-      - "ohne Nachfrage"
-      - "seit der Ausschreibung"
-      - "in der Nebenstelle"
-      - "mit Sichtvermerk"
-      - "zwischen den Lieferungen"
+      - "im Abseits"
+      - "ohne Uhr"
+      - "unter Sand"
+      - "nach Wunsch"
+      - "gegen Lärm"
+      - "auf Zuruf"
+      - "seit heute"
+      - "bei Sturm"
+      - "mit Glas"
+      - "vor dem Bau"
   - name: Adverb
     line: 5
     alternatives:
       - "nochmals"
-      - "scheinbar"
       - "seinerzeit"
-      - "hierzulande"
       - "minutenlang"
-      - "zwischendurch"
-      - "abschnittsweise"
       - "unentwegt"
       - "demnächst"
       - "überwiegend"
+      - "hierzulande"
+      - "mitunter"
+      - "vormals"
+      - "jüngst"
   - name: Adjunkt
     line: 5
     alternatives:
-      - "im Hinterzimmer"
-      - "unter Zeugen"
-      - "nach Dienstalter"
-      - "gegen Ende des Jahres"
-      - "auf dem Zwischenboden"
-      - "ohne Übergangsfrist"
-      - "seit dem Ratsbeschluss"
-      - "in der Ablaufmappe"
-      - "mit Zustimmung des Amtes"
-      - "zwischen zwei Aktenzeichen"
+      - "am Damm"
+      - "in Flammen"
+      - "über Eis"
+      - "aus Zement"
+      - "trotz allem"
+      - "auf Abstand"
+      - "ab Dienstag"
+      - "im Moor"
+      - "um drei"
+      - "vor Montag"
