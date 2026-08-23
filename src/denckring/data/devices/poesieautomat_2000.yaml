@@ -8,9 +8,12 @@
 #
 # Enzensberger died in 2022 and his word lists are in copyright until 2092. The
 # mechanism is not. Every one of the 360 fillers below was written for this
-# project; not one word of his is reproduced here. The precedent is the row
-# `cent_mille_milliards`, which ships Queneau's mechanism with substitute
-# strips. What is his, and what is checked here, is the shape of the board.
+# project, without reference to his lists — which is a fact about how this file
+# was made, and is what can honestly be said. A claim of word-for-word
+# non-overlap with a list this project has never read would not be checkable and
+# is not made. The precedent is the row `cent_mille_milliards`, which ships
+# Queneau's mechanism with substitute strips. What is his, and what is checked
+# here, is the shape of the board.
 #
 # Three rules make it true that *any* of the 10^36 readings is grammatical
 # German, and they are constraints on the design of the modules rather than on
@@ -27,10 +30,15 @@
 #      separable verb appears, since its particle would have to land at the end
 #      of a line the board cannot reach.
 #
-# A fourth rule follows from the schemas rather than being imposed on them: the
-# adverb modules are temporal, frequency, locative or epistemic only. Lines 2, 4
-# and 6 carry no predicate, and a manner adverb or a bare negation reads as
-# broken German when there is no verb for it to modify.
+# A fourth rule follows from the schemas rather than being imposed on them, and
+# its load-bearing half is the prohibition: no adverb module carries a manner
+# adverb or a bare negation. Lines 2, 4 and 6 have no predicate, and either of
+# those reads as broken German with no verb to modify. What the sixty flaps are
+# instead is a description rather than a further rule — temporal, frequency,
+# locative and epistemic adverbs, plus seven quantificational ones (insgesamt,
+# teilweise, größtenteils, durchweg, reichlich, abschnittsweise, überwiegend),
+# which scope over the adjunct that follows them ("teilweise unter Verschluss")
+# and so need no verb either.
 #
 # Line schemas, as fixed in the brief for this row:
 #

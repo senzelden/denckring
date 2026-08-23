@@ -4,7 +4,9 @@ import pytest
 
 from denckring import check, get
 from denckring.core import device as devices
+from denckring.core.device import Device, Slot
 from denckring.core.protocol import Constructive
+from denckring.eval import harness
 
 BOARD = devices.load("poesieautomat_2000")
 RINGS = devices.load("harsdoerffer_1651")
@@ -16,6 +18,23 @@ def spun(seed: int) -> str:
     procedure = get("poesie_automat")
     assert isinstance(procedure, Constructive)
     return procedure.apply("", lang="de", seed=seed)
+
+
+def flap_indices(poem: str) -> list[int]:
+    """One flap index per module, read back off a poem the board admits.
+
+    The inverse of `apply`, and the only way to say anything about *which* flaps
+    a text shows rather than merely that it is on the board.
+    """
+    indices: list[int] = []
+    for number, line in zip(BOARD.lines, poem.splitlines(), strict=True):
+        board = BOARD.for_line(number)
+        pieces = devices.segment(" ".join(line.split()), board, separator=" ")
+        assert pieces is not None, f"line {number + 1} is not on the board: {line!r}"
+        indices.extend(
+            slot.alternatives.index(piece) for slot, piece in zip(board.slots, pieces, strict=True)
+        )
+    return indices
 
 
 # ── the board ──────────────────────────────────────────────────────────────
@@ -149,3 +168,77 @@ def test_a_separator_is_expected_between_pieces_and_only_between_them() -> None:
     assert devices.segment(line, board, separator=" ") is not None
     # The same words run together spell nothing: the walk wants its spaces.
     assert devices.segment(line.replace(" ", ""), board, separator=" ") is None
+
+
+def test_the_two_positive_fixtures_share_no_flap() -> None:
+    """The second fixture's `source` claims its thirty-six modules all differ from
+    the first's. That is a claim shipped inside the package, in the field that
+    exists to record provenance, so it is re-derived here rather than trusted:
+    the seed that stood there first shared six modules and the sentence was
+    false for as long as it shipped.
+    """
+    positive = [
+        case
+        for case in harness.golden_cases()
+        if case.procedure == "poesie_automat" and case.satisfied
+    ]
+    assert len(positive) == 2
+    first, second = (flap_indices(case.text) for case in positive)
+    assert len(first) == len(second) == 36
+    shared = [i for i, (a, b) in enumerate(zip(first, second, strict=True)) if a == b]
+    assert not shared, f"modules {shared} show the same flap in both fixtures"
+
+
+# ── the optional-slot branch, which no shipped device can reach ─────────────
+
+
+def _optional_device(*, optional: int) -> Device:
+    """Three slots carrying whole words, one of them skippable.
+
+    No device this package ships combines an optional slot with a non-empty
+    separator — Harsdörffer's rings have optional slots and concatenate with
+    nothing between them, and the flap-board has a separator and no optional
+    slots. So the `emitted` bookkeeping in `segment` is reachable only from a
+    device built here.
+    """
+    return Device(
+        id="synthetic",
+        name="synthetic",
+        source="constructed for this test",
+        slots=[
+            Slot(name=str(n), alternatives=[word], optional=(n == optional))
+            for n, word in enumerate(("alpha", "beta", "gamma"))
+        ],
+    )
+
+
+def test_a_skipped_first_slot_leaves_no_separator_to_consume() -> None:
+    """The mutation this kills: treating a skipped optional slot as though it had
+    emitted a piece. Then the walk would demand a leading space before "beta"
+    and the whole reading would fail."""
+    device = _optional_device(optional=0)
+    assert devices.segment("alpha beta gamma", device, separator=" ") == [
+        "alpha",
+        "beta",
+        "gamma",
+    ]
+    assert devices.segment("beta gamma", device, separator=" ") == ["", "beta", "gamma"]
+    # The orphaned separator a naive implementation would accept.
+    assert devices.segment(" beta gamma", device, separator=" ") is None
+
+
+def test_a_skipped_middle_slot_does_not_double_the_separator() -> None:
+    device = _optional_device(optional=1)
+    assert devices.segment("alpha beta gamma", device, separator=" ") == [
+        "alpha",
+        "beta",
+        "gamma",
+    ]
+    assert devices.segment("alpha gamma", device, separator=" ") == ["alpha", "", "gamma"]
+    assert devices.segment("alpha  gamma", device, separator=" ") is None
+
+
+def test_a_skipped_last_slot_leaves_no_trailing_separator() -> None:
+    device = _optional_device(optional=2)
+    assert devices.segment("alpha beta", device, separator=" ") == ["alpha", "beta", ""]
+    assert devices.segment("alpha beta ", device, separator=" ") is None

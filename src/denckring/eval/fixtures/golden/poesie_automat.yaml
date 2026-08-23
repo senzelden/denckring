@@ -15,15 +15,22 @@ cases:
       Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
     params: {}
     satisfied: true
-  - name: eine-zweite-anzeige-mit-anderen-klappen
-    source: constructed example; seed 11, so no module repeats the case above
+  - name: eine-zweite-anzeige-die-keine-klappe-wiederholt
+    source: >-
+      constructed example; seed 8, chosen because all thirty-six of its modules
+      show a different flap from the case above — so the pair covers 72 flaps
+      rather than 30 twice. That disjointness is not taken on trust: it was
+      found by segmenting both texts back to flap indices and comparing, and
+      `test_the_two_positive_fixtures_share_no_flap` re-derives it on every run.
+      Seed 11 stood here first and shared six modules; the claim was wrong and
+      the seed was replaced rather than the sentence quietly dropped.
     text: |-
-      Im November vergilbt der Zement mit Verspätung neuerdings zu Protokoll
-      Die Grundsteuer unter Zeitdruck binnen eines Monats jahrelang zwischen Tür und Angel unter Tage
-      Auf dem Betriebshof rauscht der Rundfunk seitdem im Kreisverkehr mit Bedacht
-      Die Kommission über die Feiertage stellenweise in der Frühschicht vor der Zufahrtsschranke nach Kassenschluss
-      Die Tagesordnung brennt vorübergehend im Bestand im Schriftverkehr im Verteiler
-      Jeden Freitag die Bushaltestelle zwischen zwei Anrufen im Kellergeschoss unentwegt ohne Übergangsfrist
+      Jeden Montag schrumpft die Zufahrt im Nebel überall gegen Gebühr
+      Der Winterdienst unter Zeitdruck in der Sackgasse seither ohne Anhörung trotz aller Einwände
+      In den Vororten rauscht der Estrich tagelang seit dem Hochwasser seit der Zusammenlegung
+      Die Nachfrage unter Auflagen stellenweise unter Umständen in der Vermittlung gegen jede Vernunft
+      Die Volkszählung wartet vorübergehend seit der Übergabe in der Zulassungsstelle seit der Neuordnung
+      Im Sommer der Sachbearbeiter unter Verdacht unter Volllast abschnittsweise zwischen zwei Aktenzeichen
     params: {}
     satisfied: true
   - name: ein-wort-das-auf-keiner-klappe-steht
