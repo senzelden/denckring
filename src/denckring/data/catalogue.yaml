@@ -970,6 +970,70 @@ procedures:
     prompt_hints:
       en: Rearrange the phrase into one that means its opposite, using every letter once.
 
+  - id: buchstabwechsel
+    names:
+      en: Letter-exchange
+      de: Buchstabwechsel
+      fr: Échange de lettres
+    definitions:
+      en: >-
+        A personal name whose letters are all rearranged into other words, with
+        the breath-sound h freely inserted or omitted and the vowels u and i
+        never read as the consonants v and j. Not an anagram: the checker holds
+        u, v, i and j apart and lets h differ between source and candidate,
+        which plain letter-for-letter anagram equality does not.
+      de: >-
+        Ein Personenname, dessen sämtliche Buchstaben zu anderen Wörtern
+        umgestellt werden; der Hauchlaut h darf eingerückt oder übergangen
+        werden, u und i dürfen aber nicht für v und j gesetzt werden.
+      fr: >-
+        Un nom propre dont toutes les lettres sont recomposées en d'autres
+        mots; le h peut être inséré ou omis, mais u et i ne sont jamais lus
+        comme v et j.
+    source: >-
+      Georg Philipp Harsdörffer, Deliciae Physico-Mathematicae (Erquickstunden),
+      part two, Nürnberg 1651, XIV. Theil, die IV. Aufgabe, pp. 513-515
+    family: letter
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    aliases: [Letterwechsel]
+    kind: both
+    languages: [de]
+    requires: [tokens, fold_diacritics]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Rearrange every letter of a personal name into another word or words; you
+        may insert or drop an h anywhere, but never write u for v or i for j.
+      de: >-
+        Stelle alle Buchstaben eines Namens zu einem anderen Wort um; das h darf
+        eingefügt oder weggelassen werden, u und i bleiben aber Vokale.
+    notes: >-
+      Harsdörffer's own synonym is Letterwechsel ("Das Wort Letter für Buchstab /
+      wird in den alten Gedichten hin und wider gefunden", p. 513). Two further
+      rules from the same passage (p. 514) are recorded here, stated but not
+      enforced, because neither is decidable from the checked text alone. Rule I:
+      "Erstlich sollen die Teutschen Namen mit teutschen Endungen den
+      Buchstabwechsel schliessen / wie auch die Lateinischen Namen ihre Endungen
+      behalten: als Johann / Georg. Im Lateinischen Johannes, Georgius etc." — an
+      ending keyed to the name's own language, German or Latin, which this row
+      does not check. Rule III: "Soll der Wechselschluß eine gantze / oder zum
+      wenigsten halbe Meinung geben / welcher das beygesetzte Bild einen
+      vollkommenen Sinn bringet" — the result should give a whole or at least a
+      half sense, completed by an accompanying emblem; whether it does is a
+      judgement no program makes, the same candour `antigram`'s own definition
+      states for opposition of sense. The physical procedure (p. 514) is working
+      method, not an output criterion, and is recorded rather than checked:
+      letters written on paper slips, or on wooden dice because slips "leichtlich
+      verblasen werden" (blow away too easily), with the Stimmer (vowels)
+      separated from the Mitstimmer (consonants) before recombination. Harsdörffer
+      also frames the form as inherently personal — the result "kan keinem gemein
+      seyn als von dessen Namen sie ausgesuchet ist" (can belong to no one but the
+      person whose name it was drawn from) — so `source` is meant to be a personal
+      name, which this row cannot verify: German capitalises every noun, so
+      capitalisation is no test of namehood.
+
   - id: letter_bank
     names: { en: Letter bank }
     definitions:
