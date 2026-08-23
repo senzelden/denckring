@@ -1,6 +1,6 @@
-# Browser reproductions — scene seven's hold-to-turn
+# Browser reproductions — the two volvelles' hold- and drag-to-turn
 
-Six Playwright scripts. They are **not** run by `pytest`, or by anything else
+Seven Playwright scripts. They are **not** run by `pytest`, or by anything else
 automatically: each one drives a real browser against a running server, and
 several of them deliberately take seconds per run. They live here because
 they are the only real coverage of this interaction — `pytest` drives
@@ -8,6 +8,11 @@ Starlette's `TestClient`, which runs no JavaScript, so the races these
 reproduce are out of its reach entirely, and the tests in `test_stage.py` that
 name them can only guard the *source* of the fixes. A race has been found in
 this code three times; the harness that reproduced it should outlive the task.
+
+Six of them drive scene seven (`/stage/llull_figure`); `drag-turn.mjs` drives
+either volvelle, because scene one (`/stage/denckring`) adopted the same
+interaction in the drag round and its five windowed rings of differing sizes
+are the case the shared module was written scene-agnostic for.
 
 ## Running them
 
@@ -42,4 +47,5 @@ clean run there proves nothing.
 | `hold-slow-link.mjs` | Whether a hold spanning a slow round trip loses its steps: compares the ticks the held button produced with the letters the wheel actually moved. |
 | `hold-blur-release.mjs` | The `blur` → `stop` release path for a *mouse* hold: steps before blurring the active element, and steps after. |
 | `hold-two-finger.mjs` | Two simultaneous touch holds on two wheels (CDP touch events on a `hasTouch` context), with the `pointerdown`/`focus`/`blur` trace. Pins that focusing a button never ends another finger's hold. |
+| `drag-turn.mjs` | Drag-to-turn on either scene: `sweep`/`back` turn one ring 90 degrees each way, sampling the dial's own transform and the panel beside it every 4 degrees *while the pointer is still down* — the requirement is that the ring moves under the finger, so a run that only checks where it landed proves nothing. `wrap` crosses the ring's own seam both ways; `contend` puts a second finger on that ring's step button mid-grab (the grab is meant to win); `two-finger` drags two rings at once with CDP touch; `regrab` grabs again while the previous release's read is still in flight (`DELAY`, default 600ms) and counts samples where the panel disagreed with the rings' own indices. Takes `[scene] [mode] [ring]`; `REDUCED=1` runs under `reducedMotion: 'reduce'`, where the drag must still work and the snap lands at once. |
 | `hold-announcements.mjs` | What the status line says and how often across a hold and the read that follows, against the panel's own mutation count. |
