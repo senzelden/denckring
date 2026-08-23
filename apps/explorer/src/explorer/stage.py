@@ -983,12 +983,17 @@ def word_ladder(start: str, target: str, lang: Lang = "en") -> Ladder:
 
 
 # ── scene six: cut-up ────────────────────────────────────────────────────────
-# Gysin and Burroughs, Minutes to Go (1960): cut the page into fragments,
-# reassemble them in a new order. `cut_up`'s checker verifies provenance —
-# every word in the result must have come from the source, counted with
-# multiplicity (`denckring/procedures/cut_up.py`) — which gives this scene
-# something none of the other five have: a demonstration that can be made to
-# fail on purpose. See `CUT_UP_SMUGGLE` below, and `cut_up_smuggled`.
+# Gysin and Burroughs, Minutes to Go (1960): two straight cuts divide the page
+# into four, the quarters are rearranged, and you read across the join.
+# `cut_up`'s checker verifies provenance — every word in the result must have
+# come from the source, counted with multiplicity
+# (`denckring/procedures/cut_up.py`) — and a quadrant rearrangement is a
+# provenance-preserving permutation, so a clean cut satisfies it. Put a blade
+# *through* a word instead of between two and the pieces are not words any
+# more, and the checker names every one of them. Both measured; see the task
+# report. That is the whole scene, and it is why nothing here shuffles: the
+# cut is made in the browser, by hand, and the server only ever checks what
+# the page ended up showing (see `stage_cut_up_act`).
 
 #: Written for this scene, not quoted — see `stage_cut_up.html`'s own
 #: attribution. Reused byte for byte from the scene this one replaces (this
@@ -1001,19 +1006,12 @@ no hand set down, and yet the strange thing stands
 as evidence of everything a language
 can hold inside one folded paper sheet."""
 
-#: The tamper control's own word. Picked and pinned because it is not one of
-#: `CUT_UP_SOURCE`'s own 47 words — verified by tokenising the shipped source
-#: with this same pack rather than assumed (see the task report) — so
-#: appending it to a genuine cut-up is guaranteed to trip `word_not_in_source`
-#: rather than depend on the source happening to read a particular way today.
-CUT_UP_SMUGGLE = "helicopter"
-
 
 def cut_up_source_words(source: str, lang: Lang = "en") -> list[str]:
     """`source`'s own words, in `word_spans` order — the same call
-    `cut_up.apply` and `cut_up.check` themselves make, and the fixed array
-    every result word below ties back to by index. This list never
-    reshuffles; it is state one, "the page, uncut"."""
+    `cut_up.check` itself makes. This is state one, "the page, uncut": the
+    47 words the four quarters divide between them, whatever the blades do,
+    and the list a fragment like "noth" is provably not in."""
     return [word for _, word in word_spans(source, get_pack(lang))]
 
 
@@ -1023,9 +1021,8 @@ class CutUpToken:
     literal gap (space or punctuation) between two of them.
 
     `source_index` is only meaningful on a word token — the same global
-    index `cut_up_source_words` and a genuine result word's own
-    `CutUpWord.source_index` carry, so the client can find the exact span a
-    travelling word came from. `None` on a gap token.
+    index `cut_up_source_words` carries, so a word on the page can be named
+    by the position `word_spans` gave it. `None` on a gap token.
     """
 
     text: str
@@ -1045,10 +1042,15 @@ class CutUpLine:
 def cut_up_source_lines(source: str, lang: Lang = "en") -> list[CutUpLine]:
     """`source`'s own lines, tokenised so state one, "the page, uncut", can
     render exactly as typed — six lines, their own punctuation and line
-    breaks intact — while still giving every word a span the animation can
-    measure a journey from (see `cut_up_source_words`, whose flat order this
-    function's own running `index` reproduces line by line; a test pins the
-    two against each other).
+    breaks intact — while still giving every word a span of its own.
+
+    Those spans are load-bearing rather than decorative: the client reads
+    their character extents to decide whether the vertical blade landed in a
+    gap or inside a word, so "where a word ends" is settled by the same
+    `word_spans` call the checker makes and never by re-tokenising in
+    JavaScript (see `cut_up_source_words`, whose flat order this function's
+    own running `index` reproduces line by line; a test pins the two against
+    each other).
     """
     pack = get_pack(lang)
     lines: list[CutUpLine] = []
@@ -1067,68 +1069,6 @@ def cut_up_source_lines(source: str, lang: Lang = "en") -> list[CutUpLine]:
             tokens.append(CutUpToken(line_text[cursor:], False, None))
         lines.append(CutUpLine(tokens=tokens))
     return lines
-
-
-@dataclass(frozen=True)
-class CutUpWord:
-    """One word of a cut-up result, and where it came from.
-
-    `source_index` is the position this word held in `cut_up_source_words`'s
-    own array — not a text match, which a repeated word (this source repeats
-    "paper" and "of") would leave ambiguous about which occurrence travelled
-    where. `None` marks the one word that has no such position: the tamper
-    control's own smuggled word, which was never cut from the page at all.
-    """
-
-    text: str
-    source_index: int | None
-
-
-@dataclass(frozen=True)
-class CutUp:
-    """One cut-up run: the source's own words, unreshuffled, and the result
-    words read back from the shuffle actually performed."""
-
-    source_words: list[str]
-    result_words: list[CutUpWord]
-
-    @property
-    def text(self) -> str:
-        """Space-joined, the exact shape `apply` returns and `check` reads."""
-        return " ".join(word.text for word in self.result_words)
-
-
-def cut_up(source: str, lang: Lang = "en", seed: int | None = None) -> CutUp:
-    """Shuffle `source`'s own words, the way `cut_up.apply` does, but keep
-    each result word tied to the source position it travelled from.
-
-    Reimplements the shuffle rather than calling `apply` and matching text
-    back onto the source afterwards: `apply` returns text alone, and a
-    repeated word would make that matching ambiguous about which occurrence
-    moved where (see `CutUpWord`). Shuffling a parallel array of indices under
-    the same seed is `random.shuffle`'s own guarantee, not a coincidence —
-    Fisher-Yates only ever consumes randomness keyed to the sequence's
-    *length*, never its content, so shuffling `range(n)` and shuffling the
-    words themselves under one seed produce the identical permutation. A test
-    pins this function's own `.text` against `cut_up.apply`'s for a spread of
-    seeds, so the two can never quietly drift apart.
-    """
-    words = cut_up_source_words(source, lang)
-    indices = list(range(len(words)))
-    random.Random(seed).shuffle(indices)
-    result = [CutUpWord(text=words[i], source_index=i) for i in indices]
-    return CutUp(source_words=words, result_words=result)
-
-
-def cut_up_smuggled(source: str, lang: Lang = "en", seed: int | None = None) -> CutUp:
-    """The same cut-up, with `CUT_UP_SMUGGLE` appended — one word the
-    scissors could not have produced, so `check` fails it by name (see the
-    brief's own "the validator is the eval"). The failing report this
-    produces runs through the exact same `check` call the genuine cut does;
-    nothing about the verdict itself is special-cased."""
-    genuine = cut_up(source, lang, seed)
-    tampered = [*genuine.result_words, CutUpWord(text=CUT_UP_SMUGGLE, source_index=None)]
-    return CutUp(source_words=genuine.source_words, result_words=tampered)
 
 
 # ── scene seven: Llull's rotating figure ─────────────────────────────────────

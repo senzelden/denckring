@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import math
 import random
 import re
@@ -1904,16 +1905,15 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
 
 def test_the_source_tokenises_to_the_47_words_the_task_report_measured() -> None:
     """Pinned as a belt-and-suspenders check on top of the property test
-    below: the exact count this source was measured to hold when
-    `CUT_UP_SMUGGLE` was picked, not merely "some number of words"."""
+    below: the exact count the quadrant cut has to conserve, and the count
+    the checker reports back as `source_words`."""
     assert len(stage.cut_up_source_words(stage.CUT_UP_SOURCE)) == 47
 
 
 def test_source_words_matches_word_spans_directly() -> None:
     """The property, not just the pinned count above: `cut_up_source_words`
-    has to be exactly what `word_spans` (the same call `cut_up.apply` and
-    `cut_up.check` themselves make) finds in the source, whatever the source
-    says today."""
+    has to be exactly what `word_spans` (the same call `cut_up.check` itself
+    makes) finds in the source, whatever the source says today."""
     from denckring.core.text import word_spans as _word_spans
     from denckring.lang import get_pack as _get_pack
 
@@ -1922,11 +1922,11 @@ def test_source_words_matches_word_spans_directly() -> None:
 
 
 def test_source_lines_reproduce_source_words_in_order() -> None:
-    """`cut_up_source_lines` tokenises line by line, for state one's own
-    rendering; `cut_up_source_words` tokenises the whole text in one pass,
-    the same call `cut_up.apply` and `cut_up.check` themselves make. The
-    animation's own `source_index` numbering only works if both fall in the
-    same order — pinned here rather than assumed."""
+    """`cut_up_source_lines` tokenises line by line, for the printed page's
+    own rendering; `cut_up_source_words` tokenises the whole text in one
+    pass, the same call `cut_up.check` itself makes. The page's own
+    `source_index` numbering only works if both fall in the same order —
+    pinned here rather than assumed."""
     lines = stage.cut_up_source_lines(stage.CUT_UP_SOURCE)
     from_lines = [token.text for line in lines for token in line.tokens if token.is_word]
     assert from_lines == stage.cut_up_source_words(stage.CUT_UP_SOURCE)
@@ -1934,9 +1934,10 @@ def test_source_lines_reproduce_source_words_in_order() -> None:
 
 def test_source_lines_render_every_character_of_the_source_verbatim() -> None:
     """The token reconstruction has to cover each line with no overlap and no
-    gap — otherwise state one would silently drop or duplicate a character
-    of the source it claims to show exactly as typed, punctuation and line
-    breaks included."""
+    gap — otherwise the printed page would silently drop or duplicate a
+    character of the source it claims to show exactly as typed, punctuation
+    and line breaks included. The blade's own arithmetic reads character
+    offsets straight off these spans, so a gap here would move a cut."""
     from denckring.core.text import line_spans as _line_spans
 
     lines = stage.cut_up_source_lines(stage.CUT_UP_SOURCE)
@@ -1945,195 +1946,406 @@ def test_source_lines_render_every_character_of_the_source_verbatim() -> None:
         assert "".join(token.text for token in line.tokens) == original
 
 
-def test_the_smuggled_word_is_verified_absent_from_the_source_not_assumed() -> None:
-    """The brief's own instruction: verify `CUT_UP_SMUGGLE` is not one of the
-    source's own words rather than assume it, and say so if it were not.
-    Measured (see the task report): it is absent, so `helicopter` stands."""
-    folded = {word.casefold() for word in stage.cut_up_source_words(stage.CUT_UP_SOURCE)}
-    assert stage.CUT_UP_SMUGGLE.casefold() not in folded
+# The quadrant cut, as a test fixture: two straight cuts and the D A over B C
+# rearrangement. This is a *test-local* reimplementation, deliberately — the
+# page itself cuts in the browser and posts what it ended up showing (see
+# `stage_cut_up_act`), and nothing on the server ever computes an
+# arrangement. What it buys is a deterministic way to name a cut by its two
+# positions instead of pasting six lines of prose into an assertion.
+def _quadrant_cut(source: str, after_line: int, splits: list[int]) -> str:
+    """Cut `source` after `after_line` lines and, on each line, at the
+    character index `splits` gives — the per-line landing a single vertical
+    blade has, since one x meets a different character on every line — then
+    read the quarters back as D A over B C."""
+    lines = source.split("\n")
+    assert len(splits) == len(lines)
+    left = [line[:k].strip() for line, k in zip(lines, splits, strict=True)]
+    right = [line[k:].strip() for line, k in zip(lines, splits, strict=True)]
+    quarters = {
+        "a": left[:after_line],
+        "b": right[:after_line],
+        "c": left[after_line:],
+        "d": right[after_line:],
+    }
+    rows: list[str] = []
+    for left_key, right_key in (("d", "a"), ("b", "c")):
+        first, second = quarters[left_key], quarters[right_key]
+        for i in range(max(len(first), len(second))):
+            row = " ".join(part for part in (first[i : i + 1] + second[i : i + 1]) if part != "")
+            if row != "":
+                rows.append(row)
+    return "\n".join(rows)
 
 
-def test_cut_up_matches_the_procedures_own_shuffle_for_a_spread_of_seeds() -> None:
-    """`stage.cut_up` reimplements the shuffle (parallel index and word
-    arrays under one seed) rather than calling `apply` and matching text back
-    onto the source afterwards. That reimplementation is only safe because
-    `random.shuffle` consumes randomness keyed to a sequence's *length*, never
-    its content — pinned here across a spread of seeds rather than trusted as
-    an argument, so the two can never quietly drift apart."""
-    from denckring.core.protocol import Constructive
-    from denckring.core.registry import get
+#: A cut that misses every word: after line 3, and on each line in the gap
+#: after "nothing", "them,", "together", "yet", "of" and "one". Pinned by
+#: position rather than by its text, so the assertion is about the cut and
+#: not about a paragraph someone pasted.
+CLEAN_CUT = (3, [21, 17, 19, 25, 14, 19])
 
-    procedure = get("cut_up")
-    assert isinstance(procedure, Constructive)
-    for seed in (0, 1, 7, 42, 1000):
-        cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=seed)
-        assert cutup.text == procedure.apply(stage.CUT_UP_SOURCE, lang="en", seed=seed)
+#: The same cut with the blade four characters to the left on line one and
+#: three to the left on line three — through "nothing" and through
+#: "together". One x lands differently on every line, which is exactly why
+#: the two lines it goes through are not the four it misses.
+TORN_CUT = (3, [18, 17, 16, 25, 14, 19])
 
 
-def test_a_cut_up_of_the_source_carries_every_word_with_multiplicity() -> None:
-    """Provenance, counted: the result's own words, folded, must be exactly
-    the source's own words, folded — the property `check` itself verifies,
-    pinned here independently of the checker."""
-    from collections import Counter
-
-    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
-    source_count = Counter(w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE))
-    result_count = Counter(w.text.casefold() for w in cutup.result_words)
-    assert source_count == result_count
-
-
-def test_the_default_source_cut_up_satisfies_the_checker() -> None:
-    """Pinned with a fixed seed, per the brief's own instruction, so this
-    assertion is deterministic rather than a draw that could rarely fail."""
+def test_a_clean_quadrant_cut_of_the_source_satisfies_the_checker() -> None:
+    """The finding this scene is built on. A quadrant rearrangement moves
+    words in blocks rather than one at a time, but it is still a
+    provenance-preserving permutation, so `check` accepts it — every one of
+    the source's 47 words is present, with multiplicity, and none is
+    invented. Pinned to fixed cut positions so it is deterministic."""
     from denckring import check
 
-    cutup = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
-    report = check("cut_up", cutup.text, lang="en", source=stage.CUT_UP_SOURCE)
+    after_line, splits = CLEAN_CUT
+    text = _quadrant_cut(stage.CUT_UP_SOURCE, after_line, splits)
+    assert text.split("\n") == [
+        "the strange thing stands Five discs of nothing",
+        "everything a language and each of them,",
+        "folded paper sheet. will bring together",
+        "more than cut-out paper, no hand set down, and yet",
+        "whenever someone turns, as evidence of",
+        "parts that spell a word can hold inside one",
+    ]
+    report = check("cut_up", text, lang="en", source=stage.CUT_UP_SOURCE)
     assert report.satisfied is True
+    assert report.violations == []
     assert report.metrics["words"] == 47
     assert report.metrics["source_words"] == 47
 
 
-def test_cut_up_smuggled_appends_exactly_the_smuggle_word_with_no_source_index() -> None:
-    genuine = stage.cut_up(stage.CUT_UP_SOURCE, lang="en", seed=3)
-    smuggled = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang="en", seed=3)
-    assert smuggled.result_words[:-1] == genuine.result_words
-    assert smuggled.result_words[-1].text == stage.CUT_UP_SMUGGLE
-    assert smuggled.result_words[-1].source_index is None
-
-
-def test_the_smuggled_cut_up_fails_the_checker_naming_the_rule_and_the_word() -> None:
-    """Not just `satisfied is False` — a test that only checked the boolean
-    would pass if the page failed for the wrong reason (see the brief). The
-    violation itself has to name the rule and the word."""
+def test_a_cut_through_a_word_fails_and_the_checker_names_every_fragment() -> None:
+    """The scene's real demonstration, and not merely `satisfied is False` —
+    a test that only checked the boolean would pass if the page failed for
+    the wrong reason. The failure has to arise from the physical act: the
+    blade crossed "nothing" and "together", and the four pieces those two
+    words became are named, each with its rule and its offset."""
     from denckring import check
 
-    smuggled = stage.cut_up_smuggled(stage.CUT_UP_SOURCE, lang="en", seed=3)
-    report = check("cut_up", smuggled.text, lang="en", source=stage.CUT_UP_SOURCE)
+    after_line, splits = TORN_CUT
+    text = _quadrant_cut(stage.CUT_UP_SOURCE, after_line, splits)
+    assert text.split("\n") == [
+        "the strange thing stands Five discs of noth",
+        "everything a language and each of them,",
+        "folded paper sheet. will bring toget",
+        "ing more than cut-out paper, no hand set down, and yet",
+        "whenever someone turns, as evidence of",
+        "her parts that spell a word can hold inside one",
+    ]
+    report = check("cut_up", text, lang="en", source=stage.CUT_UP_SOURCE)
     assert report.satisfied is False
-    violations = [v for v in report.violations if v.rule == "word_not_in_source"]
-    assert len(violations) == 1
-    assert violations[0].found == stage.CUT_UP_SMUGGLE
-    assert violations[0].offset is not None
+    assert [v.rule for v in report.violations] == ["word_not_in_source"] * 4
+    assert [v.found for v in report.violations] == ["noth", "toget", "ing", "her"]
+    assert [v.offset for v in report.violations] == [39, 115, 121, 215]
+    # Each fragment is named as absent from the source, by name.
+    assert [v.expected for v in report.violations] == [
+        "at most 0 of 'noth'",
+        "at most 0 of 'toget'",
+        "at most 0 of 'ing'",
+        "at most 0 of 'her'",
+    ]
+    # And the words the blade went through are in the source, whole.
+    folded = {w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE)}
+    assert {"nothing", "together"} <= folded
 
 
-def test_first_paint_shows_the_source_and_nothing_cut_yet() -> None:
+def test_first_paint_shows_the_page_uncut_with_two_blades_and_no_verdict() -> None:
     """ "Scenes do not autoplay. The recording is a person using the thing" —
-    so first paint carries the page, uncut, and an empty result region, the
-    same choice N+7's own `#displaced` opens on for the same reason."""
+    so first paint carries the page, uncut, the two blades lying across it,
+    and an empty result region."""
     response = client.get("/stage/cut_up")
     assert response.status_code == 200
     for word in stage.cut_up_source_words(stage.CUT_UP_SOURCE):
         assert f">{word}<" in response.text
     # The page, not a flattened word list: the source's own punctuation and
-    # its six line breaks both have to survive — state one shows "the six
-    # lines as they stand" (see the brief), not the words alone.
+    # its six line breaks both have to survive.
     assert response.text.count('class="cutup-line"') == 6
     # Both gaps sit right after a word's own closing tag, not in a contiguous
-    # run of plain text — a comma closes the first line
-    # (see `test_source_lines_render_every_character_of_the_source_verbatim`
-    # for the property this is one instance of), and "cut-out" tokenises to
-    # two words either side of a literal hyphen.
+    # run of plain text — a comma closes the first line, and "cut-out"
+    # tokenises to two words either side of a literal hyphen. That hyphen is
+    # a *gap* as far as the blade is concerned, which is why the word extents
+    # have to come from these spans rather than from splitting on whitespace.
     assert "</span>,</p>" in response.text
     assert "</span>-<span" in response.text
     assert 'id="cutup-result" class="cutup-area"></div>' in response.text
-    # The class name itself appears in the page's own script (as a selector
-    # for the JS this scene's buttons trigger), so the markup that would
-    # actually render a result word is what has to be checked absent, not
-    # the bare class name.
-    assert '<span class="cutup-result-word' not in response.text
-    assert '<p class="verdict' not in response.text
+    # No verdict of either colour has been earned yet. Checked against the
+    # rendered classes rather than the bare prefix: the script below carries
+    # the placeholder's own markup as a string, which a naive `in` matches.
+    assert '<p class="verdict yes"' not in response.text
+    assert '<p class="verdict no"' not in response.text
+    assert 'class="cutup-violations"' not in response.text
+    # Two blades, and the submit that commits the cut carries the field the
+    # page's own quadrants are read into.
+    assert 'id="cutup-blade-v"' in response.text
+    assert 'id="cutup-blade-h"' in response.text
+    assert 'name="text" id="cutup-text" value=""' in response.text
+    # Nothing is in pieces yet.
+    assert 'id="cutup-pieces" hidden' in response.text
+    assert 'class="cutup-piece cutup-piece-' not in response.text
 
 
-_RESULT_WORD_RE = re.compile(r'<span class="cutup-result-word[^"]*"[^>]*>([^<]*)</span>')
-
-
-def test_the_act_route_carries_every_word_of_the_cut_up() -> None:
-    """The result region has to carry every one of the source's own words,
-    with multiplicity, whatever order the (unpinned, per-click) seed put them
-    in — the property, not the exact text, since the route itself never
-    pins a seed."""
-    from collections import Counter
-
-    response = client.post("/stage/cut_up/act")
+def test_the_act_route_checks_the_text_the_page_sent_and_echoes_it_back() -> None:
+    """The honesty requirement, at the seam: the route checks exactly the
+    text it was posted — the text the page read out of its own quadrants —
+    and hands that same text back on the verdict, so the page can be held to
+    it. Nothing here recomputes an arrangement."""
+    after_line, splits = CLEAN_CUT
+    text = _quadrant_cut(stage.CUT_UP_SOURCE, after_line, splits)
+    response = client.post("/stage/cut_up/act", data={"text": text})
     assert response.status_code == 200
-    found = _RESULT_WORD_RE.findall(response.text)
-    assert Counter(w.casefold() for w in found) == Counter(
-        w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE)
-    )
-    # `cutup-verdict` existed only to disambiguate from the shared `.verdict`
-    # in this assertion; no other scene's verdict carried a scene-specific
-    # class, and the fragment this route returns holds exactly one verdict,
-    # so the shared class alone is already unambiguous here.
-    assert '<p class="verdict yes">' in response.text
+    assert '<p class="verdict yes"' in response.text
+    assert "every one of 47 words across the join is the page" in response.text
+    echoed = re.search(r'data-checked="(.*?)"', response.text, re.S)
+    assert echoed is not None
+    assert html.unescape(echoed.group(1)) == text
     assert response.text.count('<p class="verdict') == 1
 
 
-def test_the_smuggle_route_carries_the_source_plus_one_foreign_word_and_fails() -> None:
-    from collections import Counter
-
-    response = client.post("/stage/cut_up/smuggle")
+def test_the_act_route_names_every_fragment_a_torn_cut_made() -> None:
+    """The failing verdict runs through the exact same route, template and
+    `check` call the passing one does — no special case — and it lists every
+    fragment rather than only the first, which is what connects the blade's
+    position to the consequence."""
+    after_line, splits = TORN_CUT
+    text = _quadrant_cut(stage.CUT_UP_SOURCE, after_line, splits)
+    response = client.post("/stage/cut_up/act", data={"text": text})
     assert response.status_code == 200
-    found = _RESULT_WORD_RE.findall(response.text)
-    expected = Counter(w.casefold() for w in stage.cut_up_source_words(stage.CUT_UP_SOURCE))
-    expected[stage.CUT_UP_SMUGGLE.casefold()] += 1
-    assert Counter(w.casefold() for w in found) == expected
-    assert '<p class="verdict no">' in response.text
-    assert response.text.count('<p class="verdict') == 1
     normalised = " ".join(response.text.split())
-    assert "word not in source" in normalised
-    assert stage.CUT_UP_SMUGGLE in response.text
+    assert '<p class="verdict no"' in normalised
+    assert "the blade went through 4 words" in normalised
+    assert normalised.count("<li>word not in source at offset") == 4
+    for fragment in ("noth", "toget", "ing", "her"):
+        assert f"&ldquo;{fragment}&rdquo;" in normalised
+    assert response.text.count('<p class="verdict') == 1
 
 
-def test_cut_up_result_words_are_inline_block_so_a_transform_can_apply() -> None:
-    """A `transform` does nothing on a non-replaced inline box (CSS
-    Transforms Level 1) — the box model an ordinary `display: inline` span
-    carries. Read from the stylesheet, the same way the reduced-motion rules
-    elsewhere on this page are: no test here runs a browser, and animation
-    timing itself is not something a test client can observe."""
+def test_the_smuggle_route_is_gone() -> None:
+    """Retired. The blade produces `word_not_in_source` from the act itself —
+    the actual hazard of cutting up a printed page — which is strictly better
+    than appending a word by hand, and one demonstration of a rule is
+    enough."""
+    assert client.post("/stage/cut_up/smuggle").status_code == 404
+    assert not hasattr(stage, "cut_up_smuggled")
+    assert not hasattr(stage, "CUT_UP_SMUGGLE")
+    # And the shuffle the scene used to animate: `apply`'s method, not this
+    # scene's. `cut_up.apply` itself is untouched in the library.
+    assert not hasattr(stage, "cut_up")
+    from denckring.core.registry import get
+
+    assert hasattr(get("cut_up"), "apply")
+
+
+def test_the_page_and_its_quarters_set_type_from_one_css_rule() -> None:
+    """Read from the stylesheet, the same way the reduced-motion rules
+    elsewhere on this page are: no test here runs a browser. A quarter that
+    set its face, size or leading even slightly differently from the page it
+    was cut out of would not read as the same sheet — so the two share one
+    rule rather than two copies that can drift."""
     css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    assert ".cutup-result-word { display: inline-block; }" in normalised
-
-
-def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
-    """The trap the brief names: the old sixth scene's own container class
-    shared a rule with N+7's and the word ladder's own, and deleting the
-    whole block rather than renaming its one arm would have broken both
-    other scenes. This pins that `.cutup-area` took over that arm rather
-    than the group being deleted — and that the sonnet's own verdict, which
-    had grown a private rule at a fourth size, reads the same group now.
-
-    Size and margin are pinned here too. They were the two declarations
-    every scene used to override, which is how one sentence came to be set
-    four ways. Scene seven's own `.llull-reading-panel .verdict` joined the
-    same group rather than writing a private copy — see the task report."""
-    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
-    normalised = " ".join(css_path.read_text(encoding="utf-8").split())
-    group = (
-        ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, "
-        ".poem-verdict, .llull-reading-panel .verdict"
-    )
+    group = ".cutup-line, .cutup-piece-line {"
     assert group in normalised
-    body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
-    assert "font-size: 0.78rem;" in body
-    assert "margin: 0.5rem 0 0;" in body
-    # No scene may quietly take its size or margin back in a rule of its own.
-    # Compared against whole selector lists, not substrings: `.poem-verdict`
-    # is the tail of the shared list above and would match a naive `in`.
-    stripped = re.sub(r"/\*.*?\*/", " ", normalised, flags=re.S)
-    selectors = {
-        " ".join(block.split("{", 1)[0].split()) for block in stripped.split("}") if "{" in block
-    }
-    assert selectors.isdisjoint(
-        {
-            ".displaced-area .verdict",
-            ".ladder-wrap .verdict",
-            ".cutup-area .verdict",
-            ".poem-verdict",
-            ".llull-reading-panel .verdict",
-        }
+    body = normalised.split(group, 1)[1].split("}", 1)[0]
+    assert "font-family: var(--display);" in body
+    assert "font-size: 1.1rem;" in body
+    assert "line-height: 1.6;" in body
+    assert "white-space: nowrap;" in body
+    # A quarter is a window on the lines inside it: a blade that landed
+    # mid-glyph has to leave half of it on each piece.
+    assert ".cutup-piece { position: absolute; overflow: hidden;" in normalised
+
+
+def _cut_up_scene_script() -> str:
+    """Scene six's own inline script, as the page actually ships it."""
+    body = client.get("/stage/cut_up").text
+    match = re.search(r"<script>\n(.*?)\n</script>", body, re.S)
+    assert match is not None
+    return match.group(1)
+
+
+def test_the_cut_source_checks_the_text_read_from_the_pages_own_quadrants() -> None:
+    """A source-level guard, and named as one: the test client runs no
+    JavaScript, so what the page actually assembles is out of its reach.
+    `tests/browser/cut-blade.mjs clean` is what measures it, by comparing the
+    quarters' own text against the `data-checked` the verdict came back with.
+
+    What this holds on to is the shape that makes it true. The text is read
+    out of the rendered quarters — `.cutup-piece-line` elements, by
+    `textContent`, in the order the eye reads them — and that read is the
+    last thing to happen before the submit, so nothing can be shown that was
+    not checked or checked that was not shown. The route on the other side
+    takes the posted text and nothing else."""
+    script = _cut_up_scene_script()
+    read = re.search(r"function readAssembledText\(\) \{(.*?)\n\}", script, re.S)
+    assert read is not None
+    body = read.group(1)
+    assert ".cutup-piece-line`" in body
+    assert "el.textContent.trim()" in body
+    # top row is D then A, bottom row is B then C — Gysin's own rearrangement
+    assert "[['d', 'a'], ['b', 'c']]" in body
+    cut = re.search(r"async function cutItUp\(\) \{(.*?)\n\}", script, re.S)
+    assert cut is not None
+    assert "textEl.value = readAssembledText();" in cut.group(1)
+    assert cut.group(1).index("readAssembledText()") < cut.group(1).index("requestSubmit()")
+    app_src = (Path(__file__).parent.parent / "src" / "explorer" / "app.py").read_text(
+        encoding="utf-8"
     )
+    route = app_src.split("async def stage_cut_up_act", 1)[1].split("\n@app.", 1)[0]
+    assert 'text = str(form.get("text", ""))' in route
+    assert 'denckring_check("cut_up", text,' in route
+    # Nothing on the server recomputes an arrangement, and nothing reaches
+    # for the library's own shuffle — a different method from the one this
+    # scene depicts. The comment saying so is in the route; the guard is that
+    # the call is not there.
+    assert ".apply(" not in route
+    assert "Deliberately **not** `cut_up.apply`." in route
+
+
+def test_the_blade_source_arms_the_placeholder_from_every_path_that_moves_one() -> None:
+    """A source-level guard, and named as one; `tests/browser/cut-blade.mjs
+    stale` is what measures it in a real browser.
+
+    The invariant this codebase has had broken four times: a real `check()`
+    verdict must never stand over a state the viewer has since changed. A
+    blade is such a state. Every path that can move one — the pointer drag's
+    own `grab`, the arrow keys, and the fresh-sheet button — goes through one
+    choke point, which puts the sheet back together, replaces any standing
+    verdict with the placeholder, and invalidates the token any in-flight
+    check was asked under."""
+    script = _cut_up_scene_script()
+    invalidate = re.search(r"function invalidate\(\) \{(.*?)\n\}", script, re.S)
+    assert invalidate is not None
+    body = invalidate.group(1)
+    assert "cutToken++;" in body
+    assert "restoreWhole();" in body
+    assert "setVerdictCutting();" in body
+    begin = re.search(r"function beginBladeMove\(\) \{(.*?)\n\}", script, re.S)
+    assert begin is not None
+    assert "activeBlades++;" in begin.group(1)
+    assert "invalidate();" in begin.group(1)
+    # the drag's grab, the keyboard, and the fresh-sheet button
+    grab = re.search(r"  grab: \(\) => \{(.*?)\n  \},", script, re.S)
+    assert grab is not None
+    assert "beginBladeMove();" in grab.group(1)
+    key = re.search(r"function bladeKey\(evt, key\) \{(.*?)\n\}", script, re.S)
+    assert key is not None
+    assert "beginBladeMove();" in key.group(1)
+    assert key.group(1).index("beginBladeMove();") < key.group(1).index("drawBlades();")
+    fresh = re.search(r"freshBtn\.addEventListener\('click', \(\) => \{(.*?)\n\}\);", script, re.S)
+    assert fresh is not None
+    assert "invalidate();" in fresh.group(1)
+    # and the submit is gated while a blade is under a hand
+    refresh = re.search(r"function refreshControls\(\) \{(.*?)\n\}", script, re.S)
+    assert refresh is not None
+    assert "cutBtn.disabled = inert || activeBlades > 0 || cutState !== 'whole';" in refresh.group(
+        1
+    )
+
+
+def test_the_cut_source_refuses_a_verdict_for_a_cut_the_viewer_has_undone() -> None:
+    """A source-level guard, and named as one; the browser reproduction is
+    `tests/browser/cut-blade.mjs stale`.
+
+    The other end of the same invariant, and the exact case the volvelles'
+    own Critical was: the viewer moves a blade *during* the check's round
+    trip, and the real, checked verdict lands afterwards over a page that is
+    no longer showing what it was checked against. The token the request was
+    submitted under is compared with the current one on the swap, and a
+    verdict that has been overtaken is replaced by the placeholder.
+
+    Deliberately lighter than scenes one and seven's ~150 lines, and for a
+    reason that is a property of this scene rather than a shortcut: moving a
+    ring leaves a new arrangement that still owes a fresh read, which is why
+    those two have to defer and settle that debt. Moving a blade leaves *no*
+    cut at all — the correct end state is no verdict, which the placeholder
+    already is — so there is nothing to re-read and nothing to replay."""
+    script = _cut_up_scene_script()
+    before = re.search(
+        r"document\.body\.addEventListener\('htmx:beforeRequest', \(evt\) => \{(.*?)\n\}\);",
+        script,
+        re.S,
+    )
+    assert before is not None
+    assert "submittedToken = cutToken;" in before.group(1)
+    after = re.search(
+        r"document\.body\.addEventListener\('htmx:afterSwap', \(evt\) => \{(.*?)\n\}\);",
+        script,
+        re.S,
+    )
+    assert after is not None
+    body = after.group(1)
+    assert "if (cutToken !== submittedToken || activeBlades > 0 || cutState !== 'cut') {" in body
+    assert body.index("setVerdictCutting();") > body.index("cutToken !== submittedToken")
+    # The placeholder is the shared `turning` one, not a third colour.
+    turning = re.search(r"function setVerdictCutting\(\) \{(.*?)\n\}", script, re.S)
+    assert turning is not None
+    assert 'class="verdict turning"' in turning.group(1)
+
+
+def test_the_blade_drag_reuses_the_shared_pointer_module() -> None:
+    """A source-level guard, and named as one; `tests/browser/cut-blade.mjs
+    drag` measures the blade actually moving under the pointer.
+
+    The blade's gesture is the volvelles': pointer down grabs, the thing
+    follows the pointer live while held, release settles. That is shared at
+    the module rather than copied — `attachLinearDrag` sits beside
+    `attachDrag` in `hold_turn.js`, using the same page-level release
+    registry (so a blur or a backgrounded tab lets go of a blade exactly as
+    it lets go of a ring), the same pointer capture, and the same
+    per-pointer-id map. Only the arithmetic differs: a blade slides along an
+    axis, so there is no centre to sweep about and no detent angle, and
+    faking those to reuse `attachDrag` would be a lie about the gesture."""
+    js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "function attachLinearDrag(root, handlers) {" in js
+    assert "attachLinearDrag," in js  # exported alongside `attach` and `attachDrag`
+    linear = js.split("function attachLinearDrag(root, handlers) {", 1)[1]
+    linear = linear.split("\n  // The two cadence numbers", 1)[0]
+    # the same registry the ring drag and the held buttons use
+    assert "active.add(drag.stop);" in linear
+    assert "active.delete(drag.stop);" in linear
+    # the same capture, and the same per-pointer bookkeeping
+    assert "root.setPointerCapture(evt.pointerId);" in linear
+    assert "drags.set(evt.pointerId, drag);" in linear
+    assert "root.addEventListener('lostpointercapture', (evt) => finish(evt.pointerId));" in linear
+    # live, on every move — not on release
+    assert "onMove(drag.key, drag.offset);" in linear
+    script = _cut_up_scene_script()
+    assert "HoldTurn.attachLinearDrag(bladesEl, {" in script
+    move = re.search(r"  move: \(key, offset\) => \{(.*?)\n  \},", script, re.S)
+    assert move is not None
+    assert "drawBlades();" in move.group(1)
+
+
+def test_the_cut_lands_at_once_under_reduced_motion() -> None:
+    """A source-level guard, and named as one — the house rule this project
+    has been bitten by: `explorer.css` sets `transition: none !important`
+    under `prefers-reduced-motion`, so a `transitionend` that a chained
+    animation waited on would never fire and the quarters would be stranded
+    halfway across the page.
+
+    Reduced motion is therefore handled before any transition is started, by
+    placing every quarter on its final position with no motion at all, and
+    the three beats are otherwise chained on timers rather than events. The
+    blades keep working either way — nothing about the drag is inside this
+    branch."""
+    script = _cut_up_scene_script()
+    play = re.search(r"function playCut\(\) \{(.*?)\n\}\n", script, re.S)
+    assert play is not None
+    body = play.group(1)
+    assert "if (prefersReducedMotion()) {" in body
+    reduced = body.split("if (prefersReducedMotion()) {", 1)[1].split("\n  }", 1)[0]
+    assert "place(0, { gap: 0, travel: 1 });" in reduced
+    assert "return Promise.resolve(token);" in reduced
+    # and it returns before anything with a duration is started
+    assert body.index("return Promise.resolve(token);") < body.index("new Promise")
+    # Nothing in this scene ever waits on a transition event. Comments are
+    # stripped first: the code says why, and that explanation must not be
+    # what satisfies this.
+    code = "\n".join(line for line in script.splitlines() if not line.strip().startswith("//"))
+    assert "transitionend" not in code
+    assert "addEventListener('transitionend'" not in script
 
 
 # ── scene seven: Llull's rotating figure ─────────────────────────────────────
@@ -2393,7 +2605,10 @@ def test_hold_controls_css_group_is_shared_not_scene_scoped() -> None:
     # a copy per scene — scene one shipped a byte-identical duplicate of it
     # for a round, which is the drift this file's own shared-machinery note
     # warns about.
-    assert ".llull-reading-panel .verdict.turning, .word-panel .verdict.turning {" in normalised
+    assert (
+        ".cutup-area .verdict.turning, .llull-reading-panel .verdict.turning, "
+        ".word-panel .verdict.turning {"
+    ) in normalised
     assert normalised.count(".verdict.turning {") == 1
 
 
