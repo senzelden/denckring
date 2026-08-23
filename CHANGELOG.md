@@ -362,8 +362,9 @@ All notable changes to this project are documented here. The format follows
   71 columns — both pinned by `test_no_flap_is_wider_than_the_board`. Two further
   constraints keep the strangeness on the right side of broken: no word reaches a line
   from two modules, compared with German inflection folded, and each family of mutually
-  exclusive time anchors sits in one module per line, so `Der Frost gedeiht` is possible
-  and `um fünf ... um drei` is not.
+  exclusive time anchors — when on the clock, since when, from when, how long ago, which
+  month — sits in one module per line, so `Der Frost gedeiht` is possible and `um fünf
+  ... um drei` is not, while roles that differ still stack.
 - An optional `line` on `Slot`, with `Device.lines` and `Device.for_line`, so one device
   can hold several lines. Additive: a device file that never mentions `line` — which is
   every existing one — reads as a single line and behaves exactly as before.
