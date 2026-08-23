@@ -2056,11 +2056,15 @@ def test_a_straight_column_of_this_source_can_miss_every_word() -> None:
 
     A blade is one straight line across six lines of type. For the clean cut
     to be something a viewer can actually make, some column has to fall in a
-    gap on all six at once. In a proportional face it does not: measured in a
-    real browser on the display face this scene used to carry, of the 725
-    columns across the page **not one** in the interior missed a word on all
-    six lines. On a character grid the same source has three, of which one —
-    column 26 — is interior, and it is the cut the page opens on.
+    gap on all six at once. In a proportional face none does. Measured in a
+    real browser, counting only columns that actually divide the page — a
+    column out in the margin cuts nothing — the display face this scene used
+    to carry gives **0** at 1.1rem (page 411px wide, 412 columns), and 0
+    again at 1.5, 1.9 and 2.15rem, and 0 in the Georgia fallback at two
+    sizes. On a character grid the same source has three clean columns, of
+    which one — column 26 — divides the page, and it is the cut the page
+    opens on; at the shipped size the browser resolves 14 pixel columns to
+    it.
 
     Computed here from `word_spans`, the same tokenisation the checker uses,
     so a change to the source that took the last clean column away fails
@@ -2187,11 +2191,12 @@ def test_the_page_and_its_quarters_set_type_from_one_css_rule() -> None:
     group = ".cutup-line, .cutup-piece-line {"
     assert group in normalised
     body = normalised.split(group, 1)[1].split("}", 1)[0]
-    # Fixed pitch, and not by taste: measured on this source in the display
-    # face, not one interior column of the 725 across the page missed a word
-    # on all six lines, so the passing verdict was unreachable by hand. In
-    # fixed pitch the six lines share a character grid and column 26 is a gap
-    # on every one of them.
+    # Fixed pitch, and not by taste: measured on this source in a real
+    # browser, no column that actually divides the page missed a word on all
+    # six lines in any proportional variant tried (display at 1.1/1.5/1.9/
+    # 2.15rem, Georgia at two sizes — zero every time), so the passing
+    # verdict was unreachable by hand. In fixed pitch the six lines share a
+    # character grid and column 26 is a gap on every one of them.
     assert "font-family: var(--mono);" in body
     assert "font-size: 1.5rem;" in body
     assert "line-height: 2.1;" in body
