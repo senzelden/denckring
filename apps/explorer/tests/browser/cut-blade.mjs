@@ -322,6 +322,17 @@ async function runFrames(page) {
   await waitVerdict(page);
   log(`cut with the horizontal blade in gap 1: ${JSON.stringify(await extent(page))}`);
   await page.screenshot({ path: `${OUT}/cutup-gap1.png` });
+  // And the passing case, which is the finding this scene is built on.
+  await page.evaluate(() => {
+    invalidate();
+    gapIndex = 3;
+    drawBlades();
+  });
+  await placeBlade(page, cols.cleanAt);
+  const clean = await cut(page);
+  log(`clean cut: ${clean.verdict ? clean.verdict.text : '(none)'}`);
+  log(`clean cut extent: ${JSON.stringify(await extent(page))}`);
+  await page.screenshot({ path: `${OUT}/cutup-clean.png` });
 }
 
 const browser = await chromium.launch();
