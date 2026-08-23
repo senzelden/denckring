@@ -1,0 +1,68 @@
+procedure: poesie_automat
+lang: de
+cases:
+  - name: eine-anzeige-die-der-automat-zeigen-kann
+    source: >-
+      constructed example; produced by spinning the board (seed 0), then checked.
+      The schema is Enzensberger's; the 360 fillers are original to this project,
+      as the catalogue row and the device file both say.
+    text: |-
+      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
+      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
+      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
+      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
+      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
+      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+    params: {}
+    satisfied: true
+  - name: eine-zweite-anzeige-mit-anderen-klappen
+    source: constructed example; seed 11, so no module repeats the case above
+    text: |-
+      Im November vergilbt der Zement mit Verspätung neuerdings zu Protokoll
+      Die Grundsteuer unter Zeitdruck binnen eines Monats jahrelang zwischen Tür und Angel unter Tage
+      Auf dem Betriebshof rauscht der Rundfunk seitdem im Kreisverkehr mit Bedacht
+      Die Kommission über die Feiertage stellenweise in der Frühschicht vor der Zufahrtsschranke nach Kassenschluss
+      Die Tagesordnung brennt vorübergehend im Bestand im Schriftverkehr im Verteiler
+      Jeden Freitag die Bushaltestelle zwischen zwei Anrufen im Kellergeschoss unentwegt ohne Übergangsfrist
+    params: {}
+    satisfied: true
+  - name: ein-wort-das-auf-keiner-klappe-steht
+    source: >-
+      constructed counterexample; the first case with "der Rundfunk" in line 3
+      replaced by "der Fernsehturm", which stands on no flap of that module
+    text: |-
+      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
+      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
+      Neben dem Umspannwerk knistert der Fernsehturm seitdem im Kreisverkehr vor dem Aufzug
+      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
+      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
+      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+    params: {}
+    satisfied: false
+    min_score: 0.8
+    max_score: 0.9
+  - name: eine-zeile-der-falschen-zeile-vorgelegt
+    source: >-
+      constructed counterexample; lines 1 and 5 of the first case swapped. Each
+      is a line the board can show, but not in that position — the modules are
+      per line, which is what makes the count a product of thirty-six tens
+      rather than of six.
+    text: |-
+      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
+      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
+      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
+      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
+      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
+      Kurz nach Mitternacht das Mischwasser zwischen zwei Anrufen gegen Ende der Woche demnächst in der Ablaufmappe
+    params: {}
+    satisfied: false
+  - name: eine-zeile-zu-wenig
+    source: constructed counterexample; the board has six rows and shows six
+    text: |-
+      Kurz vor Ladenschluss dröhnt die Verwaltung bei Regen neuerdings an der Rampe
+      Die Ampelanlage auf dem Dienstweg ohne Umschweife anscheinend zwischen Tür und Angel aus Rücksicht
+      Neben dem Umspannwerk knistert der Rundfunk seitdem im Kreisverkehr vor dem Aufzug
+      Der Aktenschrank bei laufendem Betrieb durchweg auf dem Hinterhof gegen Entgelt unter der Hand
+      Der Asphalt gedeiht jahrzehntelang mit Sicherheitsabstand unter Vorbehalt des Widerrufs ohne Vorwarnung
+    params: {}
+    satisfied: false
