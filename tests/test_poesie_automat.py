@@ -79,6 +79,51 @@ def test_flaps_are_whole_words_separated_by_single_spaces() -> None:
             assert alternative, f"{slot.name} carries an empty flap"
 
 
+#: The board renders letter by letter into character cells, so a line costs six
+#: flaps plus the five spaces between them. Eleven is the cap the lexicon was
+#: written to; 71 is what six of them plus five spaces come to, and it is the
+#: width the showcase board is built for.
+FLAP_CAP = 11
+BOARD_COLUMNS = 71
+
+
+def test_no_flap_is_wider_than_the_board() -> None:
+    """The defect this pins is a line that overflows the board.
+
+    Both halves matter and neither implies the other: a flap longer than the cap
+    is unshowable on its own, and six flaps that each fit can still assemble a
+    line wider than the board if the cap were ever raised for one module. So the
+    per-flap maximum and the widest line the modules can spell are both derived
+    here from the file rather than asserted about it.
+    """
+    longest = max(
+        (alternative for slot in BOARD.slots for alternative in slot.alternatives),
+        key=len,
+    )
+    assert len(longest) <= FLAP_CAP, f"{longest!r} is {len(longest)} characters"
+
+    for number in BOARD.lines:
+        slots = BOARD.for_line(number).slots
+        widest = sum(max(len(a) for a in slot.alternatives) for slot in slots) + len(slots) - 1
+        assert widest <= BOARD_COLUMNS, f"line {number + 1} can assemble {widest} columns"
+
+
+def test_a_spun_poem_reads_back_as_the_flaps_it_was_spun_from() -> None:
+    """`segment` finds *a* reading; this asks that it find *the* one.
+
+    Two modules of a line could between them spell the same words with the cut in
+    a different place, and then a poem off the board would still check out while
+    `flap_indices` reported flaps that were never turned. Nothing in the schema
+    forbids that — it is a property of the strings, so it is tested on them.
+    """
+    for seed in range(64):
+        turned = devices.spin(BOARD, seed)
+        expected = [
+            slot.alternatives.index(flap) for slot, flap in zip(BOARD.slots, turned, strict=True)
+        ]
+        assert flap_indices(spun(seed)) == expected, f"seed {seed} reads back as other flaps"
+
+
 # ── check ──────────────────────────────────────────────────────────────────
 
 

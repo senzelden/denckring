@@ -356,7 +356,10 @@ All notable changes to this project are documented here. The format follows
   `cent_mille_milliards` fixture carries for Queneau. Three design rules make *every* one
   of the 10^36 readings grammatical German rather than most of them: the article is
   folded into the noun, everything after the subject is an adjunct, and every verb is
-  intransitive third person singular present.
+  intransitive third person singular present. A fourth constraint is about the display
+  rather than about German: the board renders letter by letter into character cells, so
+  no filler exceeds eleven characters and no line the modules can assemble is wider than
+  71 columns — both pinned by `test_no_flap_is_wider_than_the_board`.
 - An optional `line` on `Slot`, with `Device.lines` and `Device.for_line`, so one device
   can hold several lines. Additive: a device file that never mentions `line` — which is
   every existing one — reads as a single line and behaves exactly as before.
