@@ -1561,13 +1561,23 @@
    Fixed pitch, and double-spaced, because *Minutes to Go* was typewritten —
    and because on this scene the face is not decoration. A straight cut is
    one x across six lines, and in a proportional face those six lines put a
-   space at that x essentially never: measured on this source in the display
-   face, of the 725 columns across the page **not one** in the interior
-   missed a word on all six lines, so the passing verdict — the finding this
-   scene is built on — was unreachable by hand. In fixed pitch the same six
-   lines share a character grid, and column 26 is a gap on every one of
-   them. The face is what makes the clean cut a thing a viewer can actually
-   make. */
+   space at that x essentially never. Measured on this source in a real
+   browser, counting only columns that actually divide the page (a column
+   in the margin cuts nothing):
+
+     display 1.1rem   page 411px     0 of 412
+     display 1.5rem   page 559px     0 of 560
+     display 1.9rem   page 703px     0 of 704
+     display 2.15rem  page 799px     0 of 800
+     Georgia 1.5rem   page 482.64px  0
+     Georgia 1.9rem   page 611.27px  0
+     mono    1.5rem   page 700px     **14**
+
+   So the passing verdict — the finding this scene is built on — was
+   unreachable by hand in every proportional variant tried. In fixed pitch
+   the six lines share a character grid and column 26 is a gap on every one
+   of them. The face is what makes the clean cut a thing a viewer can
+   actually make. */
 .cutup-line,
 .cutup-piece-line {
   margin: 0;
