@@ -239,7 +239,8 @@
 .ladder-wrap .verdict,
 .cutup-area .verdict,
 .poem-verdict,
-.llull-reading-panel .verdict {
+.llull-reading-panel .verdict,
+.automat-reading .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
@@ -253,7 +254,8 @@
 .ladder-wrap .verdict.yes,
 .cutup-area .verdict.yes,
 .poem-verdict.yes,
-.llull-reading-panel .verdict.yes {
+.llull-reading-panel .verdict.yes,
+.automat-reading .verdict.yes {
   color: var(--pass);
 }
 
@@ -261,7 +263,8 @@
 .ladder-wrap .verdict.no,
 .cutup-area .verdict.no,
 .poem-verdict.no,
-.llull-reading-panel .verdict.no {
+.llull-reading-panel .verdict.no,
+.automat-reading .verdict.no {
   color: var(--rubric);
 }
 
@@ -424,13 +427,15 @@
 }
 
 .turnable-figure .ring-disc,
-.turnable-figure .wheel-disc {
+.turnable-figure .wheel-disc,
+.turnable-figure .flap {
   cursor: grab;
 }
 
 .turnable-figure.grabbing,
 .turnable-figure.grabbing .ring-disc,
-.turnable-figure.grabbing .wheel-disc {
+.turnable-figure.grabbing .wheel-disc,
+.turnable-figure.grabbing .flap {
   cursor: grabbing;
 }
 
@@ -1920,6 +1925,135 @@
    than collapsing them to one, so its panel keeps its height under a hand. */
 .cutup-area .verdict.turning,
 .llull-reading-panel .verdict.turning,
-.word-panel .verdict.turning {
+.word-panel .verdict.turning,
+.automat-reading .verdict.turning {
+  color: var(--lead);
+}
+
+/* ── scene eight: Enzensberger's Poesie-Automat ────────────────────────────
+   A split-flap board of the railway-platform kind — six lines, six modules,
+   ten flaps each. Dark modules with light lettering on the paper stage, the
+   way the machine itself reads and the way scene one's own `.word-panel`
+   already sits a dark panel on this ground.
+
+   Deliberately not `.scene-split`. Every other figure on this stage lives in
+   a 620px column with its panel beside it; the widest line of this board is
+   134 characters and there is nothing like that width left over next to a
+   figure. The board takes the whole stage and its panel sits underneath. The
+   scene's own template says why the drums are sized per line rather than
+   aligned into six true columns across the board: a literal board is 155
+   characters wide and does not fit at any size worth recording. */
+.automat-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* One cell of one drum, and therefore the drum's own window: the strip inside
+   is translated by whole multiples of this, so the height belongs to the board
+   rather than to any one rule below it and both the template's first paint and
+   the script's own steps read it from here. */
+.flap-board {
+  --flap-h: 2.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.flap-line {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* A module: a window one cell tall on a strip of thirty. `overflow: hidden` is
+   what makes it a window; the width is whatever the widest flap on the strip
+   needs, which is how a drum comes out exactly as wide as its own longest
+   alternative without anything measuring a font. */
+.flap {
+  position: relative;
+  flex: none;
+  height: var(--flap-h);
+  padding: 0 0.4rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--case-deep);
+  /* The two leaves of a flap module: the top half sits a shade lighter than
+     the bottom, the way a lit board does. */
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.07) 0 50%,
+    rgba(0, 0, 0, 0.18) 50% 100%
+  );
+  touch-action: none;
+  user-select: none;
+}
+
+/* The hinge: the seam the leaf falls across. Over the strip, and never in the
+   way of a pointer that is trying to take hold of the drum. */
+.flap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.flap:focus-visible {
+  outline: 2px solid var(--rubric);
+  outline-offset: 1px;
+}
+
+.flap-strip {
+  display: block;
+  will-change: transform;
+}
+
+.flap-cell {
+  display: block;
+  height: var(--flap-h);
+  line-height: var(--flap-h);
+  font-family: var(--mono);
+  /* 14px. Measured, not chosen: the widest line of this board is 134
+     characters, IBM Plex Mono advances 8px a character at both 13px and 14px
+     (the advance is quantised to whole pixels), and that line's six drums with
+     their own padding and the gaps between them measure 1148.68px against the
+     1184px the stage leaves between its margins. At 15px the advance goes to
+     9px and the same line needs 1277px, which does not. A literal board, its
+     columns aligned across all six lines, is 155 characters and measures
+     1316.68px — 132.68px too wide. Every figure here was read off the rendered
+     board by `tests/browser/flap-board.mjs widths`. */
+  font-size: 0.875rem;
+  /* No letter-spacing: 134 characters would pay for it 134 times. */
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: var(--paper);
+}
+
+.automat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.automat-count {
+  margin: 0;
+}
+
+.automat-count .count-true {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.automat-count .count-true sup {
+  font-size: 0.7em;
+}
+
+.automat-count .count-label {
+  margin-left: 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
   color: var(--lead);
 }

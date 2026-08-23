@@ -20,6 +20,7 @@ from denckring.core.registry import get
 from denckring.core.text import line_spans, word_spans
 from denckring.lang import get_pack
 from denckring.procedures.cent_mille_milliards import alternatives as queneau_alternatives
+from denckring.procedures.poesie_automat import SEPARATOR as POESIE_AUTOMAT_SEPARATOR
 from explorer import corpora
 
 #: N+7's own default, mirroring `default_lang`'s shape — but with no corpus to
@@ -82,6 +83,15 @@ SCENES: list[Scene] = [
         title="Llullian figure",
         procedure_id="llull_figure",
         caption="Ramon Llull, 1305-08. Turn the wheels; the same chamber reads six ways.",
+    ),
+    Scene(
+        slug="poesie_automat",
+        title="Poesie-Automat",
+        procedure_id="poesie_automat",
+        caption=(
+            "Enzensberger, Landsberg 2000. Press the button; the flaps clatter "
+            "into one of 10\u00b3\u2076 poems."
+        ),
     ),
 ]
 
@@ -1345,3 +1355,202 @@ def llull_client_data() -> dict[str, Any]:
         },
         "levelOrder": list(LLULL_LEVELS),
     }
+
+
+# ── scene eight: Enzensberger's Poesie-Automat ────────────────────────────────
+# Hans Magnus Enzensberger, "Einladung zu einem Poesie-Automaten" (conceived
+# 1974); the machine was built for *Lyrik am Lech* and stood in Landsberg am
+# Lech from 30 June to 2 July 2000. It is an electromechanical split-flap
+# display of the railway-platform kind: six lines of six modules, ten flaps
+# each, so one press of the button composes one of 10^36 poems.
+#
+# The board is data and the data is not Enzensberger's — he died in 2022 and
+# his word lists are in copyright until 2092. The 360 fillers in
+# `denckring/data/devices/poesieautomat_2000.yaml` were written for this
+# project; the catalogue row and the device file both say so, and so does the
+# scene's own credit line.
+
+#: The one board this scene ever shows. `device` is a real parameter of
+#: `poesie_automat`, but this scene only turns the flaps of the machine that
+#: actually stood in Landsberg, so the id is a constant here rather than a
+#: control on the page. The same choice `LLULL_FIGURE_ID` makes.
+POESIE_AUTOMAT_DEVICE = "poesieautomat_2000"
+
+#: The row is `languages: [de]`, so there is no toggle and nothing to narrow.
+POESIE_AUTOMAT_LANG: Lang = "de"
+
+# What stands between two modules on a line is the procedure's own `SEPARATOR`,
+# imported at the top of this file rather than retyped: a board whose flaps ever
+# ran together without a space would otherwise leave this module reading the
+# device differently from the checker that judges it.
+
+
+@dataclass(frozen=True)
+class FlapModule:
+    """One module of the board: a drum, and the ten flaps written on it.
+
+    `name` is the module's own part of speech from the device file
+    (`Zeitangabe`, `Adverb`, five different `Adjunkt`s on one line), which is
+    why nothing addresses a module by name — the position within the line is
+    the identity, here and in the scene's own markup.
+    """
+
+    name: str
+    alternatives: list[str]
+
+    @property
+    def widest(self) -> str:
+        """The longest of the ten flaps, which is what the drum has to be wide
+        enough for. Longest by character count, not by rendered width — this
+        module does no typography; it is the page that sizes a drum, and it
+        does it by stacking all ten flaps in the drum itself and letting the
+        widest one win (see `stage_poesie_automat.html`). Kept because the
+        layout finding is about *this* string and a test names it."""
+        return max(self.alternatives, key=len)
+
+
+@dataclass(frozen=True)
+class FlapLine:
+    """One line of the board: its number, 0-5, and its six modules in order."""
+
+    number: int
+    modules: list[FlapModule]
+
+
+@dataclass(frozen=True)
+class FlapBoard:
+    """The whole board, and the count it admits."""
+
+    lines: list[FlapLine]
+    #: `Device.combinations`, an exact `int`. Never `metrics["combinations"]`,
+    #: which is the same number through a float and comes out `1e+36`.
+    combinations: int
+
+
+def flap_board() -> FlapBoard:
+    """The Landsberg board as the shipped device file has it."""
+    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    return FlapBoard(
+        lines=[
+            FlapLine(
+                number=number,
+                modules=[
+                    FlapModule(name=slot.name, alternatives=list(slot.alternatives))
+                    for slot in machine.for_line(number).slots
+                ],
+            )
+            for number in machine.lines
+        ],
+        combinations=machine.combinations,
+    )
+
+
+def power_of_ten(count: int) -> int | None:
+    """`count` as an exponent of ten, or `None` if it is not one.
+
+    The board's own count is 10^36 exactly, and thirty-seven digits on a
+    stage read as a smear rather than a number — so the page renders it as a
+    power. This asks whether that rendering is *true* of the count it was
+    given rather than assuming it: a board whose modules were ever edited to
+    something other than ten alternatives would fall out of this and the page
+    would print the digits instead of a power that had quietly become a lie.
+    """
+    if count <= 0:
+        return None
+    exponent = len(str(count)) - 1
+    return exponent if 10**exponent == count else None
+
+
+def automat_positions(poem: str) -> list[int] | None:
+    """The 36 flap indices that spell `poem`, one per module in slot order, or
+    `None` if the board cannot show it.
+
+    An *index* per module, never the flap's text: the same rule `pieces_for`
+    keeps for the Denckring's rings and `llull_positions` for Llull's wheels.
+    Nothing on this board repeats a flap within a module (a test pins that),
+    so a text lookup would in fact land right here today — the rule is the
+    rule either way, and the client is handed the number the server already
+    worked out rather than a string to go searching for.
+
+    Built on the same `device.segment` walk `poesie_automat._reading` makes,
+    with the procedure's own separator, so a poem this accepts is exactly a
+    poem `check` accepts.
+    """
+    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    found = line_spans(poem)
+    if len(found) != len(machine.lines):
+        return None
+    positions: list[int] = []
+    for number, (_, line) in zip(machine.lines, found, strict=True):
+        board = machine.for_line(number)
+        pieces = device.segment(
+            POESIE_AUTOMAT_SEPARATOR.join(line.split()),
+            board,
+            separator=POESIE_AUTOMAT_SEPARATOR,
+        )
+        if pieces is None:
+            return None
+        for slot, piece in zip(board.slots, pieces, strict=True):
+            positions.append(slot.alternatives.index(piece))
+    return positions
+
+
+def automat_poem(positions: list[int]) -> str:
+    """The poem those 36 flaps spell, as six lines.
+
+    The inverse of `automat_positions`, and the page's own first paint reads
+    from here — so what the drums show at first paint and what `check` is
+    asked about are one string built once, not two built twice.
+    """
+    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    if len(positions) != len(machine.slots):
+        raise InvalidParams(
+            "poesie_automat",
+            f"the board has {len(machine.slots)} modules, not {len(positions)} flaps",
+        )
+    flaps = iter(positions)
+    return "\n".join(
+        POESIE_AUTOMAT_SEPARATOR.join(
+            slot.alternatives[next(flaps) % len(slot.alternatives)]
+            for slot in machine.for_line(number).slots
+        )
+        for number in machine.lines
+    )
+
+
+def automat_default_positions() -> list[int]:
+    """First paint: every drum on its own first flap.
+
+    Deterministic, the way every other scene's first paint is (see
+    `llull_default_letters`, `queneau_initial_state`) — the recording starts
+    from a board at rest, and pressing the button is the thing a viewer does,
+    not something the page has already done for them.
+    """
+    machine = device.load(POESIE_AUTOMAT_DEVICE)
+    return [0] * len(machine.slots)
+
+
+def automat_press(seed: int | None = None) -> tuple[str, list[int]]:
+    """Press the button: the poem the library's own `apply` composes, and the
+    36 flaps that spell it.
+
+    `apply` is what makes the choice — this scene demonstrates the procedure,
+    so the poem is the procedure's, not a draw made here. The flaps come back
+    from reading that poem against the board, which is the only way the client
+    can be told where to send its drums; the *verdict* is never taken from
+    here, it is a separate `check()` of the text read back off the drums once
+    they have stopped (see the scene's own script and `stage_poesie_automat`'s
+    two branches).
+    """
+    procedure = get("poesie_automat")
+    assert isinstance(procedure, Constructive)
+    poem = procedure.apply("", lang=POESIE_AUTOMAT_LANG, seed=seed)
+    positions = automat_positions(poem)
+    if positions is None:
+        # Unreachable by construction: `apply` selects one alternative per
+        # module and joins them with the same separator `automat_positions`
+        # walks. Raised rather than silently defaulted, because a board that
+        # cannot read back its own output is a broken device file, not a case
+        # the scene should paper over.
+        raise InvalidParams("poesie_automat", f"the board cannot read back its own poem: {poem!r}")
+    return poem, positions
