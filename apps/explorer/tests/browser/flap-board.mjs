@@ -832,6 +832,13 @@ async function runWidths(browser) {
     log('  widest line spelled  ', measured.longestRow + ' columns');
     log('  board height         ', measured.boardHeight.toFixed(2) + 'px');
     log('  content extent       ', measured.extent.toFixed(2) + 'px against 720 (' + (720 - measured.extent).toFixed(2) + 'px blank), deepest: ' + measured.deepest);
+    // The extent is cartridge-dependent — the two credits wrap to different
+    // line counts — and it is deterministic to the hundredth of a pixel across
+    // sessions and machines, unlike the clatter. It has already drifted once,
+    // caught only by eye at 684.72px. 40px of blank is the house floor: the
+    // tightest other scene, `cent_mille_milliards`, runs 679.28px / 40.72px.
+    const blank = 720 - measured.extent;
+    log('  blank >= 40px        ', blank.toFixed(2) + 'px', blank >= 40 ? 'PASS' : 'FAIL');
     await page.context().close();
   }
 }

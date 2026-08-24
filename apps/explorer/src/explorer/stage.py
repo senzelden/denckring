@@ -1469,9 +1469,15 @@ AUTOMAT_CARTRIDGES = (
         label="Pokémon-Kassette",
         note="a second cartridge, explorer-only",
         lexicon="Pokémon flaps, the explorer's own",
-        # Kept to three rendered lines, like the Landsberg one. At four it took
-        # the scene's content extent to 684.72px against the 720px the stage
-        # has, which is a tighter margin than any other scene runs.
+        # Kept to four rendered lines. At five it took the scene's content
+        # extent to 684.72px against the 720px the stage has, a tighter margin
+        # than any other scene runs — the tightest, `cent_mille_milliards`,
+        # sits at 679.28px. The Landsberg credit beside this one renders three
+        # lines and 654.97px; this one renders four and 669.84px, so the extent
+        # is cartridge-dependent. `flap-board.mjs widths` gates the blank at
+        # 40px for exactly that reason. (An earlier version of this comment
+        # said three and four; both were off by one, measured off the rendered
+        # box at a 14.88px line height.)
         credit=(
             "Enzensberger's mechanism; the words are neither his nor Müller's. The subjects "
             "are German Pokémon names — third-party trademarks, which is why this cartridge "
