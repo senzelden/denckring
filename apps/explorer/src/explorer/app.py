@@ -689,6 +689,93 @@ async def stage_llull_figure_act(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/stage/poesie_automat", response_class=HTMLResponse)
+def stage_poesie_automat(
+    request: Request, chrome: str = "on", device: str | None = None
+) -> HTMLResponse:
+    """First paint: a board at rest, every module on its own first flap, and a
+    real `check()` verdict for the poem those flaps spell.
+
+    Deterministic, the way every other scene's first paint is — the press of
+    the button is the thing a viewer does on camera, not something the page
+    has already done for them.
+
+    `device` names which cartridge the board opens on. It exists so a
+    reproduction or a screenshot can open straight onto either one; the
+    switcher itself does not use it, because both cartridges go over in the
+    page and the swap is local. `stage.automat_cartridge` refuses an id this
+    scene does not carry rather than handing it to `device.load`.
+    """
+    cartridge = stage.automat_cartridge(device)
+    positions = stage.automat_default_positions(cartridge.device_id)
+    board = stage.flap_board(cartridge.device_id)
+    report = denckring_check(
+        "poesie_automat",
+        stage.automat_poem(positions, cartridge.device_id),
+        lang=stage.POESIE_AUTOMAT_LANG,
+        device=cartridge.device_id,
+    )
+    return page(
+        request,
+        "stage_poesie_automat.html",
+        scene=stage.scene("poesie_automat"),
+        board=board,
+        rows=stage.automat_rows(board, positions),
+        columns=stage.BOARD_COLUMNS,
+        positions=positions,
+        cartridges=[stage.automat_payload(c) for c in stage.AUTOMAT_CARTRIDGES],
+        device=cartridge.device_id,
+        note=cartridge.note,
+        kicker=cartridge.kicker,
+        credit=cartridge.credit,
+        report=report,
+        text=None,
+        exponent=stage.power_of_ten(board.combinations),
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/poesie_automat/act", response_class=HTMLResponse)
+async def stage_poesie_automat_act(request: Request) -> HTMLResponse:
+    """Two branches, one form, the shape `stage_llull_figure_act` already has.
+
+    **Press the button.** `apply` composes a poem — the library's own choice,
+    under its own seed — and the reply carries nothing but the 36 flap indices
+    that spell it and the placeholder. No verdict: the cells have not turned
+    yet, and a verdict printed here would stand over a board still showing the
+    previous poem for the whole length of the clatter.
+
+    **Read the board.** The text arrives from the client because it has to:
+    the cells are turned in the browser, by a clatter and by hand, and what
+    `check` is given must be what is on the board. `stage_poesie_automat.html`
+    reads it character by character out of the cells themselves and posts it
+    here (see `readBoard`). A route that recomputed the poem from the seed
+    would be checking a second, invisible board that merely resembled the one
+    on screen — and would have nothing at all to say about a module a viewer
+    turned by hand afterwards.
+
+    Both branches take the **cartridge the board is currently showing** from
+    the form. A verdict is only honest about the device it was checked
+    against, and a swap is one more way for the board to stop being what a
+    standing verdict was about; the client's own token machinery covers the
+    staleness, and this covers the *device*. An id the scene does not carry is
+    refused by `stage.automat_cartridge` rather than reaching `device.load`.
+    """
+    form = dict(await request.form())
+    cartridge = stage.automat_cartridge(str(form.get("device", "")))
+    if form.get("press"):
+        _, positions = stage.automat_press(cartridge.device_id)
+        return page(request, "_stage_flaps.html", report=None, positions=positions, text=None)
+    text = str(form.get("poem", ""))
+    report = denckring_check(
+        "poesie_automat",
+        text,
+        lang=stage.POESIE_AUTOMAT_LANG,
+        device=cartridge.device_id,
+    )
+    return page(request, "_stage_flaps.html", report=report, positions=None, text=text)
+
+
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, q: str = "") -> HTMLResponse:
     return page(request, "_results.html", results=catalogue_view.find(q), term=q)
