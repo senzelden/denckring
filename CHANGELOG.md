@@ -392,6 +392,34 @@ All notable changes to this project are documented here. The format follows
   working directory at call time, so changing directory after setting the variable can
   turn into silent misses under the same skip-quietly contract.
 
+### Changed
+
+- Twenty-four fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC
+  BY 4.0 — replaced, because assembled they read as camp and confinement imagery.
+  The words were `der Zaun`, `am Zaun`, `Die Mauer`, `Die Sperre`, `auf Posten`,
+  `die Wache`, `die Rampe`, `das Gleis`, `Das Lager`, `im Lager`, `im Graben`,
+  `im Moor`, `in Ketten`, `in Trümmern`, `in Flammen`, `unter Zwang`, `aus Draht`,
+  `mit Draht`, `Der Draht`, plus `Das Gitter`, `in Deckung`, `die Kammer`,
+  `die Sirene` and `brennt`, which are of the same family and were found by
+  sweeping rather than listed. Each is innocent read alone — a loading ramp, a
+  warehouse, a railway track, a watch, a fence — and the defect was never one flap
+  but what a board of 10^36 readings eventually sets beside what: over 400 seeds,
+  116 of 2400 lines carried two or more of them, and the same sweep over the
+  replaced file reports 0. Nobody can read 10^36 combinations, so the guard is to
+  keep the material out of the modules rather than to look for it in the output;
+  the device header now carries that as a seventh constraint, marked as the one
+  that no test can hold because it is a judgement about register and not a
+  property of the strings. Replacements stay in the world the lexicon already had
+  — weather, water, concrete, foundry, rail freight, workshop, administration,
+  cold — and everything about the machine is unchanged: every module still holds
+  ten alternatives, `Device.combinations` is still exactly 10^36, no filler
+  exceeds eleven characters, all 360 stay distinct case-folded, and the schemas,
+  the three grammaticality rules and the ADV rule are untouched. The second
+  positive golden fixture spun three of the replaced flaps and was rewritten to
+  the same seed's new reading, which leaves both properties its `source` claims —
+  disjointness from the first fixture and no repeated word stem — true and
+  re-derived on every run.
+
 ### Fixed
 
 - `device.load` and `device.load_figure` built a filename by interpolating the caller's
