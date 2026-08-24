@@ -458,15 +458,24 @@ async function runRoll(browser) {
 
 // ── reverse ────────────────────────────────────────────────────────────────
 //
-// Turn a module one flap and turn it straight back before the fold has landed.
-// Every other mode moves a module in one direction, and this defect needs a
-// reversal inside `FOLD_MS` — the same shape of blind spot as a guard that
-// cannot fail.
+// Turn a module and turn it back before the fold has landed — **once**, and
+// then three and four times in a row, all inside `FOLD_MS`.
+//
+// The one-reversal case is the Critical this mode was written for. The
+// oscillation is the *class* it belongs to: eleven earlier modes never reversed
+// at all, which is how a single reversal got through, and a mode that only ever
+// reverses once is the same narrowing one notch further along. Three and four
+// changes of direction also cover both parities — an even number of moves puts
+// the module back where it started, an odd number leaves it one flap along —
+// so neither "it healed because it ended where it began" nor "it never had to
+// come back" can hide a stranded cell.
 //
 // The oracle reads the **rendered** glyph out of each cell's static bottom half
 // rather than the page's own `cell.char`, because what went wrong was those two
 // disagreeing: the model said `DER NEBEL`, the accessible tree said
 // `"Der Nebel"`, and the board spelled `DER NECEL` for the rest of the session.
+// It also checks the module's own index against the displacement the gesture
+// asked for, so a board that agreed with itself about the wrong flap is caught.
 async function runReverse(browser) {
   const slot = Number(process.argv[3] || 6);
   const line = Math.floor(slot / 6);
@@ -474,82 +483,105 @@ async function runReverse(browser) {
   let runs = 0;
   for (const route of ['drag', 'keyboard']) {
     for (const dwell of [10, 20, 40]) {
-      const page = await open(browser);
-      await waitVerdict(page);
-      const before = await page.evaluate(
-        (line) =>
-          Array.from(document.querySelectorAll('.board-line')[line].querySelectorAll('.cell'))
-            .map((cell) => cell.querySelector('.cell-bottom span').textContent)
-            .join('')
-            .trim(),
-        line
-      );
-      if (route === 'drag') {
-        const box = await page.evaluate((slot) => {
-          const r = document.getElementById('module-' + slot).getBoundingClientRect();
-          return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height };
-        }, slot);
-        await page.mouse.move(box.x, box.y);
-        await page.mouse.down();
-        await page.mouse.move(box.x, box.y - box.h);
-        await page.waitForTimeout(dwell);
-        await page.mouse.move(box.x, box.y);
-        await page.mouse.up();
-      } else {
-        await page.focus('#module-' + slot);
-        await page.keyboard.press('ArrowUp');
-        await page.waitForTimeout(dwell);
-        await page.keyboard.press('ArrowDown');
-      }
-      const after = await waitVerdict(page);
-      const found = await page.evaluate(
-        (line) => {
-          const row = document.querySelectorAll('.board-line')[line];
-          return {
-            // What the cells are painting, glyph by glyph.
-            rendered: Array.from(row.querySelectorAll('.cell'))
+      for (const turns of [1, 3, 4]) {
+        // `turns` changes of direction is `turns + 1` moves, alternating up,
+        // down, up… so an even count of moves lands back on the starting flap
+        // and an odd count lands one along.
+        const moves = turns + 1;
+        const expectedShift = moves % 2 === 0 ? 0 : 1;
+        const page = await open(browser);
+        await waitVerdict(page);
+        const start = await page.evaluate(
+          (arg) => ({
+            row: Array.from(
+              document.querySelectorAll('.board-line')[arg.line].querySelectorAll('.cell')
+            )
               .map((cell) => cell.querySelector('.cell-bottom span').textContent)
               .join('')
               .trim(),
-            // What the model says they should be painting.
-            model: (() => {
-              const flaps = [0, 1, 2, 3, 4, 5].map(
-                (k) => cart.modules[line * 6 + k].flaps[positions[line * 6 + k]]
-              );
-              return flaps.join(' ');
-            })(),
-            // And what the page itself thinks each cell shows.
-            shown: readBoard().split('\n')[line],
-            valuetext: document
-              .getElementById('module-' + (line * 6))
-              .getAttribute('aria-valuetext'),
-            stillFolding: row.querySelectorAll('.cell.folding').length,
-          };
-        },
-        line
-      );
-      runs++;
-      const ok =
-        found.rendered === found.model &&
-        found.rendered === found.shown &&
-        found.rendered === before &&
-        after.verdict.cls.indexOf('no') < 0;
-      if (!ok) bad++;
-      log(
-        '  ' + route.padEnd(8),
-        'dwell ' + String(dwell).padStart(2) + 'ms ',
-        ok ? 'ok  ' : 'BAD ',
-        JSON.stringify(found.rendered)
-      );
-      if (!ok) {
-        log('      model     ', JSON.stringify(found.model));
-        log('      readBoard ', JSON.stringify(found.shown));
-        log('      before    ', JSON.stringify(before));
-        log('      valuetext ', JSON.stringify(found.valuetext));
-        log('      verdict   ', after.verdict.cls, '|', after.verdict.text.split('\n')[0].trim());
-        log('      folding   ', found.stillFolding);
+            index: positions[arg.slot],
+            size: cart.modules[arg.slot].flaps.length,
+          }),
+          { line: line, slot: slot }
+        );
+        if (route === 'drag') {
+          const box = await page.evaluate((slot) => {
+            const r = document.getElementById('module-' + slot).getBoundingClientRect();
+            return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height };
+          }, slot);
+          await page.mouse.move(box.x, box.y);
+          await page.mouse.down();
+          for (let move = 0; move < moves; move++) {
+            // Up one flap on the even moves, back to the grab point on the odd
+            // ones. Dragging up is what advances a module — the sign the
+            // volvelles' own drag carries.
+            await page.mouse.move(box.x, box.y - (move % 2 === 0 ? box.h : 0));
+            if (move < moves - 1) await page.waitForTimeout(dwell);
+          }
+          await page.mouse.up();
+        } else {
+          await page.focus('#module-' + slot);
+          for (let move = 0; move < moves; move++) {
+            await page.keyboard.press(move % 2 === 0 ? 'ArrowUp' : 'ArrowDown');
+            if (move < moves - 1) await page.waitForTimeout(dwell);
+          }
+        }
+        const after = await waitVerdict(page);
+        const found = await page.evaluate(
+          (arg) => {
+            const row = document.querySelectorAll('.board-line')[arg.line];
+            return {
+              // What the cells are painting, glyph by glyph.
+              rendered: Array.from(row.querySelectorAll('.cell'))
+                .map((cell) => cell.querySelector('.cell-bottom span').textContent)
+                .join('')
+                .trim(),
+              // What the model says they should be painting.
+              model: [0, 1, 2, 3, 4, 5]
+                .map((k) => cart.modules[arg.line * 6 + k].flaps[positions[arg.line * 6 + k]])
+                .join(' '),
+              // And what the page itself thinks each cell shows.
+              shown: readBoard().split('\n')[arg.line],
+              index: positions[arg.slot],
+              valuetext: document
+                .getElementById('module-' + arg.slot)
+                .getAttribute('aria-valuetext'),
+              word: cart.modules[arg.slot].words[positions[arg.slot]],
+              stillFolding: row.querySelectorAll('.cell.folding').length,
+            };
+          },
+          { line: line, slot: slot }
+        );
+        runs++;
+        const wantedIndex = (start.index + expectedShift) % start.size;
+        const ok =
+          found.rendered === found.model &&
+          found.rendered === found.shown &&
+          found.index === wantedIndex &&
+          found.valuetext === found.word &&
+          found.stillFolding === 0 &&
+          (expectedShift === 0 ? found.rendered === start.row : true) &&
+          after.verdict.cls.indexOf('no') < 0;
+        if (!ok) bad++;
+        log(
+          '  ' + route.padEnd(8),
+          String(turns) + ' turn' + (turns === 1 ? ' ' : 's'),
+          'dwell ' + String(dwell).padStart(2) + 'ms ',
+          'net ' + expectedShift,
+          ok ? 'ok  ' : 'BAD ',
+          JSON.stringify(found.rendered)
+        );
+        if (!ok) {
+          log('      model     ', JSON.stringify(found.model));
+          log('      readBoard ', JSON.stringify(found.shown));
+          log('      started   ', JSON.stringify(start.row));
+          log('      index     ', found.index, 'wanted', wantedIndex);
+          log('      valuetext ', JSON.stringify(found.valuetext), 'module says', JSON.stringify(found.word));
+          log('      verdict   ', after.verdict.cls, '|', after.verdict.text.split('\n')[0].trim());
+          log('      folding   ', found.stillFolding);
+        }
+        await page.context().close();
       }
-      await page.context().close();
     }
   }
   log('reverse on module', slot, REDUCED ? '(reduced motion)' : '');

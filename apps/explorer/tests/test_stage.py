@@ -3428,6 +3428,11 @@ def test_the_second_cartridge_is_the_explorers_and_not_the_packages() -> None:
     assert "Mueller" in header
     assert "2065" in header
     assert "individual common words" in header
+    # And that the sixty creature names were checked against a source. They were
+    # written from memory, and nothing in this repository can catch a
+    # misspelling — a wrong name loads, renders, checks and passes every test
+    # here. So the fact that somebody verified them has to live in the file.
+    assert "Bulbapedia" in header
 
 
 def test_the_pokemon_cartridge_keeps_the_boards_own_shape() -> None:
