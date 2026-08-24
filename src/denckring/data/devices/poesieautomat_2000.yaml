@@ -65,6 +65,25 @@
 # not fit on the board at a legible cell size, which is why the lexicon is made
 # of short concrete nouns and plain verbs rather than of office prose.
 #
+# What is deliberately absent, which is the one constraint no test can hold.
+# The other six are properties of the strings and are checked. This one is a
+# judgement about register: no filler names a camp, a guard, a deportation, a
+# ruin, a fire or a restraint, and none may be added. Each word taken out under
+# this rule was innocent read alone — `die Rampe` a loading ramp, `das Lager` a
+# warehouse, `das Gleis` a railway track, `die Wache` a watch, `der Zaun` a
+# fence, `die Kammer` a chamber. The defect was never one flap. It is what a
+# machine emitting 10^36 German poems eventually sets beside what, and a reader
+# who meets a single poem cannot know that a pairing was drawn rather than
+# meant. Nobody can read 10^36 combinations, so the only reliable guard is to
+# keep the material out of the modules rather than to look for it in the
+# output. Judge the assembled register, not the isolated word: `unter Strom`
+# and `der Bagger` stay because nothing they can meet turns them, and `im
+# Kessel` was considered as a boiler and declined, because in a war register it
+# is an encirclement and the point of the rule is not to have to decide that
+# per poem. What the lexicon is made of instead is unchanged and is large:
+# weather, water, concrete, foundry, rail freight, workshop, administration,
+# cold.
+#
 # Line schemas, as fixed in the brief for this row:
 #
 #   line 1   ADV-TIME  V3SG      NP-NOM  PP      ADV     PP
@@ -118,12 +137,12 @@ slots:
       - "das Eis"
       - "der Beton"
       - "die Uhr"
-      - "der Zaun"
+      - "der Bagger"
       - "das Amt"
       - "die Halle"
       - "der Ruß"
       - "das Werk"
-      - "die Sirene"
+      - "die Rinne"
   - name: Adjunkt
     line: 0
     alternatives:
@@ -175,7 +194,7 @@ slots:
       - "Das Depot"
       - "Der Kies"
       - "Die Fähre"
-      - "Das Gitter"
+      - "Das Ventil"
       - "Die Schicht"
   - name: Adjunkt
     line: 1
@@ -188,12 +207,12 @@ slots:
       - "auf Sand"
       - "seit Mai"
       - "bei Ebbe"
-      - "mit Draht"
+      - "mit Kalk"
       - "vor Ablauf"
   - name: Adjunkt
     line: 1
     alternatives:
-      - "am Zaun"
+      - "am Silo"
       - "in Betrieb"
       - "über Land"
       - "aus Beton"
@@ -233,7 +252,7 @@ slots:
     line: 1
     alternatives:
       - "am Hang"
-      - "in Deckung"
+      - "in Ordnung"
       - "über Tage"
       - "aus Blech"
       - "trotz Flut"
@@ -276,7 +295,7 @@ slots:
       - "das Kabel"
       - "die Kohle"
       - "der Estrich"
-      - "das Gleis"
+      - "das Rohr"
       - "die Pumpe"
       - "der Staub"
       - "das Moos"
@@ -331,16 +350,16 @@ slots:
       - "Die Bahn"
       - "Der Hafen"
       - "Das Ufer"
-      - "Die Mauer"
+      - "Die Werft"
       - "Der Turm"
-      - "Das Lager"
+      - "Das Becken"
       - "Die Anzeige"
   - name: Adjunkt
     line: 3
     alternatives:
       - "im Beton"
       - "ohne Zeugen"
-      - "unter Zwang"
+      - "unter Deck"
       - "auf Antrag"
       - "gegen Ende"
       - "auf Halde"
@@ -365,7 +384,7 @@ slots:
     line: 3
     alternatives:
       - "am Deich"
-      - "in Ketten"
+      - "in Fahrt"
       - "über Eck"
       - "aus Stein"
       - "trotz Wind"
@@ -383,7 +402,7 @@ slots:
       - "nach Abzug"
       - "gegen Rost"
       - "auf Vorrat"
-      - "aus Draht"
+      - "aus Kupfer"
       - "bei Frost"
       - "mit Blech"
       - "vor Beginn"
@@ -397,7 +416,7 @@ slots:
       - "trotz Kälte"
       - "auf dem Kai"
       - "ab sofort"
-      - "im Graben"
+      - "im Rohbau"
       - "ab Freitag"
       - "vor Schluss"
   # ── Zeile 5 ────────────────────────────────────────────────────────
@@ -408,16 +427,16 @@ slots:
       - "Die Straße"
       - "Das Blech"
       - "Der Frost"
-      - "Die Sperre"
+      - "Die Weiche"
       - "Das Signal"
-      - "Der Draht"
+      - "Der Hebel"
       - "Die Fracht"
       - "Das Fenster"
       - "Der Zement"
   - name: Verb
     line: 4
     alternatives:
-      - "brennt"
+      - "kippt"
       - "kreist"
       - "zittert"
       - "verstummt"
@@ -469,7 +488,7 @@ slots:
   - name: Adjunkt
     line: 4
     alternatives:
-      - "im Lager"
+      - "im Getriebe"
       - "ohne Antrag"
       - "unter Wert"
       - "nach Gehör"
@@ -497,24 +516,24 @@ slots:
     line: 5
     alternatives:
       - "der Bahnhof"
-      - "die Kammer"
+      - "die Waage"
       - "das Gerüst"
       - "der Dienst"
-      - "die Wache"
+      - "die Zufahrt"
       - "das Gelände"
       - "der Aushang"
-      - "die Rampe"
+      - "die Halde"
       - "das Tor"
       - "der Nachbar"
   - name: Adjunkt
     line: 5
     alternatives:
       - "am Fenster"
-      - "in Trümmern"
+      - "in Pacht"
       - "über Wasser"
       - "aus Holz"
       - "trotz Hitze"
-      - "auf Posten"
+      - "auf Achse"
       - "auf Probe"
       - "im Kiosk"
       - "von Norden"
@@ -549,12 +568,12 @@ slots:
     line: 5
     alternatives:
       - "am Damm"
-      - "in Flammen"
+      - "in Wartung"
       - "über Eis"
       - "aus Zement"
       - "trotz allem"
       - "auf Abstand"
       - "ab Dienstag"
-      - "im Moor"
+      - "im Schilf"
       - "ab morgen"
       - "vor Montag"
