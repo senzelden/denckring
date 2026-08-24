@@ -4837,3 +4837,77 @@ def test_a_cell_that_is_asked_for_what_it_is_showing_calls_off_its_journey() -> 
     load = re.search(r"function loadCartridge\(id\) \{(.*?)\n\}", script, re.S)
     assert load is not None
     assert "cell.want = alphabet[0];" in load.group(1)
+
+
+def test_the_credit_follows_the_cartridge() -> None:
+    """The attribution has to describe the flaps that are actually on the board.
+
+    The scene shipped for one round with a fixed eyebrow — `Hans Magnus
+    Enzensberger · Landsberger Poesieautomat, 2000` — and a fixed footnote
+    describing the Landsberg lexicon, over whichever cartridge was loaded. With
+    the Pokémon flaps showing, the page credited Enzensberger for a lexicon
+    that is not his and described 360 flaps that were not the ones on screen.
+    Every other scene's credit describes what is on screen, and the catalogue's
+    whole discipline is not asserting what is not demonstrated.
+
+    The **mechanism** is Enzensberger's on both cartridges and stays credited
+    identically on both. It is the **lexicon** half that has to move, and this
+    test fails if the eyebrow comes out the same under both."""
+    kickers: dict[str, str] = {}
+    credits: dict[str, str] = {}
+    for device in CARTRIDGES:
+        body = _automat_page(device)
+        found_kicker = re.search(r'id="automat-kicker">([^<]*)<', body)
+        found_credit = re.search(r'id="automat-credit">([^<]*)<', body)
+        assert found_kicker is not None, device
+        assert found_credit is not None, device
+        kickers[device] = html.unescape(found_kicker.group(1))
+        credits[device] = html.unescape(found_credit.group(1))
+
+    # The requirement, stated the way the defect was: not the same line.
+    assert kickers["poesieautomat_2000"] != kickers["poesieautomat_pokemon"]
+    assert credits["poesieautomat_2000"] != credits["poesieautomat_pokemon"]
+
+    # The mechanism is credited, identically, on both — the machine really is
+    # Enzensberger's whichever flaps are in it.
+    for device, kicker in kickers.items():
+        assert kicker.startswith(stage.POESIE_AUTOMAT_MACHINE), device
+        assert "Enzensberger" in kicker, device
+        assert "Enzensberger" in credits[device], device
+    # And what differs is only the lexicon half.
+    tails = {
+        device: kicker[len(stage.POESIE_AUTOMAT_MACHINE) :] for device, kicker in kickers.items()
+    }
+    assert len(set(tails.values())) == 2
+
+    # Each page names its own lexicon and not the other's.
+    landsberg_kicker = kickers["poesieautomat_2000"]
+    pokemon_kicker = kickers["poesieautomat_pokemon"]
+    assert "Pokémon" not in landsberg_kicker
+    assert "Pokémon" in pokemon_kicker
+    # The Landsberg footnote is about Enzensberger's copyright; the Pokémon one
+    # is about a trademark and about Müller, and says the words are neither
+    # man's.
+    assert "2092" in credits["poesieautomat_2000"]
+    assert "Pokémon" not in credits["poesieautomat_2000"]
+    assert "trademark" in credits["poesieautomat_pokemon"]
+    assert "Müller" in credits["poesieautomat_pokemon"]
+    assert "1995" in credits["poesieautomat_pokemon"]
+    assert "never packaged" in credits["poesieautomat_pokemon"]
+
+    # Nothing is hardcoded in the markup any more — the eyebrow and the
+    # footnote come from the cartridge on both the server and the client.
+    template = _automat_template()
+    assert "Landsberger Poesieautomat, 2000</p>" not in template
+    assert '<p class="scene-kicker" id="automat-kicker">{{ kicker }}</p>' in template
+    assert '<p class="scene-credit" id="automat-credit">{{ credit }}</p>' in template
+    script = _automat_scene_script()
+    load = re.search(r"function loadCartridge\(id\) \{(.*?)\n\}", script, re.S)
+    assert load is not None
+    assert "kickerEl.textContent = cart.kicker;" in load.group(1)
+    assert "creditEl.textContent = cart.credit;" in load.group(1)
+    # And both travel in the payload, so the swap has them without a round trip.
+    for cartridge in stage.AUTOMAT_CARTRIDGES:
+        payload = stage.automat_payload(cartridge)
+        assert payload["kicker"] == cartridge.kicker
+        assert payload["credit"] == cartridge.credit

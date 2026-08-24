@@ -110,6 +110,9 @@ async function state(page) {
     deferredRead: deferredRead,
     device: document.getElementById('automat-device').value,
     alphabet: alphabet,
+    // The attribution, which has to describe the flaps actually on the board.
+    kicker: document.getElementById('automat-kicker').textContent.trim(),
+    credit: document.getElementById('automat-credit').textContent.trim(),
     indices: positions.slice(),
     // The poem the cells are showing, by the page's own reader — the same call
     // the submit uses, so the harness cannot disagree with it.
@@ -650,6 +653,13 @@ async function runSwap(browser) {
   log('  swap                 ', swap.toFixed(0) + 'ms');
   log('  device now           ', after.device);
   log('  alphabet before/after', JSON.stringify(before.alphabet), '->', JSON.stringify(after.alphabet));
+  log('  eyebrow before       ', JSON.stringify(before.kicker));
+  log('  eyebrow after        ', JSON.stringify(after.kicker));
+  log('  eyebrow followed the cartridge', before.kicker !== after.kicker ? 'yes' : 'NO (BUG)');
+  log('  footnote followed it ', before.credit !== after.credit ? 'yes' : 'NO (BUG)');
+  log('  mechanism still credited both ways',
+    before.kicker.indexOf('Enzensberger') >= 0 && after.kicker.indexOf('Enzensberger') >= 0
+      ? 'yes' : 'NO (BUG)');
   log('  verdict after        ', after.verdict.cls, '|', after.verdict.text.split('\n')[0].trim());
   log('  checked == on screen ', after.verdict.checked === after.shown);
   log('  press on new cart    ', pressed.verdict.cls, '| checked == on screen', pressed.verdict.checked === pressed.shown);

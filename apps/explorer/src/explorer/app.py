@@ -726,6 +726,8 @@ def stage_poesie_automat(
         cartridges=[stage.automat_payload(c) for c in stage.AUTOMAT_CARTRIDGES],
         device=cartridge.device_id,
         note=cartridge.note,
+        kicker=cartridge.kicker,
+        credit=cartridge.credit,
         report=report,
         text=None,
         exponent=stage.power_of_ten(board.combinations),
