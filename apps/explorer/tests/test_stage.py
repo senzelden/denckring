@@ -2398,6 +2398,53 @@ def test_the_word_ladder_scene_renders_a_real_ladder_and_its_verdict() -> None:
     assert 'class="tile changed"' in normalised
 
 
+def test_the_ladder_says_how_many_rungs_and_how_many_changes_it_drew() -> None:
+    """The count line is the one place this scene can quietly lie.
+
+    A ladder of five words is climbed by four changes, and both numbers are
+    true of the same figure — which is why the line names both rather than
+    picking one and calling it "rungs". `Ladder.rungs` is the five, so a line
+    reading "4 rungs" beside a `rungs` of length five is off by one against
+    the scene's own vocabulary, in exactly the way the Automat's line count
+    was.
+
+    Asserted against the tiles actually on the page rather than against
+    arithmetic repeated here: the numbers and the figure cannot disagree if
+    the numbers are read off the figure.
+    """
+    response = client.get("/stage/word_ladder")
+    assert response.status_code == 200
+    normalised = html.unescape(" ".join(response.text.split()))
+    drawn = normalised.count('class="rung"')
+    marked = normalised.count('class="tile changed"')
+    assert (drawn, marked) == (5, 4), (drawn, marked)
+    assert f"{drawn} words \u00b7 {marked} changes \u00b7 one letter each" in normalised
+
+
+def test_the_german_ladders_count_follows_its_own_shorter_climb() -> None:
+    """The German pair is four words and three changes, so a count hard-coded
+    to the English figure passes the test above and is wrong here."""
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "kalt", "target": "warm", "lang": "de"}
+    )
+    assert response.status_code == 200
+    normalised = html.unescape(" ".join(response.text.split()))
+    drawn = normalised.count('class="rung"')
+    marked = normalised.count('class="tile changed"')
+    assert (drawn, marked) == (4, 3), (drawn, marked)
+    assert f"{drawn} words \u00b7 {marked} changes \u00b7 one letter each" in normalised
+
+
+def test_a_ladder_that_was_never_found_counts_nothing() -> None:
+    """No figure, no count. A count line standing under a "no ladder" message
+    would be describing a ladder that does not exist."""
+    response = client.post(
+        "/stage/word_ladder/act", data={"start": "crime", "target": "sound", "lang": "en"}
+    )
+    assert response.status_code == 200
+    assert "one letter each" not in response.text
+
+
 def test_the_word_ladder_route_finds_a_german_ladder() -> None:
     """The toggle genuinely changes the search, the way N+7's own does: a
     German request must not silently fall back to the English lexicon."""

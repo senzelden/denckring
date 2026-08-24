@@ -1559,10 +1559,57 @@
   min-height: 3rem;
 }
 
+/* The two rails, and the reason the figure shrink-wraps.
+   
+   A ladder drawn as a ladder: the rungs are already there, and what was
+   missing is the thing they are set into. `width: max-content` is what makes
+   the rails hug the rungs — `.ladder` is a block-level flex container, so at
+   its natural full width the rails would stand at the far edges of the
+   column with several centimetres of paper between them and the tiles, which
+   reads as a border around the figure rather than as a ladder.
+   
+   Drawn immediately rather than staggered in with the rungs. The rails are
+   the ladder; the rungs land on them, and a frame that assembled itself
+   after the things it holds would have the order backwards. It also gives
+   the figure its full box from the first frame, so nothing below it moves
+   while the rungs arrive.
+   
+   Furniture, not accent: this scene declares no `--accent` (see the token
+   block at the top of this file), and the marked letter carries the whole
+   explanatory burden. A rail strong enough to compete with that mark would
+   be spending the scene's one loud colour on its frame. */
 .ladder {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  position: relative;
+  width: max-content;
+  padding: 0.4rem 1.5rem;
+}
+
+.ladder::before,
+.ladder::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--paper-shade);
+}
+
+.ladder::before { left: 0; }
+.ladder::after { right: 0; }
+
+/* Both numbers the figure is true of, under it. Mono and quiet, the register
+   every other count on this stage is set in — `.strip-count` and the Wortbuch
+   tally are the same voice, and this is a reading off the figure rather than
+   a verdict about it. */
+.ladder-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--lead);
+  margin: 0.7rem 0 0;
 }
 
 /* One rung arriving after the one above it — the same "each keyframe fires once,

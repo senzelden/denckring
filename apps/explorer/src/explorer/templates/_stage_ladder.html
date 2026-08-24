@@ -31,4 +31,16 @@
      else "checked — not a valid ladder" }}
 </p>
 {% endif %}
+{# Both numbers, because both are true of the same figure and naming only one
+   invites the off-by-one: a ladder of five words is climbed by four changes.
+   `Ladder.rungs` is the five, so a line reading "4 rungs" beside it would be
+   wrong in the scene's own vocabulary.
+
+   Counted off the ladder rather than from the two endpoints — the changes are
+   exactly the rungs carrying a marked letter, which are exactly the tiles the
+   figure draws in the accent. The count and the figure cannot disagree,
+   because they are the same list. #}
+<p class="ladder-count">{{ ladder.rungs | length }} words &middot;
+  {{ ladder.rungs | rejectattr("changed", "none") | list | length }} changes &middot;
+  one letter each</p>
 {% endif %}
