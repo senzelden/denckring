@@ -1,0 +1,154 @@
+{# Scenes one and six, on one page, because the two halves are one argument.
+
+   The pairing is taken from a mockup and it is the best idea in any of them:
+   the Denckring *begins* with an instruction to take a knife to a page, and
+   three centuries later Gysin runs the same operation backwards. Neither half
+   says much alone.
+
+   Every count below comes from `stage.ring_parts`, `stage.rings` and
+   `stage.cut_up_source_words`. Nothing here is typed, and the mockup this page
+   is drawn from is the reason that rule is stated twice: it multiplied the
+   plate's printed caption out to "roughly 83 million words" and called the
+   inventory 254 parts, both of which are arithmetic on numbers Harsdörffer
+   printed rather than on the parts the transcription actually carries. #}
+{% extends "reading/_shell.html" %}
+
+{% block kicker %}Nürnberg 1651 &middot; Paris 1959{% endblock %}
+
+{% block body %}
+
+<section class="sheet">
+  <p class="reading-num">I</p>
+  <h2>Fünffacher Denckring der Teutschen Sprache</h2>
+
+  <p class="reading-lede">Five nested paper discs, each turning on its own. Read from the
+    innermost outwards and the rings spell a German word: a prefix, opening letters, a
+    vowel, closing letters, a suffix. The heading promises the whole of the language on a
+    single leaf, and the instruction under it is to cut that leaf up.</p>
+
+  <blockquote class="reading-quote">
+    <p lang="de">Dieses Blätlein muß heraus geschnidten / in fünff Ringe zertheilet / und
+      auf fünff gleich&#61;grosse Scheiben von Papyr / also aufeinander gehefftet werden /
+      daß man jeden Ring absonderlich umbdrehen kan.</p>
+    <p class="reading-gloss">This little leaf must be cut out, divided into five rings, and
+      fastened onto five paper discs of equal size, so that each ring can be turned by
+      itself.</p>
+    <cite>Harsdörffer's instruction to the bookbinder, 1651</cite>
+  </blockquote>
+
+  <p>The device is a machine for enumerating candidates, and Harsdörffer was candid that
+    enumerating is all it does. He recommends the rings chiefly for finding rhymes — hunt
+    the rhyming syllable on the third and fourth rings, then turn the second ring against
+    it, which is the sweep the scene's own rhyme panel performs. Whether a compound the
+    wheel produces means anything, the user decides. The device does the enumerating; it
+    does not do the judging, and that division of labour is the whole idea. It is the same
+    one <a href="/stage/llull_figure">Llull's wheels</a> make three centuries earlier.</p>
+
+  <h3>What the discs actually carry</h3>
+
+  <p>The transcription the scene runs on holds {{ parts }} word-parts across the five
+    rings:</p>
+
+  <ul class="reading-inventory">
+    {% for slot in rings.slots %}
+    <li><b>{{ slot.alternatives | length }}</b> <span>{{ slot.name }}{% if slot.optional %}
+      &middot; may be left blank{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+
+  <p>Harsdörffer's own cartouche announces 48 &middot; 60 &middot; 12 &middot; 120 &middot;
+    24 and states no total at all. The transcription carries
+    {% for slot in rings.slots %}{{ slot.alternatives | length }}{% if not loop.last %}
+    &middot; {% endif %}{% endfor %} — the same {{ parts }} parts, disagreeing about where
+    the boundary between the prefix and suffix rings falls. Both counts stand here
+    unreconciled, and neither has been adjusted to agree with the other. Two independent
+    counts of the plate also both find sixty on the ring the print labels fifty, so that
+    particular discrepancy is not a minority reading but the ordinary one.</p>
+
+  <p class="reading-figure">
+    <b>{{ "{:,}".format(rings.combinations) }}</b>
+    <span>readings these discs admit, with the prefix and suffix rings each free to be
+      left blank</span>
+  </p>
+
+  <p>Not the <s>{{ "{:,}".format(rings.claimed) }}</s> that circulates. That figure factors
+    as 2<sup>8</sup> &times; 3 &times; 5<sup>2</sup> &times; 61 &times; 83, and neither 61
+    nor 83 divides any ring size on any count of the plate — so it cannot be a product of
+    these rings at all. It is repeated in essentially every secondary account of the
+    device, which is the argument for computing a number rather than citing one, made
+    about the one number everybody agrees on.</p>
+
+  <p>One correction worth making plainly, because the error is close to universal: the
+    Denckring is <em>not</em> in the <cite>Poetischer Trichter</cite>. It is in the second
+    part of the <cite>Deliciae Physico-Mathematicae</cite>, the <cite>Erquickstunden</cite>,
+    at p. 517 — the leaf the scene photographs.</p>
+</section>
+
+<section class="sheet reading-pivot">
+  <p class="reading-scissors" aria-hidden="true">&#9986;</p>
+  <p>Notice where the Denckring begins. Harsdörffer cuts a page into parts in order to
+    assemble words. In 1959, in a hotel on the rue Gît-le-Cœur, Brion Gysin sliced through
+    a stack of newspapers while trimming a mount, saw the cut layers line up into
+    sentences, and ran the same operation backwards — cutting finished language apart to
+    see what it had been holding.</p>
+</section>
+
+<section class="sheet">
+  <p class="reading-num">II</p>
+  <h2>The Cut-Up</h2>
+
+  <p class="reading-lede">Two straight cuts divide a page into four; the quarters are
+    rearranged, bottom-right to top-left, and you read across the join. That is the whole
+    method, and it is the one the scene performs — two blades you position by hand, and a
+    verdict on the text read back out of the pieces.</p>
+
+  <p>Gysin's claim for it was that writing was fifty years behind painting: collage had
+    been ordinary in the studio since 1912 and was still unthinkable on the page. Burroughs
+    took the technique into the Nova trilogy and pushed it further with the fold-in, laying
+    a folded page against another so two texts meet along a vertical seam. Tzara had
+    proposed something adjacent in 1920 — cut an article into single words, shake them in a
+    bag, draw them out in order — but as a provocation rather than a working method.</p>
+
+  <p>What the cut does is break the sentence's forward pressure. Prose reads as a chain of
+    commitments, each clause narrowing what the next one can be; slicing across the column
+    snaps those commitments and leaves phrases adjacent that no author would have put
+    together. Most results are rubbish. The value is in the small proportion that is not,
+    and finding it costs exactly the labour the Denckring's user spends deciding whether a
+    compound means anything.</p>
+
+  <h3>What the checker can and cannot say</h3>
+
+  <p>This is the one scene on the stage whose procedure is <em>source-relative</em>: a
+    cut-up is not decidable from the text alone, because the question is whether every word
+    on the table came off the page it was cut from. The verdict counts words across the
+    join and names the pieces that are not words the source can account for. It says
+    nothing whatever about whether the result is any good, and there is no version of it
+    that could.</p>
+
+  <p>The page under the blades is
+    {{ cut_up_words }} words over {{ cut_up_lines }} lines, written for the scene — a
+    quotation would make the demonstration a rights question rather than a demonstration,
+    and a public-domain page would drag a second century onto a stage that already has two
+    on it.</p>
+
+  <p>Both machines make the same bet: that a mechanical operation on language can turn up
+    something the operator could not have reached by intending it, and that the operator
+    remains responsible for recognising which results are worth keeping. Harsdörffer turns
+    rings and gets candidates. Gysin cuts pages and gets candidates. Neither device ever
+    produced a judgement, and neither pretended to — which is also the reason both of them
+    can be checked by a program at all.</p>
+</section>
+
+{% endblock %}
+
+{% block sources %}
+<p>Georg Philipp Harsdörffer, <cite>Deliciae Physico-Mathematicae</cite> (the
+  <cite>Erquickstunden</cite>), part two, Nürnberg 1651, p. 517. The plate the scene shows
+  is Herzog August Bibliothek Wolfenbüttel, 224.2 Quod., the leaf facing that page. Ring
+  contents are Florian Cramer's transcription, which appears to be the only
+  machine-readable copy; the counts on this page are computed from it.</p>
+<p>Cut-up after Brion Gysin and William S. Burroughs, <cite>Minutes to Go</cite>, 1960;
+  the discovery is Gysin's, 1959. Fold-in after Burroughs, <cite>The Third Mind</cite>,
+  1978. Word-bag method after Tristan Tzara, 1920. The page under the blades was written
+  for this scene.</p>
+{% endblock %}

@@ -16,6 +16,7 @@ on. Here it is clearly a second thing, run by hand, next to the verdict.
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 
@@ -128,6 +129,105 @@ class Reading:
 def available() -> bool:
     """Whether a key is present. The button is hidden when it is not."""
     return bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+
+def _prompt(throw: str, headword: str, lang: str, register: str) -> tuple[str, str]:
+    """The system prompt and the user turn, for one throw.
+
+    Shared by `read` and `stream` so the two cannot drift into asking for
+    different things — the streamed reading and the waited-for one have to be
+    the same reading, arriving differently.
+    """
+    filed = f"Filed under the headword {headword!r}.\n\n" if headword else ""
+    system = REGISTERS.get(register, REGISTERS[DEFAULT_REGISTER])
+    if lang == "de":
+        tongue = (
+            "Write the paragraph in German, as he would have."
+            if register == "jean_paul"
+            else "Write the paragraph in German."
+        )
+    else:
+        tongue = "Write the paragraph in English."
+    return system, f"{filed}{throw}\n\n{tongue}"
+
+
+def unavailable(throw: str) -> str:
+    """Why a reading cannot be asked for, or `""` if it can.
+
+    The three refusals `read` and `stream` share, in the order they have to be
+    checked. Returned rather than raised: this sits beside a verdict on a
+    bench, and a missing key must not take the page down.
+    """
+    if not throw.strip():
+        return "There is no throw to read yet — generate one first."
+    if not available():
+        return "Set ANTHROPIC_API_KEY to ask for a reading."
+    try:
+        import anthropic  # noqa: F401
+    except ImportError:
+        return "The anthropic package is not installed in this environment."
+    return ""
+
+
+def stream(
+    throw: str, *, headword: str = "", lang: str = "en", register: str = DEFAULT_REGISTER
+) -> Iterator[str]:
+    """The same reading as `read`, in the pieces it arrives in.
+
+    The paragraph takes the better part of half a minute to come back, and the
+    scene showed nothing at all for the whole of it — a bench that looks broken
+    for thirty seconds is a bench nobody presses twice. Streaming does not make
+    it faster; it makes the wait legible, which is the part that was wrong.
+
+    Yields the paragraph, and one NUL for every burst of thinking that precedes
+    it. That second part is the whole of why this exists: measured, the text
+    itself arrives in about half a second, and everything before it — fourteen
+    seconds of it — is the model thinking, during which a text-only stream is
+    indistinguishable from a stalled one. So the thinking is reported as
+    something rather than as nothing, and the client counts NULs to show that
+    the wait is alive without putting the model's reasoning on the page, which
+    is not what the scene asked for and not what a reader should be handed.
+
+    NUL because it cannot occur in the paragraph: the client strips it before
+    rendering, and any encoding that used a real character would eventually
+    print it.
+
+    Failures come back as one final chunk rather than an exception, because by
+    the time they happen the response has already started and there is no
+    status code left to set.
+    """
+    problem = unavailable(throw)
+    if problem:
+        yield problem
+        return
+
+    import anthropic
+
+    system, turn = _prompt(throw, headword, lang, register)
+    try:
+        client = anthropic.Anthropic()
+        with client.messages.stream(
+            model=model(),
+            max_tokens=16000,
+            system=system,
+            thinking={"type": "adaptive"},
+            messages=[{"role": "user", "content": turn}],
+        ) as chunks:
+            for event in chunks:
+                kind = getattr(event, "type", "")
+                if kind != "content_block_delta":
+                    continue
+                delta = getattr(event, "delta", None)
+                what = getattr(delta, "type", "")
+                if what == "text_delta":
+                    yield getattr(delta, "text", "")
+                elif what in ("thinking_delta", "signature_delta"):
+                    # A heartbeat, not the thinking itself.
+                    yield "\0"
+    except anthropic.APIStatusError as exc:
+        yield f"\n\nThe model refused or errored ({exc.status_code}): {exc.message}"
+    except anthropic.APIConnectionError:
+        yield "\n\nCould not reach the API. Check the network."
 
 
 def read(

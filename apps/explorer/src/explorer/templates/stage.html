@@ -23,8 +23,20 @@
 <main class="stage{% block main_class %}{% endblock %}" id="stage">
 {% block main %}{% endblock %}
 </main>
+{# Both of these sit outside `.stage`, and both go away together under
+   `?chrome=off`. That is the whole safety property of the reading link: the
+   flag that strips a scene for recording strips this too, so no capture can
+   contain a pointer to a page that is not part of the demonstration.
+
+   `reading_for` is a Jinja global rather than a kwarg on eight routes — every
+   scene needs the same lookup and a ninth would be added without it. `scene`
+   is undefined on `/board`, which borrows this shell and is not a scene. #}
 {% if not chrome_off %}
 <p class="stage-caption">{% block caption %}{% endblock %}</p>
+{% if scene is defined %}{% set companion = reading_for(scene.slug) %}{% if companion %}
+<p class="stage-reading-link"><a href="/stage/{{ scene.slug }}/reading">{{ companion.title }}
+  &mdash; the argument behind this scene &rarr;</a></p>
+{% endif %}{% endif %}
 {% endif %}
 </body>
 </html>

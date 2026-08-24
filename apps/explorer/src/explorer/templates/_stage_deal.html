@@ -1,0 +1,12 @@
+{# A whole fresh poem: `#poem`'s innerHTML, and the address out of band.
+
+   The address sits outside `#poem` — it is beside the poem on the stage, not
+   inside it — so a deal's innerHTML swap does not reach it. It came back for a
+   flip and not for a deal until this file existed, which meant the scene sat
+   showing poem number one under fourteen lines it had just redealt, and then
+   the next flip appeared to move twelve digits at once as the stale address
+   caught up. The same shape as `_stage_flip.html`: the fragment, plus every
+   other thing on the page that this action changed. #}
+{% include "_stage_poem.html" %}
+{% set oob = true %}
+{% include "_stage_address.html" %}

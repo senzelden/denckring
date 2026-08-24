@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>N+7 · A · The passage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .bar { display: flex; align-items: flex-end; gap: 1.6rem; margin: 1rem 0 0; flex-wrap: wrap; }
+  .pick { display: flex; gap: .4rem; }
+  .n { display: flex; align-items: center; gap: .7rem; }
+  .n label { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lead); }
+  input[type=range] { width: 300px; accent-color: var(--rubric); }
+  .nval { font-family: var(--display); font-size: 1.5rem; font-weight: 600; color: var(--ink);
+          min-width: 3rem; text-align: center; font-variant-numeric: tabular-nums lining-nums; }
+  .page { margin: 1.5rem 0 0; max-width: 66rem; }
+  .passage { font-family: var(--display); font-size: 1.62rem; line-height: 1.62; color: var(--ink); margin: 0; }
+  .noun { position: relative; white-space: nowrap; }
+  .noun .was { color: var(--lead); text-decoration: line-through; text-decoration-color: var(--rubric);
+               text-decoration-thickness: 1px; margin-right: .28em; }
+  .noun .now { color: var(--ink); border-bottom: 2px solid var(--accent); }
+  .plain .noun .was { display: none; }
+  .plain .noun .now { border-bottom-color: transparent; }
+  .plain .noun.is-noun .now { border-bottom: 1px dotted #bdb5a5; }
+  .foot { display: flex; gap: 2.4rem; align-items: baseline; margin: 1.6rem 0 0; flex-wrap: wrap; }
+  .tally { font-family: var(--mono); font-size: .7rem; color: var(--lead); }
+  .tally b { font-family: var(--display); font-size: 1.1rem; font-weight: 600; color: var(--ink); }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Jean Lescure &middot; Oulipo, 13 February 1961</p>
+  <h1>N+7</h1>
+
+  <div class="bar">
+    <div class="pick">
+      <button class="quiet src" data-src="genesis" aria-pressed="true">Genesis 1</button>
+      <button class="quiet src" data-src="gettysburg" aria-pressed="false">Gettysburg</button>
+      <button class="quiet src" data-src="sonnet" aria-pressed="false">Sonnet 18</button>
+    </div>
+    <div class="n">
+      <label for="n">N +</label>
+      <input type="range" id="n" min="-15" max="15" value="7">
+      <span class="nval" id="nval">+7</span>
+      <button class="quiet" id="both" aria-pressed="true">Show what was there</button>
+    </div>
+  </div>
+
+  <div class="page" id="page">
+    <p class="passage" id="passage"></p>
+  </div>
+
+  <div class="foot">
+    <p class="tally"><b id="moved">0</b> nouns displaced</p>
+    <p class="verdict yes" id="verdict">checked &mdash; a real displacement of the source, N+7</p>
+  </div>
+  <p class="credit" id="src"></p>
+</main>
+
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'n_plus_7', letter: 'a', name: 'The passage',
+  claim: 'The rule applied to a real text, at full reading size, with the original struck through '
+       + 'beside each replacement. The slider walks N from −15 to +15, so the family of '
+       + 'transformations is a thing you sweep rather than a sentence you are told.',
+  note: 'What this shows that a reel cannot: <b>how much of a sentence survives</b>. The grammar, '
+      + 'the articles and the line breaks are visibly untouched while the subject matter goes, '
+      + 'which is the whole point of the rule. Note "In" and "a" being displaced — a word list '
+      + 'has no parts of speech, and the real scene has the same quirk.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  let key = 'genesis', n = 7, both = true;
+  const passage = document.getElementById('passage');
+  const page = document.getElementById('page');
+
+  function render() {
+    const set = NPLUS7[key];
+    passage.textContent = '';
+    let moved = 0;
+    set.words.forEach((w) => {
+      if (!w.n) { passage.append(document.createTextNode(w.t)); return; }
+      const to = w.n[String(n)];
+      const span = document.createElement('span');
+      span.className = 'noun is-noun';
+      if (n !== 0 && to.toLowerCase() !== w.t.toLowerCase()) moved++;
+      const was = document.createElement('span'); was.className = 'was'; was.textContent = w.t;
+      const now = document.createElement('span'); now.className = 'now';
+      // The replacement takes the original's capital, the way `displace` leaves
+      // everything but the word itself alone.
+      now.textContent = /^[A-Z]/.test(w.t) ? to.charAt(0).toUpperCase() + to.slice(1) : to;
+      span.append(was, now);
+      passage.appendChild(span);
+    });
+    page.classList.toggle('plain', !both);
+    document.getElementById('moved').textContent = String(moved);
+    document.getElementById('nval').textContent = (n >= 0 ? '+' : '') + n;
+    document.getElementById('src').textContent = set.source
+      + ' · public domain. Noun list: Open English WordNet 2024, CC BY 4.0.';
+    const v = document.getElementById('verdict');
+    if (n === 0) {
+      v.className = 'verdict'; v.style.color = 'var(--lead)';
+      v.textContent = 'checked — nothing moved: N+0 is the identity';
+    } else {
+      v.className = 'verdict yes'; v.style.color = '';
+      v.textContent = 'checked — a real displacement of the source, N' + (n >= 0 ? '+' : '') + n;
+    }
+  }
+
+  document.getElementById('n').addEventListener('input', (e) => { n = Number(e.target.value); render(); });
+  document.querySelectorAll('.src').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      key = btn.dataset.src;
+      document.querySelectorAll('.src').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      render();
+    });
+  });
+  const bothBtn = document.getElementById('both');
+  bothBtn.addEventListener('click', () => {
+    both = !both;
+    bothBtn.setAttribute('aria-pressed', String(both));
+    bothBtn.textContent = both ? 'Show what was there' : 'Show the result alone';
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

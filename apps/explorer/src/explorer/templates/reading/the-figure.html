@@ -1,0 +1,168 @@
+{# Scene seven. Two things this page does that the scene cannot.
+
+   It names the figure. The scene is titled "Llullian figure" and draws three
+   concentric wheels of nine letters, which is the fourth figure specifically —
+   but a viewer standing in front of it has no way to know that, and the six
+   tables beside it belong to the Alphabet rather than to any one figure. Said
+   here once, with the one place the reconstruction departs from the print.
+
+   And it carries the objections. Descartes and Swift are the best evidence on
+   any of these pages that what a combinatorial machine cannot do was seen
+   clearly, and early, by people who had used one.
+
+   84 and 36 are computed from the nine letters. The third figure that
+   circulates beside them — the number of entries in the printed Tabula
+   generalis — is not here, and must not be added until somebody has read a
+   facsimile. ADR 0019 is explicit about that one. #}
+{% extends "reading/_shell.html" %}
+
+{% block kicker %}Ramon Llull &middot; Ars generalis ultima, 1305&ndash;1308{% endblock %}
+
+{% block body %}
+
+<section class="sheet">
+  <h2>Which figure this is</h2>
+
+  <p class="reading-lede">Three concentric circles, each carrying the nine letters B to K,
+    J skipped. In the print the outer circle is fixed and the two inner ones turn, cut out
+    and fastened at the centre with a knotted thread — a logical machine made of paper, two
+    centuries before Harsdörffer sent his own leaf to the bookbinder. Every setting of the
+    wheels shows a chamber of three letters.</p>
+
+  <p>The scene departs from the print in one way, and it is worth naming rather than
+    leaving for somebody to notice: all three of its wheels turn. The set of chambers this
+    reaches is exactly the set a fixed outer ring reaches, because a chamber is which
+    letter each wheel shows and not where in its own ring that letter sits — but the
+    printed figure has a still ring, and this one does not.</p>
+
+  <p class="reading-figure">
+    <b>{{ chambers[3] }}</b>
+    <span>chambers of three distinct principles, from nine letters</span>
+  </p>
+
+  <p>And {{ chambers[2] }} pairs at the arity the scene's second setting offers. Both fall
+    out of the nine letters and are computed rather than quoted, which matters more here
+    than it looks: a third figure circulates alongside them, the number of compartments in
+    the printed <cite>Tabula generalis</cite>, and this project has not checked it against a
+    facsimile. So it is not on this page.</p>
+</section>
+
+<section class="sheet">
+  <h2>The alphabet</h2>
+
+  <p>What makes the device a device is that the same letter names a different thing
+    depending on which table you read it against. B is goodness, and difference, and
+    <span lang="la">utrum</span>, and God, and justice, and avarice. That multiple
+    assignment is not a convenience of notation — it <em>is</em> the mechanism, and it is
+    why a figure needed its own representation in this library rather than fitting the
+    Denckring's five slots.</p>
+
+  <table class="reading-alphabet">
+    <thead>
+      <tr>
+        <th scope="col">&nbsp;</th>
+        {% for letter in letters %}<th scope="col">{{ letter }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for level in levels %}
+      <tr>
+        <th scope="row">{{ level }}</th>
+        {% for letter in letters %}
+        <td>
+          <span class="reading-latin" lang="la">{{ figure.levels[level][letter] }}</span>
+          <span class="reading-gloss-inline">{{ glosses[level][letter] }}</span>
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p>The ninth question is <span lang="la">Quomodo et cum quo</span> — how, and with what.
+    It is two of Llull's ten questions sharing one letter, and it is several words long,
+    which is the reason the checker matches a spelled-out chamber by segmentation rather
+    than by splitting on whitespace. Shortening it to <span lang="la">Quomodo</span>, as
+    the shorter tables often do, makes the table tidier and the ninth rule wrong.</p>
+</section>
+
+<section class="sheet">
+  <h2>What it was said to be for, and against</h2>
+
+  <blockquote class="reading-quote">
+    <p lang="la">Ratio quare facimus istam artem est ut ars magna facilius sciatur.</p>
+    <p class="reading-gloss">The reason we make this short art is so that the great Art may
+      be learned more easily.</p>
+    <cite>Ramon Llull, <cite>Ars brevis</cite>, prologue, 1308</cite>
+  </blockquote>
+
+  <blockquote class="reading-quote">
+    <p lang="fr">… comme l'art de Lulle, à parler sans jugement de celles qu'on ignore.</p>
+    <p class="reading-gloss">… like the art of Lull: for speaking, without judgement, of
+      the things one does not know.</p>
+    <cite>René Descartes, <cite>Discours de la méthode</cite> II, 1637</cite>
+  </blockquote>
+
+  <blockquote class="reading-quote">
+    <p>… the most ignorant person … might write books in philosophy, poetry, politics,
+      laws, mathematics, and theology, without the least assistance from genius or study.</p>
+    <cite>Jonathan Swift, <cite>Gulliver's Travels</cite> III.5, 1726 — the engine at
+      Lagado</cite>
+  </blockquote>
+
+  <p>Descartes' objection is the sharpest thing ever said about any machine on this stage,
+    and it applies to all of them. A device that enumerates gives you sentences you have no
+    grounds for. Harsdörffer's rings hand you a word and leave you to decide whether it is
+    a word; Llull's wheels hand you a chamber and leave you to decide whether the argument
+    it frames is sound. The difference is that a word's membership in German is decidable
+    and an argument's soundness is not, which is exactly why one of these is checkable in
+    this library and the other is only turnable.</p>
+
+  <p>Two things are worth keeping in view against the usual account. Eco's point is that
+    the wheels do not freely generate new truths: the stock of principles is fixed, and
+    heterodox combinations are excluded elsewhere in the Art, which cuts against the
+    reading of the figure as an engine of open discovery. And the reading of it as a first
+    computer is reception — a claim about how the twentieth century found it useful to see
+    the object, not a finding about the object.</p>
+</section>
+
+{% if ars_available %}
+<section class="sheet">
+  <h2>Put a question to the Art</h2>
+
+  <p class="reading-lede">Not a question answered — a chamber chosen. The figure reads
+    letters out of the question, turns to a compartment of three distinct principles that
+    contains them, and argues from the six concepts those three letters carry, and from
+    nothing else.</p>
+
+  <p>Rows may contradict each other; Llull's own table has rows that go nowhere, and
+    <span lang="la">nihil</span> is an answer here rather than a failure to give one. No
+    overall conclusion comes back, because the device has never had one. That is
+    Descartes' objection above, taken seriously rather than argued with: what you get is
+    terms, and the judgement stays where it was.</p>
+
+  <form class="ars-form" hx-post="/p/llull_figure/ars" hx-target="#ars" hx-swap="innerHTML">
+    <span class="ars-field">
+      <label for="ars-question">The question</label>
+      <input id="ars-question" type="text" name="question" autocomplete="off"
+             placeholder="Whether the world is eternal">
+    </span>
+    <button type="submit">Turn the wheels</button>
+  </form>
+
+  <div id="ars" class="ars-area"></div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block sources %}
+<p>Ramon Llull, <cite>Ars generalis ultima</cite> (1305&ndash;1308) and its short form the
+  <cite>Ars brevis</cite> (1308). The ternary phase is what is implemented; the earlier
+  quaternary phase carries sixteen dignities rather than nine. The third dignity is given
+  here as <span lang="la">Aeternitas</span>, which is the usual form; <span lang="la">Duratio</span>
+  circulates for the same principle.</p>
+<p>English glosses collated against the Stanford Encyclopedia of Philosophy's table.
+  Chamber counts computed from the figure's own nine letters. Eco, on the fixed stock of
+  principles; the first-computer reading is Künzel and Bexte, 1989.</p>
+{% endblock %}

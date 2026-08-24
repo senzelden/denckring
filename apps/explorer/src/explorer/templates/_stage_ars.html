@@ -1,0 +1,61 @@
+{# What one turning of the figure produced, or why nothing did.
+
+   Rendered onto the reading page rather than onto scene seven, and the reason
+   is a measurement rather than a preference: that scene's content already
+   reaches 677 of its 720 pixels, and `.stage` is `overflow: hidden`, so a form
+   and a five-row table added to it would be silently clipped. The reading page
+   has no height budget and is never recorded, which also happens to settle the
+   honesty risk the design spec names — a model's reading cannot appear in a
+   capture beside a real verdict if it cannot appear in a capture at all.
+
+   The route it posts to is the bench's, `/p/llull_figure/ars`, following
+   `/p/ideenwuerfeln/witz` exactly. #}
+{% if problem %}
+<p class="notice">{{ problem }}</p>
+{% else %}
+
+<p class="ars-derived">{{ session.derived }}</p>
+
+{# The chamber the model chose, and what it says at each of the six levels —
+   computed by `stage.llull_readings`, the same call the scene's own panel
+   makes. So the terms the arguments below are built from are the figure's,
+   read off the figure, and not the model's recollection of them. #}
+<p class="ars-chamber">{{ session.chamber | list | join(' · ') }}</p>
+<dl class="ars-levels">
+  {% for reading in readings %}
+  <dt>{{ reading.level }}</dt>
+  <dd>{% for term in reading.terms %}<i>{{ term.latin }}</i>{% if not loop.last %} ·
+    {% endif %}{% endfor %}</dd>
+  {% endfor %}
+</dl>
+
+<table class="ars-table">
+  <colgroup>
+    <col class="ars-col-concepts"><col class="ars-col-proposition">
+    <col class="ars-col-inference"><col class="ars-col-verdict">
+  </colgroup>
+  <thead>
+    <tr><th scope="col">Concepts</th><th scope="col">Proposition</th>
+      <th scope="col">Inference</th><th scope="col">&nbsp;</th></tr>
+  </thead>
+  <tbody>
+    {% for row in session.rows %}
+    <tr>
+      <td class="ars-concepts">{{ row.concepts }}</td>
+      <td>{{ row.proposition }}</td>
+      <td class="ars-inference">{{ row.inference }}</td>
+      <td class="ars-verdict ars-{{ row.verdict }}">{{ row.verdict }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# The label, in the words `_stage_throw.html` already uses. The design spec
+   makes this a requirement of the feature rather than a nicety: a model's
+   reading rendered anywhere near five real verdicts invites a reader to take
+   it for a sixth. #}
+<p class="ars-label">A reading, not a verdict. No <code>Report</code> is produced and no
+  checker consults it &mdash; the figure decides which chamber, and you decide whether
+  anything it frames is true.</p>
+
+{% endif %}

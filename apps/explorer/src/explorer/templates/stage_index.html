@@ -4,7 +4,10 @@
 <h1>The stage</h1>
 <ol class="scene-list">
   {% for scene in scenes %}
-  <li><a href="/stage/{{ scene.slug }}">{{ scene.title }}</a> <span>{{ scene.caption }}</span></li>
+  <li><a href="/stage/{{ scene.slug }}">{{ scene.title }}</a> <span>{{ scene.caption }}</span>
+    {%- set companion = reading_for(scene.slug) %}{% if companion %}
+    <a class="scene-list-reading" href="/stage/{{ scene.slug }}/reading">{{ companion.title }}</a>
+    {%- endif %}</li>
   {% endfor %}
 </ol>
 {% endblock %}

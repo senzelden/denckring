@@ -1,21 +1,56 @@
 {# State three: the one line saying whether `check` accepts the arrangement
-   the page is showing, and — when it does not — every fragment the blade
+   the page is showing, and — when it does not — every piece the operation
    made, by name, rule and offset.
 
-   Nothing here re-prints the cut. The four quarters are already on screen,
-   and the text checked was read out of them (`readAssembledText`), so a
-   second rendering here would be a second copy that could drift from what
-   the checker was actually given. `data-checked` carries that exact text
-   back instead, so the page can be held to it. #}
+   Nothing here re-prints the result. The pieces are already on screen, and
+   the text checked was read out of them (`readAssembledText`), so a second
+   rendering here would be a second copy that could drift from what the
+   checker was actually given. `data-checked` carries that exact text back
+   instead, so the page can be held to it. #}
+{% if report is none %}
+{# The word bag. `dada_poem` is catalogued `checkability: none`, and this is
+   what that costs on a stage where every other operation ends in a verdict:
+   the scene has to say there is nothing to check, in the place a verdict
+   would go, without dressing it as one.
+
+   So there is **no `.verdict` element here at all**, and that is the point
+   rather than an omission. `.verdict.turning` was tried first and is wrong:
+   on every other scene it means a claim is on its way, and here none is ever
+   coming. A page that shows no verdict says so by showing none — and the
+   scene's own script, which looks for `.verdict` to announce, correctly finds
+   nothing to announce as one. #}
+<p class="cutup-uncheckable cutup-uncheckable-head" data-checked="{{ text }}">
+  Nothing to check &mdash; every order the bag can give is a correct draw.
+</p>
+<p class="cutup-uncheckable">
+  The catalogue records this row as unc&shy;heck&shy;able, and it is the only
+  operation on this stage that is. The other three each hold their result
+  against a rule; a bag of words holds it against nothing.
+</p>
+{% else %}
 <p class="verdict {{ 'yes' if report.satisfied else 'no' }}"
   data-checked="{{ text }}">
   {%- if report.satisfied -%}
-  checked &mdash; every one of {{ report.metrics.words | int }} words across the join is the page&rsquo;s own
+    {%- if method.id == 'fold' -%}
+    checked &mdash; all {{ report.metrics.lines | int }} lines join page one&rsquo;s left half to page two&rsquo;s right
+    {%- elif method.id == 'column' -%}
+    checked &mdash; all {{ report.metrics.selected | int }} words are the column, read down in line order
+    {%- else -%}
+    checked &mdash; every one of {{ report.metrics.words | int }} words across the join is the page&rsquo;s own
+    {%- endif -%}
   {%- else -%}
   checked &mdash; {{ report.violations | length }}
+  {%- if method.id == 'fold' %}
+  line{{ '' if report.violations | length == 1 else 's' }}
+  {{ 'is' if report.violations | length == 1 else 'are' }} not the fold
+  {%- elif method.id == 'column' %}
+  word{{ '' if report.violations | length == 1 else 's' }}
+  {{ 'is' if report.violations | length == 1 else 'are' }} not the column
+  {%- else %}
   piece{{ '' if report.violations | length == 1 else 's' }} across the join
   {{ 'is' if report.violations | length == 1 else 'are' }} not
   {{ 'a word' if report.violations | length == 1 else 'words' }}
+  {%- endif -%}
   {%- endif -%}
 </p>
 {%- if not report.satisfied %}
@@ -26,3 +61,4 @@
   {%- endfor %}
 </ul>
 {%- endif %}
+{% endif %}

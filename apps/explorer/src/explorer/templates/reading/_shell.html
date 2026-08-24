@@ -1,0 +1,44 @@
+{# The shell every reading shares: the way back to the scene, a masthead, the
+   argument, and the sources under it.
+
+   It extends `base.html`, not `stage.html`, and that is the whole design of
+   this surface. A scene is 1280 by 720 with `overflow: hidden`; a reading is
+   an ordinary page of the explorer that happens to be about one machine, and
+   it inherits the bench's chrome — masthead, nav, the case's dark ground with
+   paper laid on it — because that is what it is.
+
+   Nothing here is recordable and nothing here should become recordable. The
+   `?chrome=off` flag has no meaning on this route, which is why the route does
+   not accept one. #}
+{% extends "base.html" %}
+
+{% block title %}{{ reading.title }} — denckring{% endblock %}
+
+{% block main %}
+<article class="reading">
+
+  {# Back to whichever scenes this reading stands behind — plural for two of
+     them, because the pairing is the argument rather than an index entry. #}
+  <nav class="reading-back">
+    {% for scene in scenes %}
+    <a class="crumb" href="/stage/{{ scene.slug }}">&larr; {{ scene.title }}</a>
+    {% endfor %}
+  </nav>
+
+  <header class="reading-head">
+    <p class="reading-kicker">{% block kicker %}{% endblock %}</p>
+    <h1>{{ reading.title }}</h1>
+    <p class="reading-dek">{{ reading.dek }}</p>
+  </header>
+
+  {% block body %}{% endblock %}
+
+  {# A source block, not a bibliography: shelfmarks, editions and licences for
+     what is on the page. The stage's own credit rule holds here too — it names
+     a source, it does not narrate the demonstration next door. #}
+  <footer class="reading-sources">
+    {% block sources %}{% endblock %}
+  </footer>
+
+</article>
+{% endblock %}

@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="la">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Figura Quarta — Raimundus Lullus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vellum:   #e9e1cd;
+    --vellum-2: #e0d6bd;
+    --vellum-3: #d5c8a9;
+    --ink:      #2c2620;
+    --ink-soft: #6c6152;
+    --minium:   #a5301f;   /* Zinnober / vermilion */
+    --lazur:    #2b3f74;   /* Ultramarin */
+    --viride:   #4c6b52;   /* Grünspan */
+    --aurum:    #a4801f;
+    --rule:     #c3b593;
+
+    --serif: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--vellum);color:var(--ink);
+    font-family:var(--serif);font-size:17px;line-height:1.6;
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(164,128,31,.07), transparent 45%),
+      radial-gradient(circle at 82% 78%, rgba(44,38,32,.06), transparent 40%);
+  }
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.32;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='.5'/></svg>")}
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 18px 70px;position:relative}
+
+  /* ── header ─────────────────────────────────────────── */
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;
+    border-bottom:1.5px solid var(--ink);padding-bottom:12px}
+  h1{margin:0;font-size:clamp(30px,7vw,46px);font-weight:600;letter-spacing:.01em;line-height:1}
+  h1 em{font-style:italic;color:var(--minium)}
+  .sub{margin:5px 0 0;color:var(--ink-soft);font-size:15px;font-style:italic}
+  .langs{display:flex;gap:0;border:1.5px solid var(--ink);border-radius:2px;overflow:hidden;flex:0 0 auto}
+  .langs button{border:0;border-left:1px solid var(--ink);background:transparent}
+  .langs button:first-child{border-left:0}
+  .langs button[aria-pressed="true"]{background:var(--ink);color:var(--vellum)}
+
+  button{
+    font-family:var(--serif);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:2px;
+    padding:7px 13px;cursor:pointer;transition:background .15s,color .15s;
+  }
+  button:hover{background:var(--vellum-3)}
+  button:focus-visible{outline:2px solid var(--minium);outline-offset:2px}
+  .langs button[aria-pressed="true"]:hover{background:var(--ink)}
+
+  .sets{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 4px}
+  .sets button[aria-pressed="true"]{background:var(--lazur);border-color:var(--lazur);color:var(--vellum)}
+
+  /* ── stage ──────────────────────────────────────────── */
+  .stage{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:34px;margin-top:22px;align-items:start}
+  @media (max-width:920px){.stage{grid-template-columns:1fr;gap:26px}}
+
+  svg.wheel{width:100%;height:auto;display:block;touch-action:none;user-select:none;overflow:visible}
+  .ring{transform-origin:0 0;transition:transform .65s cubic-bezier(.2,.85,.2,1)}
+  .ring.dragging{transition:none}
+  .ring.mobile{cursor:grab}
+  .ring.mobile:active{cursor:grabbing}
+  .sector{fill:var(--vellum-2);stroke:var(--ink);stroke-width:1.1}
+  .sector.alt{fill:var(--vellum-3)}
+  .sector.pick{cursor:pointer}
+  .sector.pick:hover{fill:#ded0ac}
+  .glyph{font-size:26px;font-weight:600;text-anchor:middle;fill:var(--ink);pointer-events:none}
+  .glyph.small{font-size:22px}
+  .core{fill:#efe8d6;stroke:var(--ink);stroke-width:1.1}
+  .chord{stroke:var(--ink);stroke-width:.55;opacity:.28}
+  .chord.hot{stroke:var(--minium);stroke-width:2.6;opacity:1}
+  .node{fill:var(--ink)}
+  .node.hot{fill:var(--minium)}
+  .nglyph{font-size:15px;text-anchor:middle;fill:var(--ink);pointer-events:none}
+  .nglyph.hot{fill:var(--minium);font-weight:600}
+  .arm{transform-origin:0 0;transition:transform .5s cubic-bezier(.2,.85,.2,1);pointer-events:none}
+  .arm line{stroke:var(--minium);stroke-width:2}
+  .arm polygon{fill:var(--minium)}
+  .ringlabel{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;fill:var(--ink-soft);text-anchor:middle}
+
+  .rotators{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+  .rotators .grp{display:flex;align-items:center;gap:6px;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .rotators button{padding:5px 10px;font-size:14px;letter-spacing:0}
+  .hint{text-align:center;font-style:italic;color:var(--ink-soft);font-size:14px;margin:12px 0 0}
+
+  /* ── reading ────────────────────────────────────────── */
+  .camera{border:1.5px solid var(--ink);padding:16px 18px;background:rgba(255,255,255,.24)}
+  .camera .eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--minium)}
+  .camera .letters{font-size:clamp(34px,8vw,50px);letter-spacing:.14em;line-height:1.1;margin:2px 0 10px;font-weight:600}
+  .camera table{width:100%;border-collapse:collapse}
+  .camera td{padding:4px 0;vertical-align:baseline}
+  .camera td.l{width:2.1em;color:var(--minium);font-weight:600;font-size:19px}
+  .camera td.g{color:var(--ink-soft);font-style:italic;text-align:right;font-size:15px}
+  .camera .term{font-size:20px}
+  .tag{margin-top:11px;font-size:13.5px;color:var(--ink-soft);border-top:1px solid var(--rule);padding-top:9px}
+  .tag b{color:var(--lazur);font-weight:600}
+  .tag.rep b{color:var(--minium)}
+
+  h2{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);
+     margin:26px 0 9px;font-weight:500;border-bottom:1px solid var(--rule);padding-bottom:5px}
+
+  table.alpha{width:100%;border-collapse:collapse;font-size:16px}
+  table.alpha td{padding:3px 6px;border-bottom:1px dotted var(--rule)}
+  table.alpha td.k{width:2em;font-weight:600;color:var(--ink-soft)}
+  table.alpha td.x{text-align:right;font-style:italic;color:var(--ink-soft);font-size:14px}
+  table.alpha tr.on td{background:rgba(165,48,31,.10)}
+  table.alpha tr.on td.k{color:var(--minium)}
+
+  .nine{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  @media (min-width:560px){.nine{grid-template-columns:repeat(9,1fr)}}
+  .nine button{padding:7px 2px;font-size:14px;letter-spacing:.08em;width:100%}
+  .nine button[aria-pressed="true"]{background:var(--minium);border-color:var(--minium);color:var(--vellum)}
+
+  details{margin-top:26px;border-top:1px solid var(--rule);padding-top:8px}
+  summary{cursor:pointer;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
+  .tabula{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;margin-top:14px}
+  .tabula button{padding:5px 0;font-size:13px;letter-spacing:.06em}
+  .tabula button[aria-pressed="true"]{background:var(--minium);border-color:var(--minium);color:var(--vellum)}
+
+  .facts{display:flex;flex-wrap:wrap;gap:22px;margin-top:12px;font-size:14.5px;color:var(--ink-soft)}
+  .facts b{color:var(--ink);font-size:19px;font-weight:600}
+
+  .quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:20px;margin-top:14px}
+  blockquote{margin:0;border-left:2.5px solid var(--minium);padding:2px 0 2px 15px}
+  blockquote .orig{font-size:18px;line-height:1.45}
+  blockquote .orig.lat{font-style:italic}
+  blockquote .tr{margin-top:8px;color:var(--ink-soft);font-size:15px}
+  blockquote cite{display:block;margin-top:9px;font-style:normal;font-size:12.5px;
+    letter-spacing:.13em;text-transform:uppercase;color:var(--lazur)}
+  footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;
+    font-size:14px;color:var(--ink-soft);font-style:italic}
+  /* ── interrogation ──────────────────────────────────── */
+  .ask{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+  .ask input{
+    flex:1 1 260px;font-family:var(--serif);font-size:18px;color:var(--ink);
+    background:rgba(255,255,255,.35);border:1.5px solid var(--ink);border-radius:2px;padding:9px 12px;
+  }
+  .ask input::placeholder{color:var(--ink-soft);font-style:italic}
+  .ask input:focus{outline:2px solid var(--minium);outline-offset:1px}
+  .ask button{background:var(--minium);border-color:var(--minium);color:var(--vellum)}
+  .ask button:hover{background:#8d281a}
+  .ask button[disabled]{opacity:.5;cursor:wait}
+  .asknote{font-size:13.5px;font-style:italic;color:var(--ink-soft);margin:9px 0 0}
+  .derived{margin-top:14px;font-size:16px}
+  .derived b{color:var(--minium)}
+  .tally{display:flex;gap:16px;margin-top:14px;font-size:13px;letter-spacing:.16em;text-transform:uppercase}
+  .tally span{color:var(--ink-soft)}
+  .tally i{font-style:normal;font-weight:600;color:var(--ink)}
+  .args{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+  .arg{border:1.5px solid var(--rule);border-top:3px solid var(--rule);padding:13px 15px;background:rgba(255,255,255,.22)}
+  .arg.pro{border-top-color:var(--viride)}
+  .arg.contra{border-top-color:var(--minium)}
+  .arg.nihil{border-top-color:var(--ink-soft);opacity:.72}
+  .arg .v{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft)}
+  .arg.pro .v{color:var(--viride)}
+  .arg.contra .v{color:var(--minium)}
+  .arg .c{font-size:14px;letter-spacing:.1em;color:var(--lazur);margin:2px 0 6px}
+  .arg .p{font-style:italic;margin:0 0 7px}
+  .arg .i{margin:0;font-size:16px;line-height:1.55}
+  .spin{display:inline-block;animation:sp 1.4s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.ring,.arm,.spin{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Figura <em>Quarta</em></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="langs" role="group" aria-label="Lingua">
+      <button data-lang="la" aria-pressed="true">Latine</button>
+      <button data-lang="en" aria-pressed="false">English</button>
+      <button data-lang="de" aria-pressed="false">Deutsch</button>
+    </div>
+  </header>
+
+  <div class="sets" id="sets" role="group" aria-label="Alphabetum"></div>
+
+  <div class="stage">
+    <div>
+      <svg class="wheel" viewBox="-330 -330 660 660" id="wheel" role="img" aria-label="Volvelle"></svg>
+      <div class="rotators" id="rotators"></div>
+      <p class="hint" id="hint"></p>
+    </div>
+
+    <div>
+      <div class="camera">
+        <div class="eyebrow" id="camLabel"></div>
+        <div class="letters" id="camLetters">B · C · D</div>
+        <table><tbody id="camRows"></tbody></table>
+        <div class="tag" id="camTag"></div>
+      </div>
+
+      <h2 id="h-alpha"></h2>
+      <table class="alpha"><tbody id="alpha"></tbody></table>
+    </div>
+  </div>
+
+  <h2 id="h-ask"></h2>
+  <div class="ask">
+    <input id="q" type="text" autocomplete="off">
+    <button id="qgo"></button>
+  </div>
+  <p class="asknote" id="asknote"></p>
+  <div id="qout"></div>
+
+  <h2 id="h-nine"></h2>
+  <div class="nine" id="nine"></div>
+
+  <details>
+    <summary id="h-tabula"></summary>
+    <div class="tabula" id="tabula"></div>
+  </details>
+
+  <div class="facts" id="facts"></div>
+
+  <h2 id="h-quotes"></h2>
+  <div class="quotes" id="quotes"></div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const L = ["B","C","D","E","F","G","H","I","K"];
+const POS = Object.fromEntries(L.map((c,i)=>[c,i]));
+
+/* ── the alphabet: six columns of values for B–K ──────────── */
+const SETS = [
+  { id:"dig", name:{la:"Principia absoluta",en:"Absolute principles",de:"Absolute Prinzipien"},
+    gloss:{la:"Figura A · dignitates Dei",en:"Figure A · the nine dignities",de:"Figur A · die neun Würden"},
+    t:[["Bonitas","Goodness","Güte"],["Magnitudo","Greatness","Größe"],["Duratio","Duration","Dauer"],
+       ["Potestas","Power","Macht"],["Sapientia","Wisdom","Weisheit"],["Voluntas","Will","Wille"],
+       ["Virtus","Virtue","Kraft"],["Veritas","Truth","Wahrheit"],["Gloria","Glory","Herrlichkeit"]] },
+  { id:"rel", name:{la:"Principia relativa",en:"Relative principles",de:"Relative Prinzipien"},
+    gloss:{la:"Figura T · tres trianguli",en:"Figure T · three triangles",de:"Figur T · drei Dreiecke"},
+    t:[["Differentia","Difference","Unterschied"],["Concordantia","Concordance","Übereinstimmung"],["Contrarietas","Contrariety","Gegensatz"],
+       ["Principium","Beginning","Anfang"],["Medium","Middle","Mitte"],["Finis","End","Ende"],
+       ["Maioritas","Majority","Mehrsein"],["Aequalitas","Equality","Gleichheit"],["Minoritas","Minority","Mindersein"]] },
+  { id:"que", name:{la:"Quaestiones",en:"Questions",de:"Fragen"},
+    gloss:{la:"Regulae · decem quaestiones",en:"The rules · Llull's questions",de:"Die Regeln · Llulls Fragen"},
+    t:[["Utrum","Whether","Ob"],["Quid","What","Was"],["De quo","Of what",   "Woraus"],
+       ["Quare","Why","Warum"],["Quantum","How much","Wie viel"],["Quale","Of what kind","Wie beschaffen"],
+       ["Quando","When","Wann"],["Ubi","Where","Wo"],["Quomodo","How and with what","Wie und womit"]] },
+  { id:"sub", name:{la:"Subiecta",en:"Subjects",de:"Subjekte"},
+    gloss:{la:"Scala entium",en:"The ladder of being",de:"Die Stufenleiter des Seienden"},
+    t:[["Deus","God","Gott"],["Angelus","Angel","Engel"],["Caelum","The heavens","Himmel"],
+       ["Homo","Human being","Mensch"],["Imaginativa","Imaginative","Vorstellungskraft"],["Sensitiva","Sensitive","Sinnesvermögen"],
+       ["Vegetativa","Vegetative","Wachstumsvermögen"],["Elementativa","Elemental","Elementarvermögen"],["Instrumentativa","Instrumental","Werkzeugvermögen"]] },
+  { id:"vir", name:{la:"Virtutes",en:"Virtues",de:"Tugenden"},
+    gloss:{la:"Septem et duae",en:"Cardinal, theological, and two more",de:"Kardinal-, Gottes- und zwei weitere"},
+    t:[["Iustitia","Justice","Gerechtigkeit"],["Prudentia","Prudence","Klugheit"],["Fortitudo","Fortitude","Tapferkeit"],
+       ["Temperantia","Temperance","Mäßigung"],["Fides","Faith","Glaube"],["Spes","Hope","Hoffnung"],
+       ["Caritas","Charity","Liebe"],["Patientia","Patience","Geduld"],["Pietas","Piety","Frömmigkeit"]] },
+  { id:"vit", name:{la:"Vitia",en:"Vices",de:"Laster"},
+    gloss:{la:"Peccata capitalia et duo",en:"The deadly sins and two more",de:"Die Todsünden und zwei weitere"},
+    t:[["Avaritia","Avarice","Geiz"],["Gula","Gluttony","Völlerei"],["Luxuria","Lust","Wollust"],
+       ["Superbia","Pride","Hochmut"],["Accidia","Sloth","Trägheit"],["Invidia","Envy","Neid"],
+       ["Ira","Wrath","Zorn"],["Mendacium","Lying","Lüge"],["Inconstantia","Inconstancy","Unbeständigkeit"]] }
+];
+
+const UI = {
+  la:{ sub:"Tres circuli Raimundi Lulli · Ars brevis, Pisis anno MCCCVIII",
+       alpha:"Alphabetum", nine:"Novem camerae huius situs", tabula:"Tabula · omnes LXXXIV camerae",
+       quotes:"Testimonia", camera:"Camera",
+       hint:"Duos circulos interiores volve. Tange cameram circuli exterioris, ut index moveatur.",
+       outer:"Circulus stabilis", mid:"Circulus medius", inner:"Circulus intimus",
+       volve:"Volve", reset:"Restitue",
+       of:"camera $1 ex LXXXIV", rep:"repetitio — in tabula omissa",
+       f1:"camerae ternariae", f2:"camerae binariae (figura tertia)", f3:"loci in tabula generali",
+       ask:"Interrogatio", askPh:"Pone quaestionem…", askGo:"Quaere", askWait:"Machina volvitur",
+       askNote:"Machina camerarum argumenta profert, non sententiam. Iudicium penes lectorem manet.",
+       derived:"Litterae ex quaestione lectae", askErr:"Machina tacet. Iterum tenta.",
+       pro:"pro", contra:"contra", nihil:"nihil ad rem",
+       foot:"Circulus exterior immobilis manet; duo interiores volvuntur. Quilibet situs novem camerarum est. Ex hoc instrumento Leibnitius artem combinatoriam suam duxit (1666)." },
+  en:{ sub:"Ramon Llull's three rings · Ars brevis, Pisa 1308",
+       alpha:"The alphabet", nine:"The nine compartments of this setting", tabula:"Table · all 84 compartments",
+       quotes:"Testimony", camera:"Compartment",
+       hint:"Drag the two inner rings. Tap a sector of the fixed outer ring to move the index.",
+       outer:"Fixed ring", mid:"Middle ring", inner:"Inner ring",
+       volve:"Turn at random", reset:"Reset",
+       of:"compartment $1 of 84", rep:"repetition — omitted from Llull's table",
+       f1:"ternary compartments", f2:"binary pairs (third figure)", f3:"cells in the Tabula generalis",
+       ask:"Put a question to the Art", askPh:"Whether the world is eternal…", askGo:"Turn the rings", askWait:"Turning",
+       askNote:"The machine supplies arguments, not a verdict. Each is only as good as the premise it rests on, and the judgement stays with you.",
+       derived:"Letters read out of the question", askErr:"Nothing came back. Try again.",
+       pro:"for", contra:"against", nihil:"no bearing",
+       foot:"The outer ring stands still; the two inner ones turn. Every setting yields nine compartments. Leibniz took this device as the starting point of his art of combination (1666)." },
+  de:{ sub:"Die drei Ringe des Ramon Llull · Ars brevis, Pisa 1308",
+       alpha:"Das Alphabet", nine:"Die neun Kammern dieser Stellung", tabula:"Tafel · alle 84 Kammern",
+       quotes:"Zeugnisse", camera:"Kammer",
+       hint:"Ziehe die beiden inneren Ringe. Tippe auf ein Feld des festen Außenrings, um den Zeiger zu setzen.",
+       outer:"Fester Ring", mid:"Mittlerer Ring", inner:"Innerer Ring",
+       volve:"Zufällig drehen", reset:"Zurücksetzen",
+       of:"Kammer $1 von 84", rep:"Wiederholung — in Llulls Tafel getilgt",
+       f1:"dreistellige Kammern", f2:"Paare (dritte Figur)", f3:"Felder der Tabula generalis",
+       ask:"Eine Frage an die Kunst", askPh:"Ob die Welt ewig sei…", askGo:"Ringe drehen", askWait:"Es dreht sich",
+       askNote:"Die Maschine liefert Argumente, kein Urteil. Jedes taugt nur so viel wie die Prämisse, auf der es steht — das Urteil bleibt bei dir.",
+       derived:"Buchstaben, aus der Frage gelesen", askErr:"Keine Antwort. Noch einmal versuchen.",
+       pro:"dafür", contra:"dagegen", nihil:"ohne Bezug",
+       foot:"Der Außenring steht still, die beiden inneren drehen sich. Jede Stellung ergibt neun Kammern. Leibniz nahm dieses Gerät zum Ausgangspunkt seiner Kombinatorik (1666)." }
+};
+
+const QUOTES = [
+  { lang:"la", text:"Ratio quare facimus istam artem est ut ars magna facilius sciatur.",
+    who:{la:"Raimundus Lullus, Ars brevis, prologus, 1308",en:"Ramon Llull, Ars brevis, prologue, 1308",de:"Ramon Llull, Ars brevis, Prolog, 1308"},
+    tr:{la:"", en:"The reason we make this short art is so that the great Art may be learned more easily.",
+        de:"Der Grund, warum wir diese kurze Kunst machen, ist, dass die große Kunst leichter erlernt werde."} },
+  { lang:"fr", text:"… comme l’art de Lulle, à parler sans jugement de celles qu’on ignore.",
+    who:{la:"Renatus Cartesius, De methodo II, 1637",en:"René Descartes, Discourse on Method II, 1637",de:"René Descartes, Bericht über die Methode II, 1637"},
+    tr:{la:"… ut ars Lulliana, ad loquendum sine iudicio de rebus quas ignoramus.",
+        en:"… like the art of Lull: for speaking, without judgement, of the things one does not know.",
+        de:"… wie die Kunst des Lullus: um ohne Urteil über das zu reden, was man nicht weiß."} },
+  { lang:"en", text:"… the most ignorant person … might write books in philosophy, poetry, politics, laws, mathematics, and theology, without the least assistance from genius or study.",
+    who:{la:"Ionathan Swift, Itinera Gulliveri III.5, 1726",en:"Jonathan Swift, Gulliver's Travels III.5, 1726",de:"Jonathan Swift, Gullivers Reisen III.5, 1726"},
+    tr:{la:"… homo ignarissimus … libros de philosophia, poesi, re publica, iure, mathematica, theologia scribere possit, nullo ingenii aut studii auxilio.",
+        en:"",
+        de:"… der unwissendste Mensch … könnte Bücher über Philosophie, Dichtung, Politik, Recht, Mathematik und Theologie schreiben, ohne die geringste Hilfe von Genie oder Studium."} }
+];
+
+/* ── state ────────────────────────────────────────────────── */
+let lang = "la", setIx = 0, rotM = 0, rotI = 0, slot = 0;   // rot in whole steps 0..8
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const ALL84 = [];
+for (let a=0;a<9;a++) for (let b=a+1;b<9;b++) for (let c=b+1;c<9;c++) ALL84.push(L[a]+L[b]+L[c]);
+
+const t   = () => UI[lang];
+const set = () => SETS[setIx];
+const term = i => set().t[i][lang === "la" ? 0 : lang === "en" ? 1 : 2];
+const latin = i => set().t[i][0];
+
+function readAt(s){
+  return [ (s + 9) % 9, ((s - rotM) % 9 + 9) % 9, ((s - rotI) % 9 + 9) % 9 ];
+}
+
+/* ── the wheel ────────────────────────────────────────────── */
+const R = [[310,252],[252,196],[196,142]];      // outer, middle, inner
+const CORE = 138, NODE = 112;
+const svg = document.getElementById("wheel");
+const NS = "http://www.w3.org/2000/svg";
+const el = (n,a={}) => { const e = document.createElementNS(NS,n); for (const k in a) e.setAttribute(k,a[k]); return e; };
+const pol = (r,deg) => { const a = (deg - 90) * Math.PI/180; return [r*Math.cos(a), r*Math.sin(a)]; };
+
+function annulus(r0,r1,a0,a1){
+  const [x0,y0]=pol(r0,a0), [x1,y1]=pol(r0,a1), [x2,y2]=pol(r1,a1), [x3,y3]=pol(r1,a0);
+  return `M${x0} ${y0}A${r0} ${r0} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r1} ${r1} 0 0 0 ${x3} ${y3}Z`;
+}
+
+const groups = [];
+function buildWheel(){
+  svg.textContent = "";
+  // chord web + core
+  const core = el("g");
+  core.appendChild(el("circle",{r:CORE,class:"core"}));
+  const chords = [];
+  for (let i=0;i<9;i++) for (let j=i+1;j<9;j++){
+    const [x1,y1]=pol(NODE,i*40), [x2,y2]=pol(NODE,j*40);
+    const c = el("line",{x1,y1,x2,y2,class:"chord"}); c.dataset.pair = L[i]+L[j];
+    chords.push(c); core.appendChild(c);
+  }
+  const nodes = [], nglyphs = [];
+  for (let i=0;i<9;i++){
+    const [x,y]=pol(NODE,i*40);
+    const n = el("circle",{cx:x,cy:y,r:4.5,class:"node"}); nodes.push(n); core.appendChild(n);
+    const [tx,ty]=pol(NODE-22,i*40);
+    const g = el("text",{x:tx,y:ty+5,class:"nglyph"}); g.textContent = L[i];
+    nglyphs.push(g); core.appendChild(g);
+  }
+  svg.appendChild(core);
+
+  // three rings
+  for (let r=0;r<3;r++){
+    const g = el("g",{class:"ring" + (r ? " mobile" : "")});
+    for (let k=0;k<9;k++){
+      const p = el("path",{d:annulus(R[r][0],R[r][1],k*40-20,k*40+20),
+                           class:"sector" + (k%2 ? " alt":"") + (r===0 ? " pick":"")});
+      if (r===0){ p.dataset.slot = k; p.addEventListener("click",()=>{ slot=k; render(); }); }
+      g.appendChild(p);
+      const [x,y] = pol((R[r][0]+R[r][1])/2, k*40);
+      const tx = el("text",{x:0,y:0,class:"glyph" + (r ? " small":""),
+                            transform:`translate(${x} ${y}) rotate(${k*40}) translate(0 9)`});
+      tx.textContent = L[k];
+      g.appendChild(tx);
+    }
+    svg.appendChild(g); groups.push(g);
+  }
+
+  // index arm
+  const arm = el("g",{class:"arm",id:"arm"});
+  arm.appendChild(el("line",{x1:0,y1:-CORE+6,x2:0,y2:-322}));
+  arm.appendChild(el("polygon",{points:"0,-332 -11,-312 11,-312"}));
+  svg.appendChild(arm);
+
+  return { chords, nodes, nglyphs, arm };
+}
+const W = buildWheel();
+
+/* ── dragging the two inner rings ─────────────────────────── */
+function angleOf(evt){
+  const b = svg.getBoundingClientRect();
+  const x = evt.clientX - (b.left + b.width/2);
+  const y = evt.clientY - (b.top + b.height/2);
+  return Math.atan2(y,x) * 180/Math.PI + 90;
+}
+[1,2].forEach(r => {
+  const g = groups[r];
+  let start = 0, base = 0, live = 0, drag = false;
+  g.addEventListener("pointerdown", e => {
+    drag = true; g.setPointerCapture(e.pointerId); g.classList.add("dragging");
+    base = (r===1 ? rotM : rotI) * 40; start = angleOf(e); live = base;
+  });
+  g.addEventListener("pointermove", e => {
+    if (!drag) return;
+    live = base + (angleOf(e) - start);
+    g.style.transform = `rotate(${live}deg)`;
+  });
+  const end = e => {
+    if (!drag) return;
+    drag = false; g.classList.remove("dragging");
+    const step = ((Math.round(live/40) % 9) + 9) % 9;
+    if (r===1) rotM = step; else rotI = step;
+    render();
+  };
+  g.addEventListener("pointerup",end);
+  g.addEventListener("pointercancel",end);
+});
+
+/* ── chrome ───────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+function buildSets(){
+  const box = $("sets"); box.textContent = "";
+  SETS.forEach((s,i) => {
+    const b = document.createElement("button");
+    b.textContent = s.name[lang];
+    b.setAttribute("aria-pressed", String(i===setIx));
+    b.onclick = () => { setIx = i; render(); };
+    box.appendChild(b);
+  });
+}
+function buildRotators(){
+  const box = $("rotators"); box.textContent = "";
+  const grp = (label, dir) => {
+    const d = document.createElement("div"); d.className = "grp";
+    const minus = document.createElement("button"); minus.textContent = "↺";
+    const plus  = document.createElement("button"); plus.textContent  = "↻";
+    minus.onclick = () => { dir(-1); render(); };
+    plus.onclick  = () => { dir(+1); render(); };
+    const s = document.createElement("span"); s.textContent = label;
+    d.append(minus, s, plus); box.appendChild(d);
+  };
+  grp(t().mid,  k => rotM = ((rotM + k) % 9 + 9) % 9);
+  grp(t().inner,k => rotI = ((rotI + k) % 9 + 9) % 9);
+  const v = document.createElement("button"); v.textContent = t().volve;
+  v.onclick = () => {
+    rotM = Math.floor(Math.random()*9); rotI = Math.floor(Math.random()*9);
+    slot = Math.floor(Math.random()*9); render();
+  };
+  const rs = document.createElement("button"); rs.textContent = t().reset;
+  rs.onclick = () => { rotM = 1; rotI = 2; slot = 0; render(); };
+  box.append(v, rs);
+}
+function buildNine(){
+  const box = $("nine"); box.textContent = "";
+  for (let s=0;s<9;s++){
+    const b = document.createElement("button");
+    b.dataset.slot = s;
+    b.onclick = () => { slot = s; render(); };
+    box.appendChild(b);
+  }
+}
+function buildTabula(){
+  const box = $("tabula"); box.textContent = "";
+  ALL84.forEach(tri => {
+    const b = document.createElement("button");
+    b.textContent = tri; b.dataset.tri = tri;
+    b.onclick = () => {
+      const [x,y,z] = [...tri];
+      slot = POS[x];
+      rotM = ((POS[x] - POS[y]) % 9 + 9) % 9;
+      rotI = ((POS[x] - POS[z]) % 9 + 9) % 9;
+      render();
+    };
+    box.appendChild(b);
+  });
+}
+function buildQuotes(){
+  const box = $("quotes"); box.textContent = "";
+  QUOTES.forEach(q => {
+    const bq = document.createElement("blockquote");
+    const o = document.createElement("div");
+    o.className = "orig" + (q.lang === "la" ? " lat" : "");
+    o.lang = q.lang; o.textContent = "„" + q.text + "“";
+    bq.appendChild(o);
+    const tr = q.tr[lang];
+    if (tr){ const d = document.createElement("div"); d.className = "tr"; d.textContent = tr; bq.appendChild(d); }
+    const c = document.createElement("cite"); c.textContent = q.who[lang];
+    bq.appendChild(c); box.appendChild(bq);
+  });
+}
+function buildFacts(){
+  const box = $("facts"); box.textContent = "";
+  [["84",t().f1],["36",t().f2],["1 680",t().f3]].forEach(([n,lab]) => {
+    const d = document.createElement("div");
+    d.innerHTML = "<b></b> <span></span>";
+    d.querySelector("b").textContent = n;
+    d.querySelector("span").textContent = lab;
+    box.appendChild(d);
+  });
+}
+
+/* ── render ───────────────────────────────────────────────── */
+function render(){
+  document.documentElement.lang = lang;
+  $("sub").textContent   = t().sub;
+  $("hint").textContent  = t().hint;
+  $("h-alpha").textContent  = t().alpha + " — " + set().gloss[lang];
+  $("h-nine").textContent   = t().nine;
+  $("h-tabula").textContent = t().tabula;
+  $("h-quotes").textContent = t().quotes;
+  $("foot").textContent     = t().foot;
+  $("camLabel").textContent = t().camera;
+  $("h-ask").textContent    = t().ask;
+  $("asknote").textContent  = t().askNote;
+  $("q").placeholder        = t().askPh;
+  if (!busy) $("qgo").textContent = t().askGo;
+
+  document.querySelectorAll(".langs button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  [...$("sets").children].forEach((b,i) => {
+    b.textContent = SETS[i].name[lang];
+    b.setAttribute("aria-pressed", String(i === setIx));
+  });
+
+  groups[1].style.transform = `rotate(${rotM*40}deg)`;
+  groups[2].style.transform = `rotate(${rotI*40}deg)`;
+  W.arm.style.transform = `rotate(${slot*40}deg)`;
+
+  const tri = readAt(slot);
+  const uniq = [...new Set(tri)];
+  const sorted = [...uniq].sort((a,b)=>a-b).map(i=>L[i]).join("");
+
+  $("camLetters").textContent = tri.map(i=>L[i]).join(" · ");
+  const rows = $("camRows"); rows.textContent = "";
+  tri.forEach(i => {
+    const tr = document.createElement("tr");
+    const a = document.createElement("td"); a.className = "l"; a.textContent = L[i];
+    const b = document.createElement("td"); b.className = "term"; b.textContent = term(i);
+    const c = document.createElement("td"); c.className = "g";
+    c.textContent = lang === "la" ? "" : latin(i);
+    tr.append(a,b,c); rows.appendChild(tr);
+  });
+
+  const tag = $("camTag");
+  if (uniq.length < 3){
+    tag.className = "tag rep"; tag.innerHTML = "<b></b>";
+    tag.querySelector("b").textContent = t().rep;
+  } else {
+    tag.className = "tag";
+    const n = ALL84.indexOf(sorted) + 1;
+    tag.innerHTML = "<b></b>";
+    tag.querySelector("b").textContent = t().of.replace("$1", n);
+  }
+
+  // alphabet table
+  const alpha = $("alpha"); alpha.textContent = "";
+  L.forEach((ch,i) => {
+    const tr = document.createElement("tr");
+    if (tri.includes(i)) tr.className = "on";
+    const a = document.createElement("td"); a.className = "k"; a.textContent = ch;
+    const b = document.createElement("td"); b.textContent = term(i);
+    const c = document.createElement("td"); c.className = "x";
+    c.textContent = lang === "la" ? "" : latin(i);
+    tr.append(a,b,c); alpha.appendChild(tr);
+  });
+
+  // nine compartments
+  [...$("nine").children].forEach((b,s) => {
+    b.textContent = readAt(s).map(i=>L[i]).join("");
+    b.setAttribute("aria-pressed", String(s === slot));
+  });
+
+  // tabula highlight
+  [...$("tabula").children].forEach(b =>
+    b.setAttribute("aria-pressed", String(uniq.length === 3 && b.dataset.tri === sorted)));
+
+  // chords + nodes in figure A
+  const hot = new Set();
+  if (uniq.length === 3)
+    for (let a=0;a<3;a++) for (let b=a+1;b<3;b++)
+      hot.add([L[uniq[a]],L[uniq[b]]].sort().join(""));
+  W.chords.forEach(c => c.classList.toggle("hot", hot.has(c.dataset.pair)));
+  W.nodes.forEach((n,i) => n.classList.toggle("hot", tri.includes(i)));
+  W.nglyphs.forEach((g,i) => g.classList.toggle("hot", tri.includes(i)));
+
+  buildRotators();
+}
+
+/* ── interrogation: the Art picks the compartment, the reader judges ── */
+let busy = false;
+
+function setCamera(cam){
+  const [x,y,z] = [...cam];
+  slot = POS[x];
+  rotM = ((POS[x] - POS[y]) % 9 + 9) % 9;
+  rotI = ((POS[x] - POS[z]) % 9 + 9) % 9;
+  render();
+}
+
+function buildPrompt(q){
+  const alph = L.map((c,i) =>
+    `${c} = ${SETS[0].t[i][0]} (absolute) | ${SETS[1].t[i][0]} (relative) | ${SETS[2].t[i][0]} (question)`).join("\n");
+  const langName = {la:"Latin", en:"English", de:"German"}[lang];
+  return `You are operating the Fourth Figure of Ramon Llull's Ars brevis (1308). The nine letters:
+${alph}
+
+A question is put to the Art: "${q}"
+
+Do exactly this:
+1. Read letters out of the question itself: which letter of the QUESTION column it belongs to, and which letter of the ABSOLUTE column its key term falls under. Name them.
+2. Choose one compartment of three DISTINCT letters from B C D E F G H I K that contains both. The third letter is whatever the wheel supplies.
+3. Produce 5 rows from that compartment, as Llull's table does. Each row takes two or three of the six concepts those three letters carry (absolute and relative senses) and builds one argument bearing on the question.
+
+Rules: verdict is "pro", "contra", or "nihil". Use "nihil" honestly when the concepts genuinely do not bear on the question — never manufacture an argument to fill a row. Rows may disagree with each other; that is expected. Do not deliver an overall conclusion.
+
+Write all prose in ${langName}. Terse: proposition max 16 words, inference max 40 words.
+
+Return ONLY this JSON, no markdown fence, no preamble:
+{"camera":"BCD","derived":"one sentence naming the letters you read out of the question","rows":[{"concepts":"term · term","proposition":"...","inference":"...","verdict":"contra"}]}`;
+}
+
+async function interroga(){
+  const q = $("q").value.trim();
+  if (!q || busy) return;
+  busy = true;
+  const btn = $("qgo");
+  btn.disabled = true;
+  btn.innerHTML = t().askWait + ' <span class="spin">↻</span>';
+  const out = $("qout"); out.textContent = "";
+
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1000,
+        messages:[{role:"user", content: buildPrompt(q)}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.filter(b => b.type === "text").map(b => b.text).join("")
+                  .replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+
+    const cam = (parsed.camera || "").toUpperCase().replace(/[^BCDEFGHIK]/g,"").slice(0,3);
+    if (cam.length === 3 && new Set(cam).size === 3) setCamera(cam);
+
+    if (parsed.derived){
+      const d = document.createElement("p"); d.className = "derived";
+      const lbl = document.createElement("b"); lbl.textContent = t().derived + ": ";
+      d.append(lbl, document.createTextNode(parsed.derived));
+      out.appendChild(d);
+    }
+
+    const rows = Array.isArray(parsed.rows) ? parsed.rows : [];
+    const count = {pro:0, contra:0, nihil:0};
+    const grid = document.createElement("div"); grid.className = "args";
+    rows.forEach(r => {
+      const v = ["pro","contra","nihil"].includes(r.verdict) ? r.verdict : "nihil";
+      count[v]++;
+      const card = document.createElement("div"); card.className = "arg " + v;
+      const vv = document.createElement("div"); vv.className = "v"; vv.textContent = t()[v];
+      const cc = document.createElement("div"); cc.className = "c"; cc.textContent = r.concepts || "";
+      const pp = document.createElement("p"); pp.className = "p"; pp.textContent = r.proposition || "";
+      const ii = document.createElement("p"); ii.className = "i"; ii.textContent = r.inference || "";
+      card.append(vv, cc, pp, ii); grid.appendChild(card);
+    });
+
+    if (rows.length){
+      const tally = document.createElement("div"); tally.className = "tally";
+      [["pro",count.pro],["contra",count.contra],["nihil",count.nihil]].forEach(([k,n]) => {
+        const s = document.createElement("span");
+        const i = document.createElement("i"); i.textContent = n;
+        s.append(i, document.createTextNode(" " + t()[k]));
+        tally.appendChild(s);
+      });
+      out.appendChild(tally);
+    }
+    out.appendChild(grid);
+  } catch(err){
+    const p = document.createElement("p"); p.className = "asknote"; p.textContent = t().askErr;
+    out.appendChild(p);
+  } finally {
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = t().askGo;
+  }
+}
+$("qgo").onclick = interroga;
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") interroga(); });
+
+document.querySelectorAll(".langs button").forEach(b =>
+  b.onclick = () => { lang = b.dataset.lang; render(); buildQuotes(); buildFacts(); });
+
+buildSets(); buildNine(); buildTabula(); buildQuotes(); buildFacts();
+rotM = 1; rotI = 2; render();
+})();
+</script>
+</body>
+</html>

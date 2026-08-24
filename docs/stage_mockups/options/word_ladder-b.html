@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Word ladder · B · The route</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  svg{display:block;margin:1rem auto 0;width:1120px;height:400px}
+  .edge{stroke:#d6cebd;stroke-width:1.4}.edge.on{stroke:var(--rubric);stroke-width:2.4}
+  .nd{fill:var(--paper);stroke:#c9beaa;stroke-width:1.4}.nd.on{fill:var(--ink);stroke:var(--ink)}
+  .wd{font-family:var(--mono);font-size:13px;fill:#8d857a}.wd.on{fill:var(--ink);font-weight:600}
+  .f{display:flex;gap:.5rem;align-items:flex-end;justify-content:center;margin-top:.6rem}
+  .f label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);display:block;margin-bottom:.2rem}
+  .f input{width:7rem;font-family:var(--mono);font-size:1rem;padding:.42rem .5rem;border:1px solid var(--case-lip);border-radius:2px;background:var(--paper)}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Lewis Carroll &middot; Doublets, 1879</p>
+  <h1>Word ladder</h1>
+  <svg id="g" viewBox="0 0 1120 400"></svg>
+  <div class="f">
+    <div><label for="a">Start</label><input id="a" value="cold"></div>
+    <div><label for="b">Target</label><input id="b" value="warm"></div>
+    <button id="go">Find a route</button>
+  </div>
+  <p class="verdict yes" id="v" style="text-align:center">checked &mdash; a real ladder from start to target</p>
+  <p class="credit" style="text-align:center">Every word one letter from its neighbours, laid out as
+    the graph it is. The route taken is lit; the words not on it are the ones you could have gone through.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'word_ladder',letter:'b',name:'The route',
+ claim:'A ladder is a path through a graph of words one letter apart, so the graph is the figure '
+     + 'and the ladder is a line through it. What you see is not just the answer but the '
+     + 'neighbourhood it had to cross.',
+ note:'The only direction that shows the <b>space</b> rather than the solution — which is the '
+    + 'thing that makes a ladder hard, and the thing every other presentation hides. It needs a '
+    + 'real neighbour index to be honest at scale; this sketch draws a hand-made neighbourhood.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const NS='http://www.w3.org/2000/svg';
+ const NODES={cold:[70,200],cord:[260,120],bold:[260,285],card:[460,120],corn:[460,240],
+   bald:[460,330],ward:[660,120],cart:[660,235],band:[660,330],warm:[900,200],wart:[900,320],
+   worm:[1050,120]};
+ const EDGES=[['cold','cord'],['cold','bold'],['cord','card'],['cord','corn'],['bold','bald'],
+   ['card','ward'],['card','cart'],['corn','cart'],['bald','band'],['ward','warm'],['ward','wart'],
+   ['cart','wart'],['band','wart'],['warm','worm'],['wart','warm']];
+ const PATH={'cold>warm':['cold','cord','card','ward','warm'],
+             'cold>worm':['cold','cord','card','ward','warm','worm']};
+ const svg=document.getElementById('g');
+ function draw(route){
+   svg.textContent='';
+   const on=new Set(); for(let i=0;i<route.length-1;i++)on.add(route[i]+'|'+route[i+1]),on.add(route[i+1]+'|'+route[i]);
+   EDGES.forEach(([a,b])=>{const l=document.createElementNS(NS,'line');
+     l.setAttribute('x1',NODES[a][0]);l.setAttribute('y1',NODES[a][1]);
+     l.setAttribute('x2',NODES[b][0]);l.setAttribute('y2',NODES[b][1]);
+     l.setAttribute('class','edge'+(on.has(a+'|'+b)?' on':''));svg.appendChild(l);});
+   Object.entries(NODES).forEach(([w,[x,y]])=>{
+     const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);
+     c.setAttribute('r',route.includes(w)?9:6);c.setAttribute('class','nd'+(route.includes(w)?' on':''));svg.appendChild(c);
+     const t=document.createElementNS(NS,'text');t.setAttribute('x',x);t.setAttribute('y',y-16);
+     t.setAttribute('text-anchor','middle');t.setAttribute('class','wd'+(route.includes(w)?' on':''));
+     t.textContent=w;svg.appendChild(t);});
+ }
+ function go(){
+   const a=document.getElementById('a').value.toLowerCase().trim();
+   const b=document.getElementById('b').value.toLowerCase().trim();
+   const r=PATH[a+'>'+b];const v=document.getElementById('v');
+   if(!r){v.className='verdict no';v.textContent='checked — no route in this sketch’s neighbourhood (try cold→warm or cold→worm)';draw([]);return;}
+   v.className='verdict yes';v.textContent='checked — a real ladder of '+(r.length-1)+' rungs';draw(r);
+ }
+ document.getElementById('go').onclick=go; go();
+})();
+</script></body></html>

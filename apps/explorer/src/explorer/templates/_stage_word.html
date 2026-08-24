@@ -1,4 +1,25 @@
 <p class="word"{% if pieces is not none %} data-positions="{{ pieces | join('|') }}"{% endif %}>{{ word }}</p>
+{# What the discs were showing when this word came off them.
+   
+   The panel printed the word and nothing else, so a viewer could read "Aas"
+   and had no way to see that it is a blank prefix, an "a", an "a", an "s" and
+   a blank suffix — which is the whole of what the device does. The parts come
+   from the same `pieces` the discs are seeded from, so the breakdown and the
+   rings cannot disagree; a ring past the end of its own list is the blank the
+   paper rings carry, and it is shown as a dash rather than as nothing, so a
+   reader can count five positions and find five.
+   
+   Client-side turning rewrites this from the discs themselves — see
+   `paintParts` in the scene's own script — because a hand-turn does not go to
+   the server for a word it has already assembled. #}
+{% if pieces is not none %}
+<p class="word-parts" id="word-parts">
+  {%- for slot in rings.slots -%}
+  {%- if not loop.first %}<i>+</i>{% endif -%}
+  <b>{{ slot.alternatives[pieces[loop.index0]] if pieces[loop.index0] < slot.alternatives | length else '&mdash;' | safe }}</b>
+  {%- endfor -%}
+</p>
+{% endif %}
 {% if find_failed %}
 <p class="verdict no">no word turned up in {{ "{:,}".format(find_attempts) }} tries
   — try again</p>

@@ -29,6 +29,89 @@ from explorer import corpora
 #: style-keyed lookup.
 N_PLUS_7_DEFAULT_LANG: Lang = "en"
 
+#: How far down the noun list a noun is displaced, where the reader has not
+#: said. Seven, because the procedure is named after it — but `displace` has
+#: always taken this by parameter, and the scene's route used to pass a literal
+#: 7 twice while `stage.displacement`'s own signature defaulted to it. Named
+#: once here so the scene, the reading beside it and the procedure cannot come
+#: to disagree about which transformation is being demonstrated.
+N_PLUS_7_OFFSET = 7
+
+#: How far the scene's own control will travel, either way.
+#:
+#: A slider rather than a list of offers, because the point is that N+7 is a
+#: *family* and seven is only the member it is named after — and a family is
+#: something you sweep, not something you pick from a menu. Fifteen each way
+#: because that is far enough for the character of the transformation to change
+#: (a neighbour at N+1 is often a compound of the same stem; at N+15 it is
+#: another word entirely) and near enough that every step is still a step.
+N_PLUS_7_REACH = 15
+
+#: How many entries either side of the travelled span the open page shows, so
+#: the noun is not on the first line and its replacement not on the last.
+DICTIONARY_MARGIN = 2
+
+
+def n_plus_7_offset(value: str) -> int:
+    """Narrow a posted offset to one the control can actually reach.
+
+    Clamped rather than refused: the slider cannot produce anything outside its
+    own range, so a value from outside it is a hand-typed request, and the
+    honest answer to one is the nearest thing the scene will show rather than
+    an error page.
+
+    Zero is allowed through, and that is deliberate. `displace` at 0 returns the
+    source unchanged and `displacement_report` tolerates an unchanged word — so
+    N+0 earns a green verdict for a text nothing was done to. A slider that
+    silently skipped its own midpoint would be lying about its range; the scene
+    says what N+0 is instead (see `_stage_displaced.html`).
+    """
+    try:
+        offset = int(value)
+    except ValueError:
+        return N_PLUS_7_OFFSET
+    return max(-N_PLUS_7_REACH, min(N_PLUS_7_REACH, offset))
+
+
+@dataclass(frozen=True)
+class Entry:
+    """One line of the open page: a word, and what it is to this displacement."""
+
+    word: str
+    #: 0 for the noun being looked up, `offset` for where it lands, and the
+    #: signed distance for everything between and either side.
+    at: int
+    passed: bool
+
+
+def dictionary_page(word: str, offset: int = N_PLUS_7_OFFSET, lang: Lang = "en") -> list[Entry]:
+    """The list, open at `word`, with everything it travels past.
+
+    The scene's figure used to be a reel per noun — the journey as motion. This
+    is the same journey as a page: the entry looked up, the entry landed on, and
+    every entry between them, in the order the list has them. It is the same
+    walk `displacement` makes, and it exists because the list is the other half
+    of the rule and the only direction that puts the list itself on stage.
+
+    Wraps at the ends exactly as `displace` does, so a noun near the start of
+    the list displaced backwards shows the entries it really lands among rather
+    than none at all. Empty when the list does not know the word.
+    """
+    chosen = pack(lang)
+    nouns = chosen.nouns()
+    index = chosen.noun_index(word.lower())
+    if index is None:
+        return []
+    low, high = min(0, offset), max(0, offset)
+    return [
+        Entry(
+            word=nouns[(index + step) % len(nouns)],
+            at=step,
+            passed=low <= step <= high,
+        )
+        for step in range(low - DICTIONARY_MARGIN, high + DICTIONARY_MARGIN + 1)
+    ]
+
 
 @dataclass(frozen=True)
 class Scene:
@@ -58,7 +141,10 @@ SCENES: list[Scene] = [
         slug="n_plus_7",
         title="N+7",
         procedure_id="n_plus_7",
-        caption="Lescure, 1961. Every noun, seven entries further down the dictionary.",
+        caption=(
+            "Lescure, 1961. Every noun, seven entries down the list: cat \u2192 catacomb, "
+            "and catafalque until the Open English WordNet migration moved its neighbours."
+        ),
     ),
     Scene(
         slug="cent_mille_milliards",
@@ -102,6 +188,97 @@ def scene(slug: str) -> Scene:
         if candidate.slug == slug:
             return candidate
     raise KeyError(slug)
+
+
+@dataclass(frozen=True)
+class Reading:
+    """One companion page: the argument a scene is too small to carry.
+
+    A scene is 1280px by 720px with `overflow: hidden`, driven by hand and recorded.
+    That frame holds a machine and a verdict and very little else, which is why
+    almost everything this repository knows about these devices lives in
+    comments here rather than anywhere a reader can see it. A reading is where
+    that goes: scrollable, never in a frame, and reachable only from the chrome
+    the recording flag already takes away.
+
+    It is *not* a second stage. Nothing here autoplays, nothing here is
+    pre-baked, and every number on one of these pages is computed from the same
+    data the scene runs on — the rule ADR 0019 sets for the catalogue applies
+    with more force here, because prose is where a quoted count goes to look
+    settled.
+    """
+
+    slug: str
+    title: str
+    #: The standfirst under the title. One sentence or two, no more.
+    dek: str
+    #: The scenes this reading stands behind, in the order it treats them.
+    #: Two of them cover a pair, because the pair is the argument: Harsdörffer
+    #: cuts paper apart to assemble words and Gysin cuts assembled words apart,
+    #: and neither half says much alone.
+    scenes: tuple[str, ...]
+
+
+READINGS: list[Reading] = [
+    Reading(
+        slug="wheel-and-scissors",
+        title="The Wheel and the Scissors",
+        dek=(
+            "Harsdörffer built a paper computer for the German language and told the "
+            "bookbinder to cut it out. Three centuries later the scissors came back, "
+            "pointed the other way."
+        ),
+        scenes=("denckring", "cut_up"),
+    ),
+    Reading(
+        slug="oulipo-machines",
+        title="Two Machines from the Ouvroir",
+        dek=(
+            "Queneau and Le Lionnais set up a workshop to build constraints rather "
+            "than poems. One of these assembles; the other dismantles."
+        ),
+        scenes=("cent_mille_milliards", "n_plus_7"),
+    ),
+    Reading(
+        slug="the-figure",
+        title="Nine Letters, Turned",
+        dek=(
+            "Llull's wheels are the ancestor every other machine on this stage is "
+            "measured against — and the first whose limits were argued about in print."
+        ),
+        scenes=("llull_figure",),
+    ),
+    Reading(
+        slug="the-automat",
+        title="Sechs Zeilen, sechs Wortlager",
+        dek=(
+            "A split-flap board on a square in Landsberg am Lech for three days in "
+            "2000, and the one part of it this repository can honestly reproduce."
+        ),
+        scenes=("poesie_automat",),
+    ),
+]
+
+
+def reading(slug: str) -> Reading:
+    """One reading by its own slug, or `KeyError`."""
+    for candidate in READINGS:
+        if candidate.slug == slug:
+            return candidate
+    raise KeyError(slug)
+
+
+def reading_for(scene_slug: str) -> Reading | None:
+    """The reading that stands behind `scene_slug`, or `None` where none does.
+
+    `None` is a real answer, not a gap to be filled later: the word ladder and
+    Ideenwürfeln say what they are on the scene itself, and a companion page
+    that had nothing to add would be furniture.
+    """
+    for candidate in READINGS:
+        if scene_slug in candidate.scenes:
+            return candidate
+    return None
 
 
 #: The figure the literature repeats for the Denckring. It is not a product of rings of
@@ -198,8 +375,12 @@ def german_pack() -> LanguagePack:
 #: This is the actual safety mechanism for the words the *Denckring* scene
 #: puts on screen by machine, not `RHYME_ENDINGS`'s curation: a hand-read pass
 #: over the -acken sweep missed "Kacken", and `find_word` went through no
-#: curation at all — a raw 184,040-word lexicon answers "is this a word", not
-#: "is this fit to show on a recording". See `fit_for_stage` below, and the
+#: curation at all — a raw 668,579-word lexicon answers "is this a word", not
+#: "is this fit to show on a recording". (That figure is `words.txt`, which is
+#: what `is_word` reads. It said 184,040 here until this pass, which is the
+#: shipped *noun* list — the number the note below about blocked stems is
+#: correctly counting, and the wrong one for a membership test.) See
+#: `fit_for_stage` below, and the
 #: note above it for the two scenes it deliberately does not cover.
 #:
 #: Covers, deliberately: sexual vulgarities (fick, fotz/votz, muschi, wichs,
@@ -641,7 +822,7 @@ def pack(lang: Lang = "en") -> LanguagePack:
     return get_pack(lang)
 
 
-def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
+def displacement(source: str, offset: int = N_PLUS_7_OFFSET, lang: Lang = "en") -> list[Step]:
     """Each noun of `source`, with the entries it passes on the way to its
     replacement — walked through whichever language's noun list `lang` names,
     since that is what actually decides both the replacement and the reel of
@@ -655,18 +836,30 @@ def displacement(source: str, offset: int = 7, lang: Lang = "en") -> list[Step]:
     chosen = pack(lang)
     nouns = chosen.nouns()
     steps: list[Step] = []
+    # The reel walks in the direction of travel and wraps at the ends of the
+    # list, both because `displace` does: it lands on `(index + offset) %
+    # len(nouns)`, and a reel computed any other way would animate a
+    # substitution the text beside it did not make.
+    #
+    # It used to walk `range(index, landing + 1)` and skip any noun whose
+    # landing ran past the end of the list. That was two disagreements with
+    # `displace` at once — a noun near the end of the list was displaced in the
+    # result while its column simply vanished from the figure, and a negative
+    # offset produced an empty range, so every column disappeared and the reel
+    # said the list knew none of these words.
+    direction = 1 if offset >= 0 else -1
     for token in chosen.tokenize(source):
         index = chosen.noun_index(token.lower())
         if index is None:
             continue
-        landing = index + offset
-        if landing >= len(nouns):
-            continue
         steps.append(
             Step(
                 word=token,
-                replacement=nouns[landing],
-                neighbours=[nouns[i] for i in range(index, landing + 1)],
+                replacement=nouns[(index + offset) % len(nouns)],
+                neighbours=[
+                    nouns[(index + step * direction) % len(nouns)]
+                    for step in range(abs(offset) + 1)
+                ],
             )
         )
     return steps
@@ -781,6 +974,41 @@ def queneau_poem(state: list[int], lang: Lang = "en") -> QueneauPoem:
         for i, options in enumerate(offered)
     ]
     return QueneauPoem(strips=strips, combinations=queneau_combinations(lang))
+
+
+def queneau_ordinal(state: list[int], lang: Lang = "en") -> int:
+    """Which of the poems this one is, counting from one.
+
+    A state is a mixed-radix numeral and the book is its own index: with ten
+    alternatives at each of fourteen positions, the fourteen indices *are* the
+    digits of a number between 1 and 10^14, and that number is the poem's place
+    in the total the scene prints beside it. Computed as mixed-radix rather than
+    assuming ten, so it stays right if a position ever offers a different count
+    — the same rule `queneau_combinations` follows for the total itself.
+
+    This is what makes the count on this scene something other than a boast. A
+    hundred million million is not a quantity anybody has an intuition for; a
+    fourteen-digit address that changes under your hand when you flip one strip
+    is the same fact, arrived at by turning it.
+    """
+    ordinal = 0
+    for index, options in zip(state, queneau_offered(lang), strict=True):
+        ordinal = ordinal * len(options) + index
+    return ordinal + 1
+
+
+def queneau_address(state: list[int]) -> list[str]:
+    """The state's own digits, grouped the way the sonnet is.
+
+    Four, four, three and three — Queneau's ABAB ABAB CCD EED, so the address
+    is broken where the poem is. Digits rather than a single run because the
+    point of it is that one flip changes one digit, and a reader should be able
+    to see which.
+    """
+    digits = "".join(str(index) for index in state)
+    cuts = (4, 8, 11)
+    edges = (0, *cuts, len(digits))
+    return [digits[start:end] for start, end in pairwise(edges) if digits[start:end]]
 
 
 def queneau_initial_state(lang: Lang = "en") -> list[int]:
@@ -1015,6 +1243,155 @@ will bring together parts that spell a word
 no hand set down, and yet the strange thing stands
 as evidence of everything a language
 can hold inside one folded paper sheet."""
+
+
+# ── scene four's second page, and the family it belongs to ─────────────────
+
+#: The other page the fold-in needs, and the only text on this scene that is
+#: quoted rather than written for it. Melville, 1851, public domain — the same
+#: passage the N+7 scene offers, so the stage quotes one book once.
+#:
+#: Six lines, because the fold reads line against line and a page with more of
+#: them would simply have its tail folded against nothing (`fold_in._fold_in`
+#: stops at the shorter page). Nothing else about it is tuned: the halves fall
+#: where each line's own word count puts them.
+CUT_UP_SOURCE_B = """Call me Ishmael. Some years ago, never
+mind how long precisely, having little
+or no money in my purse, and nothing
+particular to interest me on shore, I
+thought I would sail about a little and
+see the watery part of the world."""
+
+
+def fold_in_source() -> str:
+    """The two pages as `fold_in` wants them: one string, two paragraphs.
+
+    `FoldIn._pages` reads page one and page two off `paragraph_spans`, so the
+    blank line between them is the whole of the interface — there is no
+    two-argument form to call instead.
+    """
+    return CUT_UP_SOURCE + "\n\n" + CUT_UP_SOURCE_B
+
+
+@dataclass(frozen=True)
+class CutMethod:
+    """One operation in the cut-up family, as the scene offers it."""
+
+    id: str
+    label: str
+    #: The catalogued procedure this method *is*, or None where the catalogue
+    #: records that there is nothing to check. Never a near-enough stand-in:
+    #: checking a word bag against `cut_up` would be a verdict about a
+    #: different method.
+    procedure: str | None
+    how: str
+    #: What the button that performs it says. Four operations, four verbs —
+    #: "Cut it" over a fold or a bag would name the wrong act.
+    verb: str
+    #: Where the method comes from. Shown as the scene's credit, which follows
+    #: the method rather than the scene — the four are four attributions.
+    credit: str
+
+
+#: The four, in the order the scene offers them: the one everybody names
+#: first, then the one Burroughs put beside it, then the one that came before
+#: both, then the one that cuts nothing at all.
+#:
+#: Three carry a checker and one does not, and that asymmetry is the most
+#: interesting thing on the scene. `dada_poem` is catalogued
+#: `checkability: none` — a bag of words drawn at random has no property a
+#: report could hold a text against, because *any* order is a correct draw.
+#: The scene says so where the other three show a verdict, rather than
+#: quietly checking it against something else.
+CUT_METHODS: tuple[CutMethod, ...] = (
+    CutMethod(
+        id="quarter",
+        label="Quarter cut",
+        procedure="cut_up",
+        how=(
+            "Two straight cuts divide the page into four. The quarters are rearranged "
+            "— the bottom-right takes the top-left corner — and you read across the join."
+        ),
+        verb="Cut it",
+        credit="Written for this scene.",
+    ),
+    CutMethod(
+        id="fold",
+        label="Fold-in",
+        procedure="fold_in",
+        how=(
+            "A page is folded down its length and laid on another, so the left half of "
+            "one line meets the right half of the other. Half of each line is folded "
+            "under and gone; that loss is the form, not a defect."
+        ),
+        verb="Fold it",
+        credit="Page A written for this scene. Page B: Melville, Moby-Dick, 1851, public domain.",
+    ),
+    CutMethod(
+        id="bag",
+        label="Word bag",
+        procedure=None,
+        how=(
+            "Cut the page into single words, shake them in a bag, and copy them down in "
+            "the order they come out. Every order is a correct draw, so there is nothing "
+            "for a checker to hold this against."
+        ),
+        verb="Shake the bag",
+        credit="Written for this scene. The method: Tzara, Pour faire un poème dadaïste, 1920.",
+    ),
+    CutMethod(
+        id="column",
+        label="Column reading",
+        procedure="column_reading",
+        how=(
+            "Leave every word where it is and read the page down instead of across: the "
+            "nth word of every line, in line order. The rule that moves least and reads "
+            "most differently."
+        ),
+        verb="Read it down",
+        credit="Written for this scene.",
+    ),
+)
+
+
+def cut_up_column(value: str) -> int:
+    """Narrow a posted column to one the page actually has a word at.
+
+    Clamped, like `n_plus_7_offset`, and to the same end: the control cannot
+    post anything else, so anything else was typed by hand. The upper bound is
+    the *longest* line's word count rather than the shortest — `column_reading`
+    skips a line too short to reach rather than padding it, so a column past
+    some lines is a real reading of this page, and only a column past every
+    line reads nothing at all.
+    """
+    try:
+        column = int(value)
+    except ValueError:
+        return 1
+    return max(1, min(cut_up_max_column(), column))
+
+
+def cut_up_max_column(source: str = CUT_UP_SOURCE) -> int:
+    """The last column any line of `source` reaches.
+
+    Computed, never typed: the page is six lines of running English and the
+    number is whatever they happen to be. Whitespace-split, because that is
+    what `column_reading` itself counts by.
+    """
+    return max((len(line.split()) for _, line in line_spans(source)), default=1)
+
+
+def cut_method(method_id: str | None) -> CutMethod:
+    """The method `method_id` names, or the quarter cut.
+
+    Falls back rather than refusing, for the reason `n_plus_7_offset` clamps:
+    the picker cannot post anything else, so anything else is hand-typed and
+    the honest answer is the scene's own default.
+    """
+    for method in CUT_METHODS:
+        if method.id == method_id:
+            return method
+    return CUT_METHODS[0]
 
 
 def cut_up_source_words(source: str, lang: Lang = "en") -> list[str]:
@@ -1329,6 +1706,26 @@ def llull_letters_from_text(text: str) -> list[str] | None:
     if not letters or any(letter not in figure.letters for letter in letters):
         return None
     return letters
+
+
+def llull_prompt_alphabet() -> str:
+    """The figure's whole alphabet as one block of text, for `ars.py`.
+
+    Prepared here, from the shipped figure and the shipped glosses, rather than
+    written into the prompt: the terms a model argues from have to be the ones
+    the scene beside it reads off the same YAML, or the reading and the figure
+    are describing two different devices. The Latin is the figure's own; the
+    English is the gloss table `LLULL_GLOSSES` holds.
+    """
+    figure = llull_figure_data()
+    lines = []
+    for level in LLULL_LEVELS:
+        terms = ", ".join(
+            f"{letter} = {figure.levels[level][letter]} ({LLULL_GLOSSES[level][letter]})"
+            for letter in figure.letters
+        )
+        lines.append(f"{level.upper()}: {terms}")
+    return "\n".join(lines)
 
 
 def llull_client_data() -> dict[str, Any]:
@@ -1848,3 +2245,87 @@ def automat_press(device_id: str | None = None, seed: int | None = None) -> tupl
         # the scene should paper over.
         raise InvalidParams("poesie_automat", f"the board cannot read back its own poem: {poem!r}")
     return poem, positions
+
+
+# ── the readings' arithmetic ────────────────────────────────────────────────
+#
+# Every number a companion page states, computed here from the same data the
+# scene beside it runs on. They are gathered rather than scattered so that the
+# whole of what those pages assert numerically can be read in one screen and
+# audited against the device files.
+#
+# The rule is ADR 0019's — *counts are computed, never quoted* — and prose is
+# where it is easiest to break, because a figure set in a sentence looks
+# settled in a way the same figure in a legend does not. The four mockups these
+# pages are drawn from break it in exactly that way: one of them multiplies the
+# Denckring's printed caption out to "roughly 83 million words" and calls the
+# plate's inventory 254 parts, both of which are arithmetic on numbers
+# Harsdörffer printed rather than on the parts the transcription carries.
+
+
+def ring_parts() -> int:
+    """How many word-parts the shipped transcription of the Denckring carries.
+
+    264, and it is worth saying why the figure has to be computed rather than
+    read off Harsdörffer's own caption. The plate announces 48 · 60 · 12 · 120 ·
+    24, which sums to 264 as well — but the transcription carries 49 · 60 · 12 ·
+    120 · 23, and the two agree on the total only by accident, disagreeing about
+    where the boundary between the prefix and suffix rings falls (ADR 0017,
+    which records both and adjusts neither). A page that typed 264 would be
+    right today and silently wrong the moment either count moved.
+    """
+    return sum(len(slot.alternatives) for slot in rings().slots)
+
+
+def queneau_inventory(lang: Lang = "en") -> tuple[int, int]:
+    """`(positions, lines actually written)` for a set of strips.
+
+    The second number is the one that carries the argument: the machine's
+    output is astronomical and its inventory is small enough to print, and the
+    gap between them is the whole of Queneau's joke.
+    """
+    offered = queneau_offered(lang)
+    return len(offered), sum(len(alternatives) for alternatives in offered)
+
+
+#: Minutes in a year, for `years_of_reading`. Named rather than inlined so the
+#: assumption behind the figure is visible: 365 days, no leap correction, which
+#: is well inside the precision anything on this scale deserves.
+MINUTES_IN_A_YEAR = 60 * 24 * 365
+
+
+def years_of_reading(combinations: int) -> int:
+    """How long a set of strips takes to read out at one poem a minute, without
+    stopping.
+
+    Queneau's own jacket note makes this move, and it is the reason the book is
+    a machine rather than a novelty: the number is only legible once it is
+    converted into a span nobody has. Round the clock, deliberately — a figure
+    computed against a working day would be larger and would smuggle in an
+    assumption about the reader.
+    """
+    return combinations // MINUTES_IN_A_YEAR
+
+
+def llull_chamber_counts() -> dict[int, int]:
+    """How many chambers each arity the scene offers admits, keyed by arity.
+
+    Falls out of nine letters: 84 of three and 36 of two. ADR 0019 permits
+    exactly these two figures on a page and refuses a third that circulates
+    with them — the number of entries in the printed *Tabula generalis* — which
+    stays unchecked until somebody reads a facsimile.
+    """
+    figure = llull_figure_data()
+    return {arity: len(figure.chambers(arity)) for arity in LLULL_ARITIES}
+
+
+def automat_inventory(device_id: str | None = None) -> tuple[int, int, int]:
+    """`(lines, modules, flaps)` for a cartridge.
+
+    Six, thirty-six and three hundred and sixty on the shipped one. The third
+    is what the credit on the scene is counting when it says how much of this
+    machine was written for this project rather than taken from Enzensberger.
+    """
+    board = flap_board(device_id)
+    modules = board.modules
+    return len(board.lines), len(modules), sum(len(m.alternatives) for m in modules)

@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Word ladder · A · The ladder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work{display:flex;gap:3rem;margin-top:1rem;align-items:flex-start}
+  .rungs{flex:none;display:flex;flex-direction:column;gap:.5rem;position:relative;padding:0 1.6rem}
+  .rungs::before,.rungs::after{content:"";position:absolute;top:-.4rem;bottom:-.4rem;width:3px;background:#ddd6c6;border-radius:2px}
+  .rungs::before{left:0}.rungs::after{right:0}
+  .rung{display:flex;gap:.28rem}
+  .t{width:2.6rem;height:2.6rem;display:flex;align-items:center;justify-content:center;
+     font-family:var(--mono);font-size:1.2rem;font-weight:600;text-transform:uppercase;
+     color:var(--paper);background:var(--case-deep);border-radius:2px}
+  .t.ch{background:var(--rubric)}
+  .side{flex:1;min-width:0}
+  .side .f{display:flex;gap:.5rem;align-items:flex-end;margin-bottom:1rem}
+  .side label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);display:block;margin-bottom:.2rem}
+  .side input{width:7rem;font-family:var(--mono);font-size:1rem;padding:.42rem .5rem;border:1px solid var(--case-lip);border-radius:2px;background:var(--paper)}
+  .steps{font-family:var(--mono);font-size:.66rem;color:var(--lead);margin:.8rem 0 0}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Lewis Carroll &middot; Doublets, 1879</p>
+  <h1>Word ladder</h1>
+  <div class="work">
+    <div class="rungs" id="rungs"></div>
+    <div class="side">
+      <div class="f">
+        <div><label for="a">Start</label><input id="a" value="cold"></div>
+        <div><label for="b">Target</label><input id="b" value="warm"></div>
+        <button id="go">Climb it</button>
+      </div>
+      <p class="verdict yes" id="v">checked &mdash; a real ladder from start to target</p>
+      <p class="steps" id="steps"></p>
+      <p class="credit">Carroll's own puzzle, and his own example. One letter changes at each rung
+        and every rung is a word; the letter that moved is marked.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'word_ladder',letter:'a',name:'The ladder',
+ claim:'A ladder drawn as a ladder: two rails and a rung per word, letters as type in a case, the '
+     + 'one letter that changed marked in red. The form is the figure.',
+ note:'The scene has no mockup, and this is the most literal reading of its name. It is also the '
+    + 'only one of the three that makes the <b>one-letter rule</b> visible at a glance rather than '
+    + 'stated in the caption.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ // Carroll's own ladders, so a sketch needs no dictionary.
+ const LAD={'cold>warm':['cold','cord','card','ward','warm'],
+            'head>tail':['head','heal','teal','tell','tall','tail'],
+            'four>five':['four','foul','fool','foot','fort','fore','fire','five']};
+ function climb(){
+   const a=document.getElementById('a').value.toLowerCase().trim();
+   const b=document.getElementById('b').value.toLowerCase().trim();
+   const rung=LAD[a+'>'+b];
+   const box=document.getElementById('rungs');box.textContent='';
+   const v=document.getElementById('v');
+   if(!rung){v.className='verdict no';v.textContent='checked — no ladder in this sketch’s three (try cold→warm, head→tail, four→five)';
+     document.getElementById('steps').textContent='';return;}
+   rung.forEach((w,i)=>{
+     const r=document.createElement('div');r.className='rung';
+     [...w].forEach((ch,k)=>{const t=document.createElement('div');t.className='t';
+       if(i&&rung[i-1][k]!==ch)t.classList.add('ch');t.textContent=ch;r.appendChild(t);});
+     box.appendChild(r);
+   });
+   v.className='verdict yes';v.textContent='checked — a real ladder from start to target';
+   document.getElementById('steps').textContent=(rung.length-1)+' rungs · one letter each';
+ }
+ document.getElementById('go').onclick=climb; climb();
+})();
+</script></body></html>

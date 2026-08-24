@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Ideenwürfeln · C · The collision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .arena{display:grid;grid-template-columns:1fr 5.5rem 1fr;gap:0;margin-top:1.1rem;align-items:center}
+  .side{display:flex;flex-direction:column;gap:.6rem}
+  .card{background:var(--paper-shade);border-radius:2px;padding:.6rem .75rem}
+  .card.modern{background:var(--paper-shade);border-left:3px solid #4288c4}
+  .card.baroque{background:#f2ecdd;border-left:3px solid var(--rubric)}
+  .card p{font-family:var(--display);font-size:.9rem;line-height:1.45;margin:0;color:var(--ink)}
+  .card.baroque p{font-style:italic}
+  .card em{display:block;font-family:var(--mono);font-style:normal;font-size:.52rem;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--lead);margin-top:.3rem}
+  .mid{text-align:center}
+  .hw{font-family:var(--display);font-size:1.25rem;font-weight:600;font-style:italic;color:var(--ink);margin:0}
+  .bolt{font-size:1.5rem;color:var(--rubric);margin:.2rem 0}
+  .cols{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead)}
+  .row{display:flex;gap:.6rem;align-items:flex-end;justify-content:center;margin-top:1.1rem}
+  .row input{width:11rem;font-family:var(--display);font-size:1rem;padding:.4rem .6rem;border:1px solid var(--case-lip);border-radius:2px;background:var(--paper)}
+  .witz{max-width:60rem;margin:1.1rem auto 0;font-family:var(--display);font-size:1rem;line-height:1.6;
+        color:var(--ink);border-top:1px solid var(--paper-shade);padding-top:.8rem}
+  .lbl{font-family:var(--mono);font-size:.62rem;color:var(--lead);margin-top:.5rem}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Jean Paul &middot; notebook, February 1795</p>
+  <h1>Ideenwürfeln</h1>
+  <div class="arena">
+    <div class="side" id="left"></div>
+    <div class="mid"><p class="hw" id="hw">Licht</p><p class="bolt">&#8646;</p><p class="cols">two fields</p></div>
+    <div class="side" id="right"></div>
+  </div>
+  <div class="row"><input id="h" value="Licht"><button id="throw">Force them together</button></div>
+  <p class="witz" id="witz"></p>
+  <p class="lbl">A reading, not a verdict. No <code>Report</code> is produced and no checker consults
+    it &mdash; the Witz is the step no program performs.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'ideenwuerfeln',letter:'c',name:'The collision',
+ claim:'Two fields, left and right, driven at each other under one headword — the remoteness made '
+     + 'into a layout. Registers are visible: baroque on one side, modern on the other, as the two '
+     + 'corpora already are.',
+ note:'The only direction that states the <b>distance</b>, which is the whole of Jean Paul’s Witz: '
+    + 'the further apart the fields, the more the comparison has to earn. The paragraph below is '
+    + 'canned here; in the real scene it comes from a model, key-gated and labelled.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const B=[['Das Licht der Kerze bewegt sich, wenn niemand die Tür geöffnet hat.','Exzerpte · Physik'],
+   ['Der Blitz erhellt den Hof, und danach ist es dunkler als zuvor.','Exzerpte · Wetter'],
+   ['Ein Leuchtturmwärter schreibt die Stunde auf, in der die Lampe brennt.','Exzerpte · Seefahrt']];
+ const M=[['The nucleation of ice begins at a defect, never in clean water.','arXiv · cond-mat'],
+   ['Photons arrive one at a time and the interference pattern still forms.','arXiv · quant-ph'],
+   ['The retina reports change, not brightness; a steady image fades.','physiology, 1963']];
+ const WITZ=['A candle moves because something in the room did, and a crystal forms because '
+  +'something in the water was already wrong. Neither begins in the clean case. What we call an '
+  +'event is the moment a defect becomes large enough to see, which is why the lighthouse keeper '
+  +'logs the lamp and not the looking.',
+  'The eye stops reporting a steady light, and the pattern still builds one photon at a time. Both '
+  +'are ways of saying that nothing arrives whole: what a thing is gets assembled out of changes, '
+  +'and a change that stops changing stops being reported at all.'];
+ function fill(){
+  const put=(id,pool,cls)=>{const box=document.getElementById(id);box.textContent='';
+   pool.slice().sort(()=>Math.random()-.5).slice(0,2).forEach((s)=>{
+     const d=document.createElement('div');d.className='card '+cls;
+     const p=document.createElement('p');p.textContent=s[0];
+     const e=document.createElement('em');e.textContent=s[1];
+     d.append(p,e);box.appendChild(d);});};
+  put('left',B,'baroque'); put('right',M,'modern');
+  document.getElementById('hw').textContent=document.getElementById('h').value||'Licht';
+  document.getElementById('witz').textContent=WITZ[Math.floor(Math.random()*WITZ.length)];
+ }
+ document.getElementById('throw').onclick=fill; fill();
+})();
+</script></body></html>

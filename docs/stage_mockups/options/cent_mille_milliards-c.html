@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Queneau · C · The ten sonnets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work { display:flex; gap:1.6rem; align-items:flex-start; margin-top:.9rem; }
+  .grid { display:grid; grid-template-columns:1.4rem repeat(10,1fr); gap:.1rem .16rem; flex:1; min-width:0; }
+  .h { font-family:var(--mono); font-size:.56rem; color:var(--lead); text-align:center; letter-spacing:.06em; }
+  .rn { font-family:var(--mono); font-size:.54rem; color:var(--lead); text-align:right; padding-right:.15rem; line-height:1.75rem; }
+  .c { font-family:var(--display); font-size:.58rem; line-height:1.2; color:#8d857a; background:var(--paper-shade);
+       border-radius:1px; padding:.1rem .2rem; cursor:pointer; overflow:hidden; height:1.75rem;
+       display:flex; align-items:center; transition:background 120ms ease,color 120ms ease; }
+  .c:hover { background:#dcd4c2; color:var(--ink); }
+  .c.on { background:var(--ink); color:var(--paper); }
+  .brk { margin-bottom:.34rem; }
+  .side { flex:none; width:330px; }
+  .side p.l { font-family:var(--display); font-size:.86rem; line-height:1.42; margin:0; color:var(--ink); }
+  .side p.l.b { margin-bottom:.3rem; }
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Raymond Queneau &middot; Gallimard, 1961</p>
+  <h1>Cent mille milliards de poèmes</h1>
+  <div class="work">
+    <div class="grid" id="grid"></div>
+    <div class="side">
+      <div id="out"></div>
+      <p class="verdict yes">checked &mdash; every line is one of the ten</p>
+      <div style="margin-top:.6rem"><button id="deal">Deal</button></div>
+      <p class="credit">All ten sonnets at once: fourteen rows, ten columns, and the poem is
+        whichever cell you pick in each row. Every column read straight down is a whole sonnet.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cent_mille_milliards', letter: 'c', name: 'The ten sonnets',
+  claim: 'The entire inventory on screen at once — fourteen rows of ten — with the chosen line lit '
+       + 'in each row. You can see that a column read straight down is a whole sonnet, which is '
+       + 'the fact that makes the book work and that no other view shows.',
+  note: 'This is the only direction that shows the <b>140 lines</b> rather than the 14 on offer, '
+      + 'so the smallness of the inventory against 10¹⁴ is visible rather than stated. The cost is '
+      + 'type size: at ten columns the lines set at 0.62rem, which is a grid to scan rather than a '
+      + 'poem to read.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const GAPS=[3,7,10];
+  const S = DATA.queneau, state = S.map(()=>0);
+  const grid=document.getElementById('grid');
+  const cells=[];
+  const corner=document.createElement('div'); grid.appendChild(corner);
+  for(let c=0;c<10;c++){ const h=document.createElement('div'); h.className='h'; h.textContent=String(c+1); grid.appendChild(h); }
+  S.forEach((alts,r)=>{
+    const rn=document.createElement('div'); rn.className='rn'+(GAPS.includes(r)?' brk':''); rn.textContent=String(r+1);
+    grid.appendChild(rn); cells.push([]);
+    alts.forEach((text,c)=>{
+      const d=document.createElement('div'); d.className='c'+(GAPS.includes(r)?' brk':''); d.textContent=text;
+      d.onclick=()=>{ state[r]=c; paint(); };
+      grid.appendChild(d); cells[r].push(d);
+    });
+  });
+  const out=document.getElementById('out');
+  const lines=S.map((_,r)=>{ const p=document.createElement('p'); p.className='l'+(GAPS.includes(r)?' b':''); out.appendChild(p); return p; });
+  function paint(){
+    S.forEach((alts,r)=>{ alts.forEach((_,c)=>cells[r][c].classList.toggle('on',state[r]===c)); lines[r].textContent=alts[state[r]]; });
+  }
+  document.getElementById('deal').onclick=()=>{ state.forEach((_,i)=>{state[i]=Math.floor(Math.random()*10);}); paint(); };
+  paint();
+})();
+</script></body></html>
