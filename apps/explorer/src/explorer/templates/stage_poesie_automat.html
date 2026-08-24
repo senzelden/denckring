@@ -171,9 +171,17 @@ const LINES = 6;
 // `tests/browser/README.md` and in the task report are the same numbers rather
 // than three samples of a noisy quantity. That run: the press clocks
 // 1878-2834ms with a median of **2589ms**, 159-263 cells fold at once, and the
-// dwell runs 64-949ms. Run-to-run spread on this machine is wide — medians of
-// 2183, 2385, 2545 and 2589ms have all been measured for this configuration —
-// so treat the median as the figure and the range as the noise.
+// dwell runs 64-949ms.
+//
+// **How long the press takes is reported, never gated.** Medians of 2183, 2385,
+// 2545 and 2589ms have all been measured for this same build on this same
+// machine — a spread of 400ms, which means the number is measuring the VM
+// rather than the design. It is also unmeasured on GPU-backed rendering, and
+// roughly 600ms of it is main-thread paint a real browser would not do. So the
+// honest form of it is environmental: *median 2.2-2.6s under headless software
+// rendering on a loaded four-core VM, unmeasured on GPU*. What **is** gated is
+// the wave, which is machine-robust by construction — at zero stagger the
+// folding set spans a whole row per burst however fast the thread runs.
 const FOLD_MS = 64;
 const HALF_MS = FOLD_MS / 2;
 // How far apart two neighbouring **columns** start, in reading order — this is

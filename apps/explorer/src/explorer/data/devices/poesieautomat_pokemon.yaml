@@ -19,6 +19,12 @@
 # It is a development-tool fixture, used nominatively to name the creatures it
 # names, and it is never distributed.
 #
+# The sixty creature names were written from memory and then checked, one by
+# one, against Bulbapedia's list of official German Pokemon names. All sixty are
+# correct and none is a fan name. Recorded here because nothing in this
+# repository can catch a misspelling: a wrong name would load, render, check and
+# pass every test in the suite.
+#
 # WHERE THE REST OF THE WORDS COME FROM
 #
 # Everything that is not a creature name is ordinary German in Heiner Mueller's
