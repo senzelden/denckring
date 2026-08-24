@@ -239,7 +239,8 @@
 .ladder-wrap .verdict,
 .cutup-area .verdict,
 .poem-verdict,
-.llull-reading-panel .verdict {
+.llull-reading-panel .verdict,
+.automat-reading .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
@@ -253,7 +254,8 @@
 .ladder-wrap .verdict.yes,
 .cutup-area .verdict.yes,
 .poem-verdict.yes,
-.llull-reading-panel .verdict.yes {
+.llull-reading-panel .verdict.yes,
+.automat-reading .verdict.yes {
   color: var(--pass);
 }
 
@@ -261,7 +263,8 @@
 .ladder-wrap .verdict.no,
 .cutup-area .verdict.no,
 .poem-verdict.no,
-.llull-reading-panel .verdict.no {
+.llull-reading-panel .verdict.no,
+.automat-reading .verdict.no {
   color: var(--rubric);
 }
 
@@ -424,13 +427,15 @@
 }
 
 .turnable-figure .ring-disc,
-.turnable-figure .wheel-disc {
+.turnable-figure .wheel-disc,
+.turnable-figure .board-module {
   cursor: grab;
 }
 
 .turnable-figure.grabbing,
 .turnable-figure.grabbing .ring-disc,
-.turnable-figure.grabbing .wheel-disc {
+.turnable-figure.grabbing .wheel-disc,
+.turnable-figure.grabbing .board-module {
   cursor: grabbing;
 }
 
@@ -1251,8 +1256,9 @@
    read as a report rather than a page, and hung off the stage's own left
    padding rather than centred in it: the kicker, the title, the poem, the
    controls and the credit all start on one line down the page, which is
-   where the eye has already landed on the five scenes either side of this
-   one. Measured in a browser at every state (first paint, mid-deal, chrome
+   where the eye has already landed on every other scene. (This sentence used
+   to count the scenes; it was stale by two before anyone noticed, so it counts
+   nothing now.) Measured in a browser at every state (first paint, mid-deal, chrome
    off, both strip sets); see the task report for the numbers `.stage`'s
    720px clip has to hold. */
 .poem {
@@ -1492,7 +1498,7 @@
 }
 
 /* ── scene six: cut-up ────────────────────────────────────────────────────
-   The quietest scene of the seven in furniture, and the most physical in
+   The quietest scene on this stage in furniture, and the most physical in
    what it does: the six lines as a printed page, two blades lying across
    it, and the page itself coming apart into four quarters when they are
    used. Nothing here is editable — the source is fixed, so there is no
@@ -1920,6 +1926,274 @@
    than collapsing them to one, so its panel keeps its height under a hand. */
 .cutup-area .verdict.turning,
 .llull-reading-panel .verdict.turning,
-.word-panel .verdict.turning {
+.word-panel .verdict.turning,
+.automat-reading .verdict.turning {
+  color: var(--lead);
+}
+
+/* ── scene eight: Enzensberger's Poesie-Automat ────────────────────────────
+   A split-flap letter board of the railway-platform kind. Not word strips:
+   Enzensberger specified a board whose letters arrive *Buchstabe für
+   Buchstabe*, so this is six rows of 71 character cells and each cell is two
+   leaves and a hinge.
+
+   71 is the geometry and it is derived, not chosen: a line is six flaps and
+   the five spaces between them, and no flap is wider than eleven characters.
+   Both cartridges are written to that cap, so both play on this board.
+
+   Deliberately not `.scene-split`. Every other figure on this stage lives in
+   a 620px column with its panel beside it; 71 monospaced columns will not fit
+   beside anything. The board takes the whole stage and its panel sits
+   underneath. */
+.automat-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* The three numbers the whole board is drawn from. All three are set in
+   pixels by `fitBoard` once the face has actually arrived — the cell width is
+   the stage's own width divided by 71, and the type size is whatever that
+   width can carry, *measured* off a probe glyph rather than assumed to be
+   0.6em. The values here are only what the first paint uses before the script
+   has run; the figures the board settles at are in the task report. */
+.letter-board {
+  --cell-w: 16px;
+  --cell-h: 26px;
+  --cell-font: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0;
+  border-radius: 3px;
+  background: var(--case-deep);
+}
+
+/* One line: 71 cells, and six invisible handles laid over them. The handles
+   are positioned in cell widths, so the row and its handles cannot disagree
+   about where a module is. */
+.board-line {
+  position: relative;
+  height: var(--cell-h);
+}
+
+.board-cells {
+  display: flex;
+  height: 100%;
+}
+
+/* One character cell: two static halves and two leaves, on a perspective of
+   its own so the fold reads as a fold rather than as a squash. */
+.cell {
+  position: relative;
+  flex: none;
+  width: var(--cell-w);
+  height: var(--cell-h);
+  font-family: var(--mono);
+  font-size: var(--cell-font);
+  /* 71 cells would pay for tracking 71 times, and the cell width is already
+     the tracking. */
+  letter-spacing: 0;
+  color: var(--paper);
+  background: #14120f;
+  /* A stacking context of the cell's own, so the `z-index` on its leaves and
+     its hinge means "inside this cell" rather than "inside whatever ancestor
+     happens to be one". Without it those two `z-index`es climbed past the
+     module handles laid over the row, and the handles stopped being hittable
+     at all — measured: `elementFromPoint` at a module's own centre returned
+     the glyph inside a cell, `closest('.board-module')` was null, and the
+     grab was refused on every press. `isolation` rather than a `z-index`,
+     because the cell wants a stacking context and not a place in one. */
+  isolation: isolate;
+  /* The seam between one flap unit and the next. An inset shadow rather than a
+     gap or a border, because 71 cells would pay for either one 71 times and the
+     cell pitch is the board's whole geometry. */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.45);
+}
+
+/* The hinge, and the light: a lit board's upper leaf sits a shade brighter
+   than its lower one, and the seam between them is the darkest line on it. */
+.cell::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 3;
+  border-top: 1px solid rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.cell > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+/* The 3D, and it is on only while a cell is turning. A leaf holding a 3D
+   transform with a hidden backface is a composited layer whether or not it is
+   moving, and 852 of them cost 2.7 seconds of main thread across one press —
+   measured, see `foldCell`. So the perspective and the hidden backfaces come
+   on with this class and go off again the moment the cell lands, and a board
+   at rest is 852 plain boxes. */
+.cell.folding {
+  perspective: 90px;
+}
+
+.cell.folding .cell-front,
+.cell.folding .cell-back {
+  backface-visibility: hidden;
+}
+
+/* Each half clips a glyph drawn at the *cell's* full height, so the top half
+   shows the top of the letter and the bottom half the bottom of the same
+   letter — one typeface, one baseline, cut across the hinge. */
+.cell span {
+  display: block;
+  height: var(--cell-h);
+  line-height: var(--cell-h);
+  white-space: pre;
+}
+
+.cell-top,
+.cell-front {
+  top: 0;
+  align-items: flex-start;
+  background: linear-gradient(#2b2823, #221f1b);
+}
+
+.cell-bottom,
+.cell-back {
+  bottom: 0;
+  align-items: flex-end;
+  background: linear-gradient(#1b1815, #131110);
+}
+
+/* The two leaves, and the fold itself. The front leaf hangs from the hinge and
+   falls away (0deg to -90deg), uncovering the static top half that already
+   carries the next character; the back leaf swings up into place from
+   edge-on. Backfaces hidden on both, so neither is ever seen from behind. */
+/* At rest both leaves lie flat, each over the static half that carries the same
+   character, so neither is visible as a separate thing and neither holds a
+   transform. The fold puts the back one edge-on and drops the front one away;
+   `foldCell` says why that order is what it is. */
+.cell-front {
+  z-index: 2;
+  transform-origin: bottom center;
+}
+
+.cell-back {
+  z-index: 2;
+  transform-origin: top center;
+}
+
+/* The six handles: one per module, laid over the cells that module's flap is
+   currently spelling, and moved by the script whenever a flap of a different
+   length turns up. Transparent — what a viewer takes hold of is the letters
+   underneath — but a real focus stop and a real `role="slider"`, so the board
+   can be turned with no pointer at all. */
+.board-modules {
+  position: absolute;
+  inset: 0;
+  /* Over the cells. They are `isolation: isolate`, so this only has to beat
+     their own zero and not the threes inside them. */
+  z-index: 2;
+}
+
+.board-module {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--cell-w) * var(--start));
+  width: calc(var(--cell-w) * var(--span));
+  border-radius: 2px;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+}
+
+.board-module:focus-visible {
+  outline: 2px solid var(--rubric);
+  outline-offset: 1px;
+}
+
+/* A module under a hand. Faint on purpose: the letters are the figure and a
+   highlight bright enough to compete with them would be reading the module
+   rather than the poem. */
+.board-module.held {
+  background: rgba(196, 138, 63, 0.18);
+}
+
+/* The switcher: which set of flaps is in the machine. Two radios styled as one
+   plate, because it is a choice between two named things rather than a toggle
+   with an on and an off. */
+.cartridge-switch {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cartridge-switch legend {
+  padding: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--lead);
+}
+
+.cartridge-switch .cartridge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.cartridge-switch label {
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.cartridge-switch input:disabled + label {
+  color: var(--lead);
+  cursor: default;
+}
+
+.cartridge-note {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--lead);
+}
+
+.automat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.automat-count {
+  margin: 0;
+}
+
+.automat-count .count-true {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.automat-count .count-true sup {
+  font-size: 0.7em;
+}
+
+.automat-count .count-label {
+  margin-left: 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
   color: var(--lead);
 }

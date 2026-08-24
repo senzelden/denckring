@@ -1,0 +1,1077 @@
+{% extends "stage.html" %}
+{% block title %}Poesie-Automat{% endblock %}
+{% block main %}
+{# The eyebrow names the machine and then the lexicon, and the lexicon half
+   changes with the cartridge. It used to be a fixed line crediting
+   Enzensberger over whichever flaps were loaded, which with the Pokemon
+   cartridge on the board credited him for a lexicon that is not his. The
+   mechanism is his in both cases and stays credited; the words are what the
+   line has to stop misattributing. Swapped by `loadCartridge` along with the
+   footnote, because the switcher changes the board without a round trip. #}
+<header class="scene-head">
+  <p class="scene-kicker" id="automat-kicker">{{ kicker }}</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+{# The board: six rows of 71 character cells, and nothing else. Enzensberger
+   specified an electromechanical split-flap display and described its letters
+   arriving *Buchstabe für Buchstabe*, so a cell is the unit, not a word.
+
+   71 is derived rather than chosen: a line is six flaps plus the five spaces
+   between them, and no flap is wider than eleven characters (the device files
+   are written to that cap and the root suite holds them to it). Both
+   cartridges therefore play on the same board.
+
+   A module is not an element here — it is a *run of cells*, and the run moves
+   when a neighbouring module turns to a longer or shorter flap. What a hand
+   takes hold of is the transparent handle laid over that run, which the script
+   keeps in place; see `.board-module` and `placeModules`.
+
+   Not a `.scene-split`: 71 monospaced columns will not fit beside a panel, so
+   the board takes the whole stage and the panel sits underneath. #}
+<div class="automat-stage">
+  <div class="letter-board turnable-figure" id="flap-board" data-columns="{{ columns }}">
+    {% for row in rows %}
+    <div class="board-line" data-line="{{ row.number }}">
+      {# `aria-hidden`, and it is not an oversight: 426 characters read out one
+         at a time is not the poem. What a screen reader is given is the six
+         sliders below, each announcing the word its module is showing. #}
+      <div class="board-cells" aria-hidden="true">
+        {%- for character in row.cells -%}
+        <div class="cell" data-char="{{ character }}"><div class="cell-top"><span>{{ character }}</span></div><div class="cell-bottom"><span>{{ character }}</span></div><div class="cell-front"><span>{{ character }}</span></div><div class="cell-back"><span>{{ character }}</span></div></div>
+        {%- endfor -%}
+      </div>
+      <div class="board-modules">
+        {% for span in row.spans %}
+        {% set slot = row.number * 6 + loop.index0 %}
+        {# `role="slider"`, real focus, and the whole keyboard that role
+           promises — the arrows, Page Up/Down and Home/End — so a module can
+           be turned without a pointer at all, and so that path arms the
+           placeholder through the same choke point a drag does. The module's
+           name is in the label rather than being the label: five of the six
+           modules on line 2 are called `Adjunkt`, so position is the only
+           identity a module has. #}
+        <div class="board-module" id="module-{{ slot }}" data-slot="{{ slot }}"
+             style="--start: {{ span[0] }}; --span: {{ span[1] }}"
+             data-index="{{ positions[slot] }}" tabindex="0" role="slider"
+             aria-orientation="vertical"
+             aria-label="line {{ row.number + 1 }}, module {{ loop.index }} ({{ board.lines[row.number].modules[loop.index0].name }})"
+             aria-valuemin="1"
+             aria-valuemax="{{ board.lines[row.number].modules[loop.index0].alternatives | length }}"
+             aria-valuenow="{{ positions[slot] + 1 }}"
+             aria-valuetext="{{ board.lines[row.number].modules[loop.index0].alternatives[positions[slot]] }}"></div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="automat-panel">
+    {# The switcher. Two radios rather than a toggle, because it is a choice
+       between two named cartridges and neither is the off position. Both sets
+       of flaps are already on the page (see `#automat-cartridges`), so the
+       swap is local and reads as loading different flaps into the same machine
+       — but the *verdict* is never local: the read that follows carries the id
+       of the cartridge the board is now showing, and the server checks against
+       that device. #}
+    <fieldset class="cartridge-switch" id="cartridge-switch">
+      <legend>Cartridge</legend>
+      {% for cartridge in cartridges %}
+      <span class="cartridge">
+        <input type="radio" name="cartridge" id="cartridge-{{ loop.index0 }}"
+               value="{{ cartridge.id }}"{% if cartridge.id == device %} checked{% endif %}>
+        <label for="cartridge-{{ loop.index0 }}">{{ cartridge.label }}</label>
+      </span>
+      {% endfor %}
+    </fieldset>
+    <p class="cartridge-note" id="cartridge-note">{{ note }}</p>
+    {# One button, because the machine had one. "Read the board" is the second
+       half of the same form and not a second machine: it checks the cells as
+       they now stand, which is what a module turned by hand needs and what the
+       release of a drag submits for itself. #}
+    <form class="actions" id="automat-form" hx-post="/stage/poesie_automat/act"
+          hx-target="#automat-reading" hx-swap="innerHTML" hx-trigger="submit">
+      {# What `check` is given, filled from the cells themselves the instant
+         before this is submitted — see `readBoard`. Never recomputed from the
+         seed on the server: the poem checked has to be the poem on the
+         board. #}
+      <input type="hidden" name="poem" id="automat-poem" value="">
+      {# And which board it is a poem of. A verdict is only honest about the
+         device it was checked against, so the cartridge showing goes up with
+         every request rather than being remembered on the server. #}
+      <input type="hidden" name="device" id="automat-device" value="{{ device }}">
+      <button type="submit" name="press" value="1" id="automat-press">Press the button</button>
+      {# `type="button"`, not `submit`, and it is load-bearing. A native submit
+         posts the hidden field as it stands, and the only thing that ever
+         fills that field is `readBoard()` — so this button used to post an
+         empty poem and land a red verdict over a board that was perfectly
+         valid. It goes through `releaseRead` now, the same gate and the same
+         read a drag's own release goes through. #}
+      <button type="button" id="automat-read">Read the board</button>
+    </form>
+    <div class="automat-reading" id="automat-reading">
+      {% include "_stage_flaps.html" %}
+    </div>
+    {# The exact count, as a power. `dev.combinations` is a Python `int` and
+       holds 10^36 exactly; `metrics["combinations"]` is the same number
+       through a float and comes out `1e+36`, so it is never what this line
+       reads. Thirty-seven digits on a stage read as a smear rather than a
+       number, so the page prints the power — and only when the count really
+       is one (see `stage.power_of_ten`). #}
+    <p class="automat-count">
+      <span class="count count-true" id="automat-count">{% if exponent is not none %}10<sup>{{ exponent }}</sup>{%
+        else %}{{ "{:,}".format(board.combinations) }}{% endif %}</span>
+      <span class="count-label">poems this board can show</span>
+    </p>
+    {# The scene's whole announcement to a screen reader: stable, atomic, and
+       outside the swapped region, so a board of 426 cells does not read itself
+       out letter by letter. Scene seven's own lesson. #}
+    <p class="visually-hidden" id="automat-status" role="status" aria-live="polite"
+       aria-atomic="true"></p>
+    {# The footnote, from the cartridge rather than from the scene, and for the
+       same reason the eyebrow is. #}
+    <p class="scene-credit" id="automat-credit">{{ credit }}</p>
+  </div>
+</div>
+{# Both cartridges, as the server computed them: the flaps in the capitals the
+   cells display, the device's own case beside them for the accessible tree,
+   and the alphabet each board's own flaps actually use. Nothing here is a
+   poem — the client assembles rows out of flap indices exactly as
+   `stage.automat_rows` does, and `test_the_board_lays_out_a_row_the_same_on_both_sides`
+   holds the two to the same answer. #}
+<script type="application/json" id="automat-cartridges">{{ cartridges | tojson }}</script>
+<script>
+// The letter board, driven entirely here.
+//
+// Enzensberger specified an electromechanical split-flap display of the
+// railway-platform kind and described its letters arriving *Buchstabe für
+// Buchstabe*. So the unit on this board is a **character cell**, not a word
+// strip, and the clatter below is the object rather than a decoration on it: a
+// cell sent from one character to another turns through every character in
+// between, and the board resolves in a wave because the columns are started one
+// after another.
+//
+// Everything steps by **index**. Nothing here ever finds a flap by the words
+// written on it — the same rule `hold_turn.js`, `stage.pieces_for` and
+// `stage.llull_positions` keep, for the reason scene one learned the hard way.
+
+// Both sets of flaps, handed over at first paint. The switcher swaps which one
+// the board is spelling from; the check that follows is still a real round trip
+// against the device the board is now showing.
+const CARTRIDGES = JSON.parse(document.getElementById('automat-cartridges').textContent);
+const COLUMNS = Number(document.getElementById('flap-board').dataset.columns);
+const MODULES_PER_LINE = 6;
+const LINES = 6;
+
+// ── the clock ──────────────────────────────────────────────────────────────
+//
+// One fold: the front leaf falls for half of it and the back leaf swings up for
+// the other half. Short enough to clatter, long enough to read a letter going
+// past.
+//
+// None of the three numbers below is what the board actually clocks, and they
+// are not meant to be — 426 cells is more paint than one thread keeps up with,
+// so the dwell between two folds of one cell measures a median of 177ms against
+// this 64ms.
+//
+// Every figure quoted in this file comes from **one run** of
+// `tests/browser/flap-board.mjs wave 12`, so that the numbers here, in
+// `tests/browser/README.md` and in the task report are the same numbers rather
+// than three samples of a noisy quantity. That run: the press clocks
+// 1878-2834ms with a median of **2589ms**, 159-263 cells fold at once, and the
+// dwell runs 64-949ms.
+//
+// **How long the press takes is reported, never gated.** Medians of 2177, 2183,
+// 2385, 2545 and 2589ms have all been measured for this same build on this same
+// machine — a spread of 400ms, which means the number is measuring the VM
+// rather than the design. It is also unmeasured on GPU-backed rendering, and
+// roughly 600ms of it is main-thread paint a real browser would not do. So the
+// honest form of it is environmental: *median 2.2-2.6s under headless software
+// rendering on a loaded four-core VM, unmeasured on GPU*. What **is** gated is
+// the wave, which is machine-robust by construction — at zero stagger the
+// folding set spans a whole row per burst however fast the thread runs.
+const FOLD_MS = 64;
+const HALF_MS = FOLD_MS / 2;
+// How far apart two neighbouring **columns** start, in reading order — this is
+// what makes the board resolve as a wave sweeping across it rather than in
+// unison. A real board starts every cell at once and they arrive as they
+// arrive; a stagger is what makes that legible on a board this wide, and it is
+// also what keeps the number of cells folding at any one moment down to a
+// median of 202 rather than all 426.
+//
+// The wave is **not** pinned by a source-level test, and that is deliberate:
+// the guard this replaces asserted `const STAGGER_MS = \d+`, and `\d+` matches
+// `0`, so a board resolving in unison passed its own test. What holds the wave
+// is `tests/browser/flap-board.mjs wave`.
+//
+// And what that mode measures took two attempts, which is worth recording. The
+// obvious number is the span between the first cell folding and the last — and
+// it does not work: with this constant set to 0 the span still measured
+// 2618-3038ms and the mode said PASS, because on a board of 426 cells the main
+// thread spreads the folds out whether or not anything asked it to. A floor on
+// the span measures congestion. What separates a wave from a board starting in
+// unison is *where* the folding cells are: the **band** of columns folding at
+// one moment and how far the front of that band **advances** across the
+// clatter. Measured against this constant set to 0, same build, same session:
+//
+//                        as shipped        at 0        floor
+//   band (of 71)         11-25            58-66        <= 35
+//   front advance        35.2-54.0        2.2-15.4     >= 20
+//
+// Both floors sit between the two configurations rather than beside one of
+// them, and the mode reports FAIL at zero on both.
+//
+// 20 rather than 15, and that is a measurement rather than a preference: on
+// this machine a smaller stagger raises the number of cells folding at once,
+// and concurrency is what costs here. Paired A/B, two rounds of eight presses
+// alternating between the two values — 20 gave medians of 2549 and 2545ms with
+// a band maximum of 26 and 28; 15 gave 2720 and 2753ms with a band maximum of
+// **41**, which is over the guard's own ceiling. See the task report.
+const STAGGER_MS = 20;
+// The cap on one cell's journey. A cell travelling from one character to
+// another turns through every character in between — that cycling is the whole
+// visual identity of the machine — but the alphabet is 28 characters on one
+// cartridge and 31 on the other, and the mean journey is half of that. Past the
+// cap the cell is *seated* silently this many characters short of its target
+// and then rolls the rest, so every cell ends on a real roll of exactly this
+// many folds and only the head of a long journey is skipped.
+//
+// Four is where it is because of a measurement, not a preference. From the same
+// session as the figures above: `flap-board.mjs roll` reports **44 of 324**
+// moved cells making their whole journey inside the cap and 280 having it
+// shortened, at a **2589ms** median press. Raising the cap to six takes the
+// first number to 83 of 317 and the median to **3541ms** — nearly a second of
+// extra waiting for forty more cells that show their whole journey. Four is the
+// trade this scene made.
+const MAX_ROLL = 4;
+// A module turned **by hand** turns its cells one fold each, not a roll. A
+// module step changes several cells to unrelated characters at once, so there
+// is no journey to walk: the flap either has turned or it has not, and direct
+// manipulation has to answer the hand now. The clatter is the machine's and
+// takes its time; a hand's step does not.
+const HAND_ROLL = 1;
+// The last fold of a roll lands with a small overshoot — the leaf goes a couple
+// of degrees past flat and comes back. Judged by eye against the frames in the
+// task report: without it the board arrives dead, and at the amount a spring
+// easing gives it reads as a bounce rather than as a mechanism.
+const SETTLE = 'cubic-bezier(0.34, 1.42, 0.64, 1)';
+const FALL = 'cubic-bezier(0.55, 0.06, 0.9, 0.5)';
+const RISE = 'cubic-bezier(0.1, 0.5, 0.45, 1)';
+
+const boardEl = document.getElementById('flap-board');
+const formEl = document.getElementById('automat-form');
+const poemEl = document.getElementById('automat-poem');
+const deviceEl = document.getElementById('automat-device');
+const pressBtn = document.getElementById('automat-press');
+const readBtn = document.getElementById('automat-read');
+const readingEl = document.getElementById('automat-reading');
+const statusEl = document.getElementById('automat-status');
+const countEl = document.getElementById('automat-count');
+const noteEl = document.getElementById('cartridge-note');
+const kickerEl = document.getElementById('automat-kicker');
+const creditEl = document.getElementById('automat-credit');
+const switchEl = document.getElementById('cartridge-switch');
+const lineEls = Array.from(boardEl.querySelectorAll('.board-line'));
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// ── the cells ──────────────────────────────────────────────────────────────
+//
+// One cell is two static halves and two leaves. At rest all four carry the same
+// character, the front leaf lies flat over the static top and the back leaf
+// stands edge-on at 90 degrees where nothing can see it. A fold writes the next
+// character into the static top and the back leaf, drops the front leaf away
+// (0deg to -90deg) to uncover it, then swings the back leaf down into place.
+// Both leaves have `backface-visibility: hidden`, so neither is ever seen from
+// behind at any angle.
+const cells = lineEls.map((lineEl) =>
+  Array.from(lineEl.querySelectorAll('.cell')).map((el) => ({
+    el: el,
+    top: el.querySelector('.cell-top span'),
+    bottom: el.querySelector('.cell-bottom span'),
+    front: el.querySelector('.cell-front'),
+    frontText: el.querySelector('.cell-front span'),
+    back: el.querySelector('.cell-back'),
+    backText: el.querySelector('.cell-back span'),
+    // What the cell is **showing**. Only `landCell` writes it, and only when a
+    // fold has landed.
+    char: el.dataset.char,
+    // What the cell has last been **asked for**. Only `drawBoard` writes it,
+    // and it is written the moment the request is made rather than when the
+    // cell arrives.
+    //
+    // The two are not the same thing while a fold is in the air, and treating
+    // them as one is a defect this scene shipped with. `drawBoard` used to skip
+    // a cell whose `char` already equalled the new target — so a module turned
+    // one flap and turned straight back inside `FOLD_MS` was skipped on the way
+    // back, the roll carrying the cell *away* was never made stale, and it
+    // landed the cell on its own old target. The board came to rest spelling a
+    // character no flap of any module contains (`DER NECEL` for `DER NEBEL`),
+    // the accessible tree said `"Der Nebel"`, and the verdict went red over a
+    // board the viewer had put back exactly where they started. Reproduced 6/6
+    // by drag and by keyboard at dwells of 10/20/40ms;
+    // `tests/browser/flap-board.mjs reverse` is that reproduction.
+    want: el.dataset.char,
+    // Bumped by every roll this cell is given, so a roll still ticking when a
+    // newer one starts finds its own run stale and stops writing.
+    run: 0,
+  }))
+);
+
+const moduleEls = Array.from(boardEl.querySelectorAll('.board-module'));
+
+// ── the model ──────────────────────────────────────────────────────────────
+//
+// Which cartridge the client starts on is taken from the **page**, not from the
+// head of the list: the route accepts `?device=`, so the cells the server has
+// already drawn are not always the first cartridge's. Read off the hidden field
+// the form posts, which is the same value the route was answered with, so the
+// model and the cells cannot start out disagreeing.
+//
+// Measured before it was fixed: `/stage/poesie_automat?device=poesieautomat_pokemon`
+// painted the Pokemon board, the client held the Landsberg modules, and the
+// first press wrote Landsberg words into the cells and then checked them
+// against the Pokemon device — `checked — module not on the board: one of the
+// 10 alternatives for module 2 (Verb) of line 1`, over a board that was showing
+// exactly what it had been told to.
+let cart =
+  CARTRIDGES.filter((c) => c.id === document.getElementById('automat-device').value)[0] ||
+  CARTRIDGES[0];
+let alphabet = cart.alphabet;
+let positions = cart.positions.slice();
+
+function slotsOfLine(line) {
+  const first = line * MODULES_PER_LINE;
+  return Array.from({ length: MODULES_PER_LINE }, (unused, k) => first + k);
+}
+
+// What one line's cells should be spelling, and which cells each of its six
+// modules owns. The same arithmetic `stage.automat_line` does on the server,
+// down to the floor on the centring — CPython's own `str.center` puts an odd
+// extra space on the *left* for an odd width, which would have put every row of
+// odd length one cell away from where the server drew it.
+function layout(line) {
+  const flaps = slotsOfLine(line).map((slot) => cart.modules[slot].flaps[positions[slot]]);
+  const text = flaps.join(' ');
+  const left = Math.floor((COLUMNS - text.length) / 2);
+  const spans = [];
+  let at = left;
+  flaps.forEach((flap) => {
+    spans.push([at, flap.length]);
+    at += flap.length + 1;
+  });
+  return {
+    cells: ' '.repeat(left) + text + ' '.repeat(COLUMNS - left - text.length),
+    spans: spans,
+  };
+}
+
+// The handles, over whatever cells their modules are now spelling. Called from
+// the same place the cells are retargeted, because a handle that stayed where a
+// shorter flap left it would be a hand taking hold of the wrong module.
+function placeModules(line, spans) {
+  slotsOfLine(line).forEach((slot, position) => {
+    const el = moduleEls[slot];
+    el.style.setProperty('--start', String(spans[position][0]));
+    el.style.setProperty('--span', String(spans[position][1]));
+  });
+}
+
+// What the module now says, into the accessible tree. The words come from the
+// cartridge's own list at the index the module stands at — never from the
+// cells, which spell capitals and know nothing about where one module ends.
+function syncModule(slot) {
+  const el = moduleEls[slot];
+  const module = cart.modules[slot];
+  el.dataset.index = String(positions[slot]);
+  el.setAttribute('aria-valuenow', String(positions[slot] + 1));
+  el.setAttribute('aria-valuemax', String(module.words.length));
+  el.setAttribute('aria-valuetext', module.words[positions[slot]]);
+}
+
+// The poem the board is showing, read out of the cells themselves — every
+// cell's own character, row by row, with the centring trimmed off the ends.
+// This is the only thing ever submitted for checking. Nothing recomputes it
+// from the model beside it or from the seed the server pressed the button with:
+// what `check` receives has to be what is on the board, including whatever a
+// hand has turned since. The capitals go up as capitals, because that is what
+// is on screen and `check` folds case (see `stage.automat_display`).
+function readBoard() {
+  return cells
+    .map((row) => row.map((cell) => cell.char).join('').trim())
+    .join('\n');
+}
+
+// ── the fold ───────────────────────────────────────────────────────────────
+// A cell at rest, showing `character` on all four faces. Both leaves land back
+// on `transform: none` and the cell drops `.folding`, which is what takes its
+// perspective and its hidden backfaces away again — see the measurement in the
+// comment on `foldCell`.
+function landCell(cell, character) {
+  cell.char = character;
+  cell.el.dataset.char = character;
+  cell.el.classList.remove('folding');
+  // Guarded, because two of these four already carry the character: `foldCell`
+  // wrote it into the static top and the back leaf before the fold started, and
+  // writing a glyph a box is already showing is a layout nobody asked for.
+  write(cell.top, character);
+  write(cell.bottom, character);
+  write(cell.frontText, character);
+  write(cell.backText, character);
+  cell.front.style.transition = 'none';
+  cell.front.style.transform = 'none';
+  cell.back.style.transition = 'none';
+  cell.back.style.transform = 'none';
+}
+
+function write(element, character) {
+  if (element.textContent !== character) element.textContent = character;
+}
+
+// One flap of one cell.
+//
+// Never waits on `transitionend`: `explorer.css` sets `transition: none
+// !important` under `prefers-reduced-motion`, so the event would never fire and
+// every cell would be stranded on its first character. The two halves of the
+// fold are chained on timers sized to their own durations instead — the same
+// shape scenes three, six and seven use. It is also what lets the back leaf be
+// set edge-on and then swung down: the two writes land in different tasks, so
+// the browser has committed the first before the second asks it to animate
+// away from it, with no forced reflow anywhere.
+//
+// `.folding` is why a board of 426 cells is affordable at all, and the figure
+// is measured rather than assumed. A leaf holding a 3D transform and a hidden
+// backface is a composited layer whether or not it is moving, and 852 of them
+// cost **2.7 seconds** of main thread across one press — the clatter clocked
+// 4505ms with the leaves as they were and 1824ms with them taken out of the
+// paint entirely, against a 1492ms floor with nothing drawn at all. So a
+// resting cell has neither: both leaves sit at `transform: none`, where the
+// back one is flat over the static bottom half showing the same character and
+// is invisible for that reason rather than for being edge-on, and the cell's
+// own `perspective` and the leaves' `backface-visibility` are switched on by
+// this class only for the ~76ms a cell is actually turning.
+function foldCell(cell, next, settling) {
+  write(cell.top, next);
+  write(cell.backText, next);
+  cell.el.classList.add('folding');
+  // Edge-on, without a transition, so the leaf that is about to swing down is
+  // out of sight while the front one falls.
+  cell.back.style.transition = 'none';
+  cell.back.style.transform = 'rotateX(90deg)';
+  cell.front.style.transition = 'transform ' + HALF_MS + 'ms ' + FALL;
+  cell.front.style.transform = 'rotateX(-90deg)';
+  setTimeout(() => {
+    cell.back.style.transition = 'transform ' + HALF_MS + 'ms ' + (settling ? SETTLE : RISE);
+    cell.back.style.transform = 'rotateX(0deg)';
+  }, HALF_MS);
+}
+
+function alphabetIndex(character) {
+  const at = alphabet.indexOf(character);
+  return at < 0 ? 0 : at;
+}
+
+function stepsBetween(from, to) {
+  const size = alphabet.length;
+  return ((alphabetIndex(to) - alphabetIndex(from)) % size + size) % size;
+}
+
+// A cell from where it stands to `want`, through every character in between,
+// capped at `cap` folds and started `delay` milliseconds from now.
+function rollCell(cell, want, cap, delay) {
+  // First, and unconditionally: this is what makes a roll already in flight on
+  // this cell stale, and every early return below has to happen *after* it.
+  // Returning before this line is how a reversed hand-turn stranded a cell —
+  // see `want` on the cell record.
+  const run = ++cell.run;
+  if (cell.char === want) {
+    // The reversal. The cell is already showing what it has just been asked
+    // for, and the fold that was carrying it away has been made stale one line
+    // above; all that is left is to put the leaves back down on it.
+    landCell(cell, want);
+    return Promise.resolve();
+  }
+  if (prefersReducedMotion()) {
+    landCell(cell, want);
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (cell.run !== run) return resolve();
+      let steps = stepsBetween(cell.char, want);
+      if (steps > cap) {
+        // Seated silently `cap` characters short, so the roll a viewer sees is
+        // a real one of exactly `cap` folds rather than a truncated one.
+        const size = alphabet.length;
+        landCell(cell, alphabet[((alphabetIndex(want) - cap) % size + size) % size]);
+        steps = cap;
+      }
+      let done = 0;
+      const tick = () => {
+        if (cell.run !== run) return resolve();
+        const next = alphabet[(alphabetIndex(cell.char) + 1) % alphabet.length];
+        foldCell(cell, next, done === steps - 1);
+        done++;
+        setTimeout(() => {
+          if (cell.run !== run) return resolve();
+          landCell(cell, next);
+          if (done < steps) tick();
+          else resolve();
+        }, FOLD_MS);
+      };
+      tick();
+    }, delay);
+  });
+}
+
+// Every cell to what the model now says it should be spelling, and every handle
+// to where its module now stands. The one place the board is drawn.
+//
+// `cap` is how far a cell may roll (the machine's `MAX_ROLL`, or a hand's one
+// fold); `stagger` is what makes a press resolve as a wave rather than in
+// unison, and is zero for a hand because a hand's own step is one gesture.
+function drawBoard(cap, stagger) {
+  const jobs = [];
+  for (let line = 0; line < LINES; line++) {
+    const drawn = layout(line);
+    placeModules(line, drawn.spans);
+    for (let column = 0; column < COLUMNS; column++) {
+      const cell = cells[line][column];
+      const want = drawn.cells[column];
+      // Against the cell's **target**, not against what it is showing. A cell
+      // already heading here needs nothing; a cell showing this but heading
+      // elsewhere needs its journey called off, and only `rollCell` can do
+      // that.
+      if (cell.want === want) continue;
+      cell.want = want;
+      jobs.push(rollCell(cell, want, cap, column * stagger));
+    }
+  }
+  return Promise.all(jobs);
+}
+
+// ── state ──────────────────────────────────────────────────────────────────
+let inert = false;       // a round trip is in flight
+// Whether that round trip is one that will *move* the board (a press) or merely
+// read where it already stands. The distinction is scene seven's own
+// `wheelsOwned`, taken for the same reason it exists there: a read owns
+// nothing, so there is no cause for it to take the board away from a hand for
+// its duration, and on a slow link that would be the whole round trip. A press
+// does own it — the clatter is about to write every cell on the board — so a
+// grab must not be allowed to begin inside its flight and survive into it.
+let boardOwned = false;
+// Set by the press button's own click and read back synchronously in
+// `htmx:beforeRequest`, which a click reaches in the same task.
+let pressRequested = false;
+let clattering = false;  // the board is running under its own power
+let activeModules = 0;   // modules under a hand right now
+let deferredRead = false; // a module moved during a round trip; a read is owed
+// Bumped by every path that can change what the board is showing — a clatter, a
+// hand, a keyed step, and a cartridge swap. A verdict is only allowed to stand
+// if the token it was asked under is still the current one.
+let boardToken = 0;
+let submittedToken = 0;
+
+function refreshControls() {
+  const blocked = inert || clattering || activeModules > 0;
+  pressBtn.disabled = blocked;
+  readBtn.disabled = blocked;
+  Array.from(switchEl.querySelectorAll('input')).forEach((input) => {
+    input.disabled = blocked;
+  });
+}
+
+function announce(text) {
+  statusEl.textContent = text;
+}
+
+// The scene's one honest state whenever there is no checked verdict to show.
+// Which of the two things it says is decided by **the board's own state**, not
+// by what happened to it — the lesson scene six had to learn: five paths reach
+// here (the clatter, a module grabbed, a cartridge swapped, a verdict overtaken
+// before it landed, and a request that never came back) and a message naming
+// any one of them is wrong on the other four. Either something is moving, or
+// nothing is and no verdict has been earned for the letters now showing. Both
+// are true from every path. Not `.yes`/`.no`: a claim neither of those colours
+// has earned.
+function setVerdictTurning() {
+  const verdict = readingEl.querySelector('.verdict');
+  if (!verdict) return;
+  verdict.className = 'verdict turning';
+  verdict.removeAttribute('data-checked');
+  verdict.textContent =
+    clattering || activeModules > 0
+      ? 'the flaps are still running'
+      : 'no verdict for the letters now showing';
+}
+
+// The invariant, at its choke point. Anything that changes what the board shows
+// goes through here first: any verdict standing over the old poem is replaced
+// by the placeholder, and the token every in-flight check was asked under stops
+// being current. A cartridge swap is the sixth way to change the board and it
+// comes through here like the other five.
+function invalidate() {
+  boardToken++;
+  setVerdictTurning();
+  refreshControls();
+}
+
+function announceReading() {
+  const verdict = readingEl.querySelector('.verdict');
+  if (!verdict || verdict.classList.contains('turning')) return;
+  announce(verdict.textContent.trim());
+}
+
+// ── the clatter ────────────────────────────────────────────────────────────
+function clatterTo(targets) {
+  positions = targets.slice();
+  targets.forEach((unused, slot) => syncModule(slot));
+  return drawBoard(MAX_ROLL, prefersReducedMotion() ? 0 : STAGGER_MS);
+}
+
+// ── the cartridge ──────────────────────────────────────────────────────────
+//
+// Loading a different set of flaps into the same machine. The 426 cells stay
+// exactly where they are — it is a board, and a board does not change when its
+// flaps do — and every cell whose letter is different turns to the new one.
+//
+// Two things have to happen before the roll, and both are about the alphabet
+// rather than about the words. The alphabet is derived from the cartridge's own
+// flaps (see `stage.automat_alphabet`), and the two cartridges' alphabets are
+// not the same: the Landsberg board's fillers contain no C, Q, X or Y and the
+// other's do. So a cell left showing a character the incoming alphabet does not
+// have would have nothing to roll from. Such cells are seated on the blank
+// first, with no motion, and roll from there.
+function loadCartridge(id) {
+  const next = CARTRIDGES.filter((candidate) => candidate.id === id)[0];
+  if (!next || next.id === cart.id) return Promise.resolve();
+  cart = next;
+  alphabet = cart.alphabet;
+  positions = cart.positions.slice();
+  deviceEl.value = cart.id;
+  noteEl.textContent = cart.note;
+  // The attribution follows the flaps. A credit left describing the cartridge
+  // that has just been taken out is the same kind of untruth as a verdict left
+  // standing over a board that has changed.
+  kickerEl.textContent = cart.kicker;
+  creditEl.textContent = cart.credit;
+  countEl.innerHTML = cart.exponent === null
+    ? cart.combinations
+    : '10<sup>' + cart.exponent + '</sup>';
+  cells.forEach((row) =>
+    row.forEach((cell) => {
+      if (alphabet.indexOf(cell.char) >= 0) return;
+      // Seated on the blank, and its target seated with it: a cell whose
+      // recorded target were left pointing at a character the incoming
+      // alphabet does not have would be skipped by the very next `drawBoard`.
+      landCell(cell, alphabet[0]);
+      cell.want = alphabet[0];
+    })
+  );
+  positions.forEach((unused, slot) => syncModule(slot));
+  return drawBoard(MAX_ROLL, prefersReducedMotion() ? 0 : STAGGER_MS);
+}
+
+function swapCartridge(id) {
+  if (clattering || inert) return;
+  clattering = true;
+  releaseHeldModules();
+  // Before the roll, for the same reason the press does it in this order: the
+  // placeholder reads the board's own state to decide which of its two true
+  // things to say, so a board about to run has to be running by the time it is
+  // asked.
+  invalidate();
+  announce('Loading the ' + (CARTRIDGES.filter((c) => c.id === id)[0] || cart).label + ' cartridge.');
+  loadCartridge(id).then(() => {
+    clattering = false;
+    refreshControls();
+    releaseRead();
+  });
+}
+
+switchEl.addEventListener('change', (evt) => {
+  if (evt.target && evt.target.name === 'cartridge') swapCartridge(evt.target.value);
+});
+
+// ── turning a module by hand ───────────────────────────────────────────────
+//
+// `HoldTurn.attachLinearDrag`, not `attachDrag`: a split-flap module turns
+// about a horizontal axis that runs *into* the screen's plane, so what a hand
+// sees and takes hold of is a thing travelling straight up and down. There is
+// no centre on screen to sweep an angle about, and inventing one to reuse the
+// volvelles' arithmetic would be a lie about the gesture — which is the
+// distinction that file already draws between its two drags.
+//
+// Modules under a pointer right now. The set, rather than a bare count, is what
+// makes letting go idempotent: the press branch lets go of anything still held
+// before the machine takes the board, and the pointer's own `release` then
+// finds nothing left to do.
+const held = new Set();
+
+function grabModule(slot) {
+  if (held.has(slot)) return;
+  held.add(slot);
+  moduleEls[slot].classList.add('held');
+  boardEl.classList.add('grabbing');
+  beginModuleMove();
+}
+
+function letGoModule(slot) {
+  if (!held.delete(slot)) return;
+  moduleEls[slot].classList.remove('held');
+  if (held.size === 0) boardEl.classList.remove('grabbing');
+  endModuleMove();
+}
+
+// The machine is taking the board. Anything still under a hand is let go of
+// first, so a grab and the clatter can never be writing one row at once.
+function releaseHeldModules() {
+  Array.from(held).forEach((slot) => letGoModule(slot));
+}
+
+// One module, `advance` flaps on. The only place `positions` moves by hand, and
+// the only place a hand redraws the board.
+function stepModule(slot, advance) {
+  const size = cart.modules[slot].flaps.length;
+  positions[slot] = ((positions[slot] + advance) % size + size) % size;
+  syncModule(slot);
+  return drawBoard(HAND_ROLL, 0);
+}
+
+function beginModuleMove() {
+  activeModules++;
+  // Re-armed on every grab rather than only the first: a read already in flight
+  // when this one began lands a real verdict a moment later, and this module is
+  // moving under it.
+  invalidate();
+  if (activeModules === 1) announce('Turning a module by hand.');
+}
+
+function endModuleMove() {
+  activeModules = Math.max(0, activeModules - 1);
+  refreshControls();
+  if (activeModules === 0) releaseRead();
+}
+
+// The board has stopped moving and owes a fresh, checked verdict for whatever
+// it now shows. A round trip already in flight is not raced: the debt is
+// recorded and settled by `clearInert` the moment the board is the client's
+// again — without that, a module turned and let go entirely inside one round
+// trip left the placeholder up with nothing left to take it down.
+function releaseRead() {
+  if (activeModules > 0 || clattering) return;
+  if (inert) {
+    deferredRead = true;
+    return;
+  }
+  submitRead();
+}
+
+function submitRead() {
+  poemEl.value = readBoard();
+  formEl.requestSubmit();
+}
+
+// Where each module's gesture started, and how many whole flaps it has handed
+// over since. Kept beside the modules rather than in them because a module is a
+// run of cells here, not an object.
+const baselines = moduleEls.map(() => null);
+const committed = moduleEls.map(() => 0);
+
+HoldTurn.attachLinearDrag(boardEl, {
+  bladeAt: (evt) => {
+    // A board running under its own power owns its cells; you cannot stop a
+    // flap module with your hand, and letting a grab land mid-clatter would
+    // mean two writers on one row. A press still in flight owns them for the
+    // same reason — the clatter it is about to start is the machine's, and a
+    // grab begun in that window used to survive straight into it. A *read* in
+    // flight owns nothing and is deliberately not refused; see `boardOwned`.
+    if (clattering || (inert && boardOwned)) return null;
+    const el = evt.target.closest ? evt.target.closest('.board-module') : null;
+    return el ? Number(el.dataset.slot) : null;
+  },
+  axis: () => 'y',
+  origin: (slot) => {
+    // The module's own box, measured fresh on every grab.
+    const rect = moduleEls[slot].getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  },
+  grab: (slot) => {
+    baselines[slot] = null;
+    committed[slot] = 0;
+    grabModule(slot);
+  },
+  move: (slot, offset) => {
+    // The machine has taken the board since this grab began. The hand stops
+    // writing this row; nothing else here can.
+    if (clattering || !held.has(slot)) return;
+    // `attachLinearDrag` reports where the pointer is along the track, and the
+    // first such report is the grab itself. That first offset is the zero this
+    // gesture is measured from — the module must not jump to put the pointer at
+    // its top edge.
+    if (baselines[slot] === null) {
+      baselines[slot] = offset;
+      return;
+    }
+    const height = moduleEls[slot].getBoundingClientRect().height;
+    const travelled = offset - baselines[slot];
+    // The flaps follow the hand: dragging down brings the flap *above* into
+    // view, so a downward travel is a negative advance. Same sign the volvelles'
+    // own `Math.round(-sweep / step)` carries, for the same reason.
+    const target = Math.round(-travelled / height);
+    const delta = target - committed[slot];
+    committed[slot] = target;
+    if (delta) stepModule(slot, delta);
+  },
+  release: (slot) => {
+    // A cell that is still folding when the hand comes off keeps folding, and
+    // `endModuleMove` — and with it the read — waits for it: `activeModules`
+    // stays positive through the settle, so the gate in `releaseRead` cannot
+    // let a checked verdict land over a board still visibly moving.
+    settleModule(slot).then(() => letGoModule(slot));
+  },
+});
+
+// The last fold the hand asked for, allowed to finish. Never resolves on
+// `transitionend` alone — the house rule; under reduced motion the cells have
+// already landed and this resolves at once.
+function settleModule(slot) {
+  if (prefersReducedMotion()) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, FOLD_MS));
+}
+
+// The keyboard moves a module too, so it arms through the same choke point the
+// drag does — an invariant that only held for the pointer would be no invariant
+// at all.
+//
+// The full set a `role="slider"` promises, not just the arrows: a widget that
+// declares that role and then does nothing on Home, End, Page Up or Page Down
+// is advertising keys it has not implemented. `advance` is in flaps, and the
+// sign follows the drag's — down brings the flap above into view, so Arrow Down
+// and Page Down step backwards through the module, and Home and End go to the
+// first and last flap the way a slider's minimum and maximum do.
+function keyAdvance(evt, slot) {
+  const index = positions[slot];
+  const size = cart.modules[slot].flaps.length;
+  switch (evt.key) {
+    case 'ArrowUp':
+      return 1;
+    case 'ArrowDown':
+      return -1;
+    case 'PageUp':
+      return 5;
+    case 'PageDown':
+      return -5;
+    case 'Home':
+      return -index;
+    case 'End':
+      return size - 1 - index;
+    default:
+      return null;
+  }
+}
+
+function moduleKey(evt, slot) {
+  const advance = keyAdvance(evt, slot);
+  if (advance === null) return;
+  if (clattering || (inert && boardOwned)) return;
+  evt.preventDefault();
+  beginModuleMove();
+  // Home and End on a module already at its first or last flap ask for nothing,
+  // and asking for nothing is still a legitimate press: the module stays put and
+  // the read that follows is about a board that has not changed.
+  const moved = advance === 0 ? Promise.resolve() : stepModule(slot, advance);
+  moved.then(() => endModuleMove());
+}
+
+moduleEls.forEach((el, slot) => {
+  el.addEventListener('keydown', (evt) => moduleKey(evt, slot));
+});
+
+// The press button is a real submitter and carries its own `press=1`; all this
+// records is *which* kind of round trip is about to start, read back
+// synchronously in `htmx:beforeRequest` (which a click reaches in the same
+// task). A keyboard activation of a button fires a click too, so this is not a
+// pointer-only path.
+pressBtn.addEventListener('click', () => {
+  pressRequested = true;
+});
+
+// And the read button is not a submitter at all — see its own comment in the
+// markup. It goes through the same gate and the same read a drag's release
+// does, which is the only thing that ever fills the hidden field.
+readBtn.addEventListener('click', () => {
+  releaseRead();
+});
+
+// ── the round trip ─────────────────────────────────────────────────────────
+document.body.addEventListener('htmx:beforeRequest', (evt) => {
+  if (evt.target !== formEl) return;
+  if (inert) {
+    evt.preventDefault();
+    return;
+  }
+  inert = true;
+  boardOwned = pressRequested;
+  pressRequested = false;
+  submittedToken = boardToken;
+  refreshControls();
+});
+
+// The one place `inert` is given back, so every path that hands the board back
+// to the client goes through the same accounting.
+//
+// `settle` says what to do with a read this scene owes — a module turned while
+// the round trip was in flight. The read branch settles it, because the board
+// really is showing something nothing has checked. The other two paths drop it,
+// and each has its own reason: a press is about to move every cell on the
+// board, so a read owed for the board as it stood is not merely stale but about
+// a board that will not exist a second and a half from now, and the clatter's
+// own read covers it; and a request that has just failed is not worth answering
+// with one more request into a link that is not replying.
+function clearInert(settle) {
+  inert = false;
+  boardOwned = false;
+  const owed = deferredRead;
+  deferredRead = false;
+  refreshControls();
+  // A hand still down will submit for itself when it lets go.
+  if (settle && owed && activeModules === 0) submitRead();
+}
+
+// A request that never gets a swap at all — a network failure, a non-2xx
+// response — would otherwise leave `inert` stuck true **forever**, because the
+// swap handler below is the only other place it goes back to false. That is not
+// a staleness bug, which is what the token is for; it is a liveness one, and
+// the placeholder machinery cannot see it. All four of the other interactive
+// scenes carry these two lines and a cross-scene test pins that they do.
+//
+// `clearInert(false)`, so the read this scene may owe is dropped rather than
+// paid: answering a request that has just failed with another request is one
+// more into a link that is not replying, and the placeholder already says the
+// true thing. The placeholder goes up first, while `inert` still describes the
+// board a viewer is looking at.
+function requestFailed() {
+  setVerdictTurning();
+  clearInert(false);
+}
+document.body.addEventListener('htmx:responseError', requestFailed);
+document.body.addEventListener('htmx:sendError', requestFailed);
+
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  if (evt.detail.target.id !== 'automat-reading') return;
+  const verdict = readingEl.querySelector('.verdict');
+  const raw = verdict ? verdict.dataset.positions : '';
+  if (raw) {
+    // The press. The reply carries no verdict, only where the modules are to be
+    // sent — so the board is free to change without anything true being
+    // contradicted while it does.
+    // `clattering` before everything else, and the order is load-bearing: the
+    // placeholder reads the board's own state to decide which of its two true
+    // things to say, so a board about to run has to be running by the time it
+    // is asked, and `releaseHeldModules` below must let go into a board that is
+    // already the machine's.
+    clattering = true;
+    releaseHeldModules();
+    clearInert(false);
+    invalidate();
+    announce('The flaps are running.');
+    clatterTo(raw.split('|').map(Number)).then(() => {
+      clattering = false;
+      refreshControls();
+      // And now, at rest, the board asks what it is showing.
+      releaseRead();
+    });
+    return;
+  }
+  // A read: a real, checked verdict, about the poem that was submitted. If the
+  // board has changed since — the token has changed, or a module is under a
+  // hand right now, or the board is running — that poem is not what the board
+  // is showing, and the placeholder is the only true thing to say.
+  if (boardToken !== submittedToken || activeModules > 0 || clattering) {
+    setVerdictTurning();
+  } else {
+    announceReading();
+  }
+  clearInert(true);
+});
+
+// ── the board's own size ───────────────────────────────────────────────────
+//
+// 71 cells have to fit the stage's width and the letters in them have to be
+// worth reading. Both are measured here rather than assumed: the cell is the
+// stage's own width over 71, and the type size that fills it comes off a probe
+// glyph in the board's own face, because a monospaced advance is not reliably
+// 0.6em and the fallback face is not the one this was measured on.
+const probe = document.createElement('span');
+probe.style.cssText =
+  'position:absolute;visibility:hidden;white-space:pre;font-family:var(--mono);font-size:100px';
+probe.textContent = 'MMMMMMMMMM';
+boardEl.appendChild(probe);
+
+function advanceRatio() {
+  return probe.getBoundingClientRect().width / probe.textContent.length / 100;
+}
+
+// A cell's height as a multiple of its width, and how much of that height one
+// glyph is allowed. Both judged by eye against the rendered board and then held
+// to the vertical budget: the board this produces and the blank left under it
+// are measured in the task report.
+const CELL_ASPECT = 2.0;
+const GLYPH_OF_CELL = 0.78;
+
+// This function exists because silent clipping is unacceptable, so it must not
+// end by silently clipping — or by silently setting type nobody can read. If
+// the board will not fit at a size worth recording it says so, in the console,
+// with the real figures, and on the board itself as `data-fits="false"`, which
+// is what the browser reproduction reads.
+const MIN_FONT_PX = 9;
+
+function fitBoard() {
+  const room = boardEl.clientWidth;
+  const cellW = room / COLUMNS;
+  // A flap unit is taller than it is wide, and the aspect below is what fills
+  // the stage's vertical budget without crowding it — the board's own measured
+  // height and the blank left under it are in the task report.
+  const cellH = cellW * CELL_ASPECT;
+  // The face's own advance, at 100px, measured over ten glyphs so a subpixel
+  // advance is not rounded away. A monospaced face is *usually* 0.6em and this
+  // one is; the fallback face is not, and assuming it was is how a board gets
+  // clipped silently.
+  const byWidth = cellW / advanceRatio();
+  // Type is capped by the cell's height as well as its width, and on this
+  // aspect the height is the binding one: an umlaut on a capital reaches above
+  // the cap line and a cell that clipped it would be showing a different
+  // letter.
+  const size = Math.floor(Math.min(byWidth, cellH * GLYPH_OF_CELL) * 10) / 10;
+  boardEl.style.setProperty('--cell-w', cellW.toFixed(3) + 'px');
+  boardEl.style.setProperty('--cell-font', size.toFixed(1) + 'px');
+  boardEl.style.setProperty('--cell-h', cellH.toFixed(3) + 'px');
+  boardEl.dataset.cellWidth = cellW.toFixed(3);
+  boardEl.dataset.cellFont = size.toFixed(1);
+  if (size < MIN_FONT_PX) {
+    boardEl.dataset.fits = 'false';
+    console.warn(
+      'letter-board: ' + COLUMNS + ' cells in ' + room.toFixed(2) + 'px is ' +
+        cellW.toFixed(2) + 'px a cell, which carries only ' + size.toFixed(1) +
+        'px type. Below ' + MIN_FONT_PX + 'px the board is not worth reading.'
+    );
+    return size;
+  }
+  boardEl.dataset.fits = 'true';
+  return size;
+}
+
+// ── first paint ────────────────────────────────────────────────────────────
+// The cells are already spelling what the server put in them, and the verdict
+// beside them is a real `check()` of that poem. Nothing to do here but make the
+// controls agree with the state and size the board to the stage.
+refreshControls();
+fitBoard();
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(fitBoard);
+}
+window.addEventListener('resize', fitBoard);
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}
