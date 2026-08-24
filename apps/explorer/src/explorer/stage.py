@@ -760,19 +760,31 @@ def corpus_choices() -> list[CorpusChoice]:
 
 @dataclass(frozen=True)
 class Slip:
-    """One drawn excerpt: the field it was filed under, and whether it is
-    genuinely filed under the headword the throw asked for.
+    """One drawn excerpt: the field it was filed under, whether it is
+    genuinely filed under the headword the throw asked for, and where it came
+    from.
 
-    Both are facts about the entry itself, read back after the draw — not
-    predictions from the request. `apply` widens a too-thin headword pool to
-    the whole corpus without saying so, so a pre-flight guess about the
+    All of these are facts about the entry itself, read back after the draw —
+    not predictions from the request. `apply` widens a too-thin headword pool
+    to the whole corpus without saying so, so a pre-flight guess about the
     headword's own pool can disagree with what was actually drawn; only the
     result can't.
+
+    `source` and `entry_id` are the corpus's own two fields, verbatim and
+    unrepaired. Both are `""` where the corpus gives nothing: the Würzburg
+    Jean-Paul export carries a `source` on fewer than half its entries, and a
+    placeholder standing in for the missing ones would read as a citation this
+    project cannot support. `entry_id` is likewise not parsed into anything
+    prettier — `Ia-05-reg-1779-0010` plainly *is* a locator in that edition,
+    but rendering it as a band and a number would be asserting a reading of a
+    scheme nothing here has verified.
     """
 
     text: str
     domain: str
     filed: bool
+    source: str = ""
+    entry_id: str = ""
 
 
 def slips_of(corpus_text: str, throw: str, headword: str = "") -> list[Slip]:
@@ -802,7 +814,15 @@ def slips_of(corpus_text: str, throw: str, headword: str = "") -> list[Slip]:
         entry = by_text.get(body)
         domain = entry.domain if entry and entry.domain else "unfiled"
         filed = bool(entry and wanted and any(hw.casefold() == wanted for hw in entry.headwords))
-        slips.append(Slip(text=body, domain=domain, filed=filed))
+        slips.append(
+            Slip(
+                text=body,
+                domain=domain,
+                filed=filed,
+                source=(entry.source if entry and entry.source else ""),
+                entry_id=(entry.id if entry and entry.id else ""),
+            )
+        )
     return slips
 
 
