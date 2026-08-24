@@ -394,31 +394,40 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
-- Twenty-four fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC
+- Twenty-five fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC
   BY 4.0 — replaced, because assembled they read as camp and confinement imagery.
-  The words were `der Zaun`, `am Zaun`, `Die Mauer`, `Die Sperre`, `auf Posten`,
-  `die Wache`, `die Rampe`, `das Gleis`, `Das Lager`, `im Lager`, `im Graben`,
-  `im Moor`, `in Ketten`, `in Trümmern`, `in Flammen`, `unter Zwang`, `aus Draht`,
-  `mit Draht`, `Der Draht`, plus `Das Gitter`, `in Deckung`, `die Kammer`,
-  `die Sirene` and `brennt`, which are of the same family and were found by
+  Twenty-four were of that family: `der Zaun`, `am Zaun`, `Die Mauer`, `Die Sperre`,
+  `auf Posten`, `die Wache`, `die Rampe`, `das Gleis`, `Das Lager`, `im Lager`,
+  `im Graben`, `im Moor`, `in Ketten`, `in Trümmern`, `in Flammen`, `unter Zwang`,
+  `aus Draht`, `mit Draht` and `Der Draht`, plus `Das Gitter` (*hinter Gittern*),
+  `in Deckung`, `die Kammer`, `die Sirene` and `brennt`, the last five found by
   sweeping rather than listed. Each is innocent read alone — a loading ramp, a
   warehouse, a railway track, a watch, a fence — and the defect was never one flap
-  but what a board of 10^36 readings eventually sets beside what: over 400 seeds,
-  116 of 2400 lines carried two or more of them, and the same sweep over the
-  replaced file reports 0. Nobody can read 10^36 combinations, so the guard is to
-  keep the material out of the modules rather than to look for it in the output;
-  the device header now carries that as a seventh constraint, marked as the one
-  that no test can hold because it is a judgement about register and not a
-  property of the strings. Replacements stay in the world the lexicon already had
-  — weather, water, concrete, foundry, rail freight, workshop, administration,
-  cold — and everything about the machine is unchanged: every module still holds
-  ten alternatives, `Device.combinations` is still exactly 10^36, no filler
-  exceeds eleven characters, all 360 stay distinct case-folded, and the schemas,
-  the three grammaticality rules and the ADV rule are untouched. The second
-  positive golden fixture spun three of the replaced flaps and was rewritten to
-  the same seed's new reading, which leaves both properties its `source` claims —
-  disjointness from the first fixture and no repeated word stem — true and
-  re-derived on every run.
+  but what a board of 10^36 readings eventually sets beside what. That is countable
+  exactly rather than by sampling, because a line is six modules of ten and the
+  per-module counts convolve: of the 6,000,000 lines the board can assemble,
+  1,633,120 (27.2%) carried at least one of these words and 244,620 (4.08%) carried
+  two or more, which put 22.686% of all 10^36 poems — better than one poem in five —
+  on the wrong side of it. Over the replaced file both figures are 0. Nobody can read
+  10^36 combinations, so the guard is to keep the material out of the modules rather
+  than to look for it in the output, and the device header now carries that as a
+  seventh constraint, marked as resting on judgement rather than on a test — as, it
+  also now records, the fourth rule already did, there being no test in this
+  repository for the ADV prohibition either.
+- The twenty-fifth, `ohne Zeugen`, went on a neighbouring ground: beside `Die
+  Anzeige`, which is a notice and a display and also a criminal complaint, it read as
+  a denunciation, in 1.00% of that line's 1,000,000 readings — 10,000 of them. It is
+  now `ohne Strom`. Everything about the machine is unchanged: every module still
+  holds ten alternatives, `Device.combinations` is still exactly 10^36, no filler
+  exceeds eleven characters, no line's assembled width rose, all 360 stay distinct
+  case-folded, and the six schemas, the three grammaticality rules and the ADV rule
+  are untouched. `kippt`, which replaced `brennt`, is the only one of the thirty
+  verbs that is ambitransitive; rule 3 holds for all 10^36 readings anyway, because
+  no schema offers a verb an object, and the header records the exception. The second
+  positive golden fixture spun four of the replaced flaps and was rewritten to the
+  same seed's new reading, which leaves both properties its `source` claims —
+  disjointness from the first fixture and no repeated word stem — true and re-derived
+  on every run.
 
 ### Fixed
 
