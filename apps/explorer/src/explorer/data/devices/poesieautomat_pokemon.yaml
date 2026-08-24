@@ -1,0 +1,573 @@
+# Eine Pokemon-Kassette fuer den Poesieautomaten -- explorer-only, never packaged.
+#
+# The same machine as `poesieautomat_2000`: six lines of six modules, ten flaps
+# each, 10^36 poems, the same six line schemas and the same rules. Only the
+# flaps are different. It exists so the showcase can demonstrate what
+# `DENCKRING_DEVICE_PATH` is for -- one control loads a different set of flaps
+# into the same board -- and it is the second cartridge rather than a second
+# machine.
+#
+# WHY THIS FILE IS NOT IN THE PACKAGE
+#
+# The subjects are the German names of first-generation Pokemon creatures.
+# Those names are third-party trademarks of Nintendo / Creatures Inc. / GAME
+# FREAK Inc. The catalogue and its data ship under CC BY 4.0, which is a
+# licence to reuse and redistribute, and a trademark is not the project's to
+# license onward. So this cartridge lives under `apps/explorer`, which is
+# classified `Private :: Do Not Upload`, and is reached through
+# `DENCKRING_DEVICE_PATH` rather than through the packaged device directory.
+# It is a development-tool fixture, used nominatively to name the creatures it
+# names, and it is never distributed.
+#
+# The sixty creature names were written from memory and then checked, one by
+# one, against Bulbapedia's list of official German Pokemon names. All sixty are
+# correct and none is a fan name. Recorded here because nothing in this
+# repository can catch a misspelling: a wrong name would load, render, check and
+# pass every test in the suite.
+#
+# WHERE THE REST OF THE WORDS COME FROM
+#
+# Everything that is not a creature name is ordinary German in Heiner Mueller's
+# register -- concrete, machinery, weather, administration, slow decay. They
+# are *individual common words*: single nouns, verbs, adverbs and prepositions.
+# No phrase, no line and no title of Mueller's is here, and none was consulted
+# in writing this. Mueller died in 1995 and his works are in copyright until
+# 2065, so the line drawn is the same one drawn for Enzensberger in
+# `poesieautomat_2000`: the register and the mechanism are not anybody's
+# property, a sequence of his words would be.
+#
+# WHAT IS DELIBERATELY ABSENT
+#
+# Mueller's other half -- the war, the violence, the bodies -- is kept out
+# entirely, and the exclusion is drawn wider than a list of words. No weapons,
+# no fortification, no wounding, no dying; and no vocabulary that reads as
+# camps or atrocity in a German context even where the word is innocent alone
+# (`das Lager`, `die Grube`, `die Asche`, `unter Erde`). A board of 10^36
+# readings cannot be read through, so the only way to know what it will not
+# say is to keep the material out of the modules. What is left is a foundry, a
+# rail yard, a building site and bad weather, which is bleak enough.
+#
+# THE RULES, WHICH ARE THE SAME ONES
+#
+#   1. The article is folded into the noun ("der Beton", "die Halle"), so case
+#      and gender agreement never has to be computed across modules. A creature
+#      name is a bare proper noun and takes no article at all, which satisfies
+#      the rule rather than straining it: "Karpador rostet im Beton" is clean
+#      German, and no module has to know which one it got.
+#   2. Everything after the subject is an adjunct. Prepositional phrases and
+#      adverbs stack freely and agree with nothing; the case lives inside the
+#      phrase ("im Schlamm", "ohne Angabe").
+#   3. Every verb is third person singular present and intransitive. Singular
+#      because every subject is a nominative singular -- a proper noun is one
+#      by construction; intransitive because a transitive verb would want an
+#      object the schema does not guarantee. No separable verb appears, since
+#      its particle would have to land at the end of a line the board cannot
+#      reach.
+#
+# And the fourth: no adverb module carries a manner adverb or a bare negation,
+# because lines 2, 4 and 6 have no predicate and either would read as broken
+# German with no verb to modify. The sixty adverbs are temporal, durative,
+# frequency, locative, epistemic and quantificational.
+#
+# The fifth: no word reaches a line from two different modules, compared with
+# inflection folded, and each family of mutually exclusive time anchors sits in
+# a single module per line. `apps/explorer/tests/test_stage.py` runs the
+# shipped board's own detectors over this file.
+#
+# The sixth is the display: no filler is longer than eleven characters, so a
+# line of six flaps plus five spaces fits the board's 71 character cells. The
+# widest line this cartridge can assemble is 68 columns (line 1); the packaged
+# board reaches 71, and both share the same 71-column display.
+#
+# Line schemas, identical to `poesieautomat_2000`:
+#
+#   line 1   ADV-TIME  V3SG      NP-NOM  PP      ADV     PP
+#   line 2   NP-NOM    PP        PP      ADV     PP      PP     (verbless)
+#   line 3   PP-PLACE  V3SG      NP-NOM  ADV     PP      PP
+#   line 4   NP-NOM    PP        ADV     PP      PP      PP     (verbless)
+#   line 5   NP-NOM    V3SG      ADV     PP      PP      PP
+#   line 6   ADV-TIME  NP-NOM    PP      PP      ADV     PP     (verbless)
+id: poesieautomat_pokemon
+name: Poesieautomat, Pokemon-Kassette
+source: >-
+  A second cartridge for the Landsberg flap-board, written for this project.
+  The subjects are the German names of first-generation Pokemon creatures,
+  which are trademarks of Nintendo / Creatures Inc. / GAME FREAK Inc. and are
+  named here nominatively; the cartridge is explorer-only and is never
+  distributed. Everything else is ordinary German in Heiner Mueller's
+  register, as individual common words rather than as anything he wrote.
+slots:
+  # ── Zeile 1  ADV-TIME  V3SG  NP-NOM  PP  ADV  PP ────────────────
+  - name: Zeitangabe
+    line: 0
+    alternatives:
+      - "Morgens"
+      - "Abends"
+      - "Montags"
+      - "Im Winter"
+      - "Seit Jahren"
+      - "Um sieben"
+      - "Im Frühjahr"
+      - "Nach Jahren"
+      - "Am Ersten"
+      - "Bei Tag"
+  - name: Verb
+    line: 0
+    alternatives:
+      - "rostet"
+      - "bröckelt"
+      - "verwittert"
+      - "zerfällt"
+      - "verrottet"
+      - "gefriert"
+      - "tropft"
+      - "versickert"
+      - "knirscht"
+      - "schweigt"
+  - name: Subjekt
+    line: 0
+    alternatives:
+      - "Karpador"
+      - "Glumanda"
+      - "Onix"
+      - "Pummeluff"
+      - "Kleinstein"
+      - "Smettbo"
+      - "Rattfratz"
+      - "Zubat"
+      - "Digda"
+      - "Sleima"
+  - name: Adjunkt
+    line: 0
+    alternatives:
+      - "im Schlamm"
+      - "aus Blei"
+      - "unter Putz"
+      - "bei Nacht"
+      - "im Beton"
+      - "ohne Angabe"
+      - "vor Anker"
+      - "auf Abruf"
+      - "im Teer"
+      - "am Kran"
+  - name: Adverb
+    line: 0
+    alternatives:
+      - "inzwischen"
+      - "seither"
+      - "immer"
+      - "ständig"
+      - "bisweilen"
+      - "überall"
+      - "angeblich"
+      - "insgesamt"
+      - "zumeist"
+      - "tagelang"
+  - name: Adjunkt
+    line: 0
+    alternatives:
+      - "im Kalk"
+      - "aus Zink"
+      - "am Gerüst"
+      - "trotz Kälte"
+      - "bei Hitze"
+      - "im Dreck"
+      - "aus Kupfer"
+      - "im Staub"
+      - "ohne Licht"
+      - "im Werk"
+  # ── Zeile 2  NP-NOM  PP  PP  ADV  PP  PP   (verblos) ────────────
+  - name: Subjekt
+    line: 1
+    alternatives:
+      - "Glurak"
+      - "Turtok"
+      - "Bisaflor"
+      - "Arbok"
+      - "Raichu"
+      - "Nidoking"
+      - "Vulnona"
+      - "Golbat"
+      - "Parasek"
+      - "Digdri"
+  - name: Adjunkt
+    line: 1
+    alternatives:
+      - "im Nebel"
+      - "ohne Grund"
+      - "unter Eis"
+      - "nach Regen"
+      - "gegen Nässe"
+      - "auf Sand"
+      - "aus Kohle"
+      - "bei Wind"
+      - "mit Draht"
+      - "vor Ablauf"
+  - name: Adjunkt
+    line: 1
+    alternatives:
+      - "am Damm"
+      - "in Betrieb"
+      - "über Land"
+      - "aus Beton"
+      - "trotz Rost"
+      - "an Bord"
+      - "im Stollen"
+      - "laut Liste"
+      - "im Schacht"
+      - "am Kai"
+  - name: Adverb
+    line: 1
+    alternatives:
+      - "wieder"
+      - "vermutlich"
+      - "nunmehr"
+      - "andernorts"
+      - "mitunter"
+      - "anscheinend"
+      - "vielerorts"
+      - "jahrelang"
+      - "seitdem"
+      - "teilweise"
+  - name: Adjunkt
+    line: 1
+    alternatives:
+      - "im Schnee"
+      - "ohne Dach"
+      - "unter Glas"
+      - "nach Frost"
+      - "gegen Abend"
+      - "auf Dauer"
+      - "aus Gips"
+      - "bei Sturm"
+      - "mit Kalk"
+      - "vor Mittag"
+  - name: Adjunkt
+    line: 1
+    alternatives:
+      - "am Hang"
+      - "in Reihe"
+      - "über Tage"
+      - "aus Blech"
+      - "trotz Flut"
+      - "im Freien"
+      - "im Kessel"
+      - "laut Akte"
+      - "im Tunnel"
+      - "von Süden"
+  # ── Zeile 3  PP-PLACE  V3SG  NP-NOM  ADV  PP  PP ────────────────
+  - name: Ortsangabe
+    line: 2
+    alternatives:
+      - "Am Kanal"
+      - "Im Depot"
+      - "Auf dem Hof"
+      - "Am Bahndamm"
+      - "Am Gleis"
+      - "Vor dem Tor"
+      - "Am Ufer"
+      - "Im Sog"
+      - "An der Wand"
+      - "Am Fenster"
+  - name: Verb
+    line: 2
+    alternatives:
+      - "erlischt"
+      - "stockt"
+      - "friert"
+      - "schimmelt"
+      - "quillt"
+      - "rieselt"
+      - "klirrt"
+      - "dröhnt"
+      - "scheppert"
+      - "ächzt"
+  - name: Subjekt
+    line: 2
+    alternatives:
+      - "Maschock"
+      - "Georok"
+      - "Kingler"
+      - "Krabby"
+      - "Muschas"
+      - "Austos"
+      - "Nebulak"
+      - "Gengar"
+      - "Hypno"
+      - "Traumato"
+  - name: Adverb
+    line: 2
+    alternatives:
+      - "weiterhin"
+      - "bekanntlich"
+      - "nebenan"
+      - "unentwegt"
+      - "zunehmend"
+      - "vorerst"
+      - "mehrmals"
+      - "monatelang"
+      - "durchweg"
+      - "längst"
+  - name: Adjunkt
+    line: 2
+    alternatives:
+      - "im Kies"
+      - "ohne Halt"
+      - "unter Null"
+      - "nach Norden"
+      - "gegen Regen"
+      - "auf Zeit"
+      - "aus Lehm"
+      - "bei Nebel"
+      - "mit Mühe"
+      - "vor der Tür"
+  - name: Adjunkt
+    line: 2
+    alternatives:
+      - "am Steg"
+      - "in Sicht"
+      - "über Jahre"
+      - "per Zufall"
+      - "trotz Eis"
+      - "zur Stunde"
+      - "im Harz"
+      - "laut Gesetz"
+      - "im Schlick"
+      - "vor Ort"
+  # ── Zeile 4  NP-NOM  PP  ADV  PP  PP  PP   (verblos) ────────────
+  - name: Subjekt
+    line: 3
+    alternatives:
+      - "Relaxo"
+      - "Lapras"
+      - "Aquana"
+      - "Flamara"
+      - "Blitza"
+      - "Evoli"
+      - "Ditto"
+      - "Porygon"
+      - "Mewtu"
+      - "Chaneira"
+  - name: Adjunkt
+    line: 3
+    alternatives:
+      - "im Frost"
+      - "ohne Anlass"
+      - "unter Last"
+      - "auf Antrag"
+      - "gegen Ende"
+      - "auf Halde"
+      - "aus Filz"
+      - "bei Ebbe"
+      - "vor Tagen"
+      - "vor Jahren"
+  - name: Adverb
+    line: 3
+    alternatives:
+      - "abermals"
+      - "womöglich"
+      - "ringsum"
+      - "zeitlebens"
+      - "sicherlich"
+      - "wochenlang"
+      - "künftig"
+      - "zuweilen"
+      - "hierzulande"
+      - "reichlich"
+  - name: Adjunkt
+    line: 3
+    alternatives:
+      - "am Deich"
+      - "in Serie"
+      - "über Eck"
+      - "aus Stein"
+      - "trotz Wind"
+      - "im Rohbau"
+      - "im Fett"
+      - "im Öl"
+      - "im Salz"
+      - "aus Zinn"
+  - name: Adjunkt
+    line: 3
+    alternatives:
+      - "im Dunkeln"
+      - "ohne Wort"
+      - "unter Druck"
+      - "nach Abzug"
+      - "gegen bar"
+      - "auf Vorrat"
+      - "aus Papier"
+      - "bei Glut"
+      - "mit Blech"
+      - "vor Beginn"
+  - name: Adjunkt
+    line: 3
+    alternatives:
+      - "am Turm"
+      - "in Reserve"
+      - "über Bord"
+      - "aus Glas"
+      - "trotz Hitze"
+      - "auf dem Kai"
+      - "im Sand"
+      - "im Ruß"
+      - "im Kanal"
+      - "vor Schluss"
+  # ── Zeile 5  NP-NOM  V3SG  ADV  PP  PP  PP ──────────────────────
+  - name: Subjekt
+    line: 4
+    alternatives:
+      - "Kabutops"
+      - "Amonitas"
+      - "Aerodactyl"
+      - "Arktos"
+      - "Zapdos"
+      - "Lavados"
+      - "Dragoran"
+      - "Dratini"
+      - "Garados"
+      - "Rizeros"
+  - name: Verb
+    line: 4
+    alternatives:
+      - "brennt"
+      - "glimmt"
+      - "dampft"
+      - "sickert"
+      - "kreist"
+      - "zittert"
+      - "wartet"
+      - "hallt"
+      - "wuchert"
+      - "schwankt"
+  - name: Adverb
+    line: 4
+    alternatives:
+      - "erneut"
+      - "mutmaßlich"
+      - "anderswo"
+      - "stundenlang"
+      - "zeitweise"
+      - "vielfach"
+      - "tagsüber"
+      - "fortan"
+      - "scheinbar"
+      - "neulich"
+  - name: Adjunkt
+    line: 4
+    alternatives:
+      - "im Rohr"
+      - "ohne Frist"
+      - "unter Strom"
+      - "nach Bedarf"
+      - "gegen Sturm"
+      - "auf Rädern"
+      - "aus Eisen"
+      - "bei Nässe"
+      - "mit Ansage"
+      - "vor Schicht"
+  - name: Adjunkt
+    line: 4
+    alternatives:
+      - "am Tresen"
+      - "in Umlauf"
+      - "über Mittag"
+      - "aus Sorge"
+      - "trotz Lärm"
+      - "auf Reisen"
+      - "im Gefälle"
+      - "im Zulauf"
+      - "um zwölf"
+      - "vor Sonntag"
+  - name: Adjunkt
+    line: 4
+    alternatives:
+      - "am Kessel"
+      - "ohne Pause"
+      - "unter Wert"
+      - "nach Gehör"
+      - "gegen Hitze"
+      - "auf Umwegen"
+      - "aus Zement"
+      - "bei Frost"
+      - "mit Vorlauf"
+      - "am Ventil"
+  # ── Zeile 6  ADV-TIME  NP-NOM  PP  PP  ADV  PP   (verblos) ──────
+  - name: Zeitangabe
+    line: 5
+    alternatives:
+      - "Nachts"
+      - "Freitags"
+      - "Im Sommer"
+      - "Im Februar"
+      - "Seit Wochen"
+      - "Um sechs"
+      - "Im Herbst"
+      - "Im August"
+      - "Seit Ostern"
+      - "Damals"
+  - name: Subjekt
+    line: 5
+    alternatives:
+      - "Pikachu"
+      - "Mauzi"
+      - "Enton"
+      - "Menki"
+      - "Rasaff"
+      - "Fukano"
+      - "Arkani"
+      - "Quapsel"
+      - "Ponita"
+      - "Gallopa"
+  - name: Adjunkt
+    line: 5
+    alternatives:
+      - "am Geländer"
+      - "über Wasser"
+      - "aus Holz"
+      - "trotz Nebel"
+      - "auf Probe"
+      - "im Ostwind"
+      - "von Norden"
+      - "vor dem Amt"
+      - "in Kürze"
+      - "im Hafen"
+  - name: Adjunkt
+    line: 5
+    alternatives:
+      - "im Abseits"
+      - "ohne Uhr"
+      - "unter Reif"
+      - "nach Wunsch"
+      - "gegen Lärm"
+      - "auf Zuruf"
+      - "aus Ton"
+      - "bei Dunst"
+      - "mit Kies"
+      - "vor dem Bau"
+  - name: Adverb
+    line: 5
+    alternatives:
+      - "nochmals"
+      - "seinerzeit"
+      - "minutenlang"
+      - "demnächst"
+      - "überwiegend"
+      - "mehrfach"
+      - "vormals"
+      - "allmählich"
+      - "jüngst"
+      - "zusehends"
+  - name: Adjunkt
+    line: 5
+    alternatives:
+      - "an der Mole"
+      - "in Fahrt"
+      - "über Eis"
+      - "aus Estrich"
+      - "trotz allem"
+      - "auf Abstand"
+      - "im Mörtel"
+      - "im Schotter"
+      - "ab Dienstag"
+      - "vor Montag"
