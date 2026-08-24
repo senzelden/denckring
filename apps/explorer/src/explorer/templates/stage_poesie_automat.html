@@ -1,8 +1,15 @@
 {% extends "stage.html" %}
 {% block title %}Poesie-Automat{% endblock %}
 {% block main %}
+{# The eyebrow names the machine and then the lexicon, and the lexicon half
+   changes with the cartridge. It used to be a fixed line crediting
+   Enzensberger over whichever flaps were loaded, which with the Pokemon
+   cartridge on the board credited him for a lexicon that is not his. The
+   mechanism is his in both cases and stays credited; the words are what the
+   line has to stop misattributing. Swapped by `loadCartridge` along with the
+   footnote, because the switcher changes the board without a round trip. #}
 <header class="scene-head">
-  <p class="scene-kicker">Hans Magnus Enzensberger &middot; Landsberger Poesieautomat, 2000</p>
+  <p class="scene-kicker" id="automat-kicker">{{ kicker }}</p>
   <h1>{{ scene.title }}</h1>
 </header>
 {# The board: six rows of 71 character cells, and nothing else. Enzensberger
@@ -119,10 +126,9 @@
        out letter by letter. Scene seven's own lesson. #}
     <p class="visually-hidden" id="automat-status" role="status" aria-live="polite"
        aria-atomic="true"></p>
-    <p class="scene-credit">Enzensberger&rsquo;s mechanism, not his words: he died in 2022 and
-      his lists are in copyright until 2092, so the 360 flaps of the Landsberg cartridge were
-      written for this project (see the catalogue&rsquo;s <code>poesie_automat</code> row and the
-      device file). The second cartridge is the explorer&rsquo;s own and is never packaged.</p>
+    {# The footnote, from the cartridge rather than from the scene, and for the
+       same reason the eyebrow is. #}
+    <p class="scene-credit" id="automat-credit">{{ credit }}</p>
   </div>
 </div>
 {# Both cartridges, as the server computed them: the flaps in the capitals the
@@ -260,6 +266,8 @@ const readingEl = document.getElementById('automat-reading');
 const statusEl = document.getElementById('automat-status');
 const countEl = document.getElementById('automat-count');
 const noteEl = document.getElementById('cartridge-note');
+const kickerEl = document.getElementById('automat-kicker');
+const creditEl = document.getElementById('automat-credit');
 const switchEl = document.getElementById('cartridge-switch');
 const lineEls = Array.from(boardEl.querySelectorAll('.board-line'));
 
@@ -642,6 +650,11 @@ function loadCartridge(id) {
   positions = cart.positions.slice();
   deviceEl.value = cart.id;
   noteEl.textContent = cart.note;
+  // The attribution follows the flaps. A credit left describing the cartridge
+  // that has just been taken out is the same kind of untruth as a verdict left
+  // standing over a board that has changed.
+  kickerEl.textContent = cart.kicker;
+  creditEl.textContent = cart.credit;
   countEl.innerHTML = cart.exponent === null
     ? cart.combinations
     : '10<sup>' + cart.exponent + '</sup>';
