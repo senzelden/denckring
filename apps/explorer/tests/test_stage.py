@@ -1072,6 +1072,46 @@ def test_slips_of_matches_each_line_back_to_its_field() -> None:
     ]
 
 
+def test_slips_carry_the_source_and_the_place_the_corpus_gives_them() -> None:
+    """Where an excerpt came from, read back off the entry rather than guessed.
+
+    Both fields are the corpus's own and neither is invented when it is
+    absent: the Jean-Paul export carries a `source` on 41,416 of its 89,166
+    entries, so a slip that renders a placeholder where the edition gives none
+    would be manufacturing a citation. Empty is the honest answer, and the
+    template is what decides not to draw it.
+
+    `entry_id` is the corpus's `id` verbatim. It is not parsed into anything
+    prettier — `Ia-05-reg-1779-0010` plainly is a locator in the Wurzburg
+    edition, but rendering it as "Band Ia, Register 1779, Nr. 10" would be
+    this project asserting a reading of a scheme it has never verified.
+    """
+    import json
+
+    text = json.dumps(
+        {
+            "entries": [
+                {
+                    "text": "a fact about beetles",
+                    "id": "arXiv-2608.13527v1-02",
+                    "domain": "Entomologie",
+                    "source": "arXiv:2608.13527v1 — On beetles",
+                    "headwords": ["bug"],
+                },
+                {"text": "a fact about kings", "id": "Ia-05-reg-1779-0010", "domain": "Geschichte"},
+            ]
+        }
+    )
+    slips = stage.slips_of(
+        text, "a fact about beetles\na fact about kings\nsomething unfiled", "bug"
+    )
+    assert [(s.source, s.entry_id) for s in slips] == [
+        ("arXiv:2608.13527v1 — On beetles", "arXiv-2608.13527v1-02"),
+        ("", "Ia-05-reg-1779-0010"),
+        ("", ""),
+    ]
+
+
 def _write_corpus(tmp_path: Path, entries: list[dict[str, object]]) -> Path:
     """A minimal corpus file inside a temp `DENCKRING_CORPORA`, so the throw
     route can be exercised without any real corpus on disk — the only path CI
@@ -1183,6 +1223,101 @@ def test_a_thin_headword_pool_is_widened_and_the_page_says_so(
     # Not the fallback case — three distinct fields were found, just not from
     # the headword's own pool, so the fallback wording would be false here.
     assert "not filed across enough fields" not in response.text
+
+
+def test_a_throw_shows_where_each_excerpt_came_from(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The scene's claim is a collision *across* fields, and a viewer who
+    cannot see which document a slip came out of has to take the field label
+    on faith. The source and the entry's own id are what make that checkable
+    from the screen rather than only from the corpus file."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {
+                "text": f"excerpt {name}",
+                "id": f"test-{name}-01",
+                "domain": name.title(),
+                "source": f"A document called {name}",
+                "headwords": ["word"],
+            }
+            for name in ("alpha", "beta", "gamma")
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "word"},
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    for name in ("alpha", "beta", "gamma"):
+        assert f"A document called {name}" in normalised
+        assert f"test-{name}-01" in normalised
+
+
+def test_a_slip_whose_entry_gives_no_source_does_not_invent_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Half the Jean-Paul export carries no `source` at all. A dash, an
+    "unknown", or the corpus's own name standing in for one would each read as
+    a citation this project cannot support — so the line is simply not drawn,
+    and the entry's id carries the provenance alone."""
+    corpus_path = _write_corpus(
+        tmp_path,
+        [
+            {
+                "text": f"excerpt {name}",
+                "id": f"test-{name}-01",
+                "domain": name.title(),
+                "headwords": ["word"],
+            }
+            for name in ("alpha", "beta", "gamma")
+        ],
+    )
+    monkeypatch.setenv("DENCKRING_CORPORA", str(tmp_path))
+    response = client.post(
+        "/stage/ideenwuerfeln/act",
+        data={"corpus_path": str(corpus_path), "headword": "word"},
+    )
+    assert response.status_code == 200
+    assert "slip-source" not in response.text
+    assert "test-alpha-01" in response.text
+
+
+def test_the_streamed_reading_is_one_shared_script_not_a_copy_per_page() -> None:
+    """The wait is the same wait on both pages, so the handling of it is one
+    file.
+
+    The stage grew a streaming reader as an inline script inside the fragment
+    htmx swaps in, and the bench — which renders the same `witz-form` from
+    `_generated.html` — never got one, so pressing "Find the Witz" there
+    showed an empty box for the better part of half a minute with nothing to
+    say it was working. A second inline copy would have fixed that page and
+    left two implementations to keep in step.
+
+    Asserted as "no script element in the fragment" rather than as "the
+    string is absent": a copy that came back reworded would still be a second
+    implementation.
+    """
+    served = client.get("/static/witz_stream.js")
+    assert served.status_code == 200
+    assert "witz-form" in served.text
+
+    fragment = (
+        Path(__file__).resolve().parents[1] / "src/explorer/templates/_stage_throw.html"
+    ).read_text(encoding="utf-8")
+    assert "<script" not in fragment
+
+
+def test_every_page_that_can_render_a_witz_form_loads_the_reader() -> None:
+    """The script binds by delegation, so it has to be on the page *before*
+    the form arrives — the form is swapped in by a throw, and on the bench by
+    an apply. Both shells therefore load it, which is why it hangs off the
+    shared head rather than off the stage's own."""
+    for path in ("/stage/ideenwuerfeln", "/p/ideenwuerfeln"):
+        assert "/static/witz_stream.js" in client.get(path).text, path
 
 
 def test_the_witz_disclaimer_survives_a_real_throw(

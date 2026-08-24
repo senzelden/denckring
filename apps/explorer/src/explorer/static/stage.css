@@ -986,12 +986,22 @@
    brief), so the slip rail carries its own scrollbar instead of risking
    that clip. Roomier than once a reading joins it below (see the `:has()`
    rule further down) — the two are competing for the same fixed height, and
-   before a reading exists the slips may as well have all of it. */
+   before a reading exists the slips may as well have all of it.
+   
+   17rem, not the 13rem it was, because the provenance line under each
+   excerpt costs a line per slip and 13rem stopped holding a single throw.
+   Measured rather than eyeballed, ten throws per corpus at this width: arXiv
+   needed 219-257px, median 257; the Jean-Paul export 205-314px, median 227.
+   17rem is 272px, which covers every arXiv throw observed and all but the
+   longest few of the other — and the rail scrolling for a genuine outlier is
+   what it is for. There is room: with no reading below it the throw ends
+   587px down a stage whose content box ends at 758, so this spends 64 of
+   171 spare pixels. */
 .slips {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-height: 13rem;
+  max-height: 17rem;
   overflow-y: auto;
   padding-right: 0.4rem;
   margin: 0 0 0.8rem;
@@ -1004,9 +1014,21 @@
   background: var(--paper-shade);
   border-left: 3px solid var(--lead);
   line-height: 1.45;
+  /* A column, not a row, since the provenance line arrived.
+     
+     The field alone fitted beside the excerpt because it is two words. A
+     source does not: the arXiv corpus's own are a paper's full title after
+     its identifier, which beside the text would either wrap into a narrow
+     ragged stack or force an ellipsis — and half a citation displayed as a
+     whole one is the failure this line was added to prevent. Underneath, it
+     has the slip's full width and needs neither.
+     
+     It is also what both sketches for this scene drew: the provenance sits
+     under the excerpt in each of them. */
   display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   /* The angle a slip comes to rest at — set per slip by `_stage_throw.html`'s
      `--rot`, a slight alternating-sign value so three slips from the same throw
      never land dead level with each other. Defaulted here, not left to fail
@@ -1027,6 +1049,59 @@
 
 .slip-text {
   flex: 1;
+}
+
+/* Where the excerpt came from, on one line under it: the field, the source
+   the corpus names, and the corpus's own id for the entry. Wraps rather than
+   truncating — see `.slip`'s own comment, and `stage.Slip` for why nothing
+   here is drawn when the corpus gives nothing. */
+.slip-where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.45rem;
+}
+
+/* The separator between the parts that are present. Drawn by the parts
+   themselves rather than by the template, so a slip whose entry gives no
+   source cannot render a stranded middot with nothing after it. */
+.slip-source::before,
+.slip-id::before {
+  content: "\00b7";
+  margin-right: 0.45rem;
+  color: var(--lead);
+}
+
+/* The document, in the body's own voice — this is a title, and setting it in
+   the mono the field label uses would make it read as another label. */
+.slip-source {
+  font-family: var(--body);
+  font-size: 0.7rem;
+  color: var(--lead);
+}
+
+/* The id, plainly as an id: the corpus's own string, unparsed. Quieter than
+   the source it follows, because it is what you would use to find the entry
+   in the file rather than something to read. */
+.slip-id {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--lead);
+  opacity: 0.75;
+}
+
+/* The field a slip was filed under — small, fixed, and never wrapping, so a
+   long domain name never fights the excerpt for room. This is the whole
+   point made visible: without it, a cross-field throw and a same-field one
+   look identical on the page. */
+.slip-domain {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--lead);
+  white-space: nowrap;
 }
 
 @keyframes slip-land {
@@ -1114,9 +1189,17 @@
    at ease. `:has()` reacts the moment `_witz.html`'s fragment lands in
    `#witz` (a plain descendant check, live across the htmx swap; no script
    needed to notice it), so the rail condenses — tighter padding, smaller
-   type, as well as less room — and the reading gets what it gives up, tuned
-   so a typical throw in either register fits without scrolling either box;
-   see the fix report for the measured heights. */
+   type, as well as less room — and the reading gets what it gives up; see
+   the fix report for the heights that were measured for it.
+   
+   This 9rem is deliberately not raised alongside the rail's own max-height
+   above. The provenance line costs a line per slip here too, so a condensed
+   rail now scrolls where it used to sit still — but the reading is the thing
+   worth the room once it exists, and there is nothing spare to give: with a
+   160-word paragraph below it the throw already ends 766px down a stage
+   whose content box ends at 758. Because the rail is capped rather than
+   grown, the extra line changes how far it scrolls and not how tall the
+   scene is. */
 .throw:has(.witz-reading) .slips {
   max-height: 9rem;
   gap: 0.35rem;
