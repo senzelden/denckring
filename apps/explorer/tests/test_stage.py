@@ -5945,7 +5945,10 @@ def _cut_up_post(method: str, text: str, column: int = 1) -> str:
         data={"method": method, "text": text, "column": str(column)},
     )
     assert response.status_code == 200
-    return response.text
+    # `str(...)` rather than a bare return: the TestClient's `.text` reaches
+    # mypy as `Any`, and this is the one helper that returns it rather than
+    # asserting against it inline, so it is the one place --strict can see.
+    return str(response.text)
 
 
 def test_the_scene_offers_the_family_and_not_only_its_famous_member() -> None:
