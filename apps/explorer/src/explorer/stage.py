@@ -1469,12 +1469,14 @@ AUTOMAT_CARTRIDGES = (
         label="Pokémon-Kassette",
         note="a second cartridge, explorer-only",
         lexicon="Pokémon flaps, the explorer's own",
+        # Kept to three rendered lines, like the Landsberg one. At four it took
+        # the scene's content extent to 684.72px against the 720px the stage
+        # has, which is a tighter margin than any other scene runs.
         credit=(
-            "Enzensberger's mechanism, and the words are neither his nor Müller's. The "
-            "subjects are German Pokémon names — third-party trademarks, which is why this "
-            "cartridge lives in the explorer and is never packaged — and the rest is ordinary "
-            "German in Heiner Müller's register, as individual common words rather than "
-            "anything he wrote. He died in 1995."
+            "Enzensberger's mechanism; the words are neither his nor Müller's. The subjects "
+            "are German Pokémon names — third-party trademarks, which is why this cartridge "
+            "is explorer-only and never packaged. The rest is Heiner Müller's register (he "
+            "died in 1995) as individual common words, not anything he wrote."
         ),
     ),
 )
