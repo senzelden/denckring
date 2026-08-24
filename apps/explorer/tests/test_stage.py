@@ -3816,10 +3816,12 @@ def test_a_cell_turns_through_every_character_in_between() -> None:
     PASS — on a board of 426 cells the main thread spreads the folds out
     whether or not anything asked it to, so a floor on the span measures
     congestion. It measures *where* the folding cells are instead: the band of
-    columns folding at one moment (12-23 as shipped, 61-65 at zero, ceiling 35)
-    and how far the front of that band advances over the clatter (38.5-53.9
-    columns as shipped, 1.2-13.2 at zero, floor 20). Both go red at zero, and
-    both were run at zero to check that they do.
+    columns folding at one moment (11-25 as shipped, 58-66 at zero, ceiling 35)
+    and how far the front of that band advances over the clatter (35.2-54.0
+    columns as shipped, 2.2-15.4 at zero, floor 20). Both go red at zero, and
+    both were run at zero to check that they do — one session, one build, so
+    these are the same figures the scene's own comments and the task report
+    quote rather than three samples of a noisy quantity.
 
     All this pins is that the three constants are positive, which is the part a
     Python test can honestly see."""
@@ -3862,9 +3864,12 @@ def test_a_resting_cell_holds_no_three_dimensional_transform() -> None:
 
     A leaf holding a 3D transform with a hidden backface is a composited layer
     whether or not it is moving, and this board has 852 of them. Clocked in a
-    real browser with `flap-board.mjs wave`: one press cost **4505ms** with the
-    leaves always composited, **1824ms** with them taken out of the paint
-    entirely, against a **1492ms** floor with nothing drawn at all. So the
+    real browser during the build that established this, at `FOLD_MS` 70 and
+    `STAGGER_MS` 18 rather than the shipped 64 and 20 — so these three are
+    comparable with each other and not with the figures elsewhere: one press
+    cost **4505ms** with the leaves always composited, **1824ms** with them
+    taken out of the paint entirely, against a **1492ms** floor with nothing
+    drawn at all. So the
     perspective and the hidden backfaces are switched on by a class for the
     ~64ms a cell is actually turning, both leaves rest at `transform: none`,
     and the resting back leaf is invisible because it lies flat over a static
@@ -3897,7 +3902,8 @@ def test_a_resting_cell_holds_no_three_dimensional_transform() -> None:
     resting_cell = css.split(".cell {", 1)[1].split("}", 1)[0]
     assert "perspective" not in resting_cell
     # And a glyph is only written where it is not already showing: the guarded
-    # write took the clatter from a 2870ms median to a 2215ms one.
+    # write took the clatter from a 2870ms median to a 2215ms one, measured in
+    # that same earlier configuration.
     assert "function write(element, character) {" in script
     assert "if (element.textContent !== character) element.textContent = character;" in script
     assert "textContent = " not in re.sub(r"//.*", "", land.group(1))
@@ -4317,7 +4323,16 @@ def test_the_flap_source_never_waits_on_a_transition_alone() -> None:
     body = roll.group(1)
     assert "if (prefersReducedMotion()) {" in body
     assert "landCell(cell, want);" in body
-    assert body.index("prefersReducedMotion") < body.index("const run = ++cell.run;")
+    # Reduced motion lands the cell and returns before any of the asynchronous
+    # machinery starts, so nothing is ever left waiting on a transition that
+    # `explorer.css` has switched off.
+    #
+    # Deliberately *not* "before `++cell.run`": that used to be what this
+    # asserted, and the reversal fix inverted it on purpose. The run has to be
+    # staled ahead of every early return in `rollCell`, reduced motion's
+    # included — see
+    # `test_a_cell_that_is_asked_for_what_it_is_showing_calls_off_its_journey`.
+    assert body.index("prefersReducedMotion") < body.index("new Promise")
     # The stagger goes to zero under reduced motion too — a wave of instant
     # landings is still a wave, and reduced motion asks for the end state.
     assert script.count("prefersReducedMotion() ? 0 : STAGGER_MS") == 2
@@ -4589,3 +4604,231 @@ def test_the_client_starts_on_the_cartridge_the_server_drew() -> None:
             assert len(module["flaps"]) == 10
             assert len(module["words"]) == 10
             assert module["flaps"] == [stage.automat_display(w) for w in module["words"]]
+
+
+#: Every adverb either cartridge can put in an adverb module, and what kind of
+#: adverb it is. The ADV rule is the only one of the board's six with no
+#: mechanical guard, and this is that guard: lines 2, 4 and 6 have **no
+#: predicate**, so a manner adverb or a bare negation there reads as broken
+#: German with no verb to modify. What the sixty flaps are instead is temporal,
+#: durative, frequency, locative, epistemic or quantificational — every one of
+#: which scopes over the adjunct that follows it and so needs no verb.
+#:
+#: A closed table rather than a heuristic, because German gives no reliable
+#: surface mark: `teilweise` and `zeitweise` share a suffix with nothing in
+#: common, and `regelmäßig` is frequency where a `-mäßig` adverb usually is not.
+#: Its being closed is what makes it bite — an adverb added to either device and
+#: not classified here fails, which is exactly the moment somebody should have
+#: to think about what kind of adverb it is.
+ADVERB_KINDS = {
+    "abermals": "frequency",
+    "allmählich": "temporal",
+    "andernorts": "locative",
+    "anderswo": "locative",
+    "angeblich": "epistemic",
+    "anscheinend": "epistemic",
+    "bekanntlich": "epistemic",
+    "bisweilen": "frequency",
+    "demnächst": "temporal",
+    "durchweg": "quantificational",
+    "erneut": "frequency",
+    "fortan": "temporal",
+    "hierzulande": "locative",
+    "immer": "frequency",
+    "insgesamt": "quantificational",
+    "inzwischen": "temporal",
+    "jahrelang": "durative",
+    "jüngst": "temporal",
+    "künftig": "temporal",
+    "längst": "temporal",
+    "mehrfach": "frequency",
+    "mehrmals": "frequency",
+    "minutenlang": "durative",
+    "mitunter": "frequency",
+    "monatelang": "durative",
+    "mutmaßlich": "epistemic",
+    "nebenan": "locative",
+    "neuerdings": "temporal",
+    "neulich": "temporal",
+    "nochmals": "frequency",
+    "nunmehr": "temporal",
+    "offenbar": "epistemic",
+    "regelmäßig": "frequency",
+    "reichlich": "quantificational",
+    "ringsum": "locative",
+    "scheinbar": "epistemic",
+    "seinerzeit": "temporal",
+    "seitdem": "temporal",
+    "seither": "temporal",
+    "sicherlich": "epistemic",
+    "ständig": "frequency",
+    "stundenlang": "durative",
+    "tagelang": "durative",
+    "tagsüber": "temporal",
+    "teilweise": "quantificational",
+    "unentwegt": "frequency",
+    "vermutlich": "epistemic",
+    "vielerorts": "locative",
+    "vielfach": "frequency",
+    "vorerst": "temporal",
+    "vormals": "temporal",
+    "weiterhin": "temporal",
+    "wieder": "frequency",
+    "wochenlang": "durative",
+    "womöglich": "epistemic",
+    "zeitlebens": "durative",
+    "zeitweilig": "temporal",
+    "zeitweise": "temporal",
+    "zumeist": "quantificational",
+    # Degree-flavoured, and kept: in a verbless line they read as progressive
+    # temporals ("Onix im Schlamm zunehmend unter Erde"), which is a scope over
+    # the adjunct rather than a manner of anything.
+    "zunehmend": "temporal",
+    "zusehends": "temporal",
+    "zuweilen": "frequency",
+    "überall": "locative",
+    "überwiegend": "quantificational",
+}
+
+#: The six kinds an adverb module may carry, and nothing else.
+ADVERB_KINDS_ALLOWED = frozenset(
+    {"temporal", "durative", "frequency", "locative", "epistemic", "quantificational"}
+)
+
+#: Bare negations, which the rule forbids for the same reason manner adverbs are
+#: forbidden and which no classification above would catch on its own.
+BARE_NEGATIONS = frozenset(
+    {"nicht", "nie", "niemals", "nirgends", "nirgendwo", "keineswegs", "keinesfalls", "kaum"}
+)
+
+
+def test_no_adverb_module_carries_a_manner_adverb_or_a_bare_negation() -> None:
+    """The board's fourth rule, and until now the only one of its six with no
+    mechanical guard at all.
+
+    Lines 2, 4 and 6 have no predicate. A manner adverb there has nothing to be
+    the manner *of*, and a bare negation has nothing to negate; either reads as
+    broken German rather than as the machine being strange. So every adverb on
+    both cartridges has to be one of six kinds that scope over the adjunct
+    following them and need no verb.
+
+    Both cartridges, because the rule is the board's and not one cartridge's."""
+    used: set[str] = set()
+    for device in CARTRIDGES:
+        for module in stage.flap_board(device).modules:
+            if module.name != "Adverb":
+                continue
+            assert len(module.alternatives) == 10
+            for adverb in module.alternatives:
+                assert adverb in ADVERB_KINDS, f"{device}: {adverb!r} is not classified"
+                assert ADVERB_KINDS[adverb] in ADVERB_KINDS_ALLOWED, adverb
+                assert adverb.casefold() not in BARE_NEGATIONS, adverb
+                used.add(adverb)
+    # Six adverb modules of ten on each of two boards, and the table covers
+    # exactly what they carry — no entry going stale, none missing.
+    assert len(used) == 64
+    assert set(ADVERB_KINDS) == used
+    # And every one of the six kinds is actually in use, so the allowed set is
+    # a description of the lexicon rather than a list nobody reads.
+    assert {ADVERB_KINDS[adverb] for adverb in used} == ADVERB_KINDS_ALLOWED
+
+
+def test_the_board_refuses_a_poem_it_cannot_show() -> None:
+    """`None`, not an exception and not a guess: a text with the wrong number
+    of lines, and a text of the right shape whose words are not on any module.
+
+    This is a restored test rather than a new one. It existed on the base
+    commit, the letter-board round replaced the whole scene-eight section, and
+    it went as collateral — nothing asserted `automat_positions(...) is None`
+    for a round. Scored against the whole suite while it was missing: replacing
+    `if len(found) != len(machine.lines):` with `if False:` left 254 passing."""
+    for device in CARTRIDGES:
+        assert stage.automat_positions("nothing like a poem", device) is None
+        poem = stage.automat_poem(stage.automat_default_positions(device), device)
+        # Too many lines, and too few.
+        assert stage.automat_positions(poem + "\na seventh line", device) is None
+        assert stage.automat_positions("\n".join(poem.splitlines()[:5]), device) is None
+        # The right shape, with one word no module of that line carries.
+        first = poem.split(None, 1)[0]
+        assert stage.automat_positions(poem.replace(first, "Mittwochs", 1), device) is None
+        # And the honest case still reads back.
+        assert stage.automat_positions(poem, device) == stage.automat_default_positions(device)
+    # A poem off one board is not a poem the other can show — the same refusal,
+    # and the one the switcher depends on.
+    landsberg = stage.automat_poem(stage.automat_default_positions(), "poesieautomat_2000")
+    assert stage.automat_positions(landsberg, "poesieautomat_pokemon") is None
+
+
+def test_the_board_refuses_a_line_wider_than_itself() -> None:
+    """`automat_line`'s own refusal, which its comment calls "the failure this
+    whole geometry exists to prevent" and which nothing was exercising.
+
+    Six flaps of at most eleven characters plus five spaces is 71 columns
+    exactly, so a device whose cap had been raised by one character anywhere
+    would assemble a line the board cannot hold. Clipping it silently is the
+    thing the column count exists to make impossible, so it raises."""
+    # The widest line the cap admits fits exactly, and is not refused.
+    widest = ["A" * stage.FLAP_CAP] * 6
+    cells, spans = stage.automat_line(widest)
+    assert len(cells) == stage.BOARD_COLUMNS
+    assert cells.strip() == cells  # no room left over to centre in
+    assert spans[0] == (0, stage.FLAP_CAP)
+    assert spans[-1] == (60, stage.FLAP_CAP)
+    # One character more anywhere, and it is refused rather than clipped.
+    for position in range(6):
+        over = list(widest)
+        over[position] = "A" * (stage.FLAP_CAP + 1)
+        with pytest.raises(InvalidParams):
+            stage.automat_line(over)
+    # And the message says what would not fit, in columns.
+    with pytest.raises(InvalidParams, match="72"):
+        stage.automat_line(["A" * (stage.FLAP_CAP + 1), *widest[1:]])
+
+
+def test_a_cell_that_is_asked_for_what_it_is_showing_calls_off_its_journey() -> None:
+    """A source-level guard, and named as one; the browser reproduction is
+    `tests/browser/flap-board.mjs reverse`.
+
+    The defect, reproduced 6/6 by drag and by keyboard at dwells of 10, 20 and
+    40ms before it was fixed: a module turned one flap and turned straight back
+    inside `FOLD_MS` left cells stranded on the flap they were travelling to.
+    `drawBoard` skipped any cell whose *current* character already equalled the
+    new target, so on the way back it skipped exactly the cells that were in
+    the air; nothing bumped their `run`; and the stale roll landed each of them
+    on its own old target. The board came to rest spelling `DER NECEL` where
+    the model, the accessible tree and the viewer all said `DER NEBEL`, and the
+    verdict went red over a board put back exactly where it started.
+
+    Two things make it impossible now. A cell records what it has been **asked
+    for** separately from what it is **showing** — the two are different while
+    a fold is in the air, and conflating them was the bug. And `rollCell` makes
+    the previous roll stale *before* any early return, so the reversal case can
+    call a journey off instead of quietly leaving it running."""
+    script = _automat_scene_script()
+    # The cell carries a target of its own, and only `drawBoard` writes it.
+    assert re.search(r"\n    want: el\.dataset\.char,", script) is not None
+    assert script.count("cell.want = want;") == 1
+    draw = re.search(r"function drawBoard\(cap, stagger\) \{(.*?)\n\}", script, re.S)
+    assert draw is not None
+    body = draw.group(1)
+    assert "if (cell.want === want) continue;" in body
+    assert "cell.want = want;" in body
+    assert body.index("if (cell.want === want) continue;") < body.index("cell.want = want;")
+    # Nothing decides whether to move a cell by looking at what it is showing.
+    assert "if (cell.char === want) continue;" not in script
+    # And the run is staled first, ahead of every early return in `rollCell`.
+    roll = re.search(r"function rollCell\(cell, want, cap, delay\) \{(.*?)\n\}\n", script, re.S)
+    assert roll is not None
+    body = roll.group(1)
+    assert "const run = ++cell.run;" in body
+    assert body.index("const run = ++cell.run;") < body.index("if (cell.char === want) {")
+    assert body.index("const run = ++cell.run;") < body.index("prefersReducedMotion()")
+    # The reversal lands the cell where it already is, rather than leaving a
+    # half-fallen leaf and a journey nobody called off.
+    reversal = body.split("if (cell.char === want) {", 1)[1].split("}", 1)[0]
+    assert "landCell(cell, want);" in reversal
+    # A cartridge swap seats a cell's target with its character, so the very
+    # next draw cannot skip a cell it has just moved to the blank.
+    load = re.search(r"function loadCartridge\(id\) \{(.*?)\n\}", script, re.S)
+    assert load is not None
+    assert "cell.want = alphabet[0];" in load.group(1)

@@ -163,10 +163,17 @@ const LINES = 6;
 //
 // None of the three numbers below is what the board actually clocks, and they
 // are not meant to be — 426 cells is more paint than one thread keeps up with,
-// so the dwell between two folds of one cell measures a median of 172ms against
-// this 64ms. What the press clocks is measured in the page by
-// `tests/browser/flap-board.mjs wave`: over eight presses, 2160-2510ms with a
-// median of 2385ms. That is the figure; these are the dials.
+// so the dwell between two folds of one cell measures a median of 177ms against
+// this 64ms.
+//
+// Every figure quoted in this file comes from **one run** of
+// `tests/browser/flap-board.mjs wave 12`, so that the numbers here, in
+// `tests/browser/README.md` and in the task report are the same numbers rather
+// than three samples of a noisy quantity. That run: the press clocks
+// 1878-2834ms with a median of **2589ms**, 159-263 cells fold at once, and the
+// dwell runs 64-949ms. Run-to-run spread on this machine is wide — medians of
+// 2183, 2385, 2545 and 2589ms have all been measured for this configuration —
+// so treat the median as the figure and the range as the noise.
 const FOLD_MS = 64;
 const HALF_MS = FOLD_MS / 2;
 // How far apart two neighbouring **columns** start, in reading order — this is
@@ -188,10 +195,22 @@ const HALF_MS = FOLD_MS / 2;
 // thread spreads the folds out whether or not anything asked it to. A floor on
 // the span measures congestion. What separates a wave from a board starting in
 // unison is *where* the folding cells are: the **band** of columns folding at
-// one moment (12-23 here against 61-65 at zero) and how far the front of that
-// band **advances** across the clatter (38-54 columns here against 1-13). Both
-// are measured, both have floors between the two configurations, and both go
-// red at zero.
+// one moment and how far the front of that band **advances** across the
+// clatter. Measured against this constant set to 0, same build, same session:
+//
+//                        as shipped        at 0        floor
+//   band (of 71)         11-25            58-66        <= 35
+//   front advance        35.2-54.0        2.2-15.4     >= 20
+//
+// Both floors sit between the two configurations rather than beside one of
+// them, and the mode reports FAIL at zero on both.
+//
+// 20 rather than 15, and that is a measurement rather than a preference: on
+// this machine a smaller stagger raises the number of cells folding at once,
+// and concurrency is what costs here. Paired A/B, two rounds of eight presses
+// alternating between the two values — 20 gave medians of 2549 and 2545ms with
+// a band maximum of 26 and 28; 15 gave 2720 and 2753ms with a band maximum of
+// **41**, which is over the guard's own ceiling. See the task report.
 const STAGGER_MS = 20;
 // The cap on one cell's journey. A cell travelling from one character to
 // another turns through every character in between — that cycling is the whole
@@ -201,12 +220,13 @@ const STAGGER_MS = 20;
 // and then rolls the rest, so every cell ends on a real roll of exactly this
 // many folds and only the head of a long journey is skipped.
 //
-// Four is where it is because of a measurement, not a preference. `flap-board.mjs
-// roll` reports 48 of 329 moved cells making their whole journey inside the cap
-// and 281 having it shortened; `wave` clocks the press at a 2215ms median.
-// Raising the cap to six takes the first number to 83 of 317 and the median
-// clatter to 3143ms, which is half a second of extra waiting for fifty more
-// cells that show their whole journey. Four is the trade this scene made.
+// Four is where it is because of a measurement, not a preference. From the same
+// session as the figures above: `flap-board.mjs roll` reports **44 of 324**
+// moved cells making their whole journey inside the cap and 280 having it
+// shortened, at a **2589ms** median press. Raising the cap to six takes the
+// first number to 83 of 317 and the median to **3541ms** — nearly a second of
+// extra waiting for forty more cells that show their whole journey. Four is the
+// trade this scene made.
 const MAX_ROLL = 4;
 // A module turned **by hand** turns its cells one fold each, not a roll. A
 // module step changes several cells to unrelated characters at once, so there
@@ -257,7 +277,25 @@ const cells = lineEls.map((lineEl) =>
     frontText: el.querySelector('.cell-front span'),
     back: el.querySelector('.cell-back'),
     backText: el.querySelector('.cell-back span'),
+    // What the cell is **showing**. Only `landCell` writes it, and only when a
+    // fold has landed.
     char: el.dataset.char,
+    // What the cell has last been **asked for**. Only `drawBoard` writes it,
+    // and it is written the moment the request is made rather than when the
+    // cell arrives.
+    //
+    // The two are not the same thing while a fold is in the air, and treating
+    // them as one is a defect this scene shipped with. `drawBoard` used to skip
+    // a cell whose `char` already equalled the new target — so a module turned
+    // one flap and turned straight back inside `FOLD_MS` was skipped on the way
+    // back, the roll carrying the cell *away* was never made stale, and it
+    // landed the cell on its own old target. The board came to rest spelling a
+    // character no flap of any module contains (`DER NECEL` for `DER NEBEL`),
+    // the accessible tree said `"Der Nebel"`, and the verdict went red over a
+    // board the viewer had put back exactly where they started. Reproduced 6/6
+    // by drag and by keyboard at dwells of 10/20/40ms;
+    // `tests/browser/flap-board.mjs reverse` is that reproduction.
+    want: el.dataset.char,
     // Bumped by every roll this cell is given, so a roll still ticking when a
     // newer one starts finds its own run stale and stops writing.
     run: 0,
@@ -425,12 +463,22 @@ function stepsBetween(from, to) {
 // A cell from where it stands to `want`, through every character in between,
 // capped at `cap` folds and started `delay` milliseconds from now.
 function rollCell(cell, want, cap, delay) {
-  if (cell.char === want) return Promise.resolve();
+  // First, and unconditionally: this is what makes a roll already in flight on
+  // this cell stale, and every early return below has to happen *after* it.
+  // Returning before this line is how a reversed hand-turn stranded a cell —
+  // see `want` on the cell record.
+  const run = ++cell.run;
+  if (cell.char === want) {
+    // The reversal. The cell is already showing what it has just been asked
+    // for, and the fold that was carrying it away has been made stale one line
+    // above; all that is left is to put the leaves back down on it.
+    landCell(cell, want);
+    return Promise.resolve();
+  }
   if (prefersReducedMotion()) {
     landCell(cell, want);
     return Promise.resolve();
   }
-  const run = ++cell.run;
   return new Promise((resolve) => {
     setTimeout(() => {
       if (cell.run !== run) return resolve();
@@ -474,7 +522,12 @@ function drawBoard(cap, stagger) {
     for (let column = 0; column < COLUMNS; column++) {
       const cell = cells[line][column];
       const want = drawn.cells[column];
-      if (cell.char === want) continue;
+      // Against the cell's **target**, not against what it is showing. A cell
+      // already heading here needs nothing; a cell showing this but heading
+      // elsewhere needs its journey called off, and only `rollCell` can do
+      // that.
+      if (cell.want === want) continue;
+      cell.want = want;
       jobs.push(rollCell(cell, want, cap, column * stagger));
     }
   }
@@ -586,7 +639,12 @@ function loadCartridge(id) {
     : '10<sup>' + cart.exponent + '</sup>';
   cells.forEach((row) =>
     row.forEach((cell) => {
-      if (alphabet.indexOf(cell.char) < 0) landCell(cell, alphabet[0]);
+      if (alphabet.indexOf(cell.char) >= 0) return;
+      // Seated on the blank, and its target seated with it: a cell whose
+      // recorded target were left pointing at a character the incoming
+      // alphabet does not have would be skipped by the very next `drawBoard`.
+      landCell(cell, alphabet[0]);
+      cell.want = alphabet[0];
     })
   );
   positions.forEach((unused, slot) => syncModule(slot));

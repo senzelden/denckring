@@ -27,6 +27,15 @@
 //           character in between, and that the cap is the only thing that ever
 //           shortens the journey. Reports each moved cell's fold count against
 //           the alphabet distance it had to cover.
+//   reverse a module turned one way and straight back **inside one fold**, by
+//           the drag and by the keyboard, at dwells of 10/20/40ms. The oracle is
+//           built from the glyphs the cells are actually rendering, not from the
+//           page's own `cell.char`, because the defect this exists for is the
+//           two disagreeing. `drawBoard` used to skip a cell whose *current*
+//           character already equalled the new target while a roll was still in
+//           flight on it, and nothing made that roll stale — so it landed the
+//           cell on its own old target and the board came to rest spelling a
+//           character no flap of any module contains.
 //   swap    the cartridge switcher: the flaps change, the cells do not move,
 //           the alphabet is the incoming board's own, and the verdict that was
 //           true of the old cartridge does not survive into the new one. Also
@@ -447,6 +456,107 @@ async function runRoll(browser) {
   log('  ' + (result.contiguous === result.moved ? 'PASS' : 'FAIL'));
 }
 
+// ── reverse ────────────────────────────────────────────────────────────────
+//
+// Turn a module one flap and turn it straight back before the fold has landed.
+// Every other mode moves a module in one direction, and this defect needs a
+// reversal inside `FOLD_MS` — the same shape of blind spot as a guard that
+// cannot fail.
+//
+// The oracle reads the **rendered** glyph out of each cell's static bottom half
+// rather than the page's own `cell.char`, because what went wrong was those two
+// disagreeing: the model said `DER NEBEL`, the accessible tree said
+// `"Der Nebel"`, and the board spelled `DER NECEL` for the rest of the session.
+async function runReverse(browser) {
+  const slot = Number(process.argv[3] || 6);
+  const line = Math.floor(slot / 6);
+  let bad = 0;
+  let runs = 0;
+  for (const route of ['drag', 'keyboard']) {
+    for (const dwell of [10, 20, 40]) {
+      const page = await open(browser);
+      await waitVerdict(page);
+      const before = await page.evaluate(
+        (line) =>
+          Array.from(document.querySelectorAll('.board-line')[line].querySelectorAll('.cell'))
+            .map((cell) => cell.querySelector('.cell-bottom span').textContent)
+            .join('')
+            .trim(),
+        line
+      );
+      if (route === 'drag') {
+        const box = await page.evaluate((slot) => {
+          const r = document.getElementById('module-' + slot).getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height };
+        }, slot);
+        await page.mouse.move(box.x, box.y);
+        await page.mouse.down();
+        await page.mouse.move(box.x, box.y - box.h);
+        await page.waitForTimeout(dwell);
+        await page.mouse.move(box.x, box.y);
+        await page.mouse.up();
+      } else {
+        await page.focus('#module-' + slot);
+        await page.keyboard.press('ArrowUp');
+        await page.waitForTimeout(dwell);
+        await page.keyboard.press('ArrowDown');
+      }
+      const after = await waitVerdict(page);
+      const found = await page.evaluate(
+        (line) => {
+          const row = document.querySelectorAll('.board-line')[line];
+          return {
+            // What the cells are painting, glyph by glyph.
+            rendered: Array.from(row.querySelectorAll('.cell'))
+              .map((cell) => cell.querySelector('.cell-bottom span').textContent)
+              .join('')
+              .trim(),
+            // What the model says they should be painting.
+            model: (() => {
+              const flaps = [0, 1, 2, 3, 4, 5].map(
+                (k) => cart.modules[line * 6 + k].flaps[positions[line * 6 + k]]
+              );
+              return flaps.join(' ');
+            })(),
+            // And what the page itself thinks each cell shows.
+            shown: readBoard().split('\n')[line],
+            valuetext: document
+              .getElementById('module-' + (line * 6))
+              .getAttribute('aria-valuetext'),
+            stillFolding: row.querySelectorAll('.cell.folding').length,
+          };
+        },
+        line
+      );
+      runs++;
+      const ok =
+        found.rendered === found.model &&
+        found.rendered === found.shown &&
+        found.rendered === before &&
+        after.verdict.cls.indexOf('no') < 0;
+      if (!ok) bad++;
+      log(
+        '  ' + route.padEnd(8),
+        'dwell ' + String(dwell).padStart(2) + 'ms ',
+        ok ? 'ok  ' : 'BAD ',
+        JSON.stringify(found.rendered)
+      );
+      if (!ok) {
+        log('      model     ', JSON.stringify(found.model));
+        log('      readBoard ', JSON.stringify(found.shown));
+        log('      before    ', JSON.stringify(before));
+        log('      valuetext ', JSON.stringify(found.valuetext));
+        log('      verdict   ', after.verdict.cls, '|', after.verdict.text.split('\n')[0].trim());
+        log('      folding   ', found.stillFolding);
+      }
+      await page.context().close();
+    }
+  }
+  log('reverse on module', slot, REDUCED ? '(reduced motion)' : '');
+  log('  runs that ended with the board spelling something else', bad + '/' + runs);
+  log('  ' + (bad === 0 ? 'PASS' : 'FAIL'));
+}
+
 // ── swap ───────────────────────────────────────────────────────────────────
 async function runSwap(browser) {
   const page = await open(browser);
@@ -693,12 +803,29 @@ async function runFrames(browser) {
     await instrument(page);
     await page.click('#automat-press');
     await page.waitForTimeout(400);
-    const folding = await page.evaluate(() => document.querySelectorAll('.cell.folding').length);
+    // Where the wave front actually is at the moment of capture, so the frame
+    // can be described from a reading rather than from the direction the code
+    // implies. Playwright stalls the page for about a second while it
+    // captures, so the image is a little later than this reading — but which
+    // side is ahead does not change.
+    const folding = await page.evaluate(() => {
+      const row = document.querySelectorAll('.board-line')[0];
+      const cs = Array.from(row.querySelectorAll('.cell'));
+      const band = cs.map((c, i) => (c.classList.contains('folding') ? i : -1)).filter((i) => i >= 0);
+      return {
+        cells: document.querySelectorAll('.cell.folding').length,
+        band: band.length ? [Math.min(...band), Math.max(...band)] : null,
+      };
+    });
     await page.screenshot({ path: `${OUT}/automat-${short}-mid-clatter.png`, animations: 'allow' });
     await waitRun(page);
     const after = await waitVerdict(page);
     await page.screenshot({ path: `${OUT}/automat-${short}-resolved.png` });
-    log(short, 'frames written to', OUT, '| cells folding at capture:', folding);
+    log(
+      short, 'frames written to', OUT,
+      '| cells folding at capture:', folding.cells,
+      '| row 1 folding band, columns:', JSON.stringify(folding.band)
+    );
     log('  ' + after.verdict.text.split('\n')[0].trim());
     log(after.shown.split('\n').map((l) => '    ' + l).join('\n'));
     await page.context().close();
@@ -710,6 +837,7 @@ const MODES = {
   press: runPress,
   wave: runWave,
   roll: runRoll,
+  reverse: runReverse,
   swap: runSwap,
   stale: runStale,
   wedge: runWedge,
