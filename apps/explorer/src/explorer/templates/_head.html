@@ -8,3 +8,8 @@
 <link rel="stylesheet" href="{{ sheet }}">
 {% endfor %}
 <script src="/static/htmx.min.js" defer></script>
+{# Both shells, because both can render a `witz-form`: the stage swaps one in
+   with a throw, the bench with an apply. Deferred like htmx and for the same
+   reason — it binds to `document`, not to a form, so it has no element to wait
+   for and nothing on the page needs it to have run before parsing ends. #}
+<script src="/static/witz_stream.js" defer></script>

@@ -34,13 +34,35 @@
     {% set rotations = ["-0.5deg", "0.65deg", "-0.6deg", "0.45deg", "-0.55deg"] %}
     {% for slip in slips %}
     {% set rot = rotations[loop.index0 % rotations|length] %}
+    {# The field, then where the excerpt came from. Both are the entry's own
+       fields and neither is drawn when the corpus gives nothing — see
+       `stage.Slip`, which is where the reason lives: half the Jean-Paul
+       export carries no source, and a dash standing in for one would read as
+       a citation. The id is set apart as an id (mono, quiet) rather than run
+       into the source, because it is a locator in the corpus file and not a
+       bibliographic reference. #}
     <p class="slip" style="--i:{{ loop.index0 }}; --rot:{{ rot }}">
       <span class="slip-text">{{ slip.text }}</span>
-      <span class="slip-domain">{{ slip.domain }}</span>
+      <span class="slip-where">
+        <span class="slip-domain">{{ slip.domain }}</span>
+        {%- if slip.source %}<span class="slip-source">{{ slip.source }}</span>{% endif -%}
+        {%- if slip.entry_id %}<span class="slip-id">{{ slip.entry_id }}</span>{% endif -%}
+      </span>
     </p>
     {% endfor %}
   </div>
   {% if can_read %}
+  {# `hx-post` is still here and still works: it is the no-JavaScript path, and
+     it is what `test_the_witz_disclaimer_survives_a_real_throw` drives.
+     `static/witz_stream.js` intercepts the submit when it can and reads the
+     streaming route instead, so the paragraph arrives as it is written rather
+     than after half a minute of an empty box. Progressive enhancement, both
+     halves real.
+
+     The reader is shared with the bench's own `witz-form` — the same form,
+     from `_generated.html` — rather than inlined here, so this fragment needs
+     no script of its own: the class on the form is the whole of what it binds
+     to. #}
   <form class="witz-form" hx-post="/p/ideenwuerfeln/witz" hx-target="#witz" hx-swap="innerHTML">
     <input type="hidden" name="throw" value="{{ throw }}">
     <input type="hidden" name="headword" value="{{ headword }}">
