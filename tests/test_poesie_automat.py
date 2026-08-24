@@ -200,7 +200,7 @@ def test_the_stemmer_folds_the_endings_it_claims_to() -> None:
     # The pairs the detector exists to catch.
     assert stem("Tagen") == stem("Tag")
     assert stem("Jahren") == stem("Jahre")
-    assert stem("Wachen") == stem("Wache")
+    assert stem("Waagen") == stem("Waage")
 
     # Not decompounded, and not stripped below three characters.
     assert stem("Montag") != stem("Tage")

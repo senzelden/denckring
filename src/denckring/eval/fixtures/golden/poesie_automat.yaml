@@ -29,11 +29,11 @@ cases:
       on every run rather than reading it here.
     text: |-
       Montags vergilbt das Werk gegen bar inzwischen über Nacht
-      Die Ampel unter Eis am Zaun vielerorts bei Wind von Süden
-      Im Depot schimmelt das Gleis zumeist unter Null in Sicht
+      Die Ampel unter Eis am Silo vielerorts bei Wind von Süden
+      Im Depot schimmelt das Rohr zumeist unter Null in Sicht
       Der Turm ohne Zeugen sicherlich um drei bei Frost in Serie
       Die Fracht zittert erneut nach Bedarf auf Reisen gegen Hitze
-      Abends das Tor auf Posten mit Glas mitunter ab Dienstag
+      Abends das Tor auf Achse mit Glas mitunter ab Dienstag
     params: {}
     satisfied: true
   - name: ein-wort-das-auf-keiner-klappe-steht
