@@ -31,10 +31,64 @@
   /* The modern corpus speaks in its own material's voice: a preprint blue,
      deliberately nothing the type case carries. */
   --preprint: #4288c4;
-  /* The rubric as a wash, for marking a region rather than a mark: the N+7
-     reel's read line, which sits over the dark case and needs a wash strong
-     enough to read against it. */
+  /* The rubric as a wash, for marking a region rather than a mark. It was
+     written for the N+7 reel's read line, which sits over the dark case and
+     needs a wash strong enough to read against it; that line now takes
+     `--accent-wash`, and this is the value `--accent-wash` falls back to. */
   --rubric-wash-strong: rgba(179, 18, 29, 0.22);
+
+  /* One accent per scene, and one only.
+   *
+   * The ground, the paper, the ink and the three font stacks are fixed across
+   * all eight scenes, because the eight recordings have to read as one set.
+   * What varies is a single mark colour, so a machine can carry a note of its
+   * own century without wearing the whole costume — the failure mode the
+   * design spec names is period pastiche, and a palette per scene is how you
+   * get there.
+   *
+   * The default is the rubric, so a scene that declares nothing is unchanged.
+   * Denckring and Ideenwürfeln declare nothing on purpose: scene one sets the
+   * visual language and must stay the reference the others are read against.
+   *
+   * This is the FIGURE's colour: reading marks, discs, blades, read lines,
+   * the mark on a held part. It is deliberately NOT the colour of a verdict,
+   * a focus ring or a button — those were unified across the stage in earlier
+   * work, and the verdict's single voice is the more valuable property. */
+  --accent: var(--rubric);
+  --accent-wash: var(--rubric-wash-strong);
+}
+
+/* Minium — the vermilion of a rubricated manuscript, which is what Llull's
+   own figures are drawn in. */
+.llull-stage {
+  --accent: #a5301f;
+  --accent-wash: rgba(165, 48, 31, 0.22);
+}
+
+/* Newsprint red: the cut-up's material is the newspaper column Gysin's blade
+   went through. */
+.cutup-stage {
+  --accent: #cb2016;
+  --accent-wash: rgba(203, 32, 22, 0.22);
+}
+
+/* The Oulipo's own ground is a French cahier: squared paper in grid blue,
+   written in a dark ink. Two steps of the one hue, for the same reason
+   `--pass-bright` exists — the mark sits on paper, the wash sits on the dark
+   case behind the reel, and the ink that reads on the first disappears into
+   the second. The read line keeps the lightness it had as a rubric wash and
+   changes only its hue. */
+.n7-stage {
+  --accent: #1d2545;
+  --accent-wash: rgba(219, 231, 241, 0.2);
+}
+
+/* The lamp behind a split-flap board's fascia. This one is not new: the module
+   under a hand was already a hand-picked amber, the only colour on this stage
+   that came from no token. It has a name now. */
+.automat-stage {
+  --accent: #e2603f;
+  --accent-wash: rgba(226, 96, 63, 0.18);
 }
 
 .stage-body {
@@ -487,7 +541,7 @@
   transform: translateX(-50%);
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-top: 11px solid var(--rubric);
+  border-top: 11px solid var(--accent);
   z-index: 6;
 }
 
@@ -975,20 +1029,6 @@
   flex: 1;
 }
 
-/* The field a slip was filed under — small, fixed, and never wrapping, so a
-   long domain name never fights the excerpt for room. This is the whole
-   point made visible: without it, a cross-field throw and a same-field one
-   look identical on the page. */
-.slip-domain {
-  flex: none;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--lead);
-  white-space: nowrap;
-}
-
 @keyframes slip-land {
   to {
     opacity: 1;
@@ -1091,161 +1131,208 @@
   max-height: 13rem;
 }
 
-/* ── scene three: N+7 ────────────────────────────────────────────────────────
-   Each column is a reel of the entries a noun passes on its way to its
-   replacement — the motion is the demonstration, so the reel is dark
-   case-furniture like the Denckring's own word panel, not paper.
-   `.control-panel` and `.actions` are scene one's own classes, reused
-   unchanged. */
+/* ── scene three: N+7 ───────────────────────────────────────────────────
+ *
+ * The figure is the list, open at one noun.
+ *
+ * It was a reel per noun — the journey as motion, dark case furniture inset in
+ * the paper stage. What replaced it makes the scene's own argument instead: a
+ * different word list is a different transformation on the same text, in the
+ * way a Denckring with different rings is a different device, and a reel shows
+ * that a noun moved while a page shows what it moved through.
+ *
+ * It is also a great deal less machinery. The reel needed measured row heights,
+ * a stagger, a reduced-motion branch and an out-of-band replay hook; a page is
+ * rendered by the server and does not move.
+ */
 
-.n7-source {
+.book {
+  background: var(--paper);
+  border: 1px solid var(--case-lip);
+  border-radius: 2px;
+  padding: 0.75rem 0.9rem 0.85rem;
+  box-shadow: 0 2px 9px rgba(20, 17, 15, 0.07);
+  max-width: 30rem;
+}
+
+/* Guide words, as a printed dictionary carries them — what tells you where in
+   56,468 entries you are standing. */
+.book-guide {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.45rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--paper-shade);
   font-family: var(--display);
   font-style: italic;
-  font-size: 1.15rem;
-  color: var(--ink);
-  margin: 0 0 1.2rem;
+  font-size: 0.78rem;
+  color: var(--lead);
 }
 
-/* One column per noun, and the source is a box a recorder types into — six
-   nouns already run past the 620px this column has, and `.stage` clips
-   without a scrollbar or a symptom. The rail is this scene's own admission
-   that the reel count is not fixed; it stays invisible until it is needed,
-   which the three columns of the shipped sentence never are. */
-.n7-columns {
-  display: flex;
-  gap: 1.8rem;
-  overflow-x: auto;
-  padding-bottom: 0.3rem;
-}
-
-.n7-column {
-  flex: none;
-  width: 11.2rem;
-  text-align: center;
-}
-
-.n7-label {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 1.15rem;
-  color: var(--ink);
-  margin: 0 0 0.6rem;
-}
-
-/* --n7-row: the reel's one row height, in one place so the track's rows,
-   the viewport's fixed height and the script's own measurement of a real
-   row (never a second, hard-coded copy of this number) can never drift
-   apart. Three rows, not five: five left two whole rows of pure blank case
-   above the source word at rest (and again below the replacement once
-   landed) — the "headroom that doesn't make sense" the reel was built with.
-   Three keeps exactly one row of travelling context either side of the read
-   line, so the strip still shows entries passing rather than a plain
-   before/after cut, without the void. */
-.n7-viewport {
-  --n7-row: 2.5rem;
-  position: relative;
-  height: calc(3 * var(--n7-row));
-  overflow: hidden;
-  background: var(--case-deep);
-  border-radius: 2px;
-}
-
-/* Marks the read line the same way scene one's rubric arrow marks its own —
-   the middle row is what the reel is "reading", before, during and after a
-   slide. */
-.n7-viewport::before {
-  content: "";
-  position: absolute;
-  top: var(--n7-row);
-  left: 0;
-  right: 0;
-  height: var(--n7-row);
-  background: var(--rubric-wash-strong);
-  pointer-events: none;
-}
-
-.n7-track {
-  position: relative;
-}
-
-.n7-row {
+.book-entries {
+  list-style: none;
   margin: 0;
-  height: var(--n7-row);
-  line-height: var(--n7-row);
+  padding: 0;
+  columns: 2;
+  column-gap: 1.2rem;
+  column-rule: 1px solid var(--paper-shade);
+}
+
+.book-entry {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: var(--display);
+  font-size: 0.86rem;
+  line-height: 1.62;
+  color: #8d857a;
+  break-inside: avoid;
+  padding: 0 0.2rem;
+  border-radius: 1px;
+}
+
+/* Three states, and they are the whole diagram: looked up, landed on, and
+   passed through. Everything else on the page is margin. */
+.book-from {
+  color: var(--ink);
+  font-weight: 600;
+  background: rgba(179, 18, 29, 0.1);
+}
+
+.book-to {
+  color: var(--ink);
+  font-weight: 600;
+  background: rgba(63, 125, 63, 0.15);
+}
+
+.book-through {
+  color: #6f675c;
+}
+
+.book-mark {
   font-family: var(--mono);
-  font-size: 0.9rem;
-  color: var(--lead-bright);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lead);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* The word a reel starts on and the replacement it lands on are the two
-   facts this scene exists to show — set apart from the entries merely
-   passed through on the way between them. Second child: one blank spacer
-   row comes before the first real entry (see the template). */
-.n7-row:nth-child(2) {
+/* Every noun the list knows in the source, so the page can be opened at any of
+   them: one noun's journey is an anecdote, and stepping through all of them is
+   what makes the list's part in the rule visible. */
+.book-nouns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.7rem 0 0;
+  max-width: 30rem;
+}
+
+.book-noun {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0.14rem 0.45rem;
+  background: transparent;
+  color: #574f45;
+  border: 1px solid #cfc8ba;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.book-noun:hover {
+  color: var(--rubric);
+  border-color: var(--rubric);
+  background: transparent;
+}
+
+.book-noun.on {
+  background: var(--ink);
+  border-color: var(--ink);
   color: var(--paper);
-  font-weight: 600;
 }
 
-.n7-row.n7-landing {
-  color: var(--paper);
-  font-weight: 600;
-}
-
-/* The source sentence is the thing a viewer types, so it gets a row to
-   itself rather than sharing one with the language select — which crushed
-   it once already, down to a measured 26px wide, back when both fields sat
-   on `.actions`' own single wrapped row. One row per concern instead. */
-.n7-stage .control-panel .actions {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.9rem;
-}
-
-/* Larger than explorer.css's own 0.92rem input — this is the field the
-   scene is staged around, not an incidental control beside it. */
-.n7-source-field input[type="text"] {
-  font-size: 1.25rem;
-  padding: 0.6rem 0.75rem;
-  height: auto;
+/* The source is a passage now, not a test sentence. */
+.n7-source-field textarea {
+  width: 100%;
+  font-family: var(--display);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--case-lip);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: none;
 }
 
 .n7-controls-row {
   display: flex;
   align-items: flex-end;
-  gap: 0.6rem;
+  gap: 0.9rem;
+  flex-wrap: wrap;
 }
 
-/* The select still needs an explicit width — the bare `width: 100%`
-   explorer.css gives every select would otherwise claim the whole row and
-   crush the button beside it, the same defect that used to crush the
-   source field. Sized to the wider of the two option words, "English". */
-.n7-controls-row select {
-  width: auto;
-  min-width: 6.5rem;
+/* The slider, and its own reading beside it. Tabular figures and a fixed width
+   so the row does not shuffle as the number crosses zero or gains a digit. */
+/* The label beside the slider, not above it. `.scene-field label` is a block —
+   right for a field with a box under it, wrong for a dial with its reading
+   next to it, which is what this is. */
+.n7-offset {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.n7-offset label {
+  display: inline;
+  margin: 0;
+}
+
+.n7-offset input[type="range"] {
+  width: 11rem;
+  accent-color: var(--rubric);
+}
+
+.n7-offset output {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 2.4rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.n7-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.n7-example {
+  font-family: var(--body);
+  font-size: 0.68rem;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0.16rem 0.5rem;
 }
 
 .displaced-area {
   min-height: 2rem;
 }
 
-/* Whatever is typed above comes back here at 1.3rem — a pasted paragraph runs
-   to several hundred pixels, and `.stage` clips it silently, taking the verdict
-   under it with it. Measured: this starts 375px down the panel with 433px left
-   to the stage's own bottom edge, so 22rem scrolls well inside that. The rail
-   is on the text and not on `.displaced-area` around it, so the verdict stays
-   below the rail and on screen however long the text runs — it is the one line
-   this scene exists to show. Scene two's slip rail is the same move for the
-   same reason. */
 .displaced-text {
   font-family: var(--display);
-  font-size: 1.3rem;
+  font-size: 1.12rem;
   line-height: 1.6;
   color: var(--ink);
-  margin: 0.4rem 0 0.8rem;
-  max-height: 22rem;
+  margin: 0.9rem 0 0;
+  max-height: 15rem;
   overflow-y: auto;
 }
 
@@ -1266,9 +1353,26 @@
   margin: 0.5rem 0 0;
 }
 
+/* The spine the cards are bound into, down the left edge. A stack of cut
+   strips has to be held together at one end or it is a pile, and where it is
+   held is why the strips pivot the way they do. */
 .strips {
   display: flex;
   flex-direction: column;
+  position: relative;
+  padding-left: 0.75rem;
+}
+
+.strips::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -0.15rem;
+  bottom: -0.15rem;
+  width: 0.55rem;
+  border-radius: 2px 0 0 2px;
+  background: #ddd6c6;
+  box-shadow: inset -2px 0 3px rgba(20, 17, 15, 0.16);
 }
 
 /* Fourteen lines of verse plus the header above and the panel below is the
@@ -1276,35 +1380,89 @@
    against the 720px `.stage` clips silently to, 57px over. `.strip`'s own
    padding and `.strip-line`'s font size below are both tuned smaller than a
    first draft had them for exactly that reason, not for their own sake. */
+/* ── the strips, as the cards they are ───────────────────────────────────
+ *
+ * The book is a stack of cards cut into fourteen strips, and that is the whole
+ * of why line six of any sonnet serves as line six of any other: it is a piece
+ * of card you lift. The scene drew fourteen dashed underlines with a small grey
+ * "flip" button beside each — a poem with rules under it, and a caption for a
+ * gesture rather than the gesture.
+ *
+ * Each strip is now one card and the whole card is the control.
+ */
 .strip {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.8rem;
-  padding: 0.1rem 0;
-  border-bottom: 1px dashed var(--paper-shade);
+  display: block;
+  margin: 0;
   /* The 3D flip below needs real depth to rotate through, not the flat 2D
      plane every other transform on this stage uses. */
   perspective: 420px;
 }
 
-.strip:last-child {
-  border-bottom: none;
+.strip-card {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9rem;
+  width: 100%;
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink);
+  border: 0;
+  border-radius: 0;
+  padding: 0.2rem 0.6rem 0.18rem;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  /* The cut edge, and the card below showing under it. Drawn as shadow rather
+     than as a border so lifting one costs no layout. */
+  box-shadow:
+    0 1px 0 rgba(20, 17, 15, 0.16),
+    0 2px 4px rgba(20, 17, 15, 0.08);
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
-/* The sonnet's own shape, ABAB CDCD EFEF GG, read as three quatrains and a
-   couplet — a gap after the fourth strip in each quatrain, none after the
-   fourteenth. nth-child is 1-indexed; these are positions 4, 8 and 12
-   (0-indexed 3, 7, 11), the last strip of each quatrain. */
+/* Lifting a card, under a hand. The book's own gesture, and the reason the
+   whole strip is the target rather than a button at the end of it. */
+.strip-card:hover,
+.strip-card:focus-visible {
+  background: var(--paper);
+  transform: translateX(6px);
+  box-shadow:
+    0 1px 0 rgba(20, 17, 15, 0.16),
+    0 6px 12px rgba(20, 17, 15, 0.14);
+}
+
+.strip-card:focus-visible {
+  outline: 2px solid var(--rubric);
+  outline-offset: 1px;
+}
+
+/* Which of its ten this strip is showing: the one number that says what a
+   press will do before you press it, and what makes fourteen tens legible as
+   fourteen tens rather than as a total nobody can picture. */
+.strip-count {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  color: var(--lead);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The sonnet's own shape, ABAB ABAB CCD EED — Queneau's scheme, which is the
+   French sonnet's and not the English one's: two quatrains on the same two
+   rhymes, then two tercets. The gaps fall after the fourth, eighth and
+   eleventh strips, and none after the fourteenth. nth-child is 1-indexed. */
 .strip:nth-child(4),
 .strip:nth-child(8),
-.strip:nth-child(12) {
-  border-bottom-style: solid;
-  margin-bottom: 0.2rem;
-  padding-bottom: 0.16rem;
+.strip:nth-child(11) {
+  margin-bottom: 0.34rem;
 }
 
 .strip-line {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font-family: var(--display);
   font-size: 0.92rem;
@@ -1635,7 +1793,7 @@
    which pieces are not words, the verdict says why that matters. The same
    move the word ladder's own `.tile.changed` makes. */
 .cutup-fragment {
-  color: var(--rubric);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -1673,7 +1831,7 @@
   top: 0;
   bottom: 0;
   left: 7px;
-  border-left: 1px dashed var(--rubric);
+  border-left: 1px dashed var(--accent);
 }
 
 .cutup-blade-h {
@@ -1690,14 +1848,14 @@
   left: 0;
   right: 0;
   top: 7px;
-  border-top: 1px dashed var(--rubric);
+  border-top: 1px dashed var(--accent);
 }
 
 .cutup-grip {
   position: absolute;
   font-size: 0.8rem;
   line-height: 1;
-  color: var(--rubric);
+  color: var(--accent);
   user-select: none;
 }
 
@@ -1784,7 +1942,7 @@
   transform: translateX(-50%);
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-top: 11px solid var(--rubric);
+  border-top: 11px solid var(--accent);
   z-index: 6;
 }
 
@@ -1803,9 +1961,16 @@
   stroke-width: 1;
 }
 
-.wheel-disc-0 { fill: var(--ring-0); }
-.wheel-disc-1 { fill: var(--ring-1); }
-.wheel-disc-2 { fill: var(--ring-2); }
+/* Three bands of this scene's own, lightening outward from a rubricated hub —
+   the same logic scene one's five bands follow, but no longer the same tokens.
+   These wheels used to be painted from `--ring-0..2`, which are the Denckring's
+   five bands: the innermost came out in scene one's rubric red for no reason
+   except that it was the first fill in a list written for a different figure.
+   Llull's own figures are drawn in minium, so the hub is the accent here on
+   purpose rather than by inheritance. */
+.wheel-disc-0 { fill: var(--accent); }
+.wheel-disc-1 { fill: #ddd3bd; }
+.wheel-disc-2 { fill: #ece5d5; }
 
 .wheel-dial {
   pointer-events: none;
@@ -2126,7 +2291,7 @@
    highlight bright enough to compete with them would be reading the module
    rather than the poem. */
 .board-module.held {
-  background: rgba(196, 138, 63, 0.18);
+  background: var(--accent-wash);
 }
 
 /* The switcher: which set of flaps is in the machine. Two radios styled as one
@@ -2196,4 +2361,694 @@
   font-size: 0.68rem;
   letter-spacing: 0.02em;
   color: var(--lead);
+}
+
+/* ── the link out to a reading ───────────────────────────────────────────
+ *
+ * Beside the caption, outside the 1280 frame, and inside the same
+ * `chrome_off` guard the caption is — so the flag that strips a scene for
+ * recording strips this with it. Quieter than the caption on purpose: the
+ * scene is the thing, and this is a door out of it.
+ */
+
+.stage-reading-link {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  margin: 0.3rem 0 0;
+  max-width: 1280px;
+}
+
+.stage-reading-link a {
+  color: var(--lead);
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+}
+
+.stage-reading-link a:hover {
+  color: var(--paper);
+  text-decoration-color: var(--rubric-soft);
+}
+
+/* ── scene seven's discs: divisions and a pivot ──────────────────────────
+ *
+ * The wheels were flat filled circles with letters standing on them, which is
+ * not what a volvelle looks like. Nine dividers per band, drawn inside the
+ * dial so they turn with the face — a volvelle's divisions are printed on the
+ * disc and go round with it — and a knot at the centre, because in the
+ * manuscripts and the early printings the inner circles really were cut out
+ * and fastened to the outer one with a thread.
+ */
+
+.wheel-spokes line {
+  stroke: var(--case-lip);
+  stroke-width: 1;
+  opacity: 0.45;
+}
+
+/* On the rubricated hub the case-lip line all but disappears, the same way
+   `--pass` disappears on the Denckring's dark word panel. A paper-side wash
+   rather than a second colour. */
+.wheel-disc-0 ~ .wheel-dial .wheel-spokes line {
+  stroke: var(--paper-faint);
+  opacity: 0.3;
+}
+
+.wheel-hub {
+  fill: var(--case-deep);
+  stroke: var(--paper-shade);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+/* ── scene four's address ────────────────────────────────────────────────
+ *
+ * The right-hand two thirds of this stage were empty at every state, and the
+ * section header above says why there is no panel there: the poem is the whole
+ * figure and this scene wants a page rather than a control room. That still
+ * holds — what sits there now is not a control. It is the poem's own index,
+ * the fourteen strip positions read as the digits of the number they are, and
+ * it is the count printed under it made turnable.
+ *
+ * The scene block becomes a row to carry it. The poem keeps its 34rem measure
+ * and its position hung off the stage's left padding, unchanged; the address
+ * is a margin, and it is set to be read from across a room because that is
+ * what a recording of this scene is for.
+ */
+
+#queneau-scene {
+  display: flex;
+  align-items: flex-start;
+  gap: 3.4rem;
+}
+
+/* The poem and everything that describes it, unchanged: still 34rem, still
+   hung off the stage's own left padding. Only the box around them is new. */
+.queneau-column {
+  flex: none;
+}
+
+.queneau-address {
+  flex: none;
+  padding-top: 0.6rem;
+}
+
+.address-label,
+.address-of {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0;
+}
+
+/* Tabular figures so a flip moves one digit and nothing else shifts under it —
+   the whole point of the thing is that you can see which digit changed. */
+.address-ordinal {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+  font-variant-numeric: lining-nums tabular-nums;
+  margin: 0.15rem 0 0.5rem;
+}
+
+.address-digits {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+}
+
+/* Grouped 4-4-3-3, where Queneau's ABAB ABAB CCD EED breaks: the address is
+   cut where the poem is. */
+.address-digits span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.22em;
+  color: var(--paper);
+  background: var(--case-deep);
+  border-radius: 2px;
+  padding: 0.28rem 0.1rem 0.28rem 0.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── scene one's discs: the bands' own divisions ─────────────────────────
+ *
+ * The same addition scene seven's wheels got, and this is the scene that
+ * should have had it first: it sets the visual language, and its five discs
+ * were flat filled circles with word-parts floating on them. One line per
+ * window slot, inside the dial so they travel with a finger.
+ *
+ * The hub is rubricated and the four bands are paper, so the line that reads
+ * on one disappears on the other — the same split `--pass` / `--pass-bright`
+ * makes, and the same one the wheels make.
+ */
+
+.ring-cells {
+  pointer-events: none;
+}
+
+/* Alternating, the way the plate opposite is ruled: the fill is the band's own
+   colour a shade off, so a cell reads as a cell without any ring changing
+   colour. */
+.ring-cell {
+  fill: none;
+  stroke: var(--case-lip);
+  stroke-width: 1;
+  stroke-opacity: 0.4;
+}
+
+.ring-cell-alt {
+  fill: rgba(20, 17, 15, 0.05);
+}
+
+#ring-0 .ring-cell {
+  stroke: var(--paper-faint);
+  stroke-opacity: 0.28;
+}
+
+#ring-0 .ring-cell-alt {
+  fill: rgba(255, 255, 255, 0.07);
+}
+
+/* The five parts the word on the panel came off. Under the word, on the same
+   dark case ground, one step down in size: the word is what the device made
+   and this is how it made it. */
+.word-parts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin: 0.15rem 0 0;
+  font-family: var(--display);
+  font-size: 0.82rem;
+  color: var(--lead-bright);
+}
+
+.word-parts b {
+  font-weight: 500;
+  color: var(--paper);
+}
+
+.word-parts i {
+  font-style: normal;
+  color: var(--lead);
+}
+
+/* The word is the tap target; the band under it is the drag surface. Pressing a
+   word brings it to the reading mark, which is the gesture a volvelle has and
+   this scene did not — and it is deliberately not the click this scene removed
+   on measurement, which turned the disc by one from anywhere on it. */
+.ring-dial .ring-part {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ring-dial .ring-part:hover {
+  fill: var(--accent);
+}
+
+#ring-0 .ring-part:hover {
+  fill: var(--paper);
+  font-weight: 700;
+}
+
+.turnable-figure.grabbing .ring-part {
+  cursor: grabbing;
+}
+
+.rings-svg.spinning .ring-part {
+  cursor: not-allowed;
+}
+
+/* The companion pages, reachable from the index as well as from under each
+   scene. The link under a scene sits below the recorded frame and vanishes
+   with the chrome, which is right for a capture and wrong for finding the
+   page at all — this is the way in. */
+.scene-list-reading {
+  display: inline-block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--lead);
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+}
+
+.scene-list-reading::before {
+  content: "→ ";
+}
+
+.scene-list-reading:hover {
+  color: var(--paper);
+}
+
+/* ── scene eight's cabinet ───────────────────────────────────────────────
+ *
+ * The board was the most finished object on this stage and it floated on the
+ * paper with nothing around it. A split-flap display of this kind sits behind
+ * a fascia with a name on it and a lamp that says the mechanism is running,
+ * and that lamp is the one thing a board mid-clatter cannot say about itself:
+ * while it is moving, every cell is a blur and nothing on it is a word yet.
+ */
+
+.automat-fascia {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--case-deep);
+  border-radius: 3px 3px 0 0;
+  padding: 0.5rem 0.9rem 0.45rem;
+  margin: 0 0 -3px;
+}
+
+.automat-plate {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--lead-bright);
+  margin: 0;
+}
+
+/* Dark until the flaps move. No transition on the way on and a slow one on the
+   way off, so the lamp answers a press instantly and then cools — the
+   behaviour of a filament rather than of a state class. */
+.automat-lamp {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #2a211c;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+  transition: background 600ms ease, box-shadow 600ms ease;
+}
+
+.automat-lamp.lit {
+  background: var(--accent);
+  box-shadow: 0 0 7px 1px var(--accent-wash), inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  transition: none;
+}
+
+/* Six groups of six, one per line of the poem, sitting under the board they
+   describe. Tabular figures so one digit moving under a hand does not shift
+   the thirty-five beside it. */
+.automat-address {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--lead);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── scene one's reading window ──────────────────────────────────────────
+ *
+ * One cell of every band, at twelve o'clock under the mark, drawn over all
+ * five discs and never moving. The parts pass under it the way they pass under
+ * a slot cut in a cover, and the five cells stacked in a column are the five
+ * parts of the word — which is the thing the caption says in words and the
+ * figure did not say at all.
+ *
+ * Outline rather than fill: a wash would tint the rubricated hub and the paper
+ * bands differently and would sit over the part it is meant to frame.
+ */
+
+.reading-window {
+  pointer-events: none;
+}
+
+.reading-cell {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  opacity: 0.75;
+}
+
+/* ── scene six's readout and count ───────────────────────────────────────
+ *
+ * This scene's right-hand panel was two buttons and a reserved box, and its
+ * own CSS header called it "the quietest scene on this stage in furniture".
+ * Quiet was the intention; empty was not. Both of these are facts the script
+ * already had — where the blades are standing, which was given to the
+ * accessible tree and to nobody else, and how many places they can stand,
+ * which is this scene's own count and the only one on the stage that was
+ * missing.
+ */
+
+.cutup-readout {
+  display: grid;
+  grid-template-columns: 4.4rem 1fr;
+  gap: 0.1rem 0.6rem;
+  margin: 1.1rem 0 0;
+}
+
+.cutup-readout dt {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lead);
+  line-height: 1.5;
+}
+
+.cutup-readout dd {
+  margin: 0;
+  font-family: "Instrument Sans", Arial, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+
+
+/* The Witz, while it is still being written. Not a spinner — a spinner says
+   only that something is happening, and this scene's own wait is close to half
+   a minute, which is long enough that a viewer deserves to be told what for. */
+.witz-waiting {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--lead);
+}
+
+/* The cells that say the ring goes on. Faint, and never a tap target: pressing
+   an ellipsis would have to mean something, and there is nothing for it to
+   mean — the part it stands for is not one part. */
+.ring-part-more {
+  fill: var(--lead);
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ── scene one's Wortbuch ────────────────────────────────────────────────
+ *
+ * Under the discs, where the step buttons were.
+ *
+ * The device enumerates and the operator judges — the catalogue says so, the
+ * scene's own note says so, and until now the judging had nowhere to land. A
+ * word kept is the reader's half of the labour made into a thing, and the
+ * tally beside it is the honest hit rate of a machine that mostly produces
+ * "blinde oder deutunglose Wörter".
+ */
+
+.wortbuch {
+  width: 640px;
+  margin: 0.7rem 0 0;
+  border-top: 1px solid var(--paper-shade);
+  padding-top: 0.5rem;
+}
+
+.wortbuch-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lead);
+  margin: 0 0 0.35rem;
+}
+
+.wortbuch-head button {
+  font-size: 0.6rem;
+  padding: 0.16rem 0.5rem;
+}
+
+/* The tally pushed to the far end, so the control sits with its label and the
+   number sits where a number goes. */
+#wortbuch-tally {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.wortbuch-kept {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  min-height: 1.6rem;
+  align-content: flex-start;
+  max-height: 3.4rem;
+  overflow-y: auto;
+}
+
+.wortbuch-kept span {
+  font-family: var(--display);
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--paper-shade);
+  border-radius: 2px;
+  padding: 0.08rem 0.42rem;
+}
+
+.wortbuch-kept .wortbuch-none {
+  background: none;
+  padding: 0;
+  font-family: var(--body);
+  font-size: 0.74rem;
+  color: var(--lead);
+}
+
+/* ── scene six's four operations ──────────────────────────────────────────
+ *
+ * The picker, the sentence under it, and the second page the fold needs.
+ *
+ * This scene showed the quarter cut alone and called itself "cut-up", which
+ * is the name the whole family goes by — and three of the four are separately
+ * catalogued rows with their own checkers. The picker is where that becomes
+ * visible rather than something the reading page has to explain.
+ */
+
+.cutup-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.55rem;
+}
+
+/* Sized down from the scene's own buttons rather than given a face of their
+   own: these choose what the scene is about, and the button below them
+   performs it — a picker that shouted louder than the act would be the wrong
+   way round. */
+.cutup-method {
+  font-size: 0.62rem;
+  padding: 0.24rem 0.55rem;
+}
+
+/* Quiet until chosen, then the scene's accent — the red the blades are drawn
+   in. Inverted rather than merely outlined: four buttons in a row need the
+   chosen one to be legible at a glance in a recording, and the stage's own
+   buttons are dark-on-light, so accent *text* on the dark fill was measured
+   unreadable. Not a `.yes` green: pressed is a state of a control, not a
+   verdict about anything. */
+.cutup-method.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+/* What the operation is, in the viewer's own words rather than the
+   catalogue's. Two lines at this width for every one of the four — measured,
+   because a third line moves the actions down and this scene has 88px of
+   slack in a 720px frame. */
+.cutup-how {
+  font-family: "Instrument Sans", Arial, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--lead);
+  margin: 0 0 0.7rem;
+  min-height: 3.4em;
+}
+
+/* Page B, lying under page A on the same table the way a second sheet does:
+   offset down and to the right, so its edge and its first line show and the
+   rest is under the page on top of it. It is not a second figure with its own
+   box — the fold happens in page A's box, because that is where a fold
+   happens. */
+.cutup-page-b {
+  position: absolute;
+  left: 26px;
+  /* Half a line, so page B's lines fall in page A's gaps rather than on top of
+     its words. Two pages set solid over each other are unreadable; two pages
+     interleaved are two pages. */
+  top: 25px;
+  width: max-content;
+  z-index: 0;
+}
+
+.cutup-page-b .cutup-line {
+  color: var(--lead);
+}
+
+/* The layers of the sheet, stacked explicitly now that there are five of them.
+   Page B underneath, page A on it, the pieces and the work layer above both,
+   and the blades on top of everything — a blade you cannot reach is not a
+   blade.
+
+   Written down as one block rather than left to document order, because that
+   is how this went wrong: `z-index: 1` on page A alone lifted it over the
+   blade layer that follows it in the markup, and the drag stopped working
+   entirely. `tests/browser/cut-blade.mjs` caught it in one run — 20 samples,
+   one distinct position — and no Python test could have. */
+.cutup-page-b {
+  z-index: 0;
+}
+
+.cutup-page {
+  z-index: 1;
+}
+
+.cutup-pieces,
+.cutup-folded {
+  z-index: 2;
+}
+
+.cutup-blades {
+  z-index: 3;
+}
+
+/* Where a checker would go and does not. Scene six is the only place on this
+   stage that has to print this, and it is printed rather than left blank so
+   that "no verdict" cannot be read as "the verdict has not come back yet". */
+.cutup-uncheckable {
+  font-family: "Instrument Sans", Arial, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--lead);
+  margin: 0.45rem 0 0;
+  max-width: 44ch;
+}
+
+/* The layer the fold, the bag and the column work on. Page A's own box, so a
+   piece placed at a line's `top` is on that line — the same positioning
+   contract `.cutup-pieces` has, and for the same reason: every one of these
+   operations starts from where the words are printed. */
+.cutup-folded {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cutup-folded .cutup-piece-line {
+  position: absolute;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* The half of each line that is folded under and gone. It rotates away about
+   the crease rather than fading on the spot: paper that goes behind paper
+   turns, and the turn is the only thing on screen that says *why* half the
+   line is missing.
+
+   `transform-origin: left` on the right-hand halves and the fold reads as a
+   crease at the split; anywhere else and it reads as a word sliding off. */
+.cutup-fold-gone {
+  transform-origin: left center;
+}
+
+.cutup-fold-under {
+  transform: perspective(600px) rotateY(-88deg);
+  opacity: 0;
+}
+
+.cutup-fold-keep {
+  transform-origin: left center;
+}
+
+/* One word on its own scrap of paper. Boxed, because the whole claim of the
+   bag is that these are separate pieces — forty-seven of them — and words set
+   in a row without edges read as a sentence however they are ordered. */
+.cutup-scrap {
+  position: absolute;
+  display: inline-block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 0.12rem 0.3rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.cutup-scrap.dragging {
+  cursor: grabbing;
+  z-index: 3;
+  border-color: var(--accent);
+}
+
+/* The word this column falls on, marked on the page it is still standing in.
+   The column operation cuts nothing, so its figure has to be a mark rather
+   than a movement — and the mark has to be on the intact page, or the scene
+   would be showing a cut it did not make. */
+.cutup-in-column {
+  background: var(--accent-wash);
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+.cutup-column {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.1rem 0 0;
+}
+
+.cutup-column label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lead);
+}
+
+.cutup-column input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.cutup-column output {
+  font-family: "Instrument Sans", Arial, sans-serif;
+  font-size: 0.7rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* `hidden` has to beat the display type, on every control this scene shows
+   for one operation and not the others. The user-agent rule is
+   `[hidden] { display: none }` at author-origin-beatable specificity, so a
+   `display: grid` or `display: flex` of our own silently wins and the control
+   stays on screen with its `hidden` attribute set — measured, with the column
+   slider and the blade readout both standing over a fold. */
+.cutup-readout[hidden],
+.cutup-column[hidden],
+.cutup-methods[hidden] {
+  display: none;
+}
+
+/* The second sheet, as a sheet under a sheet rather than a second printing of
+   the same one. Faint enough that page A stays the page you are reading, dark
+   enough to be read itself — you are about to fold onto it, and a fold onto
+   something illegible is a trick rather than a demonstration. */
+.cutup-page-b .cutup-line {
+  color: var(--lead);
+  opacity: 0.55;
+}
+
+/* The first of the two lines, in the ink a verdict of either colour would
+   have used — because it is the answer to the same question, even though it
+   is not a verdict. The second line stays `--lead`, as the note it is. */
+.cutup-uncheckable-head {
+  color: var(--ink);
+  margin-top: 0;
 }

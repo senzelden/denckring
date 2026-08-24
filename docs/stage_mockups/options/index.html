@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design options for the stage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  body { padding: 34px 26px 70px; }
+  .top { max-width: 1180px; margin: 0 auto 30px; }
+  .top h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2rem, 4.6vw, 3rem);
+            color: var(--paper); margin: 0.2rem 0 0; letter-spacing: -0.018em; }
+  .top .k { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--rubric-soft); margin: 0; }
+  .top p.d { font-family: var(--display); font-size: 1.1rem; line-height: 1.5; color: var(--lead-bright);
+             max-width: 62ch; margin: 0.7rem 0 0; }
+  .top p.n { font-family: var(--body); font-size: 0.86rem; line-height: 1.6; color: var(--lead);
+             max-width: 74ch; margin: 0.8rem 0 0; }
+  .scene { max-width: 1180px; margin: 0 auto 26px; border-top: 1px solid var(--rule); padding-top: 16px; }
+  .scene h2 { font-family: var(--display); font-weight: 600; font-size: 1.35rem; color: var(--paper); margin: 0; }
+  .scene .k { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em;
+              text-transform: uppercase; color: var(--lead); margin: 0.15rem 0 0; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .card { display: block; text-decoration: none; background: var(--case-deep); border: 1px solid var(--rule);
+          border-radius: 3px; padding: 13px 15px 15px; transition: border-color 140ms, transform 140ms; }
+  .card:hover { border-color: var(--rubric-soft); transform: translateY(-2px); }
+  .card .l { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+             color: var(--rubric-soft); margin: 0; }
+  .card .t { font-family: var(--display); font-weight: 600; font-size: 1.05rem; color: var(--paper); margin: 0.2rem 0 0; }
+  .card .c { font-family: var(--body); font-size: 0.78rem; line-height: 1.5; color: var(--lead); margin: 0.35rem 0 0; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <p class="k">denckring · the stage</p>
+  <h1>Three directions for every scene</h1>
+  <p class="d">Twenty-four working sketches — eight scenes, three ways each. Every one runs: turn
+    the discs, slide N, cut the page, press the button. Pick one per scene and that is what gets
+    built.</p>
+  <p class="n">Each sketch is the real 1280×720 frame a scene is recorded in, with the real data
+    behind it — Harsdörffer's 264 transcribed parts, the Automat's 360 flaps, Llull's nine letters
+    at six levels, the fourteen strips of ten, and every neighbour the N+7 slider can reach, taken
+    from the Open English WordNet list the scene itself walks. What is <em>not</em> real is the
+    checking: a sketch has no <code>check()</code> behind it, and where a verdict is faked or a
+    reading is canned, the note under that sketch says so. Nothing here is wired to the explorer;
+    these exist to be chosen between, not shipped.</p>
+</div>
+
+<div id="all"></div>
+
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const CLAIM = {
+    'denckring-a': 'All 264 parts on the figure; press one to bring it to the mark. No step buttons.',
+    'denckring-b': 'The discs under a cover with one slot. Five parts visible and nothing else.',
+    'denckring-c': 'Discs beside a working surface: keep what reads, and the Wortbuch fills.',
+    'n_plus_7-a': 'A real passage at reading size, the original struck through beside each replacement.',
+    'n_plus_7-b': 'Every noun travels down its own column, as far as the slider says.',
+    'n_plus_7-c': 'The list itself, open at the entry, with everything between the two marked.',
+    'cut_up-a': 'Quarter cut, fold-in, word bag, column shuffle — the family, in one picker.',
+    'cut_up-b': 'One page filling the stage and two real blades. Nothing else on screen.',
+    'cut_up-c': 'Two pages in loose strips on a table; push them around with your hands.',
+    'cent_mille_milliards-a': 'A spine and fourteen cards; press a strip and it lifts to the next of its ten.',
+    'cent_mille_milliards-b': 'Fourteen digits as the instrument — press one and that line changes.',
+    'cent_mille_milliards-c': 'All 140 lines at once, fourteen rows by ten, the chosen one lit.',
+    'llull_figure-a': 'Three wheels and Figure A’s chord web, with the chamber lit as a triangle.',
+    'llull_figure-b': 'All 84 chambers as a grid you scan and filter. No volvelle at all.',
+    'llull_figure-c': 'A question in, a chamber chosen, five argued rows — pro, contra, nihil.',
+    'poesie_automat-a': 'A housing, a lamp that says it is running, and one red button.',
+    'poesie_automat-b': 'The board edge to edge at full size, and one hairline of chrome.',
+    'poesie_automat-c': 'The board with line one’s six word-stores open beneath it.',
+    'word_ladder-a': 'Two rails and a rung per word, with the letter that moved marked.',
+    'word_ladder-b': 'The neighbourhood as the graph it is, and the route lit through it.',
+    'word_ladder-c': 'Four columns of what each letter could become. You climb it yourself.',
+    'ideenwuerfeln-a': 'Slips falling onto a table under one headword.',
+    'ideenwuerfeln-b': 'The notebook open at a spread, excerpts filed under the headword.',
+    'ideenwuerfeln-c': 'Two fields driven at each other, with the distance made into the layout.',
+  };
+  const all = document.getElementById('all');
+  Object.entries(window.OPTIONS).forEach(([scene, set]) => {
+    const sec = document.createElement('section');
+    sec.className = 'scene';
+    const h = document.createElement('h2'); h.textContent = set.title;
+    const k = document.createElement('p'); k.className = 'k'; k.textContent = set.kicker;
+    const three = document.createElement('div'); three.className = 'three';
+    ['a', 'b', 'c'].forEach((letter) => {
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href = scene + '-' + letter + '.html';
+      const l = document.createElement('p'); l.className = 'l'; l.textContent = 'option ' + letter.toUpperCase();
+      const t = document.createElement('p'); t.className = 't'; t.textContent = set[letter];
+      const c = document.createElement('p'); c.className = 'c'; c.textContent = CLAIM[scene + '-' + letter] || '';
+      a.append(l, t, c);
+      three.appendChild(a);
+    });
+    sec.append(h, k, three);
+    all.appendChild(sec);
+  });
+})();
+</script>
+</body>
+</html>

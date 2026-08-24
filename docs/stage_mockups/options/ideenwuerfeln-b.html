@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Ideenwürfeln · B · The excerpt book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .spread{display:flex;margin:1rem auto 0;width:1080px;background:#f4eee0;
+          box-shadow:0 6px 22px rgba(20,17,15,.18);border-radius:2px}
+  .leaf{flex:1;padding:1.2rem 1.5rem;min-height:430px}
+  .leaf:first-child{border-right:1px solid #ddd4bf;box-shadow:inset -14px 0 18px -16px rgba(20,17,15,.34)}
+  .leaf:last-child{box-shadow:inset 14px 0 18px -16px rgba(20,17,15,.34)}
+  .hw{font-family:var(--display);font-size:1.5rem;font-weight:600;font-style:italic;color:var(--ink);
+      margin:0 0 .1rem;border-bottom:1px solid #d8cfb9;padding-bottom:.3rem}
+  .fol{font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:#a0967f;margin:.25rem 0 .9rem}
+  .ex{font-family:var(--display);font-size:.94rem;line-height:1.55;color:#2b2721;margin:0 0 .85rem;
+      padding-left:.7rem;border-left:2px solid #cfc4a8}
+  .ex em{display:block;font-family:var(--mono);font-style:normal;font-size:.52rem;letter-spacing:.09em;
+         text-transform:uppercase;color:#a0967f;margin-top:.25rem}
+  .row{display:flex;gap:.6rem;align-items:flex-end;margin-top:.8rem;justify-content:center}
+  .row input{width:12rem;font-family:var(--display);font-size:1rem;padding:.4rem .6rem;border:1px solid var(--case-lip);border-radius:2px;background:var(--paper)}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Jean Paul &middot; notebook, February 1795</p>
+  <h1>Ideenwürfeln</h1>
+  <div class="spread">
+    <div class="leaf"><p class="hw" id="hw1">Licht</p><p class="fol">fol. 214 verso</p><div id="l1"></div></div>
+    <div class="leaf"><p class="hw" id="hw2">Licht</p><p class="fol">fol. 215 recto</p><div id="l2"></div></div>
+  </div>
+  <div class="row">
+    <div><input id="h" value="Licht"></div><button id="throw">Turn the leaf</button>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'ideenwuerfeln',letter:'b',name:'The excerpt book',
+ claim:'The notebook itself, open at a spread: one headword across two leaves, the excerpts filed '
+     + 'under it in the hand they were copied in. The collision is what happens to be on the same '
+     + 'opening, which is how it happened.',
+ note:'The most <b>historically literal</b> of the three — Jean Paul’s excerpt books are the object, '
+    + 'and a throw is really turning to a page. It is also the least like a machine: nothing is '
+    + 'randomised on screen, so a recording of it is a page turn rather than a mechanism.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const POOL=[
+  ['Das Licht der Kerze bewegt sich, wenn niemand die Tür geöffnet hat.','Exzerpt · Physik'],
+  ['The nucleation of ice begins at a defect, never in clean water.','arXiv · condensed matter'],
+  ['Ein Leuchtturmwärter schreibt die Stunde auf, in der die Lampe brennt.','Exzerpt · Seefahrt'],
+  ['Photons arrive one at a time and the pattern still forms.','arXiv · quantum optics'],
+  ['Der Blitz erhellt den Hof, und danach ist es dunkler als zuvor.','Exzerpt · Wetter'],
+  ['The retina reports change, not brightness; a steady image fades.','physiology, 1963'],
+  ['Die Sonne geht auf, ob der Kalender sie erwartet oder nicht.','Exzerpt · Astronomie'],
+  ['A shadow is not a thing but the absence of a path.','optics, 1704'],
+ ];
+ function fill(){
+  const pick=POOL.slice().sort(()=>Math.random()-.5);
+  const put=(id,items)=>{const box=document.getElementById(id);box.textContent='';
+   items.forEach((s)=>{const p=document.createElement('p');p.className='ex';p.textContent=s[0];
+     const e=document.createElement('em');e.textContent=s[1];p.appendChild(e);box.appendChild(p);});};
+  put('l1',pick.slice(0,3)); put('l2',pick.slice(3,6));
+  const h=document.getElementById('h').value||'Licht';
+  document.getElementById('hw1').textContent=h; document.getElementById('hw2').textContent=h;
+ }
+ document.getElementById('throw').onclick=fill; fill();
+})();
+</script></body></html>

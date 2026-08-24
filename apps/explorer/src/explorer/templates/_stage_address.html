@@ -1,0 +1,18 @@
+{# Which of the poems is on screen, and where its digits fall.
+
+   A state is a mixed-radix numeral and the book is its own index: with ten
+   alternatives at each of fourteen positions the indices *are* the digits of a
+   number between one and ten to the fourteenth, and that number is this poem's
+   place in the total printed beside it. Grouped 4-4-3-3, where Queneau's
+   ABAB ABAB CCD EED breaks — so the address is cut where the poem is, and one
+   flip visibly changes one digit.
+
+   Swapped out of band by `/flip` the way the state field and the verdict are,
+   because a flip changes it and an address describing the poem before the last
+   flip would be this scene's own version of describing what it did not do. #}
+<div class="queneau-address" id="poem-address"{{ ' hx-swap-oob="true"' | safe if oob }}>
+  <p class="address-label">this poem</p>
+  <p class="address-ordinal">{{ "{:,}".format(ordinal) }}</p>
+  <p class="address-digits">{% for group in address %}<span>{{ group }}</span>{% endfor %}</p>
+  <p class="address-of">of {{ "{:,}".format(combinations) }}</p>
+</div>

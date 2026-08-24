@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -18,7 +18,7 @@ from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.procedures.n_plus_7 import displace
-from explorer import bench, board, catalogue_view, corpora, env, stage, witz
+from explorer import ars, bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
 
@@ -27,6 +27,14 @@ HERE = Path(__file__).parent
 app = FastAPI(title="denckring explorer", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
+
+# The stage shell asks every scene whether it has a companion reading, so that
+# the link can sit beside the caption and disappear with it under `?chrome=off`.
+# A global rather than a kwarg on all eight scene routes: the lookup is the same
+# on every one of them, and a ninth scene should not be able to be added without
+# it. Nothing else is registered here — `page` still hands over everything a
+# template renders.
+templates.env.globals["reading_for"] = stage.reading_for
 
 #: What each drawer of the case holds. Written for a reader, not copied from the
 #: catalogue's own family table.
@@ -87,6 +95,88 @@ def the_board(request: Request) -> HTMLResponse:
 @app.get("/stage", response_class=HTMLResponse)
 def the_stage(request: Request, chrome: str = "on") -> HTMLResponse:
     return page(request, "stage_index.html", scenes=stage.SCENES, chrome_off=chrome == "off")
+
+
+@app.get("/stage/{slug}/reading", response_class=HTMLResponse)
+def stage_reading(request: Request, slug: str) -> HTMLResponse:
+    """The companion page behind one scene.
+
+    Keyed by *scene* slug rather than by the reading's own, because that is the
+    only address a reader arrives from — the link is on the scene. Two of the
+    readings answer to two scenes each, and that is the point of them rather
+    than a redirect waiting to be written: Harsdörffer's rings and Gysin's
+    blades are one argument, and so are Queneau's strips and Lescure's
+    dictionary.
+
+    No `?chrome=off` here, and there should never be one. The recording flag
+    exists so a scene can be filmed without its caption; a reading is not
+    filmed at all, which is the whole reason it is allowed to be longer than
+    720 pixels.
+    """
+    found = stage.reading_for(slug)
+    if found is None:
+        return page(request, "reading_missing.html", slug=slug)
+    # Every figure these pages state, gathered here rather than reached for
+    # inside a template, so that what a reading asserts numerically is visible
+    # in one place and computed from the same device files the scene runs on.
+    # Handed over per reading rather than through one shared bag: the pages
+    # make different arguments and need different numbers, and a context that
+    # carried all of them would invite a page to state a figure it had not
+    # thought about.
+    facts: dict[str, Any] = {}
+    if found.slug == "wheel-and-scissors":
+        rings = stage.rings()
+        facts = {
+            "rings": rings,
+            "parts": stage.ring_parts(),
+            "cut_up_words": len(stage.cut_up_source_words(stage.CUT_UP_SOURCE)),
+            "cut_up_lines": len(stage.cut_up_source_lines(stage.CUT_UP_SOURCE)),
+        }
+    elif found.slug == "oulipo-machines":
+        positions, written = stage.queneau_inventory()
+        combinations = stage.queneau_combinations()
+        facts = {
+            "positions": positions,
+            "written": written,
+            "combinations": combinations,
+            "years": stage.years_of_reading(combinations),
+            "queneau_years": stage.years_of_reading(10**14),
+            "nouns_en": len(stage.pack("en").nouns()),
+            "nouns_de": len(stage.pack("de").nouns()),
+            "offset": stage.N_PLUS_7_OFFSET,
+        }
+    elif found.slug == "the-figure":
+        figure = stage.llull_figure_data()
+        facts = {
+            "letters": stage.llull_alphabet(),
+            "levels": stage.LLULL_LEVELS,
+            "glosses": stage.LLULL_GLOSSES,
+            "figure": figure,
+            "chambers": stage.llull_chamber_counts(),
+            # With no key the whole section is absent rather than disabled, the
+            # same way the Witz control is — a form that cannot be submitted is
+            # a promise the install cannot keep.
+            "ars_available": ars.available(),
+        }
+    elif found.slug == "the-automat":
+        lines, modules, flaps = stage.automat_inventory()
+        board = stage.flap_board()
+        facts = {
+            "lines": lines,
+            "modules": modules,
+            "flaps": flaps,
+            "exponent": stage.power_of_ten(board.combinations),
+            "columns": stage.BOARD_COLUMNS,
+            "flap_cap": stage.FLAP_CAP,
+        }
+    return page(
+        request,
+        f"reading/{found.slug}.html",
+        reading=found,
+        scenes=[stage.scene(name) for name in found.scenes],
+        stylesheets=["/static/reading.css"],
+        **facts,
+    )
 
 
 @app.get("/stage/denckring", response_class=HTMLResponse)
@@ -182,6 +272,11 @@ async def stage_denckring_act(request: Request) -> HTMLResponse:
         "_stage_word.html",
         word=word,
         pieces=pieces,
+        # The panel now shows the five parts the word came off, and it reads
+        # them out of the same slots the discs are drawn from rather than
+        # re-deriving them — one source for what is on the rings and what is
+        # printed beside them.
+        rings=stage.rings(),
         rings_report=rings_report,
         known_word=known_word,
         find_failed=find_failed,
@@ -343,23 +438,75 @@ async def stage_ideenwuerfeln_act(request: Request) -> HTMLResponse:
 #: else set up. The reel note that used to hang off this exact English pair —
 #: the catafalque-to-catacomb story — was cut in round three's cross-scene
 #: pass: it was prose about a journey the columns already run.
-N_PLUS_7_SOURCES: dict[Lang, str] = {
-    "en": "the cat sat on the table",
-    "de": "die Katze saß auf dem Tisch",
+#: What the scene offers to displace. Real passages, in both languages, all
+#: public domain — the rule's whole point is how much of a sentence survives it,
+#: and that is invisible on a five-word test sentence. "the cat sat on the
+#: table" is still here as the first English one, because *cat → catacomb* is
+#: the example this scene is known by and the one the design spec asks it to
+#: show; everything else is prose long enough to watch the grammar hold while
+#: the subject matter goes.
+N_PLUS_7_SOURCES: dict[Lang, list[tuple[str, str]]] = {
+    "en": [
+        ("the cat sat on the table", "the example, and cat → catacomb"),
+        (
+            "In the beginning God created the heaven and the earth. And the earth was "
+            "without form, and void; and darkness was upon the face of the deep.",
+            "Genesis 1, King James Bible, 1611",
+        ),
+        (
+            "Call me Ishmael. Some years ago, never mind how long precisely, having "
+            "little or no money in my purse, and nothing particular to interest me on "
+            "shore, I thought I would sail about a little and see the watery part of "
+            "the world.",
+            "Melville, Moby-Dick, 1851",
+        ),
+        (
+            "It is interesting to contemplate an entangled bank, clothed with many "
+            "plants of many kinds, with birds singing on the bushes, with various "
+            "insects flitting about, and with worms crawling through the damp earth.",
+            "Darwin, On the Origin of Species, 1859",
+        ),
+    ],
+    "de": [
+        ("die Katze saß auf dem Tisch", "das Beispiel"),
+        (
+            "Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er "
+            "sich in seinem Bett zu einem ungeheueren Ungeziefer verwandelt.",
+            "Kafka, Die Verwandlung, 1915",
+        ),
+        (
+            "Wer reitet so spät durch Nacht und Wind? Es ist der Vater mit seinem "
+            "Kind. Er hat den Knaben wohl in dem Arm, er faßt ihn sicher, er hält ihn "
+            "warm.",
+            "Goethe, Erlkönig, 1782",
+        ),
+        (
+            "Es war einmal mitten im Winter, und die Schneeflocken fielen wie Federn "
+            "vom Himmel herab, da saß eine Königin an einem Fenster, das einen Rahmen "
+            "von schwarzem Ebenholz hatte, und nähte.",
+            "Grimm, Schneewittchen, 1812",
+        ),
+    ],
 }
 
 
 @app.get("/stage/n_plus_7", response_class=HTMLResponse)
 def stage_n_plus_7(request: Request, chrome: str = "on") -> HTMLResponse:
     lang = stage.N_PLUS_7_DEFAULT_LANG
-    source = N_PLUS_7_SOURCES[lang]
+    source = N_PLUS_7_SOURCES[lang][0][0]
+    steps = stage.displacement(source, stage.N_PLUS_7_OFFSET, lang=lang)
+    looked_up = steps[0].word if steps else ""
     return page(
         request,
         "stage_n_plus_7.html",
         scene=stage.scene("n_plus_7"),
         source=source,
-        steps=stage.displacement(source, 7, lang=lang),
+        steps=steps,
+        looked_up=looked_up,
+        entries=stage.dictionary_page(looked_up, stage.N_PLUS_7_OFFSET, lang),
         default_lang=lang,
+        offset=stage.N_PLUS_7_OFFSET,
+        reach=stage.N_PLUS_7_REACH,
         examples=N_PLUS_7_SOURCES,
         chrome_off=chrome == "off",
     )
@@ -382,8 +529,26 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     form = dict(await request.form())
     source = str(form.get("source", ""))
     lang = bench.as_lang(str(form.get("lang", "")))
-    produced = displace(source, stage.pack(lang), 7) if source else ""
-    report = denckring_check("n_plus_7", produced, source=source, lang=lang) if source else None
+    offset = stage.n_plus_7_offset(str(form.get("offset", "")))
+    produced = displace(source, stage.pack(lang), offset) if source else ""
+    # The offset travels into `check` too, not only into `displace`. The
+    # checker's own `offset` parameter is what decides which replacement it
+    # expects, so a scene that displaced by one and checked against seven
+    # would put a red verdict under a perfectly good N+1.
+    report = (
+        denckring_check("n_plus_7", produced, source=source, lang=lang, offset=offset)
+        if source
+        else None
+    )
+    steps = stage.displacement(source, offset, lang=lang)
+    # Which noun the page is open at. The first the list knows, unless the
+    # viewer asked for another — the scene lists them all and lets you choose,
+    # because the whole argument is that the list decides the result and a page
+    # open at one arbitrary word does not show that.
+    wanted = str(form.get("word", ""))
+    looked_up = (
+        wanted if any(step.word == wanted for step in steps) else (steps[0].word if steps else "")
+    )
     return page(
         request,
         "_stage_displaced.html",
@@ -396,8 +561,22 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
         # source, the same way every other scene here reports what happened.
         unchanged=bool(source) and produced == source,
         # The reels show this source too, and the fragment swaps them back out of
-        # band; see `_stage_displaced.html`.
-        steps=stage.displacement(source, 7, lang=lang),
+        # band; see `_stage_displaced.html`. Built at the same offset the text
+        # was displaced by — a reel that walked seven while the result moved
+        # The open page is part of what this action changed, so it is swapped
+        # out of band from the source that was actually posted — every other
+        # scene on this stage re-renders everything its action touched, and a
+        # page still open at "cat" beside a panel displacing something else
+        # would be this scene's own version of describing what it did not do.
+        # Opened at the same offset the text was displaced by: a page showing a
+        # seven-entry journey beside a result that moved three would be a
+        # picture of a substitution that did not happen.
+        steps=steps,
+        looked_up=looked_up,
+        entries=stage.dictionary_page(looked_up, offset, lang),
+        offset=offset,
+        reach=stage.N_PLUS_7_REACH,
+        default_lang=lang,
     )
 
 
@@ -419,6 +598,9 @@ def stage_cent_mille_milliards(
         state=stage.queneau_state_to_text(state),
         lang=lang_,
         report=report,
+        ordinal=stage.queneau_ordinal(state, lang_),
+        address=stage.queneau_address(state),
+        combinations=stage.queneau_combinations(lang_),
         chrome_off=chrome == "off",
     )
 
@@ -444,6 +626,9 @@ def stage_cent_mille_milliards_set(request: Request, lang: str = "en") -> HTMLRe
         state=stage.queneau_state_to_text(state),
         lang=lang_,
         report=report,
+        ordinal=stage.queneau_ordinal(state, lang_),
+        address=stage.queneau_address(state),
+        combinations=stage.queneau_combinations(lang_),
     )
 
 
@@ -465,11 +650,14 @@ async def stage_cent_mille_milliards_deal(request: Request) -> HTMLResponse:
     )
     return page(
         request,
-        "_stage_poem.html",
+        "_stage_deal.html",
         poem=poem,
         state=stage.queneau_state_to_text(state),
         lang=lang_,
         report=report,
+        ordinal=stage.queneau_ordinal(state, lang_),
+        address=stage.queneau_address(state),
+        combinations=stage.queneau_combinations(lang_),
     )
 
 
@@ -512,6 +700,13 @@ async def stage_cent_mille_milliards_flip(request: Request) -> HTMLResponse:
         strip=poem.strips[position],
         state=stage.queneau_state_to_text(new_state),
         report=report,
+        # The address changes with every flip, so it travels back out of band
+        # beside the state field and the verdict. One digit moves; leaving the
+        # old one on screen would be this scene describing the poem before the
+        # flip while showing the poem after it.
+        ordinal=stage.queneau_ordinal(new_state, lang_),
+        address=stage.queneau_address(new_state),
+        combinations=stage.queneau_combinations(lang_),
     )
 
 
@@ -582,6 +777,14 @@ def stage_cut_up(request: Request, chrome: str = "on") -> HTMLResponse:
         "stage_cut_up.html",
         scene=stage.scene("cut_up"),
         source_lines=stage.cut_up_source_lines(source, lang=CUT_UP_LANG),
+        # The second page is on the table from first paint rather than
+        # appearing when the fold-in is picked. A page cannot be folded onto
+        # something that is not there yet, and a viewer who has not pressed
+        # "Fold-in" should still be able to see what the fold would be against.
+        page_b_lines=stage.cut_up_source_lines(stage.CUT_UP_SOURCE_B, lang=CUT_UP_LANG),
+        methods=stage.CUT_METHODS,
+        method=stage.CUT_METHODS[0],
+        max_column=stage.cut_up_max_column(),
         chrome_off=chrome == "off",
     )
 
@@ -610,8 +813,33 @@ async def stage_cut_up_act(request: Request) -> HTMLResponse:
     """
     form = await request.form()
     text = str(form.get("text", ""))
-    report = denckring_check("cut_up", text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE)
-    return page(request, "_stage_cutup.html", report=report, text=text)
+    method = stage.cut_method(str(form.get("method", "")))
+    if method.procedure is None:
+        # The word bag, and the only place on the stage where the honest
+        # answer is that there is no answer. `dada_poem` is catalogued
+        # `checkability: none`: every order a bag can produce is a correct
+        # draw, so there is no property a report could hold this text
+        # against. Checking it against `cut_up` instead — the same words,
+        # rearranged, which it *would* pass — would be a verdict about a
+        # method the viewer did not perform.
+        return page(request, "_stage_cutup.html", report=None, method=method, text=text)
+    if method.id == "fold":
+        report = denckring_check(
+            method.procedure, text, lang=CUT_UP_LANG, source=stage.fold_in_source()
+        )
+    elif method.id == "column":
+        report = denckring_check(
+            method.procedure,
+            text,
+            lang=CUT_UP_LANG,
+            source=stage.CUT_UP_SOURCE,
+            column=stage.cut_up_column(str(form.get("column", ""))),
+        )
+    else:
+        report = denckring_check(
+            method.procedure, text, lang=CUT_UP_LANG, source=stage.CUT_UP_SOURCE
+        )
+    return page(request, "_stage_cutup.html", report=report, method=method, text=text)
 
 
 @app.get("/stage/llull_figure", response_class=HTMLResponse)
@@ -897,6 +1125,66 @@ async def load_corpus(request: Request, procedure_id: str) -> HTMLResponse:
         loaded_entries=chosen.entries if chosen else 0,
         loaded_style=chosen.style if chosen else witz.DEFAULT_REGISTER,
         problem=problem,
+    )
+
+
+@app.post("/p/llull_figure/ars", response_class=HTMLResponse)
+async def read_the_chamber(request: Request) -> HTMLResponse:
+    """One question put to the fourth figure. Not a verdict — see explorer.ars.
+
+    In the bench's namespace, beside `/p/{procedure_id}/witz`, and rendered onto
+    the *reading* page rather than onto scene seven. That is a measurement
+    rather than a preference: the scene's content already reaches 677 of its 720
+    pixels and `.stage` is `overflow: hidden`, so a form and a five-row table
+    added to it would be clipped without saying so. It also settles the honesty
+    risk the design spec names — a model's reading cannot appear in a capture
+    beside a real verdict if it cannot appear in a capture at all.
+
+    The chamber that comes back is validated against the figure's own letters
+    before anything is rendered from it, and the six readings beside it are
+    `stage.llull_readings`, the same call the scene's own panel makes. So the
+    terms the arguments are built from are the figure's, read off the figure.
+    """
+    form = dict(await request.form())
+    session = ars.interrogate(
+        str(form.get("question", "")),
+        alphabet=stage.llull_prompt_alphabet(),
+        letters=stage.llull_alphabet(),
+    )
+    return page(
+        request,
+        "_stage_ars.html",
+        session=session,
+        problem=session.problem,
+        readings=stage.llull_readings(list(session.chamber)) if session.chamber else [],
+    )
+
+
+@app.post("/p/{procedure_id}/witz/stream")
+async def read_witz_streamed(request: Request) -> StreamingResponse:
+    """The same reading as `/witz`, in the pieces it arrives in.
+
+    Plain text, not HTML and not htmx: the scene's own script reads the body as
+    it comes and puts each piece on the page. The paragraph takes the better
+    part of half a minute, and the panel used to show nothing at all for the
+    whole of it, which reads as a broken bench rather than a slow one.
+
+    `/witz` stays exactly as it was. It is what a viewer with no JavaScript
+    gets, and it is what the disclaimer test drives — a second path is only
+    honest if the first still works.
+    """
+    form = dict(await request.form())
+    return StreamingResponse(
+        witz.stream(
+            str(form.get("throw", "")),
+            headword=str(form.get("headword", "")),
+            lang=str(form.get("lang", "en")),
+            register=str(form.get("style", witz.DEFAULT_REGISTER)),
+        ),
+        media_type="text/plain; charset=utf-8",
+        # Nginx and friends buffer a streamed response into one lump by
+        # default, which would restore the wait this route exists to remove.
+        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-store"},
     )
 
 

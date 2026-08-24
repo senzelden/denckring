@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Queneau · B · The address</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .top { display:flex; align-items:flex-start; gap:3rem; margin-top:1rem; }
+  .addr { flex:none; }
+  .dig { display:flex; gap:.6rem; }
+  .grp { display:flex; }
+  .d { width:2.5rem; height:3.3rem; display:flex; align-items:center; justify-content:center;
+       font-family:var(--mono); font-size:1.8rem; color:var(--paper); background:var(--case-deep);
+       border-right:1px solid rgba(0,0,0,.5); cursor:pointer; user-select:none;
+       transition:background 140ms ease; }
+  .grp .d:first-child { border-radius:2px 0 0 2px; } .grp .d:last-child { border-right:0; border-radius:0 2px 2px 0; }
+  .d:hover { background:#3a332c; }
+  .d.hit { background:var(--rubric); }
+  .cap { font-family:var(--mono); font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--lead); margin:0 0 .4rem; }
+  .num { font-family:var(--display); font-size:2.1rem; font-weight:600; margin:.7rem 0 0; font-variant-numeric:tabular-nums lining-nums; }
+  .poem { margin-top:1.3rem; }
+  .ln { display:flex; gap:.8rem; align-items:baseline; padding:.1rem 0; }
+  .ln em { font-family:var(--mono); font-size:.6rem; color:var(--lead); font-style:normal; width:1.4rem; text-align:right; }
+  .ln p { font-family:var(--display); font-size:1.02rem; margin:0; color:var(--ink); }
+  .ln.brk { border-bottom:1px solid var(--paper-shade); padding-bottom:.3rem; margin-bottom:.3rem; }
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Raymond Queneau &middot; Gallimard, 1961</p>
+  <h1>Cent mille milliards de poèmes</h1>
+  <div class="top">
+    <div class="addr">
+      <p class="cap">this poem, in fourteen digits</p>
+      <div class="dig" id="dig"></div>
+      <p class="num" id="num">1</p>
+      <p class="cap" style="margin-top:.2rem">of 100,000,000,000,000</p>
+      <div style="margin-top:1rem"><button id="deal">Deal</button></div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div class="poem" id="poem" style="margin-top:0"></div>
+      <p class="verdict yes">checked &mdash; every line is one of the ten these strips offer</p>
+    </div>
+  </div>
+  <p class="credit">The state of the book is a fourteen-digit numeral and the numeral is the poem's
+    place in the total. Press a digit to step it; the line beside it changes and nothing else does.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cent_mille_milliards', letter: 'b', name: 'The address',
+  claim: 'The index is the instrument. Fourteen digits, grouped where the sonnet breaks, and each '
+       + 'one is a control: press a digit and that line changes. A hundred million million stops '
+       + 'being a boast and becomes a number you can drive.',
+  note: 'Every other direction shows the poem and mentions the count. This one shows the '
+      + '<b>count</b> and lets the poem follow — the strongest reading of "a machine for '
+      + 'manufacturing poems", and the coldest. It is the only one where the reader can go '
+      + 'straight to a numbered poem and back to it.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const GAPS=[3,7,10];
+  const S = DATA.queneau, state = S.map(() => 0);
+  const dig = document.getElementById('dig'), poem = document.getElementById('poem');
+  const cells = [];
+  [[0,4],[4,8],[8,11],[11,14]].forEach(([a,b])=>{
+    const g=document.createElement('div'); g.className='grp';
+    for(let i=a;i<b;i++){
+      const d=document.createElement('div'); d.className='d'; d.textContent='0';
+      d.onclick=()=>{ state[i]=(state[i]+1)%S[i].length; paint(i); };
+      g.appendChild(d); cells.push(d);
+    }
+    dig.appendChild(g);
+  });
+  const lines = S.map((_, i) => {
+    const row=document.createElement('div'); row.className='ln'+(GAPS.includes(i)?' brk':'');
+    const em=document.createElement('em'); em.textContent=String(i+1);
+    const p=document.createElement('p'); row.append(em,p); poem.appendChild(row); return p;
+  });
+  function paint(hit) {
+    state.forEach((k,i)=>{ cells[i].textContent=String(k); lines[i].textContent=S[i][k]; });
+    let n=0; state.forEach((k,i)=>{ n=n*S[i].length+k; });
+    document.getElementById('num').textContent=(n+1).toLocaleString('en-GB');
+    cells.forEach((c,i)=>c.classList.toggle('hit', i===hit));
+    if (hit!==undefined) setTimeout(()=>cells[hit].classList.remove('hit'), 420);
+  }
+  document.getElementById('deal').onclick=()=>{ state.forEach((_,i)=>{state[i]=Math.floor(Math.random()*S[i].length);}); paint(); };
+  paint();
+})();
+</script></body></html>

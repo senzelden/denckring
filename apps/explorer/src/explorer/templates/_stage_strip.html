@@ -8,13 +8,25 @@
    fourteen forms, which is also what keeps every flip in step with
    whichever one, or whichever deal, or whichever set, last touched the
    poem. #}
-<div class="strip" id="strip-{{ strip.position }}" style="--i: {{ strip.position }}">
-  <p class="strip-line">{{ strip.line }}</p>
-  <form class="strip-flip" hx-post="/stage/cent_mille_milliards/flip"
-        hx-target="#strip-{{ strip.position }}" hx-swap="outerHTML"
-        hx-include="#poem-state, #poem-lang">
-    <input type="hidden" name="position" value="{{ strip.position }}">
-    <button type="submit" class="quiet strip-flip-button"
-            aria-label="Flip line {{ strip.position + 1 }}">flip</button>
-  </form>
-</div>
+{# The strip is the control. Queneau's book is a stack of cards you lift with
+   your fingers, and the scene had a small grey "flip" button beside each line
+   instead — a caption for a gesture rather than the gesture. The whole card is
+   the button now, which is why it is a `<button>` and not a `<div>` with a
+   handler: it is the thing that gets pressed, so it should be the thing a
+   keyboard tabs to and a screen reader announces.
+
+   The counter on the right is the strip's own position in its ten. It is the
+   one number that says what a press will do before you press it, and it is
+   what makes fourteen tens visible as fourteen tens. #}
+<form class="strip" id="strip-{{ strip.position }}" style="--i: {{ strip.position }}"
+      hx-post="/stage/cent_mille_milliards/flip"
+      hx-target="#strip-{{ strip.position }}" hx-swap="outerHTML"
+      hx-include="#poem-state, #poem-lang">
+  <input type="hidden" name="position" value="{{ strip.position }}">
+  <button type="submit" class="strip-card"
+          aria-label="Line {{ strip.position + 1 }}, showing {{ strip.index + 1 }} of
+                      {{ strip.alternatives | length }} — lift it to the next">
+    <span class="strip-line">{{ strip.line }}</span>
+    <span class="strip-count">{{ strip.index + 1 }}/{{ strip.alternatives | length }}</span>
+  </button>
+</form>

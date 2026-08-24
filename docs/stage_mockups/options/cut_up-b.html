@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cut-up · B · The blade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .sheet { position:relative; margin:1.2rem auto 0; width:860px; background:var(--paper);
+           box-shadow:0 3px 14px rgba(20,17,15,.10); padding:1.1rem 1.3rem; touch-action:none; }
+  .line { font-family:var(--mono); font-size:1.34rem; line-height:2.0; white-space:pre; margin:0; color:var(--ink); }
+  .thru { background:rgba(203,32,22,.16); }
+  .blade { position:absolute; z-index:4; }
+  .blade-v { top:0; bottom:0; width:16px; margin-left:-8px; cursor:col-resize; }
+  .blade-v::before { content:""; position:absolute; top:0; bottom:0; left:8px; border-left:1px solid var(--accent); }
+  .blade-h { left:0; right:0; height:16px; margin-top:-8px; cursor:row-resize; }
+  .blade-h::before { content:""; position:absolute; left:0; right:0; top:8px; border-top:1px solid var(--accent); }
+  .grip { position:absolute; width:15px; height:15px; }
+  .grip svg { display:block; }
+  .row { display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; margin-top:1rem; }
+  .read { font-family:var(--mono); font-size:.72rem; color:var(--lead); display:flex; gap:1.6rem; }
+  .read b { color:var(--ink); font-weight:500; }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Gysin and Burroughs &middot; Minutes to Go, 1960</p>
+  <h1>Cut-up</h1>
+  <div class="sheet" id="sheet">
+    <div id="page"></div>
+    <div class="blade blade-v" id="bv"><span class="grip" style="top:-19px;left:1px">
+      <svg width="14" height="14" viewBox="0 0 14 14"><g fill="none" stroke="#cb2016" stroke-width="1.2">
+      <circle cx="3" cy="11" r="2"/><circle cx="11" cy="11" r="2"/><path d="M4.4 9.6 11 2M9.6 9.6 3 2"/></g></svg></span></div>
+    <div class="blade blade-h" id="bh"><span class="grip" style="left:-19px;top:1px">
+      <svg width="14" height="14" viewBox="0 0 14 14"><g fill="none" stroke="#cb2016" stroke-width="1.2">
+      <circle cx="3" cy="11" r="2"/><circle cx="11" cy="11" r="2"/><path d="M4.4 9.6 11 2M9.6 9.6 3 2"/></g></svg></span></div>
+  </div>
+  <div class="row">
+    <p class="read"><span>Down <b id="rv">—</b></span><span>Across <b id="rh">—</b></span></p>
+    <div><button id="go">Cut it</button> <button id="fresh" class="quiet">Fresh sheet</button></div>
+  </div>
+  <p class="verdict yes" id="verdict"></p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cut_up', letter: 'b', name: 'The blade',
+  claim: 'One page, filling the stage, and two real blades with real scissor grips. Nothing else '
+       + 'is on screen. The cut is the whole scene and where you put it is the whole decision.',
+  note: 'The quietest of the three and the truest to the gesture: you line the scissors up, then '
+      + 'you cut. It gives up the <b>other three techniques</b> and any count, and the panel that '
+      + 'held them is gone — which is either the point or the loss, depending on whether the scene '
+      + 'is meant to teach the family or perform the one.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const LINES = DATA.cutup.split('\n');
+  const page = document.getElementById('page'), sheet = document.getElementById('sheet');
+  const bv = document.getElementById('bv'), bh = document.getElementById('bh');
+  LINES.forEach((l) => { const p = document.createElement('p'); p.className = 'line'; page.appendChild(p);
+    [...l].forEach((ch) => { const s = document.createElement('span'); s.textContent = ch; p.appendChild(s); }); });
+  const rows = [...page.querySelectorAll('.line')];
+  let x = 0, gap = 3;
+  const gaps = () => rows.slice(1).map((r) => r.offsetTop - 4);
+  function draw() {
+    bv.style.left = x + 'px';
+    bh.style.top = gaps()[gap - 1] + 'px';
+    let through = 0;
+    rows.forEach((r) => {
+      let hit = false;
+      let run = [];
+      [...r.children].forEach((s) => { s.classList.remove('thru'); });
+      // a word is a run of non-space spans; mark the one the blade stands in
+      [...r.children].forEach((s, i) => {
+        const isSpace = s.textContent === ' ';
+        if (!isSpace) run.push(s);
+        if (isSpace || i === r.children.length - 1) {
+          const l = run[0] && run[0].offsetLeft, w = run.length && (run[run.length - 1].offsetLeft + run[run.length - 1].offsetWidth);
+          if (run.length && x > l + 1 && x < w - 1) { run.forEach((n) => n.classList.add('thru')); hit = true; }
+          run = [];
+        }
+      });
+      if (hit) through++;
+    });
+    document.getElementById('rv').textContent = through ? 'through ' + through + ' word' + (through === 1 ? '' : 's') : 'in a gap on every line';
+    document.getElementById('rh').textContent = 'after line ' + gap + ' of ' + rows.length;
+  }
+  const start = () => { const r = sheet.getBoundingClientRect(); return r; };
+  let dragging = null;
+  bv.addEventListener('pointerdown', (e) => { dragging = 'v'; bv.setPointerCapture(e.pointerId); });
+  bh.addEventListener('pointerdown', (e) => { dragging = 'h'; bh.setPointerCapture(e.pointerId); });
+  addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const r = start();
+    if (dragging === 'v') x = Math.max(0, Math.min(r.width, e.clientX - r.left));
+    else {
+      const ys = gaps(), want = e.clientY - r.top;
+      let best = 0; ys.forEach((y, i) => { if (Math.abs(y - want) < Math.abs(ys[best] - want)) best = i; });
+      gap = best + 1;
+    }
+    draw();
+  });
+  addEventListener('pointerup', () => { dragging = null; });
+  document.getElementById('go').onclick = () => {
+    const words = DATA.cutup.split(/\s+/).filter(Boolean).length;
+    const v = document.getElementById('verdict');
+    const clean = document.getElementById('rv').textContent.startsWith('in a gap');
+    v.className = 'verdict ' + (clean ? 'yes' : 'no');
+    v.textContent = clean
+      ? 'checked — every one of ' + words + ' words across the join is the page’s own'
+      : 'checked — the blade went through a word; the pieces across the join are not the page’s own';
+  };
+  document.getElementById('fresh').onclick = () => { document.getElementById('verdict').textContent = ''; };
+  requestAnimationFrame(() => { x = sheet.getBoundingClientRect().width / 2; draw(); });
+})();
+</script>
+</body>
+</html>

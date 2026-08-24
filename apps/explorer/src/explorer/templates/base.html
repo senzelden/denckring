@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <title>{% block title %}denckring explorer{% endblock %}</title>
-{% set stylesheets = [] %}
+{# Bench pages pass nothing and get `explorer.css` alone, exactly as before.
+   A route that needs a sheet of its own hands one in — the readings do, the
+   way `stage.html` names `stage.css` for the scenes. Read on the right-hand
+   side before the assignment takes effect, so this is the context value or
+   the empty list, never a recursive reference to itself. #}
+{% set stylesheets = stylesheets | default([], true) %}
 {% include "_head.html" %}
 </head>
 <body>

@@ -1,0 +1,18 @@
+{# Two different absences, answered by one page, because to a reader arriving
+   from a link they are the same thing: there is nothing here to read.
+
+   A scene with no reading is not a gap waiting to be filled. The word ladder
+   and Ideenwürfeln say what they are on the scene itself; a companion page
+   with nothing to add would be furniture. #}
+{% extends "base.html" %}
+{% block title %}No reading — denckring{% endblock %}
+{% block main %}
+<a class="crumb" href="/stage">← The stage</a>
+<section class="sheet">
+  <h2>No reading behind “{{ slug }}”</h2>
+  <p>Either there is no scene by that name, or that scene carries its whole argument
+    on its own face. Only four of the eight have enough history behind them to be
+    worth a page: the rings and the blades, the two Oulipo machines, Llull's figure,
+    and the Automat.</p>
+</section>
+{% endblock %}

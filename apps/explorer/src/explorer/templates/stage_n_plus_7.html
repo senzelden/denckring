@@ -6,132 +6,129 @@
   <h1>{{ scene.title }}</h1>
 </header>
 <div class="n7-stage scene-split">
-  <div id="n7-reels" class="scene-figure">
-    {% include "_stage_reels.html" %}
+  {# The list, open at one of the source's own nouns. Swapped out of band by
+     every displacement, so the page and the panel can never describe different
+     transformations. #}
+  <div id="n7-book" class="scene-figure">
+    {% include "_stage_dictionary.html" %}
   </div>
   <div class="control-panel">
-    <form class="actions" hx-post="/stage/n_plus_7/act" hx-target="#displaced" hx-swap="innerHTML">
+    <form class="actions" id="n7-form" hx-post="/stage/n_plus_7/act"
+          hx-target="#displaced" hx-swap="innerHTML">
       <div class="scene-field n7-source-field">
         <label for="source-field">Source</label>
-        <input id="source-field" type="text" name="source" value="{{ source }}">
+        {# A textarea, not a one-line input: the sources are real passages now,
+           and the rule's whole point is how much of a sentence survives it,
+           which five words cannot show. #}
+        <textarea id="source-field" name="source" rows="3">{{ source }}</textarea>
       </div>
       <div class="n7-controls-row">
         <span class="scene-field">
         <label for="lang-select">Language</label>
-        {# `data-sync`: refill the source field from the chosen language's own
-           example sentence (see `_stage_sync.html`, and app.py's
-           `N_PLUS_7_SOURCES` for where the sentences come from). #}
-        <select id="lang-select" name="lang" data-sync="source-field:example">
-          <option value="en" data-example="{{ examples.en }}"
-                  {% if default_lang == "en" %}selected{% endif %}>English</option>
-          <option value="de" data-example="{{ examples.de }}"
-                  {% if default_lang == "de" %}selected{% endif %}>German</option>
+        <select id="lang-select" name="lang">
+          <option value="en" {% if default_lang == "en" %}selected{% endif %}>English</option>
+          <option value="de" {% if default_lang == "de" %}selected{% endif %}>German</option>
         </select>
+        </span>
+        {# The offset the procedure has always taken by parameter and this scene
+           showed as a list of seven. A slider, because the point is that N+7 is
+           a *family* — something you sweep, not something you pick from a menu.
+           Fifteen each way; `stage.N_PLUS_7_REACH` says why, and why zero is
+           reachable rather than skipped. #}
+        <span class="scene-field n7-offset">
+        <label for="offset-range">N +</label>
+        <input id="offset-range" type="range" name="offset" min="-{{ reach }}"
+               max="{{ reach }}" step="1" value="{{ offset }}"
+               aria-describedby="offset-now">
+        <output id="offset-now" for="offset-range">{{ "%+d" | format(offset) }}</output>
         </span>
         <button type="submit">Displace it</button>
       </div>
+      {# Which passage to run it on. Real texts, both languages, all public
+         domain — see `N_PLUS_7_SOURCES` for why a five-word test sentence was
+         not enough to show what the rule does.
+
+         Both languages' passages are rendered, and the toggle shows one set.
+         Server-rendering only the chosen language's left the German list
+         sitting under four English passages until the next round trip, which
+         is this scene's own version of a control describing what it is not
+         doing. #}
+      <div class="n7-examples">
+        {% for code in ["en", "de"] %}
+        {% for text, source_name in examples[code] %}
+        <button type="button" class="quiet n7-example" data-text="{{ text }}"
+                data-lang="{{ code }}" title="{{ text }}"
+                {% if code != default_lang %}hidden{% endif %}>{{ source_name }}</button>
+        {% endfor %}
+        {% endfor %}
+      </div>
     </form>
-    {# Unlike Ideenwürfeln's toggle, this one genuinely changes what comes back: it
-       picks which noun list `displace` walks, so English and German land on
-       different replacements for the same kind of source — see app.py's own
-       `stage_n_plus_7_act` for how `lang` reaches `displace`, `stage.displacement`
-       and `check` alike. #}
-    {% include "_stage_sync.html" %}
     <div id="displaced" class="displaced-area"></div>
+    {# The only interactive scene on this stage that carried no credit at all,
+       which on this one is a gap rather than an omission: the word list is not
+       a detail of the apparatus, it is the other half of the constraint. A
+       different list is a different transformation on the same text, in the
+       way a Denckring with different rings is a different device. #}
+    <p class="scene-credit">The list is the other half of the rule &mdash; Open English
+      WordNet 2024 (CC BY 4.0) for English, Wikidata Lexemes (CC0) for German, both
+      vendored and never fetched.</p>
   </div>
 </div>
 <script>
-// Each column is a reel: every neighbour the noun passes on its way to the
-// replacement, stacked one per row, with one blank spacer row on each end
-// (the viewport shows three) so the reel can start and end centred on the
-// read line rather than pinned to an edge. Sliding it is one `translateY`
-// on the track — the row height is measured from a real row rather than
-// assumed, so a font or spacing change elsewhere on the page can never
-// silently throw the maths off (see the stage's house rule on measuring
-// rather than estimating).
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Never resolves on `transitionend` alone — explorer.css's reduced-motion rule
-// sets `transition: none !important`, under which the transition this function
-// starts would never run and the event would never fire, stranding the reel
-// mid-journey; a backgrounded tab or an interrupted transition can drop the
-// event too. So reduced motion is handled explicitly, before any transition is
-// ever started, by jumping straight to the landing row with no motion at all;
-// otherwise a fallback timer, sized to the transition's own duration plus a
-// little slack, resolves the same way the event would — whichever comes first,
-// guarded so only one of them actually finishes the journey.
+// Two small things, and no animation at all.
 //
-// Takes the track directly rather than a button: there is no button any
-// more (see `playReels` below) and no replay affordance to guard against a
-// second click, since each column now plays exactly once, on its own,
-// whenever a fresh reel renders.
-function travelColumn(track) {
-  const rows = track.querySelectorAll('.n7-row');
-  const rowHeight = rows[0].getBoundingClientRect().height;
-  const target = Number(track.dataset.target);
-  const distance = target * rowHeight;
+// The reel this scene used to carry needed a script to run it: measured row
+// heights, a stagger, a reduced-motion branch and an out-of-band replay hook.
+// An open page needs none of that — it is a list, rendered by the server, and
+// the only motion left is the one the browser gives a range input.
 
-  if (prefersReducedMotion()) {
-    track.style.transition = 'none';
-    track.style.transform = `translateY(-${distance}px)`;
-    return;
-  }
-
-  let settled = false;
-  const settle = () => {
-    if (settled) return;
-    settled = true;
-    track.removeEventListener('transitionend', onEnd);
-    clearTimeout(fallback);
-    track.style.transition = 'none';
+// The slider's own reading, beside it, while it is being dragged. `input`
+// rather than `change`, so the number moves under the finger; the displacement
+// itself still waits for the button, because every step of a sweep would be a
+// round trip and a check.
+(() => {
+  const range = document.getElementById('offset-range');
+  const now = document.getElementById('offset-now');
+  const show = () => {
+    const n = Number(range.value);
+    now.textContent = (n >= 0 ? '+' : '') + n;
   };
-  const onEnd = (evt) => {
-    if (evt.propertyName === 'transform') settle();
-  };
-  track.addEventListener('transitionend', onEnd);
-  // Every noun in this scene's fixed sentence travels the same eight-entry
-  // window (the offset is fixed at 7), but the duration still scales with
-  // distance rather than being hard-coded to that one case.
-  const duration = Math.min(1400, 260 + target * 90);
-  track.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)`;
-  void track.getBoundingClientRect(); // flush, so the transition itself is not skipped
-  track.style.transform = `translateY(-${distance}px)`;
-  const fallback = setTimeout(settle, duration + 80);
-}
+  range.addEventListener('input', show);
+  show();
+})();
 
-// The sentence displaces left to right, one noun after another, rather than
-// every reel resolving together — the brief's own complaint about the old
-// per-column buttons, which nothing stopped a viewer from firing all at
-// once. 350ms between columns keeps three nouns landing well inside two
-// seconds (890ms of travel each, at this scene's fixed offset of 7 — see
-// `travelColumn`'s own duration line), short enough to loop.
-const N7_STAGGER_MS = 350;
-
-function playReels(container) {
-  container.querySelectorAll('.n7-track').forEach((track, index) => {
-    if (prefersReducedMotion()) {
-      // Every word at its landing immediately, with no stagger either — a
-      // delay a viewer cannot see resolve is just a wait, not a courtesy.
-      travelColumn(track);
-    } else {
-      setTimeout(() => travelColumn(track), index * N7_STAGGER_MS);
-    }
-  });
-}
-
-playReels(document.getElementById('n7-reels'));
-
-// The reels are swapped out of band whenever a new source is displaced (see
-// `_stage_displaced.html`) — `htmx:oobAfterSwap` fires once per such region,
-// with the swapped element itself as `evt.target`, which is the one place a
-// freshly rendered set of columns can start its own journey; nothing else
-// would ever call `playReels` on them.
-document.body.addEventListener('htmx:oobAfterSwap', (evt) => {
-  if (evt.target.id !== 'n7-reels') return;
-  playReels(evt.target);
+// The example passages. They fill the source box and nothing else — pressing
+// one is choosing what to displace, not displacing it, so the scene does not
+// move until the button is pressed and a viewer can read the passage first.
+document.addEventListener('click', (evt) => {
+  const button = evt.target.closest && evt.target.closest('.n7-example');
+  if (!button) return;
+  const field = document.getElementById('source-field');
+  if (field) field.value = button.dataset.text;
 });
+
+// And the toggle shows that language's passages. Both sets are on the page;
+// this is which of them is offered. Without it the German list sat under four
+// English passages until the next round trip — a control describing what it
+// was not doing, which is the one thing this stage keeps insisting on.
+(() => {
+  const select = document.getElementById('lang-select');
+  const show = () => {
+    document.querySelectorAll('.n7-example').forEach((button) => {
+      button.hidden = button.dataset.lang !== select.value;
+    });
+    // And the source box follows, unless somebody has typed in it: an English
+    // passage displaced through the German list is a real thing to want, but
+    // it is not what pressing "German" is asking for.
+    const first = document.querySelector('.n7-example[data-lang="' + select.value + '"]');
+    const field = document.getElementById('source-field');
+    if (first && field && !field.dataset.touched) field.value = first.dataset.text;
+  };
+  document.getElementById('source-field').addEventListener('input', (evt) => {
+    evt.target.dataset.touched = 'true';
+  });
+  select.addEventListener('change', show);
+})();
 </script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}

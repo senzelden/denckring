@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Ideenwürfeln · A · The slips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .head{display:flex;gap:.6rem;align-items:flex-end;margin-top:.9rem}
+  .head label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);display:block;margin-bottom:.2rem}
+  .head input{width:13rem;font-family:var(--display);font-size:1rem;padding:.42rem .6rem;border:1px solid var(--case-lip);border-radius:2px;background:var(--paper)}
+  .table{position:relative;height:430px;margin-top:1rem}
+  .slip{position:absolute;width:290px;background:#f2ecdd;border-left:3px solid var(--rubric);
+        padding:.55rem .7rem;box-shadow:0 3px 10px rgba(20,17,15,.16);opacity:0;
+        animation:land .48s cubic-bezier(.34,1.56,.64,1) forwards}
+  @keyframes land{from{opacity:0;transform:translateY(-16px) rotate(var(--r)) scale(.97)}
+                  to{opacity:1;transform:translateY(0) rotate(var(--r)) scale(1)}}
+  .slip p{font-family:var(--display);font-style:italic;font-size:.9rem;line-height:1.45;margin:0;color:var(--ink)}
+  .slip em{display:block;font-family:var(--mono);font-style:normal;font-size:.54rem;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--lead);margin-top:.35rem}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Jean Paul &middot; notebook, February 1795</p>
+  <h1>Ideenwürfeln</h1>
+  <div class="head">
+    <div><label for="h">Headword</label><input id="h" value="Licht"></div>
+    <button id="throw">Throw</button>
+  </div>
+  <div class="table" id="table"></div>
+  <p class="credit">Excerpts from distant fields, filed under one headword, thrown together on a
+    table. No corpus ships with this project &mdash; these are stand-ins.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'ideenwuerfeln',letter:'a',name:'The slips',
+ claim:'Cards from the excerpt books falling onto a table under one headword — the physical act '
+     + 'the notebook describes. The collision is the point and the scene does nothing else.',
+ note:'This scene has no mockup and, on any machine but the author’s, <b>no corpus</b>: it renders '
+    + 'a placeholder. So all three directions here are sketches of what it would be with one, and '
+    + 'this is the most literal — slips, thrown, landing.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const POOL=[
+  ['The nucleation of ice begins at a defect, never in clean water.','arXiv · condensed matter'],
+  ['Das Licht der Kerze bewegt sich, wenn niemand die Tür geöffnet hat.','Jean Paul · Exzerpte'],
+  ['A lighthouse keeper logs the hour the lamp is lit, not the hour it is seen.','maritime record, 1871'],
+  ['Photons arrive one at a time and the interference pattern still forms.','arXiv · quantum optics'],
+  ['Der Blitz erhellt den Hof, und danach ist es dunkler als zuvor.','Jean Paul · Exzerpte'],
+  ['The retina reports change, not brightness; a steady image fades.','physiology, 1963'],
+ ];
+ function throwIt(){
+  const t=document.getElementById('table'); t.textContent='';
+  const pick=POOL.slice().sort(()=>Math.random()-.5).slice(0,4);
+  pick.forEach((s,i)=>{
+   const d=document.createElement('div'); d.className='slip';
+   d.style.left=(40+(i%2)*430+Math.random()*40)+'px';
+   d.style.top=(20+Math.floor(i/2)*180+Math.random()*24)+'px';
+   d.style.setProperty('--r',(Math.random()*2.4-1.2).toFixed(2)+'deg');
+   d.style.animationDelay=(i*150)+'ms';
+   const p=document.createElement('p'); p.textContent=s[0];
+   const e=document.createElement('em'); e.textContent=s[1];
+   d.append(p,e); t.appendChild(d);
+  });
+ }
+ document.getElementById('throw').onclick=throwIt; throwIt();
+})();
+</script></body></html>

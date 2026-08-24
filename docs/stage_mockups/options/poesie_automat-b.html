@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Automat · B · The board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .stage{padding:0;background:#0e0c0a}
+  .board{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:0 10px}
+  .ln{display:flex;justify-content:center}
+  .cell{width:17px;height:62px;line-height:62px;text-align:center;font-family:var(--mono);font-size:31px;
+        color:#f2e9d4;background:linear-gradient(#2f2b25 49%,#1c1916 51%);box-shadow:inset -1px 0 0 rgba(0,0,0,.55);position:relative}
+  .cell::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid rgba(0,0,0,.8)}
+  .hud{position:absolute;left:14px;bottom:10px;right:14px;display:flex;justify-content:space-between;
+       font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;color:#6b645a}
+  .hud .go{cursor:pointer;color:#c8b89a}
+</style></head><body>
+<main class="stage">
+  <div class="board" id="board"></div>
+  <div class="hud"><span id="addr"></span><span class="go" id="press">press &rarr;</span></div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'poesie_automat',letter:'b',name:'The board',
+ claim:'The board and nothing else, edge to edge, at the size a departures board actually is. No '
+     + 'kicker, no title, no panel — the poem fills the frame and the only chrome is one line of '
+     + 'hairline type along the bottom.',
+ note:'The most <b>recordable</b> of the three by a distance: a capture of this is the board '
+    + 'clattering and nothing to crop. It is also the one that tells a viewer nothing — no '
+    + 'Enzensberger, no date, no count, no verdict — so it works as a GIF and fails as a page.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const M=DATA.automat,COLS=71,LINES=6,PER=6,pos=M.map(()=>0);
+ const board=document.getElementById('board'),rows=[];
+ for(let l=0;l<LINES;l++){const ln=document.createElement('div');ln.className='ln';const cs=[];
+   for(let c=0;c<COLS;c++){const d=document.createElement('div');d.className='cell';ln.appendChild(d);cs.push(d);}
+   board.appendChild(ln);rows.push(cs);}
+ const line=(l)=>{const w=[];for(let m=0;m<PER;m++){const s=l*PER+m;w.push(M[s].flaps[pos[s]].toUpperCase());}
+   const t=w.join(' ');const p=Math.max(0,Math.floor((COLS-t.length)/2));
+   return (' '.repeat(p)+t).padEnd(COLS,' ').slice(0,COLS);};
+ function paint(){for(let l=0;l<LINES;l++){const t=line(l);rows[l].forEach((d,c)=>{d.textContent=t[c];});}
+   document.getElementById('addr').textContent=[0,1,2,3,4,5].map((l)=>pos.slice(l*PER,l*PER+PER).join('')).join(' ');}
+ document.getElementById('press').onclick=()=>{let s=0;
+   const t=setInterval(()=>{pos.forEach((_,i)=>{if(Math.random()<.7)pos[i]=Math.floor(Math.random()*M[i].flaps.length);});paint();
+     if(++s>13){clearInterval(t);pos.forEach((_,i)=>{pos[i]=Math.floor(Math.random()*M[i].flaps.length);});paint();}},110);};
+ paint();
+})();
+</script></body></html>

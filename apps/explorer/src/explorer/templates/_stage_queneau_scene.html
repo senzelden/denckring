@@ -8,6 +8,7 @@
    `#poem-lang` inside `_stage_poem.html` that every flip form reads by
    `hx-include` — so a flip or a deal on the German strips can never be run
    against the English source underneath them. #}
+<div class="queneau-column">
 <div id="poem" class="poem">
   {% include "_stage_poem.html" %}
 </div>
@@ -45,3 +46,11 @@
   <p class="scene-credit">The machine is Queneau's, the strips are not &mdash; his ten
     sonnets are still in copyright.</p>
 </div>
+</div>
+{# The right-hand two thirds of this stage were empty at every state. What
+   fills them is not a control panel — this scene deliberately has none — but
+   the poem's own index: `stage.queneau_ordinal`, which is the fourteen strip
+   positions read as the digits they are. It is the count beside it made
+   turnable, and it is the one number here nobody has an intuition for until
+   they watch a digit move under their own hand. #}
+{% include "_stage_address.html" %}

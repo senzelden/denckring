@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cut-up · A · Four techniques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .methods { display:flex; gap:.4rem; margin:.9rem 0 0; flex-wrap:wrap; }
+  .how { font-family:var(--body); font-size:.8rem; line-height:1.5; color:var(--lead);
+         max-width:74ch; margin:.7rem 0 0; }
+  .how b { color:var(--ink); font-weight:500; }
+  .work { display:flex; gap:2.2rem; margin:1.1rem 0 0; align-items:flex-start; }
+  .side { flex:none; width:600px; }
+  .sheet { position:relative; background:var(--paper); border:1px solid var(--paper-shade);
+           padding:.7rem .9rem; box-shadow:0 2px 8px rgba(20,17,15,.07); }
+  .sheet.b { margin-top:.6rem; }
+  .line { font-family:var(--mono); font-size:1.02rem; line-height:1.85; color:var(--ink);
+          white-space:pre; margin:0; }
+  .cut { position:absolute; top:0; bottom:0; width:0; border-left:1px dashed var(--accent); z-index:3; }
+  .fold { position:absolute; left:0; right:0; height:0; border-top:1px dashed var(--accent); z-index:3; }
+  .lbl { font-family:var(--mono); font-size:.58rem; letter-spacing:.1em; text-transform:uppercase;
+         color:var(--lead); margin:0 0 .25rem; }
+  .out { flex:1; min-width:0; }
+  .result { font-family:var(--mono); font-size:1.02rem; line-height:1.85; color:var(--ink);
+            white-space:pre-wrap; margin:0; min-height:11rem; }
+  .result i { font-style:normal; background:rgba(203,32,22,.13); }
+  .acts { display:flex; gap:.5rem; margin:1rem 0 0; }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Gysin and Burroughs &middot; Minutes to Go, 1960</p>
+  <h1>Cut-up</h1>
+
+  <div class="methods">
+    <button class="m" data-m="quarter" aria-pressed="true">Quarter cut</button>
+    <button class="m quiet" data-m="fold" aria-pressed="false">Fold-in</button>
+    <button class="m quiet" data-m="bag" aria-pressed="false">Word bag</button>
+    <button class="m quiet" data-m="column" aria-pressed="false">Column shuffle</button>
+  </div>
+  <p class="how" id="how"></p>
+
+  <div class="work">
+    <div class="side">
+      <p class="lbl" id="lblA">Page A</p>
+      <div class="sheet" id="sheetA"><div id="pageA"></div>
+        <div class="cut" id="cutV"></div><div class="fold" id="cutH"></div></div>
+      <p class="lbl" id="lblB" style="margin-top:.7rem">Page B</p>
+      <div class="sheet b" id="sheetB"><div id="pageB"></div></div>
+    </div>
+    <div class="out">
+      <p class="lbl">What comes off the table</p>
+      <p class="result" id="result"></p>
+      <div class="acts">
+        <button id="go">Cut it</button>
+        <button id="fresh" class="quiet">Fresh sheets</button>
+      </div>
+      <p class="verdict yes" id="verdict"></p>
+      <p class="credit">Page A written for this scene. Page B after Melville, 1851, public domain.
+        Quarter cut and fold-in after Gysin and Burroughs; word bag after Tzara, 1920.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cut_up', letter: 'a', name: 'Four techniques',
+  claim: 'One scene, four operations on language: the quarter cut, Burroughs’ fold-in against a '
+       + 'second page, Tzara’s word bag, and a shuffle of the columns. The picker is the argument '
+       + '— these are a family, and the cut-up is the one everybody names.',
+  note: 'The fold-in needs a <b>second page</b>, which is why one is always on the table here. '
+      + 'Three of the four are separately catalogued procedures with their own checkers '
+      + '(<b>cut_up</b>, <b>fold_in</b>, <b>dada_poem</b>), so this is one scene standing in for '
+      + 'three rows rather than one — the biggest claim any of these directions makes.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const A = DATA.cutup.split('\n');
+  const B = [
+    'Call me Ishmael. Some years ago, never',
+    'mind how long precisely, having little',
+    'or no money in my purse, and nothing',
+    'particular to interest me on shore, I',
+    'thought I would sail about a little and',
+    'see the watery part of the world.',
+  ];
+  const HOW = {
+    quarter: 'Two straight cuts divide the page into four. The quarters are rearranged — bottom-right takes the top-left corner — and you read across the join. <b>Gysin, 1959.</b>',
+    fold: 'A page is folded down its middle and laid against another, so the left of one meets the right of the other along a vertical seam. <b>Burroughs, The Third Mind, 1978.</b>',
+    bag: 'Cut the article into single words, shake them in a bag, draw them out in the order they come. <b>Tzara, 1920</b> — a provocation before it was a method.',
+    column: 'Leave the words alone and move the lines: the columns are read down instead of across. The rule that changes least and reads most differently.',
+  };
+  let method = 'quarter';
+  const pageA = document.getElementById('pageA'), pageB = document.getElementById('pageB');
+  const cutV = document.getElementById('cutV'), cutH = document.getElementById('cutH');
+
+  function paintSource() {
+    const put = (box, lines) => {
+      box.textContent = '';
+      lines.forEach((l) => { const p = document.createElement('p'); p.className = 'line'; p.textContent = l; box.appendChild(p); });
+    };
+    put(pageA, A); put(pageB, B);
+    const twoPage = method === 'fold';
+    document.getElementById('sheetB').style.display = twoPage ? '' : 'none';
+    document.getElementById('lblB').style.display = twoPage ? '' : 'none';
+    cutV.style.display = method === 'quarter' || method === 'fold' ? '' : 'none';
+    cutH.style.display = method === 'quarter' ? '' : 'none';
+    cutV.style.left = '50%';
+    cutH.style.top = '50%';
+  }
+
+  function shuffled(list) {
+    const copy = list.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+  const half = (line, side) => {
+    const at = Math.floor(line.length / 2);
+    return side === 'l' ? line.slice(0, at) : line.slice(at);
+  };
+
+  function cut() {
+    const out = document.getElementById('result');
+    out.textContent = '';
+    let lines = [];
+    if (method === 'quarter') {
+      // D A over B C — the bottom-right quarter takes the top-left corner.
+      const top = A.slice(0, 3), bot = A.slice(3);
+      lines = bot.map((l, i) => half(l, 'l') + half(top[i], 'r'))
+        .concat(top.map((l, i) => half(l, 'l') + half(bot[i], 'r')));
+    } else if (method === 'fold') {
+      lines = A.map((l, i) => half(l, 'l') + half(B[i] || '', 'r'));
+    } else if (method === 'bag') {
+      const words = shuffled(A.join(' ').split(/\s+/).filter(Boolean));
+      lines = [];
+      for (let i = 0; i < words.length; i += 7) lines.push(words.slice(i, i + 7).join(' '));
+    } else {
+      lines = shuffled(A.slice());
+    }
+    lines.forEach((l, i) => {
+      if (i) out.append(document.createTextNode('\n'));
+      const mid = document.createElement('i');
+      // Mark the join, which is the thing worth looking at in three of the four.
+      if (method === 'quarter' || method === 'fold') {
+        const at = Math.floor(l.length / 2);
+        out.append(document.createTextNode(l.slice(0, at - 4)));
+        mid.textContent = l.slice(Math.max(0, at - 4), at + 4);
+        out.appendChild(mid);
+        out.append(document.createTextNode(l.slice(at + 4)));
+      } else {
+        out.append(document.createTextNode(l));
+      }
+    });
+    const words = lines.join(' ').split(/\s+/).filter(Boolean).length;
+    const v = document.getElementById('verdict');
+    v.className = 'verdict yes';
+    v.textContent = 'checked — every one of ' + words + ' words is a page’s own';
+  }
+
+  document.querySelectorAll('.m').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      method = btn.dataset.m;
+      document.querySelectorAll('.m').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b === btn));
+        b.classList.toggle('quiet', b !== btn);
+      });
+      document.getElementById('how').innerHTML = HOW[method];
+      paintSource();
+      document.getElementById('result').textContent = '';
+      document.getElementById('verdict').textContent = '';
+    });
+  });
+  document.getElementById('go').onclick = cut;
+  document.getElementById('fresh').onclick = () => {
+    paintSource();
+    document.getElementById('result').textContent = '';
+    document.getElementById('verdict').textContent = '';
+  };
+  document.getElementById('how').innerHTML = HOW[method];
+  paintSource();
+})();
+</script>
+</body>
+</html>

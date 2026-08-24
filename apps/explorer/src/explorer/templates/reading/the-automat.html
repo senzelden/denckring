@@ -1,0 +1,84 @@
+{# Scene eight. The one scene whose figure is already finished and whose page
+   says almost nothing — the machine's whole history lives in comments.
+
+   This page is the least indebted to its mockup of the four. That mockup
+   credited the device as "nach Hans Magnus Enzensbergers Landsberger
+   Poesieautomat" and stopped; what the device file already records is more
+   specific in every direction, and the copyright position is the reason the
+   scene can exist at all. What is taken from the mockup is its furniture, and
+   that belongs on the scene rather than here. #}
+{% extends "reading/_shell.html" %}
+
+{% block kicker %}Landsberg am Lech &middot; 30 June – 2 July 2000{% endblock %}
+
+{% block body %}
+
+<section class="sheet">
+  <h2>The machine</h2>
+
+  <p class="reading-lede">Hans Magnus Enzensberger described a poetry automaton in 1974,
+    in <cite>Einladung zu einem Poesie-Automaten</cite>, and it was built for the
+    <cite>Lyrik am Lech</cite> festival twenty-six years later. It stood on a square in
+    Landsberg am Lech for three days. Press the button and an electromechanical split-flap
+    display of the railway-platform kind clatters into a six-line poem.</p>
+
+  <p>The structure is the part that transfers, and it is very simple:
+    {{ lines }} lines of {{ modules // lines }} modules, ten flaps on each. One press
+    selects one flap per module.</p>
+
+  <p class="reading-figure">
+    <b>10<sup>{{ exponent }}</sup></b>
+    <span>poems the board can show</span>
+  </p>
+
+  <p>That is not a rounded figure or an order of magnitude — it is exactly ten to the
+    {{ exponent }}, because {{ modules }} modules of ten alternatives multiply to nothing
+    else. The count on the scene is rendered as a power for that reason rather than as
+    thirty-seven digits nobody reads.</p>
+</section>
+
+<section class="sheet">
+  <h2>Why the words here are not his</h2>
+
+  <p>Enzensberger died in 2022. His word lists are in copyright until 2092, so none of them
+    is in this repository and none ever will be. The {{ flaps }} flaps the shipped
+    cartridge carries were written for this project, in the register the machine asks
+    for — an industrial German of stations, concrete, wire and weather — and the credit on
+    the scene says so in as many words rather than leaving a reader to assume otherwise.</p>
+
+  <p>What is Enzensberger's is the mechanism: six lines, six word-stores each, one grip
+    into each compartment, and a poem that is one draw out of a space too large to
+    exhaust. That is the thing the catalogue row describes and the thing the checker
+    verifies. Put different words on the flaps and it is the same machine, which is the
+    argument the second cartridge makes by existing.</p>
+
+  <p>The board is {{ columns }} columns wide, and that number is not a design choice
+    either: the longest flap runs to {{ flap_cap }} characters, six of them sit side by
+    side with five spaces between, and {{ columns }} is what that comes to. A board any
+    narrower would have to hyphenate a word the machine printed whole.</p>
+</section>
+
+<section class="sheet">
+  <h2>The precedent it names</h2>
+
+  <p>A device that holds a fixed inventory and draws one item per slot is
+    <a href="/stage/cent_mille_milliards">Queneau's book</a> with a motor in it, and the
+    resemblance is not accidental — Enzensberger knew the Oulipo's work. What the Automat
+    adds is that nobody has to turn anything. The strips in Queneau's book are lifted by a
+    reader who chooses; the flaps here are dealt by a machine on a square, to whoever is
+    standing in front of it. Both are the same wager the
+    <a href="/stage/denckring">rings</a> make, and the automaton is the version that has
+    stopped pretending an author is present.</p>
+</section>
+
+{% endblock %}
+
+{% block sources %}
+<p>Hans Magnus Enzensberger, <cite>Einladung zu einem Poesie-Automaten</cite>, conceived
+  1974; the machine was realised for <cite>Lyrik am Lech</cite> and stood in Landsberg am
+  Lech from 30 June to 2 July 2000. Structure and counts are read from the device file the
+  scene runs on.</p>
+<p>The {{ flaps }} alternatives on the shipped cartridge are original to this project and
+  are not Enzensberger's; the catalogue's <code>poesie_automat</code> row and the device
+  file both record that. The second cartridge is explorer-only and is never packaged.</p>
+{% endblock %}

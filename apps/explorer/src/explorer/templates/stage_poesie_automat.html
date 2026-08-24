@@ -29,6 +29,28 @@
    Not a `.scene-split`: 71 monospaced columns will not fit beside a panel, so
    the board takes the whole stage and the panel sits underneath. #}
 <div class="automat-stage">
+  {# The machine's own fascia. A split-flap board of this kind is not a screen
+     — it is a mechanism behind a plate with a name on it and a lamp that says
+     it is running — and the board here floated on the stage with nothing around
+     it. The lamp is not decoration: it is lit exactly while the flaps are
+     moving, from the same `clattering` flag the buttons are disabled by, so it
+     says the one thing the board cannot say about itself while it is a blur. #}
+  <div class="automat-fascia">
+    <p class="automat-plate"><i class="automat-lamp" id="automat-lamp" aria-hidden="true"></i>Poesie-Automat</p>
+    {# Which flap each of the thirty-six modules is showing, in six groups of
+       six — one group per line of the poem. This is the count in the panel made
+       legible: thirty-six modules of ten alternatives is a thirty-six digit
+       number, and 10^36 is not a quantity anybody has an intuition for until
+       they watch one digit change under their own hand.
+
+       On the fascia rather than under the board, and that is a measurement:
+       its own row cost this scene 747 pixels of the 720 `.stage` clips to,
+       which is the kind of overflow that says nothing and simply cuts the
+       credit off. `aria-hidden`, like the cells — the sliders already announce
+       the word each module shows, and thirty-six digits read out is not the
+       poem. #}
+    <p class="automat-address" id="automat-address" aria-hidden="true"></p>
+  </div>
   <div class="letter-board turnable-figure" id="flap-board" data-columns="{{ columns }}">
     {% for row in rows %}
     <div class="board-line" data-line="{{ row.number }}">
@@ -106,6 +128,11 @@
          valid. It goes through `releaseRead` now, the same gate and the same
          read a drag's own release goes through. #}
       <button type="button" id="automat-read">Read the board</button>
+      {# Off until asked. A board's clatter is the half of it a recording can
+         carry and a screenshot cannot, and it is also the half a browser will
+         not start without a gesture — so this is a button rather than a
+         setting, and the audio context is not built until it is pressed. #}
+      <button type="button" id="automat-sound" class="quiet" aria-pressed="false">Sound off</button>
     </form>
     <div class="automat-reading" id="automat-reading">
       {% include "_stage_flaps.html" %}
@@ -269,6 +296,9 @@ const noteEl = document.getElementById('cartridge-note');
 const kickerEl = document.getElementById('automat-kicker');
 const creditEl = document.getElementById('automat-credit');
 const switchEl = document.getElementById('cartridge-switch');
+const lampEl = document.getElementById('automat-lamp');
+const soundBtn = document.getElementById('automat-sound');
+const addressEl = document.getElementById('automat-address');
 const lineEls = Array.from(boardEl.querySelectorAll('.board-line'));
 
 function prefersReducedMotion() {
@@ -450,7 +480,63 @@ function write(element, character) {
 // is invisible for that reason rather than for being edge-on, and the cell's
 // own `perspective` and the leaves' `backface-visibility` are switched on by
 // this class only for the ~76ms a cell is actually turning.
+// ── the clatter ──────────────────────────────────────────────────────────
+//
+// A split-flap board is a sound before it is a picture: the thing that tells
+// you the departures have changed is the noise from across the concourse. The
+// scene had the flaps and none of it.
+//
+// Synthesised rather than sampled — one short burst of noise through a
+// bandpass, which is what a leaf hitting its stop is — so nothing has to be
+// fetched and there is no audio file to license. Off until asked, and the
+// audio context is not even built until then: browsers refuse to start one
+// without a gesture, and a scene that tried would log a warning on every load
+// for a feature nobody had turned on.
+let audio = null;
+let soundOn = false;
+let lastClick = 0;
+
+function startAudio() {
+  if (audio) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  audio = new Ctx();
+  // A tenth of a second of noise, decaying — the raw material every click is
+  // cut from. Built once; a fresh buffer per fold would allocate a megabyte a
+  // second across a full clatter.
+  audio.noise = audio.createBuffer(1, Math.floor(audio.sampleRate * 0.06), audio.sampleRate);
+  const data = audio.noise.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  }
+}
+
+// One leaf hitting its stop. Rate-limited hard, and that is not a nicety: a
+// press folds upwards of two hundred cells at once, and two hundred
+// simultaneous bursts is a bang rather than a clatter — and enough scheduled
+// nodes to stall the same main thread the folding is animated on.
+function click() {
+  if (!soundOn || !audio) return;
+  const now = performance.now();
+  if (now - lastClick < 22) return;
+  lastClick = now;
+  const at = audio.currentTime;
+  const source = audio.createBufferSource();
+  source.buffer = audio.noise;
+  const band = audio.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.value = 1700;
+  band.Q.value = 1.2;
+  const gain = audio.createGain();
+  gain.gain.setValueAtTime(0.05, at);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.045);
+  source.connect(band).connect(gain).connect(audio.destination);
+  source.start(at);
+  source.stop(at + 0.05);
+}
+
 function foldCell(cell, next, settling) {
+  click();
   write(cell.top, next);
   write(cell.backText, next);
   cell.el.classList.add('folding');
@@ -579,6 +665,33 @@ function refreshControls() {
   Array.from(switchEl.querySelectorAll('input')).forEach((input) => {
     input.disabled = blocked;
   });
+  // The lamp on the fascia says the mechanism is running, which is the one
+  // thing a board mid-clatter cannot say about itself: every cell is a blur
+  // and nothing on it is a word yet. Driven from `clattering` alone, not from
+  // `blocked` — a module held by a hand is not the machine running.
+  lampEl.classList.toggle('lit', clattering);
+  paintAddress();
+}
+
+// Which flap each module is showing, six groups of six. Repainted from
+// `positions` here because this is the one function every path that moves a
+// module already calls — a press, a hand-turn, a cartridge swap, a settle and
+// a refusal alike.
+function paintAddress() {
+  if (!addressEl) return;
+  const perLine = positions.length / LINES;
+  const wanted = positions.map(String).join('');
+  if (addressEl.dataset.shown === wanted) return;
+  addressEl.dataset.shown = wanted;
+  addressEl.textContent = '';
+  for (let line = 0; line < LINES; line++) {
+    const group = document.createElement('span');
+    group.textContent = positions
+      .slice(line * perLine, (line + 1) * perLine)
+      .map(String)
+      .join('');
+    addressEl.appendChild(group);
+  }
 }
 
 function announce(text) {
@@ -1066,6 +1179,20 @@ function fitBoard() {
 // The cells are already spelling what the server put in them, and the verdict
 // beside them is a real `check()` of that poem. Nothing to do here but make the
 // controls agree with the state and size the board to the stage.
+// The sound, wired last because it depends on nothing. Not part of
+// `refreshControls`: the clatter is a property of the viewer's preference, not
+// of whether the board is busy, and disabling it mid-press would cut the sound
+// off halfway through the very thing it exists for.
+soundBtn.addEventListener('click', () => {
+  startAudio();
+  // Started from a gesture, but a context can still come back suspended — a
+  // backgrounded tab, or a browser that wants the resume as its own call.
+  if (audio && audio.state === 'suspended') void audio.resume();
+  soundOn = !soundOn && Boolean(audio);
+  soundBtn.setAttribute('aria-pressed', String(soundOn));
+  soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
+});
+
 refreshControls();
 fitBoard();
 if (document.fonts && document.fonts.ready) {

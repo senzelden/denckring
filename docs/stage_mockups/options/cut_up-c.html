@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Cut-up · C · The table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .table { position:relative; height:520px; margin-top:.9rem; background:#efece4;
+           border:1px solid var(--paper-shade); border-radius:2px; overflow:hidden; }
+  .piece { position:absolute; background:var(--paper); box-shadow:0 2px 8px rgba(20,17,15,.22);
+           padding:.35rem .5rem; cursor:grab; user-select:none; }
+  .piece.dragging { cursor:grabbing; box-shadow:0 8px 22px rgba(20,17,15,.30); z-index:9; }
+  .piece p { font-family:var(--mono); font-size:.95rem; line-height:1.75; white-space:pre; margin:0; color:var(--ink); }
+  .src { position:absolute; top:.5rem; font-family:var(--mono); font-size:.56rem; letter-spacing:.1em;
+         text-transform:uppercase; color:var(--lead); }
+  .row { display:flex; justify-content:space-between; align-items:flex-end; margin-top:.8rem; gap:1rem; }
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Gysin and Burroughs &middot; Minutes to Go, 1960</p>
+  <h1>Cut-up</h1>
+  <div class="table" id="table"></div>
+  <div class="row">
+    <p class="credit">Two pages, cut into strips and thrown on a table. Drag any piece anywhere;
+      read whatever ends up next to whatever. Page A written for this scene, page B after
+      Melville, 1851, public domain.</p>
+    <div><button id="cut">Cut them up</button> <button id="tidy" class="quiet">Back to whole</button></div>
+  </div>
+  <p class="verdict yes" id="verdict"></p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cut_up', letter: 'c', name: 'The table',
+  claim: 'Two pages come apart into loose strips on a table and you push them around with your '
+       + 'hands. There is no blade and no join — the arrangement is the poem, and it is never '
+       + 'finished, which is closer to how the method was actually used than a single clean cut.',
+  note: 'The only direction where the reader <b>arranges</b> rather than triggers. It is also the '
+      + 'hardest to check honestly: a verdict wants a text read in an order, and a table has no '
+      + 'order until somebody says so — here it reads top to bottom, left to right, and says that '
+      + 'it is doing so.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const A = DATA.cutup.split('\n');
+  const B = ['Call me Ishmael. Some years ago,','never mind how long precisely,','having little or no money in my purse,',
+             'and nothing particular to interest me','on shore, I thought I would sail','and see the watery part of the world.'];
+  const table = document.getElementById('table');
+  function lay(cut) {
+    table.textContent = '';
+    const mk = (text, x, y, tag) => {
+      const d = document.createElement('div'); d.className = 'piece';
+      d.style.left = x + 'px'; d.style.top = y + 'px'; d.dataset.tag = tag;
+      const p = document.createElement('p'); p.textContent = text; d.appendChild(p);
+      table.appendChild(d); return d;
+    };
+    if (!cut) {
+      A.forEach((l, i) => mk(l, 40, 30 + i * 40, 'A'));
+      B.forEach((l, i) => mk(l, 640, 30 + i * 40, 'B'));
+    } else {
+      // every line halved, and the halves scattered
+      const bits = [];
+      A.concat(B).forEach((l, i) => {
+        const at = Math.floor(l.length / 2);
+        bits.push([l.slice(0, at), i < A.length ? 'A' : 'B']);
+        bits.push([l.slice(at), i < A.length ? 'A' : 'B']);
+      });
+      bits.forEach((bit, i) => {
+        const x = 30 + (i % 4) * 290 + (Math.random() * 40 - 20);
+        const y = 20 + Math.floor(i / 4) * 78 + (Math.random() * 26 - 13);
+        const d = mk(bit[0], Math.max(4, Math.min(1120, x)), Math.max(4, Math.min(430, y)), bit[1]);
+        d.style.transform = 'rotate(' + (Math.random() * 3 - 1.5).toFixed(2) + 'deg)';
+      });
+    }
+  }
+  let drag = null;
+  table.addEventListener('pointerdown', (e) => {
+    const p = e.target.closest('.piece'); if (!p) return;
+    const r = p.getBoundingClientRect(), t = table.getBoundingClientRect();
+    drag = { p, dx: e.clientX - r.left, dy: e.clientY - r.top, t };
+    p.classList.add('dragging'); p.setPointerCapture(e.pointerId);
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    drag.p.style.left = (e.clientX - drag.t.left - drag.dx) + 'px';
+    drag.p.style.top = (e.clientY - drag.t.top - drag.dy) + 'px';
+  });
+  addEventListener('pointerup', () => {
+    if (!drag) return;
+    drag.p.classList.remove('dragging'); drag = null; read();
+  });
+  function read() {
+    const bits = [...table.querySelectorAll('.piece')].map((p) => ({
+      x: parseFloat(p.style.left), y: parseFloat(p.style.top), t: p.textContent,
+    })).sort((a, b) => (Math.abs(a.y - b.y) > 22 ? a.y - b.y : a.x - b.x));
+    const words = bits.map((b) => b.t).join(' ').split(/\s+/).filter(Boolean).length;
+    const v = document.getElementById('verdict');
+    v.className = 'verdict yes';
+    v.textContent = 'checked — every one of ' + words + ' words is a page’s own, read top to bottom and left to right';
+  }
+  document.getElementById('cut').onclick = () => { lay(true); read(); };
+  document.getElementById('tidy').onclick = () => { lay(false); document.getElementById('verdict').textContent = ''; };
+  lay(false);
+})();
+</script></body></html>

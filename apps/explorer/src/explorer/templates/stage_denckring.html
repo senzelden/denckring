@@ -20,31 +20,28 @@
          data-default-index="{{ pieces[loop.index0] }}"></g>
       {% endfor %}
     </svg>
-    {# The step controls, one pair per disc, wired up by the shared
-       `hold_turn.js` — the same block scene seven carries, and the reason it
-       was written scene-agnostic. They are the keyboard path: real
-       `<button>`s a viewer can tab to and hold with Enter or Space, which is
-       what the drag on the discs themselves can never be.
+    {# The step controls that used to sit here are gone.
 
-       Labelled I to V, not by slot name: five German compound names
-       (`anfangsbuchstabe` is sixteen characters) would wrap this row onto a
-       second line and cost the stage its bottom margin, and this scene
-       already calls its discs by numeral — the rhyme panel below says "ring
-       II". The names are on each button's `aria-label`, where a screen
-       reader gets the real thing, and in the legend opposite. #}
-    <div class="hold-controls" id="ring-holds">
-      {% for slot in rings.slots %}
-      {% set ring_name = ['I', 'II', 'III', 'IV', 'V'][loop.index0] %}
-      <div class="hold-group" data-ring-index="{{ loop.index0 }}">
-        <span class="hold-label">{{ ring_name }}</span>
-        <button type="button" class="hold-btn" data-hold-ring="{{ loop.index0 }}"
-                data-hold-dir="-1"
-                aria-label="Turn the {{ slot.name }} disc back">&lsaquo;</button>
-        <button type="button" class="hold-btn" data-hold-ring="{{ loop.index0 }}"
-                data-hold-dir="1"
-                aria-label="Turn the {{ slot.name }} disc on">&rsaquo;</button>
-      </div>
-      {% endfor %}
+       Five numerals and ten arrows under the figure, and every one of them a
+       second way to do what the discs already do under a hand. They were the
+       keyboard path, so that is what had to be replaced rather than dropped:
+       a disc is focusable and takes the arrow keys directly now, which is
+       fewer controls and a better one — the thing you are turning is the thing
+       you press, and it names itself.
+
+       The Wortbuch below is what the space became. #}
+    <div class="wortbuch" id="wortbuch">
+      {# The control sits with the book it fills, not in the row of reads
+         across the stage. Two reasons, and the second is a measurement: a
+         fourth button wrapped that row onto a second line and took the scene
+         to 748 of the 720 it is clipped to. The first is that keeping is not
+         a read — it asks the server nothing. The word is already on the panel
+         and already checked, and what this records is the reader's judgement
+         of it, which is the one thing here no route could return. #}
+      <p class="wortbuch-head">Wortbuch
+        <button type="button" id="keep-word" class="quiet">Keep the word</button>
+        <span id="wortbuch-tally"></span></p>
+      <div class="wortbuch-kept" id="wortbuch-kept"></div>
     </div>
   </div>
   <div class="control-panel">
@@ -234,9 +231,6 @@ function refreshControls() {
   document.querySelectorAll('.ring-disc').forEach((disc) => {
     disc.setAttribute('aria-disabled', String(owned));
   });
-  document.querySelectorAll('#ring-holds .hold-btn').forEach((button) => {
-    button.disabled = owned;
-  });
 }
 
 // The one place `inert` is given back, so every path that hands the discs
@@ -262,11 +256,26 @@ function assemble() {
 
 function renderDial(ringIndex) {
   const r = rings[ringIndex];
+  // The cell furthest from the reading mark says the ring goes on, rather than
+  // showing one more part as if it stopped there. Two cells where the window
+  // is odd and no single slot sits opposite the mark; all five windows here
+  // are even, so in practice it is one apiece.
+  //
+  // These rings run to 120 parts and the widest window shows 24, so five
+  // sixths of `endbuchstabe` is off the figure at any moment — and nothing
+  // said so. A viewer could count what was drawn and be wrong about the device
+  // by a factor of five. Only where there is really more: the medial ring
+  // carries 12 and shows all 12, and putting an ellipsis on a complete ring
+  // would be the same lie in the other direction.
+  const elided = r.total > r.window;
+  const far = Math.floor(r.window / 2);
   for (let k = 0; k < r.window; k++) {
     const piece = label(r, (r.index + k) % r.total);
     const el = r.spokeEls[k];
-    el.textContent = piece === '' ? '–' : piece;
-    el.classList.toggle('blank', piece === '');
+    const edge = elided && (k === far || k === far + (r.window % 2 ? 1 : 0));
+    el.textContent = edge ? '…' : piece === '' ? '–' : piece;
+    el.classList.toggle('blank', !edge && piece === '');
+    el.classList.toggle('ring-part-more', Boolean(edge));
   }
 }
 
@@ -339,34 +348,26 @@ function microStep(ringIndex, duration, advance) {
 
 // ── Turning a disc by hand ───────────────────────────────────────────────
 //
-// Two gestures, one model. A step button held down repeats through
-// `hold_turn.js`'s `attach`; a finger or a mouse on the disc itself turns it
-// live through the same file's `attachDrag`. Both land here, both count as
-// "a disc is being turned by hand", and both leave the panel opposite in the
-// same honest state until the discs are at rest.
+// Three gestures, one model. A finger or a mouse drags the disc itself
+// through `hold_turn.js`'s `attachDrag`; a press on a word reports back as a
+// tap and brings that word to the mark; the arrow keys step a focused disc.
+// All three land here, all three count as "a disc is being turned by hand",
+// and all three leave the panel opposite in the same honest state until the
+// discs are at rest.
 
-// One step's animation, and the cadence a held button repeats at, per ring.
-// The shared default (260ms, then 200ms) is right for a ring a viewer can
-// cross in a few seconds; `endbuchstabe` has 120 parts, and at that rate a
-// full lap is nearly half a minute of holding. The three larger rings tick
-// faster and animate shorter to match — the two numbers have to move
-// together, because a step animation longer than the repeat queues steps
-// faster than they can land.
+// A dense ring turns further per gesture than a sparse one, so its steps
+// animate shorter to keep the figure reading at one speed rather than one
+// pace per ring.
+//
 // A free choice, not a derived one: these five rings hold 50, 60, 12, 120 and
 // 24 parts, so any threshold above 24 and at or below 50 gives the identical
 // partition — the three large rings fast, the two small ones at the shared
 // default. Named for what it is rather than left at 48, which is also the
 // count the plate prints for ring I and would read as arithmetic.
 const FAST_RING_MIN_PARTS = 48;
-const FAST_REPEAT_MS = 100;
-const SLOW_REPEAT_MS = 200;
 
 function isFastRing(ringIndex) {
   return rings[ringIndex].total >= FAST_RING_MIN_PARTS;
-}
-
-function repeatMsFor(ringIndex) {
-  return isFastRing(ringIndex) ? FAST_REPEAT_MS : SLOW_REPEAT_MS;
 }
 
 function stepMsFor(ringIndex) {
@@ -387,6 +388,46 @@ const SNAP_MS = 150;
 function renderLocalWord() {
   const el = document.querySelector('#word .word');
   if (el) el.textContent = rings.map((r) => label(r, r.index)).join('');
+  paintParts();
+}
+
+// The five parts the word on the panel came off, repainted from the discs
+// themselves.
+//
+// The server renders this line whenever it knows the positions — first paint,
+// "turn them for me", "find me one" — but the plain read branch of
+// `/stage/denckring/act` has never carried them, and has no reason to: the
+// client posted the word it had already assembled and knows exactly which
+// parts made it. So the breakdown vanished from the panel on every hand-turn
+// until this existed, which is a line that describes the device disappearing
+// at precisely the moment somebody operates it.
+//
+// Built to the same markup the template emits, so the two cannot be told
+// apart; a blank turn shows the same dash the discs do.
+function paintParts() {
+  const panel = document.getElementById('word');
+  if (!panel) return;
+  let el = panel.querySelector('.word-parts');
+  if (!el) {
+    el = document.createElement('p');
+    el.className = 'word-parts';
+    el.id = 'word-parts';
+    const word = panel.querySelector('.word');
+    if (!word) return;
+    word.insertAdjacentElement('afterend', el);
+  }
+  el.textContent = '';
+  rings.forEach((r, index) => {
+    if (index) {
+      const plus = document.createElement('i');
+      plus.textContent = '+';
+      el.appendChild(plus);
+    }
+    const piece = label(r, r.index);
+    const part = document.createElement('b');
+    part.textContent = piece === '' ? '\u2014' : piece;
+    el.appendChild(part);
+  });
 }
 
 // The panel's one honest state while a disc is moving. Both verdicts are
@@ -728,7 +769,14 @@ function buildRing(ringIndex) {
   // has always given this scene, from inside the gesture rather than beside
   // it. Two handlers for one press would step it twice.
   disc.addEventListener('keydown', (evt) => {
-    if (evt.key !== 'Enter' && evt.key !== ' ') return;
+    // Enter and Space step it on, as they always did. The arrows are what the
+    // removed button row was for: a disc is the control now, so it has to
+    // carry both directions itself, and a keyboard reaches every part of a
+    // 120-part ring by holding one down.
+    const back = evt.key === 'ArrowLeft' || evt.key === 'ArrowDown';
+    const on = evt.key === 'ArrowRight' || evt.key === 'ArrowUp'
+      || evt.key === 'Enter' || evt.key === ' ';
+    if (!back && !on) return;
     evt.preventDefault();
     // Respect the same refusal a mouse gets from `inert`/the cursor change
     // — a keyboard user gets nothing to see from a cursor, so the attribute
@@ -738,7 +786,7 @@ function buildRing(ringIndex) {
     // Through the same pair a held button reports, so one keyed turn arms
     // the placeholder and reads the discs afterwards exactly as a hold does.
     onHoldStart();
-    void stepRing(ringIndex, 1);
+    void stepRing(ringIndex, back ? -1 : 1);
     onHoldStop();
   });
   g.appendChild(disc);
@@ -746,6 +794,30 @@ function buildRing(ringIndex) {
   const dial = document.createElementNS(SVGNS, 'g');
   dial.setAttribute('class', 'ring-dial');
   g.appendChild(dial);
+
+  // The band, cut into its own cells — one per window slot, alternating, the
+  // way the plate opposite is ruled and the way a cut-out paper volvelle
+  // looks. Every ring was a flat filled circle with word-parts floating on
+  // it, which is what the design mockup of this scene got plainly right and
+  // this one did not.
+  //
+  // Inside the dial, so the cells travel with it under a finger: the rulings
+  // are printed on the disc and go round with it. `pointer-events: none` in
+  // the stylesheet — the cells are paint, the band beneath them is what a
+  // grab takes hold of, and the parts on top of them are what a press
+  // addresses.
+  const cells = document.createElementNS(SVGNS, 'g');
+  cells.setAttribute('class', 'ring-cells');
+  const half = 360 / windowSize / 2;
+  const rInner = ringIndex === 0 ? 0 : GEOMETRY[ringIndex - 1].rOuter;
+  for (let k = 0; k < windowSize; k++) {
+    const cell = document.createElementNS(SVGNS, 'path');
+    const at = k * (360 / windowSize);
+    cell.setAttribute('d', annulusCell(rInner, geo.rOuter, at - half, at + half));
+    cell.setAttribute('class', 'ring-cell' + (k % 2 ? ' ring-cell-alt' : ''));
+    cells.appendChild(cell);
+  }
+  dial.appendChild(cells);
 
   const spokeEls = [];
   for (let k = 0; k < windowSize; k++) {
@@ -765,6 +837,10 @@ function buildRing(ringIndex) {
     // a photograph, and it draws the eye to what is actually being read.
     text.style.opacity = String(0.32 + 0.68 * (1 + Math.cos(rad)) / 2);
     if (k === 0) text.classList.add('ring-part-current');
+    // The slot this spoke stands in, for the tap below: spoke `k` carries the
+    // part `k` places along from the one being read (`renderDial`), so
+    // bringing it to the mark is an advance of exactly `k`.
+    text.dataset.slot = String(k);
     dial.appendChild(text);
     spokeEls.push(text);
   }
@@ -788,6 +864,50 @@ function buildRing(ringIndex) {
   renderDial(ringIndex);
 }
 
+// The reading window: one cell of every band, at twelve o'clock, under the
+// mark. Drawn once, after every disc, and it never moves — the discs turn
+// beneath it the way parts pass under a slot cut in a cover.
+//
+// This is what the figure was missing to be legible at a glance. The caption
+// says "read inward to outward" and the panel prints the word, but nothing on
+// the discs said *which* five of the two hundred and sixty-four parts made it;
+// a viewer had to already know that twelve o'clock was special. Five stacked
+// cells with a line down each side say it without a word, and they go on
+// saying it while the discs are moving, which a highlight travelling with a
+// dial could not.
+//
+// `pointer-events: none` in the stylesheet, or the window would swallow every
+// grab that started at the top of the figure.
+function buildReadingWindow() {
+  const win = document.createElementNS(SVGNS, 'g');
+  win.setAttribute('class', 'reading-window');
+  GEOMETRY.forEach((geo, ringIndex) => {
+    const half = 360 / rings[ringIndex].window / 2;
+    const rInner = ringIndex === 0 ? 0 : GEOMETRY[ringIndex - 1].rOuter;
+    const path = document.createElementNS(SVGNS, 'path');
+    path.setAttribute('d', annulusCell(rInner, geo.rOuter, -half, half));
+    path.setAttribute('class', 'reading-cell');
+    win.appendChild(path);
+  });
+  svg.appendChild(win);
+}
+
+// One cell of a band as an SVG path: out along one edge, round the outer arc,
+// back down the other, and round the inner arc home. The inner arc is dropped
+// for the hub, whose inner radius is zero and whose cell is a wedge.
+function annulusCell(rInner, rOuter, a0, a1) {
+  const at = (radius, deg) => {
+    const rad = (deg * Math.PI) / 180;
+    return [CENTER + radius * Math.sin(rad), CENTER - radius * Math.cos(rad)];
+  };
+  const [x0, y0] = at(rOuter, a0);
+  const [x1, y1] = at(rOuter, a1);
+  const [x2, y2] = at(rInner, a1);
+  const [x3, y3] = at(rInner, a0);
+  const inner = rInner === 0 ? 'Z' : `A${rInner} ${rInner} 0 0 0 ${x3} ${y3}Z`;
+  return `M${x0} ${y0}A${rOuter} ${rOuter} 0 0 1 ${x1} ${y1}L${x2} ${y2}${inner}`;
+}
+
 // Jinja wrote the five <g> containers in slot order (0 = innermost first),
 // which would paint the smallest disc on the bottom and the largest on top —
 // backwards. Re-append them largest first, so SVG's paint order (later in
@@ -797,20 +917,60 @@ function buildRing(ringIndex) {
   svg.appendChild(document.getElementById('ring-' + ringIndex));
 });
 [4, 3, 2, 1, 0].forEach(buildRing);
+buildReadingWindow();
 assemble();
 
-// The step buttons beneath the discs. `#ring-holds` sits outside `#word`,
-// the only region htmx ever swaps here, so this one call wires them for the
-// life of the page — `attach` scans its container once and knows nothing
-// about controls rendered later.
-HoldTurn.attach(document.getElementById('ring-holds'), {
-  step: (ring, dir) => {
-    void stepRing(ring, dir);
-  },
-  start: onHoldStart,
-  stop: onHoldStop,
-  repeatMs: repeatMsFor,
+// No `HoldTurn.attach` here any more: the step buttons it wired are gone, and
+// what replaced them is the discs' own `keydown` above. `attachDrag` below is
+// untouched — the two halves of that module were always independent, and scene
+// seven still uses both.
+
+// ── the Wortbuch ────────────────────────────────────────────────────────
+//
+// The device enumerates and the operator judges. That division of labour is
+// what the scene's own note is about and what the catalogue row says, and
+// until now the judging had nowhere to land: a viewer could turn up a real
+// German word and the only thing to do with it was turn again.
+//
+// Client-side, and that is not a shortcut. The list is one reader's, made in
+// one sitting, out of judgements no route could return — a server that stored
+// it would be claiming the words were the project's rather than theirs.
+const kept = [];
+let seenWords = 0;
+
+function paintWortbuch() {
+  const box = document.getElementById('wortbuch-kept');
+  const tally = document.getElementById('wortbuch-tally');
+  if (!box) return;
+  box.textContent = '';
+  if (kept.length === 0) {
+    const none = document.createElement('span');
+    none.className = 'wortbuch-none';
+    none.textContent = 'Nothing kept yet — turn the discs and keep what reads.';
+    box.appendChild(none);
+  } else {
+    kept.forEach((word) => {
+      const chip = document.createElement('span');
+      chip.textContent = word;
+      box.appendChild(chip);
+    });
+  }
+  // Kept against seen, which is the honest hit rate of a device whose own
+  // author called most of its output "blinde oder deutunglose Wörter".
+  tally.textContent = seenWords
+    ? kept.length + ' of ' + seenWords + ' seen'
+    : String(kept.length);
+}
+
+document.getElementById('keep-word').addEventListener('click', () => {
+  const el = document.querySelector('#word .word');
+  const word = el ? el.textContent.trim() : '';
+  if (!word || kept.includes(word)) return;
+  kept.unshift(word);
+  paintWortbuch();
 });
+
+paintWortbuch();
 
 // Grab a disc and it turns with your hand. The hit test is the SVG's own:
 // the discs are painted largest first so each smaller one covers the last,
@@ -846,6 +1006,30 @@ HoldTurn.attachDrag(svg, {
     r.dial.style.transition = 'none';
     r.dial.style.transform = `rotate(${residualDeg}deg)`;
   },
+  // A press that crossed no detent, once the settle is done. Answered only
+  // for a press on a *word*: pressing one brings it to the reading mark,
+  // which is the gesture a volvelle has and this scene did not.
+  //
+  // The band is deliberately not a target. That is the whole of the fix for
+  // the defect that removed this scene's old click-to-step — a hand rested on
+  // a disc and lifted off advanced it — and it is why the target comes with
+  // the report rather than the scene guessing from the ring alone. Pressing a
+  // word is a small, deliberate target with an outcome you can name before
+  // you press it; resting a palm on a band is not, and still turns nothing.
+  tap: (ring, target) => {
+    const part = target && target.closest ? target.closest('.ring-part') : null;
+    if (!part) return;
+    // The spoke carries no ring of its own; its group does, and it is the same
+    // `[data-ring]` lookup `ringAt` makes on the way in.
+    const group = part.closest('[data-ring]');
+    if (!group || Number(group.dataset.ring) !== ring) return;
+    const slot = Number(part.dataset.slot);
+    if (!slot) return; // slot 0 is already at the mark; this one turns nothing
+    if (inert && wheelsOwned) return;
+    onHoldStart();
+    void stepRing(ring, slot);
+    onHoldStop();
+  },
   release: (ring, residualDeg) => {
     // `onHoldStop` — and with it the read — only once the snap has settled:
     // `activeHolds` stays positive through the settle, so the gate in
@@ -858,7 +1042,7 @@ HoldTurn.attachDrag(svg, {
     // lifted off advanced it, and a grab this scene deliberately refused to
     // move still moved on release. Single-stepping is the step buttons' job
     // and the keyboard's, both of which this scene now has.
-    void snapRing(ring, residualDeg).then(() => {
+    return snapRing(ring, residualDeg).then(() => {
       dragging.delete(ring);
       if (dragging.size === 0) svg.classList.remove('grabbing');
       onHoldStop();
@@ -984,6 +1168,12 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
     return;
   }
   if (evt.target.id !== 'word') return;
+  // A reading landed. Counted here rather than from a second `afterSwap`
+  // listener of its own: this scene has one, and a second would be a second
+  // place for the swap's own ordering to be reasoned about — and the first
+  // thing a regex looking for "the afterSwap handler" would find.
+  seenWords++;
+  paintWortbuch();
   // The swap brings whole new verdict elements with it, checked for the word
   // that was submitted, and the word itself printed from the same parts. If
   // a disc is being turned right now both are already out of date — the
@@ -1004,6 +1194,12 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   const wordEl = evt.target.querySelector('.word');
   const raw = wordEl && wordEl.dataset.positions;
   if (!raw) {
+    // A plain read: the swap replaced the panel, which takes the parts line
+    // with it, and this response carries no positions to rebuild it from —
+    // the client has them, and always did. Repainted here rather than left
+    // out, so the breakdown does not disappear the moment somebody turns a
+    // disc by hand, which is the one moment it is most worth reading.
+    paintParts();
     clearInert();
     announceReading();
     return;
