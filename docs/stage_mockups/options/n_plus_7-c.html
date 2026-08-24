@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>N+7 · C · The dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work { display:flex; gap:2.6rem; align-items:flex-start; margin-top:.9rem; }
+  .book { flex:none; width:430px; background:var(--paper); border:1px solid var(--case-lip);
+          border-radius:2px; padding:1rem 1.1rem 1.1rem; box-shadow:0 2px 10px rgba(20,17,15,.08); }
+  .book .guide { display:flex; justify-content:space-between; font-family:var(--display); font-style:italic;
+                 font-size:.86rem; color:var(--lead); border-bottom:1px solid var(--paper-shade);
+                 padding-bottom:.35rem; margin-bottom:.5rem; }
+  .entries { column-count:2; column-gap:1.3rem; column-rule:1px solid var(--paper-shade); }
+  .entry { font-family:var(--display); font-size:.85rem; line-height:1.62; color:#4c463d; break-inside:avoid; }
+  .entry.from { color:var(--ink); font-weight:600; background:rgba(179,18,29,.10); }
+  .entry.to { color:var(--ink); font-weight:600; background:rgba(63,125,63,.14); }
+  .entry.tween { color:#8d857a; }
+  .right { flex:1; min-width:0; }
+  .n { display:flex; align-items:center; gap:.7rem; margin-bottom:1rem; }
+  .n label { font-family:var(--mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--lead); }
+  input[type=range] { width:220px; accent-color:var(--rubric); }
+  .nval { font-family:var(--display); font-size:1.4rem; font-weight:600; min-width:3rem; text-align:center; font-variant-numeric:tabular-nums lining-nums; }
+  .nouns { display:flex; flex-wrap:wrap; gap:.3rem; margin:0 0 1rem; }
+  .nouns button { font-family:var(--display); text-transform:none; letter-spacing:0; font-size:.82rem; padding:.2rem .5rem; }
+  .out { font-family:var(--display); font-size:1.2rem; line-height:1.6; color:var(--ink); margin:0; }
+  .out b { font-weight:600; border-bottom:2px solid var(--accent); }
+  .pick { display:flex; gap:.4rem; margin:1rem 0 0; }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Jean Lescure &middot; Oulipo, 13 February 1961</p>
+  <h1>N+7</h1>
+  <div class="work">
+    <div class="book">
+      <div class="guide"><span id="g1"></span><span id="g2"></span></div>
+      <div class="entries" id="entries"></div>
+    </div>
+    <div class="right">
+      <div class="n">
+        <label for="n">N +</label><input type="range" id="n" min="-15" max="15" value="7">
+        <span class="nval" id="nval">+7</span>
+      </div>
+      <div class="nouns" id="nouns"></div>
+      <p class="out" id="out"></p>
+      <p class="verdict yes" id="verdict"></p>
+      <div class="pick">
+        <button class="quiet src" data-src="genesis" aria-pressed="true">Genesis 1</button>
+        <button class="quiet src" data-src="gettysburg" aria-pressed="false">Gettysburg</button>
+        <button class="quiet src" data-src="sonnet" aria-pressed="false">Sonnet 18</button>
+      </div>
+      <p class="credit" id="src"></p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'n_plus_7', letter: 'c', name: 'The dictionary',
+  claim: 'The list is the other half of the rule, so the list is the figure. A page of it stands '
+       + 'open on the left with the noun and its Nth neighbour marked and every entry between them '
+       + 'greyed; press any noun in the sentence to look it up.',
+  note: 'The only direction that puts the <b>dictionary</b> on stage rather than the text or the '
+      + 'machinery — which is what makes N+7 a family rather than one rule, and the thing a viewer '
+      + 'is least likely to think about. It shows one noun at a time, so the sentence as a whole '
+      + 'is the smaller half here.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  let key='genesis', n=7, at=0;
+  const nounsOf=()=>NPLUS7[key].words.filter(w=>w.n);
+  function render(){
+    const set=NPLUS7[key], list=nounsOf();
+    if(at>=list.length) at=0;
+    const w=list[at];
+    document.getElementById('nval').textContent=(n>=0?'+':'')+n;
+    // the open page: every entry the noun passes, in order
+    const lo=Math.min(0,n), hi=Math.max(0,n);
+    const box=document.getElementById('entries'); box.textContent='';
+    const shown=[];
+    for(let off=lo-2; off<=hi+2; off++){
+      const word=w.n[String(off)]; if(!word) continue;
+      const div=document.createElement('div');
+      div.className='entry'+(off===0?' from':off===n&&n!==0?' to':(off>lo&&off<hi?' tween':''));
+      div.textContent=word; box.appendChild(div); shown.push(word);
+    }
+    document.getElementById('g1').textContent=shown[0]||'';
+    document.getElementById('g2').textContent=shown[shown.length-1]||'';
+    // the nouns of the sentence, as buttons
+    const nb=document.getElementById('nouns'); nb.textContent='';
+    list.forEach((word,i)=>{
+      const b=document.createElement('button');
+      b.className=i===at?'':'quiet'; b.textContent=word.t;
+      b.onclick=()=>{ at=i; render(); }; nb.appendChild(b);
+    });
+    const out=document.getElementById('out'); out.textContent='';
+    set.words.forEach((word)=>{
+      if(!word.n){ out.append(document.createTextNode(word.t)); return; }
+      const to=word.n[String(n)];
+      const b=document.createElement('b');
+      b.textContent=/^[A-Z]/.test(word.t)?to.charAt(0).toUpperCase()+to.slice(1):to;
+      out.appendChild(b);
+    });
+    const v=document.getElementById('verdict');
+    if(n===0){ v.className='verdict'; v.style.color='var(--lead)'; v.textContent='checked — nothing moved: N+0 is the identity'; }
+    else { v.className='verdict yes'; v.style.color=''; v.textContent='checked — a real displacement of the source, N'+(n>=0?'+':'')+n; }
+    document.getElementById('src').textContent=set.source
+      +' · public domain. The open page is the Open English WordNet 2024 noun list, CC BY 4.0, at the entry for “'+w.t+'”.';
+  }
+  document.getElementById('n').addEventListener('input',e=>{ n=Number(e.target.value); render(); });
+  document.querySelectorAll('.src').forEach(btn=>btn.addEventListener('click',()=>{
+    key=btn.dataset.src; at=0;
+    document.querySelectorAll('.src').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+    render();
+  }));
+  render();
+})();
+</script>
+</body>
+</html>

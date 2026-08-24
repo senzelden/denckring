@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Wheel and the Scissors — Harsdörffer's Denckring &amp; the Cut-Up</title>
+<style>
+  :root{
+    --paper:  #eceae1;
+    --paper2: #e3e0d5;
+    --ink:    #14130f;
+    --red:    #cb2016;
+    --blue:   #26397f;
+    --olive:  #5c6b2e;
+    --grey:   #7d7a70;
+    --rule:   #c6c2b4;
+    --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    --mono: ui-monospace,"SFMono-Regular","Cascadia Mono","Courier New",monospace;
+    --fat: "Haettenschweiler","Arial Narrow Bold","Arial Black",Impact,var(--sans);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
+       font-size:17px;line-height:1.62}
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.3;mix-blend-mode:multiply;z-index:99;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.45'/></svg>")}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
+
+  /* ── masthead ─────────────────────────────────────────── */
+  .mast{border-top:7px solid var(--ink);border-bottom:2px solid var(--ink);padding:14px 0 12px}
+  .kicker{font-family:var(--sans);font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--red)}
+  h1{font-family:var(--fat);font-weight:900;text-transform:uppercase;
+     font-size:clamp(38px,11.5vw,104px);line-height:.86;letter-spacing:-.015em;margin:8px 0 0}
+  h1 .cut{color:var(--red)}
+  .dek{margin:12px 0 0;max-width:62ch;font-size:19px}
+  .dates{display:flex;gap:20px;font-family:var(--sans);font-size:11px;letter-spacing:.28em;
+         text-transform:uppercase;color:var(--grey);margin-top:11px}
+
+  h2{font-family:var(--fat);text-transform:uppercase;font-size:clamp(24px,5.5vw,40px);
+     line-height:.95;margin:0;letter-spacing:-.01em}
+  .sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+           border-bottom:2px solid var(--ink);padding-bottom:8px;margin:54px 0 18px}
+  .sechead .num{font-family:var(--sans);font-size:11px;letter-spacing:.3em;color:var(--red)}
+  h3{font-family:var(--sans);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+     color:var(--grey);margin:26px 0 8px;font-weight:700}
+  p{margin:0 0 14px}
+  .lede{font-size:19px}
+  .cols{columns:2;column-gap:34px}
+  @media (max-width:760px){.cols{columns:1}}
+
+  button{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink);background:transparent;border:2px solid var(--ink);
+    padding:8px 13px;cursor:pointer;border-radius:0;transition:background .12s,color .12s}
+  button:hover{background:var(--ink);color:var(--paper)}
+  button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--paper)}
+  button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+  .primary{background:var(--red);border-color:var(--red);color:var(--paper)}
+  .primary:hover{background:var(--ink);border-color:var(--ink)}
+
+  /* ── denckring ────────────────────────────────────────── */
+  .ringstage{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:32px;align-items:start}
+  @media (max-width:880px){.ringstage{grid-template-columns:1fr}}
+  svg.disc{width:100%;height:auto;display:block;touch-action:none;user-select:none}
+  .ring{transform-origin:0 0;transition:transform .8s cubic-bezier(.16,.9,.2,1)}
+  .ring.dragging{transition:none}
+  .seg{fill:var(--paper);stroke:var(--ink);stroke-width:.9;cursor:pointer}
+  .seg.alt{fill:var(--paper2)}
+  .seg:hover{fill:#dcd6c2}
+  .seg.on{fill:#f3ddd9}
+  .lab{font-family:var(--sans);font-size:13px;text-anchor:middle;fill:var(--ink);pointer-events:none}
+  .lab.on{fill:var(--red);font-weight:700}
+  .hub{fill:var(--ink)}
+  .hubtext{font-family:var(--sans);font-size:12px;letter-spacing:.2em;text-anchor:middle;fill:var(--paper)}
+  .needle line{stroke:var(--red);stroke-width:2.5}
+  .needle polygon{fill:var(--red)}
+
+  .word{border:2px solid var(--ink);padding:16px 18px;background:#fff9}
+  .word .out{font-family:var(--fat);text-transform:uppercase;font-size:clamp(30px,8vw,58px);
+             line-height:1;letter-spacing:-.01em;word-break:break-word}
+  .word .parts{font-family:var(--mono);font-size:13px;color:var(--grey);margin-top:9px;letter-spacing:.04em}
+  .word .parts b{color:var(--red);font-weight:400}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .dials{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:8px;margin-top:14px}
+  .dial{border:1px solid var(--rule);padding:7px 9px}
+  .dial .n{font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey)}
+  .dial .r{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:3px}
+  .dial .v{font-family:var(--mono);font-size:16px}
+  .dial button{border-width:1px;padding:2px 7px;font-size:13px;letter-spacing:0}
+  .kept{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:8px}
+  .kept span{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);padding:2px 7px;background:#fff8}
+  .stat{display:flex;flex-wrap:wrap;gap:24px;margin-top:18px;font-family:var(--sans);font-size:12.5px;color:var(--grey)}
+  .stat b{display:block;font-family:var(--fat);font-size:27px;color:var(--ink);letter-spacing:0}
+
+  blockquote{margin:22px 0;border-left:5px solid var(--red);padding:4px 0 4px 18px;max-width:60ch}
+  blockquote .o{font-size:19px;font-style:italic}
+  blockquote .t{margin-top:8px;color:var(--grey);font-size:16px}
+  blockquote cite{display:block;margin-top:9px;font-style:normal;font-family:var(--sans);
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue)}
+
+  /* ── pivot ────────────────────────────────────────────── */
+  .pivot{margin:56px 0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+         padding:26px 0;position:relative}
+  .pivot p{max-width:64ch;font-size:20px;margin:0}
+  .pivot .scissors{font-size:40px;line-height:1;color:var(--red);position:absolute;right:0;top:-22px;
+    background:var(--paper);padding:0 10px}
+
+  /* ── workbench ────────────────────────────────────────── */
+  .methods{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .mdesc{font-size:16px;color:var(--grey);min-height:3em;max-width:70ch;margin:6px 0 16px}
+  .sources{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:760px){.sources{grid-template-columns:1fr}}
+  textarea{width:100%;min-height:118px;font-family:var(--mono);font-size:13px;line-height:1.6;
+    color:var(--ink);background:#fffb;border:2px solid var(--ink);padding:10px;resize:vertical}
+  textarea:focus{outline:3px solid var(--red);outline-offset:1px}
+  .panes{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+  @media (max-width:880px){.panes{grid-template-columns:1fr}}
+  .sheet{position:relative;background:#fffdf7;border:1px solid var(--rule);
+         box-shadow:2px 3px 0 rgba(20,19,15,.12);padding:16px 14px;overflow:hidden}
+  pre{margin:0;font-family:var(--mono);font-size:clamp(9.5px,2.55vw,13px);line-height:1.62;
+      white-space:pre;overflow-x:auto}
+  @media (min-width:560px){pre{font-size:13px}}
+  .cutline{position:absolute;background:transparent;pointer-events:none}
+  .cutline.v{top:0;bottom:0;width:0;border-left:1.5px dashed var(--red)}
+  .cutline.h{left:0;right:0;height:0;border-top:1.5px dashed var(--red)}
+  .q1{color:var(--ink)} .q2{color:var(--red)} .q3{color:var(--blue)} .q4{color:var(--olive)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-family:var(--sans);
+          font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+  .legend i{font-style:normal}
+  .strips{display:flex;flex-direction:column;gap:3px}
+  .strip{background:#fffdf7;border:1px solid var(--rule);box-shadow:1px 2px 0 rgba(20,19,15,.10);
+         padding:3px 8px;font-family:var(--mono);font-size:clamp(9.5px,2.55vw,13px);white-space:pre;overflow-x:auto}
+  @media (min-width:560px){.strip{font-size:13px}}
+  .paneheads{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .paneheads span{font-family:var(--sans);font-size:10.5px;letter-spacing:.24em;
+                  text-transform:uppercase;color:var(--grey)}
+  footer{margin-top:60px;border-top:7px solid var(--ink);padding-top:14px;
+         font-family:var(--sans);font-size:12.5px;color:var(--grey);line-height:1.8}
+  @media (prefers-reduced-motion:reduce){.ring{transition:none}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <div class="mast">
+    <div class="kicker">Two machines for getting words you did not choose</div>
+    <h1>The Wheel<br>&amp; the <span class="cut">Scissors</span></h1>
+    <p class="dek">Georg Philipp Harsdörffer built a paper computer for the German language and told the
+      bookbinder to cut it out. Three centuries later, in a hotel room on the rue Gît-le-Cœur, the scissors
+      came back — pointed the other way.</p>
+    <div class="dates"><span>Nürnberg 1651</span><span>Paris 1959</span></div>
+  </div>
+
+  <!-- ── I ─────────────────────────────────────────────── -->
+  <div class="sechead"><span class="num">I</span><h2>Fünffacher Denckring</h2></div>
+
+  <p class="lede">Five nested paper discs, each turning on its own. Read from the middle outwards and the
+    rings spell a German word: prefix, opening letters, a vowel, closing letters, suffix. Harsdörffer's
+    heading promised the whole of the language on a single leaf.</p>
+
+  <div class="ringstage">
+    <div>
+      <svg class="disc" id="disc" viewBox="-330 -330 660 660" role="img" aria-label="Denckring"></svg>
+      <p style="font-size:15px;color:var(--grey);text-align:center;margin-top:10px">
+        Tap any segment to bring it to the pointer, or drag a ring around.</p>
+    </div>
+
+    <div>
+      <div class="word">
+        <div class="out" id="word">—</div>
+        <div class="parts" id="parts"></div>
+      </div>
+
+      <div class="controls">
+        <button class="primary" id="spin">Turn all five</button>
+        <button id="keep">Keep this word</button>
+        <button id="clear">Clear list</button>
+      </div>
+
+      <div class="dials" id="dials"></div>
+
+      <h3>Wortbuch</h3>
+      <div class="kept" id="kept"></div>
+
+      <div class="stat">
+        <div><b id="combos">0</b>combinations in this rebuild</div>
+        <div><b>254</b>word-parts on Harsdörffer's plate</div>
+        <div><b>1651</b>Erquickstunden, p. 517</div>
+      </div>
+    </div>
+  </div>
+
+  <blockquote>
+    <div class="o">„Dieses Blätlein muß heraus geschnidten / in fünff Ringe zertheilet / und auf fünff
+      gleich=grosse Scheiben von Papyr / also aufeinander gehefftet werden / daß man jeden Ring
+      absonderlich umbdrehen kan.“</div>
+    <div class="t">This little leaf must be cut out, divided into five rings, and fastened onto five
+      paper discs of equal size, so that each ring can be turned by itself.</div>
+    <cite>Harsdörffer, instruction to the bookbinder, 1651</cite>
+  </blockquote>
+
+  <div class="cols">
+    <p>The plate carries 48 prefixes, 50 initial letters and rhyming letters, 12 medial letters, 120 final
+      letters and 24 suffixes — Harsdörffer's own caption. Multiplied out that is roughly 83 million words;
+      counts of around 100 million circulate too, because some scholars read the second ring as holding 60
+      entries rather than 50. Either way the claim in the heading — the entire German language on one leaf
+      — is a claim about coverage, not about sense.</p>
+    <p>He was candid about the gap. The rings, he wrote, are chiefly useful for finding rhymes: you hunt the
+      rhyming syllable on the third and fourth rings and turn the second ring against it. Whether a compound
+      the wheel produces actually means anything, the user has to decide. The device does the enumerating;
+      it does not do the judging. That division of labour is the whole idea, and it is the same one Llull's
+      rings make three centuries earlier.</p>
+    <p>The rings above are a working rebuild, not a facsimile: 24 prefixes, 24 openings, the 12 medials
+      Harsdörffer specifies, 24 closings, 24 suffixes, chosen so the mechanism runs. His actual inventory of
+      254 parts is on the plate in Nuremberg. What survives here is the operation — and the fact that a good
+      third of what comes out is a real word, another third is a word the language would accept if it needed
+      one, and the rest is noise.</p>
+  </div>
+
+  <!-- ── pivot ─────────────────────────────────────────── -->
+  <div class="pivot">
+    <span class="scissors">✂</span>
+    <p>Notice where the Denckring begins: with an instruction to take a knife to the page. Harsdörffer cuts
+      paper into parts in order to assemble words. In 1959 Brion Gysin cut through a stack of newspapers
+      while trimming a mount, saw the sliced layers line up into sentences, and ran the same operation
+      backwards — cutting finished language apart to see what it had been hiding.</p>
+  </div>
+
+  <!-- ── II ────────────────────────────────────────────── -->
+  <div class="sechead"><span class="num">II</span><h2>The Cut-Up</h2></div>
+
+  <div class="methods" id="methods"></div>
+  <p class="mdesc" id="mdesc"></p>
+
+  <div class="sources">
+    <div>
+      <h3 style="margin-top:0">Page A</h3>
+      <textarea id="srcA" spellcheck="false"></textarea>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Page B <span style="text-transform:none;letter-spacing:0">(fold-in only)</span></h3>
+      <textarea id="srcB" spellcheck="false"></textarea>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="primary" id="cut">Cut</button>
+    <button id="reseed">Restore pages</button>
+    <button id="feed">Feed in the kept words</button>
+  </div>
+
+  <div class="panes">
+    <div>
+      <div class="paneheads"><span>The page, with the cuts marked</span></div>
+      <div class="sheet" id="sheetA"><pre id="preA"></pre></div>
+    </div>
+    <div>
+      <div class="paneheads"><span>What comes off the table</span></div>
+      <div class="strips" id="out"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <div class="cols" style="margin-top:38px">
+    <p>Gysin's claim for the method was that writing was fifty years behind painting: collage had been
+      ordinary in the studio since 1912 and unthinkable on the page. William Burroughs took the technique
+      into the Nova trilogy and pushed it further with the fold-in, laying a folded page against another so
+      that two texts meet along a vertical seam. Tzara had proposed something adjacent in 1920 — cut an
+      article into single words, shake them in a bag, draw them out in order — but as provocation rather
+      than working method.</p>
+    <p>What the cut does is break the sentence's forward pressure. Prose reads as a chain of commitments,
+      each clause narrowing what the next one can be; slicing across the column snaps those commitments and
+      leaves phrases adjacent that no author would have put together. Most results are rubbish. The value
+      lies in the small proportion that isn't, and finding it costs exactly the labour that the Denckring's
+      user spent deciding whether a compound meant anything.</p>
+    <p>Both machines make the same bet: that a mechanical operation on language can turn up something the
+      operator could not have reached by intending it, and that the operator remains responsible for
+      recognising which of the results is worth keeping. Harsdörffer turns rings and gets candidates.
+      Gysin cuts pages and gets candidates. Neither device ever produced a judgement, and neither pretended
+      to.</p>
+  </div>
+
+  <footer>
+    Harsdörffer, <em>Delitiae Mathematicae et Physicae / Erquickstunden</em>, Nuremberg 1651, p. 517;
+    the Denckring also appears in the <em>Poetischer Trichter</em>. Ring contents here are reconstructed,
+    not transcribed. Cut-up methods after Gysin and Burroughs, 1959 onwards; word-bag method after Tzara, 1920.
+    Sample pages: Melville 1851 and Kafka 1915, both public domain.
+  </footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ══ I · DENCKRING ═══════════════════════════════════════ */
+const RINGS = [
+  { name:"Vorsylben", r:[112,58], items:["—","be","ge","ver","ent","er","zer","un","an","auf","aus","ein","mit","nach","vor","über","unter","um","durch","ab","bei","hin","her","wider"] },
+  { name:"Anfangsbuchstaben", r:[162,112], items:["b","br","d","dr","f","fl","g","gr","h","k","kl","kr","l","m","n","p","r","s","sch","schl","schw","st","tr","w"] },
+  { name:"Mittelbuchstaben", r:[208,162], items:["a","ä","e","i","o","ö","u","ü","ei","au","eu","ie"] },
+  { name:"Endbuchstaben", r:[258,208], items:["ch","cht","ck","d","f","ff","ft","g","k","ld","lt","m","nd","ng","nk","nn","nt","r","rn","rt","sch","ss","st","tz"] },
+  { name:"Nachsylben", r:[312,258], items:["—","e","en","er","ung","heit","keit","lich","bar","sam","haft","nis","schaft","tum","ling","icht","in","isch","ig","los","reich","voll","wärts","chen"] }
+];
+const pick = RINGS.map(() => 0);
+$("combos").textContent = RINGS.reduce((n,r) => n * r.items.length, 1).toLocaleString("en-GB");
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = $("disc");
+const mk = (n,a={}) => { const e = document.createElementNS(NS,n); for (const k in a) e.setAttribute(k,a[k]); return e; };
+const pol = (r,deg) => { const a = (deg-90)*Math.PI/180; return [r*Math.cos(a), r*Math.sin(a)]; };
+function annulus(r0,r1,a0,a1){
+  const [x0,y0]=pol(r0,a0),[x1,y1]=pol(r0,a1),[x2,y2]=pol(r1,a1),[x3,y3]=pol(r1,a0);
+  return `M${x0} ${y0}A${r0} ${r0} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r1} ${r1} 0 0 0 ${x3} ${y3}Z`;
+}
+
+const gRings = [], gSegs = [], gLabs = [];
+RINGS.forEach((ring, ri) => {
+  const n = ring.items.length, step = 360/n;
+  const g = mk("g",{class:"ring"});
+  const segs = [], labs = [];
+  ring.items.forEach((txt,k) => {
+    const p = mk("path",{ d:annulus(ring.r[0], ring.r[1], k*step - step/2, k*step + step/2),
+                          class:"seg" + (k%2 ? " alt" : "") });
+    p.addEventListener("click", () => { if (!moved){ pick[ri] = k; render(); } });
+    g.appendChild(p); segs.push(p);
+    const [x,y] = pol((ring.r[0]+ring.r[1])/2, k*step);
+    const t = mk("text",{ class:"lab", transform:`translate(${x} ${y}) rotate(${k*step}) translate(0 5)` });
+    t.textContent = txt;
+    g.appendChild(t); labs.push(t);
+  });
+  svg.appendChild(g); gRings.push(g); gSegs.push(segs); gLabs.push(labs);
+});
+svg.appendChild(mk("circle",{r:56,class:"hub"}));
+const hub = mk("text",{class:"hubtext",y:5}); hub.textContent = "G · P · H"; svg.appendChild(hub);
+const needle = mk("g",{class:"needle"});
+needle.appendChild(mk("line",{x1:0,y1:-56,x2:0,y2:-320}));
+needle.appendChild(mk("polygon",{points:"0,-330 -10,-312 10,-312"}));
+svg.appendChild(needle);
+
+/* drag / tap */
+let moved = false;
+function angleOf(e){
+  const b = svg.getBoundingClientRect();
+  return Math.atan2(e.clientY-(b.top+b.height/2), e.clientX-(b.left+b.width/2))*180/Math.PI + 90;
+}
+gRings.forEach((g,ri) => {
+  const step = 360/RINGS[ri].items.length;
+  let drag=false, start=0, base=0, live=0, x0=0, y0=0;
+  g.addEventListener("pointerdown", e => {
+    drag=true; moved=false; g.setPointerCapture(e.pointerId); g.classList.add("dragging");
+    start = angleOf(e); base = -pick[ri]*step; live = base; x0=e.clientX; y0=e.clientY;
+  });
+  g.addEventListener("pointermove", e => {
+    if (!drag) return;
+    if (Math.hypot(e.clientX-x0, e.clientY-y0) > 7) moved = true;
+    live = base + (angleOf(e) - start);
+    g.style.transform = `rotate(${live}deg)`;
+  });
+  const up = () => {
+    if (!drag) return;
+    drag=false; g.classList.remove("dragging");
+    if (moved){
+      const n = RINGS[ri].items.length;
+      pick[ri] = ((-Math.round(live/step)) % n + n) % n;
+      render();
+    } else { g.style.transform = `rotate(${-pick[ri]*step}deg)`; }
+    setTimeout(()=>{moved=false;},0);
+  };
+  g.addEventListener("pointerup", up);
+  g.addEventListener("pointercancel", up);
+});
+
+/* dials */
+const dialVals = [];
+RINGS.forEach((ring,ri) => {
+  const d = document.createElement("div"); d.className = "dial";
+  const n = document.createElement("div"); n.className = "n"; n.textContent = ring.name;
+  const r = document.createElement("div"); r.className = "r";
+  const m = document.createElement("button"); m.textContent = "‹";
+  const v = document.createElement("span"); v.className = "v";
+  const p = document.createElement("button"); p.textContent = "›";
+  const len = ring.items.length;
+  m.onclick = () => { pick[ri] = (pick[ri]-1+len)%len; render(); };
+  p.onclick = () => { pick[ri] = (pick[ri]+1)%len; render(); };
+  r.append(m,v,p); d.append(n,r); $("dials").appendChild(d); dialVals.push(v);
+});
+
+const part = ri => { const s = RINGS[ri].items[pick[ri]]; return s === "—" ? "" : s; };
+function currentWord(){
+  const w = [0,1,2,3,4].map(part).join("");
+  return w ? w[0].toUpperCase() + w.slice(1) : "—";
+}
+function render(){
+  RINGS.forEach((ring,ri) => {
+    const step = 360/ring.items.length;
+    gRings[ri].style.transform = `rotate(${-pick[ri]*step}deg)`;
+    gSegs[ri].forEach((s,k) => s.classList.toggle("on", k === pick[ri]));
+    gLabs[ri].forEach((l,k) => l.classList.toggle("on", k === pick[ri]));
+    dialVals[ri].textContent = ring.items[pick[ri]];
+  });
+  $("word").textContent = currentWord();
+  const shown = [0,1,2,3,4].map(ri => RINGS[ri].items[pick[ri]]);
+  const box = $("parts"); box.textContent = "";
+  shown.forEach((s,i) => {
+    if (i) box.appendChild(document.createTextNode(" + "));
+    const b = document.createElement("b"); b.textContent = s; box.appendChild(b);
+  });
+}
+
+$("spin").onclick = () => {
+  RINGS.forEach((r,i) => pick[i] = Math.floor(Math.random()*r.items.length));
+  render();
+};
+const keptWords = [];
+$("keep").onclick = () => {
+  const w = currentWord();
+  if (w !== "—" && !keptWords.includes(w)){ keptWords.push(w); paintKept(); }
+};
+$("clear").onclick = () => { keptWords.length = 0; paintKept(); };
+function paintKept(){
+  const box = $("kept"); box.textContent = "";
+  keptWords.forEach(w => { const s = document.createElement("span"); s.textContent = w; box.appendChild(s); });
+}
+
+/* a legible opening position: ver + s + u + ch + ung */
+["ver","s","u","ch","ung"].forEach((v,i) => { const k = RINGS[i].items.indexOf(v); if (k>=0) pick[i]=k; });
+render(); paintKept();
+
+/* ══ II · CUT-UP ═════════════════════════════════════════ */
+const SEED_A = `Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; then, I account it high time to get to sea as soon as I can.`;
+const SEED_B = `Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett zu einem ungeheueren Ungeziefer verwandelt. Er lag auf seinem panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, seinen gewölbten, braunen Bauch, auf dessen Höhe sich die Bettdecke, zum gänzlichen Niedergleiten bereit, kaum noch erhalten konnte.`;
+
+const METHODS = [
+  { id:"quad",  label:"Four quadrants",
+    desc:"Gysin's operation, 1959. The page is cut once down the middle and once across, and the quadrants are swapped diagonally. Read the new lines straight through; the seam falls wherever it falls." },
+  { id:"fold",  label:"Fold-in",
+    desc:"Burroughs' variant. Page A is folded down its centre and laid against page B, so each line begins in one text and ends in the other." },
+  { id:"hat",   label:"Words in a bag",
+    desc:"After Tzara, 1920: cut the article into single words, shake them in a bag, draw them out one by one and set them down in the order they come." },
+  { id:"strip", label:"Shuffle the strips",
+    desc:"The gentlest cut. The page is sliced into horizontal strips and the strips are dealt out again in a new order — syntax survives inside each line, nowhere else." }
+];
+let method = "quad";
+const COLS = 46;
+
+METHODS.forEach(m => {
+  const b = document.createElement("button");
+  b.textContent = m.label;
+  b.onclick = () => { method = m.id; paintMethods(); cut(); };
+  b.dataset.id = m.id;
+  $("methods").appendChild(b);
+});
+function paintMethods(){
+  [...$("methods").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === method)));
+  $("mdesc").textContent = METHODS.find(m => m.id === method).desc;
+}
+
+function wrap(text, cols){
+  const words = String(text).replace(/\s+/g," ").trim().split(" ").filter(Boolean);
+  const lines = []; let cur = "";
+  for (const w of words){
+    if (cur && (cur + " " + w).length > cols){ lines.push(cur); cur = w; }
+    else cur = cur ? cur + " " + w : w;
+  }
+  if (cur) lines.push(cur);
+  return lines.map(l => l.padEnd(cols, " "));
+}
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+function showSource(lines, marks){
+  $("preA").textContent = lines.map(l => l.replace(/\s+$/,"")).join("\n");
+  const sheet = $("sheetA");
+  [...sheet.querySelectorAll(".cutline")].forEach(n => n.remove());
+  if (!marks) return;
+  const pre = $("preA");
+  const cw = pre.getBoundingClientRect().width / COLS;
+  const v = document.createElement("div"); v.className = "cutline v";
+  v.style.left = (14 + cw * Math.floor(COLS/2)) + "px";
+  sheet.appendChild(v);
+  if (marks === 2){
+    const rows = lines.length;
+    const lh = pre.getBoundingClientRect().height / rows;
+    const h = document.createElement("div"); h.className = "cutline h";
+    h.style.top = (16 + lh * Math.ceil(rows/2)) + "px";
+    sheet.appendChild(h);
+  }
+}
+
+function emit(rows){
+  const out = $("out"); out.textContent = "";
+  rows.forEach(parts => {
+    const d = document.createElement("div"); d.className = "strip";
+    d.style.transform = `rotate(${(Math.random()*1.1-.55).toFixed(2)}deg)`;
+    parts.forEach(([cls, txt]) => {
+      const s = document.createElement("span"); s.className = cls; s.textContent = txt; d.appendChild(s);
+    });
+    out.appendChild(d);
+  });
+}
+function legend(items){
+  const box = $("legend"); box.textContent = "";
+  items.forEach(([cls,txt]) => {
+    const i = document.createElement("i"); i.className = cls; i.textContent = "▉ " + txt;
+    box.appendChild(i);
+  });
+}
+
+function cut(){
+  const a = $("srcA").value, b = $("srcB").value;
+  const cut1 = Math.floor(COLS/2);
+
+  if (method === "quad"){
+    const lines = wrap(a, COLS);
+    const half = Math.ceil(lines.length/2);
+    const top = lines.slice(0, half), bot = lines.slice(half);
+    showSource(lines, 2);
+    const rows = [];
+    const n = Math.max(top.length, bot.length);
+    for (let i=0;i<n;i++){
+      const t = top[i] || "".padEnd(COLS," "), o = bot[i] || "".padEnd(COLS," ");
+      rows.push([["q1", t.slice(0,cut1)], ["q4", o.slice(cut1)]]);
+    }
+    for (let i=0;i<n;i++){
+      const t = top[i] || "".padEnd(COLS," "), o = bot[i] || "".padEnd(COLS," ");
+      rows.push([["q3", o.slice(0,cut1)], ["q2", t.slice(cut1)]]);
+    }
+    emit(rows.filter(r => r.map(p=>p[1]).join("").trim()));
+    legend([["q1","top left"],["q2","top right"],["q3","bottom left"],["q4","bottom right"]]);
+  }
+
+  else if (method === "fold"){
+    const A = wrap(a, COLS), B = wrap(b || SEED_B, COLS);
+    showSource(A, 1);
+    const n = Math.max(A.length, B.length), rows = [];
+    for (let i=0;i<n;i++){
+      const l = (A[i] || "".padEnd(COLS," ")).slice(0,cut1);
+      const r = (B[i] || "".padEnd(COLS," ")).slice(cut1);
+      rows.push([["q1", l], ["q2", r]]);
+    }
+    emit(rows.filter(r => r.map(p=>p[1]).join("").trim()));
+    legend([["q1","page A"],["q2","page B"]]);
+  }
+
+  else if (method === "hat"){
+    const words = shuffle(String(a).replace(/\s+/g," ").trim().split(" ").filter(Boolean));
+    showSource(wrap(a, COLS), 0);
+    emit(wrap(words.join(" "), COLS).map(l => [["q1", l.replace(/\s+$/,"")]]));
+    legend([["q1","drawn in the order they came"]]);
+  }
+
+  else {
+    const lines = wrap(a, COLS);
+    showSource(lines, 0);
+    const idx = shuffle(lines.map((_,i) => i));
+    emit(idx.map(i => [[i % 2 ? "q2" : "q1", lines[i].replace(/\s+$/,"")]]));
+    legend([["q1","odd strips"],["q2","even strips"]]);
+  }
+}
+
+$("cut").onclick = cut;
+$("reseed").onclick = () => { $("srcA").value = SEED_A; $("srcB").value = SEED_B; cut(); };
+$("feed").onclick = () => {
+  if (!keptWords.length) return;
+  $("srcA").value = ($("srcA").value.trim() + " " + keptWords.join(" ") + ".").trim();
+  cut();
+};
+addEventListener("resize", () => { if (method === "quad" || method === "fold") cut(); });
+
+$("srcA").value = SEED_A; $("srcB").value = SEED_B;
+paintMethods(); cut();
+})();
+</script>
+</body>
+</html>

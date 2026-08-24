@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Two Machines from the Ouvroir — Cent mille milliards &amp; N+7</title>
+<style>
+  :root{
+    --paper:#fcfbf7;
+    --grid:#dbe7f1;
+    --grid2:#eef3f7;
+    --margin:#e08a84;
+    --ink:#1d2545;
+    --ink2:#5d6480;
+    --red:#bf3025;
+    --green:#2c6e49;
+    --rule:#cdd4de;
+    --didone:"Didot","Bodoni MT","Playfair Display","Hoefler Text",Georgia,serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Mono","Courier New",monospace;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.62;
+    background-color:var(--paper);
+    background-image:
+      repeating-linear-gradient(var(--grid) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(90deg, var(--grid2) 0 1px, transparent 1px 26px);
+    background-position:0 -1px;
+  }
+  .page{max-width:1000px;margin:0 auto;padding:26px 18px 80px;position:relative}
+  .page::before{content:"";position:absolute;top:0;bottom:0;left:6px;width:0;
+    border-left:1.5px solid var(--margin);opacity:.75}
+  @media (min-width:720px){.page{padding-left:64px}.page::before{left:38px}}
+
+  h1{font-family:var(--didone);font-weight:400;font-size:clamp(34px,8.5vw,74px);
+     line-height:.95;margin:6px 0 0;letter-spacing:-.012em}
+  h1 i{font-style:italic;color:var(--red)}
+  .kicker{font-family:var(--sans);font-size:10.5px;letter-spacing:.36em;text-transform:uppercase;color:var(--red)}
+  .dek{max-width:64ch;font-size:19px;margin:14px 0 0}
+  hr{border:0;border-top:1.5px solid var(--ink);margin:26px 0}
+
+  .sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:54px 0 6px}
+  .sechead .n{font-family:var(--sans);font-size:10.5px;letter-spacing:.3em;color:var(--red)}
+  h2{font-family:var(--didone);font-weight:400;font-size:clamp(26px,5.6vw,44px);margin:0;line-height:1}
+  h2 span{font-style:italic;color:var(--ink2);font-size:.55em}
+  h3{font-family:var(--sans);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;
+     color:var(--ink2);margin:24px 0 8px;font-weight:700}
+  p{margin:0 0 14px;max-width:72ch}
+  .cols{columns:2;column-gap:36px}
+  @media (max-width:760px){.cols{columns:1}}
+
+  button{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.15em;
+    text-transform:uppercase;color:var(--ink);background:#fff9;border:1.5px solid var(--ink);
+    padding:7px 12px;cursor:pointer;transition:background .12s,color .12s}
+  button:hover{background:var(--ink);color:var(--paper)}
+  button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+  .primary{background:var(--red);border-color:var(--red);color:#fff}
+  .primary:hover{background:var(--ink);border-color:var(--ink)}
+  .row{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:14px 0}
+
+  /* ── the strip book ─────────────────────────────────── */
+  .book{border:1.5px solid var(--ink);background:#fffdf8;
+        box-shadow:5px 6px 0 rgba(29,37,69,.10);padding:10px 8px}
+  .strip{display:flex;align-items:stretch;gap:0;border-bottom:1px dashed var(--rule)}
+  .strip:last-child{border-bottom:0}
+  .strip.gap{margin-bottom:10px;border-bottom:0}
+  .strip .tab{border:0;background:transparent;color:var(--rule);font-size:15px;padding:0 7px;
+              letter-spacing:0;cursor:pointer}
+  .strip .tab:hover{background:transparent;color:var(--red)}
+  .strip .num{font-family:var(--mono);font-size:11px;color:var(--ink2);width:2.1em;
+              display:flex;align-items:center;justify-content:center;border-right:1px solid var(--rule)}
+  .strip .line{flex:1;padding:9px 12px;font-size:clamp(15px,3.6vw,21px);cursor:pointer;
+               transform-origin:50% 0;backface-visibility:hidden}
+  .strip .line:hover{background:#f4f1e6}
+  .strip.flip .line{animation:flip .42s cubic-bezier(.3,.8,.3,1)}
+  @keyframes flip{0%{transform:rotateX(0);opacity:1}
+                  45%{transform:rotateX(-84deg);opacity:.25}
+                  55%{transform:rotateX(84deg);opacity:.25}
+                  100%{transform:rotateX(0);opacity:1}}
+  .address{font-family:var(--mono);font-size:12.5px;color:var(--ink2);letter-spacing:.18em;margin-top:10px}
+  .address b{color:var(--red);font-weight:400}
+  .tens{display:flex;flex-wrap:wrap;gap:5px}
+  .tens button{padding:5px 9px;letter-spacing:0}
+  .counts{display:flex;flex-wrap:wrap;gap:26px;margin-top:20px;font-family:var(--sans);
+          font-size:12px;color:var(--ink2);line-height:1.45}
+  .counts b{display:block;font-family:var(--didone);font-size:26px;color:var(--ink);letter-spacing:0}
+
+  blockquote{margin:24px 0;border-left:4px solid var(--red);padding:2px 0 2px 16px;max-width:62ch}
+  blockquote .o{font-size:19px;font-style:italic}
+  blockquote .t{margin-top:7px;color:var(--ink2);font-size:15.5px}
+  blockquote cite{display:block;margin-top:8px;font-style:normal;font-family:var(--sans);
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--green)}
+
+  /* ── n+7 ────────────────────────────────────────────── */
+  textarea{width:100%;min-height:150px;font-family:var(--serif);font-size:16px;line-height:1.66;
+    color:var(--ink);background:#fffdf8;border:1.5px solid var(--ink);padding:12px;resize:vertical}
+  textarea:focus{outline:3px solid var(--red);outline-offset:1px}
+  .nrow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:14px 0}
+  .nctl{display:flex;align-items:center;gap:9px;font-family:var(--sans);font-size:11px;
+        letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+  .nctl output{font-family:var(--didone);font-size:30px;color:var(--red);min-width:2.6em;
+               text-align:center;letter-spacing:0;text-transform:none}
+  input[type=range]{accent-color:var(--red);width:190px}
+  .result{border:1.5px solid var(--ink);background:#fffdf8;padding:18px 20px;
+          box-shadow:5px 6px 0 rgba(29,37,69,.10);font-size:18px;line-height:1.8;white-space:pre-wrap}
+  .sw{color:var(--red)}
+  .sw s{color:var(--ink2);text-decoration-color:var(--margin);margin-right:.35em;font-size:.86em}
+  .tally{font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+         color:var(--ink2);margin-top:10px}
+  footer{margin-top:64px;border-top:1.5px solid var(--ink);padding-top:14px;
+    font-family:var(--sans);font-size:12px;color:var(--ink2);line-height:1.8;max-width:78ch}
+  @media (prefers-reduced-motion:reduce){.strip.flip .line{animation:none}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="kicker">Ouvroir de littérature potentielle · founded 1960</div>
+  <h1>Two Machines<br>from the <i>Ouvroir</i></h1>
+  <p class="dek">Queneau and Le Lionnais set up a workshop to build constraints rather than poems — devices
+    that hold a shape open and let anybody run material through them. Two of the first are below, both from
+    1961. One assembles; the other dismantles. Neither needs an author present to keep working.</p>
+  <hr>
+
+  <!-- ── I ──────────────────────────────────────────── -->
+  <div class="sechead"><span class="n">I</span><h2>Cent mille milliards de poèmes <span>Queneau, 1961</span></h2></div>
+  <p>Ten sonnets, each printed on a card cut into fourteen strips. Every sonnet keeps the same rhyme scheme
+    <i>and</i> the same rhyme sounds, so line 6 of any sonnet will serve as line 6 of any other. Flip the
+    strips and the book holds a hundred million million poems. Queneau said the model was not the surrealists'
+    exquisite corpse but a children's flip-book of interchangeable heads.</p>
+
+  <div class="row tens" id="tens"></div>
+  <div class="row">
+    <button class="primary" id="shuffle">Flip every strip</button>
+    <button id="stanza1">Only the quatrains</button>
+    <button id="reveal" aria-pressed="false">Show the seams</button>
+  </div>
+
+  <div class="book" id="book"></div>
+  <div class="address" id="address"></div>
+
+  <div class="counts">
+    <div><b id="total">0</b>possible poems<br>from ten sonnets</div>
+    <div><b id="years">0</b>years of reading<br>at one poem a minute, without stopping</div>
+    <div><b>140</b>lines actually written<br>the whole inventory</div>
+  </div>
+
+  <blockquote>
+    <div class="o">« une sorte de machine à fabriquer des poèmes »</div>
+    <div class="t">A sort of machine for manufacturing poems — Queneau on his own book, adding that the
+      supply, though finite, runs to nearly two hundred million years of reading around the clock.</div>
+    <cite>Raymond Queneau, jacket note, Gallimard 1961</cite>
+  </blockquote>
+
+  <div class="cols">
+    <p>The arithmetic is only half the trick. The hard part is writing 140 lines that are grammatically
+      self-sufficient — no clause may reach across a strip, because the next strip is not going to be there.
+      Every line has to end its own sentence or sit as an apposition that survives any neighbour.</p>
+    <p>The rhymes need a second constraint that is easy to miss: no rhyme word may appear at two different
+      positions in the sonnet. Otherwise a flip eventually lands the same word twice in one poem and the
+      whole illusion of a written object collapses. The ten sonnets here are mine, since Queneau's are
+      still in copyright; the scheme is his — ABAB ABAB CCD EED, one rhyme sound per letter throughout, and
+      four disjoint word-pools for the four A positions so that no combination can ever repeat itself.</p>
+  </div>
+
+  <!-- ── II ─────────────────────────────────────────── -->
+  <div class="sechead"><span class="n">II</span><h2>N+7 <span>Lescure, 1961</span></h2></div>
+  <p>Jean Lescure's rule: take a text, take a dictionary, and replace every noun with the seventh noun that
+    follows it. Nothing else changes — not the grammar, not the articles, not the line breaks. The result
+    keeps the exact skeleton of the original and loses all of its subject matter, which is a fairly precise
+    demonstration of how much of a sentence's meaning is carried by things that are not its nouns.</p>
+
+  <textarea id="src" spellcheck="false"></textarea>
+  <div class="nrow">
+    <div class="nctl"><span>N +</span><input type="range" id="n" min="-15" max="15" value="7"><output id="nval">7</output></div>
+    <button class="primary" id="run">Substitute</button>
+    <button id="orig" aria-pressed="true">Show what was there</button>
+  </div>
+  <div class="row">
+    <button data-seed="sonnet">Shakespeare 18</button>
+    <button data-seed="gettysburg">Gettysburg</button>
+    <button data-seed="genesis">Genesis 1</button>
+  </div>
+
+  <div class="result" id="out"></div>
+  <div class="tally" id="tally"></div>
+
+  <div class="cols" style="margin-top:34px">
+    <p>The dictionary is not a neutral part of the apparatus — it is the other half of the constraint.
+      A Larousse throws up specialist vocabulary and archaisms; a schoolroom word-list produces something
+      tamer and stranger. This one holds a few hundred ordinary nouns, so the substitutions stay
+      recognisable and the joke lands closer to home. Change the offset and the same text yields a
+      different poem; N+7 is a family of transformations, not one.</p>
+    <p>Both machines make the same wager as Llull's wheel and Harsdörffer's discs three and six centuries
+      earlier: that a rule applied mechanically to language will turn up something the operator could not
+      have intended, and that the operator still has to decide which results are worth keeping. What the
+      Oulipo added was candour about it. The constraint is published alongside the work, so the reader can
+      run the machine too — which is the only reason this page can exist.</p>
+  </div>
+
+  <footer>
+    Queneau, <em>Cent mille milliards de poèmes</em>, Gallimard 1961, designed by Robert Massin, with a
+    postface by François Le Lionnais; the ten sonnets used here are original, written to Queneau's scheme,
+    not his text. N+7 after Jean Lescure, 1961. Source texts for substitution: Shakespeare 1609,
+    Lincoln 1863, King James Bible 1611 — all public domain. Dictionary: 370 common English nouns,
+    sorted alphabetically at load.
+  </footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ═══ I · TEN SONNETS, BY POSITION ═══════════════════════
+   LINES[position][sonnet]. Rhyme pools are disjoint between
+   positions, so no generated poem can repeat a rhyme word. */
+const LINES = [
+ ["The harbour cranes rehearse the day","The evening comes on flat and grey","The furrow shines with rain and clay","The proofs go up at break of day","The radiator ticks away","The anchor chain is stowed away","The lathe is running true today","The market opens at midday","The reading room admits the grey","The frost has taken back the day"],
+ ["The gulls come down to test the light","The towers burn their windows white","The scarecrow keeps its ragged height","The typesetter works by lamplight","The kitchen tap runs on till light","The mast is measured to its height","The gauge is read in raking light","The awnings go up, canvas-white","The catalogue runs past midnight","The last train south goes out tonight"],
+ ["A ferry writes its name in spray","The traffic edges on its way","The barn is stacked with last year's hay","The letters sleep inside their tray","The neighbours put on a display","The compass swings the other way","The swarf comes down into a tray","The mackerel are on display","The index cards are in array","The suitcases are in array"],
+ ["The tide books passage for the night","The kiosk keeps its window bright","The gatepost leans, but stands upright","The forme is locked and stood upright","The fridge hums to itself all night","The lamp room signals through the night","The tolerance is holding tight","The butcher's cheerful and polite","The scholar's lamp is green and bright","The buffet's open half the night"],
+ ["The customs launch has time to stay","The platform boards announce delay","The orchard drops what apples may","The editor has less to say","The bins go out. There's no delay","The cook has flour and rice to weigh","The apprentice has his dues to pay","The bread is worth the price you pay","The paper crumbles with decay","The steam goes up and hangs to stay"],
+ ["The lamps along the pier ignite","The tunnels take the last daylight","The rooks go home in the twilight","The night desk sets the columns right","The clock ticks on, as if in spite","The engine settles, running right","The rod comes down and will ignite","The plums are ripe. They look just right","The blinds come down against daylight","The signal glows in the twilight"],
+ ["The masts of little boats all sway","The buskers pack up, and obey","The wheat bends where the winds betray","The presses turn and they obey","The hours here have gone astray","The gulls fall back towards the bay","The grinder throws a yellow ray","The tulips in their buckets sway","The oldest volumes go astray","The guard walks down for a survey"],
+ ["A trawler idles out of sight","The pigeons take a rooftop flight","A bag goes over like a kite","The morning asks him to rewrite","The cold gets in and takes a bite","The rim of sea stays clear in sight","The docket has a code to write","The cheese man offers you a bite","The oldest hand is losing sight","The guard has numbers to recite"],
+ ["The breakwater is dressed in stone","The litter in the square is blown","The seed is counted, weighed and sown","The pressman's ink is all his own","The room is empty as a bone","The captain eats his meal alone","The old machine will hold its own","By noon the pigeons have all flown","The heating keeps up a low drone","The platform empties. I'm alone"],
+ ["The pilot's route is clearly known","The evening paper's read and thrown","The boundary oak is fully grown","The rollers settle to a moan","The heating pipes begin to groan","The radio speaks in one flat tone","The night shift's coming; that is known","The chips come folded in a cone","The reference desk has one old phone","The whistle goes. The die is thrown"],
+ ["The forecast promises the rain","The signal drops. Here comes the train","The silo holds a year of grain","The paper feeds off one long chain","The gutter empties down the drain","The glass falls fast and warns of rain","The hoist comes down and takes the strain","The awnings shed the sudden rain","The index lives in someone's brain","The window fogs and runs with rain"],
+ ["The chandler's shelves are stocked up well","The evening rush is hard to quell","The mist takes hours to dispel","The typo waits to break the spell","The traffic starts its usual swell","The harbour lights have said farewell","The fumes are hard here to expel","The trader's patter works quite well","The closing hour breaks the spell","There's nothing left to say: farewell"],
+ ["The rope shed keeps its salt and shell","The turnstiles ring a little bell","The hayloft holds a warmer smell","The metal cools in every cell","The kettle whistles. Time will tell","The old hands know but never tell","The whole place has a cutting smell","The children's ride's a carousel","The stack room's colder than a cell","The station empties like a shell"],
+ ["The harbour bell repeats again","The map of it is very plain","The weather says it will remain","The margin takes an oily stain","And nothing here will quite explain","The land will not appear again","The floor is swept. The parts remain","They pack the vans and start again","Whatever's read here will remain","The rails go on across the plain"]
+];
+
+const state = Array.from({length:14}, (_,i) => i % 10);
+let reveal = false;
+
+const total = Math.pow(10,14);
+$("total").textContent = total.toLocaleString("en-GB");
+$("years").textContent = Math.round(total / (60*24*365.25)).toLocaleString("en-GB");
+
+const book = $("book");
+const strips = [];
+for (let p=0;p<14;p++){
+  const d = document.createElement("div");
+  d.className = "strip" + (p===3 || p===7 || p===10 ? " gap" : "");
+  const prev = document.createElement("button"); prev.className="tab"; prev.textContent="◂";
+  prev.setAttribute("aria-label","previous line");
+  const num = document.createElement("span"); num.className="num";
+  const line = document.createElement("div"); line.className="line";
+  const next = document.createElement("button"); next.className="tab"; next.textContent="▸";
+  next.setAttribute("aria-label","next line");
+  prev.onclick = () => turn(p,-1);
+  next.onclick = () => turn(p,+1);
+  line.onclick = () => turn(p, 1 + Math.floor(Math.random()*9));
+  d.append(prev,num,line,next);
+  book.appendChild(d);
+  strips.push({d,num,line});
+}
+
+function turn(p,k){
+  state[p] = ((state[p] + k) % 10 + 10) % 10;
+  const s = strips[p];
+  s.d.classList.remove("flip"); void s.d.offsetWidth; s.d.classList.add("flip");
+  paint();
+}
+function paint(){
+  strips.forEach((s,p) => {
+    s.line.textContent = LINES[p][state[p]];
+    s.num.textContent = reveal ? state[p]+1 : "";
+    s.num.style.borderRightColor = reveal ? "" : "transparent";
+  });
+  const a = $("address");
+  a.textContent = "";
+  a.appendChild(document.createTextNode("address "));
+  const b = document.createElement("b");
+  b.textContent = state.map(i => i+1 === 10 ? "X" : String(i+1)).join(" ");
+  a.appendChild(b);
+}
+$("shuffle").onclick = () => {
+  state.forEach((_,p) => state[p] = Math.floor(Math.random()*10));
+  strips.forEach(s => { s.d.classList.remove("flip"); void s.d.offsetWidth; s.d.classList.add("flip"); });
+  paint();
+};
+$("stanza1").onclick = () => {
+  const a = Math.floor(Math.random()*10), b = Math.floor(Math.random()*10);
+  for (let p=0;p<8;p++) state[p] = p<4 ? a : b;
+  for (let p=8;p<14;p++) state[p] = Math.floor(Math.random()*10);
+  strips.forEach(s => { s.d.classList.remove("flip"); void s.d.offsetWidth; s.d.classList.add("flip"); });
+  paint();
+};
+$("reveal").onclick = e => {
+  reveal = !reveal;
+  e.currentTarget.setAttribute("aria-pressed", String(reveal));
+  paint();
+};
+const tens = $("tens");
+const lab = document.createElement("span");
+lab.style.cssText = "font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);margin-right:4px";
+lab.textContent = "Read one intact:";
+tens.appendChild(lab);
+for (let i=0;i<10;i++){
+  const b = document.createElement("button");
+  b.textContent = i+1;
+  b.onclick = () => {
+    state.forEach((_,p) => state[p] = i);
+    strips.forEach(s => { s.d.classList.remove("flip"); void s.d.offsetWidth; s.d.classList.add("flip"); });
+    paint();
+  };
+  tens.appendChild(b);
+}
+paint();
+
+/* ═══ II · N+7 ═══════════════════════════════════════════ */
+const DICT = ("anchor angel animal answer apple arm army art autumn baby back ball bank bar battle battlefield beach bear bed bell bird blood board boat body bone book border bottle box boy brain branch bread breath bridge brother bud building business butter cake camera candle captain car card castle cat chair chance change child church circle city class clock cloud coast coat coffee coin colour complexion continent corner country course cousin cow crowd cup curtain dance danger date daughter day death desert desk diamond dinner doctor dog door dream dress drum duck dust ear earth edge egg empire end engine evening eye face factory family farm father feather fence field finger fire fish flag floor flower fog foot forest fortune fountain friend fruit garden gate ghost giant girl glass glove goat gold government grass ground guest hair hall hammer hand harbour hat head heart heaven hill history hole holiday home honey horse hospital hotel hour house hunger ice idea industry ink insect iron island journey judge key king kitchen knife lady lake lamp land language laughter law leaf lease leg letter liberty library life light line lion lip machine man map market marriage matter meadow meal measure meat medicine memory metal midnight milk mind minute mirror money monkey month moon morning mother mountain mouse mouth music name nation nature needle neighbour nest news night noise north nose number nurse ocean office oil orange order oven page pain painting paper parent park party passenger path peace pen pencil people picture pig pillow place planet plant plate poem poet point police pool portion post potato power price prince prison problem promise proposition purse question rain reason record religion restaurant rice ring river road rock roof room root rope rose sail salt sand school science score sea season seat secret shade shadow sheep shell ship shirt shoe shop shoulder silver sister sky sleep smoke snow soldier son song sound soup south space spring square stable stage star station stem stone storm story street string student sugar summer sun table tail teacher tear telephone temple theatre thing thought thunder ticket tiger time tongue tooth town train tree truth valley village voice wall war watch water wave weather week wheel whistle wind window wine wing winter wolf woman wood word work world year").split(" ").sort();
+const INDEX = new Map(DICT.map((w,i) => [w,i]));
+const IRREG = {men:"man", women:"woman", feet:"foot", teeth:"tooth", children:"child",
+               lives:"life", leaves:"leaf", mice:"mouse", geese:"goose", oxen:"ox"};
+
+const SEEDS = {
+ sonnet:`Shall I compare thee to a summer's day?
+Thou art more lovely and more temperate:
+Rough winds do shake the darling buds of May,
+And summer's lease hath all too short a date;
+Sometime too hot the eye of heaven shines,
+And often is his gold complexion dimm'd;
+And every fair from fair sometime declines,
+By chance or nature's changing course untrimm'd;
+But thy eternal summer shall not fade,
+Nor lose possession of that fair thou ow'st;
+Nor shall death brag thou wander'st in his shade,
+When in eternal lines to time thou grow'st:
+So long as men can breathe or eyes can see,
+So long lives this, and this gives life to thee.`,
+ gettysburg:`Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in liberty, and dedicated to the proposition that all men are created equal. Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battlefield of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live.`,
+ genesis:`In the beginning God created the heaven and the earth. And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters. And God said, Let there be light: and there was light. And God saw the light, that it was good: and God divided the light from the darkness.`
+};
+
+let showOriginals = true;
+
+function shiftWord(w, n){
+  const lower = w.toLowerCase();
+  let base = lower, plural = false;
+  if (IRREG[lower]){ base = IRREG[lower]; plural = true; }
+  else if (!INDEX.has(lower) && lower.endsWith("s")){
+    const t = lower.endsWith("es") && /(ch|sh|s|x|z)es$/.test(lower) ? lower.slice(0,-2) : lower.slice(0,-1);
+    if (INDEX.has(t)){ base = t; plural = true; }
+  }
+  if (!INDEX.has(base)) return null;
+  let out = DICT[((INDEX.get(base) + n) % DICT.length + DICT.length) % DICT.length];
+  if (plural) out += /(ch|sh|s|x|z)$/.test(out) ? "es" : "s";
+  if (w[0] === w[0].toUpperCase() && w[0] !== w[0].toLowerCase()) out = out[0].toUpperCase() + out.slice(1);
+  return out;
+}
+
+function run(){
+  const n = parseInt($("n").value, 10);
+  const text = $("src").value;
+  const out = $("out");
+  out.textContent = "";
+  let hits = 0;
+  text.split(/([A-Za-z']+)/).forEach((tok, i) => {
+    if (i % 2 === 0){ out.appendChild(document.createTextNode(tok)); return; }
+    const rep = n === 0 ? null : shiftWord(tok, n);
+    if (!rep){ out.appendChild(document.createTextNode(tok)); return; }
+    hits++;
+    const s = document.createElement("span"); s.className = "sw";
+    if (showOriginals){ const o = document.createElement("s"); o.textContent = tok; s.appendChild(o); }
+    s.appendChild(document.createTextNode(rep));
+    out.appendChild(s);
+  });
+  $("tally").textContent = hits + " nouns found and moved " + (n>=0 ? "+"+n : n) +
+                           " places · dictionary of " + DICT.length + " words";
+}
+
+$("n").addEventListener("input", () => { $("nval").textContent = $("n").value; run(); });
+$("run").onclick = run;
+$("orig").onclick = e => {
+  showOriginals = !showOriginals;
+  e.currentTarget.setAttribute("aria-pressed", String(showOriginals));
+  run();
+};
+document.querySelectorAll("[data-seed]").forEach(b =>
+  b.onclick = () => { $("src").value = SEEDS[b.dataset.seed]; run(); });
+
+$("src").value = SEEDS.sonnet;
+$("src").addEventListener("input", run);
+run();
+})();
+</script>
+</body>
+</html>

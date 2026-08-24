@@ -70,8 +70,18 @@
       <button type="submit" name="set_arity" value="3">Three principles</button>
       <button type="submit" name="set_arity" value="2">Two principles</button>
     </form>
-    <p class="scene-credit">Nine letters, B to K &mdash; J is skipped. The ancestor of scene
-      one: both are volvelles (see the catalogue's <code>ars_combinatoria</code> row).</p>
+    {# The scene drew three concentric wheels of nine letters and never said
+       which figure that is, so a viewer had no way to know they were looking
+       at the fourth. Named here, with the one place the rebuild departs from
+       the print: there the outer circle is fixed and the two inner ones are
+       cut out and hung on a knotted thread. All three turn here, which reaches
+       the same 84 chambers — a chamber is which letter each wheel shows, not
+       where in its own ring that letter sits — but it is a departure and is
+       said rather than left to be noticed. #}
+    <p class="scene-credit">The fourth figure &mdash; three concentric wheels of the nine
+      letters, B to K, J skipped. In the print the outer ring is fixed; all three turn
+      here. The ancestor of scene one: both are volvelles (see the catalogue's
+      <code>ars_combinatoria</code> row).</p>
   </div>
 </div>
 <script type="application/json" id="llull-data">{{ llull_data_json | safe }}</script>
@@ -517,6 +527,28 @@ function buildWheel(wheelIndex) {
   dial.setAttribute('class', 'wheel-dial');
   g.appendChild(dial);
 
+  // Nine sector dividers, drawn from the centre out to this wheel's own edge
+  // and offset half a step so they fall between the letters rather than
+  // through them. Inside the dial, so they turn with the face: a volvelle's
+  // divisions are printed on the disc and go round with it.
+  //
+  // Each line runs the whole radius and the smaller wheels are painted on top
+  // of it (see the dartboard note below), so what survives is exactly this
+  // band's own divisions. The discs were flat filled circles with letters on
+  // them before this, which is not what a volvelle looks like.
+  const spokes = document.createElementNS(SVGNS, 'g');
+  spokes.setAttribute('class', 'wheel-spokes');
+  for (let k = 0; k < 9; k++) {
+    const rad = ((k * ANGLE_STEP + ANGLE_STEP / 2) * Math.PI) / 180;
+    const line = document.createElementNS(SVGNS, 'line');
+    line.setAttribute('x1', String(CENTER));
+    line.setAttribute('y1', String(CENTER));
+    line.setAttribute('x2', String(CENTER + geo.rOuter * Math.sin(rad)));
+    line.setAttribute('y2', String(CENTER - geo.rOuter * Math.cos(rad)));
+    spokes.appendChild(line);
+  }
+  dial.appendChild(spokes);
+
   const spokeEls = [];
   for (let k = 0; k < 9; k++) {
     const angle = k * ANGLE_STEP;
@@ -546,6 +578,19 @@ function buildWheel(wheelIndex) {
 // SVG donut.
 [2, 1, 0].forEach((i) => svg.appendChild(document.getElementById('wheel-' + i)));
 [2, 1, 0].forEach(buildWheel);
+
+// The pivot, last of all so it sits on top of the innermost wheel. In the
+// manuscripts and the early printings the inner circles were genuinely cut out
+// and fastened to the centre of the outer one with a thread knotted at both
+// ends; this is that knot, and it is the detail that says the thing was built
+// rather than drawn.
+const hub = document.createElementNS(SVGNS, 'circle');
+hub.setAttribute('cx', String(CENTER));
+hub.setAttribute('cy', String(CENTER));
+hub.setAttribute('r', '9');
+hub.setAttribute('class', 'wheel-hub');
+svg.appendChild(hub);
+
 assemble();
 
 HoldTurn.attach(document.getElementById('wheel-holds'), {

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import importlib.util
+import itertools
 import math
 import os
 import random
@@ -20,9 +21,17 @@ from fastapi.testclient import TestClient
 from denckring import check as denckring_check
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, LanguagePack
+from denckring.core.registry import get as registry_get
+from denckring.procedures.column_reading import ColumnReading
+from denckring.procedures.fold_in import FoldIn
 from denckring.procedures.poesie_automat import SEPARATOR as AUTOMAT_SEPARATOR
 
 client = TestClient(app)
+
+#: The two cut-up-family procedures scene six added, called directly so a test
+#: can produce a known-good result of each rather than assembling one by hand.
+fold_in_apply = FoldIn().apply
+column_reading_apply = ColumnReading().apply
 
 
 def _label(alternatives: list[str], index: int) -> str:
@@ -103,12 +112,384 @@ def test_every_scene_renders_and_survives_chrome_off(slug: str) -> None:
     assert "stage-caption" not in without.text
 
 
+# ── the readings ────────────────────────────────────────────────────────────
+#
+# A companion page per machine, off the frame. What is worth pinning here is
+# not that the pages render — it is that the figures they state are the ones
+# the data produces, because prose is where a quoted count goes to look
+# settled. Each of the assertions below has a specific wrong number in mind,
+# taken from the design mockups these pages were drawn from.
+
+
+def test_every_reading_stands_behind_real_scenes() -> None:
+    """A reading naming a scene that does not exist would 500 on the link the
+    scene itself renders — `stage.scene` raises `KeyError` for an unknown
+    slug, and the route calls it for every name a reading claims."""
+    slugs = {scene.slug for scene in stage.SCENES}
+    for reading in stage.READINGS:
+        assert reading.scenes, f"{reading.slug} stands behind nothing"
+        assert set(reading.scenes) <= slugs, f"{reading.slug} names a scene that is not one"
+
+
+def test_no_scene_is_claimed_by_two_readings() -> None:
+    """`reading_for` returns the first match, so a scene claimed twice would
+    silently render one of the two and there would be no way to tell which
+    from the link."""
+    claimed = [name for reading in stage.READINGS for name in reading.scenes]
+    assert len(claimed) == len(set(claimed))
+
+
+@pytest.mark.parametrize("slug", [name for reading in stage.READINGS for name in reading.scenes])
+def test_a_reading_renders_from_every_scene_behind_it(slug: str) -> None:
+    """Two of the readings answer to two scenes each, and the facts a page
+    needs are assembled per reading rather than per scene — so a page reached
+    from its second scene runs exactly the same branch, and a template
+    reaching for a name the branch does not set would only fail from one of
+    its two doors."""
+    response = client.get(f"/stage/{slug}/reading")
+    assert response.status_code == 200
+    reading = stage.reading_for(slug)
+    assert reading is not None
+    assert reading.title in response.text
+
+
+def test_a_scene_with_no_reading_says_so_rather_than_failing() -> None:
+    """Four of the eight scenes carry their whole argument on their own face.
+    That is an answer, not a gap: the route explains it the way `unknown.html`
+    explains a procedure id nobody has."""
+    assert stage.reading_for("word_ladder") is None
+    response = client.get("/stage/word_ladder/reading")
+    assert response.status_code == 200
+    assert "No reading behind" in response.text
+
+
+def test_a_reading_is_not_a_stage() -> None:
+    """The whole reason this surface exists is that it is not 1280 by 720 and
+    not recorded. If one of these ever rendered inside `.stage` it would be
+    clipped at 720px with no scrollbar, and the argument would simply be
+    missing below the fold."""
+    response = client.get("/stage/denckring/reading")
+    assert 'id="stage"' not in response.text
+    assert "stage-caption" not in response.text
+
+
+def test_the_link_to_a_reading_goes_away_with_the_chrome() -> None:
+    """The safety property of the link. It sits beside the caption, inside the
+    same `chrome_off` guard, so the flag that strips a scene for recording
+    strips this too — no capture can contain a pointer to a page that is not
+    part of the demonstration."""
+    assert "stage-reading-link" in client.get("/stage/denckring").text
+    assert "stage-reading-link" not in client.get("/stage/denckring?chrome=off").text
+
+
+def test_only_a_scene_with_a_reading_links_to_one() -> None:
+    """`reading_for` is a template global reached from the shared shell, which
+    `/board` also extends without being a scene at all. A shell that assumed a
+    `scene` was in scope would raise there rather than on any page anyone was
+    looking at."""
+    assert "stage-reading-link" not in client.get("/stage/word_ladder").text
+    assert client.get("/board").status_code == 200
+    assert "stage-reading-link" not in client.get("/board").text
+
+
+def test_the_figure_is_asked_nothing_without_a_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The whole section is absent rather than disabled, the same way the Witz
+    control is: a form that cannot be submitted is a promise the install cannot
+    keep.
+
+    The key is removed rather than the test skipped when one is present. A
+    skipped test is one that runs only where nobody is looking — on the one
+    machine that has a key it would never execute, and in CI it would be the
+    only place this path was ever exercised. `ars.available` reads the
+    environment at render time, so deleting it here is the real state every
+    machine but the author's is in."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert "ars-form" not in client.get("/stage/llull_figure/reading").text
+
+
+def test_the_figure_is_asked_something_when_there_is_a_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The other half, so the test above cannot pass by the section having been
+    deleted. A key that only has to be present for `ars.available` to be true —
+    nothing here reaches the network."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-a-real-one")
+    normalised = " ".join(client.get("/stage/llull_figure/reading").text.split())
+    assert 'hx-post="/p/llull_figure/ars"' in normalised
+    assert 'id="ars-question"' in normalised
+
+
+def test_a_question_with_no_key_says_so_rather_than_failing() -> None:
+    """Failures come back as a `problem`, never raised. This sits on a page
+    beside a real verdict, and a missing key must not take it down — the
+    contract `witz.read` keeps, kept here."""
+    from explorer import ars
+
+    session = ars.interrogate("", alphabet="", letters=stage.llull_alphabet())
+    assert session.problem
+    assert session.chamber == "" and session.rows == []
+
+
+def test_a_chamber_is_validated_against_the_figure_and_never_repaired() -> None:
+    """The chamber decides where the wheels are turned. Quietly dropping a bad
+    letter or padding a short chamber would move the figure to a position
+    nothing chose, while the table beside it still described the one that was
+    chosen — so anything that is not a chamber of this figure comes back empty
+    and the caller renders a problem instead."""
+    from explorer import ars
+
+    letters = stage.llull_alphabet()
+    assert ars._chamber("BCD", letters, 3) == "BCD"
+    assert ars._chamber("bcd", letters, 3) == "BCD"
+    assert ars._chamber("BCDE", letters, 3) == ""
+    assert ars._chamber("BB", letters, 3) == ""
+    assert ars._chamber("BCC", letters, 3) == ""
+    # J is not on this figure at all, and "BCJ" must not quietly become "BC".
+    assert ars._chamber("BCJ", letters, 3) == ""
+    assert ars._chamber("", letters, 3) == ""
+
+
+def test_nihil_is_one_of_the_things_a_row_may_conclude() -> None:
+    """The load-bearing part of the schema, and the one an edit tidying the
+    enum would remove first. A row whose concepts do not bear on the question
+    has to be able to say so, or every chamber produces five confident
+    arguments and the device becomes a machine for manufacturing assent."""
+    from explorer import ars
+
+    assert "nihil" in ars.VERDICTS
+    enum = ars.TOOL["input_schema"]["properties"]["rows"]["items"]["properties"]["verdict"]
+    assert enum["enum"] == list(ars.VERDICTS)
+
+
+def test_the_terms_the_art_argues_from_are_the_figures_own() -> None:
+    """The alphabet handed to the model is built from the shipped figure and
+    the shipped glosses, not written into the prompt. If it were written in,
+    the reading and the figure beside it would eventually describe two
+    different devices — and the ninth question is where that shows first, since
+    the short tables all print it as `Quomodo`."""
+    block = stage.llull_prompt_alphabet()
+    figure = stage.llull_figure_data()
+    for level in stage.LLULL_LEVELS:
+        for letter in figure.letters:
+            assert f"{letter} = {figure.levels[level][letter]}" in block
+    assert "Quomodo et cum quo" in block
+    assert "J =" not in block
+
+
+def test_a_reading_of_the_art_is_labelled_as_one() -> None:
+    """The design spec calls this the honesty risk and makes labelling a
+    requirement of the feature rather than a nicety. Pin the actual words, the
+    way the Witz disclaimer is pinned: an edit that drops or softens them
+    should fail a test and not only a review."""
+    template = (
+        Path(__file__).resolve().parents[1] / "src/explorer/templates/_stage_ars.html"
+    ).read_text(encoding="utf-8")
+    normalised = " ".join(template.split())
+    assert "A reading, not a verdict." in normalised
+    assert "No <code>Report</code> is produced and no checker consults it" in normalised
+
+
+def test_nothing_in_the_art_produces_a_report() -> None:
+    """The property the whole module is written around, asserted against its
+    source rather than trusted: `ars` never imports the library's own `check`,
+    never builds a `Report`, and is not reachable from one. It is a reader at a
+    bench with an opinion, and the acceptance criteria stay intrinsic."""
+    source = (Path(__file__).resolve().parents[1] / "src/explorer/ars.py").read_text(
+        encoding="utf-8"
+    )
+    assert "denckring_check" not in source
+    assert "from denckring" not in source
+    assert "import denckring" not in source
+    assert "Report(" not in source
+
+
+def test_the_rings_reading_states_computed_counts_and_not_the_printed_product() -> None:
+    """The mockup this page is drawn from multiplied Harsdorffer's own printed
+    caption out to "roughly 83 million words" and called the plate's inventory
+    254 parts. Both are arithmetic on numbers he printed rather than on the
+    parts the transcription carries, which is exactly what ADR 0019 forbids.
+    The struck figure is the one exception and has to stay struck: it is on the
+    page as the thing being refuted."""
+    text = client.get("/stage/denckring/reading").text
+    rings = stage.rings()
+    assert f"{rings.combinations:,}" in text
+    assert f"<s>{rings.claimed:,}</s>" in text
+    assert "83 million" not in text
+    assert f"{48 * 50 * 12 * 120 * 24:,}" not in text
+    # The parts figure appears twice on the page, so asserting the computed
+    # value is present passed a page whose inventory had been retyped as 254
+    # and whose second mention was still rendered — found by running this
+    # guard against that exact edit. Both halves are needed: the computed
+    # figure present, and the plate's own sum absent, since 48+50+12+120+24
+    # also comes to 264 and a page could state the right total for the wrong
+    # reason.
+    assert str(stage.ring_parts()) in text
+    assert "254" not in text
+
+
+def test_the_rings_reading_keeps_the_poetischer_trichter_correction() -> None:
+    """The catalogue row says the Denckring is not in the `Poetischer
+    Trichter`, "where it is often placed", and the mockup placed it there. The
+    correction is the sort of sentence that gets tidied away as pedantry by
+    somebody shortening a page, so it is pinned."""
+    text = client.get("/stage/denckring/reading").text
+    assert "Poetischer Trichter" in text
+    assert "517" in text
+
+
+@pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
+def test_the_last_poems_number_is_the_number_of_poems(lang: Lang) -> None:
+    """The property that makes the address something other than decoration: a
+    state is a mixed-radix numeral and the book is its own index, so the first
+    poem is number one and the last one's number *is* the total printed beside
+    it. If those two ever disagree, one of them is lying about the inventory."""
+    offered = stage.queneau_offered(lang)
+    first = [0] * len(offered)
+    last = [len(options) - 1 for options in offered]
+    assert stage.queneau_ordinal(first, lang) == 1
+    assert stage.queneau_ordinal(last, lang) == stage.queneau_combinations(lang)
+
+
+def test_the_address_is_the_state_broken_where_the_sonnet_is() -> None:
+    """Grouped 4-4-3-3, which is where Queneau's ABAB ABAB CCD EED breaks —
+    the address is cut where the poem is. Read off the state, never
+    renumbered."""
+    state = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3]
+    assert stage.queneau_address(state) == ["0123", "4567", "890", "123"]
+    assert "".join(stage.queneau_address(state)) == "".join(str(i) for i in state)
+
+
+def test_a_flip_moves_exactly_one_digit_of_the_address() -> None:
+    """One strip, one digit. This is the whole argument the address makes: a
+    hundred million million is not a quantity anybody has an intuition for, and
+    watching a single digit move under one flip is the same fact arrived at by
+    turning it."""
+    offered = stage.queneau_offered("en")
+    before = [3] * len(offered)
+    for position in range(len(offered)):
+        after = stage.queneau_flip(before, position, "en", random.Random(position))
+        digits_before = "".join(stage.queneau_address(before))
+        digits_after = "".join(stage.queneau_address(after))
+        moved = [
+            i for i, (a, b) in enumerate(zip(digits_before, digits_after, strict=True)) if a != b
+        ]
+        assert moved == [position]
+
+
+def test_a_deal_brings_the_address_back_with_it() -> None:
+    """The address sits beside the poem rather than inside `#poem`, so a deal's
+    innerHTML swap does not reach it. It came back for a flip and not for a
+    deal until `_stage_deal.html` existed, which left the scene showing poem
+    number one under fourteen lines it had just redealt — and then made the
+    next flip appear to move twelve digits at once as the stale address caught
+    up. Found by driving the scene in a browser, not by a Python test, which is
+    why this one exists."""
+    response = client.post("/stage/cent_mille_milliards/deal", data={"lang": "en"})
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert 'id="poem-address"' in normalised
+    assert 'hx-swap-oob="true"' in normalised
+
+
+def test_the_address_on_screen_describes_the_poem_on_screen() -> None:
+    """Every route that renders a poem renders its address from the same state,
+    so the two cannot come apart — first paint, a change of strips, a deal and
+    a flip alike."""
+    for response, form in (
+        (client.get("/stage/cent_mille_milliards"), None),
+        (client.get("/stage/cent_mille_milliards/set", params={"lang": "de"}), None),
+        (client.post("/stage/cent_mille_milliards/deal", data={"lang": "en"}), None),
+        (
+            client.post(
+                "/stage/cent_mille_milliards/flip",
+                data={"state": "1,2,3,4,5,6,7,8,9,0,1,2,3,4", "lang": "en", "position": "5"},
+            ),
+            None,
+        ),
+    ):
+        assert response.status_code == 200
+        normalised = " ".join(response.text.split())
+        state = re.search(r'id="poem-state" name="state" value="([0-9,]+)"', normalised)
+        assert state is not None, normalised[:400]
+        parsed = [int(part) for part in state.group(1).split(",")]
+        lang: Lang = "de" if form == "de" else "en"
+        digits = re.findall(r"<span>([0-9]+)</span>", normalised)
+        assert "".join(digits) == "".join(str(index) for index in parsed)
+        assert f"{stage.queneau_ordinal(parsed, lang):,}" in normalised
+
+
+def test_the_queneau_reading_and_its_scene_state_the_same_count() -> None:
+    """The scene renders "N poems this set can make" under a title that
+    promises ten to the fourteenth. Whatever is true of the shipped strips, the
+    reading beside it has to say the same thing — two surfaces quoting one
+    inventory differently is the failure this whole pass is about, and it stops
+    being a live risk only once both read 10^14."""
+    count = f"{stage.queneau_combinations():,}"
+    assert count in client.get("/stage/cent_mille_milliards").text
+    assert count in client.get("/stage/cent_mille_milliards/reading").text
+
+
+def test_the_oulipo_reading_names_the_noun_lists_it_actually_walks() -> None:
+    """The mockup called its dictionary "370 common English nouns" and reached
+    for a Larousse as the contrast. The list underneath this scene is Open
+    English WordNet, it is two orders of magnitude larger, and naming it is the
+    page's own argument that the dictionary is half the constraint."""
+    text = " ".join(client.get("/stage/n_plus_7/reading").text.split())
+    # The count and the name in one breath, not merely both somewhere on the
+    # page: asserting them separately passed a page that had stopped naming
+    # the list in its own inventory and was carrying the name only in the
+    # sources footer, which is not where the argument is made.
+    assert (
+        f"<b>{len(stage.pack('en').nouns()):,}</b> "
+        "<span>English noun lemmas, in dictionary order — "
+        "the Open English WordNet 2024, CC BY 4.0</span>"
+    ) in text
+    assert (
+        f"<b>{len(stage.pack('de').nouns()):,}</b> "
+        "<span>German noun lemmas — derived from Wikidata Lexemes, CC0</span>"
+    ) in text
+
+
+def test_the_figure_reading_states_no_count_nobody_has_checked() -> None:
+    """ADR 0019 permits the two counts that fall out of nine letters and
+    refuses the third that circulates with them — the number of compartments in
+    the printed `Tabula generalis`, which stays unchecked until somebody reads
+    a facsimile. The mockup prints it. This asserts the absence, which is the
+    only kind of assertion that can catch a number being helpfully added."""
+    text = client.get("/stage/llull_figure/reading").text
+    counts = stage.llull_chamber_counts()
+    assert str(counts[3]) in text
+    assert str(counts[2]) in text
+    assert "1,680" not in text
+    assert "1 680" not in text
+
+
+def test_the_automat_reading_reads_its_figures_off_the_device() -> None:
+    """Six lines, thirty-six modules, three hundred and sixty flaps and an
+    exact power of ten. The last one is the point: the count is rendered as
+    `10^n` because thirty-six modules of ten alternatives multiply to nothing
+    else, and `power_of_ten` returns `None` rather than rounding if that ever
+    stops being true."""
+    text = client.get("/stage/poesie_automat/reading").text
+    lines, modules, flaps = stage.automat_inventory()
+    exponent = stage.power_of_ten(stage.flap_board().combinations)
+    assert exponent is not None
+    assert str(flaps) in text
+    assert f"10<sup>{exponent}</sup>" in text
+    assert str(modules) in text
+    assert str(lines) in text
+
+
 #: The `data-sync` declaration each scene's driving `<select>` carries, and
 #: the id/key pairs it names. Three scenes wrote three copies of the same
 #: toggle-sync script before it was extracted to `_stage_sync.html`; what the
 #: markup now has to get right is the declaration, so that is what is pinned.
+#: N+7 was here until its source became a passage rather than a test sentence:
+#: four real texts per language do not fit on a `<select>`'s options, so the
+#: scene offers them as buttons that fill the field, and there is no toggle for
+#: `data-sync` to follow. The shared partial is unchanged and the word ladder
+#: still uses it — which is the point of it having been extracted.
 _SYNC_DECLARATIONS = {
-    "n_plus_7": [("source-field", "example")],
     "word_ladder": [("start-field", "start"), ("target-field", "target")],
 }
 
@@ -1051,6 +1432,163 @@ def test_reduced_motion_settles_slips_instead_of_stranding_them() -> None:
 
 # ── scene three: N+7 ────────────────────────────────────────────────────────
 
+#: A sweep of the slider's range, not the whole of it: the control is
+#: continuous from -15 to +15 now, so a test cannot walk every offer the way it
+#: could when there were seven. These are the ones with something to prove —
+#: both ends, both directions, one either side of zero, and the offset the
+#: procedure is named after.
+_OFFSETS = (-15, -7, -1, 1, 7, 11, 15)
+
+
+@pytest.mark.parametrize("offset", _OFFSETS)
+def test_the_reel_and_the_text_land_on_the_same_word(offset: int) -> None:
+    """The one property this scene cannot be allowed to get wrong: the column a
+    viewer watches travel must stop on the word the sentence beside it actually
+    got. `displace` lands on `(index + offset) % len(nouns)`; the reel is built
+    separately, and separately is where two implementations of one rule drift.
+
+    It had drifted twice. `displacement` walked `range(index, landing + 1)` and
+    skipped any noun whose landing ran past the end of the list — so a noun near
+    the end was displaced in the result while its column silently vanished from
+    the figure — and for a negative offset that range is empty, so every column
+    vanished and the reel announced that the list knew none of these words.
+    Neither was reachable while the offset was hard-coded to 7; both became
+    reachable the moment it became a control."""
+    from denckring.procedures.n_plus_7 import displace
+
+    source = "the cat sat on the table"
+    steps = stage.displacement(source, offset)
+    produced = displace(source, stage.pack(), offset)
+    assert steps, "no reel at all"
+    for step in steps:
+        assert step.neighbours[0] == step.word
+        assert step.neighbours[-1] == step.replacement
+        assert len(step.neighbours) == abs(offset) + 1
+        assert step.replacement in produced
+
+
+@pytest.mark.parametrize("offset", (-7, -3, -1, 1, 3, 7, 11))
+def test_the_reel_wraps_at_the_ends_of_the_list_exactly_as_the_text_does(offset: int) -> None:
+    """The one place the reel and the text can disagree that a mid-list word
+    never reaches. `displace` lands on `(index + offset) % len(nouns)`, so the
+    first noun displaced backwards comes off the end of the list and the last
+    noun displaced forwards comes off the front.
+
+    The mutation harness is why this exists. It named a mutation that replaced
+    the reel's modular landing with a raw `nouns[index + offset]`, and nothing
+    in the suite noticed — every noun in the scripted sentence sits comfortably
+    in the middle of 56,468 entries, so the two expressions agree for all of
+    them and the guard was scoring a difference it could not see."""
+    from denckring.procedures.n_plus_7 import displace
+
+    nouns = stage.pack("en").nouns()
+    for word in (nouns[0], nouns[-1]):
+        (step,) = stage.displacement(word, offset)
+        assert step.replacement == displace(word, stage.pack("en"), offset)
+        assert step.neighbours[0] == word
+        assert step.neighbours[-1] == step.replacement
+        assert len(step.neighbours) == abs(offset) + 1
+
+
+@pytest.mark.parametrize("offset", _OFFSETS)
+def test_every_offset_the_scene_offers_is_one_the_checker_accepts(offset: int) -> None:
+    """Each member of the family, produced and then independently verified at
+    the same offset — including the negative ones, which walk the list
+    backwards and wrap at its start."""
+    from denckring import check
+    from denckring.procedures.n_plus_7 import displace
+
+    source = "the cat sat on the table"
+    produced = displace(source, stage.pack(), offset)
+    assert produced != source
+    assert check("n_plus_7", produced, source=source, offset=offset).satisfied is True
+
+
+def test_the_slider_reaches_zero_and_the_scene_says_what_zero_is() -> None:
+    """N+0 returns the source unchanged, and `displacement_report` tolerates an
+    unchanged word — a word list cannot tell you that *run* is a verb here — so
+    N+0 would earn a green verdict for a text nothing was done to.
+
+    The old control was a menu of seven offers and simply left zero out. A
+    slider cannot: skipping its own midpoint would be lying about its range. So
+    zero is reachable and the scene says what it is instead, which is the same
+    move `.verdict.none` already makes for a source with no noun in it."""
+    assert stage.n_plus_7_offset("0") == 0
+    response = client.post(
+        "/stage/n_plus_7/act",
+        data={"source": "the cat sat on the table", "lang": "en", "offset": "0"},
+    )
+    normalised = " ".join(response.text.split())
+    assert "N+0 is the identity" in normalised
+    assert "a real displacement" not in normalised
+
+
+def test_the_offset_control_is_a_slider_over_its_whole_reach() -> None:
+    """A slider, not a menu: the point is that N+7 is a *family*, and a family
+    is something you sweep. Its range is rendered from `N_PLUS_7_REACH` rather
+    than typed, and it opens on the offset the procedure is named after."""
+    normalised = " ".join(client.get("/stage/n_plus_7").text.split())
+    assert 'id="offset-range" type="range" name="offset"' in normalised
+    assert f'min="-{stage.N_PLUS_7_REACH}"' in normalised
+    assert f'max="{stage.N_PLUS_7_REACH}"' in normalised
+    assert f'value="{stage.N_PLUS_7_OFFSET}"' in normalised
+    # And 7 is *inside* the sweep, not at the end of it. A slider running to
+    # exactly ±7 would draw the opposite of the scene's argument: N+7 would
+    # look like the boundary of the family rather than one member of it, and
+    # every position a viewer could reach would be a smaller displacement than
+    # the one the procedure is named after.
+    #
+    # This is the only thing pinning the reach — the number itself is a free
+    # choice, and the mutation harness said so by walking straight past a
+    # guard that only checked the markup against the constant it was rendered
+    # from.
+    assert stage.N_PLUS_7_REACH > stage.N_PLUS_7_OFFSET
+
+
+@pytest.mark.parametrize("offset", _OFFSETS)
+def test_the_verdict_names_the_offset_it_was_checked_at(offset: int) -> None:
+    """The heading says N+7 whichever member of the family is running, because
+    that is the procedure's name. The verdict is the line that says what was
+    actually verified, so it carries the offset — otherwise a viewer at N+11
+    has to work out which of the two the green refers to."""
+    response = client.post(
+        "/stage/n_plus_7/act",
+        data={"source": "the cat sat on the table", "lang": "en", "offset": str(offset)},
+    )
+    assert response.status_code == 200
+    normalised = " ".join(response.text.split())
+    assert f"a real displacement of the source, N{offset:+d}" in normalised
+
+
+def test_an_offset_beyond_the_sliders_reach_is_clamped_to_it() -> None:
+    """The same narrowing `queneau_lang` and `automat_cartridge` do, with one
+    difference: a value inside the reach is honoured, because the slider can
+    produce every one of them. Only what is outside it gets pulled back."""
+    assert stage.n_plus_7_offset("11") == 11
+    assert stage.n_plus_7_offset("4") == 4
+    assert stage.n_plus_7_offset("banana") == stage.N_PLUS_7_OFFSET
+    # Clamped, not refused: the slider cannot produce these, so they are
+    # hand-typed, and the honest answer is the nearest thing it will show.
+    assert stage.n_plus_7_offset("999") == stage.N_PLUS_7_REACH
+    assert stage.n_plus_7_offset("-999") == -stage.N_PLUS_7_REACH
+    response = client.post(
+        "/stage/n_plus_7/act",
+        data={"source": "the cat sat on the table", "lang": "en", "offset": "999"},
+    )
+    normalised = " ".join(response.text.split())
+    assert f"a real displacement of the source, N{stage.N_PLUS_7_REACH:+d}" in normalised
+
+
+def test_the_scene_names_the_word_list_it_walks() -> None:
+    """The only interactive scene here that carried no credit at all, which on
+    this one is a gap rather than an omission: a different list is a different
+    transformation on the same text, in the way a Denckring with different
+    rings is a different device."""
+    normalised = " ".join(client.get("/stage/n_plus_7").text.split())
+    assert "Open English WordNet 2024" in normalised
+    assert "Wikidata Lexemes" in normalised
+    assert "scene-credit" in normalised
+
 
 def test_the_displacement_the_scene_animates_is_the_one_the_checker_accepts() -> None:
     """The scene's whole claim: what `displace` produces is a real n_plus_7
@@ -1117,7 +1655,7 @@ def test_displacing_a_new_source_re_renders_the_reels() -> None:
     scene's own version of describing what it did not do."""
     response = client.post("/stage/n_plus_7/act", data={"source": "the dog ran home"})
     assert response.status_code == 200
-    assert 'id="n7-reels"' in response.text
+    assert 'id="n7-book"' in response.text
     assert 'hx-swap-oob="true"' in response.text
     assert "doggedness" in response.text
     assert "homefolk" in response.text
@@ -1139,8 +1677,11 @@ def test_the_n_plus_7_scene_offers_a_language_toggle_defaulting_to_english() -> 
     response = client.get("/stage/n_plus_7")
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert '<option value="en" data-example="the cat sat on the table" selected>' in normalised
-    assert 'data-example="die Katze saß auf dem Tisch" >German</option>' in normalised
+    assert '<option value="en" selected>English</option>' in normalised
+    assert '<option value="de" >German</option>' in normalised
+    # And the passages offered are the chosen language's own, named by source.
+    assert "Melville, Moby-Dick, 1851" in normalised
+    assert "the cat sat on the table" in normalised
 
 
 def test_a_german_source_displaces_through_the_german_list() -> None:
@@ -1186,9 +1727,21 @@ def test_an_unrecognised_lang_falls_back_to_english() -> None:
 
 # ── scene four: Cent mille milliards de poèmes ──────────────────────────────
 
-#: (line A, line B), 1-indexed as the brief itself states the scheme — ABAB
-#: CDCD EFEF GG — converted to 0-indexed pairs at the point of use.
-_RHYME_PAIRS = [(1, 3), (2, 4), (5, 7), (6, 8), (9, 11), (10, 12), (13, 14)]
+#: Which lines the scheme requires to rhyme, 1-indexed, converted to 0-indexed
+#: at the point of use.
+#:
+#: Queneau's scheme, ABAB ABAB CCD EED — the French sonnet's, two quatrains on
+#: one pair of rhymes and then two tercets. The strips were laid out ABAB CDCD
+#: EFEF GG until the inventory was rewritten to ten alternatives a line, which
+#: is a Shakespearean sonnet and not the book this scene is named after.
+#:
+#: **Every** pair inside a rhyme group is listed, not a chain through them.
+#: Rhyming is transitive and (1, 3), (3, 5), (5, 7) would prove the four A
+#: lines rhyme with each other — but `test_no_deal_can_rhyme_a_word_with_itself`
+#: walks this same list, and identity is not transitive: positions 1 and 7
+#: could deal the same final word without any chained pair noticing.
+_RHYME_GROUPS = [(1, 3, 5, 7), (2, 4, 6, 8), (9, 10), (11, 14), (12, 13)]
+_RHYME_PAIRS = [pair for group in _RHYME_GROUPS for pair in itertools.combinations(group, 2)]
 
 
 def _line_rhyme(line: str, pack: LanguagePack) -> tuple[str, frozenset[str], bool]:
@@ -1232,13 +1785,18 @@ def test_the_scene_lists_a_real_procedure() -> None:
 
 
 @pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
-def test_the_strips_are_fourteen_positions_of_three(lang: Lang) -> None:
-    """The shape the brief promises, for every set this scene ships:
-    fourteen positions, three alternatives each, so 3**14 poems — read from
-    the shipped file, not asserted against a hard-coded 14."""
+def test_the_strips_are_fourteen_positions_of_ten(lang: Lang) -> None:
+    """Queneau's own shape, for every set this scene ships: fourteen positions,
+    ten alternatives each, so 10**14 poems — read from the shipped file, not
+    asserted against a hard-coded 14.
+
+    It was fourteen of three, which is 3**14. That is a perfectly good machine
+    and it is not his, and the scene rendered its count directly under an `h1`
+    reading *Cent mille milliards*: 4,782,969 poems under a title promising a
+    hundred million million."""
     offered = stage.queneau_offered(lang)
     assert len(offered) == 14
-    assert all(len(options) == 3 for options in offered)
+    assert all(len(options) == 10 for options in offered)
 
 
 @pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
@@ -1250,7 +1808,7 @@ def test_the_count_is_computed_from_what_actually_loaded(lang: Lang) -> None:
     removed, in either set, could not leave a stale count on screen."""
     offered = stage.queneau_offered(lang)
     assert stage.queneau_combinations(lang) == math.prod(len(options) for options in offered)
-    assert stage.queneau_combinations(lang) == 4_782_969
+    assert stage.queneau_combinations(lang) == 10**14
 
 
 @pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
@@ -1326,11 +1884,18 @@ def test_a_flip_changes_only_the_position_it_touched(lang: Lang) -> None:
 @pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
 def test_a_flip_can_still_land_on_every_alternative_but_the_current_one(lang: Lang) -> None:
     """`queneau_flip` excludes the index already showing — a flip that
-    redrew the same line would look, on camera, like nothing happened."""
+    redrew the same line would look, on camera, like nothing happened.
+
+    The expected set is derived from what actually loaded, not typed: it was
+    `{1, 2}` while a position offered three alternatives, and a hard-coded set
+    is the thing that goes stale the moment the inventory changes. The draw
+    count is high enough that every one of the nine other indices turns up —
+    seeded per draw, so the margin is fixed rather than probabilistic."""
 
     state = [0] * 14
-    seen = {stage.queneau_flip(state, 0, lang, random.Random(i))[0] for i in range(30)}
-    assert seen == {1, 2}
+    others = set(range(1, len(stage.queneau_offered(lang)[0])))
+    seen = {stage.queneau_flip(state, 0, lang, random.Random(i))[0] for i in range(300)}
+    assert seen == others
 
 
 @pytest.mark.parametrize("lang", stage.QUENEAU_SETS)
@@ -1379,7 +1944,7 @@ def test_queneau_lang_narrows_to_a_set_this_scene_actually_ships() -> None:
 
 def test_the_rhyme_scheme_survives_random_draws() -> None:
     """The brief's own property, for the English set: for a handful of
-    random draws, each pair the ABAB CDCD EFEF GG scheme names ends on the
+    random draws, each pair the ABAB ABAB CCD EED scheme names ends on the
     same rhyme — verified against the library's own pronouncing dictionary,
     not spelling. See `_line_rhyme` for why a literal comparison is not safe
     even for English. The German set cannot be verified this same way; see
@@ -1401,9 +1966,9 @@ def test_the_rhyme_scheme_survives_random_draws() -> None:
 
 
 def test_the_rhyme_pairing_holds_for_every_combination_of_alternatives() -> None:
-    """Not just a sample of draws: every one of the three alternatives at one
+    """Not just a sample of draws: every one of the ten alternatives at one
     end of a pair shares a pronounced rhyme, per the pronouncing dictionary,
-    with every one of the three at the other end — the actual guarantee the
+    with every one of the ten at the other end — the actual guarantee the
     brief asks a viewer to be able to trust regardless of which two strips a
     flip happens to land on together. English only — see the German tests
     below for why the same exhaustive check cannot run against that pack."""
@@ -1490,7 +2055,7 @@ def _german_rhyme_suffix(line: str, length: int = 3) -> str:
 def test_the_german_rhyme_pairing_holds_by_the_only_check_available() -> None:
     """Not a phonetic rhyme test — `rhyme_keys` cannot run on this pack at
     all (see the test above). This checks the weaker, orthographic property
-    the strips were actually verified by, across every one of the three
+    the strips were actually verified by, across every one of the ten
     alternatives at each end of every pair the scheme names — the same
     exhaustiveness `test_the_rhyme_pairing_holds_for_every_combination_...`
     gives English, over a weaker property than that test checks."""
@@ -1517,7 +2082,7 @@ def test_no_german_deal_can_rhyme_a_word_with_itself() -> None:
     word rhymed with itself, so the exhaustive pairing test above would pass
     while both ends of a pair could deal the same final word. An identical
     rhyme is as weak in German practice as in English, and a viewer can deal
-    one — 4,782,969 poems is a lot of chances.
+    one — a hundred million million poems is a lot of chances.
 
     Compared on the final word `_german_rhyme_suffix` itself extracts, not on
     the raw line, so punctuation and capitalisation cannot make two identical
@@ -1538,9 +2103,9 @@ def test_the_scene_renders_the_first_paint_poem_and_its_verdict() -> None:
     response = client.get("/stage/cent_mille_milliards")
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "The paper discs are turning in the light." in normalised
-    assert "checked — every line is one of the three these strips offer" in normalised
-    assert "4,782,969" in normalised
+    assert stage.queneau_offered("en")[0][0] in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
+    assert "100,000,000,000,000" in normalised
 
 
 def test_the_german_set_first_paints_its_own_poem_and_verdict() -> None:
@@ -1550,9 +2115,9 @@ def test_the_german_set_first_paints_its_own_poem_and_verdict() -> None:
     response = client.get("/stage/cent_mille_milliards", params={"lang": "de"})
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "Fünf Scheiben aus Papier, und etwas Zeit." in normalised
-    assert "checked — every line is one of the three these strips offer" in normalised
-    assert "4,782,969" in normalised
+    assert stage.queneau_offered("de")[0][0] in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
+    assert "100,000,000,000,000" in normalised
 
 
 def test_the_scene_credits_the_strips_to_this_project_not_queneau() -> None:
@@ -1580,16 +2145,16 @@ def test_the_set_route_switches_to_the_german_strips() -> None:
     response = client.get("/stage/cent_mille_milliards/set", params={"lang": "de"})
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "Fünf Scheiben aus Papier, und etwas Zeit." in normalised
-    assert "The paper discs are turning in the light." not in normalised
-    assert "4,782,969" in normalised
-    assert "checked — every line is one of the three these strips offer" in normalised
+    assert stage.queneau_offered("de")[0][0] in normalised
+    assert stage.queneau_offered("en")[0][0] not in normalised
+    assert "100,000,000,000,000" in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
 
 
 def test_the_set_route_falls_back_to_english_for_an_unknown_lang() -> None:
     response = client.get("/stage/cent_mille_milliards/set", params={"lang": "fr"})
     assert response.status_code == 200
-    assert "The paper discs are turning in the light." in response.text
+    assert stage.queneau_offered("en")[0][0] in response.text
 
 
 def test_the_scene_itself_falls_back_to_english_for_an_unknown_lang() -> None:
@@ -1600,8 +2165,8 @@ def test_the_scene_itself_falls_back_to_english_for_an_unknown_lang() -> None:
     response = client.get("/stage/cent_mille_milliards", params={"lang": "xyz"})
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "The paper discs are turning in the light." in normalised
-    assert "Fünf Scheiben aus Papier, und etwas Zeit." not in normalised
+    assert stage.queneau_offered("en")[0][0] in normalised
+    assert stage.queneau_offered("de")[0][0] not in normalised
     # The picker follows the set that actually painted, never the unknown
     # value that was asked for.
     assert '<option value="en" selected>English</option>' in normalised
@@ -1624,7 +2189,7 @@ def test_the_deal_route_redraws_the_whole_poem_and_it_still_checks() -> None:
     response = client.post("/stage/cent_mille_milliards/deal")
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
     offered = stage.queneau_offered("en")
     state_match = re.search(r'name="state" value="([\d,]+)"', response.text)
     assert state_match is not None
@@ -1638,7 +2203,7 @@ def test_the_deal_route_redraws_the_german_poem_and_it_still_checks() -> None:
     response = client.post("/stage/cent_mille_milliards/deal", data={"lang": "de"})
     assert response.status_code == 200
     normalised = " ".join(response.text.split())
-    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
     offered = stage.queneau_offered("de")
     state_match = re.search(r'name="state" value="([\d,]+)"', response.text)
     assert state_match is not None
@@ -1661,7 +2226,7 @@ def test_the_flip_route_changes_only_the_posted_position() -> None:
     offered = stage.queneau_offered("en")
     assert offered[2][0] not in normalised  # the line that was showing is gone
     assert any(alt in normalised for alt in offered[2][1:])
-    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
 
 
 def test_the_flip_route_changes_only_the_posted_position_in_german() -> None:
@@ -1677,7 +2242,7 @@ def test_the_flip_route_changes_only_the_posted_position_in_german() -> None:
     offered = stage.queneau_offered("de")
     assert offered[2][0] not in normalised
     assert any(alt in normalised for alt in offered[2][1:])
-    assert "checked — every line is one of the three these strips offer" in normalised
+    assert "checked — every line is one of the ten these strips offer" in normalised
 
 
 def test_the_flip_route_falls_back_to_first_paint_on_a_malformed_state() -> None:
@@ -2110,8 +2675,13 @@ def test_first_paint_shows_the_page_uncut_with_two_blades_and_no_verdict() -> No
     for word in stage.cut_up_source_words(stage.CUT_UP_SOURCE):
         assert f">{word}<" in response.text
     # The page, not a flattened word list: the source's own punctuation and
-    # its six line breaks both have to survive.
-    assert response.text.count('class="cutup-line"') == 6
+    # its six line breaks both have to survive. Counted inside page A's own
+    # box, because there are two pages on the table now — the fold-in needs
+    # something to fold onto, and it is there from first paint.
+    page_a = response.text.split('id="cutup-page"', 1)[1].split("</div>", 1)[0]
+    assert page_a.count('class="cutup-line"') == 6
+    page_b = response.text.split('id="cutup-page-b"', 1)[1].split("</div>", 1)[0]
+    assert page_b.count('class="cutup-line"') == 6
     # Both gaps sit right after a word's own closing tag, not in a contiguous
     # run of plain text — a comma closes the first line, and "cut-out"
     # tokenises to two words either side of a literal hyphen. That hyphen is
@@ -2243,14 +2813,33 @@ def test_the_cut_source_checks_the_text_read_from_the_pages_own_quadrants() -> N
     assert "[['d', 'a'], ['b', 'c']]" in body
     cut = re.search(r"async function cutItUp\(\) \{(.*?)\n\}", script, re.S)
     assert cut is not None
-    assert "textEl.value = readAssembledText();" in cut.group(1)
-    assert cut.group(1).index("readAssembledText()") < cut.group(1).index("requestSubmit()")
+    # Four operations now, each with its own read, dispatched from one table.
+    # The invariant is unchanged and is still what is asserted: whatever the
+    # operation was, its text is read off the screen and that read is the last
+    # thing to happen before the submit.
+    assert "textEl.value = operation.read();" in cut.group(1)
+    assert cut.group(1).index("operation.read()") < cut.group(1).index("requestSubmit()")
+    ops = re.search(r"const OPERATIONS = \{(.*?)\n\};", script, re.S)
+    assert ops is not None
+    for name in ("quarter", "fold", "bag", "column"):
+        assert f"{name}: {{" in ops.group(1)
+    assert "read: readAssembledText" in ops.group(1)
     app_src = (Path(__file__).parent.parent / "src" / "explorer" / "app.py").read_text(
         encoding="utf-8"
     )
     route = app_src.split("async def stage_cut_up_act", 1)[1].split("\n@app.", 1)[0]
     assert 'text = str(form.get("text", ""))' in route
-    assert 'denckring_check("cut_up", text,' in route
+    # Four methods now share this route, so the guard is no longer that one
+    # named procedure is called — it is that *whichever* is called is given
+    # the posted text and never a text the route made up. The source each is
+    # checked against is the shipped page (or the shipped pair); the text
+    # never is.
+    flat = " ".join(route.split())
+    calls = re.findall(r"denckring_check\(([^)]*)\)", flat)
+    assert calls, flat
+    for call in calls:
+        assert re.search(r"\btext\b", call), call
+    assert "method.procedure, text" in flat
     # Nothing on the server recomputes an arrangement, and nothing reaches
     # for the library's own shuffle — a different method from the one this
     # scene depicts. The comment saying so is in the route; the guard is that
@@ -2999,8 +3588,13 @@ def test_hold_turn_cadence_may_also_be_a_function_of_the_ring() -> None:
     # and both cadences go through it, so neither is a plain number only
     assert "msFor(handlers.repeatMs, ring, dir, DEFAULT_REPEAT_MS)" in js
     assert "msFor(handlers.initialDelayMs, ring, dir, DEFAULT_INITIAL_DELAY_MS)" in js
-    script = _denckring_scene_script()
-    assert "repeatMs: repeatMsFor," in script
+    # Scene one was the reason for it and no longer uses it: its step buttons
+    # are gone and its discs take the arrow keys directly, so there is no held
+    # control left to set a cadence for. The option stays in the shared module
+    # — scene seven still holds, and a ring-dependent rate is the right answer
+    # the moment any scene needs one again — but nothing pins a scene to it,
+    # because pinning a caller to a feature it stopped needing is how dead code
+    # gets a test written to protect it.
 
 
 def test_the_drag_source_turns_a_ring_under_the_pointer_not_on_release() -> None:
@@ -3054,12 +3648,27 @@ def test_the_drag_source_counts_a_grab_as_a_hold_and_reads_after_the_snap() -> N
     every held button uses, and `onHoldStop` is called from inside the snap's
     own `.then`, so `activeHolds` stays positive until the ring has landed.
 
-    A release also does nothing *but* snap and stop. Scene one used to step
-    one part on a press that crossed no detent, carrying over its old
-    click-to-turn; measured, a hand rested on a disc for two seconds and
-    lifted off advanced it, and a grab the scene had deliberately refused to
-    move still moved. Single-stepping belongs to the step buttons and the
-    keyboard, both of which scene one now has."""
+    A release still does nothing *but* snap and stop — no step of any kind in
+    that callback's own body. What has changed is what happens beside it.
+
+    Scene one used to step one part on a press that crossed no detent,
+    carrying over an older click-to-turn, and it was measured out: a hand
+    rested on a disc for two seconds and lifted off advanced it, and a grab
+    the scene had deliberately refused to move still moved. A press that
+    turned nothing turned nothing after that, and this test said so.
+
+    It now answers a press on a *word*, and only on a word: pressing one
+    brings it to the reading mark, which is the gesture a volvelle has and
+    this scene did not. The defect that removed the old behaviour is fixed by
+    the target rather than by the silence — a palm resting on a band is not a
+    word, so it still turns nothing, which `band.mjs` and
+    `test_only_a_word_is_a_tap_target` both check. Two earlier attempts are
+    worth knowing about: a `click` listener on the label never fires at all,
+    because `attachDrag` calls `preventDefault` and captures the pointer on
+    the root; and `stopPropagation` on the label stops the press becoming a
+    drag, which breaks dragging outright, since the labels sit on each band's
+    own midline where a hand naturally lands. The tap therefore belongs to the
+    drag's own contract, reported after the settle, with the pressed target."""
     for script in (_denckring_scene_script(), _llull_scene_script()):
         grab = re.search(r"  grab: \(ring\) => \{(.*?)\n  \},", script, re.S)
         assert grab is not None
@@ -3070,15 +3679,67 @@ def test_the_drag_source_counts_a_grab_as_a_hold_and_reads_after_the_snap() -> N
         snap = re.search(r"(snapRing|snapWheel)\(ring, residualDeg\)\.then\(", body)
         assert snap is not None
         assert body.index("onHoldStop();") > snap.start()
-        # No step of any kind on the way out, and no tap to trigger one.
-        # Comments are stripped first: the code says why the tap went, and
-        # that explanation must not be what satisfies this.
+        # No step of any kind inside the release itself. Comments are stripped
+        # first: the code says a great deal about taps nearby, and prose must
+        # not be what satisfies this.
         code = "\n".join(line for line in body.splitlines() if not line.strip().startswith("//"))
         assert "stepRing(" not in code
         assert "stepWheel(" not in code
-        assert "tap" not in code
     js_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js"
+    # No angular slop threshold: whether a press was a tap is decided by whether
+    # it crossed a detent, which the drag already counts exactly, not by a
+    # fudge factor in degrees that would have to be tuned per ring.
     assert "tapSlopDeg" not in js_path.read_text(encoding="utf-8")
+
+
+def test_only_a_word_is_a_tap_target() -> None:
+    """The whole of the fix for the defect that removed scene one's old
+    click-to-turn. A press that crosses no detent is reported to the scene with
+    what was under it, and the scene answers only for a `.ring-part` — so a
+    hand resting on a band and lifting off still turns nothing, which is the
+    case that was measured wrong.
+
+    Slot 0 is refused too: it is already at the reading mark, so a press on it
+    would animate a turn of zero parts."""
+    script = _denckring_scene_script()
+    tap = re.search(r"  tap: \(ring, target\) => \{(.*?)\n  \},", script, re.S)
+    assert tap is not None, "scene one no longer passes a tap handler"
+    code = "\n".join(
+        line for line in tap.group(1).splitlines() if not line.strip().startswith("//")
+    )
+    assert "closest('.ring-part')" in code
+    assert "if (!part) return;" in code
+    assert "if (!slot) return;" in code
+    assert "stepRing(ring, slot);" in code
+    # And the spokes carry the slot the tap reads.
+    assert "text.dataset.slot = String(k);" in script
+
+
+def test_the_figure_scene_answers_no_tap_at_all() -> None:
+    """Scene seven keeps the older rule, and that is a decision rather than an
+    omission: its wheels carry nine letters each with no window to scroll, so
+    every letter is one step from the mark and the step buttons already reach
+    it. `attachDrag` treats a missing `tap` as the old behaviour exactly."""
+    script = _llull_scene_script()
+    assert re.search(r"  tap: ", script) is None
+
+
+def test_a_release_may_report_when_it_has_settled() -> None:
+    """The tap waits for the settle, and the settle is the scene's to run. So
+    `release` returns what `snapRing` returns rather than discarding it — a
+    step handed over before `dragging` lets go of the ring would be dropped by
+    `stepRing`'s own guard, silently, and a press on a word would do nothing
+    about one time in two."""
+    script = _denckring_scene_script()
+    release = re.search(r"  release: \(ring, residualDeg\) => \{(.*?)\n  \},", script, re.S)
+    assert release is not None
+    assert "return snapRing(ring, residualDeg).then(" in release.group(1)
+    js = (Path(__file__).parent.parent / "src" / "explorer" / "static" / "hold_turn.js").read_text(
+        encoding="utf-8"
+    )
+    assert "var settled = onRelease(drag.ring, drag.residual);" in js
+    assert "Promise.resolve(settled).then(" in js
+    assert "if (drag.committed === 0 && onTap) {" in js
 
 
 def test_the_drag_source_owes_a_read_for_a_ring_turned_during_a_round_trip() -> None:
@@ -3154,30 +3815,27 @@ def test_the_denckring_source_turns_its_rings_backwards_by_index() -> None:
     assert "r.index = (((r.index + delta) % r.total) + r.total) % r.total;" in script
 
 
-def test_the_denckring_markup_carries_step_buttons_outside_the_swapped_region() -> None:
-    """Markup, which is what a test client can see. Scene one never had the
-    hold controls; it has them now, one pair per ring, as real `<button>`s so
-    a keyboard reaches them — and in `#ring-holds`, which sits outside `#word`,
-    the only region htmx ever swaps here. `HoldTurn.attach` scans its
-    container once, so a control rendered by a later swap would be silently
-    unwired."""
-    body = client.get("/stage/denckring").text
-    normalised = " ".join(body.split())
-    assert 'class="hold-controls" id="ring-holds"' in normalised
-    for ring in range(5):
-        for direction in ("-1", "1"):
-            assert (
-                f'<button type="button" class="hold-btn" data-hold-ring="{ring}" '
-                f'data-hold-dir="{direction}"' in normalised
-            )
-    # every button names the ring it turns, in the device's own German
-    for name in stage.rings().slots:
-        assert f'aria-label="Turn the {name.name} disc back"' in normalised
-        assert f'aria-label="Turn the {name.name} disc on"' in normalised
-    # the controls are not inside the swapped `#word`
-    word_start = normalised.index('<div id="word">')
-    word_end = normalised.index("</form>", word_start)
-    assert 'id="ring-holds"' not in normalised[word_start:word_end]
+def test_the_denckring_turns_by_hand_and_by_key_with_no_button_row() -> None:
+    """Scene one had five numerals and ten arrows under the figure, and every
+    one of them was a second way to do what the discs already do under a hand.
+    They were the keyboard path, though, so removing them meant moving that
+    somewhere real rather than dropping it: each disc is focusable, carries a
+    name, and takes the arrow keys itself.
+
+    This is markup, which is what a test client can see. Whether the discs
+    actually follow a finger is `tests/browser/drag-turn.mjs`'s job."""
+    normalised = " ".join(client.get("/stage/denckring").text.split())
+    assert "hold-controls" not in normalised
+    assert "data-hold-ring" not in normalised
+    script = _denckring_scene_script()
+    # The arrows, both directions, and the step they resolve to.
+    assert "evt.key === 'ArrowLeft' || evt.key === 'ArrowDown'" in script
+    assert "evt.key === 'ArrowRight' || evt.key === 'ArrowUp'" in script
+    assert "void stepRing(ringIndex, back ? -1 : 1);" in script
+    # And every disc is still reachable and still names itself, which is the
+    # whole of what the removed buttons were carrying.
+    assert "disc.setAttribute('tabindex', '0');" in script
+    assert "'Turn the ' + g.dataset.name + ' disc'" in script
 
 
 def test_the_denckring_markup_declares_one_scoped_live_region() -> None:
@@ -4911,3 +5569,296 @@ def test_the_credit_follows_the_cartridge() -> None:
         payload = stage.automat_payload(cartridge)
         assert payload["kicker"] == cartridge.kicker
         assert payload["credit"] == cartridge.credit
+
+
+def _strip_comments_and_strings(src: str) -> str:
+    """JavaScript with every comment and string literal blanked out.
+
+    Needed because these scripts carry more prose than code, and prose is full
+    of things that look like calls — `deferred (`, `a hundred (`, `read (`.
+    A sweep over the raw text finds thirty false names per scene and is
+    useless; over this it finds none.
+    """
+    out: list[str] = []
+    i, n = 0, len(src)
+    while i < n:
+        char = src[i]
+        if char == "/" and src[i + 1 : i + 2] == "/":
+            found = src.find("\n", i)
+            i = n if found < 0 else found
+        elif char == "/" and src[i + 1 : i + 2] == "*":
+            found = src.find("*/", i + 2)
+            i = n if found < 0 else found + 2
+        elif char in "'\"`":
+            j = i + 1
+            while j < n and src[j] != char:
+                j += 2 if src[j] == "\\" else 1
+            i = j + 1
+        else:
+            out.append(char)
+            i += 1
+    return "".join(out)
+
+
+# Words that are followed by a bracket without being calls.
+_JS_KEYWORDS = frozenset(
+    [
+        "if",
+        "for",
+        "while",
+        "switch",
+        "catch",
+        "return",
+        "typeof",
+        "function",
+        "new",
+        "await",
+        "void",
+        "do",
+        "else",
+        "in",
+        "of",
+        "case",
+        "delete",
+        "yield",
+        "instanceof",
+        "throw",
+        "const",
+        "let",
+        "var",
+        "async",
+    ]
+)
+
+# Everything a browser hands the page for free. Short on purpose: the point of
+# the test below is that this list stops growing. `document`, `window`, `htmx`
+# and `HoldTurn` never appear here because they are only ever reached through a
+# property — `document.getElementById(`, not `document(`.
+_JS_GLOBALS = frozenset(
+    [
+        "Promise",
+        "String",
+        "Number",
+        "Boolean",
+        "Map",
+        "Set",
+        "Array",
+        "Math",
+        "JSON",
+        "setTimeout",
+        "clearTimeout",
+        "requestAnimationFrame",
+        "fetch",
+        "encodeURIComponent",
+        "parseInt",
+        "parseFloat",
+        "isNaN",
+    ]
+)
+
+
+def _scene_scripts() -> dict[str, str]:
+    """Every inline script the stage ships, by template name."""
+    templates = Path(__file__).resolve().parents[1] / "src/explorer/templates"
+    found = {}
+    for path in sorted(templates.glob("*stage*.html")):
+        match = re.search(r"<script>\n(.*?)\n</script>", path.read_text("utf-8"), re.S)
+        if match:
+            found[path.name] = match.group(1)
+    assert len(found) >= 6, found
+    return found
+
+
+def test_no_scene_script_calls_a_function_that_does_not_exist() -> None:
+    """The one defect class this suite is structurally blind to, and it has now
+    happened: a helper was deleted with the button row that used it, one
+    surviving caller was missed, and every Python test went on passing while
+    the first arrow key on the scene threw `isFastRing is not defined` and left
+    the discs refused for the rest of the session. The suite runs no
+    JavaScript, so nothing here could see it; a browser saw it immediately.
+
+    This is the cheap half of what a browser gives, taken without one. It
+    cannot see a wrong value, only a missing name — but a missing name is
+    exactly how removing furniture from these scenes goes wrong, and there is
+    a lot of furniture left to remove.
+
+    Deliberately crude, and it stays crude: names, not scope, and no attempt
+    to decide whether a call is reachable. If it ever needs a special case to
+    stay green, the special case is the finding.
+    """
+    for name, raw in _scene_scripts().items():
+        script = _strip_comments_and_strings(raw)
+        declared = set(re.findall(r"function\s+([A-Za-z_$][\w$]*)", script))
+        declared |= set(re.findall(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)", script))
+        # Parameters count as declared: `resolve` in `new Promise((resolve) =>`
+        # is called, and is nobody's global.
+        for params in re.findall(r"\(([^()]*)\)\s*=>", script) + re.findall(
+            r"function\s*[A-Za-z_$\w]*\s*\(([^()]*)\)", script
+        ):
+            declared |= {p.strip().removeprefix("...") for p in params.split(",") if p.strip()}
+        called = set(re.findall(r"(?<![.\w$])([A-Za-z_$][\w$]*)\s*\(", script))
+        missing = called - declared - _JS_KEYWORDS - _JS_GLOBALS
+        assert not missing, f"{name} calls undefined {sorted(missing)}"
+
+
+def test_the_denckring_says_a_ring_goes_on_only_where_it_does() -> None:
+    """These rings hold 50, 60, 12, 120 and 24 parts and their windows show 8,
+    14, 12, 24 and 24 - so five sixths of `endbuchstabe` is off the figure at
+    any moment, and nothing said so. A viewer could count what was drawn and
+    be wrong about the device by a factor of five.
+
+    The condition is the whole of the claim: an ellipsis where there is really
+    more, and none on the medial ring, which carries twelve and shows all
+    twelve. Marking a complete ring as continuing would be the same lie in the
+    other direction.
+    """
+    script = _denckring_scene_script()
+    assert "const elided = r.total > r.window;" in script
+    # The en dash is the scene's own blank marker and has to be matched byte
+    # for byte, so the ambiguous-character rule is waived rather than the
+    # character changed.
+    assert (
+        "el.textContent = edge ? '…' : piece === '' ? '–' : piece;"  # noqa: RUF001
+        in script
+    )
+    # The mark is slot 0, so the far side of the window is where the break
+    # goes; an odd window has no single slot opposite and takes two.
+    assert "const far = Math.floor(r.window / 2);" in script
+    assert "const edge = elided && (k === far || k === far + (r.window % 2 ? 1 : 0));" in script
+    # And an elided cell is not a part: it must not be counted as blank, or as
+    # a word-part the reading could land on.
+    assert "el.classList.toggle('blank', !edge && piece === '');" in script
+
+
+def test_the_denckring_wortbuch_keeps_words_without_asking_the_server() -> None:
+    """The one thing on this scene no route could return: whether the reader
+    thought the word was worth keeping. So the control is a plain button, not
+    a submit, and the list it fills lives in the page.
+
+    The tally is the honest part. It says how many of the words *seen* were
+    kept, which is a number about this session at these discs — not a rate,
+    and not a claim about the device.
+    """
+    body = client.get("/stage/denckring").text
+    normalised = " ".join(body.split())
+    assert 'id="keep-word" class="quiet"' in normalised
+    assert 'type="button"' in normalised
+    assert 'id="wortbuch"' in normalised and 'id="wortbuch-tally"' in normalised
+    # Inside the Wortbuch, not in the row of reads — a fourth button there
+    # wrapped that row and took the scene past the 720 it is clipped to.
+    wortbuch = normalised.split('<div class="wortbuch"', 1)[1]
+    assert 'id="keep-word"' in wortbuch
+    assert 'id="keep-word"' not in normalised.split('<div class="wortbuch"', 1)[0]
+    script = _denckring_scene_script()
+    assert "kept" in script and "seenWords" in script
+    # Nothing posted, nothing swapped: no hx- attribute on the control.
+    keep = normalised.split('id="keep-word"', 1)[1].split(">", 1)[0]
+    assert "hx-" not in keep
+
+
+def _cut_up_post(method: str, text: str, column: int = 1) -> str:
+    """One operation's result, checked, as the scene posts it."""
+    response = client.post(
+        "/stage/cut_up/act",
+        data={"method": method, "text": text, "column": str(column)},
+    )
+    assert response.status_code == 200
+    return response.text
+
+
+def test_the_scene_offers_the_family_and_not_only_its_famous_member() -> None:
+    """This scene showed one operation and was titled with the name the whole
+    family goes by. Three of the four are separately catalogued rows with
+    their own checkers — `cut_up`, `fold_in`, `column_reading` — and the
+    fourth, `dada_poem`, is catalogued too and is the reason the picker is
+    worth having: it is the one the catalogue records as uncheckable.
+
+    Each carries its own verb, because "Cut it" over a fold or a bag names
+    the wrong act, and its own credit, because one of the four quotes a book
+    and three do not."""
+    ids = [m.id for m in stage.CUT_METHODS]
+    assert ids == ["quarter", "fold", "bag", "column"]
+    assert [m.procedure for m in stage.CUT_METHODS] == [
+        "cut_up",
+        "fold_in",
+        None,
+        "column_reading",
+    ]
+    # Four distinct verbs and four distinct sentences — a shared one would be
+    # a picker that changes the checker and nothing a viewer can see.
+    assert len({m.verb for m in stage.CUT_METHODS}) == 4
+    assert len({m.how for m in stage.CUT_METHODS}) == 4
+    # And each of the three that has a procedure names one the library really
+    # registers, so a typo here is a 500 rather than a silent fallback.
+    for method in stage.CUT_METHODS:
+        if method.procedure is not None:
+            assert registry_get(method.procedure) is not None
+    normalised = " ".join(client.get("/stage/cut_up").text.split())
+    for method in stage.CUT_METHODS:
+        assert f'data-method="{method.id}"' in normalised
+        assert method.label in normalised
+
+
+def test_each_operation_is_checked_by_its_own_procedure_and_not_a_neighbour() -> None:
+    """The reason the method is posted rather than inferred: these four
+    operations produce texts each other's checkers would sometimes accept. A
+    column read down is, word for word, a subset of the page; a fold is six
+    lines of words the page really contains. Checking one against another's
+    rule would be a green verdict about an operation nobody performed.
+
+    So each is put through with the real output of its own procedure, and
+    then through a neighbour's, and the neighbour has to say no."""
+    fold = fold_in_apply(stage.fold_in_source())
+    column = column_reading_apply(stage.CUT_UP_SOURCE, column=3)
+    assert 'class="verdict yes"' in _cut_up_post("fold", fold)
+    assert 'class="verdict yes"' in _cut_up_post("column", column, column=3)
+    # The fold's own text, checked as a quarter cut: the words are the page's
+    # own, but half of every line is missing, so the arrangement is not one.
+    assert 'class="verdict no"' in _cut_up_post("quarter", fold)
+    # And the column's six words are not a fold of anything.
+    assert 'class="verdict no"' in _cut_up_post("fold", column)
+
+
+def test_the_column_the_scene_checks_is_the_column_it_was_asked_for() -> None:
+    """`column_reading` takes a dial, and a scene that showed one column and
+    checked another would be the same defect N+7 had before its verdict
+    started naming its offset."""
+    for column in (1, 3, 6):
+        produced = column_reading_apply(stage.CUT_UP_SOURCE, column=column)
+        assert 'class="verdict yes"' in _cut_up_post("column", produced, column=column)
+        # The same words read at a different column are a different reading,
+        # and every one of these columns really differs on this page.
+        other = 1 if column != 1 else 2
+        assert 'class="verdict no"' in _cut_up_post("column", produced, column=other)
+    # Past every line's last word, and clamped rather than refused — the
+    # slider cannot reach it, so a value from beyond it was typed by hand.
+    assert stage.cut_up_column("999") == stage.cut_up_max_column()
+    assert stage.cut_up_column("0") == 1
+    assert stage.cut_up_column("not a number") == 1
+
+
+def test_the_word_bag_is_given_no_verdict_because_it_can_have_none() -> None:
+    """The most interesting thing on this scene, and the easiest to get
+    wrong. `dada_poem` is catalogued `checkability: none`: every order a bag
+    can produce is a correct draw, so there is no property a report could
+    hold the text against.
+
+    The temptation is to check it against `cut_up` instead — the same words,
+    rearranged, which it would pass — and print a green verdict. That would
+    be a verdict about a method the viewer did not perform. So the route
+    returns no report at all, and the fragment renders no `.verdict` element
+    of any class: not `yes`, not `no`, and not `turning`, which on every
+    other scene means a real claim is on its way."""
+    body = _cut_up_post("bag", "paper discs of five")
+    assert 'class="verdict' not in body
+    assert "verdict turning" not in body
+    assert "Nothing to check" in body
+    assert "unc&shy;heck&shy;able" in body
+    # And the route reaches no checker for it, which is what the missing
+    # verdict is a rendering of.
+    app_src = (Path(__file__).parent.parent / "src" / "explorer" / "app.py").read_text(
+        encoding="utf-8"
+    )
+    route = app_src.split("async def stage_cut_up_act", 1)[1].split("\n@app.", 1)[0]
+    assert "if method.procedure is None:" in route
+    assert route.index("if method.procedure is None:") < route.index("denckring_check")

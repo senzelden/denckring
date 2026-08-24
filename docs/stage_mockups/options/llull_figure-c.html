@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Llull · C · The question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .ask{display:flex;gap:.6rem;align-items:flex-end;margin-top:1rem;max-width:70rem}
+  .ask label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);display:block;margin-bottom:.25rem}
+  .ask input{flex:1;font-family:var(--display);font-size:1.1rem;padding:.5rem .7rem;border:1px solid var(--case-lip);
+    border-radius:2px;background:var(--paper);color:var(--ink)}
+  .derived{font-family:var(--display);font-style:italic;color:var(--lead);margin:1rem 0 0;font-size:.95rem}
+  .cham{font-family:var(--display);font-size:1.8rem;font-weight:600;letter-spacing:.16em;margin:.2rem 0 .7rem}
+  table{border-collapse:collapse;width:100%}
+  th{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);
+     text-align:left;padding:0 .7rem .3rem 0;border-bottom:1px solid var(--case-lip);font-weight:500}
+  td{padding:.42rem .7rem .42rem 0;border-bottom:1px solid var(--paper-shade);vertical-align:top;
+     font-family:var(--body);font-size:.82rem;line-height:1.45;color:var(--ink)}
+  td.c{font-family:var(--display);font-style:italic;font-size:.8rem;width:16rem}
+  td.i{color:var(--lead)}
+  td.v{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;width:4rem}
+  .pro{color:#3f7d3f}.contra{color:var(--rubric)}.nihil{color:var(--lead)}
+  .lbl{font-family:var(--mono);font-size:.66rem;line-height:1.6;color:var(--lead);margin-top:.9rem}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Ramon Llull &middot; Ars generalis ultima, 1305&ndash;1308</p>
+  <h1>A question put to the Art</h1>
+  <div class="ask">
+    <div style="flex:1"><label for="q">The question</label>
+      <input id="q" type="text" value="Whether a machine can be said to compose a poem"></div>
+    <button id="go">Turn the wheels</button>
+  </div>
+  <p class="derived" id="derived"></p>
+  <p class="cham" id="cham"></p>
+  <table id="rows"><thead><tr><th>Concepts</th><th>Proposition</th><th>Inference</th><th></th></tr></thead><tbody></tbody></table>
+  <p class="lbl">A reading, not a verdict. No <code>Report</code> is produced and no checker consults
+    it &mdash; the figure decides which chamber, and you decide whether anything it frames is true.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'llull_figure',letter:'c',name:'The question',
+ claim:'The Art operated rather than displayed: a question goes in, the figure reads letters out '
+     + 'of it, turns to a chamber that contains them, and argues from those concepts alone — pro, '
+     + 'contra, or nihil where they genuinely bear on nothing.',
+ note:'The rows below are <b>canned</b> in this sketch. In the real scene they come from a model, '
+    + 'key-gated and labelled a reading and not a verdict — the machinery already exists in the '
+    + 'explorer as <b>ars.py</b>, built on the same pattern as the Witz. The direction’s question '
+    + 'is whether a scene about a 14th-century device should have a model in it at all.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const LV=DATA.llull.levels;
+ // Canned, and the note says so. Real rows come from  in the explorer.
+ const CANNED={cham:['B','F','K'],
+  derived:'The question is an Utrum, hence B of the questions; its key term “compose” falls under Sapientia, F of the absolute.',
+  rows:[
+   ['Sapientia (F, absolute), Instrumentativa (K, subjects)','An instrument bears wisdom borrowed, not owned.','Instrumentativa acts wholly from the artificer’s sapientia; the composing is predicated of the poet through the instrument, not of it.','contra'],
+   ['Medium (F, relative), Instrumentativa (K, subjects)','A middle genuinely does what a middle does; the loom weaves.','If instrumentativa occupies the middle between intention and poem, some true act of composing is its own.','pro'],
+   ['Utrum (B, questions), Fides (F, virtues), Gloria (K, absolute)','Whether glory accrues to the machine is not settled by faith.','Fides bears on assent to what exceeds demonstration; this question is one of predication. These concepts do not locate it.','nihil'],
+   ['Minoritas (F, relative), Differentia (B, relative)','Lesser wisdom is still wisdom; minority does not abolish the kind.','If the machine holds any degree of sapientia, differentia from the poet is of majority and minority, not of having and lacking.','pro'],
+   ['Inconstantia (K, vices), Accidia (F, vices)','Inconstancy and sloth are dispositions of a will the machine lacks.','Vices qualify agents capable of bonitas as an end sought; these find no purchase on whether it composes.','nihil'],
+  ]};
+ function show(){
+  document.getElementById('derived').textContent=CANNED.derived;
+  document.getElementById('cham').textContent=CANNED.cham.join(' · ');
+  const b=document.querySelector('#rows tbody');b.textContent='';
+  CANNED.rows.forEach((r)=>{const tr=document.createElement('tr');
+    ['c','','i','v'].forEach((cls,i)=>{const td=document.createElement('td');
+      td.className=(cls+' '+(i===3?r[3]:'')).trim();td.textContent=r[i];tr.appendChild(td);});
+    b.appendChild(tr);});
+ }
+ document.getElementById('go').onclick=show; show();
+})();
+</script></body></html>

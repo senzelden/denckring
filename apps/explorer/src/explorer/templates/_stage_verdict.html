@@ -6,6 +6,6 @@
    `_stage_poem.html`'s own first-paint and deal renderings get a plain
    paragraph instead. #}
 <p class="poem-verdict {{ 'yes' if report.satisfied else 'no' }}" id="poem-verdict"{{ ' hx-swap-oob="true"' | safe if oob }}>
-  {{ "checked — every line is one of the three these strips offer" if report.satisfied
+  {{ "checked — every line is one of the ten these strips offer" if report.satisfied
      else "checked — not every line is one these strips offer" }}
 </p>

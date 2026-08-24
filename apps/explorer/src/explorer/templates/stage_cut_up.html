@@ -40,9 +40,34 @@
       {%- endfor %}</p>
       {% endfor %}
     </div>
+    {# The other page, lying under this one on the same table. Rendered on
+       first paint and never hidden: a page cannot be folded onto something
+       that is not there, and a viewer who has not picked the fold-in yet
+       should still be able to see there is a second sheet.
+
+       Tokenised the same way page A is, but its words carry no
+       `source_index` of their own on this scene — nothing cuts through page
+       B, so nothing has to ask where its words end. #}
+    <div class="cutup-page-b" id="cutup-page-b" hidden>
+      {% for line in page_b_lines %}
+      <p class="cutup-line">{% for token in line.tokens -%}
+        {%- if token.is_word -%}
+          <span class="cutup-word">{{ token.text }}</span>
+        {%- else -%}
+          {{ token.text }}
+        {%- endif -%}
+      {%- endfor %}</p>
+      {% endfor %}
+    </div>
     {# State two, "the cut": four quadrants, built by the script from the
        page above at the moment the blades are used, and empty until then. #}
     <div class="cutup-pieces" id="cutup-pieces" hidden></div>
+    {# State two for the other three operations, and one layer rather than
+       three: what the fold, the bag and the column all produce is pieces of
+       the two pages standing somewhere other than where they were printed,
+       which is one kind of thing. Built at the moment the operation runs and
+       empty until then, exactly as the quadrants are. #}
+    <div class="cutup-folded" id="cutup-folded" hidden></div>
     {# The blades. `role="slider"` and the arrow keys, so the cut can be
        positioned without a pointer at all — and so that path arms the
        placeholder through the same choke point a drag does. #}
@@ -63,9 +88,31 @@
   {# Reused byte for byte from the scene this one replaces, not quoted from
      anyone — see `stage.CUT_UP_SOURCE`'s own comment. Under the sheet,
      where a printed page carries its own imprint. #}
-  <p class="scene-credit">Written for this scene.</p>
+  {# The credit follows the method, not the scene: one of the four quotes a
+     book and three do not, so a single line under the sheet would either
+     credit Melville for pages he is not on or leave him off the one he
+     is. #}
+  <p class="scene-credit" id="cutup-credit">{{ method.credit }}</p>
   </div>
   <div class="cutup-panel">
+  {# The family, as a picker. This scene showed one operation and called it
+     "the cut-up", which is the name everybody uses for a set of four — and
+     the catalogue carries three of them as separate rows with separate
+     checkers. Naming them side by side is the argument: the quarter cut is
+     not the method, it is the famous one.
+
+     Buttons rather than radios, for the reason scene eight's cartridge
+     switch is one: `aria-pressed` says which is chosen without the scene
+     having to draw a control that looks like a form. #}
+  <div class="cutup-methods" role="group" aria-label="Which operation">
+    {% for m in methods %}
+    <button type="button" class="cutup-method quiet{{ ' on' if m.id == method.id }}"
+      data-method="{{ m.id }}" aria-pressed="{{ 'true' if m.id == method.id else 'false' }}"
+      data-how="{{ m.how }}" data-credit="{{ m.credit }}"
+      data-verb="{{ m.verb }}">{{ m.label }}</button>
+    {% endfor %}
+  </div>
+  <p class="cutup-how" id="cutup-how">{{ method.how }}</p>
   <div class="actions cutup-actions">
     {# The cut is committed by this button rather than by letting go of a
        blade. Two reasons, and the first is the act itself: you line the
@@ -80,7 +127,14 @@
          `readAssembledText`. Never recomputed from the source on the
          server: the text checked has to be the text on screen. #}
       <input type="hidden" name="text" id="cutup-text" value="">
-      <button type="button" id="cutup-cut">Cut it</button>
+      {# Which operation the text came out of. The route needs it to pick a
+         checker, and it is posted rather than inferred because four
+         operations on one page can produce texts that another's checker
+         would happily accept — a column read down is also, word for word, a
+         subset of the page. #}
+      <input type="hidden" name="method" id="cutup-method" value="{{ method.id }}">
+      <input type="hidden" name="column" id="cutup-column-field" value="1">
+      <button type="button" id="cutup-cut">{{ method.verb }}</button>
     </form>
     {# A cut page cannot be cut again, so this is how the viewer gets back to
        a whole one without having to nudge a blade to do it. It goes through
@@ -89,6 +143,26 @@
        cut. #}
     <button type="button" id="cutup-fresh" class="quiet">Fresh sheet</button>
   </div>
+  {# Where the blades are standing, and how many places they could stand.
+     Both were already being computed — the first was handed to the accessible
+     tree and to nobody else, so a screen reader was told where the cut was
+     falling and a person watching the scene was not, on the one scene whose
+     whole subject is where you put the cut. #}
+  {# The column, for the one operation whose dial is not a blade. A slider,
+     for the reason N+7's offset is one: the interesting thing about reading
+     a page down is that there is a *column* to choose, and a slider is what
+     a range you sweep looks like. Its bounds are the page's own — the
+     longest line's word count, computed from the source, never typed. #}
+  <div class="cutup-column" id="cutup-column" hidden>
+    <label for="cutup-column-range">Column</label>
+    <input id="cutup-column-range" type="range" min="1" max="{{ max_column }}"
+      value="1" step="1" aria-describedby="cutup-column-readout">
+    <output id="cutup-column-readout" for="cutup-column-range"></output>
+  </div>
+  <dl class="cutup-readout" id="cutup-readout">
+    <dt>Down</dt><dd id="cutup-readout-v"></dd>
+    <dt>Across</dt><dd id="cutup-readout-h"></dd>
+  </dl>
   {# State three, "the verdict": empty until a cut has actually been made,
      the same choice N+7's own `#displaced` opens on. #}
   <div id="cutup-result" class="cutup-area"></div>
@@ -105,6 +179,8 @@ const tableEl = document.getElementById('cutup-table');
 const pageEl = document.getElementById('cutup-page');
 const piecesEl = document.getElementById('cutup-pieces');
 const bladesEl = document.getElementById('cutup-blades');
+const readoutVEl = document.getElementById('cutup-readout-v');
+const readoutHEl = document.getElementById('cutup-readout-h');
 const bladeVEl = document.getElementById('cutup-blade-v');
 const bladeHEl = document.getElementById('cutup-blade-h');
 const formEl = document.getElementById('cutup-form');
@@ -114,6 +190,18 @@ const freshBtn = document.getElementById('cutup-fresh');
 const resultEl = document.getElementById('cutup-result');
 const statusEl = document.getElementById('cutup-status');
 const lineEls = Array.from(pageEl.querySelectorAll('.cutup-line'));
+const pageBEl = document.getElementById('cutup-page-b');
+const lineBEls = Array.from(pageBEl.querySelectorAll('.cutup-line'));
+const methodEls = Array.from(document.querySelectorAll('.cutup-method'));
+const methodField = document.getElementById('cutup-method');
+const columnField = document.getElementById('cutup-column-field');
+const howEl = document.getElementById('cutup-how');
+const creditEl = document.getElementById('cutup-credit');
+const foldEl = document.getElementById('cutup-folded');
+const columnEl = document.getElementById('cutup-column');
+const columnRange = document.getElementById('cutup-column-range');
+const columnReadout = document.getElementById('cutup-column-readout');
+const readoutEl = document.getElementById('cutup-readout');
 
 // The three beats of the cut. Budget: the whole thing inside 1.5-2s (the
 // human's own standing complaint is that scenes feel slow). Measured end to
@@ -219,6 +307,55 @@ function wordAt(line, k) {
   return null;
 }
 
+// ── which operation ────────────────────────────────────────────────────────
+//
+// Four, and the scene is one of them at a time. The state is a single id; what
+// hangs off it is the button's label, the sentence under the picker, the
+// credit under the sheet, whether the blades are on the page at all, and which
+// checker the route reaches for on the other side.
+//
+// Everything that changes it goes through `setMethod`, which ends in
+// `invalidate` — switching operation leaves any standing verdict describing an
+// arrangement the page is no longer showing, which is the same staleness a
+// moved blade causes and gets the same answer.
+let method = 'quarter';
+
+function methodEl(id) {
+  return methodEls.find((el) => el.dataset.method === id) || methodEls[0];
+}
+
+function setMethod(id) {
+  method = id;
+  const chosen = methodEl(id);
+  methodEls.forEach((el) => {
+    const on = el === chosen;
+    el.classList.toggle('on', on);
+    el.setAttribute('aria-pressed', String(on));
+  });
+  methodField.value = id;
+  howEl.textContent = chosen.dataset.how;
+  creditEl.textContent = chosen.dataset.credit;
+  cutBtn.textContent = chosen.dataset.verb;
+  // The blades belong to the quarter cut and to nothing else. A fold has no
+  // straight edge to position — its crease is at each line's own middle — and
+  // a bag and a column are not cut at all. Leaving two blades lying on the
+  // page for operations that ignore them would advertise a control that does
+  // nothing, which is the defect this scene's own history has already been
+  // through once on the Denckring's labels.
+  bladesEl.hidden = id !== 'quarter';
+  readoutEl.hidden = id !== 'quarter';
+  // The second sheet is only shown when something is going to happen to it.
+  // It is in the markup from first paint either way — see the template.
+  pageBEl.hidden = id !== 'fold';
+  columnEl.hidden = id !== 'column';
+  // The column's mark lives on the intact page, so it has to be repainted
+  // when the operation changes and not only when the column does — picking
+  // another operation is what takes it off.
+  paintColumn();
+  invalidate();
+  announce(chosen.textContent.trim() + '. ' + chosen.dataset.how);
+}
+
 // ── blade state ────────────────────────────────────────────────────────────
 let bladeX = 0;    // the vertical cut, in px from the page's left edge
 let gapIndex = 3;  // the horizontal cut, as "after this many lines"
@@ -253,7 +390,30 @@ function drawBlades() {
       : `through ${through} word${through === 1 ? '' : 's'}`
   );
   bladeHEl.setAttribute('aria-valuetext', `after line ${gapIndex} of ${geom.lines.length}`);
+  // The same two facts, where a viewer can read them. They were computed here
+  // already and given only to the accessible tree — so a screen reader was
+  // told where the blades were standing and a person watching the scene was
+  // not, on the one scene whose entire subject is where you put the cut.
+  if (readoutVEl) readoutVEl.textContent = bladeVEl.getAttribute('aria-valuetext');
+  if (readoutHEl) readoutHEl.textContent = bladeHEl.getAttribute('aria-valuetext');
 }
+
+// This scene has no count, and that is now a decision rather than an
+// oversight. Every other scene on the stage carries one; the number this one
+// wants is how many cuts miss every word on every line, since those are the
+// cuts whose verdict comes back green.
+//
+// It was written and then taken out again. `wordAt(line, splitIndex(line, x))`
+// over every inter-word edge said one such column; an independent sweep of the
+// rendered word rectangles, pixel by pixel across the page, said three — and
+// found them as three isolated single pixels, which is not a shape a gap has.
+// Two measurements of one fact that do not agree, and the fact is about
+// character boundaries in a webfont, which is the sort of thing this scene has
+// already been wrong about once (see `relayout` and the note above it).
+//
+// So: no number until somebody settles which measure is right. The catalogue
+// strikes a figure the whole literature repeats for exactly this reason, and a
+// count on this page would be held to the same standard.
 
 function refreshControls() {
   cutBtn.disabled = inert || activeBlades > 0 || cutState !== 'whole';
@@ -300,7 +460,11 @@ function restoreWhole() {
   cutState = 'whole';
   piecesEl.hidden = true;
   piecesEl.textContent = '';
+  foldEl.hidden = true;
+  foldEl.textContent = '';
+  bagOrder = [];
   pageEl.hidden = false;
+  pageBEl.hidden = method !== 'fold';
   tableEl.style.transition = 'none';
   tableEl.style.top = `${centredTop(geom.height)}px`;
   bladesEl.classList.remove('cutup-blades-down');
@@ -423,6 +587,342 @@ function readAssembledText() {
   return out.join('\n');
 }
 
+// ── the other three operations ─────────────────────────────────────────────
+//
+// Measuring a page that is not page A. `measure()` above is page A's, because
+// only page A is cut and only page A's word extents decide where a blade
+// landed; the fold needs page B's lines too, and needs them only when the fold
+// is on screen, so it takes them then rather than at layout.
+function measureLines(els, boxEl) {
+  const boxRect = boxEl.getBoundingClientRect();
+  return els.map((el) => {
+    const rect = el.getBoundingClientRect();
+    const metrics = charMetrics(el, boxRect.left);
+    return {
+      el: el,
+      text: el.textContent,
+      edges: metrics.edges,
+      top: rect.top - boxRect.top,
+      height: rect.height,
+    };
+  });
+}
+
+// Where a line's own fold falls, in words and in characters.
+//
+// Whitespace tokens, not `word_spans` — and this is the one place on the scene
+// where the two disagree on purpose. `fold_in._halves` splits on `line.split()`
+// and takes `ceil(n / 2)`, so on this page "cut-out" is one word to the fold
+// and two to the cut. Each operation is drawn by the arithmetic of its own
+// checker; a shared tokenisation here would put the crease somewhere the
+// checker does not have it, and the verdict would disagree with the picture.
+function foldHalves(text) {
+  const words = text.split(/\s+/).filter((w) => w !== '');
+  const split = Math.ceil(words.length / 2);
+  // The character offset just past the last word of the left half, found by
+  // walking the real text rather than by re-joining the tokens: the line's own
+  // spacing is what the crease has to fall inside.
+  let seen = 0;
+  let index = 0;
+  const re = /\S+/g;
+  let match;
+  while ((match = re.exec(text)) !== null) {
+    seen++;
+    index = match.index + match[0].length;
+    if (seen === split) break;
+  }
+  return {
+    left: words.slice(0, split),
+    right: words.slice(split),
+    crease: index,
+  };
+}
+
+// A run of a line, absolutely placed where it is printed, so it can be moved
+// or folded away from there.
+function foldPart(line, from, to, x, cls, row) {
+  const el = document.createElement('p');
+  el.className = 'cutup-piece-line ' + cls;
+  el.textContent = line.text.slice(from, to).trim();
+  el.style.left = `${x}px`;
+  el.style.top = `${line.top}px`;
+  // Which folded line this half belongs to, carried on the element. The two
+  // halves of one folded line come off two different pages and start at two
+  // different heights, and the one from page B only arrives at page A's line
+  // as a `transform` — so reading the fold back by where a piece is standing
+  // gives twelve rows, not six, until the animation has finished. Measured:
+  // the first fold this scene ever performed came back "12 lines are not the
+  // fold" for a fold that was correct.
+  el.dataset.row = String(row);
+  foldEl.appendChild(el);
+  return el;
+}
+
+// The fold, built where both pages are printed.
+//
+// Four groups per line, and the two that go away are as much of the operation
+// as the two that stay: half of every line is folded under and lost, which is
+// what the row's own docstring insists is "the form, not a defect".
+function buildFold() {
+  foldEl.textContent = '';
+  const linesB = measureLines(lineBEls, pageBEl);
+  const offsetB = {
+    x: pageBEl.offsetLeft - pageEl.offsetLeft,
+    y: pageBEl.offsetTop - pageEl.offsetTop,
+  };
+  const rows = [];
+  const count = Math.min(geom.lines.length, linesB.length);
+  for (let i = 0; i < count; i++) {
+    const a = geom.lines[i];
+    const b = linesB[i];
+    const ha = foldHalves(a.text);
+    const hb = foldHalves(b.text);
+    const bLine = { text: b.text, top: b.top + offsetB.y };
+    rows.push({
+      keptA: foldPart(a, 0, ha.crease, 0, 'cutup-fold-keep', i),
+      goneA: foldPart(a, ha.crease, a.text.length, a.edges[ha.crease], 'cutup-fold-gone', i),
+      goneB: foldPart(bLine, 0, hb.crease, offsetB.x, 'cutup-fold-gone', i),
+      keptB: foldPart(bLine, hb.crease, b.text.length, offsetB.x + b.edges[hb.crease],
+        'cutup-fold-keep', i),
+      // Where page B's surviving half has to end up: hard against page A's
+      // crease, on page A's own line.
+      travel: {
+        // One character's advance of daylight at the join. The two halves are
+        // two words of one line and have to be set as such — butted flush
+        // they read "nothingyears", which is not what the fold produces and
+        // not what the text posted for checking says. The face is fixed
+        // pitch, so one character's advance is the space between any two
+        // words on it, and it is measured off the page rather than typed.
+        dx: a.edges[ha.crease] - (offsetB.x + b.edges[hb.crease]) + (a.edges[1] - a.edges[0]),
+        dy: a.top - bLine.top,
+      },
+      text: ha.left.concat(hb.right).join(' '),
+    });
+  }
+  return rows;
+}
+
+function playFold() {
+  const token = cutToken;
+  const rows = buildFold();
+  pageEl.hidden = true;
+  pageBEl.hidden = true;
+  foldEl.hidden = false;
+
+  const away = (ms) => {
+    rows.forEach((row) => {
+      [row.goneA, row.goneB].forEach((el) => {
+        el.style.transition = ms > 0 ? `opacity ${ms}ms linear, transform ${ms}ms ease-in` : 'none';
+        el.classList.add('cutup-fold-under');
+      });
+    });
+  };
+  const meet = (ms) => {
+    rows.forEach((row) => {
+      row.keptB.style.transition =
+        ms > 0 ? `transform ${ms}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none';
+      row.keptB.style.transform = `translate(${row.travel.dx}px, ${row.travel.dy}px)`;
+    });
+  };
+
+  if (prefersReducedMotion()) {
+    away(0);
+    meet(0);
+    return Promise.resolve(token);
+  }
+  return new Promise((resolve) => {
+    away(CUT_SEPARATE_MS);
+    setTimeout(() => {
+      if (token !== cutToken) return resolve(token);
+      meet(CUT_MOVE_MS);
+      setTimeout(() => resolve(token), CUT_MOVE_MS);
+    }, CUT_SEPARATE_MS);
+  });
+}
+
+// The bag. Every word of page A on its own scrap, thrown down in an order
+// nothing on this page decides — `Math.random` is exactly right here and
+// nowhere else on the stage, because a bag with an order is not a bag.
+//
+// The scraps stay under the hand afterwards: this is the one operation whose
+// result is not finished when the animation stops, because Tzara's own
+// instruction is that you copy them down in the order they come out, and a
+// viewer who wants to see what a different draw reads like should be able to
+// push one along the table.
+function buildBag() {
+  foldEl.textContent = '';
+  const scraps = [];
+  geom.lines.forEach((line) => {
+    line.words.forEach((word) => {
+      const el = document.createElement('span');
+      el.className = 'cutup-scrap';
+      el.textContent = word.el.textContent;
+      el.style.left = `${word.el.offsetLeft}px`;
+      el.style.top = `${line.top}px`;
+      el.setAttribute('draggable', 'false');
+      foldEl.appendChild(el);
+      scraps.push({ el: el, from: { x: word.el.offsetLeft, y: line.top } });
+    });
+  });
+  return scraps;
+}
+
+// The scraps are laid out in the order they came out of the bag, flowing left
+// to right and wrapping at the page's own width — a fixed grid was measured
+// first and dropped: "everything" is eleven characters and overlapped the
+// scrap beside it, which turned two draws into one unreadable word.
+const BAG_GAP_PX = 9;
+const BAG_ROW_H = 30;
+
+function playBag() {
+  const token = cutToken;
+  const scraps = buildBag();
+  pageEl.hidden = true;
+  foldEl.hidden = false;
+  // The draw. Fisher-Yates over the scraps themselves, so the order they are
+  // laid down in is the order they came out of the bag — not a sorted list
+  // dressed as one.
+  const order = scraps.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = order[i];
+    order[i] = order[j];
+    order[j] = t;
+  }
+  bagOrder = order;
+  const place = (ms) => {
+    let x = 0;
+    let row = 0;
+    order.forEach((scrapIndex, position) => {
+      const scrap = scraps[scrapIndex];
+      const width = scrap.el.offsetWidth;
+      if (x > 0 && x + width > geom.width) {
+        x = 0;
+        row++;
+      }
+      const y = row * BAG_ROW_H;
+      scrap.el.style.transition =
+        ms > 0 ? `transform ${ms}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none';
+      scrap.el.style.transform = `translate(${x - scrap.from.x}px, ${y - scrap.from.y}px)`;
+      scrap.el.dataset.position = String(position);
+      // Where the scrap is standing, so a hand that moves it later moves it
+      // from somewhere known rather than from where it was printed.
+      scrap.at = { x: x, y: y };
+      x += width + BAG_GAP_PX;
+    });
+  };
+  bagScraps = scraps;
+  place(prefersReducedMotion() ? 0 : CUT_MOVE_MS);
+  if (prefersReducedMotion()) return Promise.resolve(token);
+  return new Promise((resolve) => setTimeout(() => resolve(token), CUT_MOVE_MS));
+}
+
+let bagOrder = [];
+let bagScraps = [];
+
+// The scraps under the hand. Tzara's instruction ends with "copy them out in
+// the order they come", and this is the one operation on the scene whose
+// result is not finished when the animation stops: a viewer who wants to see
+// what another arrangement reads like can push one along the table.
+//
+// Deliberately *not* through `HoldTurn.attachLinearDrag`. That module moves
+// one control along one axis and reports a release to a scene that then does
+// something about it; these are forty-seven independent scraps moving in two
+// axes and reporting nothing — the shared abstraction would be doing none of
+// the work and hiding what little there is.
+//
+// Moving a scrap does not renumber the draw. Where a word is standing is not
+// what order it came out of the bag in, and the text this scene posts is the
+// draw — see `readBagText`. What moving one *does* do is invalidate any
+// standing verdict, for the reason everything else on this scene does: the
+// page is no longer showing what was checked.
+let dragScrap = null;
+
+foldEl.addEventListener('pointerdown', (evt) => {
+  const scrap = evt.target.closest ? evt.target.closest('.cutup-scrap') : null;
+  if (!scrap) return;
+  const record = bagScraps.find((s) => s.el === scrap);
+  if (!record) return;
+  evt.preventDefault();
+  scrap.setPointerCapture(evt.pointerId);
+  scrap.classList.add('dragging');
+  dragScrap = { record: record, from: { x: evt.clientX, y: evt.clientY }, moved: false };
+});
+
+foldEl.addEventListener('pointermove', (evt) => {
+  if (!dragScrap) return;
+  const dx = evt.clientX - dragScrap.from.x;
+  const dy = evt.clientY - dragScrap.from.y;
+  if (!dragScrap.moved && Math.abs(dx) + Math.abs(dy) < 3) return;
+  dragScrap.moved = true;
+  const record = dragScrap.record;
+  record.el.style.transition = 'none';
+  record.el.style.transform =
+    `translate(${record.at.x + dx - record.from.x}px, ${record.at.y + dy - record.from.y}px)`;
+});
+
+function endScrapDrag(evt) {
+  if (!dragScrap) return;
+  const record = dragScrap.record;
+  const moved = dragScrap.moved;
+  record.el.classList.remove('dragging');
+  if (moved) {
+    record.at = {
+      x: record.at.x + (evt.clientX - dragScrap.from.x),
+      y: record.at.y + (evt.clientY - dragScrap.from.y),
+    };
+  }
+  dragScrap = null;
+  if (moved) invalidate();
+}
+foldEl.addEventListener('pointerup', endScrapDrag);
+foldEl.addEventListener('pointercancel', endScrapDrag);
+
+// The column. Nothing is cut and nothing is rearranged — the words that make
+// it up are lifted out of the lines they are still standing in, which is the
+// whole difference between this operation and the other three.
+function columnWords(column) {
+  return geom.lines
+    .map((line) => {
+      const words = line.text.split(/\s+/).filter((w) => w !== '');
+      return column <= words.length ? { line: line, word: words[column - 1] } : null;
+    })
+    .filter(Boolean);
+}
+
+function buildColumn(column) {
+  foldEl.textContent = '';
+  const picked = columnWords(column);
+  return picked.map((pick, index) => {
+    const el = document.createElement('p');
+    el.className = 'cutup-piece-line cutup-fold-keep';
+    el.textContent = pick.word;
+    el.style.left = '0px';
+    el.style.top = `${pick.line.top}px`;
+    foldEl.appendChild(el);
+    return { el: el, from: pick.line.top, to: index * BAG_ROW_H };
+  });
+}
+
+function playColumn() {
+  const token = cutToken;
+  const rows = buildColumn(currentColumn());
+  pageEl.hidden = true;
+  foldEl.hidden = false;
+  const ms = prefersReducedMotion() ? 0 : CUT_MOVE_MS;
+  rows.forEach((row) => {
+    row.el.style.transition =
+      ms > 0 ? `transform ${ms}ms cubic-bezier(0.2, 0.7, 0.3, 1)` : 'none';
+    row.el.style.transform = `translateY(${row.to - row.from}px)`;
+  });
+  if (ms === 0) return Promise.resolve(token);
+  return new Promise((resolve) => setTimeout(() => resolve(token), ms));
+}
+
+function currentColumn() {
+  return Number(columnRange.value);
+}
+
 // ── the cut itself ─────────────────────────────────────────────────────────
 //
 // Never waits on `transitionend`: explorer.css sets `transition: none
@@ -483,18 +983,59 @@ function playCut() {
   });
 }
 
+// Which choreography an operation plays, and what text comes off the table
+// when it stops. One pair per method, in one place, so adding a fifth
+// operation is two entries rather than a fifth branch in four functions.
+const OPERATIONS = {
+  quarter: { play: playCut, read: readAssembledText, doing: 'Cutting the page.' },
+  fold: { play: playFold, read: readFoldedText, doing: 'Folding the pages together.' },
+  bag: { play: playBag, read: readBagText, doing: 'Shaking the bag.' },
+  column: { play: playColumn, read: readColumnText, doing: 'Reading the column down.' },
+};
+
+// The fold's own text, read off the rows on screen for the same reason the
+// quarters' is: what `check` is given has to be what a viewer can see.
+function readFoldedText() {
+  const rows = [];
+  foldEl.querySelectorAll('.cutup-fold-keep').forEach((el) => {
+    const index = Number(el.dataset.row);
+    if (!rows[index]) rows[index] = [];
+    rows[index].push(el.textContent.trim());
+  });
+  return rows.map((parts) => parts.join(' ')).join('\n');
+}
+
+// The bag's, in the order the scraps are lying in — which is the order they
+// were drawn in, and stays true if a hand has since moved one.
+function readBagText() {
+  return Array.from(foldEl.querySelectorAll('.cutup-scrap'))
+    .sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position))
+    .map((el) => el.textContent)
+    .join(' ');
+}
+
+// The column's: one line, the words in line order, which is how
+// `column_reading` renders its own.
+function readColumnText() {
+  return Array.from(foldEl.querySelectorAll('.cutup-fold-keep'))
+    .map((el) => el.textContent.trim())
+    .join(' ');
+}
+
 async function cutItUp() {
   if (cutState !== 'whole' || inert || activeBlades > 0) return;
+  const operation = OPERATIONS[method];
   cutState = 'cutting';
   refreshControls();
-  announce('Cutting the page.');
-  const token = await playCut();
+  announce(operation.doing);
+  columnField.value = String(currentColumn());
+  const token = await operation.play();
   // A blade grabbed mid-animation has already put the sheet back together
   // (`invalidate`); there is nothing left to check and nothing to submit.
   if (token !== cutToken) return;
   cutState = 'cut';
   refreshControls();
-  textEl.value = readAssembledText();
+  textEl.value = operation.read();
   formEl.requestSubmit();
 }
 
@@ -584,6 +1125,16 @@ freshBtn.addEventListener('click', () => {
   invalidate();
   announce('A fresh sheet.');
 });
+methodEls.forEach((el) => {
+  el.addEventListener('click', () => setMethod(el.dataset.method));
+});
+// The column control moves through the same choke point a blade does: it
+// changes what the operation would produce, so any verdict standing over the
+// last one stops being true the moment it moves.
+columnRange.addEventListener('input', () => {
+  paintColumn();
+  invalidate();
+});
 
 // ── the round trip ─────────────────────────────────────────────────────────
 let submittedToken = 0;
@@ -640,11 +1191,35 @@ document.body.addEventListener('htmx:afterSwap', (evt) => {
   if (cutToken !== submittedToken || activeBlades > 0 || cutState !== 'cut') {
     setVerdictCutting();
   } else {
-    const verdict = resultEl.querySelector('.verdict');
-    if (verdict) announce(verdict.textContent.trim());
+    // Whichever of the two the operation produced: a verdict, or — for the
+    // word bag alone — the line that says there is not going to be one. Both
+    // are the answer to "what happened", which is what a status line is for.
+    const said = resultEl.querySelector('.verdict, .cutup-uncheckable-head');
+    if (said) announce(said.textContent.trim());
   }
   refreshControls();
 });
+
+// What column is chosen, and — the part that makes the choice mean
+// something — how many of the six lines are long enough to have a word there.
+// `column_reading` skips a line too short to reach rather than padding it, so
+// a high column is a real reading of fewer lines and the scene has to say so.
+function paintColumn() {
+  const column = currentColumn();
+  const reached = columnWords(column).length;
+  columnReadout.textContent =
+    `${column} of ${columnRange.max} — ${reached} of ${geom.lines.length} lines reach it`;
+  geom.lines.forEach((line) => {
+    const words = line.text.split(/\s+/).filter((w) => w !== '');
+    const target = words[column - 1];
+    let seen = 0;
+    line.words.forEach((w) => {
+      seen++;
+      w.el.classList.toggle('cutup-in-column', method === 'column' && seen === column
+        && target !== undefined);
+    });
+  });
+}
 
 // ── first paint ────────────────────────────────────────────────────────────
 function layout() {
@@ -661,6 +1236,8 @@ function layout() {
   tableEl.style.width = `${geom.width}px`;
   tableEl.style.top = `${centredTop(geom.height)}px`;
   bladesEl.style.width = `${geom.width}px`;
+  foldEl.style.width = `${geom.width}px`;
+  foldEl.style.height = `${geom.height}px`;
   bladeVEl.style.height = `${geom.height}px`;
   bladeHEl.style.width = `${geom.width}px`;
 }
@@ -701,12 +1278,14 @@ function relayout(reaim) {
   layout();
   bladeX = reaim || fraction === null ? clampX(bestColumn()) : clampX(fraction * geom.width);
   drawBlades();
+  paintColumn();
 }
 
 layout();
 bladeX = clampX(bestColumn());
 gapIndex = 3;
 drawBlades();
+paintColumn();
 refreshControls();
 
 // The page is measured character by character, and at first paint the

@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Llull · B · The tabula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work{display:flex;gap:2.2rem;margin-top:.9rem;align-items:flex-start}
+  .tab{flex:none;width:620px;display:grid;grid-template-columns:repeat(12,1fr);gap:.22rem}
+  .ch{font-family:var(--display);font-size:.8rem;letter-spacing:.06em;text-align:center;
+      padding:.34rem 0;background:var(--paper-shade);border-radius:2px;cursor:pointer;color:#6d665c;
+      transition:background 120ms,color 120ms}
+  .ch:hover{background:#dcd4c2;color:var(--ink)}
+  .ch.on{background:#a5301f;color:var(--paper);font-weight:600}
+  .ch.has{color:var(--ink)}
+  .side{flex:1;min-width:0}
+  .now{font-family:var(--display);font-size:2rem;font-weight:600;letter-spacing:.16em;margin:0}
+  table{border-collapse:collapse;width:100%;margin:.6rem 0 0}
+  td{padding:.22rem .5rem .22rem 0;border-bottom:1px solid var(--paper-shade);vertical-align:top}
+  td.k{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);width:5.4rem}
+  td.t{font-family:var(--display);font-style:italic;font-size:.9rem;color:var(--ink)}
+  .filter{display:flex;gap:.3rem;margin:.8rem 0 0;flex-wrap:wrap}
+  .filter button{font-family:var(--display);text-transform:none;letter-spacing:0;padding:.18rem .5rem;font-size:.85rem}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Ramon Llull &middot; Ars generalis ultima, 1305&ndash;1308</p>
+  <h1>Tabula &middot; all 84 chambers</h1>
+  <div class="work">
+    <div class="tab" id="tab"></div>
+    <div class="side">
+      <p class="now" id="now"></p>
+      <table id="rows"></table>
+      <p class="verdict yes">checked &mdash; a genuine chamber of 3 distinct principles</p>
+      <div class="filter" id="filter"></div>
+      <p class="credit">Every chamber of three distinct letters, all 84 of them, computed from the
+        nine. Press one to read it; press a letter below to see only the chambers that contain it.
+        The printed <i>Tabula generalis</i> has a count of its own that this project has not
+        checked against a facsimile, so it is not given.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'llull_figure',letter:'b',name:'The tabula',
+ claim:'The whole space at once. Eighty-four chambers as a grid you read across, filterable by '
+     + 'letter, each one a press away — the figure’s output rather than the figure. 84 stops being '
+     + 'a number under a wheel and becomes a page you can scan.',
+ note:'This is the direction with <b>no volvelle at all</b>, which is either its strength or its '
+    + 'disqualification: the wheels are the object the catalogue entry is about, and the table is '
+    + 'what they produce. It is by far the best of the three for finding a particular chamber.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const L=DATA.llull.letters, LV=DATA.llull.levels, LVN=Object.keys(LV);
+ const all=[]; for(let a=0;a<9;a++)for(let b=a+1;b<9;b++)for(let c=b+1;c<9;c++)all.push([L[a],L[b],L[c]]);
+ let pick=all[0], only='';
+ const tab=document.getElementById('tab');
+ const cells=all.map((ch)=>{const d=document.createElement('div');d.className='ch';d.textContent=ch.join('');
+   d.onclick=()=>{pick=ch;paint();};tab.appendChild(d);return d;});
+ const f=document.getElementById('filter');
+ ['all',...L].forEach((x)=>{const b=document.createElement('button');b.className='quiet';b.textContent=x==='all'?'all 84':x;
+   b.onclick=()=>{only=x==='all'?'':x;paint();};f.appendChild(b);});
+ function paint(){
+   cells.forEach((d,i)=>{const ch=all[i];
+     d.classList.toggle('on',ch.join('')===pick.join(''));
+     d.classList.toggle('has',!only||ch.includes(only));
+     d.style.opacity=!only||ch.includes(only)?'1':'.22';});
+   document.getElementById('now').textContent=pick.join(' · ');
+   const rows=document.getElementById('rows');rows.textContent='';
+   LVN.forEach((lv)=>{const tr=document.createElement('tr');
+     const k=document.createElement('td');k.className='k';k.textContent=lv;
+     const t=document.createElement('td');t.className='t';t.textContent=pick.map((x)=>LV[lv][x]).join(' · ');
+     tr.append(k,t);rows.appendChild(tr);});
+   [...f.children].forEach((b,i)=>b.setAttribute('aria-pressed',String((i===0&&!only)||b.textContent===only)));
+ }
+ paint();
+})();
+</script></body></html>

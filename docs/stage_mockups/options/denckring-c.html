@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Denckring · C · The bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .bench { display: flex; gap: 2.2rem; align-items: flex-start; margin-top: .7rem; }
+  .left { flex: none; width: 430px; }
+  svg { display: block; width: 418px; height: 418px; touch-action: none; cursor: grab; }
+  svg.grabbing { cursor: grabbing; }
+  .lab { font-family: var(--display); font-weight: 500; fill: var(--ink); pointer-events: none; user-select: none; }
+  .lab-hub { fill: var(--paper); }
+  .lab-now { font-weight: 700; }
+  .cell { pointer-events: none; }
+  .slot { fill: none; stroke: var(--accent); stroke-width: 1.4; opacity: .8; pointer-events: none; }
+  .hub { fill: var(--case-deep); stroke: var(--paper-shade); stroke-width: 1.5; pointer-events: none; }
+  .right { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 560px; }
+  .now { background: var(--case-deep); border-radius: 2px; padding: .8rem 1rem .9rem; }
+  .now .w { font-family: var(--display); font-size: 2.1rem; font-weight: 600; color: var(--paper); margin: 0; line-height: 1.05; }
+  .now .p { font-family: var(--display); font-size: .8rem; color: var(--lead-bright); margin: .2rem 0 0; }
+  .now .v { font-family: var(--mono); font-size: .68rem; margin: .45rem 0 0; }
+  .now .v.yes { color: #6fae6f; } .now .v.no { color: var(--rubric-soft); }
+  .acts { display: flex; gap: .5rem; margin: .9rem 0 0; }
+  .keys { font-family: var(--mono); font-size: .6rem; color: var(--lead); margin: .5rem 0 0; letter-spacing: .05em; }
+  .book { margin: 1.1rem 0 0; border-top: 1px solid var(--paper-shade); padding-top: .7rem; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .book h2 { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--lead); margin: 0 0 .5rem; font-weight: 500; }
+  .kept { display: flex; flex-wrap: wrap; gap: .3rem; align-content: flex-start; overflow-y: auto; flex: 1; }
+  .kept span { font-family: var(--display); font-size: .92rem; color: var(--ink); background: var(--paper-shade); border-radius: 2px; padding: .12rem .45rem; }
+  .kept .none { background: none; font-family: var(--body); font-size: .78rem; color: var(--lead); }
+  .tally { font-family: var(--mono); font-size: .62rem; color: var(--lead); margin: .5rem 0 0; }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Harsdörffer &middot; Nürnberg, 1651</p>
+  <h1>Der Denckring</h1>
+  <div class="bench">
+    <div class="left">
+      <svg id="disc" viewBox="0 0 418 418" role="img" aria-label="Five discs of German word parts"></svg>
+    </div>
+    <div class="right">
+      <div class="now">
+        <p class="w" id="word">&mdash;</p>
+        <p class="p" id="parts"></p>
+        <p class="v yes" id="verdict">a word German knows &mdash; yes</p>
+      </div>
+      <div class="acts">
+        <button id="turn">Turn</button>
+        <button id="keep">Keep it</button>
+        <button id="drop" class="quiet">Discard</button>
+      </div>
+      <p class="keys">space turn &nbsp;·&nbsp; enter keep &nbsp;·&nbsp; backspace discard</p>
+      <div class="book">
+        <h2>Wortbuch</h2>
+        <div class="kept" id="kept"></div>
+        <p class="tally" id="tally"></p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'denckring', letter: 'c', name: 'The bench',
+  claim: 'The device enumerates and the operator judges, so the scene gives the judging somewhere '
+       + 'to land. Turn, keep or discard; what you keep collects in a Wortbuch beside the discs, '
+       + 'and the tally is the honest hit rate of the thing.',
+  note: 'The one direction where the <b>reader</b> is on stage rather than only the machine — '
+      + 'which is the argument the catalogue makes about every device here. It costs figure size: '
+      + 'the discs come down to 418px to make room for a working surface, and the ring contents '
+      + 'stop being browsable.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg', C = 209;
+  const BAND = [
+    { r0: 0, r1: 58, fill: 'var(--rubric)', font: 11 },
+    { r0: 58, r1: 95, fill: '#c9beaa', font: 10 },
+    { r0: 95, r1: 132, fill: '#dcd5c5', font: 12 },
+    { r0: 132, r1: 169, fill: '#e8e3d9', font: 10 },
+    { r0: 169, r1: 206, fill: '#f2efe7', font: 10 },
+  ];
+  // A window rather than the whole ring: this direction spends its space on the
+  // bench, so the figure shows what is near the mark and nothing else.
+  const WINDOW = [8, 12, 12, 16, 16];
+  const rings = DATA.rings.map((r) => ({
+    name: r.name, parts: r.optional ? r.parts.concat(['']) : r.parts.slice(), index: 0,
+  }));
+  const svg = document.getElementById('disc');
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const pol = (r, d) => { const a = (d - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
+  const wedge = (r0, r1, a0, a1) => {
+    const [x0, y0] = pol(r1, a0), [x1, y1] = pol(r1, a1), [x2, y2] = pol(r0, a1), [x3, y3] = pol(r0, a0);
+    const inner = r0 === 0 ? 'Z' : `A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;
+    return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}${inner}`;
+  };
+
+  const groups = [];
+  rings.forEach((ring, ri) => {
+    const band = BAND[ri], win = Math.min(WINDOW[ri], ring.parts.length), step = 360 / win;
+    const g = el('g', {});
+    g.appendChild(el('circle', { cx: C, cy: C, r: band.r1, fill: band.fill, stroke: 'var(--case-lip)', 'stroke-width': 1 }));
+    const dial = el('g', {}); const labels = [];
+    for (let k = 0; k < win; k++) {
+      const at = k * step;
+      dial.appendChild(el('path', {
+        d: wedge(band.r0, band.r1, at - step / 2, at + step / 2), class: 'cell',
+        fill: k % 2 ? 'rgba(20,17,15,0.05)' : 'transparent',
+        stroke: 'var(--case-lip)', 'stroke-opacity': .35, 'stroke-width': 1,
+      }));
+      const [lx, ly] = pol((band.r0 + band.r1) / 2, at);
+      const t = el('text', { 'text-anchor': 'middle', class: 'lab' + (ri === 0 ? ' lab-hub' : ''),
+        transform: `translate(${lx} ${ly}) rotate(${at}) translate(0 ${band.font * .35})` });
+      t.style.fontSize = band.font + 'px';
+      dial.appendChild(t); labels.push(t);
+    }
+    g.appendChild(dial);
+    groups.push({ g, dial, labels, win, step, ring, band });
+    svg.appendChild(g);
+  });
+  groups.slice().reverse().forEach((x) => svg.appendChild(x.g));
+  // The reading window, hub to rim.
+  const win = el('g', {});
+  BAND.forEach((band, ri) => {
+    const half = 360 / Math.min(WINDOW[ri], rings[ri].parts.length) / 2;
+    win.appendChild(el('path', { d: wedge(band.r0, band.r1, -half, half), class: 'slot' }));
+  });
+  svg.appendChild(win);
+  svg.appendChild(el('circle', { cx: C, cy: C, r: 15, class: 'hub' }));
+
+  let drag = null;
+  const at = (evt) => {
+    const b = svg.getBoundingClientRect();
+    const x = evt.clientX - (b.left + b.width / 2), y = evt.clientY - (b.top + b.height / 2);
+    const r = Math.hypot(x, y) * (418 / b.width);
+    return { ring: BAND.findIndex((band) => r >= band.r0 && r < band.r1),
+             angle: Math.atan2(y, x) * 180 / Math.PI + 90 };
+  };
+  svg.addEventListener('pointerdown', (evt) => {
+    const hit = at(evt); if (hit.ring < 0) return;
+    svg.setPointerCapture(evt.pointerId); svg.classList.add('grabbing');
+    drag = { ring: hit.ring, start: hit.angle, moved: 0 };
+  });
+  svg.addEventListener('pointermove', (evt) => {
+    if (!drag) return;
+    const grp = groups[drag.ring];
+    const swept = at(evt).angle - drag.start;
+    const detents = Math.round(-swept / grp.step);
+    if (detents !== drag.moved) {
+      const n = grp.ring.parts.length;
+      grp.ring.index = ((grp.ring.index + (detents - drag.moved)) % n + n) % n;
+      drag.moved = detents;
+      render();
+    }
+  });
+  const up = () => { drag = null; svg.classList.remove('grabbing'); };
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+
+  const kept = [];
+  let seen = 0;
+  const part = (ri) => rings[ri].parts[rings[ri].index];
+  const word = () => rings.map((_, ri) => part(ri)).join('');
+  // A sketch has no lexicon; "knows" stands in for one with a shape test, and
+  // says so. The real scene asks the German pack.
+  const plausible = (w) => w.length >= 4 && w.length <= 12 && /[aeiouäöü]/i.test(w) && !/[^a-zäöüß]/i.test(w);
+
+  function render() {
+    groups.forEach((grp) => {
+      for (let k = 0; k < grp.win; k++) {
+        const p = grp.ring.parts[(grp.ring.index + k) % grp.ring.parts.length];
+        grp.labels[k].textContent = p === '' ? '–' : p;
+        grp.labels[k].classList.toggle('lab-now', k === 0);
+      }
+    });
+    const w = word();
+    document.getElementById('word').textContent = w || '—';
+    const box = document.getElementById('parts'); box.textContent = '';
+    rings.forEach((_, ri) => {
+      if (ri) box.append(document.createTextNode(' + '));
+      const b = document.createElement('b'); b.textContent = part(ri) || '—'; box.appendChild(b);
+    });
+    const v = document.getElementById('verdict');
+    const ok = plausible(w);
+    v.className = 'v ' + (ok ? 'yes' : 'no');
+    v.textContent = 'a word German knows — ' + (ok ? 'yes' : 'no') + '   (sketch: shape only)';
+  }
+
+  function paintBook() {
+    const box = document.getElementById('kept'); box.textContent = '';
+    if (!kept.length) {
+      const n = document.createElement('span'); n.className = 'none';
+      n.textContent = 'Nothing kept yet. Turn the discs and keep what reads.';
+      box.appendChild(n);
+    } else {
+      kept.forEach((w) => { const s = document.createElement('span'); s.textContent = w; box.appendChild(s); });
+    }
+    document.getElementById('tally').textContent =
+      kept.length + ' kept of ' + seen + ' seen' + (seen ? '  ·  ' + Math.round(100 * kept.length / seen) + '%' : '');
+  }
+
+  const turn = () => {
+    rings.forEach((r) => { r.index = Math.floor(Math.random() * r.parts.length); });
+    seen++; render(); paintBook();
+  };
+  const keep = () => {
+    const w = word();
+    if (w && !kept.includes(w)) { kept.unshift(w); paintBook(); }
+  };
+  document.getElementById('turn').onclick = turn;
+  document.getElementById('keep').onclick = keep;
+  document.getElementById('drop').onclick = turn;
+  addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); turn(); }
+    if (e.key === 'Enter') { e.preventDefault(); keep(); }
+    if (e.key === 'Backspace') { e.preventDefault(); turn(); }
+  });
+  render(); paintBook();
+})();
+</script>
+</body>
+</html>

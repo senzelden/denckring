@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Queneau · A · The book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .book { position:relative; margin:1.1rem 0 0; width:660px; }
+  .spine { position:absolute; left:-14px; top:0; bottom:0; width:14px; background:#ddd6c6;
+           border-radius:3px 0 0 3px; box-shadow:inset -2px 0 3px rgba(20,17,15,.16); }
+  .strip { position:relative; background:var(--paper); box-shadow:0 1px 0 rgba(20,17,15,.17), 0 2px 5px rgba(20,17,15,.10);
+           padding:.28rem .8rem .26rem; display:flex; align-items:baseline; justify-content:space-between; gap:.9rem;
+           cursor:pointer; transition:transform 160ms ease; }
+  .strip:hover { transform:translateX(7px); }
+  .strip.brk { margin-bottom:.42rem; }
+  .strip p { font-family:var(--display); font-size:1.02rem; line-height:1.5; color:var(--ink); margin:0; }
+  .strip span { font-family:var(--mono); font-size:.56rem; color:var(--lead); letter-spacing:.08em; }
+  .side { position:absolute; left:678px; top:0; width:400px; }
+  .num { font-family:var(--display); font-size:2.4rem; font-weight:600; color:var(--ink); margin:0; line-height:1;
+         font-variant-numeric:tabular-nums lining-nums; }
+  .of { font-family:var(--mono); font-size:.64rem; color:var(--lead); margin:.3rem 0 0; letter-spacing:.08em; }
+  .acts { margin-top:1.2rem; display:flex; gap:.5rem; }
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Raymond Queneau &middot; Gallimard, 1961</p>
+  <h1>Cent mille milliards de poèmes</h1>
+  <div class="book" id="book"><div class="spine"></div>
+    <div class="side">
+      <p class="num" id="num">1</p>
+      <p class="of">of 100,000,000,000,000</p>
+      <div class="acts"><button id="deal">Deal</button></div>
+      <p class="verdict yes">checked &mdash; every line is one of the ten these strips offer</p>
+      <p class="credit">Ten sonnets on card, cut into fourteen strips. Press any strip to lift it
+        to the next of its ten. The machine is Queneau's; the strips are not — his are in
+        copyright and these were written to his scheme, ABAB ABAB CCD EED.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'cent_mille_milliards', letter: 'a', name: 'The book',
+  claim: 'The object, as an object: a spine, fourteen cards, each lifting under your hand. The '
+       + 'poem is assembled out of things you can see are separate, which is the one fact about '
+       + 'this book that a screen usually loses.',
+  note: 'Pressing a strip lifts it to its next alternative — the gesture the physical book has and '
+      + 'a Deal button does not. The stanza breaks fall after 4, 8 and 11, where <b>ABAB ABAB CCD '
+      + 'EED</b> breaks, which is the French sonnet Queneau wrote and not the English one.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const GAPS=[3,7,10];
+  const S = DATA.queneau, state = S.map(() => 0);
+  const book = document.getElementById('book');
+  const strips = S.map((alts, i) => {
+    const d = document.createElement('div');
+    d.className = 'strip' + (GAPS.includes(i) ? ' brk' : '');
+    const p = document.createElement('p'); const s = document.createElement('span');
+    d.append(p, s);
+    d.onclick = () => { state[i] = (state[i] + 1) % alts.length; paint(); };
+    book.insertBefore(d, book.querySelector('.side'));
+    return { d, p, s };
+  });
+  function paint() {
+    S.forEach((alts, i) => { strips[i].p.textContent = alts[state[i]]; strips[i].s.textContent = (state[i] + 1) + '/10'; });
+    let n = 0; state.forEach((k, i) => { n = n * S[i].length + k; });
+    document.getElementById('num').textContent = (n + 1).toLocaleString('en-GB');
+  }
+  document.getElementById('deal').onclick = () => {
+    state.forEach((_, i) => { state[i] = Math.floor(Math.random() * S[i].length); }); paint();
+  };
+  paint();
+})();
+</script></body></html>

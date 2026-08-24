@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Denckring · B · The aperture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work { display: flex; gap: 3rem; align-items: flex-start; }
+  .wrap { position: relative; flex: none; width: 560px; }
+  svg { display: block; width: 544px; height: 544px; touch-action: none; cursor: grab; }
+  svg.grabbing { cursor: grabbing; }
+  .cover { fill: var(--paper-shade); stroke: var(--case-lip); stroke-width: 1; }
+  .slotline { stroke: var(--accent); stroke-width: 1.4; fill: none; opacity: .8; }
+  .lab { font-family: var(--display); font-weight: 500; fill: var(--ink); pointer-events: none; user-select: none; }
+  .lab-hub { fill: var(--paper); }
+  .hub { fill: var(--case-deep); stroke: var(--paper-shade); stroke-width: 1.5; }
+  .mark { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; fill: var(--lead); }
+  .capt-text { font-family: var(--display); font-style: italic; font-size: 12px; fill: #7b7365; }
+  .panel { flex: 1; min-width: 0; padding-top: .4rem; }
+  .word { font-family: var(--display); font-size: 3.1rem; font-weight: 600; margin: 0; line-height: 1.02; color: var(--ink); }
+  .under { font-family: var(--mono); font-size: .66rem; letter-spacing: .06em; color: var(--lead); margin: .5rem 0 0; }
+  .acts { display: flex; gap: .6rem; margin-top: 1.6rem; }
+  .legend { margin: 1.8rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .18rem .8rem; }
+  .legend i { font-style: normal; width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
+  .legend span { font-family: var(--mono); font-size: .62rem; color: var(--lead); }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Harsdörffer &middot; Nürnberg, 1651</p>
+  <h1>Der Denckring</h1>
+  <div class="work">
+    <div class="wrap"><svg id="disc" viewBox="0 0 544 544" role="img" aria-label="Five discs under a cover with one reading slot"></svg></div>
+    <div class="panel">
+      <p class="word" id="word">&mdash;</p>
+      <p class="under">read from the middle outwards</p>
+      <div class="acts">
+        <button id="turn">Turn all five</button>
+        <button id="open" class="quiet" aria-pressed="false">Lift the cover</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <p class="credit">The five discs are under a cover cut with one slot. Drag anywhere to turn
+        the disc your hand is over; only what is in the slot can be read, which is the whole of
+        what the device does.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'denckring', letter: 'b', name: 'The aperture',
+  claim: 'The discs sit under a cover with a single radial slot, so five parts are visible and '
+       + 'nothing else. The scene stops being a diagram of 264 parts and becomes the one reading '
+       + 'the device is making. Lift the cover to see what is underneath.',
+  note: 'The strongest reading of <b>read inward to outward</b>: the slot is a column, and the '
+      + 'column is the word. What it gives up is browsing — you cannot see what is coming, so a '
+      + 'hand-turn is a hunt rather than a choice, and the ring sizes are invisible until the '
+      + 'cover is lifted.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg', C = 272;
+  const BAND = [
+    { r0: 0, r1: 76, fill: 'var(--rubric)', font: 13 },
+    { r0: 76, r1: 124, fill: '#c9beaa', font: 12 },
+    { r0: 124, r1: 172, fill: '#dcd5c5', font: 14 },
+    { r0: 172, r1: 220, fill: '#e8e3d9', font: 12 },
+    { r0: 220, r1: 268, fill: '#f2efe7', font: 12 },
+  ];
+  const rings = DATA.rings.map((r) => ({
+    name: r.name, parts: r.optional ? r.parts.concat(['']) : r.parts.slice(), index: 0,
+  }));
+  const svg = document.getElementById('disc');
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const pol = (r, d) => { const a = (d - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
+  const wedge = (r0, r1, a0, a1) => {
+    const big = a1 - a0 > 180 ? 1 : 0;
+    const [x0, y0] = pol(r1, a0), [x1, y1] = pol(r1, a1), [x2, y2] = pol(r0, a1), [x3, y3] = pol(r0, a0);
+    const inner = r0 === 0 ? 'Z' : `A${r0} ${r0} 0 ${big} 0 ${x3} ${y3}Z`;
+    return `M${x0} ${y0}A${r1} ${r1} 0 ${big} 1 ${x1} ${y1}L${x2} ${y2}${inner}`;
+  };
+
+  const groups = [];
+  rings.forEach((ring, ri) => {
+    const band = BAND[ri], step = 360 / ring.parts.length;
+    const g = el('g', {});
+    g.appendChild(el('circle', { cx: C, cy: C, r: band.r1, fill: band.fill, stroke: 'var(--case-lip)', 'stroke-width': 1 }));
+    const dial = el('g', {}); const labels = [];
+    ring.parts.forEach((part, k) => {
+      const at = k * step;
+      const [lx, ly] = pol((band.r0 + band.r1) / 2, at);
+      const t = el('text', { 'text-anchor': 'middle', class: 'lab' + (ri === 0 ? ' lab-hub' : ''),
+        transform: `translate(${lx} ${ly}) rotate(${at}) translate(0 ${band.font * .35})` });
+      t.style.fontSize = band.font + 'px';
+      t.textContent = part === '' ? '–' : part;
+      dial.appendChild(t); labels.push(t);
+    });
+    g.appendChild(dial);
+    groups.push({ g, dial, labels, step, ring, band });
+    svg.appendChild(g);
+  });
+  groups.slice().reverse().forEach((x) => svg.appendChild(x.g));
+
+  // The cover: everything but a wedge at twelve o'clock. One path, so lifting
+  // it is one opacity — a mask would have been the same picture and harder to
+  // animate.
+  const SLOT = 13;
+  const cover = el('path', { d: wedge(0, 268, SLOT / 2, 360 - SLOT / 2), class: 'cover' });
+  svg.appendChild(cover);
+  const rim = el('path', { d: wedge(0, 268, -SLOT / 2, SLOT / 2), class: 'slotline' });
+  svg.appendChild(rim);
+  svg.appendChild(el('circle', { cx: C, cy: C, r: 22, class: 'hub' }));
+  const mark = el('text', { x: C, y: 16, 'text-anchor': 'middle', class: 'mark' });
+  mark.textContent = 'read outward';
+  svg.appendChild(mark);
+
+  // The cover is not blank card. Harsdörffer's own plate prints its contents
+  // around the figure — "I. die 48 Vorsylben, II. die 60 Anfangsbuchstaben"
+  // and so on — so the cover carries the same, each line at the radius of the
+  // ring it names. The dead grey becomes the legend, and the legend sits on
+  // the thing it describes.
+  const capt = el('g', { class: 'capt' });
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
+  rings.forEach((ring, ri) => {
+    const band = BAND[ri];
+    // Straight, at the foot of the band it names. Set on an arc first, which
+    // put all five in a heap in the lower left reading sideways — a caption
+    // that has to be tilted to read is a caption nobody reads.
+    const t = el('text', {
+      x: C, y: C + (band.r0 + band.r1) / 2 + 4, 'text-anchor': 'middle', class: 'capt-text',
+    });
+    t.textContent = ROMAN[ri] + '. die ' + ring.parts.length + ' ' + ring.name;
+    capt.appendChild(t);
+  });
+  svg.appendChild(capt);
+
+  // Drag: whichever band the pointer is over.
+  let drag = null, moved = false;
+  const at = (evt) => {
+    const b = svg.getBoundingClientRect();
+    const x = evt.clientX - (b.left + b.width / 2), y = evt.clientY - (b.top + b.height / 2);
+    const r = Math.hypot(x, y) * (544 / b.width);
+    const ring = BAND.findIndex((band) => r >= band.r0 && r < band.r1);
+    return { ring, angle: Math.atan2(y, x) * 180 / Math.PI + 90 };
+  };
+  svg.addEventListener('pointerdown', (evt) => {
+    const hit = at(evt); if (hit.ring < 0) return;
+    svg.setPointerCapture(evt.pointerId); svg.classList.add('grabbing');
+    drag = { ring: hit.ring, start: hit.angle, base: -groups[hit.ring].ring.index * groups[hit.ring].step };
+    moved = false;
+  });
+  svg.addEventListener('pointermove', (evt) => {
+    if (!drag) return;
+    moved = true;
+    const grp = groups[drag.ring];
+    const live = drag.base + (at(evt).angle - drag.start);
+    grp.dial.style.transition = 'none';
+    grp.dial.style.transformOrigin = `${C}px ${C}px`;
+    grp.dial.style.transform = `rotate(${live}deg)`;
+    drag.live = live;
+  });
+  const up = () => {
+    if (!drag) return;
+    const grp = groups[drag.ring], n = grp.ring.parts.length;
+    if (moved) grp.ring.index = ((-Math.round((drag.live || drag.base) / grp.step)) % n + n) % n;
+    drag = null; svg.classList.remove('grabbing'); render();
+  };
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+
+  const legend = document.getElementById('legend');
+  rings.forEach((r, ri) => {
+    const i = document.createElement('i'); i.style.background = BAND[ri].fill;
+    const s = document.createElement('span'); s.textContent = r.name + ' · ' + r.parts.length;
+    legend.append(i, s);
+  });
+
+  function render() {
+    const lifted = openBtn.getAttribute('aria-pressed') === 'true';
+    groups.forEach((grp) => {
+      // Under the cover, only the part in the slot exists. Anything else is
+      // behind card — and on the dense rings a neighbour was showing through
+      // the slot's own thirteen degrees, which made the reading unreadable at
+      // the one place the whole design says to read.
+      grp.labels.forEach((lab, k) => {
+        lab.style.opacity = lifted || k === grp.ring.index ? '1' : '0';
+      });
+      grp.dial.style.transformOrigin = `${C}px ${C}px`;
+      grp.dial.style.transition = 'transform 240ms cubic-bezier(.2,.7,.3,1)';
+      grp.dial.style.transform = `rotate(${-grp.ring.index * grp.step}deg)`;
+    });
+    document.getElementById('word').textContent =
+      rings.map((r) => r.parts[r.index]).join('') || '—';
+  }
+  document.getElementById('turn').onclick = () => {
+    rings.forEach((r) => { r.index = Math.floor(Math.random() * r.parts.length); }); render();
+  };
+  const openBtn = document.getElementById('open');
+  openBtn.onclick = () => {
+    const on = openBtn.getAttribute('aria-pressed') !== 'true';
+    openBtn.setAttribute('aria-pressed', String(on));
+    openBtn.textContent = on ? 'Close the cover' : 'Lift the cover';
+    cover.style.transition = 'opacity 320ms ease';
+    capt.style.transition = 'opacity 320ms ease';
+    cover.style.opacity = on ? '0.06' : '1';
+    capt.style.opacity = on ? '0' : '1';
+    render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>

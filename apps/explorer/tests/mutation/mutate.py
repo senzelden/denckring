@@ -1,4 +1,9 @@
-"""Mutation harness for scene eight — the letter board and its two cartridges.
+"""Mutation harness: scene eight, and the readings behind the scenes.
+
+Scene eight is the letter board and its two cartridges. The readings are the
+companion pages at `/stage/{slug}/reading`, whose guards are almost all
+assertions about numbers and about the absence of numbers — the kind that
+passes most easily without meaning anything.
 
 Every entry names a file, a fragment to change, what to change it to, and the
 test that is supposed to notice. The fragment is replaced, the named test is
@@ -42,6 +47,19 @@ STAGE = APP / "src/explorer/stage.py"
 APPPY = APP / "src/explorer/app.py"
 ENV = APP / "src/explorer/env.py"
 YAML = APP / "src/explorer/data/devices/poesieautomat_pokemon.yaml"
+SHELL = APP / "src/explorer/templates/stage.html"
+R_SHELL = APP / "src/explorer/templates/reading/_shell.html"
+R_RINGS = APP / "src/explorer/templates/reading/wheel-and-scissors.html"
+R_OULIPO = APP / "src/explorer/templates/reading/oulipo-machines.html"
+R_FIGURE = APP / "src/explorer/templates/reading/the-figure.html"
+R_AUTOMAT = APP / "src/explorer/templates/reading/the-automat.html"
+N7TPL = APP / "src/explorer/templates/stage_n_plus_7.html"
+ARS = APP / "src/explorer/ars.py"
+ARS_TPL = APP / "src/explorer/templates/_stage_ars.html"
+DENCK = APP / "src/explorer/templates/stage_denckring.html"
+CUTTPL = APP / "src/explorer/templates/stage_cut_up.html"
+CUTFRAG = APP / "src/explorer/templates/_stage_cutup.html"
+HOLDJS = APP / "src/explorer/static/hold_turn.js"
 
 T = "tests/test_stage.py::"
 
@@ -486,6 +504,348 @@ MUTATIONS: list[tuple[Path, str, str, str]] = [
         '      - "ringsum"',
         '      - "niemals"',
         T + "test_no_adverb_module_carries_a_manner_adverb_or_a_bare_negation",
+    ),
+    # ── the readings ──────────────────────────────────────────────────────
+    #
+    # Every one of these is a wrong number that a mockup of this page actually
+    # printed, or a correction that a mockup actually omitted. Two of the
+    # guards below were decorative when first written and were rewritten
+    # because these mutations walked past them: the parts count, which the
+    # page states twice so that retyping one of them still left the computed
+    # figure on screen; and the noun list, which the sources footer named even
+    # after the inventory making the argument had stopped naming it.
+    (
+        R_RINGS,
+        "and states no total at all.",
+        "and states no total at all. Multiplied out that is roughly 83 million words.",
+        T + "test_the_rings_reading_states_computed_counts_and_not_the_printed_product",
+    ),
+    (
+        R_RINGS,
+        "on holds {{ parts }} word-parts",
+        "on holds 254 word-parts",
+        T + "test_the_rings_reading_states_computed_counts_and_not_the_printed_product",
+    ),
+    (
+        R_RINGS,
+        '<s>{{ "{:,}".format(rings.claimed) }}</s>',
+        '{{ "{:,}".format(rings.claimed) }}',
+        T + "test_the_rings_reading_states_computed_counts_and_not_the_printed_product",
+    ),
+    (
+        R_RINGS,
+        "Denckring is <em>not</em> in the <cite>Poetischer Trichter</cite>. It is in the second",
+        "Denckring is in the second",
+        T + "test_the_rings_reading_keeps_the_poetischer_trichter_correction",
+    ),
+    (
+        R_OULIPO,
+        "the Open English WordNet 2024, CC BY 4.0",
+        "a large word list",
+        T + "test_the_oulipo_reading_names_the_noun_lists_it_actually_walks",
+    ),
+    (
+        R_FIGURE,
+        "<cite>Tabula generalis</cite>, and this project has not checked it against a",
+        "<cite>Tabula generalis</cite>, which runs to 1,680, and nobody has checked it against a",
+        T + "test_the_figure_reading_states_no_count_nobody_has_checked",
+    ),
+    (
+        R_AUTOMAT,
+        "<b>10<sup>{{ exponent }}</sup></b>",
+        "<b>a thousand trillion trillion trillion</b>",
+        T + "test_the_automat_reading_reads_its_figures_off_the_device",
+    ),
+    (
+        R_SHELL,
+        '<article class="reading">',
+        '<article class="reading" id="stage">',
+        T + "test_a_reading_is_not_a_stage",
+    ),
+    (
+        SHELL,
+        '{% if not chrome_off %}\n<p class="stage-caption">',
+        "{% if scene is defined %}{% set esc = reading_for(scene.slug) %}{% if esc %}"
+        '<p class="stage-reading-link">escaped</p>{% endif %}{% endif %}\n'
+        '{% if not chrome_off %}\n<p class="stage-caption">',
+        T + "test_the_link_to_a_reading_goes_away_with_the_chrome",
+    ),
+    (
+        STAGE,
+        'scenes=("denckring", "cut_up"),',
+        'scenes=("denckring", "cut_upp"),',
+        T + "test_every_reading_stands_behind_real_scenes",
+    ),
+    # ── the N+7 offset ────────────────────────────────────────────────────
+    #
+    # The first two restore the code exactly as it stood while the offset was
+    # hard-coded to 7. Both were correct at 7 and wrong at every other member
+    # of the family, which is the shape of defect a new control introduces:
+    # not a break in what was there, but a path that was never reachable.
+    (
+        STAGE,
+        "                    nouns[(index + step * direction) % len(nouns)]\n"
+        "                    for step in range(abs(offset) + 1)",
+        "                    nouns[i]\n"
+        "                    for i in range(index, index + offset + 1)",
+        # At +7 this *is* the code as it stood, so it catches nothing; the
+        # empty range only appears going backwards.
+        T + "test_the_reel_and_the_text_land_on_the_same_word[-7]",
+    ),
+    (
+        STAGE,
+        "                replacement=nouns[(index + offset) % len(nouns)],",
+        "                replacement=nouns[index + offset],",
+        # Only a word at an end of the list can tell these two apart, which is
+        # why the wrap test exists — the harness found that gap. It has to be
+        # named at a *forward* offset: going backwards, Python's own negative
+        # indexing gives `nouns[-7]` the same entry the modular expression
+        # does, so the mutation and the original agree and this escaped when it
+        # was named at [-7]. Forward from the last noun runs off the end.
+        T + "test_the_reel_wraps_at_the_ends_of_the_list_exactly_as_the_text_does[11]",
+    ),
+    (
+        APPPY,
+        '        denckring_check("n_plus_7", produced, source=source, lang=lang, offset=offset)',
+        '        denckring_check("n_plus_7", produced, source=source, lang=lang)',
+        # At +7 the checker's own default is 7, so only another member of
+        # the family separates a dropped offset from a passed one.
+        T + "test_the_verdict_names_the_offset_it_was_checked_at[11]",
+    ),
+    (
+        APPPY,
+        '    produced = displace(source, stage.pack(lang), offset) if source else ""',
+        "    produced = displace(source, stage.pack(lang), stage.N_PLUS_7_OFFSET)"
+        ' if source else ""',
+        # At +7 the checker's own default is 7, so only another member of
+        # the family separates a dropped offset from a passed one.
+        T + "test_the_verdict_names_the_offset_it_was_checked_at[11]",
+    ),
+    # Both of these used to mutate `N_PLUS_7_OFFSETS`, a tuple of seven fixed
+    # offsets the scene offered as buttons. The slider replaced it, and the
+    # harness's own self-test is what said so: it named two tests that no
+    # longer exist and refused to score anything until they did. The
+    # replacements mutate what the slider actually rests on.
+    (
+        STAGE,
+        "    return max(-N_PLUS_7_REACH, min(N_PLUS_7_REACH, offset))",
+        "    return offset",
+        T + "test_an_offset_beyond_the_sliders_reach_is_clamped_to_it",
+    ),
+    (
+        STAGE,
+        "        return N_PLUS_7_OFFSET",
+        "        return 0",
+        T + "test_an_offset_beyond_the_sliders_reach_is_clamped_to_it",
+    ),
+    # Shortened to exactly the offset the procedure is named after, which is
+    # the one value of the reach that makes the scene argue the opposite of
+    # what it says. An earlier version of this entry moved 15 to 11 and
+    # escaped: the guard rendered its bounds from the constant, so the markup
+    # agreed with it whatever it said.
+    (
+        STAGE,
+        "N_PLUS_7_REACH = 15",
+        "N_PLUS_7_REACH = 7",
+        T + "test_the_offset_control_is_a_slider_over_its_whole_reach",
+    ),
+    # ── scene six's four operations ──────────────────────────────────────
+    #
+    # The picker's whole risk is that one operation gets checked by another's
+    # rule: these four produce texts each other's checkers sometimes accept,
+    # and a green verdict about a method nobody performed is the worst thing
+    # this scene could print.
+    (
+        APPPY,
+        'method = stage.cut_method(str(form.get("method", "")))',
+        "method = stage.CUT_METHODS[0]",
+        T + "test_each_operation_is_checked_by_its_own_procedure_and_not_a_neighbour",
+    ),
+    (
+        APPPY,
+        '            column=stage.cut_up_column(str(form.get("column", ""))),',
+        "            column=1,",
+        T + "test_the_column_the_scene_checks_is_the_column_it_was_asked_for",
+    ),
+    (
+        STAGE,
+        "    return max(1, min(cut_up_max_column(), column))",
+        "    return column",
+        T + "test_the_column_the_scene_checks_is_the_column_it_was_asked_for",
+    ),
+    # The word bag's missing verdict, from both ends: the route that refuses
+    # to check it and the fragment that refuses to draw one.
+    (
+        APPPY,
+        "    if method.procedure is None:",
+        '    if method.procedure is None and method.id != "bag":',
+        T + "test_the_word_bag_is_given_no_verdict_because_it_can_have_none",
+    ),
+    (
+        STAGE,
+        '        procedure=None,\n        how=(\n            "Cut the page into single words',
+        '        procedure="cut_up",\n        how=(\n            "Cut the page into single words',
+        T + "test_the_word_bag_is_given_no_verdict_because_it_can_have_none",
+    ),
+    (
+        CUTFRAG,
+        '<p class="cutup-uncheckable cutup-uncheckable-head" data-checked="{{ text }}">',
+        '<p class="verdict turning" data-checked="{{ text }}">',
+        T + "test_the_word_bag_is_given_no_verdict_because_it_can_have_none",
+    ),
+    # And the four themselves, so a picker that quietly became three or four
+    # copies of one operation is caught.
+    (
+        STAGE,
+        '        verb="Fold it",',
+        '        verb="Cut it",',
+        T + "test_the_scene_offers_the_family_and_not_only_its_famous_member",
+    ),
+    # The fold reads its two halves back by the row they were built in. Pairing
+    # them by where they are standing gave twelve lines for a six-line fold,
+    # because page B's half only arrives at page A's line as a transform.
+    (
+        CUTTPL,
+        "  el.dataset.row = String(row);",
+        "  el.dataset.row = String(0);",
+        T + "test_each_operation_is_checked_by_its_own_procedure_and_not_a_neighbour",
+    ),
+    (
+        N7TPL,
+        "Open English\n      WordNet 2024 (CC BY 4.0) for English",
+        "a large word list for English",
+        T + "test_the_scene_names_the_word_list_it_walks",
+    ),
+    # ── putting a question to the figure ──────────────────────────────────
+    #
+    # Every one of these is a way the feature could quietly stop being what its
+    # own module docstring says it is: a reader with an opinion, clearly
+    # labelled, that produces no verdict and turns the figure only to a chamber
+    # the figure actually has.
+    (
+        ARS,
+        '    cleaned = "".join(ch for ch in raw.upper() if ch in set(letters))\n'
+        "    if len(cleaned) != arity or len(set(cleaned)) != arity:\n"
+        '        return ""\n'
+        "    return cleaned",
+        '    cleaned = "".join(ch for ch in raw.upper() if ch in set(letters))\n'
+        "    return cleaned[:arity]",
+        T + "test_a_chamber_is_validated_against_the_figure_and_never_repaired",
+    ),
+    (
+        ARS,
+        'VERDICTS = ("pro", "contra", "nihil")',
+        'VERDICTS = ("pro", "contra")',
+        T + "test_nihil_is_one_of_the_things_a_row_may_conclude",
+    ),
+    (
+        ARS_TPL,
+        '<p class="ars-label">A reading, not a verdict.',
+        '<p class="ars-label">What the wheels said.',
+        T + "test_a_reading_of_the_art_is_labelled_as_one",
+    ),
+    (
+        APPPY,
+        '            "ars_available": ars.available(),',
+        '            "ars_available": True,',
+        T + "test_the_figure_is_asked_nothing_without_a_key",
+    ),
+    # ── scene four's address ──────────────────────────────────────────────
+    (
+        STAGE,
+        "        ordinal = ordinal * len(options) + index\n    return ordinal + 1",
+        "        ordinal = ordinal * len(options) + index\n    return ordinal",
+        T + "test_the_last_poems_number_is_the_number_of_poems[en]",
+    ),
+    (
+        STAGE,
+        "    cuts = (4, 8, 11)",
+        "    cuts = (4, 8, 12)",
+        T + "test_the_address_is_the_state_broken_where_the_sonnet_is",
+    ),
+    (
+        APPPY,
+        '        "_stage_deal.html",',
+        '        "_stage_poem.html",',
+        T + "test_a_deal_brings_the_address_back_with_it",
+    ),
+    # ── scene one's tap ───────────────────────────────────────────────────
+    #
+    # The first is the defect that removed this scene's old click-to-turn: if
+    # the band is a target as well as the word, a hand resting on a disc and
+    # lifting off turns it. The rest are the ways the gesture goes quietly
+    # dead — a press on the part already at the mark animating a turn of zero,
+    # a step handed over before the drag has let go of the ring, and a spoke
+    # that no longer knows which slot it stands in.
+    (
+        DENCK,
+        "    const part = target && target.closest ? target.closest('.ring-part') : null;\n"
+        "    if (!part) return;",
+        "    const part = target && target.closest ? target.closest('[data-ring]') : null;\n"
+        "    if (!part) return;",
+        T + "test_only_a_word_is_a_tap_target",
+    ),
+    (
+        DENCK,
+        "    if (!slot) return; // slot 0 is already at the mark; this one turns nothing",
+        "    // slot 0 falls through",
+        T + "test_only_a_word_is_a_tap_target",
+    ),
+    (
+        DENCK,
+        "    text.dataset.slot = String(k);",
+        "    text.dataset.index = String(k);",
+        T + "test_only_a_word_is_a_tap_target",
+    ),
+    (
+        DENCK,
+        "    return snapRing(ring, residualDeg).then(() => {",
+        "    void snapRing(ring, residualDeg).then(() => {",
+        T + "test_a_release_may_report_when_it_has_settled",
+    ),
+    (
+        HOLDJS,
+        "      if (drag.committed === 0 && onTap) {",
+        "      if (onTap) {",
+        T + "test_a_release_may_report_when_it_has_settled",
+    ),
+    # The ellipsis. Both halves of the condition, because either one alone
+    # would leave the figure lying — the first about how far a ring goes, the
+    # second about a ring that goes no further.
+    (
+        DENCK,
+        "  const elided = r.total > r.window;",
+        "  const elided = true;",
+        T + "test_the_denckring_says_a_ring_goes_on_only_where_it_does",
+    ),
+    (
+        DENCK,
+        "    const edge = elided && (k === far || k === far + (r.window % 2 ? 1 : 0));",
+        "    const edge = elided && k === 0;",
+        T + "test_the_denckring_says_a_ring_goes_on_only_where_it_does",
+    ),
+    (
+        DENCK,
+        "    el.classList.toggle('blank', !edge && piece === '');",
+        "    el.classList.toggle('blank', piece === '');",
+        T + "test_the_denckring_says_a_ring_goes_on_only_where_it_does",
+    ),
+    # The Wortbuch's control. If it becomes a submit it starts asking the
+    # server for the one judgement the server does not have.
+    (
+        DENCK,
+        '<button type="button" id="keep-word" class="quiet">',
+        '<button type="submit" id="keep-word" class="quiet">',
+        T + "test_the_denckring_wortbuch_keeps_words_without_asking_the_server",
+    ),
+    # And the sweep that would have caught the `isFastRing` regression. Mutated
+    # at a call site rather than a definition, so the guard is tested the way
+    # the defect actually arrived: a helper removed, a caller left behind.
+    (
+        DENCK,
+        "  return isFastRing(ringIndex) ? 70 : 130;",
+        "  return isFastRingSpeed(ringIndex) ? 70 : 130;",
+        T + "test_no_scene_script_calls_a_function_that_does_not_exist",
     ),
 ]
 

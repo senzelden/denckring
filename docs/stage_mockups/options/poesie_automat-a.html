@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Automat · A · The cabinet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .cab{margin:.9rem auto 0;width:1130px;background:linear-gradient(#2f2a25,#211d19);border-radius:6px;
+       padding:12px;box-shadow:0 10px 30px rgba(20,17,15,.35),inset 0 1px 0 rgba(255,255,255,.06)}
+  .fascia{display:flex;align-items:center;justify-content:space-between;padding:0 6px 9px}
+  .plate{display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.7rem;
+         letter-spacing:.26em;text-transform:uppercase;color:#a49c90}
+  .lamp{width:.55rem;height:.55rem;border-radius:50%;background:#2a211c;box-shadow:inset 0 0 0 1px #000;
+        transition:background .6s,box-shadow .6s}
+  .lamp.lit{background:#e2603f;box-shadow:0 0 8px 2px rgba(226,96,63,.55);transition:none}
+  .serial{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:#8e8578}
+  .board{background:#14120f;border-radius:3px;padding:9px 0;box-shadow:inset 0 2px 8px rgba(0,0,0,.7)}
+  .ln{display:flex;justify-content:center}
+  .cell{width:14px;height:26px;line-height:26px;text-align:center;font-family:var(--mono);font-size:13px;
+        color:#efe6d2;background:linear-gradient(#2b2823 49%,#1b1815 51%);box-shadow:inset -1px 0 0 rgba(0,0,0,.5);
+        position:relative}
+  .cell::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid rgba(0,0,0,.75)}
+  .base{display:flex;align-items:center;justify-content:space-between;padding:11px 6px 2px;gap:1rem}
+  .knob{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#c8483a,#8d2318);
+        border:2px solid #1b1613;cursor:pointer;box-shadow:0 3px 7px rgba(0,0,0,.5)}
+  .knob:active{transform:translateY(1px)}
+  .cnt{font-family:var(--mono);font-size:.66rem;color:#8e8578;letter-spacing:.12em}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Enzensberger &middot; Landsberg am Lech, 30 June &ndash; 2 July 2000</p>
+  <h1>Poesie-Automat</h1>
+  <div class="cab">
+    <div class="fascia">
+      <p class="plate"><i class="lamp" id="lamp"></i>Poesie-Automat</p>
+      <p class="serial" id="ser">10<sup>36</sup> mögliche Gedichte</p>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="base">
+      <div class="knob" id="press" title="Press the button"></div>
+      <p class="cnt" id="addr"></p>
+    </div>
+  </div>
+  <p class="verdict yes" id="v" style="text-align:center">checked &mdash; all 6 lines are ones this board can show</p>
+  <p class="credit">One button, because the machine had one. The mechanism is Enzensberger's; the
+    360 flaps are original to this project — he died in 2022 and his lists are in copyright until 2092.</p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'poesie_automat',letter:'a',name:'The cabinet',
+ claim:'The machine as an object on a square: a housing, a brand plate with a lamp that says the '
+     + 'mechanism is running, and one red button. The board is inside a thing rather than floating '
+     + 'on a page.',
+ note:'The <b>one button</b> is the design. Everything else — cartridges, read-the-board, sliders — '
+    + 'is furniture the real machine did not have, and this direction spends its space on the case '
+    + 'instead. What it gives up is any way to turn a single module by hand.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{
+ const M=DATA.automat, COLS=71, LINES=6, PER=6;
+ const pos=M.map(()=>0);
+ const board=document.getElementById('board'), rows=[];
+ for(let l=0;l<LINES;l++){
+   const ln=document.createElement('div');ln.className='ln';const cells=[];
+   for(let c=0;c<COLS;c++){const d=document.createElement('div');d.className='cell';ln.appendChild(d);cells.push(d);}
+   board.appendChild(ln);rows.push(cells);
+ }
+ const line=(l)=>{
+   const words=[];for(let m=0;m<PER;m++){const slot=l*PER+m;words.push(M[slot].flaps[pos[slot]].toUpperCase());}
+   const text=words.join(' ');
+   const pad=Math.max(0,Math.floor((COLS-text.length)/2));
+   return (' '.repeat(pad)+text).padEnd(COLS,' ').slice(0,COLS);
+ };
+ function paint(){
+   for(let l=0;l<LINES;l++){const t=line(l);rows[l].forEach((d,c)=>{d.textContent=t[c]===' '?' ':t[c];});}
+   document.getElementById('addr').textContent='Getriebe  '+
+     [0,1,2,3,4,5].map((l)=>pos.slice(l*PER,l*PER+PER).join('')).join('  ');
+ }
+ const lamp=document.getElementById('lamp');
+ document.getElementById('press').onclick=()=>{
+   lamp.classList.add('lit');
+   let step=0;
+   const t=setInterval(()=>{
+     pos.forEach((_,i)=>{ if(Math.random()<.7) pos[i]=Math.floor(Math.random()*M[i].flaps.length); });
+     paint();
+     if(++step>13){clearInterval(t);lamp.classList.remove('lit');
+       pos.forEach((_,i)=>{pos[i]=Math.floor(Math.random()*M[i].flaps.length);});paint();}
+   },110);
+ };
+ paint();
+})();
+</script></body></html>

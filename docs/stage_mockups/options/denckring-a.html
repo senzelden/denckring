@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Denckring · A · The plate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .plate { display: flex; gap: 2.6rem; align-items: flex-start; }
+  .disc-wrap { position: relative; flex: none; width: 620px; }
+  .disc-wrap::before {
+    content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-top: 11px solid var(--accent); z-index: 5;
+  }
+  svg { display: block; width: 604px; height: 604px; touch-action: none; }
+  .seg { cursor: pointer; }
+  .seg:hover { fill: var(--accent) !important; fill-opacity: 0.25; }
+  .tick { pointer-events: none; }
+  .lab { font-family: var(--display); font-weight: 500; fill: var(--ink); pointer-events: none; user-select: none; }
+  .lab-hub { fill: var(--paper); }
+  .lab-now { font-weight: 700; }
+  .hub { fill: var(--case-deep); stroke: var(--paper-shade); stroke-width: 1.5; }
+  .panel { flex: 1; min-width: 0; }
+  .word { font-family: var(--display); font-size: 2.6rem; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.05; }
+  .parts { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: baseline;
+    font-family: var(--display); font-size: 0.92rem; color: var(--lead); margin: 0.3rem 0 0; }
+  .parts b { font-weight: 500; color: var(--ink); }
+  .rows { margin: 1.3rem 0 0; display: grid; grid-template-columns: 8.5rem 1fr auto; gap: 0.2rem 0.9rem; align-items: baseline; }
+  .rows dt { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--lead); }
+  .rows dd { margin: 0; font-family: var(--display); font-size: 0.95rem; color: var(--ink); }
+  .rows .of { font-family: var(--mono); font-size: 0.62rem; color: var(--lead); }
+  .acts { display: flex; gap: 0.6rem; margin-top: 1.4rem; }
+  .count { margin: 1.2rem 0 0; font-family: var(--body); font-size: 0.72rem; color: var(--lead); }
+  .count b { font-family: var(--display); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <p class="kicker">Harsdörffer &middot; Nürnberg, 1651</p>
+  <h1>Der Denckring</h1>
+
+  <div class="plate">
+    <div class="disc-wrap">
+      <svg id="disc" viewBox="0 0 604 604" role="img" aria-label="Five discs of German word parts"></svg>
+    </div>
+
+    <div class="panel">
+      <p class="word" id="word">&mdash;</p>
+      <p class="parts" id="parts"></p>
+
+      <dl class="rows" id="rows"></dl>
+
+      <div class="acts">
+        <button id="turn">Turn all five</button>
+        <button id="find" class="quiet">Find a real word</button>
+      </div>
+
+      <p class="count"><b id="combos">0</b> readings on these discs</p>
+      <p class="credit">Every part on every disc is drawn. Press one to bring it to the mark;
+        drag a band to spin it. The transcription is Florian Cramer's, from the plate at
+        Herzog August Bibliothek Wolfenbüttel, 224.2 Quod.</p>
+    </div>
+  </div>
+</main>
+
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'denckring', letter: 'a', name: 'The plate',
+  claim: 'Every one of the 264 parts is on the figure, as it is on Harsdörffer’s own leaf. '
+       + 'Legibility comes from proximity to the reading mark rather than from hiding the rest. '
+       + 'No step buttons: press a part to bring it up, drag a band to spin it.',
+  note: 'The honest cost of drawing all 264: the <b>endbuchstabe</b> ring carries 120 parts at '
+      + '3° each, so most of it is ticks rather than words, and only what is near the mark can '
+      + 'be read. That falloff is the design — a paper disc reads the same way in a photograph. '
+      + 'The current scene hides all but a window of each ring instead.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const C = 302;
+  // Five bands, innermost out, lightening as they go so the hub is the one
+  // rubricated ring — the plate's own emphasis.
+  const BAND = [
+    { r0: 0, r1: 84, fill: 'var(--rubric)', font: 12 },
+    { r0: 84, r1: 138, fill: '#c9beaa', font: 11 },
+    { r0: 138, r1: 192, fill: '#dcd5c5', font: 13 },
+    { r0: 192, r1: 246, fill: '#e8e3d9', font: 10 },
+    { r0: 246, r1: 300, fill: '#f2efe7', font: 11 },
+  ];
+  const rings = DATA.rings.map((r) => ({
+    name: r.name,
+    // A blank turn, as the paper rings carry for the prefix and the suffix.
+    parts: r.optional ? r.parts.concat(['']) : r.parts.slice(),
+    index: 0,
+  }));
+  const svg = document.getElementById('disc');
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const pol = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
+  const wedge = (r0, r1, a0, a1) => {
+    const [x0, y0] = pol(r1, a0), [x1, y1] = pol(r1, a1), [x2, y2] = pol(r0, a1), [x3, y3] = pol(r0, a0);
+    const inner = r0 === 0 ? 'Z' : `A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;
+    return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}${inner}`;
+  };
+
+  const groups = [];
+  rings.forEach((ring, ri) => {
+    const band = BAND[ri];
+    const n = ring.parts.length;
+    const step = 360 / n;
+    const g = el('g', {});
+    g.appendChild(el('circle', { cx: C, cy: C, r: band.r1, fill: band.fill, stroke: 'var(--case-lip)', 'stroke-width': 1 }));
+    const dial = el('g', {});
+    const labels = [];
+    ring.parts.forEach((part, k) => {
+      const at = k * step;
+      // Every part is a real segment, and a real target.
+      const seg = el('path', {
+        d: wedge(band.r0, band.r1, at - step / 2, at + step / 2),
+        fill: k % 2 ? 'rgba(20,17,15,0.05)' : 'transparent',
+        stroke: 'var(--case-lip)', 'stroke-opacity': n > 40 ? 0.14 : 0.34, 'stroke-width': 1,
+        class: 'seg',
+      });
+      seg.addEventListener('click', (evt) => { if (!moved) { ring.index = k; render(); } evt.stopPropagation(); });
+      dial.appendChild(seg);
+      const [lx, ly] = pol((band.r0 + band.r1) / 2, at);
+      const text = el('text', {
+        x: 0, y: 0, 'text-anchor': 'middle', class: 'lab' + (ri === 0 ? ' lab-hub' : ''),
+        transform: `translate(${lx} ${ly}) rotate(${at}) translate(0 ${band.font * 0.35})`,
+      });
+      text.style.fontSize = band.font + 'px';
+      text.textContent = part === '' ? '–' : part;
+      dial.appendChild(text);
+      labels.push(text);
+    });
+    g.appendChild(dial);
+    groups.push({ g, dial, labels, step, ring, labelR: (band.r0 + band.r1) / 2 });
+    svg.appendChild(g);
+  });
+  // Largest first, so each smaller disc covers the last and only its own band shows.
+  groups.slice().reverse().forEach((x) => svg.appendChild(x.g));
+  svg.appendChild(el('circle', { cx: C, cy: C, r: 26, class: 'hub' }));
+
+  // ── drag, with a slop so a press that barely moves is a press ──────────
+  let moved = false;
+  const angleOf = (evt) => {
+    const b = svg.getBoundingClientRect();
+    return Math.atan2(evt.clientY - (b.top + b.height / 2), evt.clientX - (b.left + b.width / 2)) * 180 / Math.PI + 90;
+  };
+  groups.forEach((grp, ri) => {
+    let drag = false, start = 0, base = 0, live = 0, x0 = 0, y0 = 0;
+    grp.g.addEventListener('pointerdown', (evt) => {
+      drag = true; moved = false; grp.g.setPointerCapture(evt.pointerId);
+      start = angleOf(evt); base = -grp.ring.index * grp.step; live = base;
+      x0 = evt.clientX; y0 = evt.clientY;
+    });
+    grp.g.addEventListener('pointermove', (evt) => {
+      if (!drag) return;
+      if (Math.hypot(evt.clientX - x0, evt.clientY - y0) > 7) moved = true;
+      live = base + (angleOf(evt) - start);
+      grp.dial.style.transform = `rotate(${live}deg)`;
+      grp.dial.style.transformOrigin = `${C}px ${C}px`;
+    });
+    const up = () => {
+      if (!drag) return;
+      drag = false;
+      if (moved) {
+        const n = grp.ring.parts.length;
+        grp.ring.index = ((-Math.round(live / grp.step)) % n + n) % n;
+        render();
+      } else {
+        grp.dial.style.transform = `rotate(${-grp.ring.index * grp.step}deg)`;
+      }
+      setTimeout(() => { moved = false; }, 0);
+    };
+    grp.g.addEventListener('pointerup', up);
+    grp.g.addEventListener('pointercancel', up);
+  });
+
+  const part = (ri) => rings[ri].parts[rings[ri].index];
+  const combos = rings.reduce((n, r) => n * r.parts.length, 1);
+  document.getElementById('combos').textContent = combos.toLocaleString('en-GB');
+
+  function render() {
+    groups.forEach((grp, ri) => {
+      grp.dial.style.transformOrigin = `${C}px ${C}px`;
+      grp.dial.style.transition = 'transform 220ms cubic-bezier(.2,.7,.3,1)';
+      grp.dial.style.transform = `rotate(${-grp.ring.index * grp.step}deg)`;
+      // Only what is near the mark is set at all; the rest of the band is its
+      // own ruling and nothing else. Drawing 120 words at 3° apart and fading
+      // them produced mud — this is the same idea done properly, and it is
+      // what makes "every part is on the figure" survive contact with a ring
+      // of 120. A part you cannot read is still a part you can press.
+      // A label needs about thirty pixels of arc not to collide with the next
+      // one, and that is a distance rather than an angle: eleven degrees is
+      // ample on the outer band and nothing at all on the hub, where the same
+      // angle is eight pixels. So the spacing is computed where the labels
+      // actually sit. On the outermost ring every slot is set; on the ring of
+      // 120 every fourth; on the hub, which carries fifty parts at the
+      // smallest radius on the figure, about one in five.
+      const arc = 360 / grp.ring.parts.length;
+      const arcPx = (2 * Math.PI * grp.labelR) / grp.ring.parts.length;
+      const every = Math.max(1, Math.ceil(30 / arcPx));
+      const reach = Math.round(42 / arc);
+      grp.labels.forEach((lab, k) => {
+        const away = ((k - grp.ring.index) % grp.labels.length + grp.labels.length) % grp.labels.length;
+        const off = Math.min(away, grp.labels.length - away);
+        const signed = away <= grp.labels.length / 2 ? away : away - grp.labels.length;
+        lab.classList.toggle('lab-now', off === 0);
+        if (off > reach || signed % every !== 0) { lab.textContent = ''; return; }
+        const part = grp.ring.parts[k];
+        lab.textContent = part === '' ? '–' : part;
+        lab.style.opacity = String(Math.max(0.16, 1 - off / (reach + 1)));
+      });
+    });
+    const word = rings.map((_, ri) => part(ri)).join('');
+    document.getElementById('word').textContent = word || '—';
+    const parts = document.getElementById('parts');
+    parts.textContent = '';
+    rings.forEach((_, ri) => {
+      if (ri) { const plus = document.createElement('span'); plus.textContent = '+'; parts.appendChild(plus); }
+      const b = document.createElement('b'); b.textContent = part(ri) || '—'; parts.appendChild(b);
+    });
+    const rows = document.getElementById('rows');
+    rows.textContent = '';
+    rings.forEach((r, ri) => {
+      const dt = document.createElement('dt'); dt.textContent = r.name;
+      const dd = document.createElement('dd'); dd.textContent = part(ri) || '–';
+      const of = document.createElement('dd'); of.className = 'of';
+      of.textContent = (r.index + 1) + ' / ' + r.parts.length;
+      rows.append(dt, dd, of);
+    });
+  }
+
+  document.getElementById('turn').onclick = () => {
+    rings.forEach((r) => { r.index = Math.floor(Math.random() * r.parts.length); });
+    render();
+  };
+  // A sketch has no lexicon, so "find" draws until the shape looks like a word:
+  // something in every ring but the optional ones. The real scene runs the
+  // German pack over ~21,000 real hits.
+  document.getElementById('find').onclick = () => {
+    for (let tries = 0; tries < 400; tries++) {
+      rings.forEach((r) => { r.index = Math.floor(Math.random() * r.parts.length); });
+      const w = rings.map((_, ri) => part(ri)).join('');
+      if (w.length >= 5 && w.length <= 11 && /[aeiouäöü]/i.test(w)) break;
+    }
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

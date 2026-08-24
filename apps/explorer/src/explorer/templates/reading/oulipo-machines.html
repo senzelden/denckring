@@ -1,0 +1,121 @@
+{# Scenes three and four. One assembles, the other dismantles, and they were
+   proposed in the same year by the same workshop.
+
+   Two things this page says that the scenes do not, and that a mockup got
+   wrong in opposite directions. The Queneau count on screen is the count of
+   the strips actually shipped, which is not 10^14 and is not pretended to be.
+   And the noun list is named, with its size and its licence: a mockup called
+   it "370 common English nouns" and reached for a Larousse as the contrast,
+   when the real list is larger, duller and far more to the point. #}
+{% extends "reading/_shell.html" %}
+
+{% block kicker %}Ouvroir de littérature potentielle &middot; founded 1960{% endblock %}
+
+{% block body %}
+
+<section class="sheet">
+  <p class="reading-num">I</p>
+  <h2>Cent mille milliards de poèmes</h2>
+
+  <p class="reading-lede">Ten sonnets, each printed on card cut into fourteen strips. Every
+    sonnet keeps the same rhyme scheme <em>and</em> the same rhyme sounds, so line six of
+    any sonnet will serve as line six of any other. Flip the strips and the book holds
+    10<sup>14</sup> poems. Queneau's stated model was not the surrealists' exquisite corpse
+    but a children's <span lang="fr">têtes folles</span> flip-book, the kind cut into
+    heads, bodies and legs.</p>
+
+  <p>The arithmetic is the smaller half of the trick. The hard part is writing 140 lines
+    that are grammatically self-sufficient: no clause may reach across a strip, because the
+    next strip is not going to be there. Every line has to end its own sentence or sit as
+    an apposition that survives any neighbour. There is a second constraint that is easy to
+    miss — no rhyme word may appear at two different positions, or a flip eventually lands
+    the same word twice in one poem and the illusion of a written object collapses.</p>
+
+  <h3>What this scene actually holds</h3>
+
+  <p>Queneau died in 1976 and his ten sonnets are in copyright, so they are not shipped.
+    What the strips carry was written for the scene, to his shape and at his scale:
+    {{ positions }} positions of ten, {{ written }} lines, in English and in German.</p>
+
+  <p class="reading-figure">
+    <b>{{ "{:,}".format(combinations) }}</b>
+    <span>poems the shipped strips can make</span>
+  </p>
+
+  <p>That is {{ "{:,}".format(years) }} years of reading at one poem a minute, round the
+    clock — the figure the book is famous for, and the reason it is a machine rather than
+    a novelty. Queneau's own jacket note makes exactly this move, and arrives at the same
+    place: this page computes it from what loaded rather than quoting him, and the two
+    agree.</p>
+
+  <p>They did not always. The strips carried three alternatives a position until this
+    pass, which is 3<sup>14</sup>, and the scene rendered that count — 4,782,969 — under
+    an <code>h1</code> reading <cite>Cent mille milliards</cite>. It was also laid out
+    ABAB CDCD EFEF GG, which is an English sonnet and not the French one Queneau wrote.
+    Both are fixed, and both were the same mistake: a machine described by the title of a
+    different machine.</p>
+</section>
+
+<section class="sheet">
+  <p class="reading-num">II</p>
+  <h2>N+7</h2>
+
+  <p class="reading-lede">Take a text, take a dictionary, replace every noun with the
+    {{ offset }}th noun that follows it. Nothing else changes — not the grammar, not the
+    articles, not the line breaks. The result keeps the exact skeleton of the original and
+    loses all of its subject matter, which is a fairly precise demonstration of how much of
+    a sentence's meaning is carried by things that are not its nouns.</p>
+
+  <p>Jean Lescure proposed the method at one of the workshop's first meetings, on 13
+    February 1961; the write-up appears in <cite>La Littérature potentielle</cite> in 1973.
+    The catalogue cites the second date because that is where the rule is set down, and the
+    scene's own kicker cites the first because that is when it was invented. Both are
+    right about different things.</p>
+
+  <h3>The dictionary is not neutral</h3>
+
+  <p>It is the other half of the constraint, and the half nobody names. A different word
+    list is a different transformation on the same text, in the same way that a Denckring
+    with different rings is a different device. So it is worth saying which one is running
+    here:</p>
+
+  <ul class="reading-inventory">
+    <li><b>{{ "{:,}".format(nouns_en) }}</b> <span>English noun lemmas, in dictionary
+      order — the Open English WordNet 2024, CC BY 4.0</span></li>
+    <li><b>{{ "{:,}".format(nouns_de) }}</b> <span>German noun lemmas — derived from
+      Wikidata Lexemes, CC0</span></li>
+  </ul>
+
+  <p>The scene opens on <em>the cat sat on the table</em>, and <em>cat</em> lands on
+    <em>catacomb</em>. It landed on <em>catafalque</em> until the migration to Open English
+    WordNet moved the neighbours around. Nothing about the procedure changed; the
+    dictionary underneath it did, and the output changed with it. A procedure is only as
+    stable as the list it walks, and this is the one scene where that is a feature of the
+    demonstration rather than a footnote to it.</p>
+
+  <p>Change the offset and the same text yields a different poem: N+7 is a family of
+    transformations, not one of them. Seven is only the member the method is named
+    after.</p>
+</section>
+
+<section class="sheet">
+  <h2>What the Oulipo added</h2>
+  <p>Both machines make the same wager as Llull's wheels and Harsdörffer's discs three and
+    six centuries earlier: that a rule applied mechanically to language will turn up
+    something the operator could not have intended, and that the operator still has to
+    decide which results are worth keeping. What the workshop added was candour about it.
+    The constraint is published alongside the work, so the reader can run the machine
+    too — which is the only reason this stage can exist.</p>
+</section>
+
+{% endblock %}
+
+{% block sources %}
+<p>Raymond Queneau, <cite>Cent mille milliards de poèmes</cite>, Gallimard 1961, designed
+  by Robert Massin, with a postface by François Le Lionnais. The ten sonnets are not
+  reproduced here and the strips on the scene are original.</p>
+<p>N+7 after Jean Lescure, proposed 13 February 1961 and set down in Oulipo,
+  <cite>La Littérature potentielle</cite>, 1973. English noun list: Open English WordNet
+  2024, CC BY 4.0. German noun list: derived from Wikidata Lexemes, CC0. Both are vendored
+  in the language-data packages and neither is downloaded at run time.</p>
+{% endblock %}

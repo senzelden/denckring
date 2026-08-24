@@ -1,0 +1,122 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Llull · A · The figure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .work{display:flex;gap:2.4rem;align-items:flex-start;margin-top:.8rem}
+  .wrap{flex:none;width:560px;position:relative}
+  .wrap::before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    border-left:7px solid transparent;border-right:7px solid transparent;border-top:11px solid #a5301f;z-index:6}
+  svg{display:block;width:548px;height:548px;touch-action:none;cursor:grab}
+  .ring{cursor:grab}.d0{fill:#a5301f}.d1{fill:#ddd3bd}.d2{fill:#ece5d5}
+  .cell{stroke:var(--case-lip);stroke-opacity:.35;stroke-width:1;fill:none}
+  .cell.alt{fill:rgba(20,17,15,.045)}
+  .gl{font-family:var(--display);font-weight:500;fill:var(--ink);pointer-events:none;user-select:none}
+  .gl.hub{fill:var(--paper)}.gl.on{font-weight:700}
+  .chord{stroke:#c9beaa;stroke-width:1;opacity:.5}.chord.hot{stroke:#a5301f;stroke-width:2;opacity:1}
+  .node{fill:#c9beaa}.node.hot{fill:#a5301f}
+  .nl{font-family:var(--display);font-size:11px;fill:#8d857a;pointer-events:none}.nl.hot{fill:#a5301f;font-weight:700}
+  .core{fill:var(--paper)}
+  .panel{flex:1;min-width:0}
+  .cham{font-family:var(--display);font-size:2rem;font-weight:600;letter-spacing:.16em;margin:0;color:var(--ink)}
+  table{border-collapse:collapse;margin:.7rem 0 0;width:100%}
+  td{padding:.24rem .5rem .24rem 0;vertical-align:top;border-bottom:1px solid var(--paper-shade)}
+  td.k{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lead);width:5.6rem}
+  td.t{font-family:var(--display);font-size:.92rem;font-style:italic;color:var(--ink)}
+</style></head><body>
+<main class="stage">
+  <p class="kicker">Ramon Llull &middot; Ars generalis ultima, 1305&ndash;1308</p>
+  <h1>The fourth figure</h1>
+  <div class="work">
+    <div class="wrap"><svg id="f" viewBox="0 0 548 548"></svg></div>
+    <div class="panel">
+      <p class="cham" id="ch">B &middot; C &middot; D</p>
+      <table id="rows"></table>
+      <p class="verdict yes" id="v"></p>
+      <div style="margin-top:1rem"><button id="turn">Turn the wheels</button></div>
+      <p class="credit">Three concentric wheels of the nine letters, B to K, J skipped. The web at
+        the centre is Figure A drawn as Llull draws it: every letter joined to every other, and the
+        three of this chamber lit. 84 chambers of three; the outer ring is fixed in the print.</p>
+    </div>
+  </div>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION={scene:'llull_figure',letter:'a',name:'The figure',
+ claim:'The wheels and Figure A together: nine letters on three rings, and at the centre the web '
+     + 'of every pair, with the three of the current chamber lit. The chamber is a triangle you '
+     + 'can see rather than three letters you are told.',
+ note:'The <b>chord web</b> is what the current scene has no room for and the mockup does. It '
+    + 'costs a hollow core — the innermost wheel moves out to r=150 to make room — which is a real '
+    + 'change to the figure’s proportions, not just an addition to it.'};
+</script>
+<script src="_frame.js"></script>
+<script>
+(()=>{ const L=DATA.llull.letters, LV=DATA.llull.levels, LVN=Object.keys(LV);
+ const NS='http://www.w3.org/2000/svg',C=274,R=[[150,196],[196,242],[242,272]],NODE=118;
+ const svg=document.getElementById('f');
+ const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+ const pol=(r,d)=>{const a=(d-90)*Math.PI/180;return [C+r*Math.cos(a),C+r*Math.sin(a)];};
+ const wedge=(r0,r1,a0,a1)=>{const[x0,y0]=pol(r1,a0),[x1,y1]=pol(r1,a1),[x2,y2]=pol(r0,a1),[x3,y3]=pol(r0,a0);
+   return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;};
+ // A full ring of ground, as a donut: two circles wound the same way with
+ // `fill-rule: evenodd`, so the inner one punches a hole. A wedge cannot do
+ // this — a 360 degree sweep is degenerate in SVG arc terms.
+ const donut=(r0,r1)=>[r1,r0].map((r)=>
+   `M${C-r} ${C}A${r} ${r} 0 1 0 ${C+r} ${C}A${r} ${r} 0 1 0 ${C-r} ${C}Z`).join('');
+ const idx=[0,1,2]; const chords=[],nodes=[],nlabs=[];
+ svg.appendChild(el('circle',{cx:C,cy:C,r:150,class:'core'}));
+ for(let i=0;i<9;i++)for(let j=i+1;j<9;j++){
+   const[a,b]=pol(NODE,i*40),[c,d]=pol(NODE,j*40);
+   const ln=el('line',{x1:a,y1:b,x2:c,y2:d,class:'chord'}); ln.dataset.p=L[i]+L[j]; chords.push(ln); svg.appendChild(ln);}
+ for(let i=0;i<9;i++){const[x,y]=pol(NODE,i*40);
+   const n=el('circle',{cx:x,cy:y,r:4.5,class:'node'}); nodes.push(n); svg.appendChild(n);
+   const[tx,ty]=pol(NODE-20,i*40); const t=el('text',{x:tx,y:ty+4,'text-anchor':'middle',class:'nl'});
+   t.textContent=L[i]; nlabs.push(t); svg.appendChild(t);}
+ const groups=[];
+ [2,1,0].forEach((ri)=>{
+   const g=el('g',{class:'ring'}); g.dataset.r=String(ri);
+   // The band's own ground, under the cells. The cells carry `fill:none` from
+   // the stylesheet, which beats a presentation attribute — so the colour has
+   // to be a shape of its own rather than an attribute on each cell.
+   g.appendChild(el('path',{d:donut(R[ri][0],R[ri][1]),'fill-rule':'evenodd',
+     fill:ri===0?'#a5301f':(ri===1?'#ddd3bd':'#ece5d5'),stroke:'none'}));
+   for(let k=0;k<9;k++){
+     g.appendChild(el('path',{d:wedge(R[ri][0],R[ri][1],k*40-20,k*40+20),class:'cell'+(k%2?' alt':'')}));
+     const[x,y]=pol((R[ri][0]+R[ri][1])/2,k*40);
+     const t=el('text',{'text-anchor':'middle',class:'gl'+(ri===0?' hub':''),
+       transform:`translate(${x} ${y}) rotate(${k*40}) translate(0 6)`});
+     t.style.fontSize=(ri===0?17:19)+'px'; g.appendChild(t);
+   }
+   svg.appendChild(g); groups[ri]={g,labs:[...g.querySelectorAll('text')]};
+ });
+ let drag=null;
+ const ang=(e)=>{const b=svg.getBoundingClientRect();return Math.atan2(e.clientY-(b.top+b.height/2),e.clientX-(b.left+b.width/2))*180/Math.PI+90;};
+ svg.addEventListener('pointerdown',(e)=>{const g=e.target.closest('.ring');if(!g)return;
+   svg.setPointerCapture(e.pointerId);drag={r:Number(g.dataset.r),start:ang(e),moved:0};});
+ svg.addEventListener('pointermove',(e)=>{if(!drag)return;const d=Math.round(-(ang(e)-drag.start)/40);
+   if(d!==drag.moved){idx[drag.r]=((idx[drag.r]+(d-drag.moved))%9+9)%9;drag.moved=d;render();}});
+ addEventListener('pointerup',()=>{drag=null;});
+ function render(){
+   groups.forEach((grp,ri)=>grp.labs.forEach((t,k)=>{t.textContent=L[(idx[ri]+k)%9];t.classList.toggle('on',k===0);}));
+   const now=idx.map((i)=>L[i]);
+   document.getElementById('ch').textContent=now.join(' · ');
+   const hot=new Set(); const uniq=[...new Set(now)];
+   for(let a=0;a<uniq.length;a++)for(let b=a+1;b<uniq.length;b++)hot.add([uniq[a],uniq[b]].sort().join(''));
+   chords.forEach((c)=>c.classList.toggle('hot',hot.has(c.dataset.p)));
+   nodes.forEach((n,i)=>n.classList.toggle('hot',now.includes(L[i])));
+   nlabs.forEach((n,i)=>n.classList.toggle('hot',now.includes(L[i])));
+   const rows=document.getElementById('rows'); rows.textContent='';
+   LVN.forEach((lv)=>{const tr=document.createElement('tr');
+     const k=document.createElement('td');k.className='k';k.textContent=lv;
+     const t=document.createElement('td');t.className='t';t.textContent=now.map((x)=>LV[lv][x]).join(' · ');
+     tr.append(k,t);rows.appendChild(tr);});
+   const v=document.getElementById('v');
+   const ok=uniq.length===3;
+   v.className='verdict '+(ok?'yes':'no');
+   v.textContent=ok?'checked — a genuine chamber of 3 distinct principles':'checked — repeated principle: '+now.find((x,i)=>now.indexOf(x)!==i);
+ }
+ document.getElementById('turn').onclick=()=>{idx.forEach((_,i)=>{idx[i]=Math.floor(Math.random()*9);});render();};
+ render();
+})();
+</script></body></html>

@@ -271,10 +271,24 @@ window.HoldTurn = (function () {
   //                    dial should now sit `residualDeg` degrees off the
   //                    detent it has been committed to
   //   release(ring, residualDeg) -> the pointer is up, and this is what is
-  //                    left to snap away. Deliberately the whole report: a
-  //                    press that crossed no detent is not distinguished
-  //                    from one that did, because a volvelle does not turn
-  //                    when you rest a hand on it and lift it off again.
+  //                    left to snap away. May return a promise; if it does,
+  //                    `tap` waits for it.
+  //   tap(ring, target) -> optional. The press crossed no detent, and this is
+  //                    what was under it when it began. Reported only after
+  //                    `release` has settled, so the scene's own grab
+  //                    bookkeeping is done with the ring before anything is
+  //                    asked of it.
+  //
+  //                    This used not to exist, and its absence was the point:
+  //                    a volvelle does not turn when you rest a hand on it and
+  //                    lift it off again, and scene one measured exactly that
+  //                    defect out of an older click-to-step. What changed is
+  //                    that the *target* now comes with the report, so a scene
+  //                    can answer a press on one thing and ignore a press on
+  //                    another — scene one turns to a word you press and does
+  //                    nothing at all for the band around it, which is the
+  //                    resting hand the old behaviour got wrong. A scene that
+  //                    passes no `tap` keeps the old behaviour exactly.
   function attachDrag(root, handlers) {
     const ringAt = handlers.ringAt;
     const centerOf = handlers.center;
@@ -282,6 +296,9 @@ window.HoldTurn = (function () {
     const onGrab = handlers.grab || function () {};
     const onTurn = handlers.turn;
     const onRelease = handlers.release || function () {};
+    // Optional. A scene that wants nothing to happen on a press that turned
+    // nothing simply does not pass one, and gets exactly the old behaviour.
+    const onTap = handlers.tap || null;
 
     // Keyed by pointer id, not a single "the drag": two fingers on two rings
     // is a gesture a five-ring volvelle invites, and it is the same
@@ -304,7 +321,22 @@ window.HoldTurn = (function () {
           // Already gone; the release below is what matters.
         }
       }
-      onRelease(drag.ring, drag.residual);
+      // The scene settles the ring and tells us when it has. A press that
+      // crossed no detent is a tap, and it is reported only once that settle
+      // is done — the scene's own `dragging` set still owns the ring until
+      // then, and a step handed over earlier would simply be dropped.
+      //
+      // The tap carries what was pressed, not where: a scene decides for
+      // itself whether that target means anything. Scene one's discs answer
+      // to a press on a word and ignore a press on the band, which is what
+      // keeps a hand resting on a disc from turning it — the defect that took
+      // the old click-to-step out.
+      var settled = onRelease(drag.ring, drag.residual);
+      if (drag.committed === 0 && onTap) {
+        Promise.resolve(settled).then(function () {
+          onTap(drag.ring, drag.target);
+        });
+      }
     }
 
     root.addEventListener('pointerdown', (evt) => {
@@ -321,6 +353,10 @@ window.HoldTurn = (function () {
         ring: ring,
         center: center,
         step: step,
+        // What was under the pointer when the press began, for `onTap`. The
+        // pointer is captured on `root` a few lines below, so by the time the
+        // release arrives this is the only record of it.
+        target: evt.target,
         last: angleAt(evt.clientX, evt.clientY, center),
         sweep: 0, // degrees swept since the grab, unwrapped and cumulative
         committed: 0, // whole detents handed to the scene so far

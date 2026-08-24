@@ -1,0 +1,56 @@
+{# The list, open at one noun, with everything the displacement travels past.
+
+   This scene's figure used to be a reel per noun — the journey as motion. It is
+   a page now, because the argument the scene exists to make is that the list is
+   the other half of the rule: a different word list is a different
+   transformation on the same text, in the way a Denckring with different rings
+   is a different device. A reel shows that a noun moved; a page shows *what it
+   moved through*, which is the part nobody thinks about.
+
+   Rendered by the scene's own first paint and, verbatim, by the fragment the
+   Displace button swaps back, so the page can never sit open at one word while
+   the panel beside it displaces another. #}
+{% if not entries %}
+<p class="placeholder">No page to open &mdash; the noun list knows none of these words.</p>
+{% else %}
+<div class="book">
+  {# Guide words, as a printed dictionary carries them: the first and last
+     entry on the spread. They are what tells you where in 56,468 entries you
+     are standing, which a bare list of ten words does not. #}
+  <p class="book-guide">
+    <span>{{ entries[0].word }}</span>
+    <span>{{ entries[-1].word }}</span>
+  </p>
+  <ol class="book-entries">
+    {% for entry in entries %}
+    {# Three states, and they are the whole diagram: the entry looked up, the
+       entry landed on, and the ones passed on the way. Everything outside the
+       span is margin — printed, because a page that began exactly at the noun
+       would look like the noun begins the list. #}
+    <li class="book-entry
+        {%- if entry.at == 0 %} book-from
+        {%- elif entry.at == offset and offset %} book-to
+        {%- elif entry.passed %} book-through{% endif %}">
+      <span class="book-word">{{ entry.word }}</span>
+      {%- if entry.at == 0 %}<span class="book-mark">looked up</span>
+      {%- elif entry.at == offset and offset %}<span class="book-mark">N{{ "%+d" | format(offset) }}</span>
+      {%- endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+{% endif %}
+
+{# Every noun in the source the list knows, so the page can be opened at any of
+   them. Not a decoration: one noun's journey is an anecdote, and being able to
+   step through all of them in one sentence is what makes the list's part in the
+   rule visible. #}
+{% if steps %}
+<div class="book-nouns">
+  {% for step in steps %}
+  <button type="submit" name="word" value="{{ step.word }}"
+          class="book-noun{{ ' on' if step.word == looked_up }}"
+          form="n7-form">{{ step.word }}</button>
+  {% endfor %}
+</div>
+{% endif %}

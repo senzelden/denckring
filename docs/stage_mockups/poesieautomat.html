@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poesieautomat</title>
+<style>
+  :root{
+    --cell-w: 20px;
+    --cell-h: 29px;
+    --gap: 2px;
+
+    --hall:    #06080a;
+    --case-hi: #1a1f1c;
+    --case-lo: #0a0d0c;
+    --edge:    #2a312c;
+    --face-hi: #23282a;
+    --face-lo: #12161a;
+    --ink:     #ece3ce;
+    --lamp:    #e2603f;
+    --signal:  #9fbd7a;
+    --muted:   #6a736c;
+
+    --board-font: "Helvetica Neue Condensed", "Arial Narrow", "Roboto Condensed", Helvetica, Arial, sans-serif;
+    --util-font: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100%;
+    background:radial-gradient(120% 70% at 50% -15%, #1c2320 0%, #0b0f0e 45%, var(--hall) 100%);
+    color:var(--ink);font-family:var(--util-font);
+    display:flex;align-items:center;justify-content:center;
+    padding:16px 10px 26px;-webkit-font-smoothing:antialiased;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen;
+    background:radial-gradient(90% 55% at 50% 0%, rgba(226,96,63,.05), transparent 60%);
+  }
+  .stand{width:100%;max-width:760px;margin:auto}
+
+  .cabinet{
+    background:linear-gradient(180deg,var(--case-hi),var(--case-lo));
+    border:1px solid var(--edge);border-radius:10px;
+    padding:14px 12px 12px;
+    box-shadow:0 50px 90px -40px #000, inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:0 4px 10px;border-bottom:1px solid #1d2320;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink)}
+  .bulb{width:7px;height:7px;border-radius:50%;background:var(--lamp);box-shadow:0 0 10px var(--lamp);transition:opacity .3s}
+  .bulb.idle{opacity:.25}
+  .serial{font-size:10px;letter-spacing:.2em;color:var(--muted);text-align:right}
+
+  .rows{display:flex;flex-direction:column;gap:6px;padding:14px 0 12px}
+  .row{display:flex;justify-content:center;gap:var(--gap)}
+
+  .flap{
+    position:relative;width:var(--cell-w);height:var(--cell-h);
+    perspective:180px;border-radius:3px;background:#04060a;
+    font-family:var(--board-font);font-weight:700;
+    font-size:calc(var(--cell-h) * .66);line-height:var(--cell-h);
+    box-shadow:0 1px 2px rgba(0,0,0,.6);
+  }
+  .half,.fold{position:absolute;left:0;width:100%;height:50%;overflow:hidden;text-align:center;backface-visibility:hidden}
+  .top,.ftop{
+    top:0;transform-origin:50% 100%;border-radius:3px 3px 0 0;
+    background:linear-gradient(180deg,var(--face-hi),#191d20);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .bot,.fbot{
+    bottom:0;transform-origin:50% 0%;border-radius:0 0 3px 3px;
+    background:linear-gradient(180deg,#0f1215,var(--face-lo));
+    border-top:1px solid rgba(0,0,0,.85);
+  }
+  .fold{z-index:2}
+  .flap span{display:block;height:var(--cell-h);color:var(--ink);text-shadow:0 0 7px rgba(236,227,206,.15)}
+  .bot span,.fbot span{margin-top:calc(var(--cell-h) / -2)}
+
+  .gear{
+    display:flex;justify-content:space-between;gap:10px;
+    border-top:1px solid #1d2320;padding-top:9px;
+    font-size:9px;letter-spacing:.22em;color:var(--muted);
+  }
+  .gear b{color:var(--signal);font-weight:400}
+
+  .controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+  button{
+    font:inherit;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+    background:linear-gradient(180deg,#171c19,#0d100f);border:1px solid var(--edge);
+    border-radius:999px;padding:8px 15px;cursor:pointer;transition:color .18s,border-color .18s;
+  }
+  button:hover{color:var(--ink);border-color:#465045}
+  button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+  button[aria-pressed="true"]{color:var(--signal);border-color:#3c4a33}
+  .draw{color:var(--ink);border-color:#4a5545}
+  .note{margin-top:14px;text-align:center;font-size:9px;letter-spacing:.2em;color:#4b534d;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="stand">
+  <div class="cabinet">
+    <div class="head">
+      <div class="brand"><i class="bulb idle" id="bulb"></i>Poesieautomat</div>
+      <div class="serial">Gedicht Nr. <span id="count">0001</span></div>
+    </div>
+
+    <div class="rows" id="rows" aria-live="polite" aria-label="Gedicht"></div>
+
+    <div class="gear">
+      <span>Getriebe <b id="gear">··</b></span>
+      <span><b id="total">0</b> mögliche Gedichte</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="draw" id="draw">Neues Gedicht</button>
+    <button id="auto" aria-pressed="true">Automatik an</button>
+    <button id="sound" aria-pressed="false">Ton aus</button>
+  </div>
+
+  <p class="note">Sechs Zeilen, sechs Wortlager, ein Griff ins Fach.<br>Nach Hans Magnus Enzensbergers Landsberger Poesieautomat — Wortbestand hier eigener.</p>
+</div>
+
+<script>
+(() => {
+  const CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß.,'-:?!";
+  const IDX = Object.fromEntries([...CHARS].map((c,i)=>[c,i]));
+  const COLS = 26, ROWS = 6;
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const FLIP    = REDUCED ? 0  : 155;   // ms je Klappe — bewusst langsam
+  const MAXROLL = REDUCED ? 1  : 10;
+  const ROWLAG  = REDUCED ? 0  : 300;   // Versatz von Zeile zu Zeile
+  const COLLAG  = REDUCED ? 0  : 38;    // Versatz von Fach zu Fach
+  const DWELL   = 22000;                // Standzeit eines Gedichts
+
+  /* ── die sechs Wortlager ──────────────────────────────── */
+  const L = {
+    adv:  ["HEUTE","MORGEN","IMMER","NIEMALS","JETZT","SPÄTER","WIEDER","KAUM"],
+    verb: ["SCHWEIGT","ZITTERT","WARTET","BRENNT","ROSTET","SCHLÄFT","ATMET","SINGT","FRIERT","TROPFT"],
+    subj: ["DER WIND","DIE UHR","DAS EIS","DER DRAHT","DIE LAMPE","DAS MOOS","DER KRAN","DIE ASCHE","DAS GLAS","DER MOND"],
+    prep: ["IM","HINTER DEM","UNTER DEM","ÜBER DEM","VOR DEM","NEBEN DEM"],
+    ort:  ["BAHNHOF","BETON","ARCHIV","KANAL","KELLER","WALD","SCHNEE","TUNNEL","TURM","NEBEL","RADIO","GERÜST"],
+    plur: ["DIE TAUBEN","DIE KABEL","DIE JAHRE","DIE MASCHINEN","DIE ZAHLEN","DIE FENSTER","DIE BRIEFE","DIE SCHATTEN","DIE MOTTEN","DIE GLEISE"],
+    pverb:["RECHNEN","SCHLAFEN","WACHSEN","VERGESSEN","WANDERN","KLIRREN","ZÄHLEN","WARTEN","RAUSCHEN","VERSTUMMEN"],
+    konj: ["UND","DOCH","DENN","ABER","NUR","BALD"],
+    frag: ["WER ZÄHLT","WER HÖRT","WER FINDET","WER TRÄGT","WER SUCHT","WER ÖFFNET"],
+    obj:  ["DEN REST","DIE STILLE","DAS LICHT","DEN STAUB","DIE TÜR","DAS SIGNAL","DEN ANFANG","DIE FRACHT","DAS PROTOKOLL","DEN SCHLAF"],
+    imp:  ["BLEIB","GEH","ZÄHL","WARTE","SCHWEIG","HÖRE","SCHREIB","ATME"],
+    tail: ["NOCH EINMAL","WEITER","LEISER","BIS ZUM MORGEN","OHNE UHR","LANGSAM","JETZT NICHT","IM DUNKELN","BIS ES HELL WIRD","VON VORN"]
+  };
+
+  // Zeilenbauplan: welche Lager in welcher Reihenfolge
+  const PLAN = [
+    ["adv","verb","subj"],
+    ["prep","ort"],
+    ["plur","pverb"],
+    ["konj","subj","verb"],
+    ["frag","obj"],
+    ["imp","tail"]
+  ];
+
+  const combos = PLAN.flat().reduce((n,k) => n * L[k].length, 1);
+  document.getElementById("total").textContent = combos.toLocaleString("de-DE");
+
+  const pick = a => Math.floor(Math.random() * a.length);
+  function draw(){
+    const picks = PLAN.map(slots => slots.map(k => pick(L[k])));
+    const lines = PLAN.map((slots,i) => slots.map((k,j) => L[k][picks[i][j]]).join(" "));
+    return { lines, picks };
+  }
+
+  const center = (s,w) => {
+    s = s.slice(0,w);
+    const pad = w - s.length, l = Math.floor(pad/2);
+    return " ".repeat(l) + s + " ".repeat(pad - l);
+  };
+
+  /* ── eine Klappe ──────────────────────────────────────── */
+  class Flap {
+    constructor(){
+      const el = document.createElement("div");
+      el.className = "flap";
+      el.innerHTML =
+        '<div class="half top"><span> </span></div>' +
+        '<div class="half bot"><span> </span></div>' +
+        '<div class="fold ftop"><span> </span></div>' +
+        '<div class="fold fbot"><span> </span></div>';
+      this.el = el;
+      this.tSpan = el.querySelector(".top span");
+      this.bSpan = el.querySelector(".bot span");
+      this.ft = el.querySelector(".ftop");
+      this.fb = el.querySelector(".fbot");
+      this.ftSpan = this.ft.firstElementChild;
+      this.fbSpan = this.fb.firstElementChild;
+      this.cur = " ";
+      this.timer = null;
+    }
+    paint(c){
+      this.tSpan.textContent = this.bSpan.textContent =
+      this.ftSpan.textContent = this.fbSpan.textContent = c;
+      this.cur = c;
+    }
+    flip(next){
+      this.tSpan.textContent = next;
+      this.bSpan.textContent = this.cur;
+      this.ftSpan.textContent = this.cur;
+      this.fbSpan.textContent = next;
+      this.fb.style.transform = "rotateX(90deg)";
+      if (FLIP){
+        this.ft.animate(
+          [{transform:"rotateX(0deg)"},{transform:"rotateX(-90deg)"}],
+          {duration:FLIP*0.5, easing:"cubic-bezier(.55,0,.85,.5)"}
+        );
+        this.fb.animate(
+          [{transform:"rotateX(90deg)"},{transform:"rotateX(-4deg)"},{transform:"rotateX(0deg)"}],
+          {duration:FLIP*0.5, delay:FLIP*0.5, easing:"cubic-bezier(.2,.6,.3,1)"}
+        );
+      }
+      setTimeout(() => { this.paint(next); this.fb.style.transform = ""; }, FLIP);
+      click();
+    }
+    to(target, delay, gen){
+      clearTimeout(this.timer);
+      if (target === this.cur) return;
+      let dist = (IDX[target] - IDX[this.cur] + CHARS.length) % CHARS.length;
+      if (dist > MAXROLL){
+        this.paint(CHARS[(IDX[target] - MAXROLL + CHARS.length) % CHARS.length]);
+        dist = MAXROLL;
+      }
+      const step = () => {
+        if (gen !== generation) return;
+        this.flip(CHARS[(IDX[this.cur] + 1) % CHARS.length]);
+        if (--dist > 0) this.timer = setTimeout(step, FLIP + 8);
+        else running--;
+      };
+      running++;
+      this.timer = setTimeout(step, delay);
+    }
+  }
+
+  /* ── Tafel ────────────────────────────────────────────── */
+  const rowsEl = document.getElementById("rows");
+  const board = [];
+  for (let r = 0; r < ROWS; r++){
+    const row = document.createElement("div");
+    row.className = "row";
+    board.push(Array.from({length:COLS}, () => {
+      const f = new Flap(); row.appendChild(f.el); return f;
+    }));
+    rowsEl.appendChild(row);
+  }
+
+  function fit(){
+    const avail = Math.min(window.innerWidth - 24, 760) - 26;
+    const w = Math.max(9, Math.min(26, Math.floor(avail / COLS) - 2));
+    const s = document.documentElement.style;
+    s.setProperty("--cell-w", w + "px");
+    s.setProperty("--cell-h", Math.round(w * 1.46) + "px");
+  }
+  addEventListener("resize", fit); fit();
+
+  /* ── Klackern ─────────────────────────────────────────── */
+  let ac = null, noise = null, soundOn = false, lastClick = 0;
+  function click(){
+    if (!soundOn || !ac) return;
+    const now = performance.now();
+    if (now - lastClick < 22) return;
+    lastClick = now;
+    const t = ac.currentTime;
+    const src = ac.createBufferSource(); src.buffer = noise;
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1700; bp.Q.value = 1.2;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.055, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+    src.connect(bp).connect(g).connect(ac.destination);
+    src.start(t); src.stop(t + 0.05);
+  }
+  function initAudio(){
+    if (ac) return;
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    noise = ac.createBuffer(1, ac.sampleRate * 0.06, ac.sampleRate);
+    const d = noise.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * (1 - i/d.length);
+  }
+
+  /* ── Betrieb ──────────────────────────────────────────── */
+  let generation = 0, running = 0, auto = true, timer = null, nr = 0;
+  const bulb  = document.getElementById("bulb");
+  const gearEl = document.getElementById("gear");
+  const countEl = document.getElementById("count");
+
+  function show(){
+    generation++;
+    const gen = generation;
+    const { lines, picks } = draw();
+    running = 0;
+    board.forEach((row, r) => {
+      const line = center(lines[r] || "", COLS);
+      row.forEach((f,c) => f.to(line[c], r * ROWLAG + c * COLLAG, gen));
+    });
+    nr++;
+    countEl.textContent = String(nr).padStart(4,"0");
+    gearEl.textContent = picks.map(p => p.map(i => String(i+1).padStart(2,"0")).join("·")).join(" / ");
+    bulb.classList.remove("idle");
+    setTimeout(() => { if (gen === generation) bulb.classList.add("idle"); },
+               ROWS*ROWLAG + COLS*COLLAG + MAXROLL*FLIP);
+  }
+  function schedule(){
+    clearTimeout(timer);
+    if (auto) timer = setTimeout(cycle, DWELL);
+  }
+  function cycle(){ show(); schedule(); }
+
+  document.getElementById("draw").onclick = () => { show(); schedule(); };
+  const autoBtn = document.getElementById("auto");
+  autoBtn.onclick = () => {
+    auto = !auto;
+    autoBtn.textContent = auto ? "Automatik an" : "Automatik aus";
+    autoBtn.setAttribute("aria-pressed", String(auto));
+    schedule();
+  };
+  const soundBtn = document.getElementById("sound");
+  soundBtn.onclick = () => {
+    initAudio(); if (ac.state === "suspended") ac.resume();
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? "Ton an" : "Ton aus";
+    soundBtn.setAttribute("aria-pressed", String(soundOn));
+  };
+  addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === "n") { show(); schedule(); }
+    if (e.key === " ") { e.preventDefault(); autoBtn.click(); }
+  });
+
+  cycle();
+})();
+</script>
+</body>
+</html>

@@ -2,25 +2,44 @@
 <p class="placeholder">Nothing to displace yet &mdash; type a sentence with at least one noun.</p>
 {% else %}
 <p class="displaced-text">{{ produced }}</p>
-{% if report and unchanged %}
+{% if report and offset == 0 %}
+{# The slider reaches its own midpoint, and this is what its midpoint is.
+   `displace` at 0 returns the source unchanged and `displacement_report`
+   tolerates an unchanged word, so a `check` here comes back green for a text
+   nothing was done to — the same vacuous pass the no-noun case above has, from
+   a different direction. Said, rather than skipped: a slider that quietly
+   refused its own zero would be lying about its range. #}
+<p class="verdict none">checked &mdash; nothing moved: N+0 is the identity</p>
+{% elif report and unchanged %}
 {# `check` is satisfied here — vacuously, there being no noun for the
    displacement to get wrong — and captioning that "a real displacement of the
    source" would be true by the checker's semantics and misleading on camera,
-   in the one scene with a box a recorder types into. #}
+   in the one scene with a box a recorder types into.
+
+   Below the N+0 case above, and that order is the fix for a real wrong answer:
+   at offset zero the text also comes back identical, and this branch fired
+   first and told the viewer the list knew none of these words — which is false.
+   It knew them; they had nowhere to go. #}
 <p class="verdict none">checked &mdash; nothing moved: the source carries no noun the list
   knows</p>
 {% elif report %}
+{# The verdict names the offset it was checked at, because the offset is now a
+   control and the heading above is not. `N+7` is the procedure's name and
+   stays the procedure's name whichever member of the family is running; the
+   line that says what was actually verified is this one, and a viewer at N+11
+   reading a scene titled N+7 should not have to work out which of the two the
+   green refers to. #}
 <p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
-  {{ "checked — a real displacement of the source" if report.satisfied
-     else "checked — not a displacement of the source" }}
+  {{ "checked — a real displacement of the source, N%+d" | format(offset) if report.satisfied
+     else "checked — not a displacement of the source, N%+d" | format(offset) }}
 </p>
 {% endif %}
 {% endif %}
-{# The reels are part of what this action changed, so they are swapped out of
+{# The open page is part of what this action changed, so they are swapped out of
    band from the source that was actually posted — every other scene on this
-   stage re-renders everything its action touched, and columns still reading
+   stage re-renders everything its action touched, and a page still open at
    "cat" beside a panel displacing something else would be this scene's own
    version of describing what it did not do. #}
-<div id="n7-reels" class="scene-figure" hx-swap-oob="true">
-  {% include "_stage_reels.html" %}
+<div id="n7-book" class="scene-figure" hx-swap-oob="true">
+  {% include "_stage_dictionary.html" %}
 </div>

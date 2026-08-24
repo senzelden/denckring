@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>N+7 · B · The reels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .bar { display:flex; align-items:center; gap:1.4rem; margin:.9rem 0 0; flex-wrap:wrap; }
+  .pick { display:flex; gap:.4rem; }
+  .n { display:flex; align-items:center; gap:.7rem; }
+  .n label { font-family:var(--mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--lead); }
+  input[type=range] { width:260px; accent-color:var(--rubric); }
+  .nval { font-family:var(--display); font-size:1.4rem; font-weight:600; min-width:3rem; text-align:center;
+          font-variant-numeric:tabular-nums lining-nums; }
+  .reels { display:flex; gap:.9rem; margin:1.4rem 0 0; overflow-x:auto; padding-bottom:.4rem; }
+  .col { flex:none; width:10.5rem; text-align:center; }
+  .col h3 { font-family:var(--display); font-size:1.05rem; font-weight:600; color:var(--ink); margin:0 0 .35rem; }
+  .view { --row:2.3rem; height:calc(5*var(--row)); overflow:hidden; background:var(--case-deep);
+          border-radius:2px; position:relative; }
+  .view::before { content:""; position:absolute; top:calc(2*var(--row)); left:0; right:0; height:var(--row);
+                  background:rgba(219,231,241,.2); pointer-events:none; z-index:2; }
+  .track { transition:transform 620ms cubic-bezier(.2,.7,.3,1); }
+  .row { height:2.3rem; line-height:2.3rem; font-family:var(--mono); font-size:.82rem; color:var(--lead-bright);
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 .4rem; }
+  .row.land { color:var(--paper); font-weight:600; }
+  .out { font-family:var(--display); font-size:1.35rem; line-height:1.6; color:var(--ink); margin:1.5rem 0 0; max-width:64rem; }
+  .out b { font-weight:600; border-bottom:2px solid var(--accent); }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="kicker">Jean Lescure &middot; Oulipo, 13 February 1961</p>
+  <h1>N+7</h1>
+  <div class="bar">
+    <div class="pick">
+      <button class="quiet src" data-src="genesis" aria-pressed="true">Genesis 1</button>
+      <button class="quiet src" data-src="gettysburg" aria-pressed="false">Gettysburg</button>
+      <button class="quiet src" data-src="sonnet" aria-pressed="false">Sonnet 18</button>
+    </div>
+    <div class="n">
+      <label for="n">N +</label><input type="range" id="n" min="-15" max="15" value="7">
+      <span class="nval" id="nval">+7</span>
+      <button id="run">Run the reels</button>
+    </div>
+  </div>
+  <div class="reels" id="reels"></div>
+  <p class="out" id="out"></p>
+  <p class="verdict yes" id="verdict">checked &mdash; a real displacement of the source, N+7</p>
+  <p class="credit" id="src"></p>
+</main>
+<script src="_data.js"></script>
+<script>
+window.OPTION = {
+  scene: 'n_plus_7', letter: 'b', name: 'The reels',
+  claim: 'Every noun travels down the list in its own column, past each entry it passes on the '
+       + 'way, so the count is something you watch rather than something you are told. The slider '
+       + 'sets how far, and the reels run that distance.',
+  note: 'The direction the scene is already in, taken further: a slider, and a reel that runs '
+      + '<b>backwards</b> for a negative N. What it gives up is the sentence — the columns show '
+      + 'the journey and the result reads underneath, so the thing the rule is famous for, how '
+      + 'much of the grammar survives, is the smaller half of the picture.',
+};
+</script>
+<script src="_frame.js"></script>
+<script>
+(() => {
+  let key='genesis', n=7;
+  const reels=document.getElementById('reels');
+  function nounsOf(set){ return set.words.filter(w=>w.n); }
+  function build(){
+    const set=NPLUS7[key]; reels.textContent='';
+    nounsOf(set).slice(0,7).forEach((w)=>{
+      const col=document.createElement('div'); col.className='col';
+      const h=document.createElement('h3'); h.textContent=w.t;
+      const view=document.createElement('div'); view.className='view';
+      const track=document.createElement('div'); track.className='track';
+      // two blank rows either side, so the read line starts and ends centred
+      const seq=[];
+      const dir=n>=0?1:-1;
+      for(let s=0;s<=Math.abs(n);s++) seq.push(w.n[String(s*dir)]);
+      ['','',...seq,'',''].forEach((text,i)=>{
+        const row=document.createElement('div'); row.className='row'+(i===seq.length+1?' land':'');
+        row.textContent=text; track.appendChild(row);
+      });
+      view.appendChild(track); col.append(h,view); reels.appendChild(col);
+      requestAnimationFrame(()=>{ track.style.transform='translateY(0)'; });
+      track.dataset.target=String(seq.length-1);
+    });
+  }
+  function run(){
+    reels.querySelectorAll('.track').forEach((track,i)=>{
+      const rows=track.querySelectorAll('.row');
+      const rowH=rows[0].getBoundingClientRect().height||36.8;
+      track.style.transition='none'; track.style.transform='translateY(0)';
+      void track.offsetHeight;
+      const dist=Number(track.dataset.target)*rowH;
+      setTimeout(()=>{
+        track.style.transition='transform '+Math.min(1500,320+Math.abs(n)*90)+'ms cubic-bezier(.2,.7,.3,1)';
+        track.style.transform='translateY(-'+dist+'px)';
+      }, i*260);
+    });
+  }
+  function render(){
+    const set=NPLUS7[key];
+    document.getElementById('nval').textContent=(n>=0?'+':'')+n;
+    const out=document.getElementById('out'); out.textContent='';
+    set.words.forEach((w)=>{
+      if(!w.n){ out.append(document.createTextNode(w.t)); return; }
+      const to=w.n[String(n)];
+      const b=document.createElement('b');
+      b.textContent=/^[A-Z]/.test(w.t)?to.charAt(0).toUpperCase()+to.slice(1):to;
+      out.appendChild(b);
+    });
+    const v=document.getElementById('verdict');
+    if(n===0){ v.className='verdict'; v.style.color='var(--lead)'; v.textContent='checked — nothing moved: N+0 is the identity'; }
+    else { v.className='verdict yes'; v.style.color=''; v.textContent='checked — a real displacement of the source, N'+(n>=0?'+':'')+n; }
+    document.getElementById('src').textContent=set.source+' · public domain. Noun list: Open English WordNet 2024, CC BY 4.0. '
+      +'The first seven nouns are reeled; the rest are displaced in the line below.';
+    build(); run();
+  }
+  document.getElementById('n').addEventListener('input',e=>{ n=Number(e.target.value); render(); });
+  document.getElementById('run').addEventListener('click',run);
+  document.querySelectorAll('.src').forEach(btn=>btn.addEventListener('click',()=>{
+    key=btn.dataset.src;
+    document.querySelectorAll('.src').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+    render();
+  }));
+  render();
+})();
+</script>
+</body>
+</html>
