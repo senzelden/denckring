@@ -1399,19 +1399,49 @@ BLANK = " "
 # device differently from the checker that judges it.
 
 
+#: The machine, which is Enzensberger's whichever cartridge is in it, and is
+#: credited identically on both. Only the lexicon changes, and only the lexicon
+#: half of the attribution changes with it.
+POESIE_AUTOMAT_MACHINE = "Hans Magnus Enzensberger \u00b7 Landsberger Poesieautomat, 2000"
+
+
 @dataclass(frozen=True)
 class Cartridge:
     """One set of flaps this scene can load into the board.
 
-    `device_id` is the only thing that reaches the library; the label and the
-    note are the page's. A cartridge is *named here* rather than accepted from
-    the client, so the switcher cannot be pointed at an arbitrary device by
-    editing a form value — see `automat_cartridge`.
+    `device_id` is the only thing that reaches the library; everything else is
+    the page's. A cartridge is *named here* rather than accepted from the
+    client, so the switcher cannot be pointed at an arbitrary device by editing
+    a form value — see `automat_cartridge`.
+
+    `lexicon` and `credit` are the attribution, and they belong to the
+    cartridge rather than to the scene because **the words are not the
+    machine's**. The scene shipped for one round with a fixed eyebrow reading
+    `Hans Magnus Enzensberger · Landsberger Poesieautomat, 2000` over whichever
+    cartridge was loaded, so with the Pokemon flaps on the board the page
+    credited Enzensberger for a lexicon that is not his and that he would not
+    recognise. Every other scene's credit describes what is actually on screen;
+    this one now does too.
     """
 
     device_id: str
     label: str
     note: str
+    #: Whose words these are, in a few words — the second half of the eyebrow.
+    lexicon: str
+    #: The footnote under the panel, in full.
+    credit: str
+
+    @property
+    def kicker(self) -> str:
+        """The eyebrow: the machine, then the lexicon.
+
+        The machine half is identical on both cartridges because the mechanism
+        really is Enzensberger's in both cases. The lexicon half is what has to
+        differ, and `test_the_credit_follows_the_cartridge` fails if the whole
+        line comes out the same for two cartridges.
+        """
+        return f"{POESIE_AUTOMAT_MACHINE} \u00b7 {self.lexicon}"
 
 
 #: The two sets of flaps, in the order the switcher shows them. The first is
@@ -1427,11 +1457,25 @@ AUTOMAT_CARTRIDGES = (
         device_id="poesieautomat_2000",
         label="Landsberg 2000",
         note="the machine's own flaps",
+        lexicon="360 flaps written for this project",
+        credit=(
+            "Enzensberger's mechanism, not his words. He died in 2022 and his lists are in "
+            "copyright until 2092, so the 360 flaps on this cartridge were written for this "
+            "project; the catalogue's poesie_automat row and the device file both say so."
+        ),
     ),
     Cartridge(
         device_id="poesieautomat_pokemon",
         label="Pokémon-Kassette",
         note="a second cartridge, explorer-only",
+        lexicon="Pokémon flaps, the explorer's own",
+        credit=(
+            "Enzensberger's mechanism, and the words are neither his nor Müller's. The "
+            "subjects are German Pokémon names — third-party trademarks, which is why this "
+            "cartridge lives in the explorer and is never packaged — and the rest is ordinary "
+            "German in Heiner Müller's register, as individual common words rather than "
+            "anything he wrote. He died in 1995."
+        ),
     ),
 )
 
@@ -1649,6 +1693,11 @@ def automat_payload(cartridge: Cartridge) -> dict[str, Any]:
         "id": cartridge.device_id,
         "label": cartridge.label,
         "note": cartridge.note,
+        # The attribution travels with the flaps, because the switcher changes
+        # the board without a round trip and a credit left behind would be
+        # describing the previous cartridge.
+        "kicker": cartridge.kicker,
+        "credit": cartridge.credit,
         "columns": BOARD_COLUMNS,
         "alphabet": automat_alphabet(cartridge.device_id),
         "exponent": power_of_ten(board.combinations),
