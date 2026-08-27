@@ -393,10 +393,14 @@ All notable changes to this project are documented here. The format follows
   turn into silent misses under the same skip-quietly contract.
 - `ConstructiveProcedure`, the template method for `apply` that `check` has always
   had: it resolves the pack, enforces both capability lists, validates parameters
-  and refuses output identical to the input, so a generator cannot forget any of
-  it. `parse_apply_params` also refuses a caller-supplied `source`: the text being
+  and refuses output that misrepresents what ran — identical to the input, or
+  empty from input that was not — so a generator cannot forget any of it.
+  `parse_apply_params` also refuses a caller-supplied `source`: the text being
   transformed *is* the source, so a second one names two texts for one argument,
   and passing both now raises `InvalidParams` instead of one silently winning.
+  `ConstructiveProcedure.ignores_input` opts the three devices that never read
+  their text — `denckring`, `poesie_automat`, `llull_figure` — out of the
+  identity half alone, where the comparison is against an argument nothing read.
   ADR 0025.
 - `Meta.apply_requires`, so a generator can declare a capability its checker does
   not need — `anagram` generates only with a word lexicon and checks with core
@@ -404,6 +408,12 @@ All notable changes to this project are documented here. The format follows
 - `Description.constructive` and `Summary.constructive`, reporting whether *this
   install* has a generator, distinct from `kind`, which says whether the form
   admits one. Nine rows are honestly `both` with no generator here.
+- `Description.apply_params`, the generator's own JSON Schema beside the checker's
+  `params`, so `denckring describe` and MCP's `describe_procedure` finally show
+  `seed` and `allow_identity` — which live on `apply_params_model()` and reached no
+  non-Python surface at all. Empty for a row with no generator. The two schemas
+  stay separate because `source` is a checker parameter `apply` supplies for itself
+  and refuses from a caller.
 - `DegenerateOutput` and `InputTooShort`.
 
 ### Changed
@@ -450,6 +460,18 @@ All notable changes to this project are documented here. The format follows
   being silently ignored. `lang` remains a reserved keyword on the same signature
   for the same reason — no params field may be named `lang` either, and
   `ApplyParams` now says so.
+- **Breaking:** `spoonerism` raises `InputTooShort` rather than `NoCandidateWord`
+  for a text of fewer than two words, and `ideenwuerfeln` raises it rather than
+  `MalformedCorpus` for a corpus holding fewer entries than a throw needs. Both
+  were the shape `recombination` already raised `InputTooShort` for, so the code a
+  caller retries on depended on which procedure they had called. `NoCandidateWord`
+  keeps its narrower meaning — enough units, none of them suitable — and
+  `MalformedCorpus` keeps `corpus.parse`'s: unreadable, not merely small.
+  `InputTooShort`'s message now ends on a remedy, as the other errors do, and
+  counts its units in English rather than reading "0 line".
+- **Breaking:** `ConstructiveProcedure.apply_params_model()` is abstract. It used
+  to synthesise the checker's model widened by `ApplyParams`; all 27 generators
+  declare their own, so the default had no caller and carried an MRO trap.
 - `boustrophedon`, `cent_mille_milliards`, `recombination` and `wechselsatz` raise
   `InputTooShort` where they used to return their input unchanged. `wechselsatz`
   raises it twice over: once for a frame offering no choice at all, and once for
