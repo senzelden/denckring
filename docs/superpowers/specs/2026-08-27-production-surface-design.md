@@ -241,3 +241,14 @@ package was already computing.
 - **`lang` as a reserved keyword.** Still named in `produce`'s signature, as ADR 0025
   records, and still the surviving instance of the hazard that made `seed` unvalidatable.
   Unchanged by this chapter.
+- **Derandomizing the round trip.** `tests/test_round_trip.py::test_apply_output_satisfies_check`
+  is not derandomized, so a latent generator/checker disagreement surfaces only when
+  Hypothesis happens to draw the input that exposes it, rather than reliably. Two such
+  disagreements were found this chapter — `cent_mille_milliards` and `recombination`, one
+  per task, each blocking until fixed. A controller sweep over all 27 constructive rows
+  (400 randomised draws each, Hypothesis's example database disabled) found no further
+  ones, but that is weak evidence rather than a clean bill: both known cases were rare
+  draws that had previously surfaced through Hypothesis's *stored* counterexamples, which
+  the sweep's disabled database does not have and cannot replay. A deliberate exhaustive
+  sweep, or derandomizing the property so a failure is at least reproducible rather than
+  intermittent, is worth doing before leaning on this property's silence again.
