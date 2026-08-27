@@ -5,9 +5,10 @@ Batch 1 was restrictive throughout, so no procedure defined `apply` and
 procedures are the first that can generate as well as validate.
 
 Coverage gap, named rather than left implicit — and measured rather than asserted.
-Every call below is `apply(text, lang=lang, seed=0)`: no parameter beyond `source`
-is ever supplied, so a generator whose `params_model` requires another field is
-skipped on every single call via the `except DenckringError`, not exercised by it.
+Every call below is `apply(text, lang=lang, **_apply_args(...))`: no parameter
+beyond `source` and, where the procedure takes one, `seed` is ever supplied, so a
+generator whose `params_model` requires another field is skipped on every single
+call via the `except DenckringError`, not exercised by it.
 That is the four rows in `PARAMETER_GATED` below, and
 `test_the_named_coverage_gap_is_the_whole_coverage_gap` re-derives the set from
 what `apply` actually produces rather than trusting this paragraph. `diastic` and
@@ -30,6 +31,8 @@ and `spoonerism` were in fact reached (`spoonerism` on inputs like `'wu u pzyh'`
 via its letter-onset fallback), while `pasigraphy` and `slenderizing` — both
 already parameter-gated — went unnamed.
 """
+
+from inspect import signature
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -75,8 +78,9 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
                 continue
             procedure = all_procedures()[procedure_id]
             assert isinstance(procedure, Constructive)
+            lang = procedure.meta.languages[0]
             try:
-                procedure.apply(text, lang=procedure.meta.languages[0], seed=0)
+                procedure.apply(text, lang=lang, **_apply_args(procedure_id, 0))
             except DenckringError:
                 continue
             reached.add(procedure_id)
@@ -100,6 +104,33 @@ def _check_args(procedure_id: str, text: str) -> dict[str, str]:
     return {"source": text} if "source" in fields else {}
 
 
+def _apply_args(procedure_id: str, seed: int) -> dict[str, int]:
+    """`seed` only where the procedure takes one, asked of whichever half declares it.
+
+    `seed` used to be a keyword every generator named in its signature and none
+    validated. On the spine it is a field on the procedures that draw, so passing
+    it to one that does not is an `InvalidParams` — which this harness would
+    swallow in its `except DenckringError`, making the property silently vacuous
+    for those rows. Passing it to none of them is the mirror mistake, and the
+    louder one: the rows that do draw would run unseeded, and the determinism
+    test below would be comparing two different draws.
+
+    Both halves are therefore asked, because the migration is in progress: a
+    procedure on the spine declares `seed` as a field, one still hand-rolling
+    `apply` declares it in the signature. The signature branch dies with the last
+    unmigrated generator.
+    """
+    procedure = all_procedures()[procedure_id]
+    assert isinstance(procedure, Constructive)
+    model = getattr(procedure, "apply_params_model", None)
+    accepts = (
+        "seed" in model().model_fields
+        if model is not None
+        else "seed" in signature(procedure.apply).parameters
+    )
+    return {"seed": seed} if accepts else {}
+
+
 @settings(max_examples=50, deadline=None)
 @given(TEXT)
 def test_apply_output_satisfies_check(text: str) -> None:
@@ -108,7 +139,7 @@ def test_apply_output_satisfies_check(text: str) -> None:
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            produced = procedure.apply(text, lang=lang, seed=0)
+            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, 0))
         except DenckringError:
             # Refusing unusable input is allowed: a corpus of one line is not
             # three excerpts. The property is about what apply produces, not
@@ -123,12 +154,18 @@ def test_apply_output_satisfies_check(text: str) -> None:
 @settings(max_examples=25, deadline=None)
 @given(TEXT)
 def test_apply_is_deterministic_under_a_fixed_seed(text: str) -> None:
+    """Two identical calls agree.
+
+    For the procedures that do not draw, this asserts only that two identical
+    calls agree — which is what determinism means for them, and is now checked
+    rather than assumed via a seed they ignored.
+    """
     for procedure_id in CONSTRUCTIVE:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            first = procedure.apply(text, lang=lang, seed=7)
+            first = procedure.apply(text, lang=lang, **_apply_args(procedure_id, 7))
         except DenckringError:
             continue
-        assert first == procedure.apply(text, lang=lang, seed=7)
+        assert first == procedure.apply(text, lang=lang, **_apply_args(procedure_id, 7))
