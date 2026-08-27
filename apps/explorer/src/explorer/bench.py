@@ -202,9 +202,12 @@ def generate(procedure_id: str, text: str, lang: str, params: dict[str, Any]) ->
     procedure = get(procedure_id)
     if not isinstance(procedure, Constructive):
         return "", f"{procedure_id} validates but does not generate."
+    # Forwarded only when asked for: `seed` belongs to the procedures that draw,
+    # and the unset `None` would be an unknown parameter to the ones that do not.
     seed = params.pop("seed", None)
+    drawn = {"seed": seed} if seed is not None else {}
     params.pop("source", None)
     try:
-        return procedure.apply(text, lang=as_lang(lang), seed=seed, **params), ""
+        return procedure.apply(text, lang=as_lang(lang), **drawn, **params), ""
     except DenckringError as exc:
         return "", str(exc)

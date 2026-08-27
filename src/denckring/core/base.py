@@ -218,10 +218,22 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """Validate, supplying `source` from the text being transformed.
 
         Every generator did this by hand as `parse_params({"source": text,
-        **params})`. Doing it here is what makes it impossible to forget.
+        **params})`. Doing it here is what makes it impossible to forget — and
+        is the only place that can refuse a caller who supplies a second source.
         """
         model = self.apply_params_model()
         if "source" in model.model_fields:
+            # Refused rather than overridden in either direction. The text being
+            # transformed *is* the source, so a second one names two different
+            # sources and only one can be honoured — and honouring one silently
+            # is the mistake `parse_into` exists to refuse.
+            if "source" in params:
+                raise InvalidParams(
+                    self.id,
+                    "source is the text this generates from, which `apply` already has "
+                    "as its text argument; passing both names two sources and leaves "
+                    "no way to say which was used",
+                )
             params = {"source": text, **params}
         return cast(A, parse_into(model, params, self.id))
 

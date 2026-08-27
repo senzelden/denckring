@@ -49,6 +49,16 @@ def test_seed_still_fixes_the_draw() -> None:
     assert cut_up().apply(text, seed=7) == cut_up().apply(text, seed=7)
 
 
+def test_a_second_source_is_refused_rather_than_silently_losing_one() -> None:
+    """`apply` supplies `source` from the text it is transforming, so a caller who
+    supplies one too has named two sources; only one can be used and nothing would
+    say which. `cut_up` reads `text`, so this is invisible until Task 4 migrates a
+    generator whose `_apply` reads `params.source` — hence closed now."""
+    with pytest.raises(InvalidParams) as caught:
+        cut_up().apply("one two three", source="four five six")
+    assert "source" in str(caught.value)
+
+
 def test_the_mixins_carry_what_they_say() -> None:
     assert SeedParams.model_fields["seed"].default is None
     assert ApplyParams.model_fields["allow_identity"].default is False
