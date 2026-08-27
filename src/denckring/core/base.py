@@ -208,6 +208,18 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
     but a procedure that has one inherits this.
     """
 
+    #: Set on a generator whose `_apply` never reads `text`: the three devices
+    #: that supply everything themselves — `denckring`, `poesie_automat` and
+    #: `llull_figure` — turn rings, press a button or spin a wheel, and the
+    #: argument is there only because `apply` takes one. `_guard_degenerate`
+    #: skips the identity comparison for them, because comparing output against
+    #: an argument the procedure never read carries no information at all:
+    #: `denckring.apply("geRyffisch", seed=3)` spelling `geRyffisch` again is
+    #: the rings coming up the same way, not a procedure that failed to run,
+    #: and refusing it turns the explorer's invitation to paste output back in
+    #: into an error. The empty-output half of the guard still applies.
+    ignores_input: ClassVar[bool] = False
+
     @classmethod
     def apply_params_model(cls) -> type[A]:
         """The parameters `apply` accepts.
@@ -262,13 +274,14 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """Refuse output identical to the input.
 
         Compared on stripped text, because trailing whitespace is not a
-        transformation. `allow_identity` is on `ApplyParams`, so every generator
+        transformation. Skipped entirely for a procedure that declares
+        `ignores_input`. `allow_identity` is on `ApplyParams`, so every generator
         carries the escape whether or not it declares its own model — read with
         `getattr` because a generator may declare an apply-params model that
         does not inherit the mixin.
         """
         if getattr(params, "allow_identity", False):
             return produced
-        if produced.strip() == text.strip():
+        if not self.ignores_input and produced.strip() == text.strip():
             raise DegenerateOutput(self.id)
         return produced
