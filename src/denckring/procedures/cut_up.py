@@ -5,10 +5,8 @@ from __future__ import annotations
 import random
 from collections import Counter
 
-from pydantic import BaseModel, Field
-
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -17,12 +15,13 @@ class CutUpParams(SourceParams):
     pass
 
 
-class CutUpApplyParams(BaseModel):
-    seed: int | None = Field(default=None, description="Fixes the shuffle.")
+class CutUpApplyParams(CutUpParams, SeedParams, ApplyParams):
+    """What the scissors accept. `CutUpParams` alone could not carry `seed`,
+    because `seed` was a signature keyword no params model ever saw."""
 
 
 @register
-class CutUp(BaseProcedure[CutUpParams]):
+class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
     """Every word comes from the source, with multiplicity, and none is invented.
 
     The order is deliberately unconstrained — rearrangement is the procedure.
@@ -63,12 +62,12 @@ class CutUp(BaseProcedure[CutUpParams]):
             },
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
-        """Shuffle the source's own words. Deterministic under a fixed seed."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[CutUpApplyParams]:
+        return CutUpApplyParams
 
-        words = [word for _, word in word_spans(text, get_pack(lang))]
-        random.Random(seed).shuffle(words)
+    def _apply(self, text: str, pack: LanguagePack, params: CutUpApplyParams) -> str:
+        """Shuffle the source's own words. Deterministic under a fixed seed."""
+        words = [word for _, word in word_spans(text, pack)]
+        random.Random(params.seed).shuffle(words)
         return " ".join(words)
