@@ -1,12 +1,15 @@
-"""A generator that returns its input has not run the procedure.
+"""A generator that returns its input, or nothing, has not run the procedure.
 
 The round-trip property — `check(apply(text))` is satisfied — is passed
 trivially by the identity, which is how a generator returning its own input
-survived every gate this project runs.
+survived every gate this project runs. It is passed just as trivially by the
+empty string, because `_report` scores an empty text 1.0; that is the same
+defect and is refused by the same guard under the same error.
 """
 
 import pytest
 
+from denckring import check
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput
 from denckring.core.protocol import Constructive
@@ -90,3 +93,45 @@ def test_only_those_three_opt_out() -> None:
         if isinstance(procedure, ConstructiveProcedure) and procedure.ignores_input
     )
     assert opted_out == IGNORES_INPUT
+
+
+def test_an_empty_result_is_refused_too() -> None:
+    """`melting_text` drops words by coin, and on this text and seed it drops
+    all of them. Returning `""` is the same defect as returning the input: the
+    text says nothing about what the procedure did."""
+    with pytest.raises(DegenerateOutput) as caught:
+        generator("melting_text").apply("hello", seed=0)
+    assert "empty" in str(caught.value)
+    assert "allow_identity" in str(caught.value)
+
+
+def test_the_empty_result_the_guard_refuses_would_otherwise_pass_every_gate() -> None:
+    """Why the empty half belongs in the guard rather than in each generator.
+
+    `_report` scores an empty text 1.0 — vacuously satisfied, as its own
+    docstring says — so nothing downstream of `apply` could catch this. The
+    round-trip property would have read a generator that returned nothing as a
+    row that passed.
+    """
+    assert check("melting_text", "", source="hello").satisfied
+
+
+def test_a_selection_that_selects_nothing_is_refused() -> None:
+    """The second row that could do it: `every_nth_word` with a stride longer
+    than the text selects no word at all."""
+    with pytest.raises(DegenerateOutput):
+        generator("every_nth_word").apply("one two", n=3)
+
+
+def test_allow_identity_is_the_way_through_the_empty_case_as_well() -> None:
+    """One escape for both shapes, because a caller cannot act differently on
+    them — the same argument that gives them one error code."""
+    assert generator("every_nth_word").apply("one two", n=3, allow_identity=True) == ""
+
+
+def test_the_two_shapes_are_distinguishable_without_parsing_english() -> None:
+    """One code, but `detail()` still says which was seen — a stable string a
+    caller reads instead of the message."""
+    identical = DegenerateOutput("anagram").to_dict()["detail"]["observed"]
+    empty = DegenerateOutput("anagram", DegenerateOutput.EMPTY).to_dict()["detail"]["observed"]
+    assert identical != empty
