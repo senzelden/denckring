@@ -95,11 +95,12 @@ class ApplyParams(BaseModel):
     wants the degenerate case, under either of its two shapes.
 
     No field here, or on any model this mixes into, may be named `lang`:
-    `ConstructiveProcedure.apply` still takes `lang` as an explicit signature
-    keyword, and Python binds a keyword matching an explicit parameter name to
-    that parameter before any of it reaches `**params` — silently, the same
-    collision `seed` used to carry before `SeedParams` closed it for that name
-    alone.
+    `ConstructiveProcedure.produce` and `apply` both take `lang` as an explicit
+    signature keyword — `produce` is where the collision would actually bind,
+    since `apply` only forwards its own `lang` keyword through — and Python
+    binds a keyword matching an explicit parameter name to that parameter
+    before any of it reaches `**params` — silently, the same collision `seed`
+    used to carry before `SeedParams` closed it for that name alone.
 
     `max_results` defaults to ten rather than one because a caller asking a
     procedure that has many valid answers expects more than one of them, and
@@ -214,18 +215,20 @@ def require_capability(pack: LanguagePack, capability: str, procedure_id: str) -
 class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
     """A procedure that generates as well as checks.
 
-    `apply` is the template method `check` has always had: it resolves the pack,
-    enforces both capability lists, validates parameters, and refuses output
-    that misrepresents what ran — identical to the input, or empty — so an
-    individual procedure module cannot forget any of it. ADR 0002 is amended
+    `produce` is the template method `check` has always had: it resolves the
+    pack, enforces both capability lists, validates parameters, and filters
+    output that misrepresents what ran — identical to the input, or empty —
+    so an individual procedure module cannot forget any of it. `apply` is the
+    one-text surface defined on top: `produce(...).texts[0]`, for a caller who
+    wants the best answer and not the search behind it. ADR 0002 is amended
     rather than reversed: `apply` is still optional, but a procedure that has
-    one inherits this.
+    one inherits both.
     """
 
     #: Set on a generator whose `_apply` never reads `text`: the three devices
     #: that supply everything themselves — `denckring`, `poesie_automat` and
     #: `llull_figure` — turn rings, press a button or spin a wheel, and the
-    #: argument is there only because `apply` takes one. `_guard_degenerate`
+    #: argument is there only because `apply` takes one. `_is_degenerate`
     #: skips the identity comparison for them, because comparing output against
     #: an argument the procedure never read carries no information at all:
     #: `denckring.apply("geRyffisch", seed=3)` spelling `geRyffisch` again is
