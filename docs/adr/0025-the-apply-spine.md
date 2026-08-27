@@ -105,3 +105,11 @@ chapter 2. The filter is the narrow, honest stopgap until then.
 `kind` is untouched. It is a claim about the form, and nine rows are honestly
 `both` with honestly no generator here; `describe` reports `constructive`
 alongside it so both statements can be true at once.
+
+## Amendment
+
+ADR 0026 replaces `_apply(...) -> str` with `_produce(...) -> list[str]` as the
+primitive, and defines `apply` as `produce(...).texts[0]`. The spine this ADR
+describes is unchanged in what it enforces — pack, both capability lists,
+parameters, and a guard against output that misrepresents what ran. Only the
+shape of what `_apply` returned has moved.

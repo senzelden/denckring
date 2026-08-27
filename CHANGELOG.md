@@ -415,6 +415,18 @@ All notable changes to this project are documented here. The format follows
   stay separate because `source` is a checker parameter `apply` supplies for itself
   and refuses from a caller.
 - `DegenerateOutput` and `InputTooShort`.
+- `Production`, `Report`'s counterpart for the generating half: `procedure`, `texts`
+  (best first, never empty), `truncated`, `metrics`. ADR 0026.
+- `produce()` on every generator, and `denckring.produce()` at the package level,
+  returning every result a generator found rather than only the first.
+- `denckring.apply()` at the package level. `check` has been exported since the
+  beginning and `apply` never was, so every Python caller reached through the
+  registry to generate anything.
+- `denckring apply --json`, emitting the `Production`, matching `describe --json`.
+- `max_results` on `ApplyParams`, defaulting to 10.
+- `NotConstructive`, replacing a dict literal the MCP server built by hand — one
+  failure mode in this package was not a `DenckringError` and could not be caught
+  with the others.
 
 ### Changed
 
@@ -479,6 +491,13 @@ All notable changes to this project are documented here. The format follows
   back as single words — a gap `_apply`'s `drawable` filter now closes by simply
   never drawing such an alternative, which is itself a known, accepted cost
   documented in the code and deferred to chapter 2.
+- `apply_procedure` (MCP) returns `texts` and `truncated` alongside `text`. Additive:
+  `text` keeps its meaning and value as the first of `texts`.
+- `paragram` returns every candidate it scores, best first, where it scored them all
+  and returned one. `apply`'s result is unchanged.
+- `apply_procedure` (MCP)'s `message` for a non-constructive procedure, from a
+  hand-built sentence to `NotConstructive`'s own wording, which additionally points a
+  caller at `constructive` in `describe_procedure`. `code` and `detail` are unchanged.
 
 ### Fixed
 
@@ -622,5 +641,18 @@ All notable changes to this project are documented here. The format follows
   `==0.1.0`; `[tool.uv.sources]` keeps local development on the workspace copies.
 - `project.urls` gained Documentation and Changelog entries, which are what PyPI's
   sidebar shows.
+- `cent_mille_milliards` silently dropped a sheet line offering no alternatives,
+  drawing one fewer line than the sheet has positions — the shape its own
+  `missing_line` violation exists to catch. `apply('a|a\n|')` returned one line
+  where `check` required two. It now raises `InputTooShort` for a sheet with an
+  empty position rather than drawing from it.
+- `recombination` shuffled an unterminated trailing fragment into the draw, where
+  `" ".join` could merge it with its new neighbour and re-split into a different
+  multiset than the one shuffled — exactly what `check` compares against. It now
+  pins the tail out of the shuffle and permutes only the terminated sentences.
+  Both were made reachable by the previous chapter's wider round-trip input
+  alphabet and surfaced only intermittently, because
+  `tests/test_round_trip.py::test_apply_output_satisfies_check` is not
+  derandomized.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main
