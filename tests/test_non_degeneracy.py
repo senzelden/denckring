@@ -7,9 +7,10 @@ survived every gate this project runs.
 
 import pytest
 
+from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput
 from denckring.core.protocol import Constructive
-from denckring.core.registry import get
+from denckring.core.registry import all_procedures, get
 
 
 def generator(pid: str) -> Constructive:
@@ -52,3 +53,40 @@ def test_the_message_does_not_claim_the_procedure_never_ran() -> None:
     assert "did not run" not in message
     assert "identical to its input" in message
     assert "allow_identity" in message
+
+
+#: The three generators whose `_apply` never reads `text`. Named `pid` rather
+#: than `procedure_id` for the reason the other suites document: conftest's
+#: `pytest_generate_tests` parametrises that name over the whole registry and
+#: pytest errors on the duplicate.
+IGNORES_INPUT = ["denckring", "llull_figure", "poesie_automat"]
+
+
+@pytest.mark.parametrize("pid", IGNORES_INPUT)
+def test_a_device_that_ignores_its_input_may_produce_it(pid: str) -> None:
+    """The guard compared output against an argument these three never read.
+
+    `denckring.apply("", seed=3)` spells `geRyffisch`; feeding that back under
+    the same seed spells it again, because the rings do not know what they were
+    handed. Refusing the second call — which is what the guard did — called a
+    procedure that ran correctly degenerate, and did it in the explorer, whose
+    generated page invites the reader to paste output back in.
+    """
+    produced = generator(pid).apply("", seed=3)
+    assert produced.strip()
+    assert generator(pid).apply(produced, seed=3) == produced
+
+
+def test_only_those_three_opt_out() -> None:
+    """The opt-out silences a real guard, so its membership is pinned.
+
+    A generator that reads its text and adds `ignores_input` would lose the
+    non-degeneracy check altogether rather than gain an exemption from a
+    meaningless comparison.
+    """
+    opted_out = sorted(
+        pid
+        for pid, procedure in all_procedures().items()
+        if isinstance(procedure, ConstructiveProcedure) and procedure.ignores_input
+    )
+    assert opted_out == IGNORES_INPUT

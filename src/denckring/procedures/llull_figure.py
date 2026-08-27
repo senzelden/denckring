@@ -68,6 +68,10 @@ class LlullFigure(ConstructiveProcedure[LlullFigureParams, LlullFigureApplyParam
 
     id = "llull_figure"
 
+    #: The figure supplies the chamber; `text` is never read. See
+    #: `ConstructiveProcedure.ignores_input`.
+    ignores_input = True
+
     @classmethod
     def params_model(cls) -> type[LlullFigureParams]:
         return LlullFigureParams
