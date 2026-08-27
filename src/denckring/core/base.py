@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.prosody import UnknownRhyme
-from denckring.core.protocol import Lang, LanguagePack, Meta, Report, Violation
+from denckring.core.protocol import Lang, LanguagePack, Meta, Production, Report, Violation
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -100,6 +100,12 @@ class ApplyParams(BaseModel):
     that parameter before any of it reaches `**params` — silently, the same
     collision `seed` used to carry before `SeedParams` closed it for that name
     alone.
+
+    `max_results` defaults to ten rather than one because a caller asking a
+    procedure that has many valid answers expects more than one of them, and
+    rather than unbounded because `dormitory` alone has thirty-two exact
+    two-word covers before any deeper search. `Production.truncated` is what
+    keeps a capped search from reading as an exhaustive one.
     """
 
     allow_identity: bool = Field(
@@ -108,6 +114,11 @@ class ApplyParams(BaseModel):
             "Permit output identical to the input, or empty, which normally "
             "means the procedure did not run."
         ),
+    )
+    max_results: int = Field(
+        default=10,
+        ge=1,
+        description="How many results to return at most. `apply` returns the first.",
     )
 
 
@@ -265,18 +276,90 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
     def _apply(self, text: str, pack: LanguagePack, params: A) -> str:
         """Procedure-specific generation. Language and parameters are already valid."""
 
-    def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:
-        """Generate text with this procedure."""
+    def _produce(self, text: str, pack: LanguagePack, params: A) -> list[str]:
+        """Procedure-specific generation, best first.
+
+        Defaulted here only while the generators migrate; Task 3 makes it
+        abstract and removes `_apply`. A list even where there is one answer:
+        `apply` returns `texts[0]`, so the order is the contract, and a
+        generator that ranks its candidates puts its winner at the front.
+        """
+        return [self._apply(text, pack, params)]
+
+    def produce(self, text: str, *, lang: Lang = "en", **params: Any) -> Production:
+        """Generate with this procedure, returning every result it found.
+
+        Carries the preamble `apply` used to: `apply` is now defined in terms of
+        this, so there is one path through the pack, the capabilities, the
+        parameters and the guard rather than two that can drift.
+        """
         from denckring.lang import get_pack
 
         pack = get_pack(lang)
         for capability in (*self.meta.requires, *self.meta.apply_requires):
             require_capability(pack, capability, self.id)
         parsed = self.parse_apply_params(text, params)
-        return self._guard_degenerate(text, self._apply(text, pack, parsed), parsed)
+        found = self._guard_degenerate(text, self._produce(text, pack, parsed), parsed)
+        # `getattr`, falling back to one rather than ten, for the reason
+        # `_guard_degenerate` reads `allow_identity` the same way: a generator
+        # may declare an apply-params model that does not inherit `ApplyParams`,
+        # and the safe reading of a missing limit is the old single-result
+        # behaviour rather than a larger one it never asked for.
+        limit = getattr(parsed, "max_results", 1)
+        return Production(
+            procedure=self.id,
+            texts=found[:limit],
+            truncated=len(found) > limit,
+            metrics={"found": float(len(found))},
+        )
 
-    def _guard_degenerate(self, text: str, produced: str, params: A) -> str:
+    def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:
+        """Generate one text with this procedure — the best one it found.
+
+        One and not several: `check` reads what `apply` returned as a single
+        text, so three anagrams joined by newlines are a text with three times
+        the letters, which its own checker scores 0.333. The round-trip property
+        that has guarded every generator here through two migrations depends on
+        this staying one text. `produce` is where the rest go.
+        """
+        return self.produce(text, lang=lang, **params).texts[0]
+
+    def _guard_degenerate(self, text: str, produced: list[str], params: A) -> list[str]:
         """Refuse output that says nothing about what the procedure did.
+
+        `allow_identity` is on `ApplyParams`, so every generator carries the
+        escape whether or not it declares its own model — read with `getattr`
+        because a generator may declare an apply-params model that does not
+        inherit the mixin.
+
+        When nothing survives, `observed` still distinguishes empty from
+        identical rather than collapsing to one generic message: a
+        single-candidate generator — every one of them, until Task 3 — has
+        exactly one candidate to have judged degenerate, so this reports the
+        same shape `_is_degenerate` saw for it, in the same priority it
+        checked in, and the caller reading `detail()["observed"]` after this
+        split learns what it learned before.
+        """
+        if getattr(params, "allow_identity", False):
+            return produced
+        kept = [candidate for candidate in produced if not self._is_degenerate(text, candidate)]
+        if kept:
+            return kept
+        observed = (
+            DegenerateOutput.EMPTY
+            if text.strip() and any(not candidate.strip() for candidate in produced)
+            else DegenerateOutput.IDENTICAL
+        )
+        raise DegenerateOutput(self.id, observed)
+
+    def _is_degenerate(self, text: str, produced: str) -> bool:
+        """One candidate's worth of the judgement the guard used to make wholesale.
+
+        Filtering rather than refusing is what a multi-result generator needs: an
+        anagram search that finds its own source among the covers should drop
+        that one and return the others, not fail the call. For a generator with
+        one candidate the two are the same thing — nothing survives, so the
+        guard raises exactly as before.
 
         Two shapes. Output identical to the input is the one the guard was
         built for; the identity comparison is skipped for a procedure that
@@ -287,19 +370,12 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         left open: `_report` scores an empty text 1.0 — vacuously satisfied, as
         its own docstring says — so `melting_text.apply("hello", seed=0)`
         returning `""` passed every gate this project runs, which is the thesis
-        of the guard in its second half. Refused under the same error and the
+        of this check in its second half. Refused under the same error and the
         same escape, because a caller cannot act differently on the two.
 
         Both are compared on stripped text, because trailing whitespace is
-        neither a transformation nor content. `allow_identity` is on
-        `ApplyParams`, so every generator carries the escape whether or not it
-        declares its own model — read with `getattr` because a generator may
-        declare an apply-params model that does not inherit the mixin.
+        neither a transformation nor content.
         """
-        if getattr(params, "allow_identity", False):
-            return produced
-        if text.strip() and not produced.strip():
-            raise DegenerateOutput(self.id, DegenerateOutput.EMPTY)
-        if not self.ignores_input and produced.strip() == text.strip():
-            raise DegenerateOutput(self.id)
-        return produced
+        if not produced.strip() and text.strip():
+            return True
+        return not self.ignores_input and produced.strip() == text.strip()
