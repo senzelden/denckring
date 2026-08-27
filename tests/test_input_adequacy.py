@@ -58,3 +58,20 @@ def test_adequate_input_still_works() -> None:
     """The guard must not have made these procedures unusable."""
     produced = generator("boustrophedon").apply("one two three\nfour five six\nseven eight\n")
     assert produced.strip() != "one two three\nfour five six\nseven eight"
+
+
+def test_a_frame_that_offers_choices_is_never_told_it_offers_none() -> None:
+    """The no-choice guard must count what the reader wrote, not what survived.
+
+    `drawable` used to run first, so `'a|. b|.'` — two slots, two separators —
+    was refused with "none with a choice" and told to add the separator it had
+    already supplied twice. It now draws, and a frame that really is starved is
+    refused by the guard that can name the alternative it could not use.
+    """
+    assert generator("wechselsatz").apply("a|. b|.", seed=1).split() == ["a", "b"]
+
+    with pytest.raises(InputTooShort) as caught:
+        generator("wechselsatz").apply("a|b .", seed=1)
+    message = str(caught.value)
+    assert "none with a choice" not in message
+    assert "'.'" in message
