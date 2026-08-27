@@ -36,3 +36,19 @@ def test_allow_identity_is_the_way_through() -> None:
 def test_without_the_flag_that_same_call_is_refused() -> None:
     with pytest.raises(DegenerateOutput):
         generator("every_nth_word").apply("one two three", n=1)
+
+
+def test_the_message_does_not_claim_the_procedure_never_ran() -> None:
+    """The guard cannot tell a no-op from a draw that came up the identity.
+
+    `recombination` shuffles two sentences and lands on the identity permutation
+    for half of all seeds — seed 0 among them. The procedure ran; only the draw
+    was unlucky. An error that said otherwise would be this guard committing the
+    fault it exists to catch.
+    """
+    with pytest.raises(DegenerateOutput) as caught:
+        generator("recombination").apply("One. Two.", seed=0)
+    message = str(caught.value)
+    assert "did not run" not in message
+    assert "identical to its input" in message
+    assert "allow_identity" in message

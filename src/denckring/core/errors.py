@@ -204,6 +204,14 @@ class DegenerateOutput(DenckringError):
     `NoCandidateWord` rather than returning "": handing back text that
     misrepresents what the procedure did is the failure, not a mild version of
     success. Usually it means the input could not feed the procedure.
+
+    The message says what was observed and stops there. It does not say the
+    procedure did not run, because the guard cannot tell that from a procedure
+    that ran and drew the identity — which is not a corner case:
+    `recombination` on two sentences draws the identity permutation for half of
+    all seeds, and `boustrophedon` turning `'aba'` recovers `'aba'`. Claiming
+    the stronger thing would be this class committing the fault it exists to
+    catch.
     """
 
     code = "degenerate_output"
@@ -211,8 +219,8 @@ class DegenerateOutput(DenckringError):
     def __init__(self, procedure_id: str) -> None:
         self.procedure_id = procedure_id
         super().__init__(
-            f"{procedure_id!r} produced text identical to its input, so the procedure "
-            f"did not run. Pass allow_identity=true if the degenerate case is wanted."
+            f"{procedure_id!r} produced text identical to its input. "
+            f"Pass allow_identity=true if the degenerate case is wanted."
         )
 
     def detail(self) -> dict[str, Any]:
