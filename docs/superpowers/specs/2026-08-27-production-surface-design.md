@@ -252,3 +252,18 @@ package was already computing.
   the sweep's disabled database does not have and cannot replay. A deliberate exhaustive
   sweep, or derandomizing the property so a failure is at least reproducible rather than
   intermittent, is worth doing before leaning on this property's silence again.
+- **The round trip only ever sees one draw.** All four properties in
+  `tests/test_round_trip.py` call `_apply_args(procedure_id, 0)`, which supplies `seed=0`
+  to every generator that takes one — the same seed on every example, in every property,
+  on every run. Ten of the 27 constructive rows draw at random, so for those ten the
+  suite exercises exactly one draw per input text and never the rest of the seed space: a
+  generator that produces text its own `check` rejects on seed 1 and not on seed 0 passes
+  here in silence. This is a larger blind spot than the missing `derandomize=True` above
+  and on a different axis — that one is about which *inputs* Hypothesis happens to try,
+  this one about which *draw* each generator happens to make from them — so fixing either
+  leaves the other standing. The final reviewer's own sweeps varied the seed across the
+  constructive rows and found nothing, which is the same weak evidence the sweep above
+  is: worth having, not a clean bill. A future chapter should widen `_apply_args` to draw
+  the seed (a Hypothesis integer, or a small fixed set of seeds per example) rather than
+  pin it, and should expect that widening to surface generator/checker disagreements the
+  way widening `TEXT`'s alphabet already did twice.
