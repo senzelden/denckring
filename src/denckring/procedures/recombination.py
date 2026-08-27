@@ -7,6 +7,7 @@ import re
 from collections import Counter
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.errors import InputTooShort
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
@@ -81,5 +82,11 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
         """
         chooser = random.Random(params.seed)
         parts = [s.strip() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
+        if len(parts) < 2:
+            raise InputTooShort(
+                self.id,
+                needed="more than one sentence to recombine",
+                found=f"{len(parts)} sentence",
+            )
         chooser.shuffle(parts)
         return " ".join(parts)

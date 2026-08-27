@@ -171,6 +171,54 @@ class InputTooLong(DenckringError):
         return {"limit": self.limit, "received": self.given}
 
 
+class InputTooShort(DenckringError):
+    """The input could not feed the procedure.
+
+    The counterpart to `InputTooLong`, and the honest form of what four
+    generators used to do instead: return the input unchanged, which reads
+    exactly like a procedure that ran and had no effect. `needed` and `found`
+    are separate fields rather than one sentence, so a caller reading the JSON
+    learns what to change without parsing English out of `message`.
+    """
+
+    code = "input_too_short"
+
+    def __init__(self, procedure_id: str, needed: str, found: str) -> None:
+        self.procedure_id = procedure_id
+        self.needed = needed
+        self.found = found
+        super().__init__(f"{procedure_id!r} needs {needed}; found {found}.")
+
+    def detail(self) -> dict[str, Any]:
+        return {
+            "procedure_id": self.procedure_id,
+            "needed": self.needed,
+            "found": self.found,
+        }
+
+
+class DegenerateOutput(DenckringError):
+    """`apply` produced its own input.
+
+    Raised rather than returned, for the reason `diastic` raises
+    `NoCandidateWord` rather than returning "": handing back text that
+    misrepresents what the procedure did is the failure, not a mild version of
+    success. Usually it means the input could not feed the procedure.
+    """
+
+    code = "degenerate_output"
+
+    def __init__(self, procedure_id: str) -> None:
+        self.procedure_id = procedure_id
+        super().__init__(
+            f"{procedure_id!r} produced text identical to its input, so the procedure "
+            f"did not run. Pass allow_identity=true if the degenerate case is wanted."
+        )
+
+    def detail(self) -> dict[str, Any]:
+        return {"procedure_id": self.procedure_id}
+
+
 class NoCandidateWord(DenckringError):
     """A generator that needs a real word refuses rather than returning none.
 

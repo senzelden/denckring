@@ -5,6 +5,7 @@ from __future__ import annotations
 import random
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.errors import InputTooShort
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -101,4 +102,11 @@ class CentMilleMilliards(
         page is exactly this draw.
         """
         chooser = random.Random(params.seed)
-        return "\n".join(chooser.choice(options) for options in alternatives(text) if options)
+        options = alternatives(text)
+        if not any(len(position) > 1 for position in options):
+            raise InputTooShort(
+                self.id,
+                needed=f"at least one position offering alternatives, separated by {SEPARATOR!r}",
+                found=f"{len(options)} positions, none with a choice",
+            )
+        return "\n".join(chooser.choice(position) for position in options if position)

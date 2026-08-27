@@ -30,21 +30,31 @@ wrong twice over rather than merely off by one: `column_reading`, `haikuization`
 and `spoonerism` were in fact reached (`spoonerism` on inputs like `'wu u pzyh'`,
 via its letter-onset fallback), while `pasigraphy` and `slenderizing` — both
 already parameter-gated — went unnamed.
+`"|"` and `"."` are in the alphabet for the same reason and were found the same
+way — by the guard, once it had teeth. `cent_mille_milliards` and `wechselsatz`
+read their input as a sheet of alternatives separated by `"|"`, and `recombination`
+splits on sentence terminators. With none of those three characters drawable, every
+sheet offered exactly one option per position and every text was one sentence, so
+all three returned their input on every example Hypothesis could draw. While the
+guard was inert that read as three rows passing the round-trip property; with the
+guard live it reads as three rows raising on every example, which is the same
+vacuum said out loud.
 """
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from denckring.core.base import ConstructiveProcedure
-from denckring.core.errors import DenckringError
+from denckring.core.errors import DegenerateOutput, DenckringError
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
 
 CONSTRUCTIVE = sorted(pid for pid, p in all_procedures().items() if isinstance(p, Constructive))
 
 #: The newline is deliberate: half the constructive rows operate on lines or pages and
-#: cannot be reached at all without one. See the module docstring.
-TEXT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n", min_size=1, max_size=80)
+#: cannot be reached at all without one. The bar and the full stop are deliberate for
+#: exactly the same reason, discovered the same way. See the module docstring.
+TEXT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n|.", min_size=1, max_size=80)
 
 #: Rows this property cannot reach, because `apply` here is only ever called with
 #: `seed` and (where the model has it) `source`. Each needs a further parameter with no
@@ -67,11 +77,17 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     """
     reached: set[str] = set()
 
-    @settings(max_examples=200, deadline=None, derandomize=True)
+    # A thousand examples, not the two hundred this started at. `fold_in` and
+    # `mathews_algorithm` need two blank-line separated paragraphs, which a text
+    # drawn uniformly from this alphabet offers about once in three hundred
+    # examples — so two hundred reached them by luck, and widening the alphabet
+    # by two characters was enough to spend that luck. The floor is what the
+    # rarest reachable row actually costs; anything less measures the draw.
+    @settings(max_examples=1000, deadline=None, derandomize=True)
     @given(TEXT)
     def collect(text: str) -> None:
         # Only rows still unreached are retried, so the cost falls away after the
-        # first few examples instead of re-running 26 generators two hundred times.
+        # first few examples instead of re-running 26 generators a thousand times.
         for procedure_id in CONSTRUCTIVE:
             if procedure_id in reached:
                 continue
@@ -137,6 +153,31 @@ def test_apply_output_satisfies_check(text: str) -> None:
         report = procedure.check(produced, lang=lang, **_check_args(procedure_id, text))
         assert report.satisfied, (
             f"{procedure_id}: apply produced text that its own check rejects: {produced!r}"
+        )
+
+
+@settings(max_examples=50, deadline=None)
+@given(TEXT)
+def test_apply_does_not_return_its_input(text: str) -> None:
+    """The companion the round-trip property never had.
+
+    `check(apply(text))` is satisfied by the identity, so on its own it accepts a
+    generator that does nothing. Here `DegenerateOutput` is *not* swallowed: the
+    spine raising it is the guard working, and any other refusal is allowed for
+    the same reason it is above.
+    """
+    for procedure_id in CONSTRUCTIVE:
+        procedure = all_procedures()[procedure_id]
+        assert isinstance(procedure, Constructive)
+        lang = procedure.meta.languages[0]
+        try:
+            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, 0))
+        except DegenerateOutput:
+            continue
+        except DenckringError:
+            continue
+        assert produced.strip() != text.strip(), (
+            f"{procedure_id}: apply returned its input past the guard: {produced!r}"
         )
 
 
