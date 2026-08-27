@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Generic, TypeVar, cast
 
-from pydantic import BaseModel, Field, ValidationError, create_model
+from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
@@ -224,17 +224,19 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
     ignores_input: ClassVar[bool] = False
 
     @classmethod
+    @abstractmethod
     def apply_params_model(cls) -> type[A]:
         """The parameters `apply` accepts.
 
-        Defaults to the checker's model widened by `ApplyParams`. A generator
-        with parameters of its own — a seed, a target word — declares its own
-        model and inherits `ApplyParams` explicitly.
+        Declared, not defaulted. This used to synthesise the checker's model
+        widened by `ApplyParams` via `create_model`, and every one of the 27
+        generators overrides it anyway — `mypy --strict` wants a named class to
+        annotate `_apply`'s `params` with — so the default had no production
+        caller, its only coverage was a test double built to reach it, and it
+        carried an MRO trap for any `params_model()` returning `BaseModel`
+        itself. A generator declares `<Name>ApplyParams`, inheriting its own
+        params model and `ApplyParams`, plus `SeedParams` if it draws.
         """
-        combined = create_model(
-            f"{cls.__name__}ApplyParams", __base__=(cls.params_model(), ApplyParams)
-        )
-        return cast(type[A], combined)
 
     def parse_apply_params(self, text: str, params: dict[str, Any]) -> A:
         """Validate, supplying `source` from the text being transformed.
