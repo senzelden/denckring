@@ -102,14 +102,15 @@ shuffle and permutes only the terminated parts.
 Both bugs were made reachable by the previous chapter widening the round-trip
 test's input alphabet to include `|` and `.`, and both surfaced only
 intermittently, because `tests/test_round_trip.py::test_apply_output_satisfies_check`
-runs `@settings(max_examples=50, deadline=None)` with no `derandomize=True` —
-unlike its sibling three lines above, which does. That is worth stating
-plainly rather than as an incidental detail: strengthening a property this
-chapter needed found two real defects that a narrower property had been
-passing over for as long as the wider input alphabet existed. That is the
-argument for the strengthening, not merely its side effect, and it is also
-the argument that the property is still not being run reliably — see the
-design spec's Out of scope, carried forward.
+runs `@settings(max_examples=50, deadline=None)` with no `derandomize=True` of its
+own — the file's one `derandomize=True` decorates a private nested `collect`
+closure inside a different test, `test_the_named_coverage_gap_is_the_whole_coverage_gap`,
+53 lines away. That is worth stating plainly rather than as an incidental detail:
+strengthening a property this chapter needed found two real defects that a
+narrower property had been passing over for as long as the wider input alphabet
+existed. That is the argument for the strengthening, not merely its side effect,
+and it is also the argument that the property is still not being run reliably —
+see the design spec's Out of scope, carried forward.
 
 The MCP `message` for `apply_procedure` on a non-constructive procedure
 changed, from the hand-built `f"{procedure!r} only checks; it has no
