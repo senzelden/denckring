@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import random
-from typing import Any
 
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 from denckring.procedures.cent_mille_milliards import SEPARATOR
@@ -16,8 +15,12 @@ class WechselsatzParams(SourceParams):
     pass
 
 
+class WechselsatzApplyParams(WechselsatzParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class Wechselsatz(BaseProcedure[WechselsatzParams]):
+class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParams]):
     """Kuhlmann's permutation poem, checked one word at a time.
 
     The source is the template: alternatives for each position separated by a
@@ -75,15 +78,18 @@ class Wechselsatz(BaseProcedure[WechselsatzParams]):
             metrics={"positions": float(len(offered)), "combinations": float(combinations)},
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[WechselsatzApplyParams]:
+        return WechselsatzApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: WechselsatzApplyParams) -> str:
         """One turn of Kuhlmann's frame: a word drawn for each slot.
 
         The alternatives are read here without folding case — the checker folds
         when comparing, but a generator that lower-cased the whole line would be
         answering a different question than the one the reader asked.
         """
-        self.parse_params({"source": text, **params})
-        chooser = random.Random(seed)
+        chooser = random.Random(params.seed)
         slots = [
             [part.strip() for part in slot.split(SEPARATOR) if part.strip()]
             for slot in text.split()

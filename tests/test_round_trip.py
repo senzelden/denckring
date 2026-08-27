@@ -32,11 +32,10 @@ via its letter-onset fallback), while `pasigraphy` and `slenderizing` — both
 already parameter-gated — went unnamed.
 """
 
-from inspect import signature
-
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DenckringError
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
@@ -105,7 +104,7 @@ def _check_args(procedure_id: str, text: str) -> dict[str, str]:
 
 
 def _apply_args(procedure_id: str, seed: int) -> dict[str, int]:
-    """`seed` only where the procedure takes one, asked of whichever half declares it.
+    """`seed` only where the procedure takes one.
 
     `seed` used to be a keyword every generator named in its signature and none
     validated. On the spine it is a field on the procedures that draw, so passing
@@ -114,20 +113,10 @@ def _apply_args(procedure_id: str, seed: int) -> dict[str, int]:
     for those rows. Passing it to none of them is the mirror mistake, and the
     louder one: the rows that do draw would run unseeded, and the determinism
     test below would be comparing two different draws.
-
-    Both halves are therefore asked, because the migration is in progress: a
-    procedure on the spine declares `seed` as a field, one still hand-rolling
-    `apply` declares it in the signature. The signature branch dies with the last
-    unmigrated generator.
     """
     procedure = all_procedures()[procedure_id]
-    assert isinstance(procedure, Constructive)
-    model = getattr(procedure, "apply_params_model", None)
-    accepts = (
-        "seed" in model().model_fields
-        if model is not None
-        else "seed" in signature(procedure.apply).parameters
-    )
+    assert isinstance(procedure, ConstructiveProcedure)
+    accepts = "seed" in procedure.apply_params_model().model_fields
     return {"seed": seed} if accepts else {}
 
 
