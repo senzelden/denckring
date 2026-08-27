@@ -136,6 +136,11 @@ class Constructive(Protocol):
     `SeedParams`, carried by the ten procedures that draw. A keyword named in
     this signature binds before `**params` and so can never be validated, which
     is what made `seed` unvalidatable for all 27.
+
+    `produce` joined `apply` here for the same reason: `runtime_checkable`
+    makes `isinstance` check method presence only, and every
+    `ConstructiveProcedure` inherits both from the base class, so the set of
+    procedures this protocol matches is unchanged by adding the second name.
     """
 
     def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str: ...
