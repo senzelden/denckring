@@ -76,6 +76,27 @@ def test_the_count_is_pluralised() -> None:
     assert counted(2, "entry", "entries") == "2 entries"
 
 
+def test_recombination_names_the_unit_it_actually_counted() -> None:
+    """`recombination` pins an unterminated trailing fragment out of its shuffle
+    as the text's tail (see `recombination._produce`), and counts only what is
+    left for the `InputTooShort` guard. An unterminated single line pops its
+    whole content into that tail, leaving nothing behind to count — so the
+    count is of "complete sentences", not "sentences", and must say so: "found
+    0 sentences" would read as a claim about the text itself, which for
+    `'hello world'` is false.
+    """
+    with pytest.raises(InputTooShort) as caught:
+        generator("recombination").apply("hello world", seed=0)
+    assert "0 complete sentences" in str(caught.value)
+
+    # The terminated case must still read correctly: singular, and honest
+    # about there being exactly one complete sentence to permute.
+    with pytest.raises(InputTooShort) as caught:
+        generator("recombination").apply(ONE_SENTENCE, seed=0)
+    assert "1 complete sentence" in str(caught.value)
+    assert "1 complete sentences" not in str(caught.value)
+
+
 #: Every generator that refuses input for holding too few units, and the input
 #: that does it. One code across all of them is the point: `spoonerism` raised
 #: `NoCandidateWord` and `ideenwuerfeln` `MalformedCorpus` for exactly the shape

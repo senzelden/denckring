@@ -94,10 +94,15 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
         # the tail in final position keeps the join invertible.
         tail = [parts.pop()] if parts and not parts[-1].endswith((".", "!", "?")) else []
         if len(parts) < 2:
+            # "sentence" here would undercount: an unterminated single line
+            # pops its whole content into `tail`, leaving `parts` empty, and
+            # "found 0 sentences" reads as a claim about the text rather than
+            # about what survived the pop. "complete sentence" names the unit
+            # this count actually is.
             raise InputTooShort(
                 self.id,
                 needed="more than one sentence to recombine",
-                found=counted(len(parts), "sentence"),
+                found=counted(len(parts), "complete sentence"),
             )
         chooser.shuffle(parts)
         return [" ".join(parts + tail)]
