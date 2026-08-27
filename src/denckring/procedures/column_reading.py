@@ -85,7 +85,9 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
     def apply_params_model(cls) -> type[ColumnReadingApplyParams]:
         return ColumnReadingApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: ColumnReadingApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: ColumnReadingApplyParams
+    ) -> list[str]:
         """Read down `text`'s `column`th words, `text` serving as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when no
@@ -100,4 +102,4 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
                 f"no line in the source has a word at column {params.column} — try a "
                 "smaller column or a source with longer lines",
             )
-        return " ".join(chosen)
+        return [" ".join(chosen)]

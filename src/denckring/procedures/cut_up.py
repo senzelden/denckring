@@ -66,8 +66,8 @@ class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
     def apply_params_model(cls) -> type[CutUpApplyParams]:
         return CutUpApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: CutUpApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: CutUpApplyParams) -> list[str]:
         """Shuffle the source's own words. Deterministic under a fixed seed."""
         words = [word for _, word in word_spans(text, pack)]
         random.Random(params.seed).shuffle(words)
-        return " ".join(words)
+        return [" ".join(words)]

@@ -131,7 +131,9 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
     def apply_params_model(cls) -> type[ArcaMusarithmicaApplyParams]:
         return ArcaMusarithmicaApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: ArcaMusarithmicaApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: ArcaMusarithmicaApplyParams
+    ) -> list[str]:
         """Set `text`, one pattern per phrase, drawn from the tablet for its length."""
         tablets = arca.parse(params.pinakes)
         chooser = random.Random(params.seed)
@@ -141,4 +143,4 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
             if not offered:
                 raise UnsettablePhrase(syllables, tablets.lengths(params.syntagma))
             setting.append(chooser.choice(offered))
-        return "\n".join(setting)
+        return ["\n".join(setting)]

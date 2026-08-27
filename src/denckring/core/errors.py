@@ -225,12 +225,13 @@ class DegenerateOutput(DenckringError):
     misrepresents what the procedure did is the failure, not a mild version of
     success. Usually it means the input could not feed the procedure.
 
-    One error for two observations, because a caller cannot act differently on
-    them — both mean the returned text says nothing about what the procedure
-    did, and both are waived by the same `allow_identity`. The empty case is
-    the more dangerous of the two: `BaseProcedure._report` scores an empty text
-    1.0, so `melting_text` returning `""` was a satisfied report on a text that
-    was never written.
+    One error for these observations, because a caller cannot act very
+    differently on them — each means the returned text says nothing about what
+    the procedure did. `IDENTICAL` and `EMPTY` are waived by the same
+    `allow_identity`; `NOTHING` is not — see below. The empty case is the more
+    dangerous of the two waivable ones: `BaseProcedure._report` scores an empty
+    text 1.0, so `melting_text` returning `""` was a satisfied report on a text
+    that was never written.
 
     The message says what was observed and stops there. It does not say the
     procedure did not run, because the guard cannot tell that from a procedure
@@ -239,23 +240,40 @@ class DegenerateOutput(DenckringError):
     all seeds, and `boustrophedon` turning `'aba'` recovers `'aba'`. Claiming
     the stronger thing would be this class committing the fault it exists to
     catch.
+
+    `NOTHING` is the one exception to that carefulness, and to the waiver:
+    `_produce` returning `[]` is not a candidate the procedure judged and
+    rejected, it is the procedure returning no candidate at all, so `apply`
+    raises this directly rather than through `_guard_degenerate` — before
+    `allow_identity` is even consulted. `allow_identity` exists for a caller
+    who wants the degenerate-but-real result a procedure found; an empty list
+    is not a result, so there is nothing for that flag to waive.
     """
 
     code = "degenerate_output"
 
-    #: The two shapes the guard can see, as `observed` reads in the message and
-    #: in `detail()` — so a caller distinguishing them reads a stable string
+    #: The shapes the guard can see, as `observed` reads in the message and in
+    #: `detail()` — so a caller distinguishing them reads a stable string
     #: rather than parsing English, and one that does not can ignore the field.
     IDENTICAL = "text identical to its input"
     EMPTY = "empty text from input that was not empty"
+    #: `_produce` returned no candidate at all — not one judged empty or
+    #: identical, none offered in the first place. See the class docstring for
+    #: why this is the one shape `allow_identity` cannot waive.
+    NOTHING = "nothing at all"
 
     def __init__(self, procedure_id: str, observed: str = IDENTICAL) -> None:
         self.procedure_id = procedure_id
         self.observed = observed
-        super().__init__(
-            f"{procedure_id!r} produced {observed}. "
-            f"Pass allow_identity=true if the degenerate case is wanted."
+        # `NOTHING` gets no `allow_identity` hint: unlike the other two shapes,
+        # that flag cannot waive it, and offering it here would tell a caller a
+        # retry could work when it cannot.
+        hint = (
+            ""
+            if observed == self.NOTHING
+            else " Pass allow_identity=true if the degenerate case is wanted."
         )
+        super().__init__(f"{procedure_id!r} produced {observed}.{hint}")
 
     def detail(self) -> dict[str, Any]:
         return {"procedure_id": self.procedure_id, "observed": self.observed}

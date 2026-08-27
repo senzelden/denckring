@@ -73,7 +73,9 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
     def apply_params_model(cls) -> type[RecombinationApplyParams]:
         return RecombinationApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: RecombinationApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: RecombinationApplyParams
+    ) -> list[str]:
         """The same sentences in another order, none rewritten.
 
         A permutation and nothing else: the checker compares multisets, so
@@ -89,4 +91,4 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 found=counted(len(parts), "sentence"),
             )
         chooser.shuffle(parts)
-        return " ".join(parts)
+        return [" ".join(parts)]

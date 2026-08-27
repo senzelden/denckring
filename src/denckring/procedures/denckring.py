@@ -90,7 +90,7 @@ class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
     def apply_params_model(cls) -> type[DenckringApplyParams]:
         return DenckringApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: DenckringApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: DenckringApplyParams) -> list[str]:
         """Turn the rings. `text` is ignored: the device supplies everything."""
         machine = devices.load(params.device)
         seed = params.seed
@@ -98,7 +98,7 @@ class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
             turned = devices.spin(machine, seed)
             word = "".join(turned)
             if word and (not params.require_all_rings or all(turned)):
-                return word
+                return [word]
             if seed is not None:
                 # A fixed seed must stay deterministic, so nudge it rather than
                 # spinning again on the same one.

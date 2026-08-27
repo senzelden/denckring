@@ -150,9 +150,9 @@ class LlullFigure(ConstructiveProcedure[LlullFigureParams, LlullFigureApplyParam
     def apply_params_model(cls) -> type[LlullFigureApplyParams]:
         return LlullFigureApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: LlullFigureApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: LlullFigureApplyParams) -> list[str]:
         """Turn the wheels to a chamber, spelled out at the chosen level."""
         figure = devices.load_figure(params.figure)
         chamber = random.Random(params.seed).choice(figure.chambers(params.arity))
         level = params.level or "absolute"
-        return " ".join(figure.read(chamber, level))
+        return [" ".join(figure.read(chamber, level))]
