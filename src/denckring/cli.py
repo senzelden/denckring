@@ -144,9 +144,14 @@ def apply_command(
             f"implemented here — see `describe {procedure_id}`, field `constructive`."
         )
         raise typer.Exit(EXIT_ERROR)
+    # Forwarded only when asked for, because `seed` is a parameter of the ten
+    # procedures that draw and not of the other seventeen. Sending the unset
+    # `None` to a procedure that takes no seed would be an `InvalidParams` on
+    # every invocation; sending a real one is a caller error worth reporting.
+    drawn = {"seed": seed} if seed is not None else {}
     try:
         typer.echo(
-            procedure.apply(_read(file), lang=_lang(lang), seed=seed, **_parse_params(param or []))
+            procedure.apply(_read(file), lang=_lang(lang), **drawn, **_parse_params(param or []))
         )
     except DenckringError as exc:
         _fail(exc)

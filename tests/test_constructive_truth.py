@@ -12,9 +12,15 @@ from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
 
 WITHOUT_GENERATORS = {
-    "buchstabwechsel", "definitional_expansion", "definitional_literature",
-    "homoconsonantism", "homovocalism", "larding", "lipogrammatic_translation",
-    "tmesis", "univocalic_translation",
+    "buchstabwechsel",
+    "definitional_expansion",
+    "definitional_literature",
+    "homoconsonantism",
+    "homovocalism",
+    "larding",
+    "lipogrammatic_translation",
+    "tmesis",
+    "univocalic_translation",
 }
 
 

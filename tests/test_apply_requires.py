@@ -55,8 +55,17 @@ def test_apply_requires_names_only_real_capabilities(pid: str) -> None:
     """Matches the existing rule for `requires`: a capability no pack can answer
     is a promise the catalogue cannot keep."""
     known = {
-        "tokens", "alphabet", "fold_diacritics", "letter_shapes",
-        "syllables", "syllables.heuristic", "syllables.dictionary",
-        "phonemes", "stress", "lexicon.words", "lexicon.nouns", "lexicon.glosses",
+        "tokens",
+        "alphabet",
+        "fold_diacritics",
+        "letter_shapes",
+        "syllables",
+        "syllables.heuristic",
+        "syllables.dictionary",
+        "phonemes",
+        "stress",
+        "lexicon.words",
+        "lexicon.nouns",
+        "lexicon.glosses",
     }
     assert set(catalogue.get(pid).apply_requires) <= known
