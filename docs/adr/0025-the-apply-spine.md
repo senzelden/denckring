@@ -49,10 +49,19 @@ procedure which *has* one inherits the spine rather than rebuilding it.
 
 ## Consequences
 
-`seed` is typed, reaches `params_schema()`, and cannot be passed to a procedure
-that does not draw — the exclusion-by-type ADR 0009 gives `fold_diacritics`,
+`seed` is typed, reaches a caller who never touches Python, and cannot be passed
+to a procedure that does not draw — the exclusion-by-type ADR 0009 gives `fold_diacritics`,
 applied again. This is a break: `apply(text, seed=5)` on a deterministic
 procedure used to be accepted and ignored, and now raises.
+
+Where it reaches that caller is `describe()`'s `apply_params`, not
+`params_schema()`. Those are two schemas, not one: `params_schema()` is the
+checker's model, and `seed`, `allow_identity` and a generator's own fields
+belong to `apply_params_model()`, which no non-Python surface exposed at all
+until `Description.apply_params` carried it to `denckring describe` and MCP's
+`describe_procedure`. Merging them would have been the other option and is
+wrong: `source` is a checker parameter that `apply` supplies for itself and
+refuses from a caller, so one schema could not describe both calls.
 
 `apply_requires` lets `anagram` declare `lexicon.words` without gating a checker
 that has always run on core alone, which is what makes `missing` honest for the

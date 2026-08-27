@@ -11,6 +11,7 @@ from typing import Any
 
 import pytest
 
+from denckring import describe
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack, Meta, Report
@@ -73,9 +74,20 @@ def test_the_mixins_carry_what_they_say() -> None:
 
 
 def test_apply_params_are_visible_to_a_non_python_caller() -> None:
-    """The point of a field over a signature keyword: it reaches the schema."""
-    schema = cut_up().apply_params_model().model_json_schema()
-    assert "seed" in schema["properties"]
+    """The point of a field over a signature keyword: it reaches the schema, and
+    the schema reaches a caller who cannot import the model.
+
+    Asserted through `describe()` — what `denckring describe` prints and what
+    MCP's `describe_procedure` returns — rather than through
+    `apply_params_model().model_json_schema()`, which is the Python path this
+    test took while its name claimed the other one. ADR 0025 said `seed`
+    reached `params_schema()`; it did not, and until `Description.apply_params`
+    no non-Python surface carried it at all.
+    """
+    described = describe("cut_up")
+    assert "seed" in described.apply_params["properties"]
+    assert "allow_identity" in described.apply_params["properties"]
+    assert "seed" not in described.params["properties"]
 
 
 #: pytest's own "pid" spelling, not "procedure_id" — the shared conftest's

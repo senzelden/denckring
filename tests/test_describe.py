@@ -25,6 +25,20 @@ def test_the_param_schema_is_the_real_one() -> None:
     assert described.params["properties"]["unit"]["enum"] == ["paragraph", "line"]
 
 
+def test_the_generator_takes_its_own_schema() -> None:
+    """`params` is the checker's model and does not carry `seed` — which is why
+    a caller reading only `params` could not learn that `cut_up` takes one."""
+    described = describe("cut_up")
+    assert "seed" in described.apply_params["properties"]
+    assert "seed" not in described.params["properties"]
+
+
+def test_a_row_with_no_generator_has_no_apply_params() -> None:
+    """Empty rather than absent or a copy of `params`: there is no `apply` to
+    pass anything to, and saying so as `{}` keeps the field's type one thing."""
+    assert describe("lipogram").apply_params == {}
+
+
 def test_scholarly_is_absent_unless_asked_for() -> None:
     """Browsing eighty procedures must not silently cost eighty provenance records."""
     assert describe("lipogram").scholarly is None
