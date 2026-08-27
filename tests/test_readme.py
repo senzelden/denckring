@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from denckring import check, list_procedures
+from denckring import check, list_procedures, produce
 from denckring.eval import harness
 
 README = Path(__file__).resolve().parents[1] / "README.md"
@@ -24,6 +24,13 @@ BATCH_ONE = {
 def test_readme_example_runs_as_written() -> None:
     report = check("lipogram", "This is a small conforming bit of writing", forbidden="z")
     assert report.satisfied
+
+
+def test_readme_generating_example_runs_as_written() -> None:
+    """The "Three ways in" block shows the generating half as well as the checking
+    one, and a snippet in the README is a claim that it runs."""
+    produced = produce("cut_up", "one two three four five six seven eight", seed=7)
+    assert produced.texts
 
 
 def test_all_twelve_batch_one_procedures_are_registered() -> None:

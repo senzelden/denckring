@@ -69,6 +69,15 @@ than reporting a gap that can never close.
 violation count and `satisfied` is exactly `score == 1.0`, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.
 
+## Productions
+
+`produce` returns a `Production`, the counterpart on the generating half: the procedure's
+id, its `texts` — best first, never empty — `truncated`, saying whether more were found
+than `max_results` let through, and free-form `metrics`. `apply` is defined as
+`produce(...).texts[0]`, the one-text surface for a caller who wants the best answer and
+not the search behind it. Both are exported from the package, so generating no longer
+means reaching through the registry for it.
+
 ## Languages
 
 Language packs declare capabilities; procedures declare what they require. Asking for a
@@ -83,7 +92,7 @@ because a written `ß` carries an ascender.
 ## What is stable
 
 `0.x` means the API can change in a minor release, and the changelog says when it does.
-Four surfaces are treated as contracts regardless, because things outside this repository
+Five surfaces are treated as contracts regardless, because things outside this repository
 are built on them:
 
 - **Procedure ids.** An id that has shipped does not change meaning. When a row is
@@ -93,6 +102,11 @@ are built on them:
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
   the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
   added; the ones already there do not change type or meaning.
+- **`Production` as JSON** — `procedure`, `texts`, `truncated`, `metrics` — and the
+  `--json` output of `apply` that carries it. It is `Report`'s counterpart on the
+  generating half and is covered by the same promise, in the same words: fields may be
+  added; the ones already there do not change type or meaning. `texts` is ordered, best
+  first, because `apply` returns `texts[0]`.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
   and `attribution` keys the CC BY terms are carried by.
 - **The `denckring.lang` entry-point group** and the capability names a pack declares, so
@@ -105,13 +119,15 @@ reason it gives for a failure is not one yet.
 ## Three ways in
 
 ```python
-from denckring import get
+from denckring import get, produce
 
-get("lipogram").check(text, lang="en")  # 1. library
+get("lipogram").check(text, lang="en")  # 1. library, the checking half
+produce("cut_up", text, seed=7).texts  # ...and the generating half
 ```
 
 ```console
 denckring check lipogram --json text.txt          # 2. CLI, exits 1 when unsatisfied
+denckring apply cut_up --json text.txt            #    generating, emitting a Production
 denckring show lipogram --json                    # 3. stable JSON for non-Python callers
 ```
 
