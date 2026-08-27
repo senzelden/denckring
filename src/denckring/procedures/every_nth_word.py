@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -16,8 +16,12 @@ class EveryNthWordParams(SourceParams):
     n: int = Field(default=7, ge=MIN_STEP, description="Keep one word in every n.")
 
 
+class EveryNthWordApplyParams(EveryNthWordParams, ApplyParams):
+    pass
+
+
 @register
-class EveryNthWord(BaseProcedure[EveryNthWordParams]):
+class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyParams]):
     """Constructive: `apply` performs the selection `check` verifies."""
 
     id = "every_nth_word"
@@ -64,11 +68,10 @@ class EveryNthWord(BaseProcedure[EveryNthWordParams]):
         words = [word.casefold() for _, word in word_spans(source, pack)]
         return words[n - 1 :: n]
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
-        """Produce the selection from `text`, which serves as the source."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[EveryNthWordApplyParams]:
+        return EveryNthWordApplyParams
 
-        parsed = self.parse_params({"source": text, **params})
-        return " ".join(self._select(text, get_pack(lang), parsed.n))
+    def _apply(self, text: str, pack: LanguagePack, params: EveryNthWordApplyParams) -> str:
+        """Produce the selection from `text`, which serves as the source."""
+        return " ".join(self._select(text, pack, params.n))

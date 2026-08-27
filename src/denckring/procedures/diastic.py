@@ -12,32 +12,38 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report
 from denckring.core.text import word_spans
 
 
 class DiasticParams(SourceParams):
-    # Named `seed_phrase`, not `seed`: the `Constructive` protocol reserves the
-    # keyword `seed` on every `apply()` for an RNG seed (see `every_nth_word.py`).
-    # A field named `seed` here would collide with that reserved parameter —
-    # Python binds a keyword matching an explicit parameter name to that
-    # parameter before any of it reaches `**params`, silently, so `apply(text,
-    # seed="sil")` would discard `"sil"` and fall back to whatever default the
-    # field carried, with no error to say so. `seed_phrase` sidesteps the
-    # collision entirely and is the more accurate name besides: this is a
-    # phrase, not an RNG seed. Defaulted for the same reason `every_nth_word.n`
-    # is: it lets `apply()` be called with no extra keyword at all.
+    # Named `seed_phrase`, not `seed`: `seed` used to be a keyword `apply()`
+    # named explicitly on every procedure, reserved for an RNG draw, and Python
+    # binds a keyword matching an explicit parameter name to that parameter
+    # before any of it reaches `**params` — silently, so `apply(text,
+    # seed="sil")` would have discarded `"sil"` and fallen back to whatever
+    # default the field carried, with no error to say so. `ConstructiveProcedure`
+    # closed that collision for every procedure at once (`seed` is now a field
+    # only `SeedParams` mixes in, on the ten that draw), so `diastic` no longer
+    # needs the rename to survive — but it keeps `seed_phrase` anyway, since
+    # that is still the more accurate name: this is a phrase, not an RNG seed.
+    # Defaulted for the same reason `every_nth_word.n` is: it lets `apply()` be
+    # called with no extra keyword at all.
     seed_phrase: str = Field(
         default="the", description="The seed phrase whose letters drive the selection."
     )
 
 
+class DiasticApplyParams(DiasticParams, ApplyParams):
+    pass
+
+
 @register
-class Diastic(BaseProcedure[DiasticParams]):
+class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
     """Constructive: `apply` performs the reading-through that `check` verifies."""
 
     id = "diastic"
@@ -81,9 +87,11 @@ class Diastic(BaseProcedure[DiasticParams]):
             metrics={"selected": float(len(chosen))},
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[DiasticApplyParams]:
+        return DiasticApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: DiasticApplyParams) -> str:
         """Read through `text`, which serves as the source, against the seed phrase.
 
         Stops as soon as a required letter cannot be found in the remaining source,
@@ -95,12 +103,8 @@ class Diastic(BaseProcedure[DiasticParams]):
         than vacuously 1 — silently returning "" would hand back text its own
         checker rejects.
         """
-        from denckring.lang import get_pack
-
-        parsed = self.parse_params({"source": text, **params})
-        pack = get_pack(lang)
         words = [word for _, word in word_spans(text, pack)]
-        letters = [ch for ch in parsed.seed_phrase.casefold() if ch.isalpha()]
+        letters = [ch for ch in params.seed_phrase.casefold() if ch.isalpha()]
         chosen: list[str] = []
         cursor = 0
         for index, letter in enumerate(letters):

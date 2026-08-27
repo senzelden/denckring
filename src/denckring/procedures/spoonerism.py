@@ -26,16 +26,13 @@ all-unresolvable text from vacuously scoring 1.0.
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel
 
-from denckring.core.base import BaseProcedure, require_capability
+from denckring.core.base import ApplyParams, ConstructiveProcedure
 from denckring.core.errors import MissingCapability, NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import ALPHABET, PHONEMES
 
 
 def _phoneme_onset(phonemes: list[str]) -> list[str]:
@@ -87,8 +84,12 @@ class SpoonerismParams(BaseModel):
     pass
 
 
+class SpoonerismApplyParams(SpoonerismParams, ApplyParams):
+    pass
+
+
 @register
-class Spoonerism(BaseProcedure[SpoonerismParams]):
+class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams]):
     """Constructive: `apply` performs the onset swap `check` verifies.
 
     `check` reads the text as a sequence of word pairs — words 1-2, 3-4, and so
@@ -156,7 +157,11 @@ class Spoonerism(BaseProcedure[SpoonerismParams]):
             metrics={"pairs": float(len(pairs)), "estimated_words": float(estimated)},
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[SpoonerismApplyParams]:
+        return SpoonerismApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: SpoonerismApplyParams) -> str:
         """Swap the written onsets of the text's first two words.
 
         Only those two words survive into the output — anything else in `text`
@@ -177,19 +182,11 @@ class Spoonerism(BaseProcedure[SpoonerismParams]):
         handing back text `check` would reject; `check` floors a pairless or
         unresolved text's score below 1.0, so silently returning the guess
         would do exactly that.
-        """
-        from denckring.lang import get_pack
 
-        pack = get_pack(lang)
-        # `check` is gated by `BaseProcedure.check`; `apply` has no such template
-        # method above it, so it guards its own capabilities the way `anagram` does.
-        # Without this, a pack lacking `phonemes` reached `_onset_or_none`, whose
-        # `except MissingCapability` is there to tolerate one unknown *word* and
-        # silently swallowed a missing *capability* instead, turning a fixable
-        # "install denckring[en]" into "no candidate word".
-        require_capability(pack, PHONEMES, self.id)
-        require_capability(pack, ALPHABET, self.id)
-        self.parse_params(params)
+        `phonemes` and `alphabet` are on this row's `requires`, so the spine
+        already guarded both before this method ran — no hand-rolled
+        `require_capability` needed here any more.
+        """
         spans = word_spans(text, pack)
         if len(spans) < 2:
             raise NoCandidateWord(

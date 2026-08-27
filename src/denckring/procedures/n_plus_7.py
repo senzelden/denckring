@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, BaseProcedure, ConstructiveProcedure, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -36,6 +34,10 @@ def displace(text: str, pack: LanguagePack, offset: int) -> str:
 
 class NPlus7Params(SourceParams):
     offset: int = Field(default=7, description="How many nouns to count forward.")
+
+
+class NPlus7ApplyParams(NPlus7Params, ApplyParams):
+    pass
 
 
 def displacement_report(
@@ -125,7 +127,7 @@ def displacement_report(
 
 
 @register
-class NPlus7(BaseProcedure[NPlus7Params]):
+class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
     """Lescure's procedure: walk the dictionary seven nouns on."""
 
     id = "n_plus_7"
@@ -137,9 +139,10 @@ class NPlus7(BaseProcedure[NPlus7Params]):
     def _check(self, text: str, pack: LanguagePack, params: NPlus7Params) -> Report:
         return displacement_report(self, text, pack, params)
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
-        """Walk every noun in `text` seven places down the dictionary."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[NPlus7ApplyParams]:
+        return NPlus7ApplyParams
 
-        parsed = self.parse_params({"source": text, **params})
-        return displace(text, get_pack(lang), parsed.offset)
+    def _apply(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> str:
+        """Walk every noun in `text` seven places down the dictionary."""
+        return displace(text, pack, params.offset)

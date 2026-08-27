@@ -17,8 +17,8 @@ its shape. The turning rule stays here: it is the one thing this row and
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import line_spans, word_spans
@@ -28,8 +28,12 @@ class BoustrophedonParams(SourceParams):
     pass
 
 
+class BoustrophedonApplyParams(BoustrophedonParams, ApplyParams):
+    pass
+
+
 @register
-class Boustrophedon(BaseProcedure[BoustrophedonParams]):
+class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonApplyParams]):
     """Constructive: `apply` turns alternate lines that `check` verifies."""
 
     id = "boustrophedon"
@@ -84,16 +88,17 @@ class Boustrophedon(BaseProcedure[BoustrophedonParams]):
             },
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[BoustrophedonApplyParams]:
+        return BoustrophedonApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: BoustrophedonApplyParams) -> str:
         """Turn `text`'s alternate lines, `text` serving as its own source.
 
         Every source line survives the turn — there is no candidate that can
         go missing — so, unlike the selection-based rows, this never raises
         `NoCandidateWord`.
         """
-        self.parse_params({"source": text, **params})
         lines = [line for _, line in line_spans(text)]
         turned = [line[::-1] if index % 2 == 1 else line for index, line in enumerate(lines)]
         return "\n".join(turned)
