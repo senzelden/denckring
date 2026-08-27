@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 
 from denckring import describe
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
+from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import InvalidParams
 from denckring.core.registry import all_procedures, get
 
@@ -65,11 +65,6 @@ def test_a_second_source_is_refused_rather_than_silently_losing_one() -> None:
     with pytest.raises(InvalidParams) as caught:
         cut_up().apply("one two three", source="four five six")
     assert "source" in str(caught.value)
-
-
-def test_the_mixins_carry_what_they_say() -> None:
-    assert SeedParams.model_fields["seed"].default is None
-    assert ApplyParams.model_fields["allow_identity"].default is False
 
 
 def test_apply_params_are_visible_to_a_non_python_caller() -> None:

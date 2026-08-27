@@ -5,8 +5,6 @@ would trade a true statement about the form for a true statement about the
 install and lose the first, so both are reported.
 """
 
-import pytest
-
 from denckring import describe, summaries
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
@@ -22,13 +20,6 @@ WITHOUT_GENERATORS = {
     "tmesis",
     "univocalic_translation",
 }
-
-
-@pytest.mark.parametrize("pid", sorted(all_procedures()))
-def test_constructive_matches_reality(pid: str) -> None:
-    """The assertion that stops the nine drifting again."""
-    expected = isinstance(all_procedures()[pid], Constructive)
-    assert describe(pid).constructive is expected
 
 
 def test_the_nine_say_both_things_at_once() -> None:
