@@ -102,13 +102,34 @@ class CentMilleMilliards(
         `text` is the machine itself — the sheet of alternatives — not a poem to
         transform. Queneau's book is ten sonnets cut into strips, and turning a
         page is exactly this draw.
+
+        A position offering no alternative at all is a malformed sheet, not a
+        poem with a gap: `_check` requires one produced line per source
+        position, so a position with nothing to draw from can never be
+        satisfied and must be refused up front rather than silently skipped.
+        Skipping it — the previous behaviour — drew one fewer line than the
+        sheet has positions, which is exactly the shape `_check`'s own
+        `missing_line` violation exists to catch; refusing it here means that
+        violation can no longer be produced by this row's own `apply`. Checked
+        before the "no position offers a choice" guard below, which is the
+        sibling case — every position has exactly one alternative — rather
+        than a subset having none.
         """
         chooser = random.Random(params.seed)
         options = alternatives(text)
+        empty = [index for index, position in enumerate(options) if not position]
+        if empty:
+            raise InputTooShort(
+                self.id,
+                needed=(
+                    f"every position to offer at least one alternative, separated by {SEPARATOR!r}"
+                ),
+                found=f"line {empty[0] + 1} of {counted(len(options), 'position')} offers none",
+            )
         if not any(len(position) > 1 for position in options):
             raise InputTooShort(
                 self.id,
                 needed=f"at least one position offering alternatives, separated by {SEPARATOR!r}",
                 found=f"{counted(len(options), 'position')}, none with a choice",
             )
-        return ["\n".join(chooser.choice(position) for position in options if position)]
+        return ["\n".join(chooser.choice(position) for position in options)]

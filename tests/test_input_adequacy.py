@@ -121,3 +121,21 @@ def test_a_frame_that_offers_choices_is_never_told_it_offers_none() -> None:
     message = str(caught.value)
     assert "none with a choice" not in message
     assert "'.'" in message
+
+
+def test_a_position_offering_nothing_is_refused_rather_than_silently_dropped() -> None:
+    """`cent_mille_milliards._produce` used to filter `if position`, so a blank
+    line among otherwise-choiceful ones vanished from the draw rather than
+    refusing — one fewer produced line than the sheet has positions, which is
+    exactly the shape `_check`'s own `missing_line` violation exists to catch.
+    `test_apply_output_satisfies_check` found this on `'a|a\\n|'`: two
+    positions, the second empty.
+    """
+    with pytest.raises(InputTooShort) as caught:
+        generator("cent_mille_milliards").apply("a|a\n|", seed=0)
+    message = str(caught.value)
+    assert "line 2" in message
+
+    # A sheet where every position offers something must stay untouched by
+    # this guard — only a genuinely empty position may trip it.
+    assert generator("cent_mille_milliards").apply("a|b", seed=0) in ("a", "b")
