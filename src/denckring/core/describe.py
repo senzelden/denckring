@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core import catalogue
-from denckring.core.protocol import Lang, Meta
+from denckring.core.protocol import Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 
 
@@ -51,6 +51,8 @@ class Description(BaseModel):
     requires: list[str]
     runnable: bool
     missing: list[str]
+    apply_requires: list[str]
+    apply_missing: list[str]
     params: dict[str, Any]
     scholarly: Scholarly | None = None
 
@@ -71,6 +73,30 @@ def runnable(meta: Meta, lang: Lang = "en") -> tuple[bool, list[str]]:
     return not missing, missing
 
 
+def apply_runnable(
+    meta: Meta, lang: Lang = "en", *, pack: LanguagePack | None = None
+) -> tuple[bool, list[str]]:
+    """Whether this install can *generate* with the procedure, and what it lacks.
+
+    Separate from `runnable` because the two halves have different costs: a
+    core-only install checks an anagram perfectly well and cannot generate one.
+    Takes an optional pack so a test can ask about an install it is not running.
+    """
+    if pack is None:
+        from denckring.lang import get_pack
+
+        try:
+            pack = get_pack(lang)
+        except Exception:
+            return False, [*meta.requires, *meta.apply_requires]
+    missing = [
+        capability
+        for capability in (*meta.requires, *meta.apply_requires)
+        if capability not in pack.capabilities
+    ]
+    return not missing, missing
+
+
 def _text(mapping: dict[Lang, str], lang: Lang) -> str:
     """The requested language, falling back to English, then to anything."""
     if lang in mapping:
@@ -85,6 +111,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
     meta = catalogue.get(procedure_id)
     procedure = get(procedure_id)
     ok, missing = runnable(meta, lang)
+    _, apply_missing = apply_runnable(meta, lang)
     return Description(
         id=meta.id,
         name=_text(meta.names, lang),
@@ -97,6 +124,8 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         requires=list(meta.requires),
         runnable=ok,
         missing=missing,
+        apply_requires=list(meta.apply_requires),
+        apply_missing=apply_missing,
         params=procedure.params_model().model_json_schema(),
         scholarly=(
             Scholarly(
