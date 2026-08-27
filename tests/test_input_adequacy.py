@@ -3,13 +3,18 @@
 Four generators returned their input when it could not feed them. That is
 indistinguishable from a procedure that ran and changed nothing, which is why
 the caller could not tell and neither could the eval.
+
+Six rows raise it now, not four: `spoonerism` called too-few-words
+`NoCandidateWord` and `ideenwuerfeln` called too-few-entries `MalformedCorpus`,
+which made the code a caller should retry on unpredictable across procedures
+that were refusing for the identical reason.
 """
 
 from typing import Any
 
 import pytest
 
-from denckring.core.errors import InputTooShort
+from denckring.core.errors import DenckringError, InputTooShort, counted
 from denckring.core.protocol import Constructive
 from denckring.core.registry import get
 
@@ -52,6 +57,47 @@ def test_the_error_reads_as_a_sentence() -> None:
     assert error.code == "input_too_short"
     assert "more than one line" in str(error)
     assert "1 line" in str(error)
+
+
+def test_the_message_says_what_to_do_next() -> None:
+    """`InputTooLong`, `UnknownProcedure`, `MissingCapability` and
+    `DegenerateOutput` all end on a remedy; this one stopped at what it found."""
+    error = InputTooShort("boustrophedon", needed="more than one line", found="1 line")
+    assert "check a text instead of generating from one" in str(error)
+
+
+def test_the_count_is_pluralised() -> None:
+    """`found` was built as `f"{n} line"` at each raise site, so empty input read
+    "0 line" — the one string whose job is to say what was handed over."""
+    with pytest.raises(InputTooShort) as caught:
+        generator("boustrophedon").apply("")
+    assert "0 lines" in str(caught.value)
+    assert counted(1, "line") == "1 line"
+    assert counted(2, "entry", "entries") == "2 entries"
+
+
+#: Every generator that refuses input for holding too few units, and the input
+#: that does it. One code across all of them is the point: `spoonerism` raised
+#: `NoCandidateWord` and `ideenwuerfeln` `MalformedCorpus` for exactly the shape
+#: `recombination` raised `InputTooShort` for.
+TOO_FEW_UNITS: list[tuple[str, str, dict[str, Any]]] = [
+    ("boustrophedon", ONE_SENTENCE, {}),
+    ("cent_mille_milliards", ONE_SENTENCE, {"seed": 0}),
+    ("ideenwuerfeln", "only one line", {"seed": 0}),
+    ("recombination", ONE_SENTENCE, {"seed": 0}),
+    ("spoonerism", "solo", {}),
+    ("wechselsatz", ONE_SENTENCE, {"seed": 0}),
+]
+
+
+@pytest.mark.parametrize(("pid", "text", "params"), TOO_FEW_UNITS)
+def test_too_few_units_is_always_the_same_code(pid: str, text: str, params: dict[str, Any]) -> None:
+    """A caller retrying on `input_too_short` must not have to know which name
+    each procedure happened to pick for the identical refusal."""
+    with pytest.raises(DenckringError) as caught:
+        generator(pid).apply(text, **params)
+    assert caught.value.code == "input_too_short"
+    assert caught.value.to_dict()["detail"]["found"]
 
 
 def test_adequate_input_still_works() -> None:

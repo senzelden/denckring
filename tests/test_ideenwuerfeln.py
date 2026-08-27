@@ -11,6 +11,7 @@ import pytest
 
 from denckring import check, get
 from denckring.core import corpus as corpora
+from denckring.core.errors import InputTooShort
 from denckring.core.protocol import Constructive
 
 CORPUS = json.dumps(
@@ -106,10 +107,22 @@ def test_throwing_is_deterministic_under_a_seed() -> None:
 
 
 def test_a_corpus_too_small_for_a_throw_refuses() -> None:
+    """`InputTooShort`, not `MalformedCorpus`: a corpus of one slip is perfectly
+    well formed and simply holds fewer entries than a throw of three needs.
+    `MalformedCorpus` keeps what `corpus.parse` raises it for — empty,
+    unparseable, or missing the key that says where the entries are."""
     procedure = get("ideenwuerfeln")
     assert isinstance(procedure, Constructive)
-    with pytest.raises(corpora.MalformedCorpus, match="fewer than"):
+    with pytest.raises(InputTooShort, match="entries"):
         procedure.apply("only one line", seed=0)
+
+
+def test_an_unparseable_corpus_is_still_malformed() -> None:
+    """The error the move did not take: this corpus cannot be read at all."""
+    procedure = get("ideenwuerfeln")
+    assert isinstance(procedure, Constructive)
+    with pytest.raises(corpora.MalformedCorpus):
+        procedure.apply('{"nothing": 1}', seed=0)
 
 
 def test_the_row_says_the_rule_is_a_reconstruction() -> None:
