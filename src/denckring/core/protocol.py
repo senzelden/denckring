@@ -86,6 +86,13 @@ class Meta(BaseModel):
     kind: Kind
     languages: list[Lang]
     requires: list[str] = Field(default_factory=list)
+    #: What the *generator* needs, which is not what the checker needs.
+    #: `anagram` checks with core alone and generates only with a word lexicon;
+    #: one list could not say both, so the generator's requirement went
+    #: undeclared and `missing` reported nothing. ADR 0002 makes `apply` the
+    #: optional half, and this is the field that lets the optional half be
+    #: honest about its own cost.
+    apply_requires: list[str] = Field(default_factory=list)
     deterministic: bool = True
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
     #: Contested figures, reception history and caveats — anything true about the
