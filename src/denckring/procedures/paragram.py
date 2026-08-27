@@ -105,13 +105,14 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
         generator that replaced the original in place would leave nothing for
         it to compare against.
 
-        Every word, position and letter in the text is a candidate, and the
-        best-scoring one wins — not the first one found. A first-match search
-        against a broad lexicon (CMUdict union WordNet) reliably surfaces the
-        noisiest entry available: "the" always became "the che" long before
-        anything a writer would reach for. `CandidateScore` ranks what is
-        found rather than gating it, so the search still returns its best
-        effort — never a refusal — when nothing scores well.
+        Every word, position and letter in the text is a candidate, and every
+        one of them is returned, best-scoring first — not just the first one
+        found. A first-match search against a broad lexicon (CMUdict union
+        WordNet) reliably surfaces the noisiest entry available: "the" always
+        became "the che" long before anything a writer would reach for.
+        `CandidateScore` ranks what is found rather than gating it, so the
+        search still returns its best effort — never a refusal — when nothing
+        scores well.
 
         `lexicon.words` is declared on the catalogue row's `apply_requires`,
         not its `requires`: the latter gates `check` too, and this row has
@@ -122,10 +123,7 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
         has_nouns = NOUNS in pack.capabilities
         has_syllables = SYLLABLES_HEURISTIC in pack.capabilities
 
-        best_score: CandidateScore | None = None
-        best_offset = 0
-        best_word = ""
-        best_swapped = ""
+        found: list[tuple[CandidateScore, int, str, str]] = []
         for offset, word in word_spans(text, pack):
             if not word.isalpha():
                 continue
@@ -144,10 +142,14 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
                     pronounced = has_syllables and pack.syllable_count(swapped)[1]
                     is_noun = has_nouns and pack.noun_index(swapped) is not None
                     score: CandidateScore = (pronounced, is_noun, len(swapped))
-                    if best_score is None or score > best_score:
-                        best_score = score
-                        best_offset, best_word, best_swapped = offset, word, swapped
-        if best_score is None:
+                    found.append((score, offset, word, swapped))
+        if not found:
             raise NoCandidateWord(self.id)
-        insert_at = best_offset + len(best_word)
-        return [text[:insert_at] + " " + best_swapped + text[insert_at:]]
+        # Stable, so candidates that score equally keep the order the search
+        # walked them in and two runs of the same input agree. `CandidateScore`
+        # is a plain tuple and totally ordered, so this needs no key beyond it.
+        found.sort(key=lambda candidate: candidate[0], reverse=True)
+        return [
+            text[: offset + len(word)] + " " + swapped + text[offset + len(word) :]
+            for _, offset, word, swapped in found
+        ]

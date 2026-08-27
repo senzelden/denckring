@@ -90,6 +90,41 @@ def test_a_wordless_text_is_satisfied_vacuously_at_minimum_zero() -> None:
     assert not report.violations
 
 
+def test_it_returns_more_than_one_candidate() -> None:
+    """The search already found these and the old return type discarded them."""
+    procedure = get("paragram")
+    assert isinstance(procedure, Constructive)
+    produced = procedure.produce("The cat is great.")
+    assert len(produced.texts) > 1
+    assert len(set(produced.texts)) == len(produced.texts), "candidates must be distinct"
+
+
+def test_the_best_is_still_first() -> None:
+    """`apply`'s result must not move: it is the same winner, now with the
+    runners-up behind it rather than thrown away."""
+    procedure = get("paragram")
+    assert isinstance(procedure, Constructive)
+    assert procedure.produce("The cat is great.").texts[0] == "The cat is great treat."
+
+
+def test_the_order_is_the_score_it_already_computed() -> None:
+    """`CandidateScore` is `(pronounced, is_noun, length)` and totally ordered.
+    Sorting must be stable, so equal scores keep the search's own order and two
+    runs of the same input agree."""
+    procedure = get("paragram")
+    assert isinstance(procedure, Constructive)
+    first = procedure.produce("The cat is great.").texts
+    assert first == procedure.produce("The cat is great.").texts
+
+
+def test_max_results_caps_and_says_so() -> None:
+    procedure = get("paragram")
+    assert isinstance(procedure, Constructive)
+    produced = procedure.produce("The cat is great.", max_results=2)
+    assert len(produced.texts) == 2
+    assert produced.truncated is True
+
+
 def test_apply_raises_when_no_swap_exists(monkeypatch: pytest.MonkeyPatch) -> None:
     """A wordless text gives the search nothing to work with; refusing beats
     returning text with no swap in it, which `check` would then reject."""
