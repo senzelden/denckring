@@ -52,6 +52,15 @@ covers before any deeper search. `Production.truncated` is what keeps a capped
 search from reading as an exhaustive one; without it there is no way to tell
 "this is everything" from "this is the first ten of something larger."
 
+That reading is narrower on the ten rows that draw at random. A drawing
+generator takes one sample per call, so it returns one text with `truncated`
+false and `found` 1.0 — which is "everything this search found" rather than
+"everything this procedure could produce", and one sample is not everything in
+any other sense. `Production.texts` is not currently used for *n* draws of one
+procedure; a caller who wants a second sample calls again with another seed.
+Widening `max_results` into a draw count is a decision for whoever wants it,
+not something this chapter assumed.
+
 `NotConstructive` replaces a dict literal the MCP server built by hand for
 exactly this case, so asking to generate with a checker-only procedure raises
 a `DenckringError` that can be caught with the others instead of returning a
