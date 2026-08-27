@@ -139,8 +139,9 @@ def apply_command(
         return
     if not isinstance(procedure, Constructive):
         typer.echo(
-            f"Procedure {procedure_id!r} is {procedure.meta.kind} and has no apply(). "
-            f"Only constructive procedures can generate text."
+            f"Procedure {procedure_id!r} has no generator in this install. "
+            f"Its kind is {procedure.meta.kind}, so the form admits one, but none is "
+            f"implemented here — see `describe {procedure_id}`, field `constructive`."
         )
         raise typer.Exit(EXIT_ERROR)
     try:

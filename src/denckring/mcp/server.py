@@ -82,8 +82,9 @@ def apply_procedure_tool(
 ) -> dict[str, Any]:
     """Run a procedure that generates rather than only checks.
 
-    Sixteen of the procedures are constructive; the rest only check. Use
-    `describe_procedure` and read `kind` before calling this.
+    Twenty-seven of the procedures have a generator here. `kind` says whether the
+    form admits one; `constructive` in `describe_procedure` says whether this
+    install has it. Read `constructive`, not `kind`, before calling this.
     """
     try:
         procedure_object = get(procedure)

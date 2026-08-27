@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core import catalogue
-from denckring.core.protocol import Lang, LanguagePack, Meta
+from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 
 
@@ -35,6 +35,7 @@ class Summary(BaseModel):
     family: str
     kind: str
     runnable: bool
+    constructive: bool
 
 
 class Description(BaseModel):
@@ -46,6 +47,10 @@ class Description(BaseModel):
     prompt_hints: str | None
     family: str
     kind: str
+    #: Whether *this install* has a generator. Distinct from `kind`, which says
+    #: whether the form admits one at all: nine rows are honestly `both` and
+    #: honestly have no `apply` here, and a single field could not say both.
+    constructive: bool
     checkability: str
     languages: list[str]
     requires: list[str]
@@ -110,6 +115,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
     """One procedure, in full. Raises `UnknownProcedure` for an unknown id."""
     meta = catalogue.get(procedure_id)
     procedure = get(procedure_id)
+    is_constructive = isinstance(procedure, Constructive)
     ok, missing = runnable(meta, lang)
     _, apply_missing = apply_runnable(meta, lang)
     return Description(
@@ -119,6 +125,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         prompt_hints=_text(meta.prompt_hints, lang) or None,
         family=meta.family,
         kind=meta.kind,
+        constructive=is_constructive,
         checkability=meta.checkability,
         languages=list(meta.languages),
         requires=list(meta.requires),
@@ -177,6 +184,7 @@ def summaries(
                 family=meta.family,
                 kind=meta.kind,
                 runnable=ok,
+                constructive=isinstance(get(procedure_id), Constructive),
             )
         )
     return rows
