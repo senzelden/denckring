@@ -108,6 +108,19 @@ def test_the_guard_still_refuses_when_nothing_survives() -> None:
         constructive("every_nth_word").produce("one two three", n=1)
 
 
+def test_a_drawing_generator_returns_one_sample_per_call() -> None:
+    """What `truncated` means on the ten rows that draw. One sample is the whole
+    production, so nothing was cut off — `texts` is not used for n draws, and a
+    caller wanting a second sample calls again with another seed. Documented on
+    the field and in ADR 0026; pinned here so the two cannot drift apart."""
+    produced = constructive("cut_up").produce(
+        "one two three four five six seven eight", seed=7, max_results=10
+    )
+    assert len(produced.texts) == 1
+    assert produced.truncated is False
+    assert produced.metrics["found"] == 1.0
+
+
 def test_metrics_report_what_was_found() -> None:
     produced = constructive("every_nth_word").produce("one two three four", n=2)
     assert produced.metrics["found"] == 1.0
