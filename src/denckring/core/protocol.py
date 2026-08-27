@@ -90,6 +90,12 @@ class Production(BaseModel):
     texts: list[str] = Field(min_length=1)
     #: Whether more were found than `max_results` let through. Without it a
     #: truncated search is indistinguishable from an exhaustive one.
+    #: On the ten rows that draw at random this reads narrowly: a drawing
+    #: generator returns one sample per call, so `truncated` is always false and
+    #: `metrics["found"]` always 1.0 — "everything the search found", not
+    #: "everything the procedure could produce". `texts` is not used for *n*
+    #: draws of one procedure; asking for a second sample means calling again
+    #: with another seed.
     truncated: bool = False
     metrics: dict[str, float] = Field(default_factory=dict)
 
