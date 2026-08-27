@@ -9,7 +9,7 @@ import denckring
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, InvalidParams, NotConstructive, UnknownProcedure
 from denckring.core.protocol import Production
-from denckring.core.registry import get
+from denckring.core.registry import all_procedures, get
 
 
 def constructive(pid: str) -> ConstructiveProcedure[Any, Any]:
@@ -73,8 +73,25 @@ def test_apply_is_the_first_text() -> None:
     )
 
 
-def test_max_results_is_a_parameter_of_every_generator() -> None:
-    assert constructive("cut_up").apply_params_model().model_fields["max_results"].default == 10
+#: Every generator, because the property below is about every generator and
+#: `cut_up` alone would pass with the field missing from the other 26.
+CONSTRUCTIVE = sorted(
+    pid
+    for pid, procedure in all_procedures().items()
+    if isinstance(procedure, ConstructiveProcedure)
+)
+
+
+def test_there_are_generators_to_range_over() -> None:
+    """An empty parametrisation generates no test items and passes in silence."""
+    assert CONSTRUCTIVE
+
+
+@pytest.mark.parametrize("pid", CONSTRUCTIVE)
+def test_max_results_is_a_parameter_of_every_generator(pid: str) -> None:
+    """Named `pid` rather than `procedure_id`: conftest parametrises that name
+    over the whole registry, and pytest errors on the duplicate."""
+    assert constructive(pid).apply_params_model().model_fields["max_results"].default == 10
 
 
 def test_max_results_below_one_is_refused() -> None:
