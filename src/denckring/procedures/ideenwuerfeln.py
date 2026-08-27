@@ -144,7 +144,9 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
         return IdeenwuerfelnApplyParams
 
     def _apply(self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams) -> str:
-        """Throw. `text` is the corpus when no `source` is given.
+        """Throw. `text` is the corpus: a second `source` is refused rather
+        than accepted alongside it, the same rule `parse_apply_params` enforces
+        for every generator whose params model carries a `source` field.
 
         Falls back to the whole stock when a headword's pool is too small for the
         number of slots, and there is no way to signal that through a string

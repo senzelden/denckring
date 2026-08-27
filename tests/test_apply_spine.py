@@ -141,8 +141,15 @@ def test_a_procedure_that_draws_carries_seed_as_a_field(pid: str) -> None:
 
 @pytest.mark.parametrize("pid", DRAWS)
 def test_a_drawn_seed_is_type_checked(pid: str) -> None:
-    with pytest.raises(InvalidParams):
+    """Asserts the message names `seed`, not merely that some `InvalidParams` was
+    raised: `arca_musarithmica` also requires `pinakes`, which this call never
+    supplies, so a bare `pytest.raises(InvalidParams)` would stay green for that
+    row even if `seed` were silently accepted and the failure came from the
+    missing field instead — the same hazard `test_a_procedure_that_does_not_draw_refuses_a_seed`
+    above already guards against."""
+    with pytest.raises(InvalidParams) as caught:
         constructive(pid).apply("one two three\nfour five six\n", seed="not-an-int")
+    assert "seed" in str(caught.value)
 
 
 def test_the_two_sets_partition_the_generators() -> None:
