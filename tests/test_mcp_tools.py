@@ -103,3 +103,20 @@ def test_a_device_path_that_escapes_its_search_directories_is_data_not_a_leak() 
         "denckring", "wort", {"device": "../../../../../../etc/passwd"}, lang="de"
     )
     assert result["code"] == "unknown_device"
+
+
+def test_apply_procedure_carries_the_other_results() -> None:
+    from denckring.mcp.server import apply_procedure_tool
+
+    out = apply_procedure_tool("every_nth_word", "one two three four", {"n": 2})
+    assert out["text"] == "two four"
+    assert out["texts"] == ["two four"]
+    assert out["truncated"] is False
+
+
+def test_apply_procedure_text_is_still_the_first_text() -> None:
+    """Additive: `text` keeps its meaning, so no existing caller breaks."""
+    from denckring.mcp.server import apply_procedure_tool
+
+    out = apply_procedure_tool("cut_up", "one two three four", {"seed": 1})
+    assert out["text"] == out["texts"][0]

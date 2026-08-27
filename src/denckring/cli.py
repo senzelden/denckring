@@ -14,7 +14,7 @@ import typer
 from denckring import __version__
 from denckring.core import catalogue
 from denckring.core.describe import describe, summaries
-from denckring.core.errors import DenckringError, UnknownLanguage
+from denckring.core.errors import DenckringError, NotConstructive, UnknownLanguage
 from denckring.core.protocol import FAMILIES, Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.eval import harness
@@ -130,6 +130,7 @@ def apply_command(
     lang: str = "en",
     seed: int | None = None,
     param: Annotated[list[str] | None, typer.Option("--param", "-p")] = None,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """Generate text with a procedure, where the procedure supports it."""
     try:
@@ -138,23 +139,21 @@ def apply_command(
         _fail(exc)
         return
     if not isinstance(procedure, Constructive):
-        typer.echo(
-            f"Procedure {procedure_id!r} has no generator in this install. "
-            f"Its kind is {procedure.meta.kind}, so the form admits one, but none is "
-            f"implemented here — see `describe {procedure_id}`, field `constructive`."
-        )
-        raise typer.Exit(EXIT_ERROR)
+        _fail(NotConstructive(procedure_id))
+        return
     # Forwarded only when asked for, because `seed` is a parameter of the ten
     # procedures that draw and not of the other seventeen. Sending the unset
     # `None` to a procedure that takes no seed would be an `InvalidParams` on
     # every invocation; sending a real one is a caller error worth reporting.
     drawn = {"seed": seed} if seed is not None else {}
     try:
-        typer.echo(
-            procedure.apply(_read(file), lang=_lang(lang), **drawn, **_parse_params(param or []))
+        produced = procedure.produce(
+            _read(file), lang=_lang(lang), **drawn, **_parse_params(param or [])
         )
     except DenckringError as exc:
         _fail(exc)
+        return
+    typer.echo(produced.model_dump_json(indent=2) if as_json else produced.texts[0])
 
 
 @app.command("describe")
