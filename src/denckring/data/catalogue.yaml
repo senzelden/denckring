@@ -908,6 +908,8 @@ procedures:
     kind: both
     languages: [en]
     requires: [tokens, fold_diacritics]
+    apply_requires:
+      - lexicon.words
     deterministic: true
     prompt_hints:
       en: Change one letter of a word to make another, and build the sentence on the swap.

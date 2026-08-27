@@ -21,9 +21,9 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report
+from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.core.source_compare import positional_report, selection_report
 from denckring.core.text import line_spans, word_spans
@@ -33,17 +33,18 @@ class ColumnReadingParams(SourceParams):
     # Defaulted to 1 rather than to some more "interesting" column: every
     # non-blank line, however short, has a first word, so `apply()` with no
     # extra keyword always has something to read — a higher default would
-    # raise `NoCandidateWord` on any source whose shortest line falls under
-    # it. Never named `seed` or `lang`: those collide with `apply`'s reserved
-    # keyword arguments (see `diastic.DiasticParams.seed_phrase`'s comment for
-    # the mechanism).
+    # raise `NoCandidateWord` on any source whose shortest line falls under it.
     column: int = Field(
         default=1, ge=1, description="Which word position to read down each line (1-based)."
     )
 
 
+class ColumnReadingApplyParams(ColumnReadingParams, ApplyParams):
+    pass
+
+
 @register
-class ColumnReading(BaseProcedure[ColumnReadingParams]):
+class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingApplyParams]):
     """Constructive: `apply` performs the vertical reading `check` verifies."""
 
     id = "column_reading"
@@ -80,9 +81,11 @@ class ColumnReading(BaseProcedure[ColumnReadingParams]):
             metrics={"selected": float(len(chosen))},
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[ColumnReadingApplyParams]:
+        return ColumnReadingApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: ColumnReadingApplyParams) -> str:
         """Read down `text`'s `column`th words, `text` serving as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when no
@@ -90,15 +93,11 @@ class ColumnReading(BaseProcedure[ColumnReadingParams]):
         empty selection scores 0 rather than vacuously 1 — silently returning ""
         would hand back text its own checker rejects.
         """
-        from denckring.lang import get_pack
-
-        parsed = self.parse_params({"source": text, **params})
-        pack = get_pack(lang)
-        chosen = self._column(text, pack, parsed.column)
+        chosen = self._column(text, pack, params.column)
         if not chosen:
             raise NoCandidateWord(
                 self.id,
-                f"no line in the source has a word at column {parsed.column} — try a "
+                f"no line in the source has a word at column {params.column} — try a "
                 "smaller column or a source with longer lines",
             )
         return " ".join(chosen)

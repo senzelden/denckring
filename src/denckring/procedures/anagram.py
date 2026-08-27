@@ -3,22 +3,19 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any
 
-from denckring.core.base import (
-    BaseProcedure,
-    DiacriticParams,
-    SourceParams,
-    require_capability,
-)
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, SourceParams
 from denckring.core.errors import InputTooLong
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
-from denckring.lang.base import WORDS
 
 
 class AnagramParams(SourceParams, DiacriticParams):
+    pass
+
+
+class AnagramApplyParams(AnagramParams, ApplyParams):
     pass
 
 
@@ -57,7 +54,7 @@ def multiset_violations(
 
 
 @register
-class Anagram(BaseProcedure[AnagramParams]):
+class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
     """Every letter of the source, rearranged, and nothing else."""
 
     id = "anagram"
@@ -83,7 +80,11 @@ class Anagram(BaseProcedure[AnagramParams]):
     #: paragraph is not something a greedy walk finds anyway.
     MAX_LETTERS = 60
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[AnagramApplyParams]:
+        return AnagramApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: AnagramApplyParams) -> str:
         """Rearrange the letters of `text` into words the lexicon knows.
 
         Greedy: take the longest word the remaining letters can still spell, and
@@ -96,13 +97,7 @@ class Anagram(BaseProcedure[AnagramParams]):
         on core alone. ADR 0002 makes `apply` the optional half, and
         `apply_requires` is how the optional half states its own cost.
         """
-        from denckring.lang import get_pack
-
-        pack = get_pack(lang)
-        require_capability(pack, WORDS, self.id)
-        parsed = self.parse_params({"source": text, **params})
-
-        letters = sorted(ch for _, ch in letter_spans(text, pack, fold=parsed.fold_diacritics))
+        letters = sorted(ch for _, ch in letter_spans(text, pack, fold=params.fold_diacritics))
         if len(letters) > self.MAX_LETTERS:
             raise InputTooLong(self.id, len(letters), self.MAX_LETTERS)
 

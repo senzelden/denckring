@@ -1,7 +1,10 @@
 """The last two rows of the rearrangement cluster: fold_in, mathews_algorithm."""
 
+import pytest
+
 from denckring import check, get
 from denckring.core import catalogue
+from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Constructive
 
 FOLD_SOURCE = "alpha beta gamma delta\nfive six seven\n\none two three four\neight nine ten"
@@ -71,10 +74,18 @@ def test_the_two_folding_rows_are_declared_deterministic_and_are() -> None:
     a fixed operation on fixed material, and neither module has an RNG in it. The
     catalogue is a published dataset, so a flag saying a procedure varies when it
     does not is a defect in it.
+
+    Both are now on the spine and among the seventeen that do not draw, so `seed`
+    is no longer a parameter either accepts at all — a stronger guarantee than the
+    old "varies with the seed" probe, which called `apply(..., seed=seed)` and
+    relied on the value being silently ignored. Determinism is now checked by
+    repeated calls with no seed, and the refusal is checked directly.
     """
     for procedure_id, source in (("fold_in", FOLD_SOURCE), ("text_folding", FOLD_SOURCE)):
         assert catalogue.get(procedure_id).deterministic is True
         procedure = get(procedure_id)
         assert isinstance(procedure, Constructive)
-        produced = {procedure.apply(source, seed=seed) for seed in (0, 1, 2, None)}
-        assert len(produced) == 1, f"{procedure_id} varies with the seed after all"
+        produced = {procedure.apply(source) for _ in range(3)}
+        assert len(produced) == 1, f"{procedure_id} varies between calls"
+        with pytest.raises(InvalidParams):
+            procedure.apply(source, seed=0)

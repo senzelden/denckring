@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import Field
 
 from denckring.core import pasigraph
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -25,6 +23,10 @@ class PasigraphyParams(SourceParams):
         default=False,
         description="Every word must cross; a gap in the rendering is a failure.",
     )
+
+
+class PasigraphyApplyParams(PasigraphyParams, ApplyParams):
+    pass
 
 
 def render(
@@ -50,7 +52,7 @@ def render(
 
 
 @register
-class Pasigraphy(BaseProcedure[PasigraphyParams]):
+class Pasigraphy(ConstructiveProcedure[PasigraphyParams, PasigraphyApplyParams]):
     """Kircher's universal writing, and the losses it takes on the way.
 
     A word becomes a number and the number becomes a word again in another
@@ -145,13 +147,12 @@ class Pasigraphy(BaseProcedure[PasigraphyParams]):
             },
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
-        """Send `text` across, marking every place a word could not follow."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[PasigraphyApplyParams]:
+        return PasigraphyApplyParams
 
-        parsed = self.parse_params({"source": text, **params})
-        table = pasigraph.parse(parsed.table)
-        produced, _, _ = render(
-            text, get_pack(lang), table, parsed.from_language, parsed.to_language
-        )
+    def _apply(self, text: str, pack: LanguagePack, params: PasigraphyApplyParams) -> str:
+        """Send `text` across, marking every place a word could not follow."""
+        table = pasigraph.parse(params.table)
+        produced, _, _ = render(text, pack, table, params.from_language, params.to_language)
         return " ".join(produced)

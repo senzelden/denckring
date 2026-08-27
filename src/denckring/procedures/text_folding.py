@@ -24,20 +24,18 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import line_spans, word_spans
 
 
 class TextFoldingParams(SourceParams):
-    # Never named `seed` or `lang`: those collide with `apply`'s reserved
-    # keyword arguments (see `diastic.DiasticParams.seed_phrase`'s comment
-    # for the mechanism). Defaulted to 1, like `column_reading.column`, so
-    # `apply()` with no extra keyword always has two flaps to fold as long
-    # as the source has at least two lines.
+    # Defaulted to 1, like `column_reading.column`, so `apply()` with no extra
+    # keyword always has two flaps to fold as long as the source has at least
+    # two lines.
     fold_at: int = Field(
         default=1,
         ge=1,
@@ -45,8 +43,12 @@ class TextFoldingParams(SourceParams):
     )
 
 
+class TextFoldingApplyParams(TextFoldingParams, ApplyParams):
+    pass
+
+
 @register
-class TextFolding(BaseProcedure[TextFoldingParams]):
+class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParams]):
     """Constructive: `apply` performs the fold that `check` verifies."""
 
     id = "text_folding"
@@ -102,16 +104,17 @@ class TextFolding(BaseProcedure[TextFoldingParams]):
             },
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[TextFoldingApplyParams]:
+        return TextFoldingApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: TextFoldingApplyParams) -> str:
         """Fold `text` at `fold_at`, `text` serving as its own source.
 
         Raises `NoCandidateWord` rather than returning `text` unchanged when
         it has fewer than two lines: a fold needs two flaps to bring
         together, and a single line offers only one.
         """
-        parsed = self.parse_params({"source": text, **params})
         lines = [line for _, line in line_spans(text)]
         if len(lines) < 2:
             raise NoCandidateWord(
@@ -120,4 +123,4 @@ class TextFolding(BaseProcedure[TextFoldingParams]):
                 "and a far flap to bring together, so give a source with at "
                 "least two lines, or check a text instead of generating one",
             )
-        return "\n".join(self._fold(lines, parsed.fold_at))
+        return "\n".join(self._fold(lines, params.fold_at))

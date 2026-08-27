@@ -39,12 +39,11 @@ from itertools import pairwise
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, DiacriticParams, require_capability
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
 from denckring.core.errors import InvalidParams, NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import ALPHABET, WORDS
 
 #: A ladder longer than this is not worth searching for. Carroll's own puzzles
 #: run to a handful of steps; a breadth-first search that has not reached the
@@ -96,20 +95,22 @@ def _alphabet(pack: LanguagePack, *, fold: bool) -> str:
 
 
 class WordLadderParams(DiacriticParams):
-    # Named `target`, not `end` or anything shorter: `apply`'s reserved
-    # keywords are `seed` and `lang` (see `every_nth_word.py`), and `target`
-    # collides with neither. Left optional — defaulting to `None` — so `check`,
-    # which never needs a target, only the ladder text itself, can be called
-    # with no extra parameter; `apply` is the one that requires it, and does
-    # so explicitly rather than through this field's own validation, because
-    # the same model has to serve both callers.
+    # Left optional — defaulting to `None` — so `check`, which never needs a
+    # target, only the ladder text itself, can be called with no extra
+    # parameter; `apply` is the one that requires it, and does so explicitly
+    # rather than through this field's own validation, because the same model
+    # has to serve both callers.
     target: str | None = Field(
         default=None, description="The word `apply` searches a ladder toward."
     )
 
 
+class WordLadderApplyParams(WordLadderParams, ApplyParams):
+    pass
+
+
 @register
-class WordLadder(BaseProcedure[WordLadderParams]):
+class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams]):
     """Constructive: `apply` searches the ladder `check` verifies."""
 
     id = "word_ladder"
@@ -178,9 +179,11 @@ class WordLadder(BaseProcedure[WordLadderParams]):
             metrics={"words": float(len(spans)), "steps": float(max(len(spans) - 1, 0))},
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[WordLadderApplyParams]:
+        return WordLadderApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: WordLadderApplyParams) -> str:
         """Search the lexicon for the shortest ladder from `text` to `target`.
 
         Breadth-first, not depth-first: a depth-first walk of a fifty-thousand
@@ -205,23 +208,21 @@ class WordLadder(BaseProcedure[WordLadderParams]):
         can be reached from or to it, or no path inside the search's bounds.
         These were split across the two codes with no line between them, so
         three different mistakes with the same field answered under two names.
-        """
-        from denckring.lang import get_pack
 
-        pack = get_pack(lang)
-        require_capability(pack, WORDS, self.id)
-        require_capability(pack, ALPHABET, self.id)
-        parsed = self.parse_params(params)
-        if not parsed.target:
+        `lexicon.words` and `alphabet` are on this row's `requires`, so the
+        spine already guarded both before this method ran — no hand-rolled
+        `require_capability` needed here any more.
+        """
+        if not params.target:
             raise InvalidParams(self.id, "target is required: apply(start_word, target=end_word)")
 
         start = text.strip().lower()
-        target = parsed.target.strip().lower()
+        target = params.target.strip().lower()
         if not start.isalpha() or not target.isalpha():
             raise InvalidParams(
                 self.id,
                 "both the start word and target must be single alphabetic "
-                f"words; got {text.strip()!r} and {parsed.target.strip()!r}",
+                f"words; got {text.strip()!r} and {params.target.strip()!r}",
             )
         if len(start) != len(target):
             raise InvalidParams(
@@ -236,7 +237,7 @@ class WordLadder(BaseProcedure[WordLadderParams]):
                 f"{start!r} and {target!r} must both be words the lexicon knows",
             )
 
-        alphabet = _alphabet(pack, fold=parsed.fold_diacritics)
+        alphabet = _alphabet(pack, fold=params.fold_diacritics)
         ladder, gave_up_on_breadth = _search_ladder(start, target, pack, alphabet)
         if ladder is None:
             if gave_up_on_breadth:
