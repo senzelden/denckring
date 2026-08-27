@@ -215,3 +215,22 @@ Named here so the boundary is explicit:
   no word list can rule out its being a verb there, and reports `ambiguous_words`. The
   behaviour is right and the verdict is too confident. A question about what `satisfied`
   should mean when the checker could not tell — chapter 3, if at all.
+- **`wechselsatz`'s `drawable` filter.** `_apply` splits a frame on whitespace; `_check`
+  reads the produced line back with `word_spans`, a different tokenizer — so an
+  alternative like `Nacht-Tag`, which the German pack reads as two words, or `3`, could
+  be drawn and then rejected by the checker meant to verify it. The filter closes that
+  the narrow way, by simply never drawing such an alternative, which means it silently
+  never comes up for the reader — the same silent no-op this chapter otherwise abolishes,
+  one level down, and deliberately not fixed here. The real fix is a frame contract
+  stating what an alternative may be, refused at the door, which is the template-grammar
+  work of chapter 2.
+- **`tests/test_round_trip.py`'s `max_examples`, raised 200 → 1000.** `fold_in` and
+  `mathews_algorithm` need two blank-line-separated paragraphs, which text drawn
+  uniformly from the test alphabet offers about once in three hundred examples; widening
+  the alphabet to reach `cent_mille_milliards`, `wechselsatz` and `recombination` spent
+  the margin that used to reach them by luck at 200. The suite is not flaky —
+  `derandomize=True` fixes the sequence — but it is one shared sequence: if it ever
+  shifts, every row this close to the floor fails for everyone at once, not
+  intermittently for some. The durable fix is a paragraph-shaped Hypothesis strategy
+  that reaches these rows by construction rather than by drawing enough examples to get
+  lucky; chapter 3.

@@ -391,6 +391,20 @@ All notable changes to this project are documented here. The format follows
   a path of its own; a relative directory on the path resolves against the process's
   working directory at call time, so changing directory after setting the variable can
   turn into silent misses under the same skip-quietly contract.
+- `ConstructiveProcedure`, the template method for `apply` that `check` has always
+  had: it resolves the pack, enforces both capability lists, validates parameters
+  and refuses output identical to the input, so a generator cannot forget any of
+  it. `parse_apply_params` also refuses a caller-supplied `source`: the text being
+  transformed *is* the source, so a second one names two texts for one argument,
+  and passing both now raises `InvalidParams` instead of one silently winning.
+  ADR 0025.
+- `Meta.apply_requires`, so a generator can declare a capability its checker does
+  not need — `anagram` generates only with a word lexicon and checks with core
+  alone, and one list could not say both.
+- `Description.constructive` and `Summary.constructive`, reporting whether *this
+  install* has a generator, distinct from `kind`, which says whether the form
+  admits one. Nine rows are honestly `both` with no generator here.
+- `DegenerateOutput` and `InputTooShort`.
 
 ### Changed
 
@@ -428,6 +442,21 @@ All notable changes to this project are documented here. The format follows
   same seed's new reading, which leaves both properties its `source` claims —
   disjointness from the first fixture and no repeated word stem — true and re-derived
   on every run.
+- **Breaking:** `seed` is a parameter on `SeedParams` rather than a keyword in the
+  `Constructive.apply` signature, carried only by the ten procedures that draw at
+  random. A keyword named in the signature bound before `**params`, so `seed` was
+  never validated and all 27 generators accepted `seed="not-an-int"`. Passing
+  `seed` to a procedure that does not draw now raises `InvalidParams` instead of
+  being silently ignored. `lang` remains a reserved keyword on the same signature
+  for the same reason — no params field may be named `lang` either, and
+  `ApplyParams` now says so.
+- `boustrophedon`, `cent_mille_milliards`, `recombination` and `wechselsatz` raise
+  `InputTooShort` where they used to return their input unchanged. `wechselsatz`
+  raises it twice over: once for a frame offering no choice at all, and once for
+  a frame whose alternatives the tokenizer used to check the result cannot read
+  back as single words — a gap `_apply`'s `drawable` filter now closes by simply
+  never drawing such an alternative, which is itself a known, accepted cost
+  documented in the code and deferred to chapter 2.
 
 ### Fixed
 

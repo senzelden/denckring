@@ -19,3 +19,10 @@ The acceptance criterion is intrinsic to every registered procedure, so the code
 unusually well suited to unattended agent work. Restrictive procedures — the whole of
 Batch 1 — are complete with `check` alone. The cost is that `apply` cannot be relied on
 by callers without consulting `meta.kind` first, which the CLI does on their behalf.
+
+## Amendment
+
+ADR 0025 keeps `apply` optional and moves it onto a `ConstructiveProcedure` base
+class. The sentence above about `apply` living off `BaseProcedure` no longer
+describes the code; the decision it was serving — that a procedure with only a
+checker is a complete procedure — is unchanged.
