@@ -63,7 +63,7 @@ def test_a_second_source_is_refused_rather_than_silently_losing_one() -> None:
     """`apply` supplies `source` from the text it is transforming, so a caller who
     supplies one too has named two sources; only one can be used and nothing would
     say which. `cut_up` reads `text`, so this is invisible until Task 4 migrates a
-    generator whose `_apply` reads `params.source` — hence closed now."""
+    generator whose `_produce` reads `params.source` — hence closed now."""
     with pytest.raises(InvalidParams) as caught:
         cut_up().apply("one two three", source="four five six")
     assert "source" in str(caught.value)
@@ -224,8 +224,6 @@ def test_produce_is_annotated_as_returning_a_list(pid: str) -> None:
     is what `mypy --strict` reads, and a stale `-> str` there passes at runtime."""
     procedure = get(pid)
     assert isinstance(procedure, ConstructiveProcedure)
-    import inspect
-
     signature = inspect.signature(type(procedure)._produce)
     assert signature.return_annotation in ("list[str]", list[str])
 
