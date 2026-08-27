@@ -107,14 +107,56 @@ def test_the_best_is_still_first() -> None:
     assert procedure.produce("The cat is great.").texts[0] == "The cat is great treat."
 
 
+def _swapped_word(source: str, candidate: str) -> str:
+    """The word `_produce` inserted, recovered from the text it inserted it into.
+
+    `_produce` returns `text[:end] + " " + swapped + text[end:]`, so the candidate
+    is the source with one `" " + swapped` spliced in at a word end. Walking the
+    splice points and taking the one whose inserted slice is a space followed by
+    letters is exact, where stripping the common prefix and suffix is not: a
+    swapped word sharing letters with what follows it slides the apparent
+    boundary, and `great`/`greet` in this very fixture does exactly that.
+    """
+    width = len(candidate) - len(source)
+    for cut in range(len(source) + 1):
+        if candidate[:cut] != source[:cut] or candidate[cut + width :] != source[cut:]:
+            continue
+        inserted = candidate[cut : cut + width]
+        if inserted.startswith(" ") and inserted[1:].isalpha():
+            return inserted[1:]
+    raise AssertionError(f"no single-word insertion turns {source!r} into {candidate!r}")
+
+
 def test_the_order_is_the_score_it_already_computed() -> None:
-    """`CandidateScore` is `(pronounced, is_noun, length)` and totally ordered.
-    Sorting must be stable, so equal scores keep the search's own order and two
-    runs of the same input agree."""
+    """`CandidateScore` is `(pronounced, is_noun, length)` and totally ordered,
+    and `texts` must be sorted by it, best first.
+
+    This used to assert only that two identical calls agree, which is true of any
+    deterministic implementation and would hold with the sort key reversed. Here
+    each candidate's score is rebuilt from the word it inserted — the same three
+    components `_produce` computed — and the sequence must be non-increasing.
+    The two-calls-agree assertion stays as what it always was: the stability half,
+    which is what keeps equal scores in the order the search walked them in.
+    """
+    from denckring.lang import get_pack
+
     procedure = get("paragram")
     assert isinstance(procedure, Constructive)
-    first = procedure.produce("The cat is great.").texts
-    assert first == procedure.produce("The cat is great.").texts
+    source = "The cat is great."
+    texts = procedure.produce(source, max_results=100).texts
+    assert len(texts) > 1, "one candidate cannot demonstrate an order"
+
+    pack = get_pack("en")
+    scores = []
+    for candidate in texts:
+        swapped = _swapped_word(source, candidate)
+        assert pack.is_word(swapped), f"{swapped!r} is not the inserted word"
+        scores.append(
+            (pack.syllable_count(swapped)[1], pack.noun_index(swapped) is not None, len(swapped))
+        )
+    assert scores == sorted(scores, reverse=True), f"texts are not in score order: {scores}"
+
+    assert texts == procedure.produce(source, max_results=100).texts
 
 
 def test_max_results_caps_and_says_so() -> None:
