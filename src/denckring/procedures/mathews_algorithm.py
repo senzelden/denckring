@@ -118,7 +118,9 @@ class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgo
     def apply_params_model(cls) -> type[MathewsAlgorithmApplyParams]:
         return MathewsAlgorithmApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: MathewsAlgorithmApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: MathewsAlgorithmApplyParams
+    ) -> list[str]:
         """Table and rotate `text`'s rows, `text` serving as its own source.
 
         `text` must itself hold at least two blank-line separated paragraphs,
@@ -137,4 +139,4 @@ class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgo
                 "with two or more such paragraphs, or check a text instead "
                 "of generating one",
             )
-        return "\n".join(" ".join(self._rotate(row, index)) for index, row in enumerate(table))
+        return ["\n".join(" ".join(self._rotate(row, index)) for index, row in enumerate(table))]

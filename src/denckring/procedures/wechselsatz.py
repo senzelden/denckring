@@ -111,7 +111,7 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
     def apply_params_model(cls) -> type[WechselsatzApplyParams]:
         return WechselsatzApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: WechselsatzApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: WechselsatzApplyParams) -> list[str]:
         """One turn of Kuhlmann's frame: a word drawn for each slot.
 
         The alternatives are read here without folding case — the checker folds
@@ -142,4 +142,4 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
                 found=f"{len(starved)} of {counted(len(offered), 'slot')} offering none; the first "
                 f"offers only {', '.join(repr(part) for part in starved[0])}",
             )
-        return " ".join(chooser.choice(options) for options in slots)
+        return [" ".join(chooser.choice(options) for options in slots)]

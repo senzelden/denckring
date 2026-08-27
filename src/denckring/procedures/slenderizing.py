@@ -75,14 +75,16 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     def apply_params_model(cls) -> type[SlenderizingApplyParams]:
         return SlenderizingApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> list[str]:
         """Strike the letter out of `text` and let the rest close up.
 
         No seed: there is exactly one slenderizing of a text for a given letter,
         which is why this generator takes no choices at all.
         """
-        return "".join(
-            ch
-            for ch in text
-            if not ch.isalpha() or pack.fold_diacritics(ch).lower() != params.deleted
-        )
+        return [
+            "".join(
+                ch
+                for ch in text
+                if not ch.isalpha() or pack.fold_diacritics(ch).lower() != params.deleted
+            )
+        ]

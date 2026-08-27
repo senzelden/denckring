@@ -84,7 +84,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
     def apply_params_model(cls) -> type[AnagramApplyParams]:
         return AnagramApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: AnagramApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: AnagramApplyParams) -> list[str]:
         """Rearrange the letters of `text` into words the lexicon knows.
 
         Greedy: take the longest word the remaining letters can still spell, and
@@ -111,7 +111,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
             remaining -= Counter(word)
         if sum(remaining.values()):
             found.append("".join(sorted(remaining.elements())))
-        return " ".join(found)
+        return [" ".join(found)]
 
     @staticmethod
     def _longest_word(remaining: Counter[str], pack: LanguagePack, minimum: int = 2) -> str | None:

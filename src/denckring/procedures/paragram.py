@@ -96,7 +96,7 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
     def apply_params_model(cls) -> type[ParagramApplyParams]:
         return ParagramApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: ParagramApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: ParagramApplyParams) -> list[str]:
         """Change one letter of a word in `text` into another word the lexicon knows.
 
         The original word is left in place and the swapped word is inserted
@@ -150,4 +150,4 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
         if best_score is None:
             raise NoCandidateWord(self.id)
         insert_at = best_offset + len(best_word)
-        return text[:insert_at] + " " + best_swapped + text[insert_at:]
+        return [text[:insert_at] + " " + best_swapped + text[insert_at:]]

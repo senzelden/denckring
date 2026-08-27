@@ -61,7 +61,7 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
     def apply_params_model(cls) -> type[MeltingTextApplyParams]:
         return MeltingTextApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: MeltingTextApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: MeltingTextApplyParams) -> list[str]:
         """One stage of the melt: words dropped, the survivors in their order.
 
         Half of them, by coin, rather than a fixed stride — a melt that always
@@ -70,4 +70,4 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
         """
         chooser = random.Random(params.seed)
         kept = [word for _, word in word_spans(text, pack) if chooser.random() < 0.5]
-        return " ".join(kept)
+        return [" ".join(kept)]

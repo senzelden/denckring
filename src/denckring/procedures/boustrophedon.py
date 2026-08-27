@@ -93,7 +93,9 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
     def apply_params_model(cls) -> type[BoustrophedonApplyParams]:
         return BoustrophedonApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: BoustrophedonApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: BoustrophedonApplyParams
+    ) -> list[str]:
         """Turn `text`'s alternate lines, `text` serving as its own source.
 
         Every source line survives the turn — there is no candidate that can
@@ -108,4 +110,4 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
                 found=counted(len(lines), "line"),
             )
         turned = [line[::-1] if index % 2 == 1 else line for index, line in enumerate(lines)]
-        return "\n".join(turned)
+        return ["\n".join(turned)]

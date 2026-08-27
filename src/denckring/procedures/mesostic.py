@@ -84,7 +84,7 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
     def apply_params_model(cls) -> type[MesosticApplyParams]:
         return MesosticApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: MesosticApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: MesosticApplyParams) -> list[str]:
         """Read through `text`, which serves as the source, one word per line.
 
         Each line is a single word carrying that line's spine letter somewhere in
@@ -115,4 +115,4 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
                 "a different source or spine, or check a text instead of "
                 "generating one",
             )
-        return "\n".join(chosen)
+        return ["\n".join(chosen)]

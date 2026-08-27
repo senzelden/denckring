@@ -94,7 +94,7 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
     def apply_params_model(cls) -> type[HaikuizationApplyParams]:
         return HaikuizationApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: HaikuizationApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: HaikuizationApplyParams) -> list[str]:
         """Keep only the last word of every line of `text`, which serves as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when
@@ -110,4 +110,4 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
                 "the source has no non-blank line to read a line end from — "
                 "try a source with at least one line of text",
             )
-        return " ".join(chosen)
+        return [" ".join(chosen)]

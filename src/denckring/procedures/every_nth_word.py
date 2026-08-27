@@ -72,6 +72,6 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
     def apply_params_model(cls) -> type[EveryNthWordApplyParams]:
         return EveryNthWordApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: EveryNthWordApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: EveryNthWordApplyParams) -> list[str]:
         """Produce the selection from `text`, which serves as the source."""
-        return " ".join(self._select(text, pack, params.n))
+        return [" ".join(self._select(text, pack, params.n))]

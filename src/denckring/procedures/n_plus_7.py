@@ -143,6 +143,6 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
     def apply_params_model(cls) -> type[NPlus7ApplyParams]:
         return NPlus7ApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> list[str]:
         """Walk every noun in `text` seven places down the dictionary."""
-        return displace(text, pack, params.offset)
+        return [displace(text, pack, params.offset)]

@@ -137,7 +137,7 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
     def apply_params_model(cls) -> type[FoldInApplyParams]:
         return FoldInApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: FoldInApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: FoldInApplyParams) -> list[str]:
         """Fold `text`'s two pages together, `text` serving as its own source.
 
         `text` must itself hold two blank-line separated paragraphs — see the
@@ -154,4 +154,4 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
                 "of the join, so give a source with two such paragraphs, or "
                 "check a text instead of generating one",
             )
-        return "\n".join(self._fold_in(page_one, page_two))
+        return ["\n".join(self._fold_in(page_one, page_two))]
