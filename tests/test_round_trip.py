@@ -75,6 +75,28 @@ TEXT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n|.", min_size=1, max_size=
 PARAMETER_GATED = frozenset({"arca_musarithmica", "pasigraphy", "slenderizing", "word_ladder"})
 
 
+def _ignores_input(procedure_id: str) -> bool:
+    """Read from the class attribute rather than listed by hand.
+
+    The membership is pinned in `test_non_degeneracy.py`; repeating three ids
+    here would be a second copy of it, free to rot when a fourth device lands.
+    """
+    procedure = all_procedures()[procedure_id]
+    return isinstance(procedure, ConstructiveProcedure) and procedure.ignores_input
+
+
+#: The devices whose `_produce` never reads `text` — the rings, the board, the wheel.
+#: The two properties below compare output against the input, and for these three that
+#: comparison carries no information at all: the argument was never read, so output
+#: equalling it says nothing about whether the procedure ran. `_is_degenerate` skips the
+#: same comparison for the same reason, and asserting the opposite of the spine is a
+#: contradiction the suite kept only by luck — `llull_figure` and `poesie_automat` emit
+#: text that lies entirely inside the alphabet `TEXT` draws from, so nothing but the
+#: draw stood between this and a failure, and widening that alphabet is exactly what an
+#: earlier chapter did once already.
+IGNORES_INPUT = frozenset(pid for pid in CONSTRUCTIVE if _ignores_input(pid))
+
+
 def test_there_is_something_to_round_trip() -> None:
     assert CONSTRUCTIVE, "no procedure defines apply(); the round-trip property is vacuous"
 
@@ -193,8 +215,14 @@ def test_every_produced_text_satisfies_check(text: str) -> None:
 @settings(max_examples=50, deadline=None)
 @given(TEXT)
 def test_every_produced_text_differs_from_the_input(text: str) -> None:
-    """The non-degeneracy companion, over all candidates rather than the first."""
+    """The non-degeneracy companion, over all candidates rather than the first.
+
+    `IGNORES_INPUT` is skipped, not exempted as a special case: see the comment
+    on that set, and `ConstructiveProcedure.ignores_input`.
+    """
     for procedure_id in CONSTRUCTIVE:
+        if procedure_id in IGNORES_INPUT:
+            continue
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
@@ -217,8 +245,13 @@ def test_apply_does_not_return_its_input(text: str) -> None:
     generator that does nothing. Here `DegenerateOutput` is *not* swallowed: the
     spine raising it is the guard working, and any other refusal is allowed for
     the same reason it is above.
+
+    `IGNORES_INPUT` is skipped, not exempted as a special case: see the comment
+    on that set, and `ConstructiveProcedure.ignores_input`.
     """
     for procedure_id in CONSTRUCTIVE:
+        if procedure_id in IGNORES_INPUT:
+            continue
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
