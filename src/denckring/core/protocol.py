@@ -85,7 +85,9 @@ class Production(BaseModel):
     #: Best first — `apply` returns `texts[0]`, so the order is the contract.
     #: Never empty: a generator with nothing to return raises, and an empty list
     #: would be a fourth way of saying a failure that has three honest names.
-    texts: list[str]
+    #: `min_length=1` makes that a validation error naming the field rather than
+    #: a bare `IndexError` from `apply`'s `texts[0]`.
+    texts: list[str] = Field(min_length=1)
     #: Whether more were found than `max_results` let through. Without it a
     #: truncated search is indistinguishable from an exhaustive one.
     truncated: bool = False
@@ -137,6 +139,8 @@ class Constructive(Protocol):
     """
 
     def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str: ...
+
+    def produce(self, text: str, *, lang: Lang = "en", **params: Any) -> Production: ...
 
 
 @runtime_checkable
