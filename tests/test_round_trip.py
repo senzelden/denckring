@@ -39,6 +39,16 @@ all three returned their input on every example Hypothesis could draw. While the
 guard was inert that read as three rows passing the round-trip property; with the
 guard live it reads as three rows raising on every example, which is the same
 vacuum said out loud.
+
+`test_apply_output_satisfies_check` and `test_apply_does_not_return_its_input` see
+only `texts[0]` of what a generator found, because that is all `apply` ever
+returns. `test_every_produced_text_satisfies_check` and
+`test_every_produced_text_differs_from_the_input` below call `produce` instead and
+range over its whole `texts` list, so a bad candidate sitting behind a good first
+one is no longer invisible. As of this writing `paragram` is the only row where
+that distinction is live: it is the only constructive procedure whose `produce`
+returns more than one candidate on the alphabet `TEXT` draws from, so it is the
+only row the four properties above and below can actually disagree about.
 """
 
 from hypothesis import given, settings
@@ -154,6 +164,48 @@ def test_apply_output_satisfies_check(text: str) -> None:
         assert report.satisfied, (
             f"{procedure_id}: apply produced text that its own check rejects: {produced!r}"
         )
+
+
+@settings(max_examples=50, deadline=None)
+@given(TEXT)
+def test_every_produced_text_satisfies_check(text: str) -> None:
+    """Strictly stronger than the property above, which sees only `texts[0]`.
+
+    A multi-result generator hides its bad candidates behind the first one, and
+    the first one is the only one `apply` ever returned. This is the property
+    that keeps a search honest once there is a search.
+    """
+    for procedure_id in CONSTRUCTIVE:
+        procedure = all_procedures()[procedure_id]
+        assert isinstance(procedure, Constructive)
+        lang = procedure.meta.languages[0]
+        try:
+            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, 0))
+        except DenckringError:
+            continue
+        for candidate in produced.texts:
+            report = procedure.check(candidate, lang=lang, **_check_args(procedure_id, text))
+            assert report.satisfied, (
+                f"{procedure_id}: produced text its own check rejects: {candidate!r}"
+            )
+
+
+@settings(max_examples=50, deadline=None)
+@given(TEXT)
+def test_every_produced_text_differs_from_the_input(text: str) -> None:
+    """The non-degeneracy companion, over all candidates rather than the first."""
+    for procedure_id in CONSTRUCTIVE:
+        procedure = all_procedures()[procedure_id]
+        assert isinstance(procedure, Constructive)
+        lang = procedure.meta.languages[0]
+        try:
+            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, 0))
+        except DenckringError:
+            continue
+        for candidate in produced.texts:
+            assert candidate.strip() != text.strip(), (
+                f"{procedure_id}: produced its input past the guard: {candidate!r}"
+            )
 
 
 @settings(max_examples=50, deadline=None)
