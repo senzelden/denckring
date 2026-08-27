@@ -1,15 +1,17 @@
 """The template method every procedure inherits.
 
 `check` validates language, capability and parameters before delegating, so an
-individual procedure module cannot forget those checks.
+individual procedure module cannot forget those checks. `ConstructiveProcedure`
+gives `apply` the same spine, which it went without because ADR 0002 made it
+optional and so kept it off `BaseProcedure` entirely.
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Generic, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar, cast
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, create_model
 
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, MissingCapability
@@ -17,6 +19,7 @@ from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import Lang, LanguagePack, Meta, Report, Violation
 
 P = TypeVar("P", bound=BaseModel)
+A = TypeVar("A", bound=BaseModel)
 
 
 class DiacriticParams(BaseModel):
@@ -65,6 +68,40 @@ class SourceParams(BaseModel):
     source: str = Field(description="The text this one was made from.")
 
 
+class SeedParams(BaseModel):
+    """Mixed into every procedure that draws at random.
+
+    A field, not a signature keyword. `Constructive.apply` used to name `seed`
+    explicitly, and Python binds a keyword matching an explicit parameter to that
+    parameter before any of it reaches `**params` — silently. So `seed` reached
+    no params model, pydantic never typed it, and all 27 generators accepted
+    `seed="not-an-int"`. `diastic` documented the collision and renamed its own
+    field around it; this removes the collision instead.
+
+    Carried only by the ten procedures that draw, so `seed` cannot be passed to
+    the other seventeen at all — the same exclusion-by-type ADR 0009 gives
+    `fold_diacritics`.
+    """
+
+    seed: int | None = Field(default=None, description="Fixes the draw, for a repeatable result.")
+
+
+class ApplyParams(BaseModel):
+    """Mixed into every generator's apply-params model.
+
+    A generator that returns its input has not run the procedure, and says
+    nothing a caller can act on. Refusing it is the default; `allow_identity`
+    is for the caller who genuinely wants the degenerate case.
+    """
+
+    allow_identity: bool = Field(
+        default=False,
+        description=(
+            "Permit output identical to the input, which normally means the procedure did not run."
+        ),
+    )
+
+
 class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
@@ -89,18 +126,7 @@ class BaseProcedure(ABC, Generic[P]):
         escaped as a Pydantic error rather than a DenckringError — which meant
         callers had to catch two kinds of failure for one kind of mistake.
         """
-        model = self.params_model()
-        unknown = sorted(set(params) - set(model.model_fields))
-        if unknown:
-            raise InvalidParams(
-                self.id,
-                f"unknown parameter(s) {unknown}; this procedure accepts "
-                f"{sorted(model.model_fields)}",
-            )
-        try:
-            return model.model_validate(params)
-        except ValidationError as exc:
-            raise InvalidParams(self.id, str(exc)) from exc
+        return cast(P, parse_into(self.params_model(), params, self.id))
 
     def params_schema(self) -> dict[str, Any]:
         """JSON Schema for the parameters, for non-Python callers."""
@@ -140,7 +166,84 @@ class BaseProcedure(ABC, Generic[P]):
         )
 
 
+def parse_into(model: type[BaseModel], params: dict[str, Any], procedure_id: str) -> BaseModel:
+    """Validate `params` against `model`, raising `InvalidParams` either way.
+
+    Extracted from `BaseProcedure.parse_params` so `apply` validates by exactly
+    the rule `check` does. Silently dropping a mistyped parameter would let a
+    caller believe a constraint was applied when it was not.
+    """
+    unknown = sorted(set(params) - set(model.model_fields))
+    if unknown:
+        raise InvalidParams(
+            procedure_id,
+            f"unknown parameter(s) {unknown}; this procedure accepts {sorted(model.model_fields)}",
+        )
+    try:
+        return model.model_validate(params)
+    except ValidationError as exc:
+        raise InvalidParams(procedure_id, str(exc)) from exc
+
+
 def require_capability(pack: LanguagePack, capability: str, procedure_id: str) -> None:
     """Raise `MissingCapability` unless the pack declares it."""
     if capability not in pack.capabilities:
         raise MissingCapability(procedure_id, pack.lang, capability)
+
+
+class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
+    """A procedure that generates as well as checks.
+
+    `apply` is the template method `check` has always had: it resolves the pack,
+    enforces both capability lists, validates parameters, and refuses output
+    identical to the input — so an individual procedure module cannot forget any
+    of it. ADR 0002 is amended rather than reversed: `apply` is still optional,
+    but a procedure that has one inherits this.
+    """
+
+    @classmethod
+    def apply_params_model(cls) -> type[A]:
+        """The parameters `apply` accepts.
+
+        Defaults to the checker's model widened by `ApplyParams`. A generator
+        with parameters of its own — a seed, a target word — declares its own
+        model and inherits `ApplyParams` explicitly.
+        """
+        combined = create_model(
+            f"{cls.__name__}ApplyParams", __base__=(cls.params_model(), ApplyParams)
+        )
+        return cast(type[A], combined)
+
+    def parse_apply_params(self, text: str, params: dict[str, Any]) -> A:
+        """Validate, supplying `source` from the text being transformed.
+
+        Every generator did this by hand as `parse_params({"source": text,
+        **params})`. Doing it here is what makes it impossible to forget.
+        """
+        model = self.apply_params_model()
+        if "source" in model.model_fields:
+            params = {"source": text, **params}
+        return cast(A, parse_into(model, params, self.id))
+
+    @abstractmethod
+    def _apply(self, text: str, pack: LanguagePack, params: A) -> str:
+        """Procedure-specific generation. Language and parameters are already valid."""
+
+    def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:
+        """Generate text with this procedure."""
+        from denckring.lang import get_pack
+
+        pack = get_pack(lang)
+        for capability in (*self.meta.requires, *self.meta.apply_requires):
+            require_capability(pack, capability, self.id)
+        parsed = self.parse_apply_params(text, params)
+        return self._guard_degenerate(text, self._apply(text, pack, parsed), parsed)
+
+    def _guard_degenerate(self, text: str, produced: str, params: A) -> str:
+        """Deliberately inert here, so this task changes no generator's output.
+
+        Task 6 gives it teeth once every generator is on the spine; enforcing it
+        before the migration would fail rows for a reason unrelated to the
+        migration, and the two would be indistinguishable in the same commit.
+        """
+        return produced

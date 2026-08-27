@@ -108,11 +108,14 @@ class Constructive(Protocol):
     `apply` is optional by ADR 0002, so it is not on `BaseProcedure`. This
     protocol is how callers ask whether a given procedure has one, and it
     narrows the type at the same time.
+
+    `seed` was an explicit keyword here and is now an ordinary parameter on
+    `SeedParams`, carried by the ten procedures that draw. A keyword named in
+    this signature binds before `**params` and so can never be validated, which
+    is what made `seed` unvalidatable for all 27.
     """
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any
-    ) -> str: ...
+    def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str: ...
 
 
 @runtime_checkable
