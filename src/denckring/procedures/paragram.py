@@ -4,16 +4,15 @@ from __future__ import annotations
 
 import string
 from itertools import combinations
-from typing import Any
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, DiacriticParams, require_capability
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC, WORDS
+from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC
 
 #: What makes one candidate swap better than another. Highest first:
 #: (1) the pronouncing dictionary actually has an entry for it — `pack.nouns()`
@@ -32,6 +31,10 @@ class ParagramParams(DiacriticParams):
     minimum: int = Field(default=1, ge=0, description="How many swapped pairs are wanted.")
 
 
+class ParagramApplyParams(ParagramParams, ApplyParams):
+    pass
+
+
 def differ_by_one(left: str, right: str) -> bool:
     """Equal length, differing at exactly one position."""
     if len(left) != len(right) or left == right:
@@ -40,7 +43,7 @@ def differ_by_one(left: str, right: str) -> bool:
 
 
 @register
-class Paragram(BaseProcedure[ParagramParams]):
+class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
     """The swap is in the text, so the text alone decides.
 
     The row is `checkability: self` and requires no lexicon, so what can be
@@ -89,7 +92,11 @@ class Paragram(BaseProcedure[ParagramParams]):
             metrics={"pairs": float(len(pairs))},
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[ParagramApplyParams]:
+        return ParagramApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: ParagramApplyParams) -> str:
         """Change one letter of a word in `text` into another word the lexicon knows.
 
         The original word is left in place and the swapped word is inserted
@@ -106,17 +113,12 @@ class Paragram(BaseProcedure[ParagramParams]):
         found rather than gating it, so the search still returns its best
         effort — never a refusal — when nothing scores well.
 
-        `lexicon.words` is required here but deliberately not added to the
-        catalogue row: `requires` gates `check` too, and this row has always
-        been checkable with core alone. ADR 0002 makes `apply` the optional
-        half, so the generator carries its own requirement — the same
-        arrangement `anagram` uses.
+        `lexicon.words` is declared on the catalogue row's `apply_requires`,
+        not its `requires`: the latter gates `check` too, and this row has
+        always been checkable with core alone. ADR 0002 makes `apply` the
+        optional half, and `apply_requires` is how the optional half states
+        its own cost — the same arrangement `anagram` uses.
         """
-        from denckring.lang import get_pack
-
-        pack = get_pack(lang)
-        require_capability(pack, WORDS, self.id)
-        self.parse_params(params)
         has_nouns = NOUNS in pack.capabilities
         has_syllables = SYLLABLES_HEURISTIC in pack.capabilities
 

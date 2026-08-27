@@ -33,9 +33,9 @@ physical fold divides a line of running text by eye, not by lemma.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, paragraph_spans, word_spans
 
@@ -46,8 +46,12 @@ class FoldInParams(SourceParams):
     fixed, not a dial a caller turns."""
 
 
+class FoldInApplyParams(FoldInParams, ApplyParams):
+    pass
+
+
 @register
-class FoldIn(BaseProcedure[FoldInParams]):
+class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
     """Constructive: `apply` performs the fold-in that `check` verifies."""
 
     id = "fold_in"
@@ -129,9 +133,11 @@ class FoldIn(BaseProcedure[FoldInParams]):
             },
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[FoldInApplyParams]:
+        return FoldInApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: FoldInApplyParams) -> str:
         """Fold `text`'s two pages together, `text` serving as its own source.
 
         `text` must itself hold two blank-line separated paragraphs — see the
@@ -139,7 +145,6 @@ class FoldIn(BaseProcedure[FoldInParams]):
         `text` unchanged when it does not: a fold-in needs two pages to bring
         together, and one paragraph, or none, offers only a single flap.
         """
-        self.parse_params({"source": text, **params})
         page_one, page_two = self._pages(text)
         if not page_one or not page_two:
             raise NoCandidateWord(

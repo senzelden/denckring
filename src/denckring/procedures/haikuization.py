@@ -24,9 +24,9 @@ layered on top.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report
+from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.core.source_compare import positional_report, selection_report
 from denckring.core.text import line_spans, word_spans
@@ -41,8 +41,12 @@ class HaikuizationParams(SourceParams):
     """
 
 
+class HaikuizationApplyParams(HaikuizationParams, ApplyParams):
+    pass
+
+
 @register
-class Haikuization(BaseProcedure[HaikuizationParams]):
+class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyParams]):
     """Constructive: `apply` performs the reduction `check` verifies."""
 
     id = "haikuization"
@@ -86,9 +90,11 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
             metrics={"selected": float(len(chosen))},
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[HaikuizationApplyParams]:
+        return HaikuizationApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: HaikuizationApplyParams) -> str:
         """Keep only the last word of every line of `text`, which serves as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when
@@ -97,10 +103,6 @@ class Haikuization(BaseProcedure[HaikuizationParams]):
         vacuously 1 — silently returning "" would hand back text its own
         checker rejects.
         """
-        from denckring.lang import get_pack
-
-        self.parse_params({"source": text, **params})
-        pack = get_pack(lang)
         chosen = self._line_ends(text, pack)
         if not chosen:
             raise NoCandidateWord(

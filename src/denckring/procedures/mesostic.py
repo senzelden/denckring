@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report
 from denckring.core.text import line_spans, word_spans
@@ -30,8 +30,12 @@ class MesosticParams(SourceParams):
     spine: str = Field(default="the", description="The spine word read down the lines.")
 
 
+class MesosticApplyParams(MesosticParams, ApplyParams):
+    pass
+
+
 @register
-class Mesostic(BaseProcedure[MesosticParams]):
+class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
     """Constructive: `apply` arranges the lines that `check` verifies."""
 
     id = "mesostic"
@@ -77,9 +81,11 @@ class Mesostic(BaseProcedure[MesosticParams]):
             metrics={"lines": float(len(lines))},
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[MesosticApplyParams]:
+        return MesosticApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: MesosticApplyParams) -> str:
         """Read through `text`, which serves as the source, one word per line.
 
         Each line is a single word carrying that line's spine letter somewhere in
@@ -89,12 +95,8 @@ class Mesostic(BaseProcedure[MesosticParams]):
         raises `NoCandidateWord` instead of returning empty text if even the first
         letter finds nothing to read.
         """
-        from denckring.lang import get_pack
-
-        parsed = self.parse_params({"source": text, **params})
-        pack = get_pack(lang)
         words = [word for _, word in word_spans(text, pack)]
-        letters = [ch for ch in parsed.spine.casefold() if ch.isalpha()]
+        letters = [ch for ch in params.spine.casefold() if ch.isalpha()]
         chosen: list[str] = []
         cursor = 0
         for letter in letters:

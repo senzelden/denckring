@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.n_plus_7 import NPlus7Params, displace, displacement_report
 
@@ -16,8 +14,12 @@ class SPlus7Params(SourceParams):
     offset: int = Field(default=7, description="How many nouns to count forward.")
 
 
+class SPlus7ApplyParams(SPlus7Params, ApplyParams):
+    pass
+
+
 @register
-class SPlus7(BaseProcedure[SPlus7Params]):
+class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
     """The same walk as N+7, with the step left to the writer."""
 
     id = "s_plus_7"
@@ -34,9 +36,10 @@ class SPlus7(BaseProcedure[SPlus7Params]):
             NPlus7Params(source=params.source, offset=params.offset),
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
-        """The same walk, with the step the caller asked for."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[SPlus7ApplyParams]:
+        return SPlus7ApplyParams
 
-        parsed = self.parse_params({"source": text, **params})
-        return displace(text, get_pack(lang), parsed.offset)
+    def _apply(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> str:
+        """The same walk, with the step the caller asked for."""
+        return displace(text, pack, params.offset)

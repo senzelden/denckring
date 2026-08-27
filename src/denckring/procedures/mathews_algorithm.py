@@ -27,9 +27,9 @@ search for, unlike the selection-based rows that can run out of candidates.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import paragraph_spans, word_spans
@@ -40,8 +40,12 @@ class MathewsAlgorithmParams(SourceParams):
     module docstring), and the rotation-by-row-index convention is fixed."""
 
 
+class MathewsAlgorithmApplyParams(MathewsAlgorithmParams, ApplyParams):
+    pass
+
+
 @register
-class MathewsAlgorithm(BaseProcedure[MathewsAlgorithmParams]):
+class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgorithmApplyParams]):
     """Constructive: `apply` performs the rotation that `check` verifies."""
 
     id = "mathews_algorithm"
@@ -110,9 +114,11 @@ class MathewsAlgorithm(BaseProcedure[MathewsAlgorithmParams]):
             },
         )
 
-    def apply(
-        self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: object
-    ) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[MathewsAlgorithmApplyParams]:
+        return MathewsAlgorithmApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: MathewsAlgorithmApplyParams) -> str:
         """Table and rotate `text`'s rows, `text` serving as its own source.
 
         `text` must itself hold at least two blank-line separated paragraphs,
@@ -121,10 +127,6 @@ class MathewsAlgorithm(BaseProcedure[MathewsAlgorithmParams]):
         it does not: a table needs two rows to rotate against each other,
         and a column to read across.
         """
-        from denckring.lang import get_pack
-
-        self.parse_params({"source": text, **params})
-        pack = get_pack(lang)
         table = self._table(text, pack)
         if len(table) < 2 or not table[0]:
             raise NoCandidateWord(
