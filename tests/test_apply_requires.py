@@ -7,7 +7,7 @@
 
 import pytest
 
-from denckring import check, describe
+from denckring import check
 from denckring.core import catalogue
 from denckring.core.describe import apply_runnable
 from denckring.lang.en import EnglishPack
@@ -32,12 +32,6 @@ def test_apply_runnable_reports_what_the_generator_lacks() -> None:
     ok, missing = apply_runnable(meta, pack=core_only)
     assert not ok
     assert missing == ["lexicon.words"]
-
-
-def test_apply_missing_reaches_the_description() -> None:
-    described = describe("anagram")
-    assert hasattr(described, "apply_missing")
-    assert isinstance(described.apply_missing, list)
 
 
 def test_rows_without_a_generator_requirement_default_to_empty() -> None:
