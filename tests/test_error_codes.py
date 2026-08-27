@@ -41,15 +41,16 @@ def test_codes_are_unique() -> None:
     assert not duplicates, f"duplicate codes: {duplicates}"
 
 
-def test_there_are_eighteen_subclasses() -> None:
+def test_there_are_nineteen_subclasses() -> None:
     """Pins the inventory. If this fails, a class was added or removed and the
     codes table in the spec needs the same edit.
 
     Sixteen until `apply` grew a spine: `DegenerateOutput` for a generator that
     returned its own input, and `InputTooShort` for the four that did so because
-    the input could not feed them.
+    the input could not feed them. Eighteen until `NotConstructive` replaced the
+    dict the MCP tool built by hand for a procedure with no generator.
     """
-    assert len(subclasses()) == 18
+    assert len(subclasses()) == 19
 
 
 def test_to_dict_carries_code_and_message() -> None:

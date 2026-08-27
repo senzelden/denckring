@@ -71,6 +71,27 @@ class Report(BaseModel):
     metrics: dict[str, float] = Field(default_factory=dict)
 
 
+class Production(BaseModel):
+    """What a generator turned out. `Report`'s counterpart for the other half.
+
+    `check` has returned a structured verdict since the beginning while `apply`
+    returned a bare string, so a generator that found several valid answers had
+    one place to put one of them. `paragram` scores every candidate it finds and
+    discards all but the best; `anagram` will have thirty-two two-word covers of
+    `dormitory` behind it. This is where the rest go.
+    """
+
+    procedure: str
+    #: Best first — `apply` returns `texts[0]`, so the order is the contract.
+    #: Never empty: a generator with nothing to return raises, and an empty list
+    #: would be a fourth way of saying a failure that has three honest names.
+    texts: list[str]
+    #: Whether more were found than `max_results` let through. Without it a
+    #: truncated search is indistinguishable from an exhaustive one.
+    truncated: bool = False
+    metrics: dict[str, float] = Field(default_factory=dict)
+
+
 class Meta(BaseModel):
     """A catalogue entry. The single source of truth for a procedure's description."""
 
