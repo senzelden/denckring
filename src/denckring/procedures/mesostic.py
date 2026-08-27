@@ -23,10 +23,9 @@ from denckring.core.text import line_spans, word_spans
 
 class MesosticParams(SourceParams):
     # Defaulted like `every_nth_word.n`, so `apply()` is usable with no extra
-    # keyword — unlike `diastic.seed_phrase`, `spine` has no reserved-name
-    # collision with the `Constructive` protocol's `seed: int | None`, so there
-    # was no forced reason for a default; it is here purely for that
-    # zero-argument convenience.
+    # keyword — unlike `diastic.seed_phrase`, `spine` was never forced into a
+    # rename by a reserved-keyword collision, so there was no forced reason
+    # for a default; it is here purely for that zero-argument convenience.
     spine: str = Field(default="the", description="The spine word read down the lines.")
 
 
