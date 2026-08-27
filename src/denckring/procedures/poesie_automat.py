@@ -79,6 +79,10 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
 
     id = "poesie_automat"
 
+    #: The board supplies the poem; `text` is never read. See
+    #: `ConstructiveProcedure.ignores_input`.
+    ignores_input = True
+
     @classmethod
     def params_model(cls) -> type[PoesieAutomatParams]:
         return PoesieAutomatParams
