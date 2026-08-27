@@ -26,13 +26,16 @@ class DiasticParams(SourceParams):
     # binds a keyword matching an explicit parameter name to that parameter
     # before any of it reaches `**params` — silently, so `apply(text,
     # seed="sil")` would have discarded `"sil"` and fallen back to whatever
-    # default the field carried, with no error to say so. `ConstructiveProcedure`
-    # closed that collision for every procedure at once (`seed` is now a field
-    # only `SeedParams` mixes in, on the ten that draw), so `diastic` no longer
-    # needs the rename to survive — but it keeps `seed_phrase` anyway, since
-    # that is still the more accurate name: this is a phrase, not an RNG seed.
-    # Defaulted for the same reason `every_nth_word.n` is: it lets `apply()` be
-    # called with no extra keyword at all.
+    # default the field carried, with no error to say so. `diastic` is on
+    # `ConstructiveProcedure` now, whose `apply` names no `seed` keyword at
+    # all, so the collision is closed for this row specifically — it does not
+    # carry `SeedParams`, so a field named `seed` here still could not exist
+    # regardless. (The nine generators Task 5 has not yet migrated still name
+    # `seed` on their own `apply` signatures, so the collision the rename was
+    # written to dodge is still live for them.) `diastic` keeps `seed_phrase`
+    # anyway, since that is still the more accurate name: this is a phrase,
+    # not an RNG seed. Defaulted for the same reason `every_nth_word.n` is: it
+    # lets `apply()` be called with no extra keyword at all.
     seed_phrase: str = Field(
         default="the", description="The seed phrase whose letters drive the selection."
     )
