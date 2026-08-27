@@ -11,8 +11,9 @@ from typing import Any
 
 import pytest
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
 from denckring.core.errors import InvalidParams
+from denckring.core.protocol import LanguagePack, Meta, Report
 from denckring.core.registry import all_procedures, get
 
 
@@ -103,9 +104,18 @@ DOES_NOT_DRAW = [
 
 @pytest.mark.parametrize("pid", DOES_NOT_DRAW)
 def test_a_procedure_that_does_not_draw_refuses_a_seed(pid: str) -> None:
-    """It accepted one before and ignored it, which is the worse of the two."""
-    with pytest.raises(InvalidParams):
+    """It accepted one before and ignored it, which is the worse of the two.
+
+    Asserts the message names `seed`, not merely that some `InvalidParams` was
+    raised: `pasigraphy`, `slenderizing` and `word_ladder` each have a required
+    field of their own (`table`, `deleted`, `target`) that this call never
+    supplies either, so a bare `pytest.raises(InvalidParams)` would stay green
+    for those three even if `seed` were silently accepted and the failure came
+    from the missing field instead.
+    """
+    with pytest.raises(InvalidParams) as caught:
         constructive(pid).apply("one two three four five", seed=3)
+    assert "seed" in str(caught.value)
 
 
 @pytest.mark.parametrize("pid", DOES_NOT_DRAW)
@@ -129,3 +139,74 @@ def test_no_generator_hand_rolls_the_preamble(pid: str) -> None:
     body = inspect.getsource(type(procedure)._apply)
     for forbidden in ("get_pack(", "parse_params(", "require_capability("):
         assert forbidden not in body, f"{pid}._apply still calls {forbidden}"
+
+
+class _NoOverrideParams(SourceParams):
+    """A real subclass of `SourceParams`, not `SourceParams` itself: the default
+    `apply_params_model()` builds `create_model(__base__=(cls.params_model(),
+    ApplyParams))`, and a `cls.params_model()` that returned `BaseModel` itself
+    would collide with the `BaseModel` `ApplyParams` already carries — the same
+    MRO trap Task 3's `_TakesNoSeed` double was built to avoid.
+    """
+
+
+class _NoOverride(ConstructiveProcedure[_NoOverrideParams, Any]):
+    """Exercises `ConstructiveProcedure.apply_params_model`'s default branch.
+
+    Every one of the seventeen generators Task 4 migrated declares an explicit
+    `<Name>ApplyParams` and overrides `apply_params_model()` — the recipe's
+    stated preference, for `mypy --strict`'s sake on `_apply`'s own annotation
+    — so nothing on the spine any longer calls the un-overridden default,
+    which synthesises a model via `create_model` on every invocation instead
+    of returning a fixed class. Task 3's `_TakesNoSeed` test double carried this
+    coverage until Task 4 replaced it with a real generator (`boustrophedon`,
+    in `tests/test_cli.py`) for the CLI's own seed-refusal tests — but
+    `boustrophedon`, like all seventeen, overrides `apply_params_model()` too,
+    so removing the double silently dropped this path's only coverage. This
+    probe does not need the registry or the CLI, only `ConstructiveProcedure`
+    directly, so it is defined here rather than re-registered anywhere.
+    """
+
+    id = "no_override_probe"
+
+    def __init__(self) -> None:
+        # Not `super().__init__()`: it reads the catalogue, and this id is not
+        # catalogued — the same reason `_TakesNoSeed` built its own `Meta`.
+        self.meta = Meta(
+            id=self.id,
+            names={"en": "no override probe"},
+            definitions={"en": "A stand-in exercising apply_params_model's default."},
+            source="test double",
+            family="word",
+            attribution="traditional",
+            checkability="self",
+            kind="constructive",
+            languages=["en"],
+        )
+
+    @classmethod
+    def params_model(cls) -> type[_NoOverrideParams]:
+        return _NoOverrideParams
+
+    def _check(self, text: str, pack: LanguagePack, params: _NoOverrideParams) -> Report:
+        return self._report(good=1, total=1, violations=[], metrics={})
+
+    def _apply(self, text: str, pack: LanguagePack, params: Any) -> str:
+        return text.upper()
+
+
+def test_the_default_apply_params_model_synthesises_from_the_checker_model() -> None:
+    """No override means `create_model` combines the checker's own fields with
+    `ApplyParams`'s `allow_identity` fresh, on every call — the path all
+    seventeen migrated generators bypass by declaring an explicit class."""
+    model = _NoOverride().apply_params_model()
+    assert set(model.model_fields) == {"source", "allow_identity"}
+
+
+def test_the_default_apply_params_model_still_refuses_an_unknown_parameter() -> None:
+    """The synthesised model is a real pydantic model, not a shortcut around
+    validation: an unrecognised parameter is refused through it exactly as it
+    would be through an explicit one."""
+    with pytest.raises(InvalidParams) as caught:
+        _NoOverride().apply("some text", nonsense=1)
+    assert "nonsense" in str(caught.value)

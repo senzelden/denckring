@@ -92,6 +92,13 @@ class ApplyParams(BaseModel):
     A generator that returns its input has not run the procedure, and says
     nothing a caller can act on. Refusing it is the default; `allow_identity`
     is for the caller who genuinely wants the degenerate case.
+
+    No field here, or on any model this mixes into, may be named `lang`:
+    `ConstructiveProcedure.apply` still takes `lang` as an explicit signature
+    keyword, and Python binds a keyword matching an explicit parameter name to
+    that parameter before any of it reaches `**params` — silently, the same
+    collision `seed` used to carry before `SeedParams` closed it for that name
+    alone.
     """
 
     allow_identity: bool = Field(
