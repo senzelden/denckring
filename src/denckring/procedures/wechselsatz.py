@@ -24,6 +24,17 @@ def drawable(part: str, pack: LanguagePack) -> bool:
     the draw is the narrow fix. Deciding what a well-formed frame may contain
     belongs to the template grammar this row still lacks, and `check` stays
     permissive until that arrives.
+
+    The cost, stated rather than left to be discovered: the pack decides what
+    one word is, so a German frame offering `Nacht-Tag` — which the de pack
+    reads as two words — silently never draws that alternative. The reader is
+    told nothing; the alternative simply cannot come up. That is the same
+    silent no-op this chapter abolishes, one level down, and it is carried to
+    chapter 2 rather than fixed here: the real answer is a frame contract
+    saying what an alternative may be, refused at the door, which is the
+    template-grammar work. Refusing here instead would also make every drawn
+    example containing `.` refuse, and `wechselsatz` a rare-draw row in the
+    coverage property that keeps this migration honest.
     """
     spans = word_spans(part, pack)
     return len(spans) == 1 and spans[0][1] == part
@@ -108,25 +119,27 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
         answering a different question than the one the reader asked.
         """
         chooser = random.Random(params.seed)
-        slots = [
-            [
-                part
-                for part in (raw.strip() for raw in slot.split(SEPARATOR))
-                if drawable(part, pack)
-            ]
+        # Measured on what the reader wrote, before `drawable` touches it. Filtering
+        # first and then counting choices told a reader who had written `'a|. b|.'`
+        # that no slot offered a choice and they should add the separator — which
+        # they had supplied twice. An error must describe the text it was given.
+        offered = [
+            [part for part in (raw.strip() for raw in slot.split(SEPARATOR)) if part]
             for slot in text.split()
         ]
-        if not any(len(options) > 1 for options in slots):
+        if not any(len(options) > 1 for options in offered):
             raise InputTooShort(
                 self.id,
                 needed=f"at least one slot offering a choice, separated by {SEPARATOR!r}",
-                found=f"{len(slots)} slots, none with a choice",
+                found=f"{len(offered)} slots, none with a choice",
             )
-        if not all(slots):
+        slots = [[part for part in options if drawable(part, pack)] for options in offered]
+        starved = [written for written, kept in zip(offered, slots, strict=True) if not kept]
+        if starved:
             raise InputTooShort(
                 self.id,
-                needed="every slot to offer at least one word that can be drawn",
-                found=f"{sum(1 for options in slots if not options)} of {len(slots)} slots "
-                f"offering no word",
+                needed="every slot to offer at least one alternative that is a single word",
+                found=f"{len(starved)} of {len(offered)} slots offering none; the first "
+                f"offers only {', '.join(repr(part) for part in starved[0])}",
             )
         return " ".join(chooser.choice(options) for options in slots)
