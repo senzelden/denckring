@@ -5,8 +5,9 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
+import denckring
 from denckring.core.base import ConstructiveProcedure
-from denckring.core.errors import DegenerateOutput, InvalidParams, NotConstructive
+from denckring.core.errors import DegenerateOutput, InvalidParams, NotConstructive, UnknownProcedure
 from denckring.core.protocol import Production
 from denckring.core.registry import get
 
@@ -93,3 +94,25 @@ def test_the_guard_still_refuses_when_nothing_survives() -> None:
 def test_metrics_report_what_was_found() -> None:
     produced = constructive("every_nth_word").produce("one two three four", n=2)
     assert produced.metrics["found"] == 1.0
+
+
+def test_the_package_exports_both_surfaces() -> None:
+    """`check` has been exported since the beginning and `apply` never was, so
+    every Python caller reached through the registry to generate anything."""
+    assert denckring.apply("every_nth_word", "one two three four", n=2) == "two four"
+    produced = denckring.produce("every_nth_word", "one two three four", n=2)
+    assert produced.texts == ["two four"]
+    assert "apply" in denckring.__all__
+    assert "produce" in denckring.__all__
+
+
+def test_generating_with_a_checker_only_procedure_is_an_error_not_a_dict() -> None:
+    with pytest.raises(NotConstructive):
+        denckring.apply("lipogram", "a text")
+    with pytest.raises(NotConstructive):
+        denckring.produce("lipogram", "a text")
+
+
+def test_an_unknown_id_still_raises_unknown_procedure() -> None:
+    with pytest.raises(UnknownProcedure):
+        denckring.produce("no_such_procedure", "a text")

@@ -15,10 +15,9 @@ from typing import Any
 
 from mcp.server import MCPServer
 
-from denckring import check, describe, summaries
+from denckring import check, describe, produce, summaries
 from denckring.core.errors import DenckringError
 from denckring.core.protocol import Lang
-from denckring.core.registry import get
 
 server = MCPServer("denckring")
 
@@ -89,19 +88,20 @@ def apply_procedure_tool(
     form admits one; `constructive` in `describe_procedure` says whether this
     install has it. Read `constructive`, not `kind`, before calling this, and
     `apply_params` — not `params` — for what may go in `params` here.
+
+    `text` is the first and best of `texts` — kept for callers that only ever
+    wanted one result. `truncated` says whether more were found than
+    `max_results` allowed.
     """
     try:
-        procedure_object = get(procedure)
-        apply = getattr(procedure_object, "apply", None)
-        if apply is None:
-            return {
-                "code": "not_constructive",
-                "message": f"{procedure!r} only checks; it has no generator.",
-                "detail": {"procedure_id": procedure},
-            }
-        return {"text": apply(text, lang=lang, **(params or {}))}
+        produced = produce(procedure, text, lang=lang, **(params or {}))
     except DenckringError as exc:
         return exc.to_dict()
+    return {
+        "text": produced.texts[0],
+        "texts": produced.texts,
+        "truncated": produced.truncated,
+    }
 
 
 # The functions carry a `_tool` suffix so the module can also be imported and

@@ -61,11 +61,13 @@ def test_show_includes_source_and_params_schema() -> None:
 
 
 def test_apply_on_a_restrictive_procedure_fails_informatively(tmp_path: Path) -> None:
+    """The message is `NotConstructive`'s, the same one the library and MCP raise —
+    the CLI no longer hand-writes its own wording for this failure."""
     path = tmp_path / "t.txt"
     path.write_text("text", encoding="utf-8")
     result = runner.invoke(app, ["apply", "lipogram", str(path)])
     assert result.exit_code == 2
-    assert "restrictive" in result.stdout
+    assert "only checks" in result.stdout
 
 
 def test_apply_without_a_seed_does_not_invent_one(tmp_path: Path) -> None:
@@ -118,3 +120,22 @@ def test_version_prints_the_installed_version() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
     assert __version__ in result.stdout
+
+
+def test_apply_json_emits_a_production() -> None:
+    result = runner.invoke(
+        app, ["apply", "every_nth_word", "-p", "n=2", "--json"], input="one two three four"
+    )
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["procedure"] == "every_nth_word"
+    assert payload["texts"] == ["two four"]
+    assert payload["truncated"] is False
+
+
+def test_apply_without_json_still_prints_one_text() -> None:
+    result = runner.invoke(
+        app, ["apply", "every_nth_word", "-p", "n=2"], input="one two three four"
+    )
+    assert result.exit_code == 0
+    assert result.stdout.strip() == "two four"
