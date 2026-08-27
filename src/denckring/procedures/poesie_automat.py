@@ -151,7 +151,9 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
     def apply_params_model(cls) -> type[PoesieAutomatApplyParams]:
         return PoesieAutomatApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: PoesieAutomatApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: PoesieAutomatApplyParams
+    ) -> list[str]:
         """Press the button. `text` is ignored: the board supplies everything.
 
         The whole board is spun once and the flaps then grouped into lines —
@@ -163,4 +165,4 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
         lines: dict[int, list[str]] = {number: [] for number in machine.lines}
         for slot, flap in zip(machine.slots, turned, strict=True):
             lines[slot.line].append(flap)
-        return "\n".join(SEPARATOR.join(lines[number]) for number in machine.lines)
+        return ["\n".join(SEPARATOR.join(lines[number]) for number in machine.lines)]

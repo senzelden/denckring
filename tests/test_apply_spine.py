@@ -10,10 +10,12 @@ import inspect
 from typing import Any
 
 import pytest
+from pydantic import BaseModel
 
 from denckring import describe
-from denckring.core.base import ConstructiveProcedure
-from denckring.core.errors import InvalidParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure
+from denckring.core.errors import DegenerateOutput, InvalidParams
+from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import all_procedures, get
 
 
@@ -188,11 +190,94 @@ def test_every_generator_is_on_the_spine(pid: str) -> None:
 
 @pytest.mark.parametrize("pid", sorted(all_procedures()))
 def test_no_generator_hand_rolls_the_preamble(pid: str) -> None:
-    """The spine does the pack, the capabilities and the parameters. A `_apply`
-    that does any of it again has a second opinion the spine cannot see."""
+    """The spine does the pack, the capabilities and the parameters. A `_produce`
+    that does any of it again has a second opinion the spine cannot see.
+
+    Read `_produce`, not `_apply` — Task 3 moved the generation primitive, and
+    the hazard this guards against moved with it.
+    """
     procedure = all_procedures()[pid]
     if not isinstance(procedure, ConstructiveProcedure):
         return
-    body = inspect.getsource(type(procedure)._apply)
+    body = inspect.getsource(type(procedure)._produce)
     for forbidden in ("get_pack(", "parse_params(", "require_capability("):
-        assert forbidden not in body, f"{pid}._apply still calls {forbidden}"
+        assert forbidden not in body, f"{pid}._produce still calls {forbidden}"
+
+
+def test_every_generator_defines_produce_and_not_apply() -> None:
+    """One primitive. Two would mean every consumer has to ask which a given
+    procedure implements — the seam this codebase has twice had to remove."""
+    for pid, procedure in sorted(all_procedures().items()):
+        if not isinstance(procedure, ConstructiveProcedure):
+            continue
+        assert "_produce" in type(procedure).__dict__, f"{pid} does not define _produce"
+        assert "_apply" not in type(procedure).__dict__, f"{pid} still defines _apply"
+
+
+def test_the_base_class_has_no_apply_primitive_left() -> None:
+    assert not hasattr(ConstructiveProcedure, "_apply")
+
+
+@pytest.mark.parametrize("pid", sorted(DRAWS + DOES_NOT_DRAW))
+def test_produce_is_annotated_as_returning_a_list(pid: str) -> None:
+    """Catches a generator migrated in body but not in signature — the annotation
+    is what `mypy --strict` reads, and a stale `-> str` there passes at runtime."""
+    procedure = get(pid)
+    assert isinstance(procedure, ConstructiveProcedure)
+    import inspect
+
+    signature = inspect.signature(type(procedure)._produce)
+    assert signature.return_annotation in ("list[str]", list[str])
+
+
+class _EmptyParams(BaseModel):
+    pass
+
+
+class _EmptyApplyParams(_EmptyParams, ApplyParams):
+    pass
+
+
+class _ProducesNothing(ConstructiveProcedure[_EmptyParams, _EmptyApplyParams]):
+    """A throwaway procedure whose `_produce` finds no candidate at all.
+
+    Reuses `cut_up`'s catalogue id rather than inventing one: `catalogue.get`
+    only needs a row that exists, and this class is never `@register`ed, so it
+    never touches the real registry `cut_up` lives in.
+    """
+
+    id = "cut_up"
+
+    @classmethod
+    def params_model(cls) -> type[_EmptyParams]:
+        return _EmptyParams
+
+    def _check(self, text: str, pack: LanguagePack, params: _EmptyParams) -> Report:
+        raise NotImplementedError
+
+    @classmethod
+    def apply_params_model(cls) -> type[_EmptyApplyParams]:
+        return _EmptyApplyParams
+
+    def _produce(self, text: str, pack: LanguagePack, params: _EmptyApplyParams) -> list[str]:
+        return []
+
+
+def test_an_empty_produce_raises_degenerate_output_naming_nothing() -> None:
+    """Task 2's reviewer found this hole: an empty list is not a candidate
+    `_guard_degenerate` judged and rejected, it is no candidate at all, and
+    `observed` must say that rather than defaulting to `IDENTICAL` — which
+    would be false, since there was nothing to compare against the input."""
+    with pytest.raises(DegenerateOutput) as caught:
+        _ProducesNothing().produce("some text")
+    assert caught.value.observed == DegenerateOutput.NOTHING
+
+
+def test_allow_identity_cannot_waive_an_empty_produce() -> None:
+    """`allow_identity` waives a candidate the caller judged degenerate but
+    still wanted; an empty list offers no candidate to want, so the flag must
+    not reach it. Checked ahead of `_guard_degenerate`, not through it — see
+    `ConstructiveProcedure.produce`."""
+    with pytest.raises(DegenerateOutput) as caught:
+        _ProducesNothing().produce("some text", allow_identity=True)
+    assert caught.value.observed == DegenerateOutput.NOTHING

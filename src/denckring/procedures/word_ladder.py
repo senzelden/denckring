@@ -183,7 +183,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
     def apply_params_model(cls) -> type[WordLadderApplyParams]:
         return WordLadderApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: WordLadderApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: WordLadderApplyParams) -> list[str]:
         """Search the lexicon for the shortest ladder from `text` to `target`.
 
         Breadth-first, not depth-first: a depth-first walk of a fifty-thousand
@@ -255,7 +255,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
                 f"{MAX_LADDER_WORDS} words — try a shorter hop, or check a "
                 "ladder instead of generating one",
             )
-        return " ".join(ladder)
+        return [" ".join(ladder)]
 
 
 @lru_cache(maxsize=4096)

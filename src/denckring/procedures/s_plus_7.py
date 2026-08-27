@@ -40,6 +40,6 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
     def apply_params_model(cls) -> type[SPlus7ApplyParams]:
         return SPlus7ApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> list[str]:
         """The same walk, with the step the caller asked for."""
-        return displace(text, pack, params.offset)
+        return [displace(text, pack, params.offset)]

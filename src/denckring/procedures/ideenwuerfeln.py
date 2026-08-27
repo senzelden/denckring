@@ -144,7 +144,9 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
     def apply_params_model(cls) -> type[IdeenwuerfelnApplyParams]:
         return IdeenwuerfelnApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams
+    ) -> list[str]:
         """Throw. `text` is the corpus: a second `source` is refused rather
         than accepted alongside it, the same rule `parse_apply_params` enforces
         for every generator whose params model carries a `source` field.
@@ -180,5 +182,5 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
                     chooser.choice(by_domain[domain])
                     for domain in chooser.sample(domains, params.slots)
                 ]
-                return SEPARATOR.join(entry.text.strip() for entry in picked)
-        return SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, params.slots))
+                return [SEPARATOR.join(entry.text.strip() for entry in picked)]
+        return [SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, params.slots))]

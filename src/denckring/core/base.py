@@ -225,7 +225,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
     one inherits both.
     """
 
-    #: Set on a generator whose `_apply` never reads `text`: the three devices
+    #: Set on a generator whose `_produce` never reads `text`: the three devices
     #: that supply everything themselves — `denckring`, `poesie_automat` and
     #: `llull_figure` — turn rings, press a button or spin a wheel, and the
     #: argument is there only because `apply` takes one. `_is_degenerate`
@@ -245,7 +245,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         Declared, not defaulted. This used to synthesise the checker's model
         widened by `ApplyParams` via `create_model`, and every one of the 27
         generators overrides it anyway — `mypy --strict` wants a named class to
-        annotate `_apply`'s `params` with — so the default had no production
+        annotate `_produce`'s `params` with — so the default had no production
         caller, its only coverage was a test double built to reach it, and it
         carried an MRO trap for any `params_model()` returning `BaseModel`
         itself. A generator declares `<Name>ApplyParams`, inheriting its own
@@ -276,18 +276,15 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         return cast(A, parse_into(model, params, self.id))
 
     @abstractmethod
-    def _apply(self, text: str, pack: LanguagePack, params: A) -> str:
-        """Procedure-specific generation. Language and parameters are already valid."""
-
     def _produce(self, text: str, pack: LanguagePack, params: A) -> list[str]:
-        """Procedure-specific generation, best first.
+        """Procedure-specific generation, best first. Language and parameters are already valid.
 
-        Defaulted here only while the generators migrate; Task 3 makes it
-        abstract and removes `_apply`. A list even where there is one answer:
-        `apply` returns `texts[0]`, so the order is the contract, and a
-        generator that ranks its candidates puts its winner at the front.
+        A list even where there is one answer: `apply` returns `texts[0]`, so the
+        order is the contract, and a generator that ranks its candidates puts its
+        winner at the front. One primitive rather than a `str` one beside a
+        `list` one, because two would make every consumer ask which a given
+        procedure implements.
         """
-        return [self._apply(text, pack, params)]
 
     def produce(self, text: str, *, lang: Lang = "en", **params: Any) -> Production:
         """Generate with this procedure, returning every result it found.
@@ -302,7 +299,20 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         for capability in (*self.meta.requires, *self.meta.apply_requires):
             require_capability(pack, capability, self.id)
         parsed = self.parse_apply_params(text, params)
-        found = self._guard_degenerate(text, self._produce(text, pack, parsed), parsed)
+        produced = self._produce(text, pack, parsed)
+        if not produced:
+            # Checked before `_guard_degenerate`, and not through it, so
+            # `allow_identity` cannot waive it: that flag exists for a caller who
+            # wants the degenerate-but-real result a procedure found, and an
+            # empty list is not a result at all — there is nothing to want.
+            # Left to `_guard_degenerate`, `observed` would default to IDENTICAL,
+            # which is false (nothing was produced to compare), and with
+            # `allow_identity=True` the empty list would reach `Production.texts`
+            # and fail its `min_length=1` as a bare pydantic `ValidationError` —
+            # not a `DenckringError`, so it would escape the MCP server's handler
+            # uncaught.
+            raise DegenerateOutput(self.id, DegenerateOutput.NOTHING)
+        found = self._guard_degenerate(text, produced, parsed)
         # `getattr`, falling back to one rather than ten, for the reason
         # `_guard_degenerate` reads `allow_identity` the same way: a generator
         # may declare an apply-params model that does not inherit `ApplyParams`,

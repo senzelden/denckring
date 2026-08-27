@@ -161,7 +161,7 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
     def apply_params_model(cls) -> type[SpoonerismApplyParams]:
         return SpoonerismApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: SpoonerismApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: SpoonerismApplyParams) -> list[str]:
         """Swap the written onsets of the text's first two words.
 
         Only those two words survive into the output — anything else in `text`
@@ -217,4 +217,4 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
                 "agree on where the onset ends, or check a text instead of "
                 "generating one",
             )
-        return f"{swapped_first} {swapped_second}"
+        return [f"{swapped_first} {swapped_second}"]

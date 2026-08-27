@@ -92,7 +92,7 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
     def apply_params_model(cls) -> type[DiasticApplyParams]:
         return DiasticApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: DiasticApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: DiasticApplyParams) -> list[str]:
         """Read through `text`, which serves as the source, against the seed phrase.
 
         Stops as soon as a required letter cannot be found in the remaining source,
@@ -126,4 +126,4 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
                 "at its required position — try a different source or seed "
                 "phrase, or check a text instead of generating one",
             )
-        return " ".join(chosen)
+        return [" ".join(chosen)]

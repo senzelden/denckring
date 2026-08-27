@@ -94,7 +94,9 @@ class CentMilleMilliards(
     def apply_params_model(cls) -> type[CentMilleMilliardsApplyParams]:
         return CentMilleMilliardsApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: CentMilleMilliardsApplyParams) -> str:
+    def _produce(
+        self, text: str, pack: LanguagePack, params: CentMilleMilliardsApplyParams
+    ) -> list[str]:
         """One reading of the machine: a line drawn for each position.
 
         `text` is the machine itself — the sheet of alternatives — not a poem to
@@ -109,4 +111,4 @@ class CentMilleMilliards(
                 needed=f"at least one position offering alternatives, separated by {SEPARATOR!r}",
                 found=f"{counted(len(options), 'position')}, none with a choice",
             )
-        return "\n".join(chooser.choice(position) for position in options if position)
+        return ["\n".join(chooser.choice(position) for position in options if position)]

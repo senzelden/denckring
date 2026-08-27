@@ -58,7 +58,7 @@ def test_the_message_does_not_claim_the_procedure_never_ran() -> None:
     assert "allow_identity" in message
 
 
-#: The three generators whose `_apply` never reads `text`. Named `pid` rather
+#: The three generators whose `_produce` never reads `text`. Named `pid` rather
 #: than `procedure_id` for the reason the other suites document: conftest's
 #: `pytest_generate_tests` parametrises that name over the whole registry and
 #: pytest errors on the duplicate.

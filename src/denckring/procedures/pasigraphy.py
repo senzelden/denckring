@@ -151,8 +151,8 @@ class Pasigraphy(ConstructiveProcedure[PasigraphyParams, PasigraphyApplyParams])
     def apply_params_model(cls) -> type[PasigraphyApplyParams]:
         return PasigraphyApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: PasigraphyApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: PasigraphyApplyParams) -> list[str]:
         """Send `text` across, marking every place a word could not follow."""
         table = pasigraph.parse(params.table)
         produced, _, _ = render(text, pack, table, params.from_language, params.to_language)
-        return " ".join(produced)
+        return [" ".join(produced)]

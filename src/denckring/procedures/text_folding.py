@@ -108,7 +108,7 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
     def apply_params_model(cls) -> type[TextFoldingApplyParams]:
         return TextFoldingApplyParams
 
-    def _apply(self, text: str, pack: LanguagePack, params: TextFoldingApplyParams) -> str:
+    def _produce(self, text: str, pack: LanguagePack, params: TextFoldingApplyParams) -> list[str]:
         """Fold `text` at `fold_at`, `text` serving as its own source.
 
         Raises `NoCandidateWord` rather than returning `text` unchanged when
@@ -123,4 +123,4 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
                 "and a far flap to bring together, so give a source with at "
                 "least two lines, or check a text instead of generating one",
             )
-        return "\n".join(self._fold(lines, params.fold_at))
+        return ["\n".join(self._fold(lines, params.fold_at))]
