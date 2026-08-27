@@ -171,6 +171,16 @@ class InputTooLong(DenckringError):
         return {"limit": self.limit, "received": self.given}
 
 
+def counted(count: int, noun: str, plural: str | None = None) -> str:
+    """`1 line`, `0 lines`, `2 sentences` — the `found` half of `InputTooShort`.
+
+    Every raise site built its own `f"{n} line"`, which reads "0 line" on empty
+    input. Small, but this is the one string whose whole job is to tell a caller
+    what they actually handed over, so it should not be visibly wrong about it.
+    """
+    return f"{count} {noun if count == 1 else (plural or noun + 's')}"
+
+
 class InputTooShort(DenckringError):
     """The input could not feed the procedure.
 
@@ -179,6 +189,13 @@ class InputTooShort(DenckringError):
     exactly like a procedure that ran and had no effect. `needed` and `found`
     are separate fields rather than one sentence, so a caller reading the JSON
     learns what to change without parsing English out of `message`.
+
+    Raised wherever a generator has too few units to work on, whatever the unit
+    is — lines, sentences, words, slots, entries. That is deliberately one code
+    rather than a per-procedure choice: a caller retrying on `input_too_short`
+    should not have to know that `spoonerism` once called two-few-words
+    something else. `NoCandidateWord` keeps the narrower meaning it was built
+    for: enough units were present and none of them was suitable.
     """
 
     code = "input_too_short"
@@ -187,7 +204,10 @@ class InputTooShort(DenckringError):
         self.procedure_id = procedure_id
         self.needed = needed
         self.found = found
-        super().__init__(f"{procedure_id!r} needs {needed}; found {found}.")
+        super().__init__(
+            f"{procedure_id!r} needs {needed}; found {found}. Give it more text, "
+            f"or check a text instead of generating from one."
+        )
 
     def detail(self) -> dict[str, Any]:
         return {

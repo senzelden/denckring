@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
-from denckring.core.errors import InputTooShort
+from denckring.core.errors import InputTooShort, counted
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -131,7 +131,7 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
             raise InputTooShort(
                 self.id,
                 needed=f"at least one slot offering a choice, separated by {SEPARATOR!r}",
-                found=f"{len(offered)} slots, none with a choice",
+                found=f"{counted(len(offered), 'slot')}, none with a choice",
             )
         slots = [[part for part in options if drawable(part, pack)] for options in offered]
         starved = [written for written, kept in zip(offered, slots, strict=True) if not kept]
@@ -139,7 +139,7 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
             raise InputTooShort(
                 self.id,
                 needed="every slot to offer at least one alternative that is a single word",
-                found=f"{len(starved)} of {len(offered)} slots offering none; the first "
+                found=f"{len(starved)} of {counted(len(offered), 'slot')} offering none; the first "
                 f"offers only {', '.join(repr(part) for part in starved[0])}",
             )
         return " ".join(chooser.choice(options) for options in slots)

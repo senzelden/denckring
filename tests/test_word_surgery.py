@@ -7,7 +7,7 @@ import pytest
 
 from denckring import check
 from denckring.core import catalogue
-from denckring.core.errors import MissingCapability, NoCandidateWord
+from denckring.core.errors import InputTooShort, MissingCapability, NoCandidateWord
 from denckring.core.protocol import Constructive
 from denckring.core.registry import get
 from denckring.lang.en import EnglishPack
@@ -84,10 +84,23 @@ def test_spoonerism_apply_round_trips_through_its_own_check() -> None:
 
 
 def test_spoonerism_apply_refuses_a_single_word() -> None:
+    """`InputTooShort`, not `NoCandidateWord`: this is "fewer words than the
+    procedure needs", the shape `recombination` already raised `InputTooShort`
+    for, and a caller retrying on `input_too_short` missed it under the old
+    name. See `test_input_adequacy.py` for the whole set."""
+    procedure = get("spoonerism")
+    assert isinstance(procedure, Constructive)
+    with pytest.raises(InputTooShort):
+        procedure.apply("solo", lang="en")
+
+
+def test_spoonerism_apply_still_says_no_candidate_when_it_has_the_words() -> None:
+    """The distinction the move preserves: two words were present and no swap
+    among them was suitable, which is what `NoCandidateWord` properly means."""
     procedure = get("spoonerism")
     assert isinstance(procedure, Constructive)
     with pytest.raises(NoCandidateWord):
-        procedure.apply("solo", lang="en")
+        procedure.apply("cat cap", lang="en")
 
 
 def test_spoonerism_apply_names_a_missing_capability_instead_of_swallowing_it(

@@ -72,7 +72,12 @@ returned their input when it could not feed them — `boustrophedon`,
 `cent_mille_milliards`, `recombination`, and `wechselsatz` twice over, once for
 a frame offering no choice at all and once for a frame whose alternatives the
 tokenizer cannot read back as single words. They now raise `InputTooShort`
-naming what they needed. Finding them is the argument for the guard: each had
+naming what they needed — as do `spoonerism` and `ideenwuerfeln`, which were
+refusing for the identical reason under `NoCandidateWord` and `MalformedCorpus`
+respectively, so the code a caller retries on depended on which procedure they
+had called. `NoCandidateWord` keeps its narrower meaning (enough units, none of
+them suitable) and `MalformedCorpus` keeps `corpus.parse`'s (unreadable, not
+merely small). Finding them is the argument for the guard: each had
 been silently no-opping, and the round-trip property called it a pass.
 
 The guard refuses an empty result from non-empty input under the same error and

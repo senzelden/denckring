@@ -8,6 +8,7 @@ from pydantic import Field
 
 from denckring.core import corpus as corpora
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.errors import InputTooShort, counted
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -157,8 +158,16 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
         if len(pool) < params.slots:
             pool = corpus.entries()
         if len(pool) < params.slots:
-            raise corpora.MalformedCorpus(
-                f"it holds {len(pool)} entries, fewer than the {params.slots} a throw needs"
+            # `InputTooShort`, not `MalformedCorpus`: a corpus of two slips is
+            # perfectly well formed and simply holds fewer entries than a throw
+            # of three needs, which is the shape `recombination` and
+            # `spoonerism` raise `InputTooShort` for. `MalformedCorpus` keeps
+            # what `corpus.parse` raises it for — empty, unparseable, or missing
+            # the key that says where the entries are.
+            raise InputTooShort(
+                self.id,
+                needed=f"at least {counted(params.slots, 'entry', 'entries')} to throw",
+                found=counted(len(pool), "entry", "entries"),
             )
         chooser = random.Random(params.seed)
         if params.distinct_domains:
