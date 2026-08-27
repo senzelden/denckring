@@ -5,10 +5,28 @@ from __future__ import annotations
 import random
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.errors import InputTooShort
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 from denckring.procedures.cent_mille_milliards import SEPARATOR
+
+
+def drawable(part: str, pack: LanguagePack) -> bool:
+    """Is this alternative one word, and the whole of it?
+
+    The frame is read here by splitting on whitespace, but `_check` reads the
+    line it produces with `word_spans` — two different tokenizers on the two
+    sides of the same comparison. So an alternative the pack reads as no word
+    (`'.'`) vanishes from the produced line and the frame checks as short by
+    one, and an alternative it reads as two (`'azxb.fam'`) checks as long by
+    one: either way `apply` produces text its own `check` rejects. Filtering
+    the draw is the narrow fix. Deciding what a well-formed frame may contain
+    belongs to the template grammar this row still lacks, and `check` stays
+    permissive until that arrives.
+    """
+    spans = word_spans(part, pack)
+    return len(spans) == 1 and spans[0][1] == part
 
 
 class WechselsatzParams(SourceParams):
@@ -91,7 +109,24 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
         """
         chooser = random.Random(params.seed)
         slots = [
-            [part.strip() for part in slot.split(SEPARATOR) if part.strip()]
+            [
+                part
+                for part in (raw.strip() for raw in slot.split(SEPARATOR))
+                if drawable(part, pack)
+            ]
             for slot in text.split()
         ]
-        return " ".join(chooser.choice(options) for options in slots if options)
+        if not any(len(options) > 1 for options in slots):
+            raise InputTooShort(
+                self.id,
+                needed=f"at least one slot offering a choice, separated by {SEPARATOR!r}",
+                found=f"{len(slots)} slots, none with a choice",
+            )
+        if not all(slots):
+            raise InputTooShort(
+                self.id,
+                needed="every slot to offer at least one word that can be drawn",
+                found=f"{sum(1 for options in slots if not options)} of {len(slots)} slots "
+                f"offering no word",
+            )
+        return " ".join(chooser.choice(options) for options in slots)

@@ -14,7 +14,7 @@ from typing import Any, ClassVar, Generic, TypeVar, cast
 from pydantic import BaseModel, Field, ValidationError, create_model
 
 from denckring.core import catalogue
-from denckring.core.errors import InvalidParams, MissingCapability
+from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import Lang, LanguagePack, Meta, Report, Violation
 
@@ -259,10 +259,16 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         return self._guard_degenerate(text, self._apply(text, pack, parsed), parsed)
 
     def _guard_degenerate(self, text: str, produced: str, params: A) -> str:
-        """Deliberately inert here, so this task changes no generator's output.
+        """Refuse output identical to the input.
 
-        Task 6 gives it teeth once every generator is on the spine; enforcing it
-        before the migration would fail rows for a reason unrelated to the
-        migration, and the two would be indistinguishable in the same commit.
+        Compared on stripped text, because trailing whitespace is not a
+        transformation. `allow_identity` is on `ApplyParams`, so every generator
+        carries the escape whether or not it declares its own model — read with
+        `getattr` because a generator may declare an apply-params model that
+        does not inherit the mixin.
         """
+        if getattr(params, "allow_identity", False):
+            return produced
+        if produced.strip() == text.strip():
+            raise DegenerateOutput(self.id)
         return produced
