@@ -91,11 +91,10 @@ class Anagram(BaseProcedure[AnagramParams]):
         keeps the letter multiset — and therefore `check` — intact even when the
         tail is unusable.
 
-        `lexicon.words` is required here but deliberately NOT added to the
-        catalogue row's `requires`: that list gates `check` too, and adding it
-        would make `check` raise for every caller without the data extra, for a
-        procedure that has always been checkable with core alone. ADR 0002 makes
-        `apply` the optional half, so the generator carries its own requirement.
+        `lexicon.words` is declared on the catalogue row's `apply_requires`, not
+        its `requires`: the latter gates `check` too, and `check` has always run
+        on core alone. ADR 0002 makes `apply` the optional half, and
+        `apply_requires` is how the optional half states its own cost.
         """
         from denckring.lang import get_pack
 
