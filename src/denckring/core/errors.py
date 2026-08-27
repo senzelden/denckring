@@ -198,12 +198,19 @@ class InputTooShort(DenckringError):
 
 
 class DegenerateOutput(DenckringError):
-    """`apply` produced its own input.
+    """`apply` produced its own input, or nothing at all.
 
     Raised rather than returned, for the reason `diastic` raises
     `NoCandidateWord` rather than returning "": handing back text that
     misrepresents what the procedure did is the failure, not a mild version of
     success. Usually it means the input could not feed the procedure.
+
+    One error for two observations, because a caller cannot act differently on
+    them — both mean the returned text says nothing about what the procedure
+    did, and both are waived by the same `allow_identity`. The empty case is
+    the more dangerous of the two: `BaseProcedure._report` scores an empty text
+    1.0, so `melting_text` returning `""` was a satisfied report on a text that
+    was never written.
 
     The message says what was observed and stops there. It does not say the
     procedure did not run, because the guard cannot tell that from a procedure
@@ -216,15 +223,22 @@ class DegenerateOutput(DenckringError):
 
     code = "degenerate_output"
 
-    def __init__(self, procedure_id: str) -> None:
+    #: The two shapes the guard can see, as `observed` reads in the message and
+    #: in `detail()` — so a caller distinguishing them reads a stable string
+    #: rather than parsing English, and one that does not can ignore the field.
+    IDENTICAL = "text identical to its input"
+    EMPTY = "empty text from input that was not empty"
+
+    def __init__(self, procedure_id: str, observed: str = IDENTICAL) -> None:
         self.procedure_id = procedure_id
+        self.observed = observed
         super().__init__(
-            f"{procedure_id!r} produced text identical to its input. "
+            f"{procedure_id!r} produced {observed}. "
             f"Pass allow_identity=true if the degenerate case is wanted."
         )
 
     def detail(self) -> dict[str, Any]:
-        return {"procedure_id": self.procedure_id}
+        return {"procedure_id": self.procedure_id, "observed": self.observed}
 
 
 class NoCandidateWord(DenckringError):

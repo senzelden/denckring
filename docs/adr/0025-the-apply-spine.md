@@ -66,6 +66,14 @@ tokenizer cannot read back as single words. They now raise `InputTooShort`
 naming what they needed. Finding them is the argument for the guard: each had
 been silently no-opping, and the round-trip property called it a pass.
 
+The guard refuses an empty result from non-empty input under the same error and
+the same `allow_identity`, because it is the same defect: `_report` scores an
+empty text 1.0 — vacuously satisfied — so `melting_text.apply("hello", seed=0)`
+returning `""` was a satisfied report on a text nobody wrote, and
+`every_nth_word` with a stride longer than its input could do it too. A caller
+cannot act differently on "identical to the input" and "nothing at all", so they
+share a code; `detail()["observed"]` says which was seen.
+
 The second `wechselsatz` case is a guard around a gap the guard did not close.
 `_apply` splits its frame on whitespace; `_check` reads the produced line back
 with `word_spans`, a different tokenizer. An alternative like `Nacht-Tag`,

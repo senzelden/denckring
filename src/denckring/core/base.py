@@ -89,9 +89,10 @@ class SeedParams(BaseModel):
 class ApplyParams(BaseModel):
     """Mixed into every generator's apply-params model.
 
-    A generator that returns its input has not run the procedure, and says
-    nothing a caller can act on. Refusing it is the default; `allow_identity`
-    is for the caller who genuinely wants the degenerate case.
+    A generator that returns its input — or returns nothing at all — has not
+    run the procedure in any way a caller can act on. Refusing both is the
+    default; `allow_identity` is the one escape for the caller who genuinely
+    wants the degenerate case, under either of its two shapes.
 
     No field here, or on any model this mixes into, may be named `lang`:
     `ConstructiveProcedure.apply` still takes `lang` as an explicit signature
@@ -104,7 +105,8 @@ class ApplyParams(BaseModel):
     allow_identity: bool = Field(
         default=False,
         description=(
-            "Permit output identical to the input, which normally means the procedure did not run."
+            "Permit output identical to the input, or empty, which normally "
+            "means the procedure did not run."
         ),
     )
 
@@ -203,9 +205,10 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
 
     `apply` is the template method `check` has always had: it resolves the pack,
     enforces both capability lists, validates parameters, and refuses output
-    identical to the input — so an individual procedure module cannot forget any
-    of it. ADR 0002 is amended rather than reversed: `apply` is still optional,
-    but a procedure that has one inherits this.
+    that misrepresents what ran — identical to the input, or empty — so an
+    individual procedure module cannot forget any of it. ADR 0002 is amended
+    rather than reversed: `apply` is still optional, but a procedure that has
+    one inherits this.
     """
 
     #: Set on a generator whose `_apply` never reads `text`: the three devices
@@ -271,17 +274,30 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         return self._guard_degenerate(text, self._apply(text, pack, parsed), parsed)
 
     def _guard_degenerate(self, text: str, produced: str, params: A) -> str:
-        """Refuse output identical to the input.
+        """Refuse output that says nothing about what the procedure did.
 
-        Compared on stripped text, because trailing whitespace is not a
-        transformation. Skipped entirely for a procedure that declares
-        `ignores_input`. `allow_identity` is on `ApplyParams`, so every generator
-        carries the escape whether or not it declares its own model — read with
-        `getattr` because a generator may declare an apply-params model that
-        does not inherit the mixin.
+        Two shapes. Output identical to the input is the one the guard was
+        built for; the identity comparison is skipped for a procedure that
+        declares `ignores_input`, where it compares against an argument that
+        was never read.
+
+        Empty output from input that was not empty is the same defect and was
+        left open: `_report` scores an empty text 1.0 — vacuously satisfied, as
+        its own docstring says — so `melting_text.apply("hello", seed=0)`
+        returning `""` passed every gate this project runs, which is the thesis
+        of the guard in its second half. Refused under the same error and the
+        same escape, because a caller cannot act differently on the two.
+
+        Both are compared on stripped text, because trailing whitespace is
+        neither a transformation nor content. `allow_identity` is on
+        `ApplyParams`, so every generator carries the escape whether or not it
+        declares its own model — read with `getattr` because a generator may
+        declare an apply-params model that does not inherit the mixin.
         """
         if getattr(params, "allow_identity", False):
             return produced
+        if text.strip() and not produced.strip():
+            raise DegenerateOutput(self.id, DegenerateOutput.EMPTY)
         if not self.ignores_input and produced.strip() == text.strip():
             raise DegenerateOutput(self.id)
         return produced
