@@ -12,6 +12,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core import catalogue
+from denckring.core.base import ConstructiveProcedure
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 
@@ -59,6 +60,15 @@ class Description(BaseModel):
     apply_requires: list[str]
     apply_missing: list[str]
     params: dict[str, Any]
+    #: JSON Schema for the parameters `apply` accepts, empty for a row with no
+    #: generator to pass any to. Distinct from `params`, which is the checker's
+    #: model and does not carry `seed` or `allow_identity` — so a caller that
+    #: never touches Python could see neither, and the developer feedback that
+    #: started this chapter was largely that the MCP surface does not say
+    #: things. `params` is not merely a subset of this one: `source` is supplied
+    #: by `apply` from the text it transforms, and passing it as a parameter is
+    #: refused.
+    apply_params: dict[str, Any]
     scholarly: Scholarly | None = None
 
 
@@ -134,6 +144,15 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         apply_requires=list(meta.apply_requires),
         apply_missing=apply_missing,
         params=procedure.params_model().model_json_schema(),
+        # Asked of the spine rather than the `Constructive` protocol, which
+        # declares `apply` alone. The two cannot disagree: every procedure that
+        # defines `apply` inherits `ConstructiveProcedure`, which
+        # `test_apply_spine.py::test_every_generator_is_on_the_spine` pins.
+        apply_params=(
+            procedure.apply_params_model().model_json_schema()
+            if isinstance(procedure, ConstructiveProcedure)
+            else {}
+        ),
         scholarly=(
             Scholarly(
                 source=meta.source,

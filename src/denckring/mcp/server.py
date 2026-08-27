@@ -44,10 +44,13 @@ def list_procedures_tool(
 def describe_procedure_tool(
     procedure: str, scholarly: bool = False, lang: Lang = "en"
 ) -> dict[str, Any]:
-    """Describe one procedure: what it constrains, and its parameter schema.
+    """Describe one procedure: what it constrains, and its parameter schemas.
 
-    `params` is JSON Schema — pass parameters matching it to `check_text`. Set
-    `scholarly` for the form's source, attribution and history.
+    `params` is JSON Schema — pass parameters matching it to `check_text`.
+    `apply_params` is the separate schema `apply_procedure` takes, empty for a
+    row with no generator; it is where `seed` and `allow_identity` are declared,
+    which `params` does not carry. Set `scholarly` for the form's source,
+    attribution and history.
     """
     try:
         return describe(procedure, lang=lang, scholarly=scholarly).model_dump()
@@ -84,7 +87,8 @@ def apply_procedure_tool(
 
     Twenty-seven of the procedures have a generator here. `kind` says whether the
     form admits one; `constructive` in `describe_procedure` says whether this
-    install has it. Read `constructive`, not `kind`, before calling this.
+    install has it. Read `constructive`, not `kind`, before calling this, and
+    `apply_params` — not `params` — for what may go in `params` here.
     """
     try:
         procedure_object = get(procedure)
