@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import Field
 
 from denckring.core import device as devices
-from denckring.core.base import BaseProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
 from denckring.core.device import Device, DeviceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -55,8 +53,12 @@ class PoesieAutomatParams(DeviceParams):
     )
 
 
+class PoesieAutomatApplyParams(PoesieAutomatParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class PoesieAutomat(BaseProcedure[PoesieAutomatParams]):
+class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatApplyParams]):
     """Enzensberger's flap-board: six lines, six modules each, ten flaps a module.
 
     `check` asks whether a six-line poem is one the board admits — each line cut
@@ -141,16 +143,19 @@ class PoesieAutomat(BaseProcedure[PoesieAutomatParams]):
             },
         )
 
-    def apply(self, text: str, *, lang: Lang = "de", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[PoesieAutomatApplyParams]:
+        return PoesieAutomatApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: PoesieAutomatApplyParams) -> str:
         """Press the button. `text` is ignored: the board supplies everything.
 
         The whole board is spun once and the flaps then grouped into lines —
         spinning each line separately under the same seed would draw the same
         sequence six times and stack six identical readings.
         """
-        parsed = self.parse_params(params)
-        machine = devices.load(parsed.device)
-        turned = devices.spin(machine, seed)
+        machine = devices.load(params.device)
+        turned = devices.spin(machine, params.seed)
         lines: dict[int, list[str]] = {number: [] for number in machine.lines}
         for slot, flap in zip(machine.slots, turned, strict=True):
             lines[slot.line].append(flap)

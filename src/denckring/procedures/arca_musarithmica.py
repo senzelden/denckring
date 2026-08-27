@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import random
-from typing import Any
 
 from pydantic import Field
 
 from denckring.core import arca
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
 from denckring.core.errors import UnsettablePhrase
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 from denckring.procedures.syllable_count import line_syllables
@@ -25,8 +24,12 @@ class ArcaMusarithmicaParams(SourceParams):
     tonus: str | None = Field(default=None, description="The mode, if the table names any.")
 
 
+class ArcaMusarithmicaApplyParams(ArcaMusarithmicaParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class ArcaMusarithmica(BaseProcedure[ArcaMusarithmicaParams]):
+class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarithmicaApplyParams]):
     """Kircher's box, kept to the part that is about writing.
 
     One phrase per line in the source; one chosen pattern per line in the text
@@ -124,18 +127,18 @@ class ArcaMusarithmica(BaseProcedure[ArcaMusarithmicaParams]):
             },
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
-        """Set `text`, one pattern per phrase, drawn from the tablet for its length."""
-        from denckring.lang import get_pack
+    @classmethod
+    def apply_params_model(cls) -> type[ArcaMusarithmicaApplyParams]:
+        return ArcaMusarithmicaApplyParams
 
-        parsed = self.parse_params({"source": text, **params})
-        tablets = arca.parse(parsed.pinakes)
-        pack = get_pack(lang)
-        chooser = random.Random(seed)
+    def _apply(self, text: str, pack: LanguagePack, params: ArcaMusarithmicaApplyParams) -> str:
+        """Set `text`, one pattern per phrase, drawn from the tablet for its length."""
+        tablets = arca.parse(params.pinakes)
+        chooser = random.Random(params.seed)
         setting: list[str] = []
         for _, syllables, _ in line_syllables(text, pack):
-            offered = tablets.patterns(syllables, parsed.syntagma)
+            offered = tablets.patterns(syllables, params.syntagma)
             if not offered:
-                raise UnsettablePhrase(syllables, tablets.lengths(parsed.syntagma))
+                raise UnsettablePhrase(syllables, tablets.lengths(params.syntagma))
             setting.append(chooser.choice(offered))
         return "\n".join(setting)

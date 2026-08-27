@@ -118,12 +118,56 @@ def test_a_procedure_that_does_not_draw_refuses_a_seed(pid: str) -> None:
     assert "seed" in str(caught.value)
 
 
-@pytest.mark.parametrize("pid", DOES_NOT_DRAW)
+DRAWS = [
+    "arca_musarithmica",
+    "cent_mille_milliards",
+    "cut_up",
+    "denckring",
+    "ideenwuerfeln",
+    "llull_figure",
+    "melting_text",
+    "poesie_automat",
+    "recombination",
+    "wechselsatz",
+]
+
+
+@pytest.mark.parametrize("pid", DRAWS)
+def test_a_procedure_that_draws_carries_seed_as_a_field(pid: str) -> None:
+    model = constructive(pid).apply_params_model()
+    assert "seed" in model.model_fields
+    assert "seed" in model.model_json_schema()["properties"]
+
+
+@pytest.mark.parametrize("pid", DRAWS)
+def test_a_drawn_seed_is_type_checked(pid: str) -> None:
+    with pytest.raises(InvalidParams):
+        constructive(pid).apply("one two three\nfour five six\n", seed="not-an-int")
+
+
+def test_the_two_sets_partition_the_generators() -> None:
+    """No generator may be in both lists or in neither."""
+    assert set(DRAWS) & set(DOES_NOT_DRAW) == set()
+    generators = {
+        pid for pid, p in all_procedures().items() if isinstance(p, ConstructiveProcedure)
+    }
+    assert set(DRAWS) | set(DOES_NOT_DRAW) == generators
+
+
+@pytest.mark.parametrize("pid", sorted(all_procedures()))
 def test_every_generator_is_on_the_spine(pid: str) -> None:
-    """Scoped to the seventeen that do not draw, migrated in this task — Task 5
-    migrates the ten that do, and only then does this test widen to
-    `sorted(all_procedures())`, covering every constructive row at once."""
+    """Unscoped now that Task 5 has migrated the ten that draw: every one of
+    the 27 constructive rows, not merely `DOES_NOT_DRAW`'s seventeen, must
+    inherit the spine rather than hand-roll `apply`. A row with no `apply` at
+    all (most of the catalogue) is not a candidate for this check, hence the
+    guard before the nominal assertion — a plain `getattr` rather than
+    `isinstance(procedure, Constructive)`, which chained against the
+    `ConstructiveProcedure` assert below makes `mypy --strict` report the
+    assert unreachable (it reasons the narrowed intersection type could not
+    exist, the same finding Task 4 hit and worked around the same way)."""
     procedure = all_procedures()[pid]
+    if getattr(procedure, "apply", None) is None:
+        return
     assert isinstance(procedure, ConstructiveProcedure), (
         f"{pid} defines apply() without inheriting the spine"
     )

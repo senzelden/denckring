@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+import random
 
 from pydantic import BaseModel, Field
 
 from denckring.core import device as devices
-from denckring.core.base import BaseProcedure
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
 MIN_ARITY = 2
@@ -46,8 +46,12 @@ class LlullFigureParams(BaseModel):
     arity: int = Field(default=3, ge=MIN_ARITY, description="Principles per chamber.")
 
 
+class LlullFigureApplyParams(LlullFigureParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class LlullFigure(BaseProcedure[LlullFigureParams]):
+class LlullFigure(ConstructiveProcedure[LlullFigureParams, LlullFigureApplyParams]):
     """Three concentric wheels lettered B to K, turning to make chambers.
 
     A chamber may be written as letters — `BCD` — or spelled out at one of the
@@ -138,12 +142,13 @@ class LlullFigure(BaseProcedure[LlullFigureParams]):
             },
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
-        """Turn the wheels to a chamber, spelled out at the chosen level."""
-        import random
+    @classmethod
+    def apply_params_model(cls) -> type[LlullFigureApplyParams]:
+        return LlullFigureApplyParams
 
-        parsed = self.parse_params(params)
-        figure = devices.load_figure(parsed.figure)
-        chamber = random.Random(seed).choice(figure.chambers(parsed.arity))
-        level = parsed.level or "absolute"
+    def _apply(self, text: str, pack: LanguagePack, params: LlullFigureApplyParams) -> str:
+        """Turn the wheels to a chamber, spelled out at the chosen level."""
+        figure = devices.load_figure(params.figure)
+        chamber = random.Random(params.seed).choice(figure.chambers(params.arity))
+        level = params.level or "absolute"
         return " ".join(figure.read(chamber, level))

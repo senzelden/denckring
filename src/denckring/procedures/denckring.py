@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import Field
 
 from denckring.core import device as devices
-from denckring.core.base import BaseProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
 from denckring.core.device import DeviceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
@@ -21,8 +19,12 @@ class DenckringParams(DeviceParams):
     )
 
 
+class DenckringApplyParams(DenckringParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class Denckring(BaseProcedure[DenckringParams]):
+class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
     """The device the package is named after.
 
     Five concentric discs of word parts; turning them lines up one part from
@@ -80,14 +82,18 @@ class Denckring(BaseProcedure[DenckringParams]):
             metrics={"words": float(len(words)), "combinations": float(machine.combinations)},
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[DenckringApplyParams]:
+        return DenckringApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: DenckringApplyParams) -> str:
         """Turn the rings. `text` is ignored: the device supplies everything."""
-        parsed = self.parse_params(params)
-        machine = devices.load(parsed.device)
+        machine = devices.load(params.device)
+        seed = params.seed
         while True:
             turned = devices.spin(machine, seed)
             word = "".join(turned)
-            if word and (not parsed.require_all_rings or all(turned)):
+            if word and (not params.require_all_rings or all(turned)):
                 return word
             if seed is not None:
                 # A fixed seed must stay deterministic, so nudge it rather than

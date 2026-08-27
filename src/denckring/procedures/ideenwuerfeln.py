@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import random
-from typing import Any
 
 from pydantic import Field
 
 from denckring.core import corpus as corpora
-from denckring.core.base import BaseProcedure, SourceParams
-from denckring.core.protocol import Lang, LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -29,8 +28,12 @@ class IdeenwuerfelnParams(SourceParams):
     )
 
 
+class IdeenwuerfelnApplyParams(IdeenwuerfelnParams, SeedParams, ApplyParams):
+    pass
+
+
 @register
-class Ideenwuerfeln(BaseProcedure[IdeenwuerfelnParams]):
+class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnApplyParams]):
     """Jean Paul's throw of the dice, reconstructed from the notebook.
 
     The rule is not his. He titled a notebook *Ideenwürfeln* in February 1795 and
@@ -136,32 +139,35 @@ class Ideenwuerfeln(BaseProcedure[IdeenwuerfelnParams]):
             },
         )
 
-    def apply(self, text: str, *, lang: Lang = "en", seed: int | None = None, **params: Any) -> str:
+    @classmethod
+    def apply_params_model(cls) -> type[IdeenwuerfelnApplyParams]:
+        return IdeenwuerfelnApplyParams
+
+    def _apply(self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams) -> str:
         """Throw. `text` is the corpus when no `source` is given.
 
         Falls back to the whole stock when a headword's pool is too small for the
         number of slots, and there is no way to signal that through a string
         return — so a caller who needs to know should check the pool size first.
         """
-        parsed = self.parse_params({"source": text, **params})
-        corpus = corpora.parse(parsed.source)
-        pool = corpus.entries(parsed.headword)
-        if len(pool) < parsed.slots:
+        corpus = corpora.parse(params.source)
+        pool = corpus.entries(params.headword)
+        if len(pool) < params.slots:
             pool = corpus.entries()
-        if len(pool) < parsed.slots:
+        if len(pool) < params.slots:
             raise corpora.MalformedCorpus(
-                f"it holds {len(pool)} entries, fewer than the {parsed.slots} a throw needs"
+                f"it holds {len(pool)} entries, fewer than the {params.slots} a throw needs"
             )
-        chooser = random.Random(seed)
-        if parsed.distinct_domains:
+        chooser = random.Random(params.seed)
+        if params.distinct_domains:
             by_domain: dict[str | None, list[corpora.Entry]] = {}
             for entry in pool:
                 by_domain.setdefault(entry.domain, []).append(entry)
             domains = [d for d in by_domain if d is not None]
-            if len(domains) >= parsed.slots:
+            if len(domains) >= params.slots:
                 picked = [
                     chooser.choice(by_domain[domain])
-                    for domain in chooser.sample(domains, parsed.slots)
+                    for domain in chooser.sample(domains, params.slots)
                 ]
                 return SEPARATOR.join(entry.text.strip() for entry in picked)
-        return SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, parsed.slots))
+        return SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, params.slots))
