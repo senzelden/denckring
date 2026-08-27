@@ -388,3 +388,25 @@ class DuplicatePack(DenckringError):
 
     def detail(self) -> dict[str, Any]:
         return {"lang": self.lang}
+
+
+class NotConstructive(DenckringError):
+    """Asked to generate with a procedure that only checks.
+
+    The MCP tool built this dict by hand and returned it, which meant one
+    failure mode in this package was not a `DenckringError` and could not be
+    caught with the others. `kind` says whether the *form* admits a generator;
+    `constructive` in `describe` says whether this install has one.
+    """
+
+    code = "not_constructive"
+
+    def __init__(self, procedure_id: str) -> None:
+        self.procedure_id = procedure_id
+        super().__init__(
+            f"{procedure_id!r} only checks; it has no generator in this install. "
+            f"Read `constructive` in describe({procedure_id!r}) before generating."
+        )
+
+    def detail(self) -> dict[str, Any]:
+        return {"procedure_id": self.procedure_id}
