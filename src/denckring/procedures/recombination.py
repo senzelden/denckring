@@ -84,6 +84,15 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
         """
         chooser = random.Random(params.seed)
         parts = [s.strip() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
+
+        # SENTENCE_SPLIT only splits *after* a terminator, so a fragment with
+        # none is the tail of the text, not a sentence to permute. Shuffling it
+        # in would let the join glue it onto whatever ends up as its new
+        # neighbour — `'a'` next to a lone `'.'` becomes `'a .'` — and that
+        # merged string re-splits into a different multiset than the one
+        # shuffled, which is exactly what `_check` compares against. Pinning
+        # the tail in final position keeps the join invertible.
+        tail = [parts.pop()] if parts and not parts[-1].endswith((".", "!", "?")) else []
         if len(parts) < 2:
             raise InputTooShort(
                 self.id,
@@ -91,4 +100,4 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 found=counted(len(parts), "sentence"),
             )
         chooser.shuffle(parts)
-        return [" ".join(parts)]
+        return [" ".join(parts + tail)]
