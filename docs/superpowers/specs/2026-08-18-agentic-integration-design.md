@@ -130,6 +130,8 @@ use; the rest take the obvious snake_case of their class name.
 | `MissingCapability` | `missing_capability` | `capability`, `lang`, and the extra that supplies it (`denckring[en]`) |
 | `InputTooLong` | `input_too_long` | `limit`, `received` |
 | `NoCandidateWord` | `no_candidate_word` | `procedure_id` |
+| `InputTooShort` | `input_too_short` | `procedure_id`, `needed`, `found` |
+| `DegenerateOutput` | `degenerate_output` | `procedure_id` |
 
 `UnknownProcedure` gaining suggestions is the one behavioural change to an existing class.
 It is additive: the message keeps its current text and gains a sentence.

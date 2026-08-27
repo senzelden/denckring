@@ -18,6 +18,7 @@ its shape. The turning rule stays here: it is the one thing this row and
 from __future__ import annotations
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.errors import InputTooShort
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
@@ -100,5 +101,11 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
         `NoCandidateWord`.
         """
         lines = [line for _, line in line_spans(text)]
+        if len(lines) < 2:
+            raise InputTooShort(
+                self.id,
+                needed="more than one line, so there is an alternate to turn",
+                found=f"{len(lines)} line",
+            )
         turned = [line[::-1] if index % 2 == 1 else line for index, line in enumerate(lines)]
         return "\n".join(turned)
