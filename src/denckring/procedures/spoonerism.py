@@ -29,7 +29,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure
-from denckring.core.errors import MissingCapability, NoCandidateWord
+from denckring.core.errors import InputTooShort, MissingCapability, NoCandidateWord, counted
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -183,16 +183,23 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
         unresolved text's score below 1.0, so silently returning the guess
         would do exactly that.
 
+        The two refusals are different errors on purpose. Too few words is
+        `InputTooShort`, the same code `recombination` raises for the identical
+        shape — fewer units than the procedure needs — so a caller retrying on
+        `input_too_short` catches both instead of learning per-procedure which
+        name each chose. `NoCandidateWord` keeps what it properly means here:
+        there were enough words and no swap among them was suitable.
+
         `phonemes` and `alphabet` are on this row's `requires`, so the spine
         already guarded both before this method ran — no hand-rolled
         `require_capability` needed here any more.
         """
         spans = word_spans(text, pack)
         if len(spans) < 2:
-            raise NoCandidateWord(
+            raise InputTooShort(
                 self.id,
-                "needs at least two words to swap onsets between — try a "
-                "two-word phrase, or check a text instead of generating one",
+                needed="at least two words to swap onsets between",
+                found=counted(len(spans), "word"),
             )
         first, second = spans[0][1], spans[1][1]
         first_onset, first_rest = _letter_onset(first, pack)
