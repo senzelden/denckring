@@ -26,7 +26,7 @@ and only meaningful for the constructive ones.
 
 ```console
 pip install denckring          # English and German, no data files
-pip install denckring[en]      # + a pronouncing dictionary and a noun lexicon
+pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
 pip install denckring[fr]      # French (not yet released)
 ```
@@ -34,8 +34,11 @@ pip install denckring[fr]      # French (not yet released)
 The `[en]` and `[de]` extras improve or unlock procedures rather than changing the
 language itself. Without `[en]`, syllables are estimated from spelling and every report
 says how many words were guessed; with it, that number goes to zero for words the
-dictionary knows. Without `[de]`, `charade`, `semordnilap`, `word_square`, `n_plus_7`
-and `s_plus_7` raise `MissingCapability` for German; with it, they run.
+dictionary knows, and `apply anagram` runs at all — its search needs a word list graded
+by commonness, not just one that answers whether a string is a word (ADR 0028). Without
+`[de]`, `charade`, `semordnilap`, `word_square`, `n_plus_7` and `s_plus_7` raise
+`MissingCapability` for German; with it, they run. `lexicon.graded_words` is English
+only: the German lexicon is Wikidata Lexemes, which is flat.
 
 German ships in core because the procedures that need no lexicon work for it
 unchanged, and it is a built-in default exactly like English (ADR 0022):
@@ -73,10 +76,16 @@ loop can tell whether a text missed by one word or by fifty.
 
 `produce` returns a `Production`, the counterpart on the generating half: the procedure's
 id, its `texts` — best first, never empty — `truncated`, saying whether more were found
-than `max_results` let through, and free-form `metrics`. `apply` is defined as
-`produce(...).texts[0]`, the one-text surface for a caller who wants the best answer and
-not the search behind it. Both are exported from the package, so generating no longer
-means reaching through the registry for it.
+than `max_results` let through or the search abandoned its own budget, and free-form
+`metrics`. `apply` is defined as `produce(...).texts[0]`, the one-text surface for a
+caller who wants the best answer and not the search behind it. Both are exported from the
+package, so generating no longer means reaching through the registry for it.
+
+`texts` is derived from `candidates`, which is where a generator that ranks says why:
+`produce("anagram", "dormitory")` returns `dirty room` first, carrying the SCOWL size band
+of its least common word, ahead of covers built from rarer ones (ADR 0027). A caller
+reading `texts` gets the order without the reasons, which is a real cost of keeping that
+field; the reasons are there for anyone who asks for `candidates` by name.
 
 ## Languages
 
@@ -168,8 +177,10 @@ uv run python scripts/build_gallery.py && uv run mkdocs serve
 Three kinds of thing a procedure can need, and they are handled differently. A **device**
 — Harsdörffer's five rings — is the procedure, so it ships with it. A **language pack**
 describes a language and ships separately when it carries weight: `denckring[en]` adds a
-pronouncing dictionary and a noun lexicon, `denckring[de]` adds a word lexicon and a noun
-list. A **corpus** is somebody's collection, so the package carries the loader and you
+pronouncing dictionary, a noun lexicon and SCOWL's commonness-graded word list,
+`denckring[de]` adds a word lexicon and a noun list. Each vendored source keeps its own
+licence file beside the data it covers, which is why installing `[en]` for syllable counts
+also brings a word list down with it (ADR 0028). A **corpus** is somebody's collection, so the package carries the loader and you
 supply the reading:
 
 ```console

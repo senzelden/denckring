@@ -1,5 +1,15 @@
 # 26. `_produce -> list[str]` is the primitive; `apply` returns its first result
 
+> **Amended by [ADR 0027](0027-candidates-carry-their-scores.md).** The primitive's
+> return type is now `Produced`, not `list[str]`, so a candidate can carry a score and
+> a search can report that it gave up. Everything else decided here still stands: one
+> primitive and not two, best first, `apply` as `produce(...).texts[0]`.
+>
+> The Consequences below also say `test_apply_output_satisfies_check` runs with no
+> `derandomize=True`, which was true when this was written and is not now: chapter 3
+> gave that property a drawn seed and derandomized it. What it found while it was
+> unreliable — the two generator bugs recorded here — is unaffected.
+
 ## Context
 
 `check anagram text:"silent\ntinsel\nenlist" source:"listen"` scores 0.333, with
