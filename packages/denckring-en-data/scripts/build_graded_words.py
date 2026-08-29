@@ -5,10 +5,14 @@ installation nor use touches the network (ADR 0013).
 
     python scripts/build_graded_words.py [scowl-2020.12.07.tar.gz]
 
-SCOWL is MIT-like: no share-alike, no non-commercial clause. It is derived from
-several sources with their own terms, and UKACD's requires its notice be
-reproduced verbatim - which is why LICENSE-SCOWL is SCOWL's whole Copyright file
-rather than a summary of it. See LICENSE-SCOWL.
+SCOWL is MIT-like: no share-alike, no non-commercial clause. LICENSE-SCOWL is
+SCOWL's whole Copyright file rather than a summary of it, because Atkinson's own
+permission notice asks that both the copyright notice and the permission notice
+appear in supporting documentation, and because a licence excerpted to what
+applies today is how a package acquires a defect the next time the cap moves.
+UKACD - the one component source whose terms demand its notice be reproduced
+verbatim - enters SCOWL at the 80 level, so a build capped at 60 never triggers
+it. See LICENSE-SCOWL, and `write_licence` below.
 """
 
 from __future__ import annotations

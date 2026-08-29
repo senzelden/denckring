@@ -110,8 +110,8 @@ class Production(BaseModel):
     `check` has returned a structured verdict since the beginning while `apply`
     returned a bare string, so a generator that found several valid answers had
     one place to put one of them. `paragram` scores every candidate it finds and
-    discards all but the best; `anagram` will have thirty-two two-word covers of
-    `dormitory` behind it. This is where the rest go.
+    discards all but the best; `anagram` found 47 covers of `dormitory` behind
+    the one `apply` returns. This is where the rest go.
     """
 
     procedure: str
@@ -121,8 +121,12 @@ class Production(BaseModel):
     #: `min_length=1` makes that a validation error naming the field rather than
     #: a bare `IndexError` from `apply`'s `texts[0]`.
     candidates: list[Candidate] = Field(min_length=1)
-    #: Whether more were found than `max_results` let through. Without it a
-    #: truncated search is indistinguishable from an exhaustive one.
+    #: Whether what was returned is less than what there is, under either of the
+    #: two events that can make it so: `max_results` capped the result set, or
+    #: the generator abandoned its own search budget and said so on
+    #: `Produced.truncated` (ADR 0027). Only the first is visible from the
+    #: spine, which is why the second is reported rather than inferred. Without
+    #: it a truncated search is indistinguishable from an exhaustive one.
     #: On the ten rows that draw at random this reads narrowly: a drawing
     #: generator returns one sample per call, so `truncated` is always false and
     #: `metrics["found"]` always 1.0 — "everything the search found", not
