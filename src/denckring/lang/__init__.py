@@ -1,10 +1,12 @@
 """Language pack lookup.
 
-English and German are available as built-in *defaults* so core never depends on
-its own installed metadata being readable in order to find its own languages.
-Data distributions — `denckring[en]`, `denckring[de]` — arrive through the
-`denckring.lang` entry-point group, which is exactly how a third-party pack
-installs, and take precedence over the defaults they upgrade.
+English, German and French are available as built-in *defaults* so core never
+depends on its own installed metadata being readable in order to find its own
+languages. Data distributions — `denckring[en]`, `denckring[de]` — arrive
+through the `denckring.lang` entry-point group, which is exactly how a
+third-party pack installs, and take precedence over the defaults they
+upgrade. (No `denckring[fr]` exists yet; French has only the core default
+below, which is the point of adding it.)
 
 Precedence runs: explicitly registered pack, then entry point, then built-in
 default. That ordering is what lets `denckring-en-data` upgrade English rather
