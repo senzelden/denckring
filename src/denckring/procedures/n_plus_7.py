@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import Field
+from collections.abc import Callable, Sequence
+
+from pydantic import Field, field_validator
 
 from denckring.core.base import (
     ApplyParams,
@@ -16,19 +18,45 @@ from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
-def displace(text: str, pack: LanguagePack, offset: int) -> str:
+def resolve_dictionary(
+    pack: LanguagePack, dictionary: list[str] | None
+) -> tuple[Sequence[str], Callable[[str], int | None]]:
+    """The list to walk and the way to find a word in it.
+
+    Two returns rather than one because the pack's own lookup does more than a
+    dict get — `noun_index` lemmatises — and a supplied list has no lemmatiser
+    behind it. Casefolded matching is the most a bare list can honestly offer,
+    and matches how `displacement_report` already compares words.
+    """
+    if dictionary is None:
+        return pack.nouns(), pack.noun_index
+    entries = tuple(dictionary)
+    positions = {word.casefold(): index for index, word in enumerate(entries)}
+    return entries, lambda word: positions.get(word.casefold())
+
+
+def displace(
+    text: str,
+    pack: LanguagePack,
+    nouns: Sequence[str],
+    noun_index: Callable[[str], int | None],
+    offset: int,
+) -> str:
     """Replace each word the noun list knows with the one `offset` further on.
 
     Word spans are substituted in place rather than re-joined, so punctuation
     and spacing survive — `displacement_report` compares position by position,
     and a generator that normalised the whitespace would produce text its own
     checker then rejected for the wrong reason.
+
+    `nouns` and `noun_index` are the resolved pair from `resolve_dictionary`,
+    passed in rather than re-resolved here: two call sites resolving
+    independently is how they come to disagree about which list was walked.
     """
-    nouns = pack.nouns()
     pieces: list[str] = []
     cursor = 0
     for offset_in_text, word in word_spans(text, pack):
-        index = pack.noun_index(word)
+        index = noun_index(word)
         if index is None:
             continue
         pieces.append(text[cursor:offset_in_text])
@@ -40,6 +68,34 @@ def displace(text: str, pack: LanguagePack, offset: int) -> str:
 
 class NPlus7Params(SourceParams):
     offset: int = Field(default=7, description="How many nouns to count forward.")
+    dictionary: list[str] | None = Field(
+        default=None,
+        description=(
+            "The ordered word list to displace within. Defaults to the pack's "
+            "nouns. Order is the contract: N+7 walks the seventh entry after a "
+            "word, so a supplied list's order is the caller's editorial choice."
+        ),
+    )
+    # A supplied dictionary works wherever the pack already has a noun list; it
+    # does not unlock N+7 for a language whose pack has none, because the spine
+    # checks capabilities before it parses parameters. Making the capability
+    # conditional on a parameter inverts two steps every procedure inherits and
+    # is out of scope here.
+
+    @field_validator("dictionary")
+    @classmethod
+    def _entries_survive_the_tokeniser(cls, value: list[str] | None) -> list[str] | None:
+        # ADR 0015's rule for `nouns()`, applied to a supplied list for the same
+        # reason: a displacement has to come back from the tokeniser whole, and
+        # `(index + offset) % len(...)` needs something to divide by.
+        if value is None:
+            return None
+        if not value:
+            raise ValueError("dictionary must not be empty")
+        bad = [word for word in value if not word.isalpha()]
+        if bad:
+            raise ValueError(f"dictionary entries must be single alphabetic words: {bad[:3]}")
+        return value
 
 
 class NPlus7ApplyParams(NPlus7Params, ApplyParams):
@@ -61,7 +117,7 @@ def displacement_report(
     """
     candidate = word_spans(text, pack)
     source = word_spans(params.source, pack)
-    nouns = pack.nouns()
+    nouns, noun_index = resolve_dictionary(pack, params.dictionary)
     violations: list[Violation] = []
 
     if len(candidate) != len(source):
@@ -82,7 +138,7 @@ def displacement_report(
     ambiguous = 0
     good = 0
     for (offset, produced), (_, original) in zip(candidate, source, strict=True):
-        index = pack.noun_index(original)
+        index = noun_index(original)
         if produced.casefold() == original.casefold():
             if index is None:
                 good += 1
@@ -151,4 +207,5 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
 
     def _produce(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> Produced:
         """Walk every noun in `text` seven places down the dictionary."""
-        return plain([displace(text, pack, params.offset)])
+        nouns, noun_index = resolve_dictionary(pack, params.dictionary)
+        return plain([displace(text, pack, nouns, noun_index, params.offset)])
