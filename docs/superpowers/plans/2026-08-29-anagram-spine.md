@@ -433,9 +433,10 @@ Leave the long comment above the `DegenerateOutput(NOTHING)` raise exactly as it
 
 Mechanical. In each file under `src/denckring/procedures/` defining `_produce`:
 
-1. change the return annotation from `list[str]` to `list[Candidate]`
+1. change the return annotation from `list[str]` to `Produced`
 2. wrap the returned list in `plain(...)`
-3. add `Candidate` and `plain` to the `denckring.core.base` import as needed
+3. add `plain` to the `denckring.core.base` import and `Produced` to the
+   `denckring.core.protocol` import — the two names come from different modules
 
 So `anagram.py`'s current tail:
 
