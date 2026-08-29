@@ -89,9 +89,24 @@ def test_a_satisfied_check_says_so() -> None:
 
 
 def test_a_library_error_is_shown_not_raised() -> None:
-    response = client.post("/p/lipogram/check", data={"text": "abc", "lang": "fr"})
+    """A `DenckringError` reaches the page as a message, rather than escaping as a 500.
+
+    The row was `lipogram` with `lang="fr"` until French became a built-in language
+    pack in core (ADR 0029): `check("lipogram", ..., lang="fr")` now succeeds, so that
+    request produced a report and this test had no error left to surface. `n_plus_7`
+    is the replacement because it needs `lexicon.nouns`, which `FrenchPack` does not
+    carry and no French data distribution exists to supply, so the request still fails
+    inside the library and still fails for a stated reason. Capabilities are enforced
+    before parameters are parsed, which is why no `source` is posted here even though
+    the row is `checkability: source`.
+
+    The assertion is on the capability name and not on the install hint: the hint says
+    `denckring[fr]` for any missing capability, which is what the old assertion matched
+    and is therefore no evidence about which failure occurred.
+    """
+    response = client.post("/p/n_plus_7/check", data={"text": "a cat", "lang": "fr"})
     assert response.status_code == 200
-    assert "denckring[fr]" in response.text
+    assert "lexicon.nouns" in response.text
 
 
 def test_a_constructive_procedure_generates() -> None:
