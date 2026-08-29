@@ -31,6 +31,12 @@ DATA = Path(__file__).resolve().parents[1] / "src" / "denckring_en_data" / "data
 #: regeneration) fails a test loudly instead of drifting unnoticed.
 METADATA = DATA / "metadata.json"
 
+#: Provenance clauses in `metadata.json`'s `source` are joined with "; " and
+#: keyed by their leading label. build_graded_words.py writes the SCOWL clause
+#: into the same file, so this script merges rather than replacing: a rewrite
+#: here would drop the other's provenance and its entry count with it.
+SEPARATOR = "; "
+
 
 def single_word_alpha_lemmas() -> dict[str, list[wn.Word]]:
     """Every lemma across all parts of speech, lowercased, restricted to
@@ -99,14 +105,23 @@ def write_metadata(noun_count: int, gloss_count: int) -> None:
     and how many entries they hold, so a test can assert the shipped files
     still match and a silent corpus change fails loudly instead of drifting."""
     lexicon = wn.lexicons(lexicon=LEXICON_SPECIFIER)[0]
-    metadata = {
-        "generated": datetime.now(UTC).strftime("%Y-%m-%d"),
-        "source": (
-            f"{lexicon.label} {lexicon.version} ({LEXICON_SPECIFIER}), "
-            f"{lexicon.license} - see LICENSE-WORDNET and this script"
-        ),
-        "counts": {"nouns.txt": noun_count, "glosses.txt.gz": gloss_count},
-    }
+    # Named, not "this script": two scripts write this file now, so "this" no
+    # longer identifies one of them.
+    clause = (
+        f"{lexicon.label} {lexicon.version} ({LEXICON_SPECIFIER}), "
+        f"{lexicon.license} - see LICENSE-WORDNET and scripts/{Path(__file__).name}"
+    )
+    metadata = json.loads(METADATA.read_text(encoding="utf-8")) if METADATA.exists() else {}
+    kept = [
+        part
+        for part in metadata.get("source", "").split(SEPARATOR)
+        if part and not part.startswith(f"{lexicon.label} ")
+    ]
+    metadata["generated"] = datetime.now(UTC).strftime("%Y-%m-%d")
+    metadata["source"] = SEPARATOR.join([*kept, clause])
+    metadata.setdefault("counts", {}).update(
+        {"nouns.txt": noun_count, "glosses.txt.gz": gloss_count}
+    )
     METADATA.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"  {METADATA.name}: {metadata}")
 

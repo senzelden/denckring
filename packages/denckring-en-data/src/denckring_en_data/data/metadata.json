@@ -1,8 +1,9 @@
 {
   "counts": {
     "glosses.txt.gz": 78866,
+    "graded_words.txt.gz": 77077,
     "nouns.txt": 56468
   },
   "generated": "2026-08-19",
-  "source": "Open English Wordnet 2024 (oewn:2024), https://creativecommons.org/licenses/by/4.0 - see LICENSE-WORDNET and this script"
+  "source": "Open English Wordnet 2024 (oewn:2024), https://creativecommons.org/licenses/by/4.0 - see LICENSE-WORDNET and scripts/build_lexicon.py; SCOWL 2020.12.07 (sizes 10 20 35 40 50 55 60 70 80 95, vendored up to 60), generated 2026-08-29 - see LICENSE-SCOWL and scripts/build_graded_words.py"
 }

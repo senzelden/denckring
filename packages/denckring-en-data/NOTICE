@@ -17,3 +17,16 @@ The data in this distribution is not, and is redistributed under its own terms:
     index, neither in OEWN's own format. scripts/build_lexicon.py is the derivation.
 
     Open English WordNet, https://en-word.net/, CC BY 4.0
+
+  - src/denckring_en_data/data/graded_words.txt.gz is derived from SCOWL
+    2020.12.07, the collective work Copyright 2000-2018 Kevin Atkinson, under the
+    terms reproduced in LICENSE-SCOWL. That file is SCOWL's whole Copyright file
+    rather than an excerpt of the parts this build draws on, because several of
+    SCOWL's component sources carry notices of their own and one of them, UKACD,
+    requires its notice be reproduced verbatim wherever it is redistributed.
+    graded_words.txt.gz is a modification: SCOWL's `english-words` and
+    `american-words` lists at sizes 10 through 60, reduced to one `word<TAB>size`
+    line per word and in none of SCOWL's own formats.
+    scripts/build_graded_words.py is the derivation.
+
+    SCOWL, http://wordlist.aspell.net/, see LICENSE-SCOWL

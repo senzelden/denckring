@@ -9,6 +9,7 @@ metric on every syllabic report shows how much was still guessed.
 from __future__ import annotations
 
 import gzip
+from collections.abc import Mapping
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
@@ -33,6 +34,7 @@ from denckring.lang.en import EnglishPack
 DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict"))
 NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
+GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
 
 __version__ = "0.1.0"
 
@@ -92,6 +94,25 @@ def gloss_table() -> dict[str, tuple[str, ...]]:
             if not glosses:
                 continue
             table[lemma] = tuple(glosses.split(" | "))
+    return table
+
+
+@lru_cache(maxsize=1)
+def graded_words() -> Mapping[str, int]:
+    """Word to SCOWL size band, from the vendored graded list.
+
+    Unlike `known_words()`, this is not a union of two lists built for other
+    purposes: it is one list whose whole point is that its entries are ordered by
+    commonness. `known_words()` stays exactly as it is — `semordnilap` and
+    `charade` ask membership, and are right to keep asking the broad oracle ADR
+    0015 describes.
+    """
+    table: dict[str, int] = {}
+    with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
+        for line in handle:
+            word, _, band = line.rstrip("\n").partition("\t")
+            if band:
+                table[word] = int(band)
     return table
 
 
@@ -242,9 +263,11 @@ def _rhyme_of(phones: list[str]) -> str:
 __all__ = [
     "DICTIONARY_PATH",
     "GLOSSES_PATH",
+    "GRADED_WORDS_PATH",
     "NOUNS_PATH",
     "EnglishDataPack",
     "gloss_table",
+    "graded_words",
     "known_words",
     "noun_list",
     "pronunciations",
