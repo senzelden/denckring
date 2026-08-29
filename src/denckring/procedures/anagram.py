@@ -69,7 +69,10 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
     # does not: an unbounded search over a seventeen-letter input runs for minutes.
     # `allow_subset` does not move these figures. It records a cover at nodes the
     # walk already visits rather than descending anywhere new, so it multiplies
-    # the results (`astronomer`: 1,421 covers to 15,185) at an identical cost.
+    # the results (`astronomer`: 1,421 covers to 15,185, each count taken in the
+    # search's own frame and so one ahead of the figures `ApplyParams` quotes in
+    # `core/base.py`, which are what `produce` returns after the spine drops the
+    # identity cover) at an identical cost.
     max_nodes: int = Field(
         default=1_000_000,
         ge=1,
@@ -90,6 +93,10 @@ def multiset_violations(
     source's letters, so a shortfall stops being a violation; it may never use a
     letter the source does not have, so surplus stays one unconditionally.
     Relaxing both would leave a check that no text could fail.
+
+    Relaxing the one still leaves a text this function alone cannot fail: one
+    with no letters, which has nothing surplus to report. `_check` refuses that
+    case before scoring, because the score is decided there and not here.
     """
     violations: list[Violation] = []
     for letter in sorted(set(candidate) | set(source)):
@@ -146,12 +153,34 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         violations, shared, total = multiset_violations(
             candidate, source, allow_subset=params.allow_subset
         )
-        return self._report(
-            good=shared,
-            total=total,
-            violations=violations,
-            metrics={"letters": float(sum(candidate.values())), "shared": float(shared)},
-        )
+        metrics = {"letters": float(sum(candidate.values())), "shared": float(shared)}
+        if params.allow_subset and not candidate and source:
+            # `total` is the candidate's own letter count under the flag, so a
+            # text with no letters drives it to zero, and `_report` scores
+            # `total == 0` as vacuously 1.0 — right for the case below, wrong
+            # here: nothing was ever weighed against a source that has letters.
+            # An empty candidate is not a transposal of anything, and calling it
+            # satisfied is the same overconfident verdict `n_plus_7` refuses
+            # under `ambiguous_nouns="undecidable"` (see `displacement_report`),
+            # one level down. Flag off, the shortfall already fails this text,
+            # which is why the guard is conditional.
+            return self._report(
+                good=0,
+                total=1,
+                violations=[
+                    Violation(
+                        rule="empty_transposal",
+                        offset=None,
+                        found="no letters",
+                        expected=f"at least one of the source's {sum(source.values())}",
+                    )
+                ],
+                metrics=metrics,
+            )
+        # Not guarded when the source is letterless too: two texts with no
+        # letters agree vacuously, the same carve-out `displacement_report`
+        # makes for a candidate and a source that are both wordless.
+        return self._report(good=shared, total=total, violations=violations, metrics=metrics)
 
     #: The letter count past which the cover search is not worth starting. The
     #: candidate pool grows with the number of lexicon words that fit inside the
@@ -218,12 +247,17 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         budget = [params.max_nodes]
 
         def record(chosen: list[str]) -> None:
-            # `chosen` is empty only at the root, when the input held no letters
-            # at all — `apply(".")`. The empty cover is not a result, so it is
-            # dropped here rather than reaching the spine as a candidate whose
-            # `max()` has nothing to take a band from; with no covers at all the
-            # spine raises `DegenerateOutput.NOTHING`, which is what a letterless
-            # input got before this search.
+            # An empty `chosen` arrives two ways, and both are at the root. From
+            # the exhausted branch when the input held no letters at all —
+            # `apply(".")`, the only way in before `allow_subset` existed — and
+            # from the `allow_subset` branch on *every* flag-on call, since the
+            # root has spent nothing yet. So this guard now fires once per
+            # subset search rather than only on letterless input. The empty
+            # cover is not a result either way, so it is dropped here rather
+            # than reaching the spine as a candidate whose `max()` has nothing
+            # to take a band from; with no covers at all the spine raises
+            # `DegenerateOutput.NOTHING`, which is what a letterless input got
+            # before this search.
             if not chosen:
                 return
             covers.append(
