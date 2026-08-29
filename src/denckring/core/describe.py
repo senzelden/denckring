@@ -7,7 +7,7 @@ Computing it four times is how four copies drift apart.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, get_args
 
 from pydantic import BaseModel
 
@@ -54,6 +54,12 @@ class Description(BaseModel):
     constructive: bool
     checkability: str
     languages: list[str]
+    #: Which languages this install can actually check the row in, computed from
+    #: the packs' capabilities. `languages` above is authored editorial scope —
+    #: `wechselsatz` is German by nature and not merely by capability — and the
+    #: two answer different questions. Derived rather than authored so it cannot
+    #: drift into the false claim a `[en]` row made once French began working.
+    runs_in: list[str]
     requires: list[str]
     runnable: bool
     missing: list[str]
@@ -138,6 +144,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         constructive=is_constructive,
         checkability=meta.checkability,
         languages=list(meta.languages),
+        runs_in=[lang for lang in get_args(Lang) if runnable(meta, lang)[0]],
         requires=list(meta.requires),
         runnable=ok,
         missing=missing,

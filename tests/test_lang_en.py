@@ -12,9 +12,11 @@ def test_english_pack_declares_the_batch_one_capabilities() -> None:
 
 
 def test_unknown_language_raises_with_install_hint() -> None:
-    # French has no pack yet; German does, and is covered in test_lang_de.
-    with pytest.raises(UnknownLanguage, match=r"denckring\[fr\]"):
-        get_pack("fr")
+    # en, de and fr are the three built-in defaults (Task 2 gave French a
+    # core pack); "es" stands in for a language this install genuinely has
+    # no pack for at all, which is what this test means to exercise.
+    with pytest.raises(UnknownLanguage, match=r"denckring\[es\]"):
+        get_pack("es")
 
 
 def test_undeclared_capability_raises_rather_than_approximating() -> None:

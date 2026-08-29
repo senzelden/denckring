@@ -111,6 +111,14 @@ def test_runnable_reports_what_is_missing(monkeypatch: pytest.MonkeyPatch) -> No
     assert missing == ["stress"]
 
 
+def test_describe_reports_the_languages_the_install_can_actually_run() -> None:
+    """`meta.languages` is authored editorial scope; `runs_in` is computed from
+    capabilities, so the two cannot drift into a false claim."""
+    description = describe("anagram")
+    assert "fr" in description.runs_in
+    assert "fr" not in describe("n_plus_7").runs_in
+
+
 def test_renga_and_haibun_match_haikus_catalogued_requirements() -> None:
     """Catalogue consistency, not capability coverage: renga and haibun declare
     the same `requires` as haiku, so nothing in the catalogue can silently gate
