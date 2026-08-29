@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
+from typing import Literal
 
 from pydantic import Field, field_validator
 
@@ -82,6 +83,20 @@ class NPlus7Params(SourceParams):
     # conditional on a parameter inverts two steps every procedure inherits and
     # is out of scope here.
 
+    # `RhymeParams.unknown_rhyme` (base.py) solves this exact shape for a
+    # different undecidable — a word list cannot say whether *run* was left
+    # alone because it is a noun that survived, or because it is a verb here.
+    # Same three readings, same names, for the same reason: a caller who has
+    # met one has met both.
+    ambiguous_nouns: Literal["undecidable", "free", "strict"] = Field(
+        default="free",
+        description=(
+            "What an unchanged word that the dictionary lists means: leave the "
+            "position unscored (undecidable), accept it (free), or fail it "
+            "(strict)."
+        ),
+    )
+
     @field_validator("dictionary")
     @classmethod
     def _entries_survive_the_tokeniser(cls, value: list[str] | None) -> list[str] | None:
@@ -136,6 +151,7 @@ def displacement_report(
         )
 
     ambiguous = 0
+    undecided = 0
     good = 0
     for (offset, produced), (_, original) in zip(candidate, source, strict=True):
         index = noun_index(original)
@@ -144,9 +160,24 @@ def displacement_report(
                 good += 1
             else:
                 # Listed as a noun but left alone: readable as another part of
-                # speech here, which no word list can rule out.
+                # speech here, which no word list can rule out. `ambiguous`
+                # counts the position under every reading, so the metric never
+                # depends on which one was chosen; `ambiguous_nouns` decides
+                # only what the position does to the score.
                 ambiguous += 1
-                good += 1
+                if params.ambiguous_nouns == "free":
+                    good += 1
+                elif params.ambiguous_nouns == "strict":
+                    violations.append(
+                        Violation(
+                            rule="ambiguous_noun_unchanged",
+                            offset=offset,
+                            found=produced,
+                            expected=f"a displacement of {original!r} (listed as a noun)",
+                        )
+                    )
+                else:
+                    undecided += 1
             continue
         if index is None:
             violations.append(
@@ -175,6 +206,30 @@ def displacement_report(
                     expected=expected,
                 )
             )
+    decided = len(candidate) - undecided
+    metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
+    if decided == 0 and undecided > 0:
+        # `_report` scores total == 0 as 1.0 — right for the wordless case the
+        # comment below still guards, wrong here: this text has words, every
+        # one of them left `undecidable`, and none was ever weighed. Scoring
+        # that vacuously satisfied would be the same overconfident verdict
+        # `ambiguous_nouns="undecidable"` exists to refuse, one level down.
+        # `scheme_violations`' `rhyme_undecidable` (prosody.py) is the same
+        # call for the same reason: a partial verdict is honest, an empty one
+        # is not.
+        return procedure._report(
+            good=0,
+            total=1,
+            violations=[
+                Violation(
+                    rule="ambiguous_nouns_undecidable",
+                    offset=None,
+                    found=f"{undecided} word(s) the reading left undecided",
+                    expected="at least one position this reading can decide",
+                )
+            ],
+            metrics=metrics,
+        )
     return procedure._report(
         good=good,
         # Not max(..., 1): a text and a source that are both wordless agree
@@ -182,9 +237,13 @@ def displacement_report(
         # while listing no violation — a verdict with nothing behind it. The
         # length mismatch above already fails an empty candidate against a
         # source that has words, which is the case the floor was guarding.
-        total=len(candidate),
+        # `undecided` positions are subtracted here rather than counted in
+        # `total`: under `ambiguous_nouns="undecidable"` they were never
+        # weighed, and counting them would silently discount the score
+        # instead of leaving it computed over what was actually judged.
+        total=decided,
         violations=violations,
-        metrics={"words": float(len(candidate)), "ambiguous_words": float(ambiguous)},
+        metrics=metrics,
     )
 
 
