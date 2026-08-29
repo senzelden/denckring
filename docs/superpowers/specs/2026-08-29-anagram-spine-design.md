@@ -152,8 +152,22 @@ class Candidate(BaseModel):
     text: str
     metrics: dict[str, float] = Field(default_factory=dict)
 
-def _produce(self, text: str, pack: LanguagePack, params: A) -> list[Candidate]: ...
+class Produced(BaseModel):
+    candidates: list[Candidate]
+    truncated: bool = False
+
+def _produce(self, text: str, pack: LanguagePack, params: A) -> Produced: ...
 ```
+
+**A structure and not a bare `list[Candidate]`, because this spec asks for two
+things a list cannot both carry.** W3 requires the generator to report truncation
+the spine cannot see: the spine derives `truncated` from `len(found) > limit`, and
+node-budget exhaustion means the search found *fewer* results, not more, so that
+derivation can never express it. Returning a list would have forced a second
+channel for the flag — an instance attribute, a re-entrant hook, or a sentinel key
+in the first candidate's metrics — and every one of those is the two-primitive
+condition ADR 0026 rejected, wearing a different hat. One structure carries both,
+and `plain()` keeps the twenty-six unscored generators to a single call.
 
 `Production.candidates` is the new field. `Production.texts` survives as a derived
 property, so `apply()` stays `produce(...).texts[0]`, and the MCP surface and `apply
@@ -252,8 +266,11 @@ cannot be checked, the row cites nothing rather than citing on trust.
 Each candidate carries that maximum band in `Candidate.metrics`, which is the concrete use
 W1 exists for.
 
-The generator reports its own truncation when the node budget is exhausted, which the
-spine cannot see — the case the chapter-2 spec named in advance.
+The generator reports its own truncation when the node budget is exhausted, through
+`Produced.truncated` — the case the chapter-2 spec named in advance, and the reason W1's
+primitive returns a structure rather than a list. `Production.truncated` is then true when
+either the budget stopped the search or `max_results` capped its results, which are
+different events with the same honest meaning: what you were shown is not everything.
 
 `MAX_LETTERS = 60` stays. Its comment, which justifies the cap in terms of the greedy
 walk being replaced, does not, and is rewritten to justify the cap that will actually
