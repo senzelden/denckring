@@ -159,3 +159,18 @@ def test_every_subset_cover_satisfies_the_relaxed_check() -> None:
         assert procedure.check(
             candidate, lang="en", source="dormitory", allow_subset=True
         ).satisfied
+
+
+def test_a_letterless_candidate_is_not_a_transposal_of_anything() -> None:
+    """`total` is the candidate's letter count under the flag, so an empty text
+    drives it to zero and `_report` scores that vacuously 1.0. The hole the
+    relaxation opens, closed the way `n_plus_7` closed the identical shape under
+    `ambiguous_nouns="undecidable"`: a named violation, not a silent pass."""
+    procedure = Anagram()
+    for text in ("", "   ", "!!!"):
+        report = procedure.check(text, lang="en", source="dormitory", allow_subset=True)
+        assert not report.satisfied, text
+        assert [v.rule for v in report.violations] == ["empty_transposal"], text
+    # Two letterless texts still agree vacuously — the carve-out
+    # `displacement_report` makes for a wordless candidate and a wordless source.
+    assert procedure.check("!", lang="en", source=".", allow_subset=True).satisfied
