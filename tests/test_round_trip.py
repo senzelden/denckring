@@ -195,11 +195,13 @@ def test_the_flat_draw_keeps_half_the_branches() -> None:
     here is about branch count and nothing else: **branch count is not draw share.**
     `st.one_of` does not sample its branches uniformly, so the share cannot be divided out
     of the count, and two successive attempts to reason it out from the call — a half, then
-    a third — were both wrong. Measured instead, by tagging each branch and counting 9000
-    draws over three seeds, the collapse costs about half the flat draw: 11% flat at three
-    branches against 21% at four, with `PROSE` taking 45-49% of the draw either way. Those
-    percentages are a snapshot of this exact branch list and will not survive a change to
-    it — measure again rather than reasoning again.
+    a third — were both wrong. Measured instead, by tagging each branch and counting 33,000
+    draws over eleven seeds per composition, the collapse costs about half the flat draw:
+    11% flat at three branches against 20% at four. `PROSE` takes the largest share either
+    way — 49% at three branches, 45% at four, though an independent 51,000-draw replay put
+    that last figure at 44%, which is about as much precision as a sample of this size
+    supports. All of these are a snapshot of this exact branch list and will not survive a
+    change to it — measure again rather than reasoning again, and say how many draws.
 
     `spoonerism` is the row that pays for a starved flat draw, and the budget below was
     measured at four branches.
@@ -222,15 +224,14 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     # Six hundred, down from a thousand, because `TEXT` now builds the shapes the
     # rare rows need instead of waiting for the draw to offer them — see the
     # comments on `PARAGRAPHS` and `PROSE`. The number is a measurement, not a
-    # guess. Replayed under explicit seeds rather than the single one
-    # `derandomize` pins, this composition reached every reachable row on 60 of 60
-    # seeds at 300 examples, 29 of 30 at 250, and 27 of 30 at 100. The row that
-    # goes missing first is `spoonerism` — it wants flat text and is the one this
-    # composition starves; at 75 examples, over the same thirty seeds, `diastic`
-    # and `wechselsatz` start going too. Six hundred is twice that clean floor,
-    # which is the headroom a net five other pieces of work land on should carry.
-    # It is
-    # also a stronger guarantee than the thousand it replaces rather than merely a
+    # guess. Replayed under explicit seeds rather than the single one `derandomize`
+    # pins, this composition reached every reachable row on 60 of 60 seeds at 300
+    # examples, 29 of 30 at 250, and 27 of 30 at 100. The row that goes missing
+    # first is `spoonerism` — it wants flat text and is the one this composition
+    # starves; at 75 examples, over the same thirty seeds, `diastic` and
+    # `wechselsatz` start going too. Six hundred is twice that clean floor, which is
+    # the headroom a net five other pieces of work land on should carry. It is also
+    # a stronger guarantee than the thousand it replaces rather than merely a
     # cheaper one: replayed the same way, the old flat-only strategy reached every
     # row on three seeds out of twelve, so that budget was never a floor — it was
     # one lucky `derandomize` seed.
