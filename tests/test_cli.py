@@ -105,11 +105,13 @@ def test_apply_still_forwards_a_seed_that_was_asked_for(tmp_path: Path) -> None:
 
 
 def test_unknown_language_is_reported_not_traced(tmp_path: Path) -> None:
+    # "fr" now has a core pack (Task 2), so lipogram runs in it; "es" stands
+    # in for a language this install has no pack for.
     path = tmp_path / "t.txt"
     path.write_text("text", encoding="utf-8")
-    result = runner.invoke(app, ["check", "lipogram", str(path), "--lang", "fr"])
+    result = runner.invoke(app, ["check", "lipogram", str(path), "--lang", "es"])
     assert result.exit_code == 2
-    assert "denckring[fr]" in result.stdout
+    assert "denckring[es]" in result.stdout
 
 
 def test_version_prints_the_installed_version() -> None:

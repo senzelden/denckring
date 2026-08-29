@@ -19,6 +19,7 @@ from denckring.core.errors import DuplicatePack, UnknownLanguage
 from denckring.core.protocol import LanguagePack
 from denckring.lang.de import GermanPack
 from denckring.lang.en import EnglishPack
+from denckring.lang.fr import FrenchPack
 
 DuplicatePack = DuplicatePack
 
@@ -28,8 +29,10 @@ ENTRY_POINT_GROUP = "denckring.lang"
 #: here beside English so that `denckring-de-data` can override it the way
 #: `denckring-en-data` overrides English. It was an entry point until a second
 #: distribution claiming `de` proved that two entry points for one language
-#: raise DuplicatePack. Amends ADR 0010.
-_DEFAULTS: dict[str, LanguagePack] = {"en": EnglishPack(), "de": GermanPack()}
+#: raise DuplicatePack. Amends ADR 0010. French joins for the same reason plus
+#: one more: `Lang` has always been `Literal["en", "de", "fr"]`, so `"fr"` was
+#: a language the type admitted and this registry could not serve.
+_DEFAULTS: dict[str, LanguagePack] = {"en": EnglishPack(), "de": GermanPack(), "fr": FrenchPack()}
 #: Discovered or explicitly registered packs, which take precedence.
 _PACKS: dict[str, LanguagePack] = {}
 _DISCOVERED = False
