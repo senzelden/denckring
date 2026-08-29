@@ -25,7 +25,7 @@ installation nor use touches the network:
   both derived from it. `metadata.json` beside the data records the exact version and
   generation date; `scripts/build_lexicon.py` regenerates both files from OEWN alone.
 - SCOWL 2020.12.07, under the terms in `LICENSE-SCOWL`. `graded_words.txt.gz` holds
-  77,077 words, each with the SCOWL size band it first appears at, built from the
+  77,078 words, each with the SCOWL size band it first appears at, built from the
   `english-words` and `american-words` lists at sizes 10 through 60 — 60 being the
   largest size SCOWL's own documentation is confident carries no misspellings. The
   band is the point: `room` at 10 and `tinsel` at 35 are equally words, and only one
