@@ -1,5 +1,14 @@
 # 28. A word list graded by commonness, because a membership oracle cannot rank
 
+> **Amended by [ADR 0029](0029-the-choices-the-catalogue-promised.md).** The ranking
+> described below is now the tail of a four-key order, not the whole of it:
+> `letters_used` descending sorts first, because `allow_subset` admits covers that
+> spend only some of the source's letters. With that flag off — the default, and what
+> this ADR was written about — every cover spends every letter, the new key is constant
+> across them, and the order is exactly the three keys described here; a regression test
+> holds it to that rather than leaving it to argument. Everything else decided here
+> still stands.
+
 ## Context
 
 `apply anagram "astronomer"` raised `DegenerateOutput`, and so did `dormitory`. The
