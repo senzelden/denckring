@@ -114,9 +114,10 @@ class ApplyParams(BaseModel):
 
     `max_results` defaults to ten rather than one because a caller asking a
     procedure that has many valid answers expects more than one of them, and
-    rather than unbounded because `dormitory` alone has thirty-two exact
-    two-word covers before any deeper search. `Production.truncated` is what
-    keeps a capped search from reading as an exhaustive one.
+    rather than unbounded because a search finds far more than a reader wants
+    handed to them: `anagram` at its own defaults covers `dormitory` 47 ways and
+    `astronomer` 1,420. `Production.truncated` is what keeps a capped search
+    from reading as an exhaustive one.
     """
 
     allow_identity: bool = Field(

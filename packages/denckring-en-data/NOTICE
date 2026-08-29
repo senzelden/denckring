@@ -21,9 +21,13 @@ The data in this distribution is not, and is redistributed under its own terms:
   - src/denckring_en_data/data/graded_words.txt.gz is derived from SCOWL
     2020.12.07, the collective work Copyright 2000-2018 Kevin Atkinson, under the
     terms reproduced in LICENSE-SCOWL. That file is SCOWL's whole Copyright file
-    rather than an excerpt of the parts this build draws on, because several of
-    SCOWL's component sources carry notices of their own and one of them, UKACD,
-    requires its notice be reproduced verbatim wherever it is redistributed.
+    rather than an excerpt of the parts this build draws on, because Atkinson's
+    permission notice asks that both the copyright notice and the permission
+    notice appear in supporting documentation, and because a licence excerpted to
+    the sources drawn on today would need re-excerpting the next time the size
+    cap moves. UKACD, whose terms require its notice be reproduced verbatim
+    wherever it is redistributed, enters SCOWL at the 80 level and so is not
+    redistributed here at all.
     graded_words.txt.gz is a modification: SCOWL's `english-words` and
     `american-words` lists at sizes 10 through 60, reduced to one `word<TAB>size`
     line per word and in none of SCOWL's own formats.
