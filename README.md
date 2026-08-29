@@ -25,10 +25,9 @@ and only meaningful for the constructive ones.
 ## Install
 
 ```console
-pip install denckring          # English and German, no data files
+pip install denckring          # English, German and French, no data files
 pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
-pip install denckring[fr]      # French (not yet released)
 ```
 
 The `[en]` and `[de]` extras improve or unlock procedures rather than changing the
@@ -44,6 +43,12 @@ German ships in core because the procedures that need no lexicon work for it
 unchanged, and it is a built-in default exactly like English (ADR 0022):
 `denckring[de]` overrides that default the same way `denckring[en]` overrides
 English's, rather than registering through a separate path.
+
+French ships in core for the same reason and carries no data files at all, so there is
+no `[fr]` extra to install: 70 of the 119 implemented rows run in it, and the other 49
+raise `MissingCapability` naming what the pack lacks — a lexicon, syllables, phonemes
+or stress — rather than `UnknownLanguage` naming the language, which is what asking for
+French used to get (ADR 0029).
 
 ## What's here
 
@@ -93,6 +98,11 @@ Language packs declare capabilities; procedures declare what they require. Askin
 language whose pack is not installed, or a procedure whose requirements that pack does
 not meet, raises rather than quietly returning an approximate answer.
 
+`describe` answers both halves of "can I run this in French": `languages` is the row's
+authored editorial scope — `wechselsatz` is German by nature, not merely by capability —
+and `runs_in` is computed from the installed packs, so it says what *this* install can
+actually check the row in. `anagram` is `languages: [en]` and `runs_in` all three.
+
 Whether `ä` counts as `a` is an editorial decision rather than a library constant, so it
 is a parameter: `fold_diacritics` defaults to true and can be turned off per call. Glyph
 questions never fold — *Masse* satisfies the prisoner's constraint and *Maße* does not,
@@ -110,7 +120,9 @@ are built on them:
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
   the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
-  added; the ones already there do not change type or meaning.
+  added; the ones already there do not change type or meaning. `describe`'s
+  `Description` carries `runs_in` under the same promise, and it is the one field whose
+  value depends on what is installed rather than on what the catalogue says.
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`
   — and the `--json` output of `apply` that carries it. It is `Report`'s counterpart on
   the generating half and is covered by the same promise, in the same words: fields may
