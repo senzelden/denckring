@@ -219,10 +219,11 @@ def parse_into(model: type[BaseModel], params: dict[str, Any], procedure_id: str
 def plain(texts: Iterable[str]) -> Produced:
     """Candidates with nothing known about them beyond their text.
 
-    Twenty-six of the twenty-seven generators are in this case and say so in one
-    call, rather than each spelling out a `Candidate(text=...)` comprehension.
-    ADR 0027 changed the primitive's type; it did not claim every procedure
-    suddenly has a score, or that any of them ran out of budget.
+    A generator with nothing to add says so in one call, rather than spelling out
+    a `Candidate(text=...)` comprehension of its own. ADR 0027 changed the
+    primitive's type; it did not claim every procedure suddenly has a score, or
+    that any of them ran out of budget, and no count of which are in this case is
+    kept here — that number moves whenever a generator learns to rank.
     """
     return Produced(candidates=[Candidate(text=text) for text in texts])
 
@@ -335,10 +336,12 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             # empty list is not a result at all — there is nothing to want.
             # Left to `_guard_degenerate`, `observed` would default to IDENTICAL,
             # which is false (nothing was produced to compare), and with
-            # `allow_identity=True` the empty list would reach `Production.texts`
-            # and fail its `min_length=1` as a bare pydantic `ValidationError` —
-            # not a `DenckringError`, so it would escape the MCP server's handler
-            # uncaught.
+            # `allow_identity=True` the empty list would reach
+            # `Production.candidates` and fail its `min_length=1` as a bare
+            # pydantic `ValidationError` — not a `DenckringError`, so it would
+            # escape the MCP server's handler uncaught. The constraint sits on
+            # `candidates` rather than `texts`, which since ADR 0027 is a
+            # computed field carrying no constraint of its own.
             raise DegenerateOutput(self.id, DegenerateOutput.NOTHING)
         found = self._guard_degenerate(text, produced.candidates, parsed)
         # `getattr`, falling back to one rather than ten, for the reason
@@ -377,11 +380,11 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
 
         When nothing survives, `observed` still distinguishes empty from
         identical rather than collapsing to one generic message: a
-        single-candidate generator — every one of them, until Task 3 — has
-        exactly one candidate to have judged degenerate, so this reports the
-        same shape `_is_degenerate` saw for it, in the same priority it
-        checked in, and the caller reading `detail()["observed"]` after this
-        split learns what it learned before.
+        single-candidate generator has exactly one candidate to have judged
+        degenerate, so this reports the same shape `_is_degenerate` saw for it,
+        in the same priority it checked in, and the caller reading
+        `detail()["observed"]` after ADR 0026 split the wholesale guard into a
+        per-candidate judgement learns what it learned before.
         """
         if getattr(params, "allow_identity", False):
             return produced
