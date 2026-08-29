@@ -92,3 +92,16 @@ def test_min_word_length_refuses_orphan_letters() -> None:
     """The direct answer to single letters passing as words."""
     for candidate in Anagram().produce("dormitory", lang="en", min_word_length=3).texts:
         assert all(len(word) >= 3 for word in candidate.split())
+
+
+def test_a_capitalised_source_does_not_get_its_own_letters_back() -> None:
+    """The reported defect once more, in the case a person actually types.
+
+    The covers are built from a casefolded lexicon, so the identity cover of
+    `Dormitory` is `dormitory` — which the guard let through while it compared
+    case-sensitively, leaving `apply anagram "Astronomer"` returning its own
+    input after `astronomer` was fixed.
+    """
+    for source in ("Dormitory", "DORMITORY", "Astronomer"):
+        produced = Anagram().apply(source, lang="en")
+        assert produced.casefold() != source.casefold(), source
