@@ -70,3 +70,17 @@ def test_the_single_letter_allowlist_stays_one_word_long() -> None:
     assert graded["a"] == 10
     assert "i" not in graded, "band 40 with the other letters; adding it overrides SCOWL"
     assert sorted(word for word in graded if len(word) == 1) == ["a"]
+
+
+def test_the_pack_method_hands_back_a_view_not_the_live_cache() -> None:
+    """`graded_words()` (the module loader) is `@lru_cache`d and shared process-
+    wide, exactly like `variants()` and `gloss_table()`. But the pack method is a
+    public capability surface, not a cache internal — `nouns()` and `glosses()`
+    already return tuples rather than the underlying containers, and a caller
+    who could write through this one would corrupt the cache for every other
+    caller. `EnglishDataPack.graded_words()` must return a read-only view."""
+    pack = en_data.EnglishDataPack()
+    view = pack.graded_words()
+    with pytest.raises(TypeError):
+        view["astronomer"] = 1
+    assert view == en_data.graded_words()

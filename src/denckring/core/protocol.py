@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, Field, computed_field
@@ -252,3 +252,5 @@ class LanguagePack(Protocol):
     def nouns(self) -> Sequence[str]: ...
 
     def noun_index(self, word: str) -> int | None: ...
+
+    def graded_words(self) -> Mapping[str, int]: ...
