@@ -52,10 +52,27 @@ ENCODING = "iso-8859-1"
 #: `cat's-paw` cannot survive the tokeniser that reads the result back - and this
 #: adds two restrictions of its own. Accented forms (157 of them, `abbé` and
 #: friends) can only ever cover a source word carrying the same accent, which a
-#: folded input never does. Single letters would be worse than useless: all 26
-#: appear at low bands, so admitting them lets any input at all be "covered" by
-#: letter salad. The cost is real and is `a` and `I`, which are words.
+#: folded input never does. Single letters are excluded - all but the one in
+#: KEPT_SINGLE_LETTERS below - because all 26 appear at or below band 60, so
+#: admitting them wholesale lets any input at all be "covered" by letter salad.
 TOKEN = re.compile(r"[a-z]{2,}")
+
+#: The one single letter that is kept, and SCOWL's own bands are why rather than
+#: anyone's intuition about English. Measured over this release at sizes <= 60:
+#: `a` is band 10, SCOWL's most common tier; `m` is 35; and the other 24 letters
+#: - `i` among them - are all band 40. That is SCOWL saying `a` is a common
+#: English word and the rest are letter tokens that happen to sit in a word list.
+#: Deferring to the grading here is the same move MAX_BAND makes, and overriding
+#: a band on intuition is the editorial judgement a sourced cutoff exists to
+#: avoid.
+#:
+#: `i` is therefore excluded deliberately, and the cost is real: a cover using a
+#: standalone capital `I` is unreachable, and "I am ..." phrasings are a genuine
+#: part of anagram practice. Lowercase `i` is a word only when capitalised, and
+#: casefolding merged it into the letter tier, which is why it grades with `q`
+#: and `z`. If it should come back, add "i" here with a comment saying it
+#: overrides SCOWL's band 40 on purpose - better made knowingly than inherited.
+KEPT_SINGLE_LETTERS = frozenset({"a"})
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src" / "denckring_en_data" / "data"
@@ -102,7 +119,9 @@ def read_bands(tar: tarfile.TarFile) -> tuple[dict[str, int], list[int]]:
             continue
         for line in handle.read().decode(ENCODING).splitlines():
             word = line.strip().casefold()
-            if TOKEN.fullmatch(word) and band < table.get(word, MAX_BAND + 1):
+            if not TOKEN.fullmatch(word) and word not in KEPT_SINGLE_LETTERS:
+                continue
+            if band < table.get(word, MAX_BAND + 1):
                 table[word] = band
     return table, sorted(sizes)
 
