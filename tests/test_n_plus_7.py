@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from denckring import check
@@ -31,6 +33,53 @@ def test_changing_a_non_noun_is_a_violation() -> None:
 def test_a_wrong_displacement_is_a_violation() -> None:
     wrong = DISPLACED.replace("catacomb", "zebra")
     assert not check("n_plus_7", wrong, source=SOURCE).satisfied
+
+
+def test_the_three_readings_score_the_same_text_differently() -> None:
+    """A text whose unchanged word is a listed noun — readable as a verb there,
+    which no word list can rule out. `free` is what ships today."""
+    procedure = NPlus7()
+    args: dict[str, Any] = {"lang": "en", "source": "the run of the mill"}
+    free = procedure.check("the run of the mill", ambiguous_nouns="free", **args)
+    strict = procedure.check("the run of the mill", ambiguous_nouns="strict", **args)
+    assert free.score > strict.score
+
+
+def test_ambiguous_words_reports_the_same_count_under_every_reading() -> None:
+    """The metric says how much of the verdict rested on the reading chosen, so
+    it must not itself depend on the reading."""
+    procedure = NPlus7()
+    args: dict[str, Any] = {"lang": "en", "source": "the run of the mill"}
+    counts = {
+        reading: procedure.check("the run of the mill", ambiguous_nouns=reading, **args).metrics[
+            "ambiguous_words"
+        ]
+        for reading in ("undecidable", "free", "strict")
+    }
+    assert len(set(counts.values())) == 1
+
+
+def test_the_default_preserves_todays_verdict() -> None:
+    """Adding the knob must not change any shipped score."""
+    procedure = NPlus7()
+    args: dict[str, Any] = {"lang": "en", "source": "the run of the mill"}
+    assert (
+        procedure.check("the run of the mill", **args).score
+        == procedure.check("the run of the mill", ambiguous_nouns="free", **args).score
+    )
+
+
+def test_a_wholly_undecidable_text_is_not_vacuously_satisfied() -> None:
+    """`cat` is itself a listed noun (ADR-checked: `pack.noun_index("cat")` is
+    8402), so a one-word text identical to its source leaves the only word
+    undecided under `undecidable`, driving `total` to zero. `_report` scores
+    that 1.0 — vacuously satisfied, right for an empty text but wrong here:
+    this text has a word, and it was never weighed. Pinned unsatisfied."""
+    procedure = NPlus7()
+    report = procedure.check("cat", ambiguous_nouns="undecidable", lang="en", source="cat")
+    assert not report.satisfied
+    assert report.score == 0.0
+    assert report.violations[0].rule == "ambiguous_nouns_undecidable"
 
 
 def test_a_different_word_count_is_a_violation() -> None:
