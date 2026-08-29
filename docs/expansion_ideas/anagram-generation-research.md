@@ -1,5 +1,17 @@
 # Anagram generation — prior art, lexicons, and what the measurements say
 
+> **Status, 2026-08-29: acted on.** The chapter this note was written for landed as
+> [ADR 0028](../adr/0028-the-graded-lexicon.md) — SCOWL is vendored into
+> `denckring-en-data` rather than becoming a fourth distribution, `lexicon.graded_words`
+> is a capability of its own, and the search is ranked and node-budgeted. The
+> multiple-results question in §4 was answered ahead of it by
+> [ADR 0026](../adr/0026-the-production-surface.md) and
+> [ADR 0027](../adr/0027-candidates-carry-their-scores.md). The measurements below
+> reproduced against the shipped build and are left as written, as is the headline
+> finding they support: the lexicon was the problem, not the search. Two descriptive
+> claims were checked against the release actually vendored — one was wrong and is
+> corrected in place, one was right and is confirmed, both marked below.
+
 **Status: research notes for chapter 2, not instructions.** Written 2026-08-27, after
 chapter 1 (the apply spine, ADR 0025) landed. Web sources were read on that date and are
 linked below; the licence readings are mine and are **not legal advice** — anything that
@@ -100,8 +112,25 @@ terms, and a GPL list cannot ship beside Apache code without consequences.
 **SCOWL's size bands are the ranking mechanism, already built and already principled.**
 Words are classified by commonness, with *larger numbers meaning less common*: 35 small,
 50 medium, 60 the largest size its maintainer is confident contains no misspellings, 70
-large, 80 Scrabble-valid but unsuitable for spell-checking, 95 archaic. `dirty` and `room`
-sit low; `dority`, `romito` and `stinel` sit high or are absent.
+large, 80 Scrabble-valid but unsuitable for spell-checking, 95 the top of the range.
+`dirty` and `room` sit low; `dority`, `romito` and `stinel` sit high or are absent.
+
+> **Corrected 2026-08-29.** This last band read "95 archaic". The release vendored under
+> ADR 0028, 2020.12.07, ships sizes `10 20 35 40 50 55 60 70 80 95` — no 85 at all — and
+> its own `README` labels them `80 (huge), 95 (insane)`. So 95 is the *insane* tier here,
+> not an archaic one; "85 archaic" belongs to SCOWL v2's renumbering, which tops out at
+> 85 and ships no 95. Neither numbering describes the other, which is why
+> `metadata.json` records the sizes the build actually saw rather than a remembered list.
+
+> **Confirmed 2026-08-29.** The English table above treats UKACD's verbatim-notice term
+> as friction that choosing SCOWL avoids, and that reading holds at the cutoff shipped:
+> SCOWL's `Copyright` file — reproduced whole as `LICENSE-SCOWL` — states that "the 80
+> level includes … the 'UK Advanced Cryptics Dictionary' (UKACD)", and ADR 0028's build
+> caps at 60, so no UKACD-derived word is vendored and the term is not triggered. An
+> intermediate draft of the design spec claimed the opposite, that the term rode along
+> inside SCOWL at every level; that draft was wrong and this note was right. The whole
+> `Copyright` file ships regardless, because a licence excerpted to what applies today is
+> how a package acquires a defect the next time the cutoff moves.
 
 This matters beyond convenience. A `max_size` parameter on the anagram dictionary is a
 *named, sourced, editorial choice* — the same shape as `fold_diacritics` in ADR 0009 —
