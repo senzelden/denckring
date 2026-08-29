@@ -74,6 +74,13 @@ version of this paragraph named `paragram` alone. The count was measured over
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
+
+# Private API, and knowingly so: `OneOfStrategy` and its `element_strategies` both live
+# under `hypothesis.strategies._internal`, so an upgrade may move them and break this
+# import. There is no public way to ask a strategy how many branches it has, and the
+# alternative — reasoning it out from the `st.one_of` call — is what produced two false
+# comments in this file already. If the import breaks, replace the mechanism rather than
+# dropping the check: `test_the_flat_draw_keeps_half_the_branches` explains what it buys.
 from hypothesis.strategies._internal.strategies import OneOfStrategy
 
 from denckring.core.base import ConstructiveProcedure
@@ -118,21 +125,21 @@ PROSE = st.lists(
 ).map("\n\n".join)
 
 #: A second, distinct handle on `FLAT`, and the wrapper is the whole point of it.
-#: `st.one_of` dedupes its branches by identity and then samples uniformly over what
-#: survives, so naming `FLAT` twice buys no weight at all — and writing the `st.text(...)`
-#: call out a second time buys none either, because `st.text` is `@cacheable` and an
-#: identical call returns the very same object. `.map` builds a new strategy, which is
-#: what the deduping is unable to collapse.
+#: `st.one_of` dedupes its branches by identity, so naming `FLAT` twice buys nothing at
+#: all — and writing the `st.text(...)` call out a second time buys nothing either,
+#: because `st.text` is `@cacheable` and an identical call returns the very same object.
+#: `.map` builds a new strategy, which is what the deduping is unable to collapse.
 FLAT_AGAIN = FLAT.map(lambda text: text)
 
 #: Composed with `FLAT` rather than replacing it: the alphabet's `\n`, `|` and `.` are
 #: each load-bearing for other rows and the module docstring records how each was found.
-#: `FLAT` gets two of the four branches because an even split across the three shapes is
-#: the wrong split — the two built shapes serve three rows between them and `FLAT` serves
-#: the other twenty reachable ones, `spoonerism` most marginally of all. Widening in one
-#: direction can narrow in another, so the balance is measured rather than assumed:
-#: `test_the_flat_draw_keeps_half_the_branches` holds the weighting to the four branches
-#: the measurement was taken at, and the comment above `@settings` carries the numbers.
+#: `FLAT` gets two of the four branches and the two built shapes one each, because the
+#: built shapes serve three rows between them and `FLAT` serves the other twenty reachable
+#: ones, `spoonerism` most marginally of all. Widening in one direction can narrow in
+#: another, so the balance is measured rather than assumed: the comment above `@settings`
+#: carries the numbers, and `test_the_flat_draw_keeps_half_the_branches` holds the
+#: composition to the four branches they were measured at. How much of the *draw* each
+#: branch then gets is a separate question with a surprising answer — see that test.
 TEXT = st.one_of(FLAT, FLAT_AGAIN, PARAGRAPHS, PROSE)
 
 #: Ten of the 27 constructive rows draw at random. Every property below used to
@@ -180,18 +187,27 @@ def test_there_is_something_to_round_trip() -> None:
 
 
 def test_the_flat_draw_keeps_half_the_branches() -> None:
-    """The weighting in `TEXT` is a claim about branch count, so it is asserted as one.
+    """`TEXT` claims four branches, so the count is asserted rather than read off the call.
 
-    `st.one_of` dedupes its branches by identity before sampling, so `one_of(FLAT, FLAT,
-    PARAGRAPHS, PROSE)` collapses to three branches and the flat draw falls from a half to
-    a third. That is how this shipped once, under a comment asserting the half — read off
-    the source and reasoned about rather than measured. `spoonerism` is the row that pays
-    for a starved flat draw, and the budget below was measured at four branches.
+    `st.one_of` dedupes its branches by identity, so `one_of(FLAT, FLAT, PARAGRAPHS,
+    PROSE)` silently collapses to three and `FLAT` loses the extra weight the second
+    mention was there to give it. That is how this shipped once. It is also why the claim
+    here is about branch count and nothing else: **branch count is not draw share.**
+    `st.one_of` does not sample its branches uniformly, so the share cannot be divided out
+    of the count, and two successive attempts to reason it out from the call — a half, then
+    a third — were both wrong. Measured instead, by tagging each branch and counting 9000
+    draws over three seeds, the collapse costs about half the flat draw: 11% flat at three
+    branches against 21% at four, with `PROSE` taking 45-49% of the draw either way. Those
+    percentages are a snapshot of this exact branch list and will not survive a change to
+    it — measure again rather than reasoning again.
+
+    `spoonerism` is the row that pays for a starved flat draw, and the budget below was
+    measured at four branches.
     """
     assert isinstance(TEXT, OneOfStrategy)
     assert len(TEXT.element_strategies) == 4, (
-        "TEXT lost a branch to st.one_of's identity dedupe, so the flat draw is no longer "
-        "half of it and the measured floor below was measured at something else"
+        "TEXT lost a branch to st.one_of's identity dedupe, so the flat draw is weighted "
+        "differently from the composition the floor below was measured at"
     )
 
 
@@ -210,9 +226,10 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     # `derandomize` pins, this composition reached every reachable row on 60 of 60
     # seeds at 300 examples, 29 of 30 at 250, and 27 of 30 at 100. The row that
     # goes missing first is `spoonerism` — it wants flat text and is the one this
-    # composition starves; below a hundred `diastic` and `wechselsatz` begin going
-    # too. Six hundred is twice that clean floor, which
-    # is the headroom a net five other pieces of work land on should carry. It is
+    # composition starves; at 75 examples, over the same thirty seeds, `diastic`
+    # and `wechselsatz` start going too. Six hundred is twice that clean floor,
+    # which is the headroom a net five other pieces of work land on should carry.
+    # It is
     # also a stronger guarantee than the thousand it replaces rather than merely a
     # cheaper one: replayed the same way, the old flat-only strategy reached every
     # row on three seeds out of twelve, so that budget was never a floor — it was
