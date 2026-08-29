@@ -67,12 +67,22 @@ changing at all, and the same can happen to any of the other twenty-six with
 respect to scores.
 
 `Production.texts` is retained as a computed field rather than removed, so
-nothing outside the library had to change: `apply --json`, the MCP surface and
-every Python caller still read `texts` and still get a list of strings. That is
-the reason the migration was cheap, and it is also the honest cost — the scores
-are invisible to every existing consumer until one asks for `candidates` by
-name. A caller reading `texts` today sees a ranking with its reasons removed
-and no indication that reasons exist. Nothing prompts them to look.
+nothing outside had to change *to read* a `Production`: `apply --json`, the MCP
+surface and every Python caller still ask for `texts` and still get a list of
+strings, and it still appears in `model_dump()`.
+
+That holds for readers only, and the qualifier is the point. `texts` became
+read-only, so anything that *built* a `Production` had to move from `texts=` to
+`candidates=` — the four constructions in this project's own test suite did,
+and any code outside it that constructs one will have to as well. This ADR is
+not claiming the change was free; it is claiming the break fell on writers,
+who are few and inside the library, rather than on readers, who are many and
+outside it.
+
+The retained field is also the honest cost on the reading side — the scores are
+invisible to every existing consumer until one asks for `candidates` by name. A
+caller reading `texts` today sees a ranking with its reasons removed and no
+indication that reasons exist. Nothing prompts them to look.
 
 `Produced` and `Production` are two models with a `truncated` field that mean
 related but different things, and a reader will have to keep them apart. The
