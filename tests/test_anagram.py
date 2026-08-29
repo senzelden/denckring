@@ -105,3 +105,57 @@ def test_a_capitalised_source_does_not_get_its_own_letters_back() -> None:
     for source in ("Dormitory", "DORMITORY", "Astronomer"):
         produced = Anagram().apply(source, lang="en")
         assert produced.casefold() != source.casefold(), source
+
+
+def test_with_the_flag_off_nothing_changes() -> None:
+    """The regression that keeps this from being a behaviour change in disguise.
+    Byte-identical output on the three inputs the previous chapter was judged on."""
+    procedure = Anagram()
+    assert procedure.apply("dormitory", lang="en") == "dirty room"
+    assert procedure.apply("astronomer", lang="en") == "arrest moon"
+    assert procedure.apply("listen", lang="en") == "silent"
+
+
+def test_a_subset_of_the_letters_satisfies_check_under_the_flag() -> None:
+    """The transposal tradition: a candidate built from SOME of the source's
+    letters. `check` reports every unused letter as `missing_letter` today."""
+    procedure = Anagram()
+    assert not procedure.check("room", lang="en", source="dormitory").satisfied
+    assert procedure.check("room", lang="en", source="dormitory", allow_subset=True).satisfied
+
+
+def test_surplus_letters_are_refused_under_the_flag_too() -> None:
+    """A transposal may use fewer of the source's letters, never a letter the
+    source does not have. Relaxing both halves would make the check vacuous."""
+    assert not Anagram().check("zoo", lang="en", source="dormitory", allow_subset=True).satisfied
+
+
+def test_a_short_transposal_is_not_marked_down_for_brevity() -> None:
+    """Scoring moves with the rule: `total` becomes the candidate's letter count,
+    so a valid short transposal scores 1.0 rather than being penalised for the
+    letters it declined to use."""
+    report = Anagram().check("room", lang="en", source="dormitory", allow_subset=True)
+    assert report.score == 1.0
+
+
+def test_full_covers_still_rank_first_under_the_flag() -> None:
+    """Every single word that fits is a valid transposal — 373 of them for
+    `astronomer` before any multi-word cover. Without `letters_used` as the
+    primary key, turning the flag on buries every good answer under fragments."""
+    production = Anagram().produce("dormitory", lang="en", allow_subset=True)
+    assert production.texts[0] == "dirty room"
+    assert production.candidates[0].metrics["letters_used"] == 9
+
+
+def test_every_subset_cover_satisfies_the_relaxed_check() -> None:
+    """The round-trip property for the flag-on path, which the shared harness in
+    `test_round_trip.py` cannot reach: `allow_subset` defaults to False there, as
+    it must, so nothing outside this file exercises the transposal search."""
+    procedure = Anagram()
+    produced = procedure.produce("dormitory", lang="en", allow_subset=True, max_results=100)
+    partial = [text for text in produced.texts if len(text.replace(" ", "")) < 9]
+    assert partial, "the flag recorded no partial cover at all"
+    for candidate in produced.texts:
+        assert procedure.check(
+            candidate, lang="en", source="dormitory", allow_subset=True
+        ).satisfied
