@@ -26,9 +26,10 @@ import wn
 LEXICON_SPECIFIER = "oewn:2024"
 
 DATA = Path(__file__).resolve().parents[1] / "src" / "denckring_en_data" / "data"
-#: Beside the data files: the generation date, the WordNet version, and the
-#: two entry counts, so a silent corpus change (a truncated download, a bad
-#: regeneration) fails a test loudly instead of drifting unnoticed.
+#: Beside the data files: the generation date, one provenance clause per
+#: upstream corpus, and one entry count per shipped file, so a silent corpus
+#: change (a truncated download, a bad regeneration) fails a test loudly
+#: instead of drifting unnoticed. Not this script's files alone - see below.
 METADATA = DATA / "metadata.json"
 
 #: Provenance clauses in `metadata.json`'s `source` are joined with "; " and
@@ -111,6 +112,10 @@ def write_metadata(noun_count: int, gloss_count: int) -> None:
         f"{lexicon.label} {lexicon.version} ({LEXICON_SPECIFIER}), "
         f"{lexicon.license} - see LICENSE-WORDNET and scripts/{Path(__file__).name}"
     )
+    # Same guard as build_graded_words.py's, and needed more here: that clause is
+    # a literal its author controls and the separator still got into it once,
+    # while this one interpolates `lexicon.license` straight from wn at run time.
+    assert SEPARATOR not in clause
     metadata = json.loads(METADATA.read_text(encoding="utf-8")) if METADATA.exists() else {}
     kept = [
         part
