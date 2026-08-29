@@ -20,6 +20,15 @@ the four gated rows relies on its own row-level round-trip test (e.g.
 `test_word_ladder.py::test_apply_finds_a_ladder_its_own_check_accepts`) as the
 substitute for what this property cannot reach.
 
+The seed is drawn, not pinned. Every property here used to pass `0`, so the ten
+rows that draw were exercised at one draw per input and the rest of the seed space
+never at all. That was the larger of the two blind spots the chapter-2 spec
+recorded, and on a different axis from the missing `derandomize=True` beside it:
+that one is about which inputs Hypothesis tries, this one about which draw each
+generator makes from them, so closing either left the other standing. Both are
+closed here. `test_apply_is_deterministic_under_a_fixed_seed` still pins its seed,
+and must: its subject is that two identical calls agree.
+
 `TEXT` carries `\n` in its alphabet, and that is load-bearing rather than
 incidental. Without it this property was vacuous for every line- or page-oriented
 generator: `fold_in`, `text_folding`, `mathews_algorithm` and `ideenwuerfeln`
@@ -65,6 +74,15 @@ CONSTRUCTIVE = sorted(pid for pid, p in all_procedures().items() if isinstance(p
 #: cannot be reached at all without one. The bar and the full stop are deliberate for
 #: exactly the same reason, discovered the same way. See the module docstring.
 TEXT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n|.", min_size=1, max_size=80)
+
+#: Ten of the 27 constructive rows draw at random. Every property below used to
+#: pass `_apply_args(procedure_id, 0)` — the same seed on every example, in every
+#: property, on every run — so those ten were exercised at exactly one draw per
+#: input text and never the rest of the seed space. A generator producing text
+#: its own `check` rejects on seed 1 but not on seed 0 passed here in silence.
+#: Bounded rather than unbounded because a seed is fed to `random.Random` and a
+#: bignum buys no additional coverage, only slower shrinking.
+SEED = st.integers(min_value=0, max_value=2**16 - 1)
 
 #: Rows this property cannot reach, because `apply` here is only ever called with
 #: `seed` and (where the model has it) `source`. Each needs a further parameter with no
@@ -168,15 +186,15 @@ def _apply_args(procedure_id: str, seed: int) -> dict[str, int]:
     return {"seed": seed} if accepts else {}
 
 
-@settings(max_examples=50, deadline=None)
-@given(TEXT)
-def test_apply_output_satisfies_check(text: str) -> None:
+@settings(max_examples=50, deadline=None, derandomize=True)
+@given(TEXT, SEED)
+def test_apply_output_satisfies_check(text: str, seed: int) -> None:
     for procedure_id in CONSTRUCTIVE:
         procedure = all_procedures()[procedure_id]
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, 0))
+            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, seed))
         except DenckringError:
             # Refusing unusable input is allowed: a corpus of one line is not
             # three excerpts. The property is about what apply produces, not
@@ -188,9 +206,9 @@ def test_apply_output_satisfies_check(text: str) -> None:
         )
 
 
-@settings(max_examples=50, deadline=None)
-@given(TEXT)
-def test_every_produced_text_satisfies_check(text: str) -> None:
+@settings(max_examples=50, deadline=None, derandomize=True)
+@given(TEXT, SEED)
+def test_every_produced_text_satisfies_check(text: str, seed: int) -> None:
     """Strictly stronger than the property above, which sees only `texts[0]`.
 
     A multi-result generator hides its bad candidates behind the first one, and
@@ -202,7 +220,7 @@ def test_every_produced_text_satisfies_check(text: str) -> None:
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, 0))
+            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, seed))
         except DenckringError:
             continue
         for candidate in produced.texts:
@@ -212,9 +230,9 @@ def test_every_produced_text_satisfies_check(text: str) -> None:
             )
 
 
-@settings(max_examples=50, deadline=None)
-@given(TEXT)
-def test_every_produced_text_differs_from_the_input(text: str) -> None:
+@settings(max_examples=50, deadline=None, derandomize=True)
+@given(TEXT, SEED)
+def test_every_produced_text_differs_from_the_input(text: str, seed: int) -> None:
     """The non-degeneracy companion, over all candidates rather than the first.
 
     `IGNORES_INPUT` is skipped, not exempted as a special case: see the comment
@@ -227,7 +245,7 @@ def test_every_produced_text_differs_from_the_input(text: str) -> None:
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, 0))
+            produced = procedure.produce(text, lang=lang, **_apply_args(procedure_id, seed))
         except DenckringError:
             continue
         for candidate in produced.texts:
@@ -236,9 +254,9 @@ def test_every_produced_text_differs_from_the_input(text: str) -> None:
             )
 
 
-@settings(max_examples=50, deadline=None)
-@given(TEXT)
-def test_apply_does_not_return_its_input(text: str) -> None:
+@settings(max_examples=50, deadline=None, derandomize=True)
+@given(TEXT, SEED)
+def test_apply_does_not_return_its_input(text: str, seed: int) -> None:
     """The companion the round-trip property never had.
 
     `check(apply(text))` is satisfied by the identity, so on its own it accepts a
@@ -256,7 +274,7 @@ def test_apply_does_not_return_its_input(text: str) -> None:
         assert isinstance(procedure, Constructive)
         lang = procedure.meta.languages[0]
         try:
-            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, 0))
+            produced = procedure.apply(text, lang=lang, **_apply_args(procedure_id, seed))
         except DegenerateOutput:
             continue
         except DenckringError:
