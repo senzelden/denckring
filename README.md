@@ -111,11 +111,13 @@ are built on them:
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
   the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
   added; the ones already there do not change type or meaning.
-- **`Production` as JSON** — `procedure`, `texts`, `truncated`, `metrics` — and the
-  `--json` output of `apply` that carries it. It is `Report`'s counterpart on the
-  generating half and is covered by the same promise, in the same words: fields may be
-  added; the ones already there do not change type or meaning. `texts` is ordered, best
-  first, because `apply` returns `texts[0]`.
+- **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`
+  — and the `--json` output of `apply` that carries it. It is `Report`'s counterpart on
+  the generating half and is covered by the same promise, in the same words: fields may
+  be added; the ones already there do not change type or meaning. Both `candidates` and
+  `texts` are ordered, best first, because `apply` returns `texts[0]`; `texts` is the
+  candidates' texts alone, and a candidate additionally carries the `metrics` it was
+  ranked by.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
   and `attribution` keys the CC BY terms are carried by.
 - **The `denckring.lang` entry-point group** and the capability names a pack declares, so
@@ -179,9 +181,9 @@ Three kinds of thing a procedure can need, and they are handled differently. A *
 describes a language and ships separately when it carries weight: `denckring[en]` adds a
 pronouncing dictionary, a noun lexicon and SCOWL's commonness-graded word list,
 `denckring[de]` adds a word lexicon and a noun list. Each vendored source keeps its own
-licence file beside the data it covers, which is why installing `[en]` for syllable counts
-also brings a word list down with it (ADR 0028). A **corpus** is somebody's collection, so the package carries the loader and you
-supply the reading:
+licence file beside the data it covers, which is why installing `[en]` for syllable
+counts also brings a word list down with it (ADR 0028). A **corpus** is somebody's
+collection, so the package carries the loader and you supply the reading:
 
 ```console
 denckring check ideenwuerfeln throw.txt --source my-excerpts.json

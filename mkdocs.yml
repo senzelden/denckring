@@ -81,6 +81,10 @@ nav:
       - "22. German is a built-in default, not an entry point": adr/0022-german-moves-to-a-default.md
       - "23. The German lexicon is Wikidata Lexemes": adr/0023-the-german-lexicon.md
       - "24. Apache-2.0 for the code": adr/0024-apache-two-for-the-code.md
+      - "25. `apply` gets the spine `check` has": adr/0025-the-apply-spine.md
+      - "26. `_produce -> list[str]` is the primitive; `apply` returns its first result": adr/0026-the-production-surface.md
+      - "27. `_produce` returns `Produced`, so a candidate can carry its score": adr/0027-candidates-carry-their-scores.md
+      - "28. A word list graded by commonness, because a membership oracle cannot rank": adr/0028-the-graded-lexicon.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 
