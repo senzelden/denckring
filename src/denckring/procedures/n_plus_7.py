@@ -126,9 +126,13 @@ def displacement_report(
     """Check a noun-displacement of a source, tolerating part-of-speech ambiguity.
 
     A word list cannot tell you that *run* is a verb in this sentence. So an
-    unchanged word that happens to be in the noun list is accepted — it may well
-    be a verb there — and the count of such positions is reported, in the same
-    way `estimated_words` keeps the syllable heuristic honest.
+    unchanged word that happens to be in the noun list is never automatically a
+    mistake; what it counts as instead is `params.ambiguous_nouns`'s call —
+    accepted (`free`, the default, and what shipped before this parameter
+    existed), left out of the score entirely (`undecidable`), or failed
+    (`strict`). Every reading reports the same `ambiguous_words` count, in the
+    same way `estimated_words` keeps the syllable heuristic honest — only what
+    the count does to the score changes.
     """
     candidate = word_spans(text, pack)
     source = word_spans(params.source, pack)
