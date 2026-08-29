@@ -21,9 +21,9 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
 from denckring.core.source_compare import positional_report, selection_report
 from denckring.core.text import line_spans, word_spans
@@ -85,9 +85,7 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
     def apply_params_model(cls) -> type[ColumnReadingApplyParams]:
         return ColumnReadingApplyParams
 
-    def _produce(
-        self, text: str, pack: LanguagePack, params: ColumnReadingApplyParams
-    ) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: ColumnReadingApplyParams) -> Produced:
         """Read down `text`'s `column`th words, `text` serving as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when no
@@ -102,4 +100,4 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
                 f"no line in the source has a word at column {params.column} — try a "
                 "smaller column or a source with longer lines",
             )
-        return [" ".join(chosen)]
+        return plain([" ".join(chosen)])

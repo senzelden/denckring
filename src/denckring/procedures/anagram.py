@@ -4,9 +4,15 @@ from __future__ import annotations
 
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, SourceParams
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    DiacriticParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import InputTooLong
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
@@ -84,7 +90,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
     def apply_params_model(cls) -> type[AnagramApplyParams]:
         return AnagramApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: AnagramApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: AnagramApplyParams) -> Produced:
         """Rearrange the letters of `text` into words the lexicon knows.
 
         Greedy: take the longest word the remaining letters can still spell, and
@@ -111,7 +117,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
             remaining -= Counter(word)
         if sum(remaining.values()):
             found.append("".join(sorted(remaining.elements())))
-        return [" ".join(found)]
+        return plain([" ".join(found)])
 
     @staticmethod
     def _longest_word(remaining: Counter[str], pack: LanguagePack, minimum: int = 2) -> str | None:

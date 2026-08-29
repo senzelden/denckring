@@ -1,14 +1,14 @@
 """What a generator turned out. `Report`'s counterpart for the other half."""
 
-from typing import Any
+from typing import Any, get_type_hints
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 import denckring
-from denckring.core.base import ConstructiveProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, InvalidParams, NotConstructive, UnknownProcedure
-from denckring.core.protocol import Candidate, Production
+from denckring.core.protocol import Candidate, LanguagePack, Produced, Production, Report
 from denckring.core.registry import all_procedures, get
 
 
@@ -174,3 +174,71 @@ def test_a_production_with_no_candidates_is_a_validation_error() -> None:
     `apply`'s `texts[0]` is a bare IndexError rather than a named field error."""
     with pytest.raises(ValidationError):
         Production(procedure="anagram", candidates=[])
+
+
+def test_produce_is_the_only_primitive() -> None:
+    """ADR 0026 rejected two primitives; ADR 0027 changes this one's type rather
+    than adding a second. A generator defining a scored variant alongside
+    `_produce` is the shape that regression would take."""
+    for procedure in all_procedures().values():
+        if not isinstance(procedure, ConstructiveProcedure):
+            continue
+        assert not hasattr(procedure, "_produce_scored"), (
+            f"{procedure.id}: a second production primitive defeats ADR 0026"
+        )
+
+
+@pytest.mark.parametrize("pid", CONSTRUCTIVE)
+def test_every_generator_returns_produced(pid: str) -> None:
+    """`pid`, not `procedure_id`: that name is auto-parametrised by conftest and
+    writing it here would be a duplicate-parametrization error."""
+    procedure = all_procedures()[pid]
+    if not isinstance(procedure, ConstructiveProcedure):
+        pytest.skip("not constructive")
+    hints = get_type_hints(type(procedure)._produce)
+    assert hints["return"] is Produced, f"{pid}: _produce must return Produced"
+
+
+class _EmptyParams(BaseModel):
+    pass
+
+
+class _ReportsItsOwnTruncation(ConstructiveProcedure[_EmptyParams, ApplyParams]):
+    """A throwaway generator that abandons a budget nobody else can see.
+
+    Reuses `cut_up`'s catalogue id for the reason `test_apply_spine.py`'s
+    `_ProducesNothing` does: `BaseProcedure.__init__` reads `catalogue.get`, so
+    the id must name a real row, and this class is never `@register`ed.
+    """
+
+    id = "cut_up"
+
+    @classmethod
+    def params_model(cls) -> type[_EmptyParams]:
+        return _EmptyParams
+
+    @classmethod
+    def apply_params_model(cls) -> type[ApplyParams]:
+        return ApplyParams
+
+    def _check(self, text: str, pack: LanguagePack, params: _EmptyParams) -> Report:
+        raise NotImplementedError
+
+    def _produce(self, text: str, pack: LanguagePack, params: ApplyParams) -> Produced:
+        # Two candidates against a limit of ten: `len(found) > limit` is
+        # false, so a true `truncated` can only have come from here.
+        return Produced(candidates=[Candidate(text="a"), Candidate(text="b")], truncated=True)
+
+
+def test_a_generator_can_report_truncation_the_spine_cannot_derive() -> None:
+    """The spine reads `truncated` as `len(found) > limit`, which is false when a
+    budget made the search stop early and so found *fewer*. Task 6's node budget
+    is exactly that case, and this is the channel that carries it.
+
+    Driven through a stub rather than by constructing a `Production` directly:
+    `Production.truncated` already existed and already accepted `True`, so
+    asserting on a hand-built one would pass without the channel existing at all.
+    """
+    production = _ReportsItsOwnTruncation().produce("input", lang="en")
+    assert production.truncated
+    assert not production.metrics["found"] > 10  # the spine's own test did not fire

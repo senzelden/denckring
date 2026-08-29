@@ -6,9 +6,9 @@ import random
 import re
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
@@ -73,9 +73,7 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
     def apply_params_model(cls) -> type[RecombinationApplyParams]:
         return RecombinationApplyParams
 
-    def _produce(
-        self, text: str, pack: LanguagePack, params: RecombinationApplyParams
-    ) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: RecombinationApplyParams) -> Produced:
         """The same sentences in another order, none rewritten.
 
         A permutation and nothing else: the checker compares multisets, so
@@ -105,4 +103,4 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 found=counted(len(parts), "complete sentence"),
             )
         chooser.shuffle(parts)
-        return [" ".join(parts + tail)]
+        return plain([" ".join(parts + tail)])

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import random
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -61,7 +61,7 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
     def apply_params_model(cls) -> type[MeltingTextApplyParams]:
         return MeltingTextApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: MeltingTextApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: MeltingTextApplyParams) -> Produced:
         """One stage of the melt: words dropped, the survivors in their order.
 
         Half of them, by coin, rather than a fixed stride — a melt that always
@@ -70,4 +70,4 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
         """
         chooser = random.Random(params.seed)
         kept = [word for _, word in word_spans(text, pack) if chooser.random() < 0.5]
-        return [" ".join(kept)]
+        return plain([" ".join(kept)])

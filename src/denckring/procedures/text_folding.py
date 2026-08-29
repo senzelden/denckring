@@ -24,9 +24,9 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import line_spans, word_spans
@@ -108,7 +108,7 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
     def apply_params_model(cls) -> type[TextFoldingApplyParams]:
         return TextFoldingApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: TextFoldingApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: TextFoldingApplyParams) -> Produced:
         """Fold `text` at `fold_at`, `text` serving as its own source.
 
         Raises `NoCandidateWord` rather than returning `text` unchanged when
@@ -123,4 +123,4 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
                 "and a far flap to bring together, so give a source with at "
                 "least two lines, or check a text instead of generating one",
             )
-        return ["\n".join(self._fold(lines, params.fold_at))]
+        return plain(["\n".join(self._fold(lines, params.fold_at))])

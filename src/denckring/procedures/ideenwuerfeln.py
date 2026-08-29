@@ -7,9 +7,9 @@ import random
 from pydantic import Field
 
 from denckring.core import corpus as corpora
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -144,9 +144,7 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
     def apply_params_model(cls) -> type[IdeenwuerfelnApplyParams]:
         return IdeenwuerfelnApplyParams
 
-    def _produce(
-        self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams
-    ) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: IdeenwuerfelnApplyParams) -> Produced:
         """Throw. `text` is the corpus: a second `source` is refused rather
         than accepted alongside it, the same rule `parse_apply_params` enforces
         for every generator whose params model carries a `source` field.
@@ -182,5 +180,7 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
                     chooser.choice(by_domain[domain])
                     for domain in chooser.sample(domains, params.slots)
                 ]
-                return [SEPARATOR.join(entry.text.strip() for entry in picked)]
-        return [SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, params.slots))]
+                return plain([SEPARATOR.join(entry.text.strip() for entry in picked)])
+        return plain(
+            [SEPARATOR.join(entry.text.strip() for entry in chooser.sample(pool, params.slots))]
+        )

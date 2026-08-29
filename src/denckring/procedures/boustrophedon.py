@@ -17,9 +17,9 @@ its shape. The turning rule stays here: it is the one thing this row and
 
 from __future__ import annotations
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import line_spans, word_spans
@@ -93,9 +93,7 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
     def apply_params_model(cls) -> type[BoustrophedonApplyParams]:
         return BoustrophedonApplyParams
 
-    def _produce(
-        self, text: str, pack: LanguagePack, params: BoustrophedonApplyParams
-    ) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: BoustrophedonApplyParams) -> Produced:
         """Turn `text`'s alternate lines, `text` serving as its own source.
 
         Every source line survives the turn — there is no candidate that can
@@ -110,4 +108,4 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
                 found=counted(len(lines), "line"),
             )
         turned = [line[::-1] if index % 2 == 1 else line for index, line in enumerate(lines)]
-        return ["\n".join(turned)]
+        return plain(["\n".join(turned)])

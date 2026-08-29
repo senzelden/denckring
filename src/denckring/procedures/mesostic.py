@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report
 from denckring.core.text import line_spans, word_spans
@@ -84,7 +84,7 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
     def apply_params_model(cls) -> type[MesosticApplyParams]:
         return MesosticApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: MesosticApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: MesosticApplyParams) -> Produced:
         """Read through `text`, which serves as the source, one word per line.
 
         Each line is a single word carrying that line's spine letter somewhere in
@@ -115,4 +115,4 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
                 "a different source or spine, or check a text instead of "
                 "generating one",
             )
-        return ["\n".join(chosen)]
+        return plain(["\n".join(chosen)])

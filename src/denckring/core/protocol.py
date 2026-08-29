@@ -90,6 +90,20 @@ class Candidate(BaseModel):
     metrics: dict[str, float] = Field(default_factory=dict)
 
 
+class Produced(BaseModel):
+    """What `_produce` hands the spine: its candidates, and whether it gave up.
+
+    `truncated` here is the generator's own, and is not the same statement as
+    `Production.truncated`. The spine can see that `max_results` capped a result
+    set; it cannot see that a search abandoned its own budget, because that makes
+    the set *smaller* rather than larger. `anagram`'s node budget is the case ADR
+    0026's spec named in advance as needing this.
+    """
+
+    candidates: list[Candidate]
+    truncated: bool = False
+
+
 class Production(BaseModel):
     """What a generator turned out. `Report`'s counterpart for the other half.
 
