@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import random
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -96,7 +96,7 @@ class CentMilleMilliards(
 
     def _produce(
         self, text: str, pack: LanguagePack, params: CentMilleMilliardsApplyParams
-    ) -> list[str]:
+    ) -> Produced:
         """One reading of the machine: a line drawn for each position.
 
         `text` is the machine itself — the sheet of alternatives — not a poem to
@@ -132,4 +132,4 @@ class CentMilleMilliards(
                 needed=f"at least one position offering alternatives, separated by {SEPARATOR!r}",
                 found=f"{counted(len(options), 'position')}, none with a choice",
             )
-        return ["\n".join(chooser.choice(position) for position in options)]
+        return plain(["\n".join(chooser.choice(position) for position in options)])

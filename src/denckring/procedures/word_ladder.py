@@ -39,9 +39,9 @@ from itertools import pairwise
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, plain
 from denckring.core.errors import InvalidParams, NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -183,7 +183,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
     def apply_params_model(cls) -> type[WordLadderApplyParams]:
         return WordLadderApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: WordLadderApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: WordLadderApplyParams) -> Produced:
         """Search the lexicon for the shortest ladder from `text` to `target`.
 
         Breadth-first, not depth-first: a depth-first walk of a fifty-thousand
@@ -255,7 +255,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
                 f"{MAX_LADDER_WORDS} words — try a shorter hop, or check a "
                 "ladder instead of generating one",
             )
-        return [" ".join(ladder)]
+        return plain([" ".join(ladder)])
 
 
 @lru_cache(maxsize=4096)

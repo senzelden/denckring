@@ -33,9 +33,9 @@ physical fold divides a line of running text by eye, not by lemma.
 
 from __future__ import annotations
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, paragraph_spans, word_spans
 
@@ -137,7 +137,7 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
     def apply_params_model(cls) -> type[FoldInApplyParams]:
         return FoldInApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: FoldInApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: FoldInApplyParams) -> Produced:
         """Fold `text`'s two pages together, `text` serving as its own source.
 
         `text` must itself hold two blank-line separated paragraphs — see the
@@ -154,4 +154,4 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
                 "of the join, so give a source with two such paragraphs, or "
                 "check a text instead of generating one",
             )
-        return ["\n".join(self._fold_in(page_one, page_two))]
+        return plain(["\n".join(self._fold_in(page_one, page_two))])

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from denckring import describe
 from denckring.core.base import ApplyParams, ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, InvalidParams
-from denckring.core.protocol import LanguagePack, Report
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import all_procedures, get
 
 
@@ -219,13 +219,17 @@ def test_the_base_class_has_no_apply_primitive_left() -> None:
 
 
 @pytest.mark.parametrize("pid", sorted(DRAWS + DOES_NOT_DRAW))
-def test_produce_is_annotated_as_returning_a_list(pid: str) -> None:
+def test_produce_is_annotated_as_returning_produced(pid: str) -> None:
     """Catches a generator migrated in body but not in signature — the annotation
-    is what `mypy --strict` reads, and a stale `-> str` there passes at runtime."""
+    is what `mypy --strict` reads, and a stale `-> str` there passes at runtime.
+
+    `Produced` rather than `list[str]` since ADR 0027. This ranges over the
+    DRAWS/DOES_NOT_DRAW split rather than the registry, so it is also what
+    catches a generator that fell out of either list."""
     procedure = get(pid)
     assert isinstance(procedure, ConstructiveProcedure)
     signature = inspect.signature(type(procedure)._produce)
-    assert signature.return_annotation in ("list[str]", list[str])
+    assert signature.return_annotation in ("Produced", Produced)
 
 
 class _EmptyParams(BaseModel):
@@ -257,8 +261,8 @@ class _ProducesNothing(ConstructiveProcedure[_EmptyParams, _EmptyApplyParams]):
     def apply_params_model(cls) -> type[_EmptyApplyParams]:
         return _EmptyApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: _EmptyApplyParams) -> list[str]:
-        return []
+    def _produce(self, text: str, pack: LanguagePack, params: _EmptyApplyParams) -> Produced:
+        return Produced(candidates=[])
 
 
 def test_an_empty_produce_raises_degenerate_output_naming_nothing() -> None:

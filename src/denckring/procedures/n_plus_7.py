@@ -4,8 +4,14 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, BaseProcedure, ConstructiveProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import (
+    ApplyParams,
+    BaseProcedure,
+    ConstructiveProcedure,
+    SourceParams,
+    plain,
+)
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -143,6 +149,6 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
     def apply_params_model(cls) -> type[NPlus7ApplyParams]:
         return NPlus7ApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: NPlus7ApplyParams) -> Produced:
         """Walk every noun in `text` seven places down the dictionary."""
-        return [displace(text, pack, params.offset)]
+        return plain([displace(text, pack, params.offset)])

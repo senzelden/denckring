@@ -4,8 +4,14 @@ from __future__ import annotations
 
 from pydantic import Field, field_validator
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    DiacriticParams,
+    SourceParams,
+    plain,
+)
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
@@ -75,16 +81,18 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     def apply_params_model(cls) -> type[SlenderizingApplyParams]:
         return SlenderizingApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> Produced:
         """Strike the letter out of `text` and let the rest close up.
 
         No seed: there is exactly one slenderizing of a text for a given letter,
         which is why this generator takes no choices at all.
         """
-        return [
-            "".join(
-                ch
-                for ch in text
-                if not ch.isalpha() or pack.fold_diacritics(ch).lower() != params.deleted
-            )
-        ]
+        return plain(
+            [
+                "".join(
+                    ch
+                    for ch in text
+                    if not ch.isalpha() or pack.fold_diacritics(ch).lower() != params.deleted
+                )
+            ]
+        )

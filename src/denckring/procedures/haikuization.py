@@ -24,9 +24,9 @@ layered on top.
 
 from __future__ import annotations
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
 from denckring.core.source_compare import positional_report, selection_report
 from denckring.core.text import line_spans, word_spans
@@ -94,7 +94,7 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
     def apply_params_model(cls) -> type[HaikuizationApplyParams]:
         return HaikuizationApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: HaikuizationApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: HaikuizationApplyParams) -> Produced:
         """Keep only the last word of every line of `text`, which serves as the source.
 
         Raises `NoCandidateWord` rather than returning an empty string when
@@ -110,4 +110,4 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
                 "the source has no non-blank line to read a line end from — "
                 "try a source with at least one line of text",
             )
-        return [" ".join(chosen)]
+        return plain([" ".join(chosen)])

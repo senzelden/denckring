@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -72,6 +72,6 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
     def apply_params_model(cls) -> type[EveryNthWordApplyParams]:
         return EveryNthWordApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: EveryNthWordApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: EveryNthWordApplyParams) -> Produced:
         """Produce the selection from `text`, which serves as the source."""
-        return [" ".join(self._select(text, pack, params.n))]
+        return plain([" ".join(self._select(text, pack, params.n))])

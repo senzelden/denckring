@@ -27,9 +27,9 @@ search for, unlike the selection-based rows that can run out of candidates.
 
 from __future__ import annotations
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
 from denckring.core.text import paragraph_spans, word_spans
@@ -120,7 +120,7 @@ class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgo
 
     def _produce(
         self, text: str, pack: LanguagePack, params: MathewsAlgorithmApplyParams
-    ) -> list[str]:
+    ) -> Produced:
         """Table and rotate `text`'s rows, `text` serving as its own source.
 
         `text` must itself hold at least two blank-line separated paragraphs,
@@ -139,4 +139,6 @@ class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgo
                 "with two or more such paragraphs, or check a text instead "
                 "of generating one",
             )
-        return ["\n".join(" ".join(self._rotate(row, index)) for index, row in enumerate(table))]
+        return plain(
+            ["\n".join(" ".join(self._rotate(row, index)) for index, row in enumerate(table))]
+        )

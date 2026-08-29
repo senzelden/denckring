@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import random
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 from denckring.procedures.cent_mille_milliards import SEPARATOR
@@ -111,7 +111,7 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
     def apply_params_model(cls) -> type[WechselsatzApplyParams]:
         return WechselsatzApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: WechselsatzApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: WechselsatzApplyParams) -> Produced:
         """One turn of Kuhlmann's frame: a word drawn for each slot.
 
         The alternatives are read here without folding case — the checker folds
@@ -142,4 +142,4 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
                 found=f"{len(starved)} of {counted(len(offered), 'slot')} offering none; the first "
                 f"offers only {', '.join(repr(part) for part in starved[0])}",
             )
-        return [" ".join(chooser.choice(options) for options in slots)]
+        return plain([" ".join(chooser.choice(options) for options in slots)])
