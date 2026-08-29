@@ -100,9 +100,14 @@ def test_a_library_error_is_shown_not_raised() -> None:
     before parameters are parsed, which is why no `source` is posted here even though
     the row is `checkability: source`.
 
-    The assertion is on the capability name and not on the install hint: the hint says
-    `denckring[fr]` for any missing capability, which is what the old assertion matched
-    and is therefore no evidence about which failure occurred.
+    The assertion is on the capability name and not on the install hint: the hint text
+    depends on `lang`, not on which capability is missing. Before commit 39b70c1,
+    `MissingCapability` recommended `denckring[fr]` regardless of which capability was
+    absent; that commit stopped promising an extra for a language with no data
+    distribution, so the hint for `lang="fr"` now reads "No data distribution supplies
+    it for 'fr'." instead. Either way the message is the same no matter which capability
+    triggered it, so asserting on the hint would be no evidence about which failure
+    occurred — `lexicon.nouns` is.
     """
     response = client.post("/p/n_plus_7/check", data={"text": "a cat", "lang": "fr"})
     assert response.status_code == 200
