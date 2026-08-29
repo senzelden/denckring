@@ -49,8 +49,8 @@ def test_common_words_sit_in_lower_bands_than_rare_ones() -> None:
     """SCOWL's numbering runs backwards from intuition: larger means less common.
     The whole ranking rests on this, so it is asserted rather than assumed."""
     graded = en_data.graded_words()
-    assert graded["room"] < 60
-    assert graded["dirty"] < 60
+    assert graded["room"] < graded["tinsel"]
+    assert graded["dirty"] < graded["zymurgy"]
 
 
 def test_the_shipped_counts_match_the_metadata() -> None:
