@@ -121,9 +121,10 @@ are built on them:
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
   the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
   added; the ones already there do not change type or meaning. `describe`'s
-  `Description` carries `runs_in` under the same promise — one more field, beside
-  `constructive`, `runnable` and `missing`, whose value is computed from the installed
-  packs rather than read off the catalogue.
+  `Description` carries `runs_in` under the same promise. Its value is computed from the
+  installed packs rather than read off the catalogue, which several of its neighbours
+  already are; they are not listed here, because a list of them is a thing that goes
+  stale the next time a computed field is added.
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`
   — and the `--json` output of `apply` that carries it. It is `Report`'s counterpart on
   the generating half and is covered by the same promise, in the same words: fields may
