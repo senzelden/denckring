@@ -58,3 +58,15 @@ def test_the_shipped_counts_match_the_metadata() -> None:
     same guard `denckring-de-data` puts on its two files."""
     metadata = json.loads((DATA / "metadata.json").read_text(encoding="utf-8"))
     assert len(en_data.graded_words()) == metadata["counts"]["graded_words.txt.gz"]
+
+
+def test_the_single_letter_allowlist_stays_one_word_long() -> None:
+    """SCOWL grades `a` at band 10 and every other single letter at 40 — `i`
+    included, because casefolding merges the pronoun into the letter tier. The
+    build defers to that grading rather than to an intuition about English, so
+    the allowlist is pinned: a letter added here without a band behind it is an
+    override of the source, not a reading of it."""
+    graded = en_data.graded_words()
+    assert graded["a"] == 10
+    assert "i" not in graded, "band 40 with the other letters; adding it overrides SCOWL"
+    assert sorted(word for word in graded if len(word) == 1) == ["a"]
