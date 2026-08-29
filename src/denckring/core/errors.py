@@ -79,6 +79,19 @@ class UnknownLanguage(DenckringError):
         return {"lang": self.lang}
 
 
+#: The languages a data distribution exists for, and so the only ones an install
+#: hint can honestly name. Listed rather than read from packaging metadata for the
+#: reason `denckring.lang` keeps the packs themselves as built-in defaults: core
+#: does not depend on its own installed metadata being readable. ADR 0029 made this
+#: matter — French is a built-in pack carrying no lexicon, so every lexicon row now
+#: fails through here, and `pip install denckring[fr]` names a distribution that has
+#: never existed. A remedy nobody can follow is worse than no remedy.
+#: Naming a language's extra still assumes that extra supplies the missing
+#: capability, which is not always true — `denckring[de]` carries no `stress` —
+#: and that inaccuracy predates this and is untouched here.
+_EXTRAS = frozenset({"en", "de"})
+
+
 class MissingCapability(DenckringError):
     code = "missing_capability"
 
@@ -86,10 +99,14 @@ class MissingCapability(DenckringError):
         self.procedure_id = procedure_id
         self.lang = lang
         self.capability = capability
+        remedy = (
+            f"Install the extra that supplies it: `pip install denckring[{lang}]`."
+            if lang in _EXTRAS
+            else f"No data distribution supplies it for {lang!r}."
+        )
         super().__init__(
             f"Procedure {procedure_id!r} requires the capability {capability!r}, "
-            f"which the {lang!r} language pack does not provide. Install the "
-            f"extra that supplies it: `pip install denckring[{lang}]`."
+            f"which the {lang!r} language pack does not provide. {remedy}"
         )
 
     def detail(self) -> dict[str, Any]:
