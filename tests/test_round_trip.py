@@ -74,6 +74,7 @@ version of this paragraph named `paragram` alone. The count was measured over
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from hypothesis.strategies._internal.strategies import OneOfStrategy
 
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, DenckringError
@@ -116,15 +117,23 @@ PROSE = st.lists(
     max_size=4,
 ).map("\n\n".join)
 
+#: A second, distinct handle on `FLAT`, and the wrapper is the whole point of it.
+#: `st.one_of` dedupes its branches by identity and then samples uniformly over what
+#: survives, so naming `FLAT` twice buys no weight at all — and writing the `st.text(...)`
+#: call out a second time buys none either, because `st.text` is `@cacheable` and an
+#: identical call returns the very same object. `.map` builds a new strategy, which is
+#: what the deduping is unable to collapse.
+FLAT_AGAIN = FLAT.map(lambda text: text)
+
 #: Composed with `FLAT` rather than replacing it: the alphabet's `\n`, `|` and `.` are
 #: each load-bearing for other rows and the module docstring records how each was found.
-#: `FLAT` appears twice because `st.one_of` splits its draws evenly between the branches
-#: it is given, and an even split is the wrong split here — the two built shapes serve
-#: three rows between them, `FLAT` serves the other twenty reachable ones. Widening in
-#: one direction can narrow in another, so the balance is measured rather than assumed:
-#: over thirty fixed seeds this composition reached every reachable row 30/30 at 150
-#: examples and 27/30 at 100, the three misses being `spoonerism`, which wants flat text.
-TEXT = st.one_of(FLAT, FLAT, PARAGRAPHS, PROSE)
+#: `FLAT` gets two of the four branches because an even split across the three shapes is
+#: the wrong split — the two built shapes serve three rows between them and `FLAT` serves
+#: the other twenty reachable ones, `spoonerism` most marginally of all. Widening in one
+#: direction can narrow in another, so the balance is measured rather than assumed:
+#: `test_the_flat_draw_keeps_half_the_branches` holds the weighting to the four branches
+#: the measurement was taken at, and the comment above `@settings` carries the numbers.
+TEXT = st.one_of(FLAT, FLAT_AGAIN, PARAGRAPHS, PROSE)
 
 #: Ten of the 27 constructive rows draw at random. Every property below used to
 #: pass `_apply_args(procedure_id, 0)` — the same seed on every example, in every
@@ -170,6 +179,22 @@ def test_there_is_something_to_round_trip() -> None:
     assert CONSTRUCTIVE, "no procedure defines apply(); the round-trip property is vacuous"
 
 
+def test_the_flat_draw_keeps_half_the_branches() -> None:
+    """The weighting in `TEXT` is a claim about branch count, so it is asserted as one.
+
+    `st.one_of` dedupes its branches by identity before sampling, so `one_of(FLAT, FLAT,
+    PARAGRAPHS, PROSE)` collapses to three branches and the flat draw falls from a half to
+    a third. That is how this shipped once, under a comment asserting the half — read off
+    the source and reasoned about rather than measured. `spoonerism` is the row that pays
+    for a starved flat draw, and the budget below was measured at four branches.
+    """
+    assert isinstance(TEXT, OneOfStrategy)
+    assert len(TEXT.element_strategies) == 4, (
+        "TEXT lost a branch to st.one_of's identity dedupe, so the flat draw is no longer "
+        "half of it and the measured floor below was measured at something else"
+    )
+
+
 def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     """Every constructive row except `PARAMETER_GATED` must actually produce something
     for at least one drawn example. A row that raises on every example is swallowed by
@@ -178,19 +203,25 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     """
     reached: set[str] = set()
 
-    # Two hundred, down from a thousand, because `TEXT` now builds the shapes the
+    # Six hundred, down from a thousand, because `TEXT` now builds the shapes the
     # rare rows need instead of waiting for the draw to offer them — see the
     # comments on `PARAGRAPHS` and `PROSE`. The number is a measurement, not a
-    # guess: replayed over thirty fixed seeds, this composition reached every
-    # reachable row at 150 examples on all thirty and at 100 on twenty-seven. Two
-    # hundred is that floor with headroom, and a stronger guarantee than the
-    # thousand it replaces: replayed the same way, the old flat-only strategy
-    # reached every row on three seeds out of twelve.
-    @settings(max_examples=200, deadline=None, derandomize=True)
+    # guess. Replayed under explicit seeds rather than the single one
+    # `derandomize` pins, this composition reached every reachable row on 60 of 60
+    # seeds at 300 examples, 29 of 30 at 250, and 27 of 30 at 100. The row that
+    # goes missing first is `spoonerism` — it wants flat text and is the one this
+    # composition starves; below a hundred `diastic` and `wechselsatz` begin going
+    # too. Six hundred is twice that clean floor, which
+    # is the headroom a net five other pieces of work land on should carry. It is
+    # also a stronger guarantee than the thousand it replaces rather than merely a
+    # cheaper one: replayed the same way, the old flat-only strategy reached every
+    # row on three seeds out of twelve, so that budget was never a floor — it was
+    # one lucky `derandomize` seed.
+    @settings(max_examples=600, deadline=None, derandomize=True)
     @given(TEXT)
     def collect(text: str) -> None:
         # Only rows still unreached are retried, so the cost falls away after the
-        # first few examples instead of re-running every generator two hundred times.
+        # first few examples instead of re-running every generator six hundred times.
         for procedure_id in CONSTRUCTIVE:
             if procedure_id in reached:
                 continue
