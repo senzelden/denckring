@@ -119,6 +119,19 @@ got worse: `UnknownLanguage` was a single, obvious wall, where the new answer is
 per-row and has to be asked for row by row, which is what `runs_in` exists to make
 askable in one call.
 
+**And the message a French caller now gets used to name a distribution that does not
+exist.** `MissingCapability` interpolated the language into `pip install
+denckring[{lang}]`, which was harmless while the only languages reaching it had a data
+package and became a false promise the moment French did not — this chapter's own
+subject, shipped in an error string: 49 rows now fail through that message in French,
+each one telling the reader to install `denckring[fr]`. The remedy is now conditional on
+a distribution existing, and says "No data distribution supplies it for 'fr'" otherwise.
+The cost of the fix is a list of two languages in `core/errors.py` that a third data
+package must be added to, chosen over reading packaging metadata for the reason
+`denckring.lang` keeps the packs themselves as built-in defaults. What is *not* fixed,
+and is older than this chapter: naming a language's extra still assumes that extra
+supplies the missing capability, and `denckring[de]` carries no `stress`.
+
 **`allow_subset` changes the ranking key for everyone, not only for callers who set
 it.** `letters_used` descending is now the primary key, ahead of the three ADR 0028
 describes, because under the flag every single word that fits the source is a valid
@@ -132,7 +145,7 @@ there are four — that ADR carries an amendment pointer to here rather than bei
 rewritten, since it is a dated record of what was decided then.
 
 Measured, so that "the flag costs nothing to run" is not taken further than it goes:
-`astronomer` visits 747,770 nodes with `allow_subset` on, identical to off, because
+`astronomer` visits 747,769 nodes with `allow_subset` on, identical to off, because
 the flag records a cover at nodes the walk already visits rather than descending
 anywhere new. What it multiplies is results, not work — `astronomer` goes from 1,421
 covers to 15,185 and `dormitory` from 48 to 742, each one fewer out of `produce`,
@@ -163,9 +176,10 @@ a claim about the form and not about this machine.
 using exactly the letters of another, rearranged" now describes the default reading
 rather than every reading `check` will grade, and the honest options were to loosen it
 or to leave it. It is left, for four reasons: no other editorial parameter in this
-project appears in the definition it modifies (`fold_diacritics`, ADR 0009, is on nine
-rows and in none of their definitions, and `unknown_rhyme` is in none of the rhyme
-rows'); the definition matches what an unparameterised call does, which is what a
+project appears in the definition it modifies — `fold_diacritics` (ADR 0009) is named
+in none of the definitions of the rows that carry it, and `unknown_rhyme` in none of the
+rhyme rows'; no count is quoted because the durable claim is "none of them", and a count
+is the half that goes stale; the definition matches what an unparameterised call does, which is what a
 definition is for; the row's `prompt_hints.en` says "using each exactly once" and is
 what a model is handed, so loosening one without the other splits the row against
 itself; and a transposal is arguably a neighbouring *form* rather than a looser reading
