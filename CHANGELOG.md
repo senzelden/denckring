@@ -427,6 +427,34 @@ All notable changes to this project are documented here. The format follows
 - `NotConstructive`, replacing a dict literal the MCP server built by hand — one
   failure mode in this package was not a `DenckringError` and could not be caught
   with the others.
+- `Candidate` and `Production.candidates`: a result carries the metrics it was ranked
+  by, so an order a caller is asked to trust arrives with its reason attached.
+  `anagram` is the generator that needed it — its covers carry `words` and
+  `max_band`; a generator with nothing to add wraps its texts through `plain()` and
+  carries empty metrics, which is every other one so far.
+  `texts` is unchanged in meaning and value, now a computed field over `candidates`,
+  and is still what `apply` returns and what every existing consumer reads. Both are
+  named in the README's stability contract. ADR 0027.
+- `Produced`, what `_produce` hands back in place of `list[str]`: its candidates, and
+  whether it abandoned its own search budget. The spine can see that `max_results`
+  capped a result set and cannot see that a search gave up, because giving up makes
+  the set *smaller* rather than larger — `Production.truncated` is now either event.
+  ADR 0026's design spec named this case in advance; `anagram`'s node budget is it.
+- `lexicon.graded_words` on `LanguagePack`: every word with the SCOWL size band it
+  first appears at. Separate from `lexicon.words` rather than replacing it, because
+  ADR 0015's rule is one capability per question the lexicon is asked — `semordnilap`
+  and `charade` ask membership and are right to keep asking the broad oracle, and a
+  broad oracle is exactly what cannot rank. ADR 0028.
+- `graded_words.txt.gz` in `denckring-en-data`: 77,078 words from SCOWL 2020.12.07 at
+  sizes 10 through 60, one `word<TAB>size` line each, 244 KB in the wheel. 60 is
+  SCOWL's own line — the largest size its documentation states it is confident holds
+  no misspellings — and nothing above it ships, so `anagram`'s `max_size` is capped at
+  60 rather than promising bands the data does not hold. `*-proper-names` and
+  `*-abbreviations` are excluded, which is the point: they are why `known_words()`
+  cannot tell `room` from `romito`. Of the 26 single letters, only `a` is kept, on
+  SCOWL's bands rather than on an intuition. `scripts/build_graded_words.py` is the
+  derivation, the whole of SCOWL's `Copyright` file ships as `LICENSE-SCOWL`, and the
+  package's licence expression gains `HPND-sell-variant`.
 
 ### Changed
 
@@ -498,6 +526,14 @@ All notable changes to this project are documented here. The format follows
 - `apply_procedure` (MCP)'s `message` for a non-constructive procedure, from a
   hand-built sentence to `NotConstructive`'s own wording, which additionally points a
   caller at `constructive` in `describe_procedure`. `code` and `detail` are unchanged.
+- **Breaking for anyone who has written a generator:** `_produce` returns `Produced`
+  rather than `list[str]`. All 27 generators moved with it; `denckring.core` was
+  already outside the stability statement, and this is what that clause is for.
+- **Breaking:** the identity guard compares casefolded text, so output differing from
+  its input only in capitalisation is refused. `word_ladder.apply("Cat",
+  target="cat")` now raises `DegenerateOutput.IDENTICAL` where it returned `"cat"`.
+  `apply("cat", target="cat")` already raised, so the change makes that row
+  consistent with itself rather than taking anything away.
 
 ### Fixed
 
@@ -654,5 +690,23 @@ All notable changes to this project are documented here. The format follows
   alphabet and surfaced only intermittently, because
   `tests/test_round_trip.py::test_apply_output_satisfies_check` is not
   derandomized.
+- `apply anagram "astronomer"` raised `DegenerateOutput`, and `dormitory` with it.
+  The generator walked `pack.nouns()` greedily — a source word that is itself a noun
+  is the longest cover of its own letters — and emitted whatever letters it could not
+  spend as a run of single letters, which kept `check` satisfied and said nothing.
+  It now searches the graded lexicon depth-first for sets of words whose letters are
+  exactly the source's, bounded by `max_words`, `min_word_length`, `max_size` and a
+  budget of 1,000,000 nodes, and ranks what it finds by fewest words, then by the
+  SCOWL band of the cover's least common word, then alphabetically. `dormitory` gives
+  `dirty room`, one of 47 covers; `astronomer` gives `arrest moon`, one of 1,420. A
+  walk that cannot spend its remaining letters is not a cover and is abandoned rather
+  than padded. The catalogue row declares `lexicon.graded_words` under
+  `apply_requires` and not `requires`, since `check` has always run on core alone.
+- The identity guard compared `produced.strip() == text.strip()`, so a generator whose
+  output is casefolded never compared equal to a capitalised input and slipped it:
+  `apply anagram "Dormitory"` returned `dormitory`, the reported defect still live for
+  anyone who types a word the way people write one. Fixed at the spine rather than in
+  `anagram`, because the rule is the spine's and belongs in one place. See **Changed**
+  for the one existing result this moves.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main
