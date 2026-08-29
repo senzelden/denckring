@@ -592,12 +592,22 @@ All notable changes to this project are documented here. The format follows
   carries a French name and definition, so the old error pointed at
   `denckring[fr]` — a distribution that does not exist and was never planned. The
   failure moves to the right layer; it does not go away.
+- `MissingCapability`'s remedy is conditional on a data distribution existing.
+  It interpolated the language into `pip install denckring[{lang}]`, which was
+  harmless while every language reaching it had a package and became a false promise
+  the moment French did not: the 49 rows a French caller cannot run were each
+  pointing at `denckring[fr]`, which does not exist. English and German keep the
+  install hint; anything else now reads "No data distribution supplies it for 'fr'".
+  The `code` (`missing_capability`) and `detail` are unchanged, so a caller matching
+  on either is unaffected; one matching on `message` text for a language with no
+  extra is not. Untouched and older than this: naming a language's extra still
+  assumes that extra supplies the capability, and `denckring[de]` carries no `stress`.
 - `anagram` ranks covers by `letters_used` descending before ADR 0028's three keys,
   because under `allow_subset` every single word that fits the source is a valid
   transposal — 373 of them for `astronomer` — and word count first would bury every
   cover worth reading. With the flag off the new key is constant across covers and
   the order is byte-identical to ADR 0028's, held by a regression test rather than
-  by the argument. The flag costs no search: `astronomer` visits 747,770 nodes
+  by the argument. The flag costs no search: `astronomer` visits 747,769 nodes
   either way, because a cover is recorded at nodes the walk already visits. What it
   multiplies is results — `astronomer` 1,421 covers to 15,185, `dormitory` 48 to 742,
   one fewer out of `produce` in each case, which drops the identity cover — which
