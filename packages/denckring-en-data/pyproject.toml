@@ -4,8 +4,14 @@ version = "0.1.0"
 description = "English pronunciation data for denckring: exact syllable counts and rhyme"
 readme = "README.md"
 requires-python = ">=3.11"
-license = "Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause"
-license-files = ["LICENSE", "NOTICE", "LICENSE-CMUDICT", "LICENSE-WORDNET"]
+license = "Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause AND HPND-sell-variant"
+license-files = [
+    "LICENSE",
+    "NOTICE",
+    "LICENSE-CMUDICT",
+    "LICENSE-WORDNET",
+    "LICENSE-SCOWL",
+]
 authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
 classifiers = [
     "Intended Audience :: Science/Research",
