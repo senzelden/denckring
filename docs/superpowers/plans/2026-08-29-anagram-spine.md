@@ -898,8 +898,14 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
             "no misspellings, and the largest this package ships."
         ),
     )
+    # Measured against the shipped list at `max_words=3`, `min_word_length=2`:
+    # `listen` exhausts in 2,994 nodes, `dormitory` in 7,958, `astronomer` in
+    # 747,769 (0.92s). A million is the smallest round value that leaves the
+    # worst of the three untruncated, with about 34% headroom. Work per node is
+    # near-constant, so this is also what bounds wall-clock time — `MAX_LETTERS`
+    # does not: an unbounded search over a seventeen-letter word runs for minutes.
     max_nodes: int = Field(
-        default=200_000,
+        default=1_000_000,
         ge=1,
         description="Search nodes to visit before stopping and reporting truncation.",
     )
@@ -977,9 +983,13 @@ Replace `MAX_LETTERS`'s comment, which justifies the cap in terms of the greedy 
     #: The letter count past which the cover search is not worth starting. The
     #: candidate pool grows with the number of lexicon words that fit inside the
     #: remaining letters, and a real anagram of a paragraph is not something any
-    #: depth-bounded search finds. `max_nodes` bounds the search's work; this
-    #: bounds whether it begins at all, and is the only thing bounding wall-clock
-    #: time — see ADR 0027 on why the budget is nodes and not seconds.
+    #: depth-bounded search finds.
+    #:
+    #: This is not what bounds the search's cost — `max_nodes` is, and measurably:
+    #: an unbounded search over a seventeen-letter input runs for minutes, and 17
+    #: is well inside this cap. What this cap does is refuse the inputs where even
+    #: a budgeted search would return nothing worth reading. See ADR 0028 on why
+    #: the budget counts nodes and not seconds.
     MAX_LETTERS = 60
 ```
 

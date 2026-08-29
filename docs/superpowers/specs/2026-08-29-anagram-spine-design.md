@@ -80,12 +80,19 @@ what already ships there, so a fourth distribution would buy no quarantine and w
 third package to the release lockstep ADR 0013 already admits as a cost. `LICENSE-SCOWL`
 sits beside `LICENSE-CMUDICT`, which is exactly the pattern that ADR established.
 
-**SCOWL carries UKACD's verbatim-notice obligation, and we discharge it rather than dodge
-it.** `docs/expansion_ideas/anagram-generation-research.md` lists UKACD's "text of this
-document must be included verbatim" as friction that choosing SCOWL avoids. It does not:
-SCOWL is derived from UKACD among other sources and inherits the term. This is cheap to
-satisfy — ship SCOWL's `Copyright` file verbatim — but the research doc is wrong on the
-point and the correction belongs in the record.
+**UKACD does not reach the shipped data, and the whole `Copyright` file ships anyway.**
+Verified against the 2020.12.07 release rather than reasoned about: SCOWL's `Copyright`
+states that UKACD enters at **the 80 level**. This build caps at 60, so no UKACD-derived
+word is vendored, and its verbatim-notice term is not triggered. (An earlier reading of
+this spec's had it riding along inside SCOWL at every level; that was wrong, and the
+research doc's original position — that SCOWL avoids UKACD's friction — is correct at this
+cutoff.)
+
+`LICENSE-SCOWL` is still the entire `Copyright` file, reproduced verbatim. Kevin Atkinson's
+own permission notice requires that "both that copyright notice and this permission notice
+appear in supporting documentation", the file is 248 lines, and shipping it whole is both
+cheaper than excerpting it and immune to the cutoff ever being raised. Excerpting a licence
+to the parts currently believed to apply is how a package acquires a licence defect later.
 
 **`lexicon.graded_words` is a new capability, not a reuse of `lexicon.words`.** ADR 0015's
 rule is one capability per question the lexicon is asked. "Is this a word" and "give me
@@ -98,9 +105,16 @@ anagram row is already `languages: [en]`, so nothing regresses.
 that is the honest primitive for a service. It is the wrong one here: the row is
 `deterministic: true`, and a wall-clock budget makes the result set depend on the machine,
 so CI and a laptop would disagree about what the procedure produces. A deterministic node
-budget gives the identical "I stopped early" signal, is reproducible, and is testable. The
-cost is that the budget no longer bounds wall-clock time on a pathological input, and
-`MAX_LETTERS` remains the only thing that does.
+budget gives the identical "I stopped early" signal, is reproducible, and is testable.
+
+Measured, the budget bounds wall-clock time too, which a first reading of this decision
+denied: work per node is near-constant at roughly 800,000 nodes/second, so the default
+budget is about a second and a quarter of search whatever the input. `MAX_LETTERS` turns
+out not to be the wall-clock bound at all — an unbounded depth-3 search over a
+seventeen-letter word does not finish in two minutes, and 17 is well inside the cap of 60.
+The honest statement is that the node budget is the effective time bound and `MAX_LETTERS`
+merely stops the pathological cases early; the real cost of choosing nodes is that the
+bound cannot be *stated* in seconds, not that it fails to exist.
 
 **`max_size` defaults to 60, and that number is sourced rather than invented.** SCOWL's
 own documentation calls 60 "the largest size that I am fairly confident does not contain
@@ -235,16 +249,27 @@ Parameters, on `AnagramApplyParams`:
 | `max_words` | 3 | bounds recursion; `dormitory`'s famous answer needs 2 |
 | `min_word_length` | 2 | the direct answer to orphan letters passing as words |
 | `max_size` | 60 | SCOWL's own recommended cutoff (see Decisions) |
-| `max_nodes` | 200_000 | deterministic truncation signal (see Decisions) |
+| `max_nodes` | 1_000_000 | deterministic truncation signal (see Decisions) |
 
 `max_results` already exists and is not re-declared.
 
-`max_nodes`'s default is the one number here with no external authority behind it, and the
-spec should not pretend otherwise. It is set by measurement: pick the smallest round value
-that leaves the exhaustive depth-3 search over `astronomer` — the worst measured input, 992
-fitting words — untruncated, then state the measured headroom in the comment. If the
-implementer's measurement disagrees with 200,000, the measurement wins and the spec is
-wrong.
+`max_nodes`'s default is the one number here with no external authority behind it, so it
+was measured against the shipped list rather than chosen. Over SCOWL bands ≤60, at
+`max_words=3` and `min_word_length=2`:
+
+| input | letters | words that fit | nodes to exhaust | time |
+|---|---|---|---|---|
+| `listen` | 6 | 66 | 2,994 | <0.01s |
+| `dormitory` | 9 | 57 | 7,958 | 0.01s |
+| `astronomer` | 10 | 373 | 747,769 | 0.92s |
+
+1,000,000 is the smallest round value that leaves `astronomer` untruncated, with roughly
+34% headroom. The measurement belongs in the field's comment: a bare `1_000_000` is a
+magic number, and the numbers above are what make it a decision.
+
+The pool sizes are worth reading beside the ones in "The constraint that shapes
+everything": 373 words fit inside `astronomer` here against 992 over the old oracle.
+Dropping proper names and abbreviations made the search smaller as well as better.
 
 Ranking, best first:
 
