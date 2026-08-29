@@ -82,6 +82,39 @@ def test_a_wholly_undecidable_text_is_not_vacuously_satisfied() -> None:
     assert report.violations[0].rule == "ambiguous_nouns_undecidable"
 
 
+def test_the_three_readings_diverge_when_a_real_mistake_sits_beside_an_ambiguity() -> None:
+    """`undecidable` and `free` are indistinguishable on a text with no wrong
+    displacement — removing an ambiguous position from a perfect numerator and
+    denominator leaves a perfect ratio under both, so that case alone cannot
+    show the three readings differ. This text has a genuine mistake (`dog` to
+    `zebra`, not the correct `doggedness`) alongside two ambiguous unchanged
+    nouns (`mill`, `run`), so the mistake is scored differently depending on
+    what the ambiguous pair is allowed to contribute.
+
+    Verified: `pack.noun_index` is 8402 for `cat` (-> `catacomb` at +7), 49859
+    for `table` (-> `tablespoonful`), 31964 for `mill`, 43615 for `run`, and
+    15054 for `dog` (-> `doggedness`, not `zebra`). `the` is `None`.
+
+    Of the 6 words: `the` matches (non-noun, unaffected by the reading),
+    `cat`/`table` are correct displacements (also unaffected), `mill`/`run`
+    are the ambiguous unchanged pair, and `dog`/`zebra` is the one wrong
+    displacement (always a violation, under every reading).
+
+    - `free`        good=5 total=6   5/6 = 0.8(3)  (ambiguous pair counts good)
+    - `undecidable` good=3 total=4   3/4 = 0.75    (ambiguous pair excluded)
+    - `strict`      good=3 total=6   3/6 = 0.5     (ambiguous pair violates)
+    """
+    procedure = NPlus7()
+    source = "the cat table mill run dog"
+    candidate = "the catacomb tablespoonful mill run zebra"
+    scores = {
+        reading: procedure.check(candidate, lang="en", source=source, ambiguous_nouns=reading).score
+        for reading in ("free", "undecidable", "strict")
+    }
+    assert scores == {"free": 5 / 6, "undecidable": 0.75, "strict": 0.5}
+    assert len(set(scores.values())) == 3
+
+
 def test_a_different_word_count_is_a_violation() -> None:
     report = check("n_plus_7", "too short", source=SOURCE)
     assert report.violations[0].rule == "wrong_word_count"
