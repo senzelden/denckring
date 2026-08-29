@@ -77,6 +77,20 @@ def test_missing_capability_names_the_extra_that_supplies_it() -> None:
     assert "denckring[en]" in payload["message"]
 
 
+def test_missing_capability_promises_no_extra_that_does_not_exist() -> None:
+    """The remedy has to be one the reader can follow.
+
+    French is a built-in pack with no lexicon (ADR 0029), so every lexicon row fails
+    through this error — and the message used to interpolate the language into
+    `pip install denckring[{lang}]`, sending a French caller after a distribution
+    that has never existed. English and German have one; nothing else does.
+    """
+    payload = MissingCapability("n_plus_7", "fr", "lexicon.nouns").to_dict()
+    assert "denckring[fr]" not in payload["message"]
+    assert "lexicon.nouns" in payload["message"]
+    assert payload["detail"]["lang"] == "fr"
+
+
 def test_invalid_params_carries_the_field_errors() -> None:
     from denckring import check
 
