@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import ClassVar
 
 from denckring.core.errors import MissingCapability
@@ -22,6 +22,7 @@ SYLLABLES_DICTIONARY = "syllables.dictionary"
 NOUNS = "lexicon.nouns"
 WORDS = "lexicon.words"
 GLOSSES = "lexicon.glosses"
+GRADED_WORDS = "lexicon.graded_words"
 PHONEMES = "phonemes"
 STRESS = "stress"
 
@@ -141,3 +142,22 @@ class BasePack:
     def noun_index(self, word: str) -> int | None:
         """The word's position in `nouns()`, or None if it is not a noun."""
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
+
+    def graded_words(self) -> Mapping[str, int]:
+        """Every word the lexicon knows, with how common it is.
+
+        A `Mapping`, where `nouns()` is a `Sequence`: N+7 indexes into the noun
+        list positionally, so its order is load-bearing, while nothing indexes
+        into this one. The anagram search needs band *lookup* and builds its own
+        letter-keyed index over the keys, so a mapping is the shape that matches
+        the question being asked.
+
+        Values are SCOWL size bands, and **larger means less common** — 60 is the
+        largest band SCOWL is confident carries no misspellings. A caller ranking
+        by this sorts ascending.
+
+        Separate from `lexicon.words` because ADR 0015's rule is one capability
+        per question, and "is this a word" is answerable by a pack that cannot
+        answer this one.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, GRADED_WORDS)

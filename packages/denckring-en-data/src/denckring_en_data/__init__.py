@@ -13,12 +13,14 @@ from collections.abc import Mapping
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
+from types import MappingProxyType
 from typing import ClassVar
 
 from denckring.lang.base import (
     ALPHABET,
     FOLD_DIACRITICS,
     GLOSSES,
+    GRADED_WORDS,
     LETTER_SHAPES,
     NOUNS,
     PHONEMES,
@@ -150,6 +152,7 @@ class EnglishDataPack(EnglishPack):
             NOUNS,
             WORDS,
             GLOSSES,
+            GRADED_WORDS,
         }
     )
 
@@ -169,6 +172,18 @@ class EnglishDataPack(EnglishPack):
 
     def noun_index(self, word: str) -> int | None:
         return noun_positions().get(self._lemma(word))
+
+    def graded_words(self) -> Mapping[str, int]:
+        """A read-only view over the cached table.
+
+        `graded_words()` (the module function) is `@lru_cache`d and shared by
+        every caller in the process; handing that dict out directly would let
+        one caller's mutation corrupt it for all the others. `nouns()` and
+        `glosses()` avoid the same risk by returning tuples; `MappingProxyType`
+        is the mapping equivalent — a view, not a copy, so it costs nothing per
+        call.
+        """
+        return MappingProxyType(graded_words())
 
     def glosses(self, word: str) -> tuple[str, ...]:
         table = gloss_table()
