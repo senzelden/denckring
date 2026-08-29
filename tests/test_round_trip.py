@@ -49,15 +49,27 @@ guard was inert that read as three rows passing the round-trip property; with th
 guard live it reads as three rows raising on every example, which is the same
 vacuum said out loud.
 
+An alphabet is not a shape, though, and three rows needed a shape. `TEXT` is now a
+flat draw from that alphabet composed with two constructed shapes: `PARAGRAPHS`,
+blank-line separated, for `fold_in` and `mathews_algorithm`, and `PROSE`,
+terminated sentences, for `recombination`. All three were previously reached by
+luck alone, and the `max_examples=1000` the coverage-gap test carried was the price
+of that luck — a price that did not in fact buy the guarantee it looked like
+buying: replayed over twelve fixed seeds, the flat-only strategy reached every row
+on three of them. Building the shapes bought both a lower budget and a real floor.
+
 `test_apply_output_satisfies_check` and `test_apply_does_not_return_its_input` see
 only `texts[0]` of what a generator found, because that is all `apply` ever
 returns. `test_every_produced_text_satisfies_check` and
 `test_every_produced_text_differs_from_the_input` below call `produce` instead and
 range over its whole `texts` list, so a bad candidate sitting behind a good first
-one is no longer invisible. As of this writing `paragram` is the only row where
-that distinction is live: it is the only constructive procedure whose `produce`
-returns more than one candidate on the alphabet `TEXT` draws from, so it is the
-only row the four properties above and below can actually disagree about.
+one is no longer invisible. As of this writing two rows make that distinction
+live: `paragram` and `anagram` are the constructive procedures whose `produce`
+returns more than one candidate on the shapes `TEXT` draws, so they are the rows
+the four properties above and below can actually disagree about. An earlier
+version of this paragraph named `paragram` alone. The count was measured over
+`produce` when `TEXT` gained its built shapes rather than read off the source, and
+`anagram` turns out to have been live all along — the flat draw reaches it too.
 """
 
 from hypothesis import given, settings
@@ -73,7 +85,46 @@ CONSTRUCTIVE = sorted(pid for pid, p in all_procedures().items() if isinstance(p
 #: The newline is deliberate: half the constructive rows operate on lines or pages and
 #: cannot be reached at all without one. The bar and the full stop are deliberate for
 #: exactly the same reason, discovered the same way. See the module docstring.
-TEXT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n|.", min_size=1, max_size=80)
+FLAT = st.text(alphabet="abcdefghijklmnopqrstuvwxyz \n|.", min_size=1, max_size=80)
+
+#: Text shaped like prose paragraphs, reached by construction rather than by luck.
+#: `fold_in` and `mathews_algorithm` need two blank-line-separated paragraphs, which
+#: `FLAT` offers about once in three hundred examples — so the suite was carrying
+#: `max_examples=1000` to buy a shape it could have built.
+PARAGRAPHS = st.lists(
+    st.text(alphabet="abcdefghijklmnopqrstuvwxyz |.", min_size=1, max_size=30),
+    min_size=2,
+    max_size=4,
+).map("\n\n".join)
+
+#: Paragraphs of *terminated* sentences — the same idea, for the row that turned out to
+#: be the expensive one. `recombination` needs two sentences whose terminator is followed
+#: by whitespace, and neither shape above builds one: both draw `.` uniformly from an
+#: alphabet, so a full stop lands beside a space only by accident. It was `recombination`,
+#: not `fold_in`, that the old `max_examples=1000` was really paying for, and it was not
+#: paying enough: replayed over twelve fixed seeds, the old flat-only strategy reached
+#: every row 3 times out of 12 at a thousand examples. That budget was never a floor, it
+#: was one lucky `derandomize` seed. No `.` inside a clause, so every terminator here is
+#: a real boundary rather than a coin flip.
+PROSE = st.lists(
+    st.lists(
+        st.text(alphabet="abcdefghijklmnopqrstuvwxyz |", min_size=1, max_size=20),
+        min_size=1,
+        max_size=3,
+    ).map(lambda clauses: ". ".join(clauses) + "."),
+    min_size=2,
+    max_size=4,
+).map("\n\n".join)
+
+#: Composed with `FLAT` rather than replacing it: the alphabet's `\n`, `|` and `.` are
+#: each load-bearing for other rows and the module docstring records how each was found.
+#: `FLAT` appears twice because `st.one_of` splits its draws evenly between the branches
+#: it is given, and an even split is the wrong split here — the two built shapes serve
+#: three rows between them, `FLAT` serves the other twenty reachable ones. Widening in
+#: one direction can narrow in another, so the balance is measured rather than assumed:
+#: over thirty fixed seeds this composition reached every reachable row 30/30 at 150
+#: examples and 27/30 at 100, the three misses being `spoonerism`, which wants flat text.
+TEXT = st.one_of(FLAT, FLAT, PARAGRAPHS, PROSE)
 
 #: Ten of the 27 constructive rows draw at random. Every property below used to
 #: pass `_apply_args(procedure_id, 0)` — the same seed on every example, in every
@@ -127,17 +178,19 @@ def test_the_named_coverage_gap_is_the_whole_coverage_gap() -> None:
     """
     reached: set[str] = set()
 
-    # A thousand examples, not the two hundred this started at. `fold_in` and
-    # `mathews_algorithm` need two blank-line separated paragraphs, which a text
-    # drawn uniformly from this alphabet offers about once in three hundred
-    # examples — so two hundred reached them by luck, and widening the alphabet
-    # by two characters was enough to spend that luck. The floor is what the
-    # rarest reachable row actually costs; anything less measures the draw.
-    @settings(max_examples=1000, deadline=None, derandomize=True)
+    # Two hundred, down from a thousand, because `TEXT` now builds the shapes the
+    # rare rows need instead of waiting for the draw to offer them — see the
+    # comments on `PARAGRAPHS` and `PROSE`. The number is a measurement, not a
+    # guess: replayed over thirty fixed seeds, this composition reached every
+    # reachable row at 150 examples on all thirty and at 100 on twenty-seven. Two
+    # hundred is that floor with headroom, and a stronger guarantee than the
+    # thousand it replaces: replayed the same way, the old flat-only strategy
+    # reached every row on three seeds out of twelve.
+    @settings(max_examples=200, deadline=None, derandomize=True)
     @given(TEXT)
     def collect(text: str) -> None:
         # Only rows still unreached are retried, so the cost falls away after the
-        # first few examples instead of re-running 26 generators a thousand times.
+        # first few examples instead of re-running every generator two hundred times.
         for procedure_id in CONSTRUCTIVE:
             if procedure_id in reached:
                 continue
