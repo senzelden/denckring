@@ -1,4 +1,8 @@
-"""Anagram — the candidate uses exactly the letters of its source."""
+"""Anagram — the candidate uses exactly the letters of its source.
+
+Exactly, unless `allow_subset` asks for the transposal convention instead, where
+the candidate is built from *some* of them. Surplus letters are refused either way.
+"""
 
 from __future__ import annotations
 
@@ -19,7 +23,17 @@ from denckring.core.text import letter_spans
 
 
 class AnagramParams(SourceParams, DiacriticParams):
-    pass
+    # On the check model rather than the apply model so both halves see it: the
+    # convention it names is what counts as a valid anagram, and a generator
+    # working to one rule while the checker judged by another is exactly the
+    # drift ADR 0025 made `apply` inherit `check`'s spine to prevent.
+    allow_subset: bool = Field(
+        default=False,
+        description=(
+            "Accept a transposal — a candidate built from some of the source's "
+            "letters rather than all of them. Surplus letters are refused either way."
+        ),
+    )
 
 
 class AnagramApplyParams(AnagramParams, ApplyParams):
@@ -53,6 +67,9 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
     # worst of the three untruncated, with about 34% headroom. Work per node is
     # near-constant, so this is also what bounds wall-clock time — `MAX_LETTERS`
     # does not: an unbounded search over a seventeen-letter input runs for minutes.
+    # `allow_subset` does not move these figures. It records a cover at nodes the
+    # walk already visits rather than descending anywhere new, so it multiplies
+    # the results (`astronomer`: 1,421 covers to 15,185) at an identical cost.
     max_nodes: int = Field(
         default=1_000_000,
         ge=1,
@@ -65,9 +82,15 @@ def letter_counts(text: str, pack: LanguagePack, *, fold: bool) -> Counter[str]:
 
 
 def multiset_violations(
-    candidate: Counter[str], source: Counter[str]
+    candidate: Counter[str], source: Counter[str], *, allow_subset: bool = False
 ) -> tuple[list[Violation], int, int]:
-    """Report the letters that are surplus and those that are short."""
+    """Report the letters that are surplus and those that are short.
+
+    `allow_subset` relaxes one half only. A transposal may decline some of the
+    source's letters, so a shortfall stops being a violation; it may never use a
+    letter the source does not have, so surplus stays one unconditionally.
+    Relaxing both would leave a check that no text could fail.
+    """
     violations: list[Violation] = []
     for letter in sorted(set(candidate) | set(source)):
         difference = candidate[letter] - source[letter]
@@ -80,7 +103,7 @@ def multiset_violations(
                     expected=f"{source[letter]} of {letter!r}",
                 )
             )
-        elif difference < 0:
+        elif difference < 0 and not allow_subset:
             violations.append(
                 Violation(
                     rule="missing_letter",
@@ -90,13 +113,25 @@ def multiset_violations(
                 )
             )
     shared = sum((candidate & source).values())
-    total = max(sum(candidate.values()), sum(source.values()))
+    # Under an exact cover these two expressions are identical, which is what
+    # keeps the flag off from being a behaviour change. Under a subset the
+    # source's unused letters are not a shortfall to be marked down for — that
+    # is what the flag means — so the candidate's own length is the denominator.
+    total = (
+        sum(candidate.values())
+        if allow_subset
+        else max(sum(candidate.values()), sum(source.values()))
+    )
     return violations, shared, total
 
 
 @register
 class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
-    """Every letter of the source, rearranged, and nothing else."""
+    """Every letter of the source, rearranged, and nothing else.
+
+    `allow_subset` trades the first clause for the transposal tradition — some of
+    the letters rather than all — and keeps the last one.
+    """
 
     id = "anagram"
 
@@ -108,7 +143,9 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         fold = params.fold_diacritics
         candidate = letter_counts(text, pack, fold=fold)
         source = letter_counts(params.source, pack, fold=fold)
-        violations, shared, total = multiset_violations(candidate, source)
+        violations, shared, total = multiset_violations(
+            candidate, source, allow_subset=params.allow_subset
+        )
         return self._report(
             good=shared,
             total=total,
@@ -141,6 +178,12 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         not a cover and is abandoned, where the greedy walk this replaced emitted
         the unspendable tail as a run of letters to keep `check` satisfied.
 
+        Under `allow_subset` the leftover is the point rather than the defect —
+        a transposal spends some of the letters — so every node with a word in
+        hand is recorded, and the ranking puts the fullest covers first. The
+        flag is read from the shared params model, so the search works to the
+        same rule `check` is judging by.
+
         `lexicon.graded_words` is declared on the catalogue row's `apply_requires`,
         not its `requires`: the latter gates `check` too, and `check` has always
         run on core alone. ADR 0002 makes `apply` the optional half, and
@@ -169,24 +212,47 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
             and not Counter(word) - source
         )
 
-        covers: list[tuple[int, int, str]] = []
+        covers: list[tuple[int, int, int, str]] = []
         # A list, not an int, because `walk` closes over it and rebinding an int
         # inside a closure would need `nonlocal` in every branch that spends one.
         budget = [params.max_nodes]
 
+        def record(chosen: list[str]) -> None:
+            # `chosen` is empty only at the root, when the input held no letters
+            # at all — `apply(".")`. The empty cover is not a result, so it is
+            # dropped here rather than reaching the spine as a candidate whose
+            # `max()` has nothing to take a band from; with no covers at all the
+            # spine raises `DegenerateOutput.NOTHING`, which is what a letterless
+            # input got before this search.
+            if not chosen:
+                return
+            covers.append(
+                (
+                    # Negated so that more letters sorts first while the
+                    # remaining keys keep sorting ascending, which is what lets
+                    # the bare `covers.sort()` below stay a bare sort. With
+                    # `allow_subset` off this key is constant across every cover
+                    # — they all spend all the letters — so the order is exactly
+                    # the one ADR 0028 describes, and the flag-off regression
+                    # test is what proves it.
+                    -sum(len(word) for word in chosen),
+                    len(chosen),
+                    max(graded[word] for word in chosen),
+                    " ".join(chosen),
+                )
+            )
+
         def walk(remaining: Counter[str], chosen: list[str], start: int) -> None:
             if not sum(remaining.values()):
-                # `chosen` is empty only at the root, when the input held no
-                # letters at all — `apply(".")`. The empty cover is not a result,
-                # so it is dropped here rather than reaching the spine as a
-                # candidate whose `max()` has nothing to take a band from; with
-                # no covers at all the spine raises `DegenerateOutput.NOTHING`,
-                # which is what a letterless input got before this search.
-                if chosen:
-                    covers.append(
-                        (len(chosen), max(graded[word] for word in chosen), " ".join(chosen))
-                    )
+                record(chosen)
                 return
+            if params.allow_subset:
+                # A transposal is built from *some* of the source's letters, so
+                # every node with a word in hand is already an answer, not just
+                # the ones that spend the multiset down to nothing. The walk
+                # continues past it: a partial cover is a prefix of the longer
+                # covers below it, and those outrank it on the `letters_used` key.
+                record(chosen)
             if len(chosen) == params.max_words:
                 return
             # `start` and not `start + 1`: a cover may legitimately use the same
@@ -204,17 +270,31 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
 
         walk(source, [], 0)
 
-        # Fewest words, then commonest word last — SCOWL's bands run backwards
-        # from intuition, so a cover is judged by its *least* common word (its
-        # maximum band) and lower wins. Alphabetical last: with the word count it
-        # is Dewdney's ordering in *The Armchair Universe* (1988), the band
-        # inserted between the two, and it is what makes the order total so the
-        # row stays `deterministic: true`.
+        # Most letters spent first, then fewest words, then commonest word last —
+        # SCOWL's bands run backwards from intuition, so a cover is judged by its
+        # *least* common word (its maximum band) and lower wins. Alphabetical
+        # last: with the word count it is Dewdney's ordering in *The Armchair
+        # Universe* (1988), the band inserted between the two, and it is what
+        # makes the order total so the row stays `deterministic: true`.
+        #
+        # `letters_used` sits in front of all three only because `allow_subset`
+        # exists: under it every single word that fits the source is a valid
+        # transposal — 373 of them for `astronomer` — and ranked by word count
+        # first, one-word fragments would bury every cover worth reading. With
+        # the flag off it is constant, so Dewdney's ordering is still the whole
+        # of the effective key.
         covers.sort()
         return Produced(
             candidates=[
-                Candidate(text=cover, metrics={"words": float(count), "max_band": float(band)})
-                for count, band, cover in covers
+                Candidate(
+                    text=cover,
+                    metrics={
+                        "words": float(count),
+                        "max_band": float(band),
+                        "letters_used": float(-negated_used),
+                    },
+                )
+                for negated_used, count, band, cover in covers
             ],
             truncated=budget[0] <= 0,
         )
