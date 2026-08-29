@@ -7,9 +7,9 @@ import random
 from pydantic import Field
 
 from denckring.core import arca
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import UnsettablePhrase
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 from denckring.procedures.syllable_count import line_syllables
@@ -133,7 +133,7 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
 
     def _produce(
         self, text: str, pack: LanguagePack, params: ArcaMusarithmicaApplyParams
-    ) -> list[str]:
+    ) -> Produced:
         """Set `text`, one pattern per phrase, drawn from the tablet for its length."""
         tablets = arca.parse(params.pinakes)
         chooser = random.Random(params.seed)
@@ -143,4 +143,4 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
             if not offered:
                 raise UnsettablePhrase(syllables, tablets.lengths(params.syntagma))
             setting.append(chooser.choice(offered))
-        return ["\n".join(setting)]
+        return plain(["\n".join(setting)])

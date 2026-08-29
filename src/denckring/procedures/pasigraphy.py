@@ -5,8 +5,8 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core import pasigraph
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -151,8 +151,8 @@ class Pasigraphy(ConstructiveProcedure[PasigraphyParams, PasigraphyApplyParams])
     def apply_params_model(cls) -> type[PasigraphyApplyParams]:
         return PasigraphyApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: PasigraphyApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: PasigraphyApplyParams) -> Produced:
         """Send `text` across, marking every place a word could not follow."""
         table = pasigraph.parse(params.table)
         produced, _, _ = render(text, pack, table, params.from_language, params.to_language)
-        return [" ".join(produced)]
+        return plain([" ".join(produced)])

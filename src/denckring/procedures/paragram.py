@@ -7,9 +7,9 @@ from itertools import combinations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, plain
 from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC
@@ -96,7 +96,7 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
     def apply_params_model(cls) -> type[ParagramApplyParams]:
         return ParagramApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: ParagramApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: ParagramApplyParams) -> Produced:
         """Change one letter of a word in `text` into another word the lexicon knows.
 
         The original word is left in place and the swapped word is inserted
@@ -149,7 +149,9 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
         # walked them in and two runs of the same input agree. `CandidateScore`
         # is a plain tuple and totally ordered, so this needs no key beyond it.
         found.sort(key=lambda candidate: candidate[0], reverse=True)
-        return [
-            text[: offset + len(word)] + " " + swapped + text[offset + len(word) :]
-            for _, offset, word, swapped in found
-        ]
+        return plain(
+            [
+                text[: offset + len(word)] + " " + swapped + text[offset + len(word) :]
+                for _, offset, word, swapped in found
+            ]
+        )

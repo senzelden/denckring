@@ -5,9 +5,9 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core import device as devices
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, plain
 from denckring.core.device import Device, DeviceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -151,9 +151,7 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
     def apply_params_model(cls) -> type[PoesieAutomatApplyParams]:
         return PoesieAutomatApplyParams
 
-    def _produce(
-        self, text: str, pack: LanguagePack, params: PoesieAutomatApplyParams
-    ) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: PoesieAutomatApplyParams) -> Produced:
         """Press the button. `text` is ignored: the board supplies everything.
 
         The whole board is spun once and the flaps then grouped into lines —
@@ -165,4 +163,4 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
         lines: dict[int, list[str]] = {number: [] for number in machine.lines}
         for slot, flap in zip(machine.slots, turned, strict=True):
             lines[slot.line].append(flap)
-        return ["\n".join(SEPARATOR.join(lines[number]) for number in machine.lines)]
+        return plain(["\n".join(SEPARATOR.join(lines[number]) for number in machine.lines)])

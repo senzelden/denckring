@@ -5,8 +5,8 @@ from __future__ import annotations
 import random
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -66,8 +66,8 @@ class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
     def apply_params_model(cls) -> type[CutUpApplyParams]:
         return CutUpApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: CutUpApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: CutUpApplyParams) -> Produced:
         """Shuffle the source's own words. Deterministic under a fixed seed."""
         words = [word for _, word in word_spans(text, pack)]
         random.Random(params.seed).shuffle(words)
-        return [" ".join(words)]
+        return plain([" ".join(words)])

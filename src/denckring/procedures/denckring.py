@@ -5,9 +5,9 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core import device as devices
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, plain
 from denckring.core.device import DeviceParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
@@ -90,7 +90,7 @@ class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
     def apply_params_model(cls) -> type[DenckringApplyParams]:
         return DenckringApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: DenckringApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: DenckringApplyParams) -> Produced:
         """Turn the rings. `text` is ignored: the device supplies everything."""
         machine = devices.load(params.device)
         seed = params.seed
@@ -98,7 +98,7 @@ class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
             turned = devices.spin(machine, seed)
             word = "".join(turned)
             if word and (not params.require_all_rings or all(turned)):
-                return [word]
+                return plain([word])
             if seed is not None:
                 # A fixed seed must stay deterministic, so nudge it rather than
                 # spinning again on the same one.

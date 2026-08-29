@@ -9,6 +9,7 @@ optional and so kept it off `BaseProcedure` entirely.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from typing import Any, ClassVar, Generic, TypeVar, cast
 
 from pydantic import BaseModel, Field, ValidationError
@@ -21,6 +22,7 @@ from denckring.core.protocol import (
     Lang,
     LanguagePack,
     Meta,
+    Produced,
     Production,
     Report,
     Violation,
@@ -214,6 +216,17 @@ def parse_into(model: type[BaseModel], params: dict[str, Any], procedure_id: str
         raise InvalidParams(procedure_id, str(exc)) from exc
 
 
+def plain(texts: Iterable[str]) -> Produced:
+    """Candidates with nothing known about them beyond their text.
+
+    Twenty-six of the twenty-seven generators are in this case and say so in one
+    call, rather than each spelling out a `Candidate(text=...)` comprehension.
+    ADR 0027 changed the primitive's type; it did not claim every procedure
+    suddenly has a score, or that any of them ran out of budget.
+    """
+    return Produced(candidates=[Candidate(text=text) for text in texts])
+
+
 def require_capability(pack: LanguagePack, capability: str, procedure_id: str) -> None:
     """Raise `MissingCapability` unless the pack declares it."""
     if capability not in pack.capabilities:
@@ -284,14 +297,21 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         return cast(A, parse_into(model, params, self.id))
 
     @abstractmethod
-    def _produce(self, text: str, pack: LanguagePack, params: A) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: A) -> Produced:
         """Procedure-specific generation, best first. Language and parameters are already valid.
 
-        A list even where there is one answer: `apply` returns `texts[0]`, so the
+        Ordered even where there is one answer: `apply` returns `texts[0]`, so the
         order is the contract, and a generator that ranks its candidates puts its
         winner at the front. One primitive rather than a `str` one beside a
         `list` one, because two would make every consumer ask which a given
         procedure implements.
+
+        `Produced` and not `list[str]` since ADR 0027, for two reasons that arrived
+        together: a generator that ranks needs somewhere to put the number it
+        ranked by, and a generator that abandons its own budget needs somewhere to
+        say so — the spine cannot derive the second, because giving up makes the
+        result set smaller and its own test is whether the set was too large.
+        Generators with neither wrap their strings with `plain()`.
         """
 
     def produce(self, text: str, *, lang: Lang = "en", **params: Any) -> Production:
@@ -308,7 +328,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             require_capability(pack, capability, self.id)
         parsed = self.parse_apply_params(text, params)
         produced = self._produce(text, pack, parsed)
-        if not produced:
+        if not produced.candidates:
             # Checked before `_guard_degenerate`, and not through it, so
             # `allow_identity` cannot waive it: that flag exists for a caller who
             # wants the degenerate-but-real result a procedure found, and an
@@ -320,7 +340,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             # not a `DenckringError`, so it would escape the MCP server's handler
             # uncaught.
             raise DegenerateOutput(self.id, DegenerateOutput.NOTHING)
-        found = self._guard_degenerate(text, produced, parsed)
+        found = self._guard_degenerate(text, produced.candidates, parsed)
         # `getattr`, falling back to one rather than ten, for the reason
         # `_guard_degenerate` reads `allow_identity` the same way: a generator
         # may declare an apply-params model that does not inherit `ApplyParams`,
@@ -329,8 +349,10 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         limit = getattr(parsed, "max_results", 1)
         return Production(
             procedure=self.id,
-            candidates=[Candidate(text=text) for text in found[:limit]],
-            truncated=len(found) > limit,
+            candidates=found[:limit],
+            # Either event means the same thing to a reader — what you were shown
+            # is not everything — but only one of them is visible from here.
+            truncated=produced.truncated or len(found) > limit,
             metrics={"found": float(len(found))},
         )
 
@@ -345,7 +367,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """
         return self.produce(text, lang=lang, **params).texts[0]
 
-    def _guard_degenerate(self, text: str, produced: list[str], params: A) -> list[str]:
+    def _guard_degenerate(self, text: str, produced: list[Candidate], params: A) -> list[Candidate]:
         """Refuse output that says nothing about what the procedure did.
 
         `allow_identity` is on `ApplyParams`, so every generator carries the
@@ -363,12 +385,14 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """
         if getattr(params, "allow_identity", False):
             return produced
-        kept = [candidate for candidate in produced if not self._is_degenerate(text, candidate)]
+        kept = [
+            candidate for candidate in produced if not self._is_degenerate(text, candidate.text)
+        ]
         if kept:
             return kept
         observed = (
             DegenerateOutput.EMPTY
-            if text.strip() and any(not candidate.strip() for candidate in produced)
+            if text.strip() and any(not candidate.text.strip() for candidate in produced)
             else DegenerateOutput.IDENTICAL
         )
         raise DegenerateOutput(self.id, observed)

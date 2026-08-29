@@ -28,9 +28,9 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure, plain
 from denckring.core.errors import InputTooShort, MissingCapability, NoCandidateWord, counted
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
@@ -161,7 +161,7 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
     def apply_params_model(cls) -> type[SpoonerismApplyParams]:
         return SpoonerismApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: SpoonerismApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: SpoonerismApplyParams) -> Produced:
         """Swap the written onsets of the text's first two words.
 
         Only those two words survive into the output — anything else in `text`
@@ -217,4 +217,4 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
                 "agree on where the onset ends, or check a text instead of "
                 "generating one",
             )
-        return [f"{swapped_first} {swapped_second}"]
+        return plain([f"{swapped_first} {swapped_second}"])

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
-from denckring.core.protocol import LanguagePack, Report
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
 from denckring.procedures.n_plus_7 import NPlus7Params, displace, displacement_report
 
@@ -40,6 +40,6 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
     def apply_params_model(cls) -> type[SPlus7ApplyParams]:
         return SPlus7ApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> Produced:
         """The same walk, with the step the caller asked for."""
-        return [displace(text, pack, params.offset)]
+        return plain([displace(text, pack, params.offset)])

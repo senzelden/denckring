@@ -7,8 +7,8 @@ import random
 from pydantic import BaseModel, Field
 
 from denckring.core import device as devices
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, plain
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 
 MIN_ARITY = 2
@@ -150,9 +150,9 @@ class LlullFigure(ConstructiveProcedure[LlullFigureParams, LlullFigureApplyParam
     def apply_params_model(cls) -> type[LlullFigureApplyParams]:
         return LlullFigureApplyParams
 
-    def _produce(self, text: str, pack: LanguagePack, params: LlullFigureApplyParams) -> list[str]:
+    def _produce(self, text: str, pack: LanguagePack, params: LlullFigureApplyParams) -> Produced:
         """Turn the wheels to a chamber, spelled out at the chosen level."""
         figure = devices.load_figure(params.figure)
         chamber = random.Random(params.seed).choice(figure.chambers(params.arity))
         level = params.level or "absolute"
-        return [" ".join(figure.read(chamber, level))]
+        return plain([" ".join(figure.read(chamber, level))])
