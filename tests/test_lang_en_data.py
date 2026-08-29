@@ -3,6 +3,7 @@
 import gzip
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -83,4 +84,16 @@ def test_the_pack_method_hands_back_a_view_not_the_live_cache() -> None:
     view = pack.graded_words()
     with pytest.raises(TypeError):
         view["astronomer"] = 1
-    assert view == en_data.graded_words()
+    # Equality with the cached table would also hold for a defensive copy, which
+    # is the thing the docstring's "costs nothing per call" rules out — so the
+    # proof is that a write to the table shows through the view. Undone in a
+    # `finally`: the cache is process-wide, and a sentinel left in it would be a
+    # word the anagram search could spend letters on in some later test.
+    table = cast(dict[str, int], en_data.graded_words())
+    sentinel = "zzsentinelzz"
+    table[sentinel] = 10
+    try:
+        assert view[sentinel] == 10
+    finally:
+        del table[sentinel]
+    assert sentinel not in view
