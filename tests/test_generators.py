@@ -110,8 +110,13 @@ def test_anagram_uses_the_lexicon_rather_than_shuffling() -> None:
 
 
 def test_anagram_preserves_the_letter_multiset() -> None:
+    # `max_words=4` rather than the default 3: the search returns exact covers
+    # only, so a sixteen-letter phrase with no three-word cover raises where the
+    # greedy walk this replaced emitted its unspendable letters as a trailing
+    # run. The property under test is the multiset, and four words is where this
+    # phrase has a cover to test it on.
     source = "the quick brown fox"
-    produced = generator("anagram").apply(source, lang="en")
+    produced = generator("anagram").apply(source, lang="en", max_words=4)
     assert sorted(produced.replace(" ", "")) == sorted(source.replace(" ", ""))
 
 
@@ -123,11 +128,11 @@ def test_anagram_output_satisfies_its_own_checker() -> None:
 
 
 def test_anagram_check_still_works_without_a_lexicon() -> None:
-    """`requires` gates `check`, so adding lexicon.words there would have broken
-    every core-only caller. The generator gates itself instead."""
+    """`requires` gates `check`, so adding lexicon.graded_words there would have
+    broken every core-only caller. The generator gates itself instead."""
     from denckring.lang.en import EnglishPack
 
-    assert "lexicon.words" not in EnglishPack().capabilities
+    assert "lexicon.graded_words" not in EnglishPack().capabilities
     report = get("anagram").check("tac", lang="en", source="cat")
     assert report.satisfied
 

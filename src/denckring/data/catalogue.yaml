@@ -296,7 +296,7 @@ procedures:
     languages: [en]
     requires: [tokens, fold_diacritics]
     apply_requires:
-      - lexicon.words
+      - lexicon.graded_words
     deterministic: true
     prompt_hints:
       en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
