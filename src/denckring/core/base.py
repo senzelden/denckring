@@ -422,8 +422,15 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         same escape, because a caller cannot act differently on the two.
 
         Both are compared on stripped text, because trailing whitespace is
-        neither a transformation nor content.
+        neither a transformation nor content — and the identity is compared
+        casefolded for the same reason. A generator whose output is casefolded,
+        as `anagram`'s is, returned its own input in a different case and slipped
+        the guard: `apply("Dormitory")` gave `dormitory`, which is the very defect
+        this check exists to refuse, still live for anyone who capitalises a word.
+        Capitalisation alone is not a transformation any row in this catalogue
+        claims to perform, so text differing from its input only in case says
+        nothing about what the procedure did.
         """
         if not produced.strip() and text.strip():
             return True
-        return not self.ignores_input and produced.strip() == text.strip()
+        return not self.ignores_input and produced.strip().casefold() == text.strip().casefold()

@@ -13,7 +13,7 @@ import pytest
 from pydantic import BaseModel
 
 from denckring import describe
-from denckring.core.base import ApplyParams, ConstructiveProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure, plain
 from denckring.core.errors import DegenerateOutput, InvalidParams
 from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import all_procedures, get
@@ -283,3 +283,31 @@ def test_allow_identity_cannot_waive_an_empty_produce() -> None:
     with pytest.raises(DegenerateOutput) as caught:
         _ProducesNothing().produce("some text", allow_identity=True)
     assert caught.value.observed == DegenerateOutput.NOTHING
+
+
+class _ProducesTheInputCasefolded(_ProducesNothing):
+    """A throwaway procedure that returns its input with the case flattened.
+
+    `anagram` is the real one — its covers are built from a casefolded lexicon —
+    but the hole was the spine's, so it is pinned here on a double rather than
+    only on the row that fell into it.
+    """
+
+    def _produce(self, text: str, pack: LanguagePack, params: _EmptyApplyParams) -> Produced:
+        return plain([text.casefold()])
+
+
+def test_output_differing_from_the_input_only_in_case_is_degenerate() -> None:
+    """The guard compared case-sensitively, so a casefolding generator handed
+    back its own input and was never caught: `anagram.apply("Dormitory")`
+    returned `dormitory`, which is the defect the guard exists to refuse."""
+    with pytest.raises(DegenerateOutput) as caught:
+        _ProducesTheInputCasefolded().produce("Some Text")
+    assert caught.value.observed == DegenerateOutput.IDENTICAL
+
+
+def test_allow_identity_still_waives_a_case_only_difference() -> None:
+    """Widening what counts as the identity must not narrow the escape from it:
+    a caller who asked for the degenerate result still gets it."""
+    production = _ProducesTheInputCasefolded().produce("Some Text", allow_identity=True)
+    assert production.texts == ["some text"]
