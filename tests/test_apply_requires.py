@@ -1,6 +1,6 @@
 """The generator's requirements are not the checker's.
 
-`anagram` checks with core alone and generates only with a word lexicon. One
+`anagram` checks with core alone and generates only with a graded word lexicon. One
 `requires` list could not say both, so the generator's need went undeclared and
 `missing` reported nothing — the defect this file pins.
 """
@@ -14,13 +14,13 @@ from denckring.lang.en import EnglishPack
 
 
 def test_anagram_declares_the_lexicon_its_generator_uses() -> None:
-    assert "lexicon.words" in catalogue.get("anagram").apply_requires
+    assert "lexicon.graded_words" in catalogue.get("anagram").apply_requires
 
 
 def test_declaring_it_does_not_gate_the_checker() -> None:
     """The whole reason it could not go in `requires`. A core-only install must
     still check an anagram."""
-    assert "lexicon.words" not in catalogue.get("anagram").requires
+    assert "lexicon.graded_words" not in catalogue.get("anagram").requires
     report = check("anagram", "silent", source="listen")
     assert report.satisfied
 
@@ -28,10 +28,10 @@ def test_declaring_it_does_not_gate_the_checker() -> None:
 def test_apply_runnable_reports_what_the_generator_lacks() -> None:
     meta = catalogue.get("anagram")
     core_only = EnglishPack()
-    assert "lexicon.words" not in core_only.capabilities
+    assert "lexicon.graded_words" not in core_only.capabilities
     ok, missing = apply_runnable(meta, pack=core_only)
     assert not ok
-    assert missing == ["lexicon.words"]
+    assert missing == ["lexicon.graded_words"]
 
 
 def test_rows_without_a_generator_requirement_default_to_empty() -> None:
@@ -59,6 +59,7 @@ def test_apply_requires_names_only_real_capabilities(pid: str) -> None:
         "phonemes",
         "stress",
         "lexicon.words",
+        "lexicon.graded_words",
         "lexicon.nouns",
         "lexicon.glosses",
     }
