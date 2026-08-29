@@ -16,7 +16,15 @@ from pydantic import BaseModel, Field, ValidationError
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.prosody import UnknownRhyme
-from denckring.core.protocol import Lang, LanguagePack, Meta, Production, Report, Violation
+from denckring.core.protocol import (
+    Candidate,
+    Lang,
+    LanguagePack,
+    Meta,
+    Production,
+    Report,
+    Violation,
+)
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -321,7 +329,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         limit = getattr(parsed, "max_results", 1)
         return Production(
             procedure=self.id,
-            texts=found[:limit],
+            candidates=[Candidate(text=text) for text in found[:limit]],
             truncated=len(found) > limit,
             metrics={"found": float(len(found))},
         )

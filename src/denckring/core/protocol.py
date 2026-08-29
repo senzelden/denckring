@@ -6,7 +6,7 @@ import re
 from collections.abc import Sequence
 from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 Lang = Literal["en", "de", "fr"]
 Kind = Literal["constructive", "restrictive", "both"]
@@ -71,6 +71,25 @@ class Report(BaseModel):
     metrics: dict[str, float] = Field(default_factory=dict)
 
 
+class Candidate(BaseModel):
+    """One result, with whatever the generator knows about it.
+
+    `Production.texts` was a list of strings, and for twenty-six of the
+    twenty-seven generators that is still the whole truth. `anagram` is the
+    exception ADR 0026 anticipated in writing: it ranks its covers by the SCOWL
+    band of their least common word, and a bare string cannot carry the number
+    the ranking was computed from. A caller shown `room dirty` ahead of
+    `morty dior` deserves to see why, rather than trusting the order.
+
+    `metrics` is open rather than a fixed set of fields because what a generator
+    knows is generator-specific, and a schema listing every score any procedure
+    might ever have would be a schema nobody could satisfy.
+    """
+
+    text: str
+    metrics: dict[str, float] = Field(default_factory=dict)
+
+
 class Production(BaseModel):
     """What a generator turned out. `Report`'s counterpart for the other half.
 
@@ -87,7 +106,7 @@ class Production(BaseModel):
     #: would be a fourth way of saying a failure that has three honest names.
     #: `min_length=1` makes that a validation error naming the field rather than
     #: a bare `IndexError` from `apply`'s `texts[0]`.
-    texts: list[str] = Field(min_length=1)
+    candidates: list[Candidate] = Field(min_length=1)
     #: Whether more were found than `max_results` let through. Without it a
     #: truncated search is indistinguishable from an exhaustive one.
     #: On the ten rows that draw at random this reads narrowly: a drawing
@@ -98,6 +117,19 @@ class Production(BaseModel):
     #: with another seed.
     truncated: bool = False
     metrics: dict[str, float] = Field(default_factory=dict)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def texts(self) -> list[str]:
+        """The candidates' texts, in the same order.
+
+        A `computed_field` and not a plain `@property`: `apply --json` and the
+        MCP surface both read `texts` out of `model_dump()`, and a plain property
+        is absent from it. Kept rather than removed because it is the shape every
+        existing consumer already reads, and ADR 0026 made `texts[0]` the
+        definition of `apply`.
+        """
+        return [candidate.text for candidate in self.candidates]
 
 
 class Meta(BaseModel):

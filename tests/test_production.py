@@ -8,7 +8,7 @@ from pydantic import ValidationError
 import denckring
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, InvalidParams, NotConstructive, UnknownProcedure
-from denckring.core.protocol import Production
+from denckring.core.protocol import Candidate, Production
 from denckring.core.registry import all_procedures, get
 
 
@@ -21,7 +21,9 @@ def constructive(pid: str) -> ConstructiveProcedure[Any, Any]:
 
 
 def test_production_carries_what_a_caller_needs() -> None:
-    produced = Production(procedure="paragram", texts=["a", "b"])
+    produced = Production(
+        procedure="paragram", candidates=[Candidate(text="a"), Candidate(text="b")]
+    )
     assert produced.procedure == "paragram"
     assert produced.texts == ["a", "b"]
     assert produced.truncated is False
@@ -29,17 +31,21 @@ def test_production_carries_what_a_caller_needs() -> None:
 
 
 def test_truncated_is_carried_when_set() -> None:
-    assert Production(procedure="anagram", texts=["a"], truncated=True).truncated is True
+    produced = Production(procedure="anagram", candidates=[Candidate(text="a")], truncated=True)
+    assert produced.truncated is True
 
 
 def test_it_serialises_for_a_caller_who_never_touches_python() -> None:
     """The reason this is a pydantic model and not a tuple."""
-    dumped = Production(procedure="cut_up", texts=["a"], metrics={"found": 3.0}).model_dump()
+    dumped = Production(
+        procedure="cut_up", candidates=[Candidate(text="a")], metrics={"found": 3.0}
+    ).model_dump()
     assert dumped == {
         "procedure": "cut_up",
-        "texts": ["a"],
+        "candidates": [{"text": "a", "metrics": {}}],
         "truncated": False,
         "metrics": {"found": 3.0},
+        "texts": ["a"],
     }
 
 
@@ -53,8 +59,8 @@ def test_not_constructive_names_the_procedure() -> None:
 def test_texts_may_not_be_empty() -> None:
     """`apply` reads `texts[0]`; an empty list should fail loudly here, naming
     the field, rather than raise a bare `IndexError` from that line."""
-    with pytest.raises(ValidationError, match="texts"):
-        Production(procedure="paragram", texts=[])
+    with pytest.raises(ValidationError, match="candidates"):
+        Production(procedure="paragram", candidates=[])
 
 
 def test_produce_returns_a_production_for_a_single_result_generator() -> None:
@@ -146,3 +152,25 @@ def test_generating_with_a_checker_only_procedure_is_an_error_not_a_dict() -> No
 def test_an_unknown_id_still_raises_unknown_procedure() -> None:
     with pytest.raises(UnknownProcedure):
         denckring.produce("no_such_procedure", "a text")
+
+
+def test_production_exposes_texts_derived_from_candidates() -> None:
+    production = Production(
+        procedure="anagram",
+        candidates=[Candidate(text="room dirty", metrics={"max_band": 50.0})],
+    )
+    assert production.texts == ["room dirty"]
+
+
+def test_texts_survives_serialisation_so_the_json_surface_is_unchanged() -> None:
+    """`apply --json` and the MCP surface both read `texts`. A plain @property
+    would vanish from model_dump() and break them silently."""
+    production = Production(procedure="anagram", candidates=[Candidate(text="tinsel")])
+    assert production.model_dump()["texts"] == ["tinsel"]
+
+
+def test_a_production_with_no_candidates_is_a_validation_error() -> None:
+    """`min_length` moved from `texts` to `candidates` with the data. Without it
+    `apply`'s `texts[0]` is a bare IndexError rather than a named field error."""
+    with pytest.raises(ValidationError):
+        Production(procedure="anagram", candidates=[])
