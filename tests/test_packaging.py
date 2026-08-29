@@ -18,7 +18,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 #: The core sdist carried both workspace members before this bound existed: the CMU
 #: dictionary, the WordNet glosses and the German lexicon, 7.1 MB of data the core
-#: package never reads and ships no licence expression for. It builds at ~0.6 MB now.
+#: package never reads and ships no licence expression for. It builds at 935,439 bytes
+#: (0.94 MB) on a clean checkout now — 93.5% of this bound, largely from the docs this
+#: chapter added (ADR 0029 and its specs); the next docs-heavy chapter could trip it.
 MAX_SDIST_BYTES = 1_000_000
 
 
