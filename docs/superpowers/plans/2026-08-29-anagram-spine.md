@@ -310,15 +310,42 @@ def test_every_generator_returns_produced(pid: str) -> None:
 
 def test_a_generator_can_report_truncation_the_spine_cannot_derive() -> None:
     """The spine reads `truncated` as `len(found) > limit`, which is false when a
-    budget made the search stop early and find *fewer*. Task 6's node budget is
-    exactly that case, and this is the channel that carries it."""
-    production = Production(
-        procedure="anagram",
-        candidates=[Candidate(text="room dirty")],
-        truncated=True,
-    )
+    budget made the search stop early and so found *fewer*. Task 6's node budget
+    is exactly that case, and this is the channel that carries it.
+
+    Driven through a stub rather than by constructing a `Production` directly:
+    `Production.truncated` already existed and already accepted `True`, so
+    asserting on a hand-built one would pass without the channel existing at all.
+    """
+
+    class _Stub(ConstructiveProcedure[BaseModel, ApplyParams]):
+        id = "stub"
+        meta = Meta(id="stub", requires=[], apply_requires=[], languages=["en"])
+
+        @classmethod
+        def params_model(cls) -> type[BaseModel]:
+            return BaseModel
+
+        @classmethod
+        def apply_params_model(cls) -> type[ApplyParams]:
+            return ApplyParams
+
+        def _check(self, text: str, pack: LanguagePack, params: BaseModel) -> Report:
+            raise NotImplementedError
+
+        def _produce(self, text: str, pack: LanguagePack, params: ApplyParams) -> Produced:
+            # Two candidates against a limit of ten: `len(found) > limit` is
+            # false, so a true `truncated` can only have come from here.
+            return Produced(
+                candidates=[Candidate(text="a"), Candidate(text="b")], truncated=True
+            )
+
+    production = _Stub().produce("input", lang="en")
     assert production.truncated
+    assert not production.metrics["found"] > 10  # the spine's own test did not fire
 ```
+
+Constructing `_Stub` may need `meta` supplied differently than shown — `BaseProcedure.__init__` reads `catalogue.get(self.id)` and there is no `stub` row. Set the attribute after construction, or build the stub however the existing test suite already fakes a procedure; check `tests/` for an established pattern before inventing one.
 
 - [ ] **Step 2: Run to verify it fails**
 
@@ -556,7 +583,36 @@ Record the entry count and the compressed size. Resolve the documented discrepan
 
 `NOTICE` and `README.md`: a paragraph naming SCOWL, the release, and what the list is for.
 
-- [ ] **Step 5: Test the shipped data**
+- [ ] **Step 5: Add the loader, beside the data it reads**
+
+In `packages/denckring-en-data/src/denckring_en_data/__init__.py`, beside `noun_list()` and `gloss_table()`:
+
+```python
+GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
+
+
+@lru_cache(maxsize=1)
+def graded_words() -> Mapping[str, int]:
+    """Word to SCOWL size band, from the vendored graded list.
+
+    Unlike `known_words()`, this is not a union of two lists built for other
+    purposes: it is one list whose whole point is that its entries are ordered by
+    commonness. `known_words()` stays exactly as it is — `semordnilap` and
+    `charade` ask membership, and are right to keep asking the broad oracle ADR
+    0015 describes.
+    """
+    table: dict[str, int] = {}
+    with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
+        for line in handle:
+            word, _, band = line.rstrip("\n").partition("\t")
+            if band:
+                table[word] = int(band)
+    return table
+```
+
+This is a plain module-level loader, not a pack method and not a capability — Task 5 adds those. It lives here because Step 6's tests cannot run without it, and because the loader belongs beside the data file it reads, as `noun_list()` and `gloss_table()` already do.
+
+- [ ] **Step 6: Test the shipped data**
 
 ```python
 def test_the_graded_list_ships_the_words_the_search_needs() -> None:
@@ -585,11 +641,12 @@ def test_the_shipped_counts_match_the_metadata() -> None:
     assert len(graded_words()) == metadata["counts"]["graded_words.txt.gz"]
 ```
 
-- [ ] **Step 6: Run the gate and commit**
+- [ ] **Step 7: Run the gate and commit**
 
 ```bash
 uv run pytest -q && uv run mypy --strict src tests && uv run ruff check . && uv run ruff format --check .
 git add packages/denckring-en-data/scripts/build_graded_words.py \
+        packages/denckring-en-data/src/denckring_en_data/__init__.py \
         packages/denckring-en-data/src/denckring_en_data/data/graded_words.txt.gz \
         packages/denckring-en-data/src/denckring_en_data/data/metadata.json \
         packages/denckring-en-data/LICENSE-SCOWL packages/denckring-en-data/NOTICE \
@@ -670,31 +727,16 @@ On `BasePack`:
 
 Add `def graded_words(self) -> Mapping[str, int]: ...` to the `LanguagePack` protocol in `protocol.py`, beside `nouns`.
 
-In `packages/denckring-en-data/src/denckring_en_data/__init__.py`:
+In `packages/denckring-en-data/src/denckring_en_data/__init__.py`, `graded_words()` already exists — Task 4 added it beside the data file it reads. Task 5 only exposes it as a capability:
 
 ```python
-GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
-
-
-@lru_cache(maxsize=1)
-def graded_words() -> Mapping[str, int]:
-    """Word to SCOWL size band, from the vendored graded list.
-
-    Unlike `known_words()`, this is not a union of two lists built for other
-    purposes: it is a single list whose whole point is that its entries are
-    ordered by commonness. `known_words()` stays where it is — `semordnilap` and
-    `charade` ask membership and are correct to keep asking the broad oracle.
-    """
-    table: dict[str, int] = {}
-    with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
-        for line in handle:
-            word, _, band = line.rstrip("\n").partition("\t")
-            if band:
-                table[word] = int(band)
-    return table
+    def graded_words(self) -> Mapping[str, int]:
+        return graded_words()
 ```
 
-Add the method to `EnglishDataPack` and `GRADED_WORDS` to its `capabilities` frozenset.
+on `EnglishDataPack`, and `GRADED_WORDS` added to its `capabilities` frozenset.
+
+Do **not** add anything to `GermanDataPack`. Its Wikidata list is flat, so it cannot answer this question, and ADR 0004's rule is that a pack whose capability is undeclared must raise rather than approximate. The inherited `BasePack.graded_words` does exactly that.
 
 - [ ] **Step 4: Run to verify it passes, then the gate**
 
@@ -736,11 +778,19 @@ def test_dormitory_yields_dirty_room_and_ranks_it_above_the_junk() -> None:
     `room dirty` was always reachable — it is one of sixty-five two-word covers
     over the old oracle — and the search was never the problem. What was missing
     was any way to tell it from `morty dior`, which the old oracle rated equally.
+
+    Asserts the spec's claim and not a stronger one: present, and ranked above
+    the named junk cover. Demanding it rank strictly first would fail if some
+    third cover's least-common word were commoner than `dirty`, which would not
+    make the ranking wrong.
     """
-    production = Anagram().produce("dormitory", lang="en")
-    texts = production.texts
-    assert "room dirty" in texts or "dirty room" in texts
-    assert texts[0] in {"room dirty", "dirty room"}
+    texts = Anagram().produce("dormitory", lang="en", max_results=100).texts
+    famous = {"room dirty", "dirty room"}
+    assert famous & set(texts), f"the famous cover is unreachable: {texts[:10]}"
+    junk = [t for t in texts if set(t.split()) == {"morty", "dior"}]
+    if junk:
+        best = min(texts.index(t) for t in famous & set(texts))
+        assert best < texts.index(junk[0]), "ranked a surname cover above the famous one"
 
 
 def test_astronomer_no_longer_returns_itself() -> None:
@@ -834,13 +884,18 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
         ge=1,
         description="Shortest word a cover may use, which is what keeps orphan letters out.",
     )
+    # `le=60` matches `MAX_BAND` in the build script: nothing above band 60 is
+    # shipped, so without a ceiling `max_size=70` would silently mean 60 — a
+    # parameter promising more than the data delivers, which is the defect class
+    # ADR 0015 exists to prevent. Raising the ceiling means raising both.
     max_size: int = Field(
         default=60,
         ge=1,
+        le=60,
         description=(
             "Largest SCOWL size band to draw words from. Larger bands are less "
             "common words; 60 is the largest SCOWL states it is confident carries "
-            "no misspellings."
+            "no misspellings, and the largest this package ships."
         ),
     )
     max_nodes: int = Field(
