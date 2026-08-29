@@ -85,6 +85,7 @@ nav:
       - "26. `_produce -> list[str]` is the primitive; `apply` returns its first result": adr/0026-the-production-surface.md
       - "27. `_produce` returns `Produced`, so a candidate can carry its score": adr/0027-candidates-carry-their-scores.md
       - "28. A word list graded by commonness, because a membership oracle cannot rank": adr/0028-the-graded-lexicon.md
+      - "29. Where the catalogue already offered a choice, the parameter now exists": adr/0029-the-choices-the-catalogue-promised.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

@@ -456,6 +456,55 @@ All notable changes to this project are documented here. The format follows
   derivation, the whole of SCOWL's `Copyright` file ships as `LICENSE-SCOWL`, and the
   package's licence expression gains `HPND-sell-variant`.
 
+- `dictionary` on `NPlus7Params`, the ordered list N+7 and S+7 displace within,
+  defaulting to the pack's nouns. It sits on the **check** model rather than the
+  apply model so both halves walk the same list; a generator displacing through a
+  list its own checker could not see is the defect class the round-trip property
+  exists to catch. The row's definition has said "the seventh noun following it in
+  *a chosen dictionary*" since it was written, and until now there was no choice.
+  Entries are validated as non-empty and single alphabetic words, which is ADR
+  0015's rule for `nouns()` for the same reason. A supplied list is matched
+  casefolded and nothing more: `pack.noun_index` lemmatises and a bare list has no
+  lemmatiser behind it. `SPlus7Params` now inherits `NPlus7Params` whole instead of
+  restating `offset`, so it gains the field with it. A dictionary does **not**
+  unlock either row for a language whose pack has no noun list — capabilities are
+  enforced before parameters are parsed — and ADR 0029 names conditional
+  capabilities as what would fix that.
+- `ambiguous_nouns` on the same two rows: `free` (the default, and what shipped
+  before), `undecidable` or `strict`, deciding what an unchanged word that the
+  dictionary lists does to the score. A word list cannot tell you that *run* is a
+  verb in this sentence, so accepting the position was a policy, reported as
+  `ambiguous_words` and chosen by nobody. The three names are
+  `RhymeParams.unknown_rhyme`'s, which answers the same shape for a different
+  undecidable. `ambiguous_words` counts the position under every reading, so the
+  metric does not depend on which one was asked for. Under `undecidable`, a text
+  whose every position is undecided returns an `ambiguous_nouns_undecidable`
+  violation rather than scoring a vacuous 1.0 over nothing weighed.
+- `allow_subset` on `AnagramParams`, accepting the transposal convention — a
+  candidate built from *some* of the source's letters. Also on the check model, and
+  for the same reason. It relaxes one half only: a shortfall stops being a
+  violation, a surplus letter never does, since relaxing both leaves a check no text
+  could fail. A candidate with no letters against a source that has some fails as
+  `empty_transposal` rather than scoring 1.0 on a zero denominator. Each cover now
+  carries `letters_used` in its `Candidate` metrics beside `words` and `max_band`.
+  ADR 0029.
+- `FrenchPack`, the third built-in default beside English and German (ADR 0022's
+  shape), carrying no data files and declaring `tokens`, `alphabet`,
+  `fold_diacritics` and `letter_shapes`. `œ` and `æ` fold to `oe` and `ae`
+  explicitly, because neither has a casefold mapping or an NFKD decomposition the
+  way `ß` does. 70 of the 119 implemented rows run in French on core alone; the
+  other 49 want `syllables.heuristic` (29 rows), `phonemes` (21), `stress` (17),
+  `lexicon.words` (6), `lexicon.glosses` (2) or `lexicon.nouns` (2). There is no
+  `denckring[fr]` distribution, and this is not one.
+- `Description.runs_in`, the languages *this install* can actually check a row in,
+  computed from the packs' capabilities rather than authored. Distinct from
+  `languages`, which is the row's editorial scope — `wechselsatz` is German by
+  nature, not merely by capability — and the two visibly diverge on `anagram`,
+  which is `languages: [en]` and runs in all three. Two fields answering two
+  questions is a surface a reader can confuse; one field could not answer both.
+- ADR 0029 on all of the above, and an amendment banner on ADR 0028, whose ranking
+  paragraph describes three keys where `allow_subset` made four.
+
 ### Changed
 
 - Twenty-five fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC
@@ -534,6 +583,39 @@ All notable changes to this project are documented here. The format follows
   target="cat")` now raises `DegenerateOutput.IDENTICAL` where it returned `"cat"`.
   `apply("cat", target="cat")` already raised, so the change makes that row
   consistent with itself rather than taking anything away.
+
+- `get_pack("fr")` returns a pack instead of raising. **Breaking for anyone catching
+  `UnknownLanguage` on `"fr"`:** `check(..., lang="fr")` on a row needing only core
+  capabilities now runs, and on a row needing a lexicon it raises `MissingCapability`
+  naming the capability rather than `UnknownLanguage` naming the language. `Lang` has
+  been `Literal["en", "de", "fr"]` since the first release and every catalogue row
+  carries a French name and definition, so the old error pointed at
+  `denckring[fr]` — a distribution that does not exist and was never planned. The
+  failure moves to the right layer; it does not go away.
+- `anagram` ranks covers by `letters_used` descending before ADR 0028's three keys,
+  because under `allow_subset` every single word that fits the source is a valid
+  transposal — 373 of them for `astronomer` — and word count first would bury every
+  cover worth reading. With the flag off the new key is constant across covers and
+  the order is byte-identical to ADR 0028's, held by a regression test rather than
+  by the argument. The flag costs no search: `astronomer` visits 747,770 nodes
+  either way, because a cover is recorded at nodes the walk already visits. What it
+  multiplies is results — `astronomer` 1,421 covers to 15,185, `dormitory` 48 to 742,
+  one fewer out of `produce` in each case, which drops the identity cover — which
+  makes `Production.truncated` true on nearly every subset call against the default
+  `max_results` of 10. That field has meant both "the search abandoned its budget"
+  and "`max_results` capped the list" since it existed; `allow_subset` makes the
+  second the common case, and a caller still cannot tell them apart.
+- `tests/test_round_trip.py` draws blank-line paragraphs and terminated sentences
+  by construction instead of waiting for a flat draw to offer them, and
+  `max_examples` falls from 1,000 to 600. The old budget was never measured: over
+  twelve fixed seeds the flat-only strategy reached every constructive row on 3 of
+  12, missing `recombination` on nine and `every_nth_word` on three. The new
+  composition reaches every reachable row on 60 of 60 replayed seeds at 300
+  examples, and 600 is twice that floor. The cost is a narrower flat draw —
+  `st.one_of` dedupes branches by identity and does not sample them uniformly,
+  measured at about 20% for a flat branch against 45% for the prose one — which
+  starves `spoonerism`, the row that wants flat text and the first to go missing
+  when the budget is cut.
 
 ### Fixed
 
