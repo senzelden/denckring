@@ -23,3 +23,15 @@ cases:
       source: "the cat sat down\nthe dog ran home to eat"
       pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
     satisfied: false
+  - name: katze-und-hund-tablet
+    lang: de
+    source: >-
+      constructed example with a synthetic tablet; the mechanism is Kircher's
+      Musurgia Universalis (1650) book VIII, the patterns are not his
+    text: |-
+      5 3 1 3
+      5 5 3 1 3 5
+    params:
+      source: "die Katze schläft\nder Hund lief nach Hause"
+      pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+    satisfied: true

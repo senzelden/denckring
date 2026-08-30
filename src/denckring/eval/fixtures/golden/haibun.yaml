@@ -17,3 +17,14 @@ cases:
       The road turned north and the rain did not let up until evening.
     params: {}
     satisfied: false
+  - name: weg-nach-norden
+    lang: de
+    source: constructed example
+    text: |-
+      Der Weg bog nach Norden ab und der Regen hörte erst am Abend auf.
+
+      ein alter Teich dort
+      ein Frosch springt in das Wasser
+      das Wasser klingt hell
+    params: {}
+    satisfied: true

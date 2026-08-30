@@ -20,3 +20,15 @@ cases:
       cat dog mat sat run
     params: {}
     satisfied: false
+  - name: teich-und-mond-kette
+    lang: de
+    source: constructed example
+    text: |-
+      ein alter Teich dort
+      ein Frosch springt in das Wasser
+      das Wasser klingt hell
+
+      der Mond steht über dem Haus
+      und niemand sagt ein Wort mehr
+    params: {}
+    satisfied: true
