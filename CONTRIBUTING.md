@@ -66,6 +66,33 @@ package and asserts that a procedure needing a pronouncing dictionary raises rat
 guessing. If you add a procedure that quietly depends on a capability the core pack does
 not have, that job is what catches it.
 
+## Attributing an AI assistant
+
+Commits made with a coding assistant carry an `Assisted-by:` trailer, in the format the
+Linux kernel's `Documentation/process/coding-assistants.rst` defines:
+
+```
+Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]
+```
+
+so, here: `Assisted-by: Claude:claude-opus-5[1m]`. Optional tools are listed only when
+they did analysis of their own; ordinary tooling — git, uv, pytest — is not listed.
+
+**Not `Co-Authored-By:`**, which is what this repository used until 2026-08-30 and what
+most assistants still emit by default. That trailer was built to credit human pairing,
+and it asserts *shared accountability* — which a model cannot hold. `Assisted-by` records
+the same provenance while leaving responsibility with the human who signs off. A second
+effect is that `Co-Authored-By` on every commit turns a pairing signal into
+editor-presence telemetry that anyone reading the commit graph then has to discount.
+
+An assistant must never add a `Signed-off-by:` trailer. That certifies the Developer
+Certificate of Origin, and only a person can certify it.
+
+The change was applied retroactively: the 359 commits that carried the old trailer were
+rewritten on 2026-08-30, along with a `Claude-Session:` trailer that had put 291 private
+session URLs in the history. Every SHA before that date changed as a result. The rewrite
+touched commit metadata only — the tree at `HEAD` is byte-identical to the one before it.
+
 ## Licensing
 
 Code contributions are Apache-2.0, and a contribution is taken as licensed that way
