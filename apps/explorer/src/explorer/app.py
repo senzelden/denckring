@@ -17,7 +17,7 @@ from denckring.core import catalogue
 from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive, Lang
 from denckring.core.registry import all_procedures, get
-from denckring.procedures.n_plus_7 import displace
+from denckring.procedures.n_plus_7 import displace, resolve_dictionary
 from explorer import ars, bench, board, catalogue_view, corpora, env, stage, witz
 
 env.load()
@@ -530,7 +530,17 @@ async def stage_n_plus_7_act(request: Request) -> HTMLResponse:
     source = str(form.get("source", ""))
     lang = bench.as_lang(str(form.get("lang", "")))
     offset = stage.n_plus_7_offset(str(form.get("offset", "")))
-    produced = displace(source, stage.pack(lang), offset) if source else ""
+    chosen = stage.pack(lang)
+    # The pair comes from `resolve_dictionary` rather than being read off the
+    # pack here, because that is the seam ADR 0029 put it behind: `nouns` and
+    # `noun_index` are resolved together precisely so two call sites cannot come
+    # to disagree about which list was walked. This scene has no dictionary of
+    # its own to pass, so it asks for the pack's the same way `apply` does.
+    if source:
+        nouns, noun_index = resolve_dictionary(chosen, None)
+        produced = displace(source, chosen, nouns, noun_index, offset)
+    else:
+        produced = ""
     # The offset travels into `check` too, not only into `displace`. The
     # checker's own `offset` parameter is what decides which replacement it
     # expects, so a scene that displaced by one and checked against seven
