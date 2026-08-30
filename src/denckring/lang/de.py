@@ -30,9 +30,12 @@ _VOWELS = frozenset("aeiouäöü")
 #: no entry: BasePack.exceeds_x_height catches any character with a mark above.
 _ASCENDERS = frozenset("bdfhklt") | {"ß"}
 _DESCENDERS = frozenset("fgjpqy")
-#: Diphthongs need no entry here. German's are au, ei, ai, eu, äu and oi, and
-#: every one is a run of adjacent vowels that this pattern already counts as a
-#: single nucleus. Naming them would be a list that changes no result.
+#: Diphthongs need no entry here — au, ei, ai, eu, äu, oi and the less common
+#: y-spellings (ey, ay, oy, as in Meyer, Bayern, Boykott) are all just a run of
+#: adjacent vowels that this pattern already counts as a single nucleus, so
+#: naming any of them would be a list that changes no result. y itself is in
+#: the class for those spellings and for loanwords (Physik, Typ), not because
+#: it is a vowel in native German spelling.
 _VOWEL_GROUP = re.compile(r"[aeiouy]+")
 
 
@@ -61,7 +64,7 @@ class GermanPack(BasePack):
 
         Count vowel groups, and stop. English's two other rules are deliberately
         not carried over, because both are wrong for German: a final "e" is
-        pronounced (`Katze` is `'kat.sə`, two syllables), so there is no silent-e
+        pronounced (`Katze` is `kat.sə`, two syllables), so there is no silent-e
         subtraction — and with no silent-e rule there is nothing for a `-le` rule
         to compensate for.
 
