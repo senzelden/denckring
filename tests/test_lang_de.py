@@ -11,11 +11,11 @@ def test_german_pack_is_discovered() -> None:
     assert get_pack("de").lang == "de"
 
 
-def test_german_declares_the_same_four_capabilities_as_english() -> None:
+def test_german_declares_the_batch_one_capabilities() -> None:
     assert {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES} <= get_pack("de").capabilities
 
 
-def test_german_has_no_lexicon_or_syllables() -> None:
+def test_german_has_no_lexicon_or_syllable_segmentation() -> None:
     # The core pack specifically: get_pack("de") resolves to the data pack when
     # denckring[de] is installed, and that one does provide these.
     pack = GermanPack()

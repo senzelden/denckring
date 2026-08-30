@@ -59,7 +59,10 @@ def test_the_heuristic_never_claims_to_be_exact() -> None:
 
 
 def test_the_heuristic_never_returns_less_than_one_for_a_word() -> None:
-    for word in ("Angst", "Herbst", "Schnee"):
+    # Pst has zero vowel runs, so it is the case that actually fires the
+    # max(count, 1) clamp; the others each have exactly one run and would pass
+    # even without it.
+    for word in ("Angst", "Herbst", "Schnee", "Pst"):
         count, _ = CORE.syllable_count(word)
         assert count >= 1
 
