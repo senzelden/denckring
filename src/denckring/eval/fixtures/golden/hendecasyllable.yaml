@@ -11,3 +11,9 @@ cases:
     text: the cat sat
     params: {}
     satisfied: false
+  - name: elf-silben
+    lang: de
+    source: constructed example
+    text: der Abend kommt und bringt uns die Stille mit
+    params: {}
+    satisfied: true
