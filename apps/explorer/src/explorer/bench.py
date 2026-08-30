@@ -11,6 +11,7 @@ import html
 from dataclasses import dataclass, field
 from typing import Any, cast, get_args
 
+from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DenckringError
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Report
 from denckring.core.registry import get
@@ -33,6 +34,13 @@ class Field:
     description: str
     required: bool
     choices: list[str] = field(default_factory=list)
+    #: For `kind == "array"`, the type of one entry. Everything else ignores it.
+    #: It exists because `coerce` cast every array entry with `int`, which was
+    #: right for the only array field there was when it was written
+    #: (`syllable_count.pattern`) and wrong for all three that have arrived
+    #: since — `multiple_constraint.constraints` and `n_plus_7`/`s_plus_7`'s
+    #: `dictionary` are lists of words, and a word is not a number.
+    item_kind: str = "string"
 
     @property
     def control(self) -> str:
@@ -69,9 +77,21 @@ def _kind(spec: dict[str, Any]) -> str:
     return "string"
 
 
-def fields_for(procedure_id: str) -> list[Field]:
-    """The parameter form, derived from the procedure's own JSON Schema."""
-    schema = get(procedure_id).params_schema()
+def _item_kind(spec: dict[str, Any]) -> str:
+    """The type of one entry of an array field.
+
+    Follows `anyOf` for the same reason `_kind` does: an optional list arrives
+    as `[{"type": "array", "items": …}, {"type": "null"}]`, and the branch that
+    carries the items is not the first one in every schema Pydantic emits.
+    """
+    for branch in [spec, *spec.get("anyOf", [])]:
+        items = branch.get("items")
+        if isinstance(items, dict) and "type" in items:
+            return str(items["type"])
+    return "string"
+
+
+def _fields_from(schema: dict[str, Any]) -> list[Field]:
     required = set(schema.get("required", []))
     fields = []
     for name, spec in schema.get("properties", {}).items():
@@ -83,10 +103,16 @@ def fields_for(procedure_id: str) -> list[Field]:
                 description=spec.get("description", ""),
                 required=name in required,
                 choices=_choices(spec, schema),
+                item_kind=_item_kind(spec),
             )
         )
     # Required parameters first: they are what the caller must supply.
     return sorted(fields, key=lambda f: (not f.required, f.name))
+
+
+def fields_for(procedure_id: str) -> list[Field]:
+    """The parameter form, derived from the procedure's own JSON Schema."""
+    return _fields_from(get(procedure_id).params_schema())
 
 
 def coerce(fields: list[Field], form: dict[str, str]) -> dict[str, Any]:
@@ -106,7 +132,11 @@ def coerce(fields: list[Field], form: dict[str, str]) -> dict[str, Any]:
         if spec.kind == "integer":
             params[spec.name] = int(raw)
         elif spec.kind == "array":
-            params[spec.name] = [int(part) for part in raw.replace(",", " ").split()]
+            parts = raw.replace(",", " ").split()
+            if spec.item_kind == "integer":
+                params[spec.name] = [int(part) for part in parts]
+            else:
+                params[spec.name] = parts
         else:
             params[spec.name] = raw
     return params
@@ -172,6 +202,43 @@ def languages_for(procedure_id: str) -> list[str]:
 
 def can_apply(procedure_id: str) -> bool:
     return isinstance(get(procedure_id), Constructive)
+
+
+#: Apply-only parameters the bench deliberately does not offer.
+#:
+#: `max_results` bounds `produce`, and `apply` is `produce(...).texts[0]`
+#: (ADR 0026) — so every value above zero gives the bench the same single text.
+#: A control that cannot change what the page shows is worse than a missing one:
+#: it invites the reader to conclude the parameter does nothing.
+UNOFFERED_APPLY_FIELDS = frozenset({"max_results"})
+
+
+def apply_fields_for(procedure_id: str) -> list[Field]:
+    """The parameters `apply` takes that `check` does not.
+
+    The bench renders one form and posts it to either route, so before this
+    existed the apply route coerced a posted value against the *checker's*
+    schema and silently dropped everything the checker had never heard of.
+    `seed` was the casualty that mattered: the ten procedures that draw
+    (ADR 0025) took it as a form field, found no `seed` among the checker's
+    fields, and drew unseeded — so the bench could not reproduce its own
+    output, and `cut_up` on a three-word source returned its input often
+    enough to fail its own identity guard about one run in three.
+
+    `source` is excluded because `parse_apply_params` refuses a second one: the
+    text being transformed is the source, and posting both names two.
+    """
+    # `ConstructiveProcedure` and not the `Constructive` protocol, which names
+    # `apply` and `produce` — what a caller *does* — and not the parameter model
+    # behind them. Widening the protocol to reach one dev tool's form builder is
+    # the wrong direction; this asks the concrete base class that actually
+    # declares `apply_params_model`, and every generator inherits it.
+    procedure = get(procedure_id)
+    if not isinstance(procedure, ConstructiveProcedure):
+        return []
+    already = {f.name for f in fields_for(procedure_id)} | {"source"} | UNOFFERED_APPLY_FIELDS
+    schema = procedure.apply_params_model().model_json_schema()
+    return [f for f in _fields_from(schema) if f.name not in already]
 
 
 def wants_corpus(procedure_id: str) -> bool:

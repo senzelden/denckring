@@ -1032,6 +1032,7 @@ def procedure(request: Request, procedure_id: str) -> HTMLResponse:
         meta=meta,
         implemented=implemented,
         fields=bench.fields_for(procedure_id) if implemented else [],
+        apply_fields=bench.apply_fields_for(procedure_id) if implemented else [],
         examples=bench.examples_for(procedure_id) if implemented else [],
         languages=bench.languages_for(procedure_id) if implemented else [],
         can_apply=bench.can_apply(procedure_id) if implemented else False,
@@ -1090,7 +1091,11 @@ async def apply(request: Request, procedure_id: str) -> HTMLResponse:
     # `apply` takes the corpus as its text — the bench's own text box is the
     # source only when no corpus is loaded.
     text = corpus or text
-    fields = bench.fields_for(procedure_id)
+    # The checker's fields plus the ones only `apply` takes. Coercing against
+    # the checker's alone is what dropped `seed` on the floor: `coerce` walks
+    # the fields it is given, so a parameter absent from that list is absent
+    # from the request no matter what the form posted.
+    fields = bench.fields_for(procedure_id) + bench.apply_fields_for(procedure_id)
     headword = str(form.get("headword", ""))
     style = str(form.pop("style", witz.DEFAULT_REGISTER))
     try:
@@ -1125,6 +1130,7 @@ async def load_corpus(request: Request, procedure_id: str) -> HTMLResponse:
         "_bench.html",
         meta=catalogue.get(procedure_id),
         fields=bench.fields_for(procedure_id),
+        apply_fields=bench.apply_fields_for(procedure_id),
         languages=bench.languages_for(procedure_id),
         can_apply=bench.can_apply(procedure_id),
         corpora=corpora.available(),
@@ -1220,6 +1226,7 @@ def load_example(request: Request, procedure_id: str, index: int = Form(...)) ->
         "_bench.html",
         meta=catalogue.get(procedure_id),
         fields=bench.fields_for(procedure_id),
+        apply_fields=bench.apply_fields_for(procedure_id),
         languages=bench.languages_for(procedure_id),
         can_apply=bench.can_apply(procedure_id),
         example=example,
