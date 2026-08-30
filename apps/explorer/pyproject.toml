@@ -35,6 +35,12 @@ dev = [
     "httpx>=0.28.1",
     "mypy>=2.3.0",
     "pytest>=9.1.1",
+    # `ci.yml`'s explorer job runs `uv run ruff check` and `ruff format --check`
+    # in this directory. Neither could ever have run: ruff is in the *root*
+    # project's dev group, and `uv run` inside an app resolves against the app's
+    # own environment. The lint config still comes from the root pyproject —
+    # ruff walks up for the nearest `[tool.ruff]` — so only the tool was missing.
+    "ruff>=0.5",
 ]
 
 [tool.hatch.build.targets.wheel]
