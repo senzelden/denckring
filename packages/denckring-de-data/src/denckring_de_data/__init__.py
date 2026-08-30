@@ -21,6 +21,7 @@ from denckring.lang.base import (
     FOLD_DIACRITICS,
     LETTER_SHAPES,
     NOUNS,
+    SYLLABLES_HEURISTIC,
     TOKENS,
     WORDS,
 )
@@ -69,7 +70,7 @@ class GermanDataPack(GermanPack):
     """German with a lexicon behind it."""
 
     capabilities: ClassVar[frozenset[str]] = frozenset(
-        {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, NOUNS, WORDS}
+        {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, SYLLABLES_HEURISTIC, NOUNS, WORDS}
     )
 
     def is_word(self, word: str) -> bool:
