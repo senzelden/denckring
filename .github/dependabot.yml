@@ -1,4 +1,22 @@
 version: 2
+
+# Each ecosystem opens ONE grouped pull request, not one per dependency.
+#
+# `ci.yml` is 9 jobs of which `test` is a 13-cell matrix, so every run is 21
+# runner-jobs — 13 Linux, 4 Windows, 4 macOS — and `pull_request` fires the whole
+# thing. Against a private repo's included minutes, where Windows counts double
+# and macOS tenfold, that is roughly 280 billable minutes per run, about 71% of
+# it macOS.
+#
+# Ungrouped, the default limit of five open PRs per ecosystem means up to ten
+# runs a month from Dependabot alone, ~2,800 minutes, which exceeds the whole
+# monthly allowance before any human pushes anything. That is not a projection:
+# on 2026-08-30 the first push opened eight PRs at once and the nine resulting
+# runs exhausted the quota, failing every job except `core-only`.
+#
+# Grouping costs bisectability — a red grouped PR does not say which member
+# broke it — which is why the two ecosystems stay in separate groups rather than
+# one. A lockfile bump and an Actions bump fail for entirely different reasons.
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -6,6 +24,9 @@ updates:
       interval: monthly
     commit-message:
       prefix: "chore"
+    groups:
+      github-actions:
+        patterns: ["*"]
 
   - package-ecosystem: uv
     directory: "/"
@@ -13,3 +34,6 @@ updates:
       interval: monthly
     commit-message:
       prefix: "chore"
+    groups:
+      python-packages:
+        patterns: ["*"]
