@@ -11,3 +11,9 @@ cases:
     text: the water sat on the mat
     params: {}
     satisfied: false
+  - name: nur-einsilbige-woerter
+    lang: de
+    source: constructed example
+    text: Der Hund läuft und der Baum steht
+    params: {}
+    satisfied: true

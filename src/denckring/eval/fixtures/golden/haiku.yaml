@@ -17,3 +17,12 @@ cases:
       splash silence again
     params: {}
     satisfied: false
+  - name: teich-und-frosch
+    lang: de
+    source: constructed example
+    text: |-
+      ein alter Teich dort
+      ein Frosch springt in das Wasser
+      das Wasser klingt hell
+    params: {}
+    satisfied: true

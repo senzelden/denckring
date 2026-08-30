@@ -15,3 +15,19 @@ cases:
       the dog ran fast
     params: { pattern: [3, 2] }
     satisfied: false
+  - name: silben-treffen-das-muster
+    lang: de
+    source: constructed example
+    text: |-
+      der Hund schläft
+      die Katze
+    params: { pattern: [3, 3] }
+    satisfied: true
+  - name: eine-zeile-zu-lang
+    lang: de
+    source: constructed counterexample
+    text: |-
+      der Hund schläft
+      die Katze rennt sehr schnell
+    params: { pattern: [3, 3] }
+    satisfied: false

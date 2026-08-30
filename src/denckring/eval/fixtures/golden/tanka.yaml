@@ -19,3 +19,14 @@ cases:
       splash silence again
     params: {}
     satisfied: false
+  - name: mond-ueber-dem-haus
+    lang: de
+    source: constructed example
+    text: |-
+      ein alter Teich dort
+      ein Frosch springt in das Wasser
+      das Wasser klingt hell
+      der Mond steht über dem Haus
+      und niemand sagt ein Wort mehr
+    params: {}
+    satisfied: true

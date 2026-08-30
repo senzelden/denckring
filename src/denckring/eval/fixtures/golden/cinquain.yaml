@@ -21,3 +21,14 @@ cases:
       of mice
     params: {}
     satisfied: false
+  - name: der-wind-im-schnee
+    lang: de
+    source: constructed example
+    text: |-
+      der Wind
+      so kalt und klar
+      der Wind zieht durch das Haus
+      und trägt den Schnee bis an das Tor
+      ganz still
+    params: {}
+    satisfied: true

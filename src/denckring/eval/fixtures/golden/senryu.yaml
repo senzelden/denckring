@@ -17,3 +17,12 @@ cases:
       splash
     params: {}
     satisfied: false
+  - name: niemand-sagt-ein-wort
+    lang: de
+    source: constructed example
+    text: |-
+      das Wasser klingt hell
+      und niemand sagt ein Wort mehr
+      ein alter Teich dort
+    params: {}
+    satisfied: true

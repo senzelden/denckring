@@ -11,3 +11,9 @@ cases:
     text: the cat sat
     params: {}
     satisfied: false
+  - name: zwoelf-silben
+    lang: de
+    source: constructed example
+    text: der Wind zieht durch das Land und trägt den Schnee davon
+    params: {}
+    satisfied: true
