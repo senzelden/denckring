@@ -1,42 +1,8 @@
-{% if problem %}<p class="notice">{{ problem }}</p>{% endif %}
-
-{% if corpora %}
-<form class="corpus-picker" hx-post="/p/{{ meta.id }}/corpus" hx-target="#bench" hx-swap="innerHTML">
-  <label for="path">Corpus on disk</label>
-  <select id="path" name="path">
-    {% for c in corpora %}
-    <option value="{{ c.path }}">
-      {{ c.name }} — {{ "{:,}".format(c.entries) }} entries{% if c.headwords %}, {{ c.headwords }} Stichwörter{% endif %}
-    </option>
-    {% endfor %}
-  </select>
-  <button type="submit" class="quiet">Load it</button>
-  <p class="hint">Read from <code>DENCKRING_CORPORA</code>. Nothing is copied — the file
-    stays where you put it.</p>
-</form>
-{% endif %}
-
-<form class="bench-form" hx-post="/p/{{ meta.id }}/check" hx-target="#proof" hx-swap="innerHTML">
-  <div class="field">
-    <label for="text">Your text</label>
-    <textarea id="text" name="text" spellcheck="false"
-              placeholder="Type or paste the text to check.">{{ example.text if example else '' }}</textarea>
-  </div>
-
-  {% if languages | length > 1 %}
-  <div class="field inline">
-    <label for="lang">Language</label>
-    <select id="lang" name="lang" style="width:auto">
-      {% for code in languages %}
-      <option value="{{ code }}" {% if example and example.lang == code %}selected{% endif %}>{{ code }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  {% else %}
-  <input type="hidden" name="lang" value="{{ languages[0] }}">
-  {% endif %}
-
-  {% for f in fields %}
+{#- One parameter, rendered once and called from both loops below. The check
+    form and the "Generate from it" button post the same form, so an apply-only
+    parameter has to render identically to a checker one; two copies of this
+    markup is how they would come to differ. -#}
+{% macro control(f) %}
   <div class="field {% if f.control == 'checkbox' %}inline{% endif %}">
     {% if f.control == 'checkbox' %}
       <input type="checkbox" id="{{ f.name }}" name="{{ f.name }}"
@@ -80,7 +46,56 @@
     {% endif %}
     {% if f.description %}<p class="hint">{{ f.description }}</p>{% endif %}
   </div>
-  {% endfor %}
+{% endmacro %}
+
+{% if problem %}<p class="notice">{{ problem }}</p>{% endif %}
+
+{% if corpora %}
+<form class="corpus-picker" hx-post="/p/{{ meta.id }}/corpus" hx-target="#bench" hx-swap="innerHTML">
+  <label for="path">Corpus on disk</label>
+  <select id="path" name="path">
+    {% for c in corpora %}
+    <option value="{{ c.path }}">
+      {{ c.name }} — {{ "{:,}".format(c.entries) }} entries{% if c.headwords %}, {{ c.headwords }} Stichwörter{% endif %}
+    </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="quiet">Load it</button>
+  <p class="hint">Read from <code>DENCKRING_CORPORA</code>. Nothing is copied — the file
+    stays where you put it.</p>
+</form>
+{% endif %}
+
+<form class="bench-form" hx-post="/p/{{ meta.id }}/check" hx-target="#proof" hx-swap="innerHTML">
+  <div class="field">
+    <label for="text">Your text</label>
+    <textarea id="text" name="text" spellcheck="false"
+              placeholder="Type or paste the text to check.">{{ example.text if example else '' }}</textarea>
+  </div>
+
+  {% if languages | length > 1 %}
+  <div class="field inline">
+    <label for="lang">Language</label>
+    <select id="lang" name="lang" style="width:auto">
+      {% for code in languages %}
+      <option value="{{ code }}" {% if example and example.lang == code %}selected{% endif %}>{{ code }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% else %}
+  <input type="hidden" name="lang" value="{{ languages[0] }}">
+  {% endif %}
+
+  {% for f in fields %}{{ control(f) }}{% endfor %}
+
+  {% if apply_fields %}
+  {# Only the generate button reads these. Saying so is the honest alternative
+     to a second form: the checker has no such parameters, and a reader who
+     sets `seed` and presses "Check the text" would otherwise be entitled to
+     think it did something. #}
+  <p class="hint">Read by <em>Generate from it</em> only — the checker has no such parameters.</p>
+  {% for f in apply_fields %}{{ control(f) }}{% endfor %}
+  {% endif %}
 
   <div class="actions">
     <button type="submit">Check the text</button>
