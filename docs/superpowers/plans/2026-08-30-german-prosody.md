@@ -169,7 +169,7 @@ Add `SYLLABLES_HEURISTIC` to the capability set:
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `uv run pytest tests/test_syllables_de.py -q`
-Expected: PASS, 16 tests.
+Expected: PASS, 15 tests (1 + 9 parametrised counts + 2 undercounts + 3 singles).
 
 - [ ] **Step 5: Run the honesty suites, which have opinions about capabilities**
 
