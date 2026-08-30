@@ -261,8 +261,15 @@ print(sum(p.syllable_count(w)[0] for _, w in p.word_spans('YOUR LINE HERE')))
 "
 ```
 
-Use real umlauts, never ASCII transliterations. `Bäume` folds to `baume` and counts 2;
-`Baeume` counts 3, because `ae` is a separate vowel run. This bit me while drafting.
+Use real umlauts, because the fixtures are German prose and should read as German. It
+does **not** change the count: `fold_diacritics` maps `ä` to bare `a` by NFKD, and `ae` is
+itself a run of adjacent vowels, so `Bäume` and `Baeume` both fold to a two-nucleus word
+and both count 2. Measured across `Bäume`/`Häuser`/`zwölf`/`fünf` and their transliterations
+— every pair agrees.
+
+An earlier draft of this plan claimed `Baeume` counts 3. It does not. The discrepancy that
+produced that claim came from changing a whole line, not its spelling, and the cause was
+misattributed.
 
 - [ ] **Step 1: Read the fixture format**
 
