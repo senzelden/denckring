@@ -24,6 +24,7 @@ from denckring.core.protocol import Lang, LanguagePack
 from denckring.core.registry import get as registry_get
 from denckring.procedures.column_reading import ColumnReading
 from denckring.procedures.fold_in import FoldIn
+from denckring.procedures.n_plus_7 import displace, resolve_dictionary
 from denckring.procedures.poesie_automat import SEPARATOR as AUTOMAT_SEPARATOR
 
 client = TestClient(app)
@@ -32,6 +33,22 @@ client = TestClient(app)
 #: can produce a known-good result of each rather than assembling one by hand.
 fold_in_apply = FoldIn().apply
 column_reading_apply = ColumnReading().apply
+
+
+def _displaced(text: str, pack: LanguagePack, offset: int) -> str:
+    """`displace` with the pack's own list resolved, exactly as the scene's route
+    resolves it.
+
+    ADR 0029 gave `displace` the resolved `(nouns, noun_index)` pair as
+    parameters so that a caller supplying a `dictionary` and a caller taking the
+    pack's default cannot walk different lists. These tests are the second kind,
+    so they ask `resolve_dictionary` for the default rather than reading
+    `pack.nouns()` and `pack.noun_index` off separately — reading them off
+    separately here is what would let this file's idea of the displacement drift
+    from the route's while both still pass.
+    """
+    nouns, noun_index = resolve_dictionary(pack, None)
+    return displace(text, pack, nouns, noun_index, offset)
 
 
 def _label(alternatives: list[str], index: int) -> str:
@@ -1589,11 +1606,9 @@ def test_the_reel_and_the_text_land_on_the_same_word(offset: int) -> None:
     vanished and the reel announced that the list knew none of these words.
     Neither was reachable while the offset was hard-coded to 7; both became
     reachable the moment it became a control."""
-    from denckring.procedures.n_plus_7 import displace
-
     source = "the cat sat on the table"
     steps = stage.displacement(source, offset)
-    produced = displace(source, stage.pack(), offset)
+    produced = _displaced(source, stage.pack(), offset)
     assert steps, "no reel at all"
     for step in steps:
         assert step.neighbours[0] == step.word
@@ -1614,12 +1629,10 @@ def test_the_reel_wraps_at_the_ends_of_the_list_exactly_as_the_text_does(offset:
     in the suite noticed — every noun in the scripted sentence sits comfortably
     in the middle of 56,468 entries, so the two expressions agree for all of
     them and the guard was scoring a difference it could not see."""
-    from denckring.procedures.n_plus_7 import displace
-
     nouns = stage.pack("en").nouns()
     for word in (nouns[0], nouns[-1]):
         (step,) = stage.displacement(word, offset)
-        assert step.replacement == displace(word, stage.pack("en"), offset)
+        assert step.replacement == _displaced(word, stage.pack("en"), offset)
         assert step.neighbours[0] == word
         assert step.neighbours[-1] == step.replacement
         assert len(step.neighbours) == abs(offset) + 1
@@ -1631,10 +1644,9 @@ def test_every_offset_the_scene_offers_is_one_the_checker_accepts(offset: int) -
     the same offset — including the negative ones, which walk the list
     backwards and wrap at its start."""
     from denckring import check
-    from denckring.procedures.n_plus_7 import displace
 
     source = "the cat sat on the table"
-    produced = displace(source, stage.pack(), offset)
+    produced = _displaced(source, stage.pack(), offset)
     assert produced != source
     assert check("n_plus_7", produced, source=source, offset=offset).satisfied is True
 
@@ -1729,10 +1741,9 @@ def test_the_displacement_the_scene_animates_is_the_one_the_checker_accepts() ->
     """The scene's whole claim: what `displace` produces is a real n_plus_7
     displacement of the source it started from."""
     from denckring import check
-    from denckring.procedures.n_plus_7 import displace
 
     source = "the cat sat on the table"
-    produced = displace(source, stage.pack(), 7)
+    produced = _displaced(source, stage.pack(), 7)
     assert check("n_plus_7", produced, source=source).satisfied is True
 
 
@@ -1770,10 +1781,9 @@ def test_a_source_with_no_noun_is_not_called_a_displacement() -> None:
     a free-text box a recorder types into. The panel says what happened
     instead."""
     from denckring import check
-    from denckring.procedures.n_plus_7 import displace
 
     source = "quickly ran"
-    produced = displace(source, stage.pack(), 7)
+    produced = _displaced(source, stage.pack(), 7)
     assert produced == source
     assert check("n_plus_7", produced, source=source).satisfied is True
 
@@ -1823,10 +1833,9 @@ def test_a_german_source_displaces_through_the_german_list() -> None:
     """The toggle genuinely changes the output here, unlike Ideenwürfeln's own: German
     walks its own noun list, not the English one read in a different voice."""
     from denckring import check
-    from denckring.procedures.n_plus_7 import displace
 
     source = "die Katze saß auf dem Tisch"
-    produced = displace(source, stage.pack("de"), 7)
+    produced = _displaced(source, stage.pack("de"), 7)
     assert produced == "die Katzenbesitzerin saß auf dem Tischbürste"
     assert check("n_plus_7", produced, source=source, lang="de").satisfied is True
 
