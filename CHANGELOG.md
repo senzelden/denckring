@@ -504,6 +504,15 @@ All notable changes to this project are documented here. The format follows
   questions is a surface a reader can confuse; one field could not answer both.
 - ADR 0029 on all of the above, and an amendment banner on ADR 0028, whose ranking
   paragraph describes three keys where `allow_subset` made four.
+- German counts syllables. `GermanPack` gains `syllables.heuristic`, which it never
+  had — it inherited the raising stub, so every syllabic form in the catalogue was
+  unreachable in German. Vowel-group counting, always reporting itself as estimated.
+  Deliberately simpler than the English heuristic rather than a port of it: a final
+  "e" is pronounced in German, so the silent-e rule and the `-le` rule that exists to
+  compensate for it are both dropped, and the diphthongs need no special case because
+  each is already a run of adjacent vowels. It undercounts a vowel sequence spanning a
+  morpheme boundary — `Museum` gives 2 where German says 3 — which a test pins rather
+  than leaves to be found later. German goes from 78 of 119 runnable rows to 89.
 
 ### Changed
 

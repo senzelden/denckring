@@ -1,7 +1,7 @@
 # denckring — German prosody
 
 **Date:** 2026-08-30
-**Status:** draft
+**Status:** tranche A implemented 2026-08-30; tranche B not started
 **Scope:** the syllable, stress and phoneme capabilities the German pack has never had, and the data distribution that can supply them
 **Branch point:** `f0ffdcb` (154 catalogued · 128 implementable · 119 implemented · 119 validated · 26 not mechanically checkable)
 
@@ -213,9 +213,10 @@ Specific to this chapter:
   computed and a computed set can go empty without anyone noticing.
 - **The `core-only` CI job's German equivalent**: `denckring[de]` without the phonetic
   package must raise `MissingCapability` naming `phonemes`, not guess.
-- **`test_round_trip.py` needs no new property**, but its budget is a measured floor (600,
-  twice a floor of 300 clean on 60 of 60 seeds) and adding reachable German rows may move
-  that floor. Re-measure rather than assume.
+- **`test_round_trip.py` is unaffected by tranche A**, which is worth stating because the
+  draft of this spec assumed otherwise. It selects `procedure.meta.languages[0]` — the
+  row's editorial language — rather than sweeping installed packs, so a pack gaining a
+  capability adds no reachable row and cannot move the measured floor of 600.
 
 ## Out of scope
 
