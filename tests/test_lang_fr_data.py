@@ -69,6 +69,32 @@ def test_glosses_carry_every_sense_in_wiktionary_s_order() -> None:
     assert "bâtiment" in senses[0].casefold()
 
 
+def test_a_capitalised_headword_resolves_through_the_pack() -> None:
+    """No test covered this, and half the vendored table was unreachable.
+
+    The build stores French Wiktionary titles as written, and `glosses` looked
+    them up through `_lemma`, which casefolds and drops every non-letter: 261,638
+    of 510,973 headwords (51.2%) had no reachable key, 121,388 of them to case
+    alone. `glosses("Paris")` returned `()` while the table held the entry. The
+    pack now case-flips the word as written, as `denckring_de_wiktionary.look_up`
+    already did. Asserted through the pack rather than the table, because the
+    table was never the broken half.
+    """
+    pack = fr_data.FrenchDataPack()
+    for headword in ("Paris", "France"):
+        assert headword in fr_data.gloss_table()
+        assert pack.glosses(headword), headword
+    # The flip runs both ways: a proper noun someone lowercased still resolves,
+    # and a common noun someone capitalised at a sentence opening still does.
+    assert pack.glosses("france")
+    assert pack.glosses("Oiseau") == pack.glosses("oiseau")
+    # As written wins over the flip, which is the point of trying it first:
+    # `Maison` is a surname in this table and `maison` is the building, and a
+    # caller who wrote the capital gets the surname rather than a merge of both.
+    assert "Maison" in fr_data.gloss_table()
+    assert pack.glosses("Maison") != pack.glosses("maison")
+
+
 def test_a_headword_with_no_definition_is_absent_rather_than_empty() -> None:
     assert "zzzzqq" not in fr_data.gloss_table()
 

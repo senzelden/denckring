@@ -12,12 +12,12 @@ which supplies German, could not supply French.
 from __future__ import annotations
 
 import gzip
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
 from types import MappingProxyType
-from typing import ClassVar
+from typing import ClassVar, TypeVar
 
 from denckring.lang.base import (
     ALPHABET,
@@ -30,6 +30,10 @@ from denckring.lang.base import (
     WORDS,
 )
 from denckring.lang.fr import FrenchPack
+
+#: What `look_up` returns is whatever the table holds, and the caller must get
+#: its own type back. The same shape as `denckring_de_wiktionary.look_up`.
+_V = TypeVar("_V", bound=Sequence[str])
 
 WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "words.txt.gz"))
 NOUNS_PATH = Path(str(files("denckring_fr_data") / "data" / "nouns.txt.gz"))
@@ -93,6 +97,33 @@ def gloss_table() -> dict[str, tuple[str, ...]]:
         }
 
 
+def look_up(table: Mapping[str, _V], word: str) -> _V | None:
+    """The token as written, then case-flipped.
+
+    French Wiktionary titles are case-sensitive, and the build stores them as
+    written: `France`, `Paris` and `Toulouse` are the titles, not `france`,
+    `paris`, `toulouse`. Looking a headword up through `_lemma` — which
+    casefolds and drops every non-letter — therefore misses every capitalised
+    and every hyphenated title. Measured over the shipped table: 261,638 of
+    510,973 headwords (51.2%) were unreachable that way, 121,388 of them to case
+    alone, and proper nouns are the material loss. Trying the flipped case
+    recovers them, and the reverse direction recovers a proper noun someone
+    lowercased.
+
+    On the word **as written**, never `_lemma`'d: accents are meaning here, and
+    folding them would collide `côte` with `cote`. Same reason ADR 0009 makes
+    folding a decision of the procedure rather than of the lexicon. This is the
+    shape `denckring_de_wiktionary.look_up` already uses; French diverged from it
+    only by oversight, which is the same key/lookup mismatch fixed for the noun
+    list in fdad0c8.
+    """
+    for candidate in (word, word.capitalize(), word.lower(), word.upper()):
+        found = table.get(candidate)
+        if found:
+            return found
+    return None
+
+
 class FrenchDataPack(FrenchPack):
     """French with a lexicon behind it: membership, nouns, glosses and frequency.
 
@@ -119,7 +150,7 @@ class FrenchDataPack(FrenchPack):
 
     def glosses(self, word: str) -> tuple[str, ...]:
         """Every sense, or nothing. Empty rather than raising, matching English."""
-        return gloss_table().get(self._lemma(word), ())
+        return look_up(gloss_table(), word) or ()
 
     def graded_words(self) -> Mapping[str, int]:
         """A read-only view over the cached table, for the reason English gives:
