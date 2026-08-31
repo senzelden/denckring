@@ -582,6 +582,15 @@ All notable changes to this project are documented here. The format follows
   `uv.lock` is larger than `graded_words.txt.gz`.
 - `docs/expansion_ideas/` is now kept out of the sdist by a name-based test as well as by
   the size bound, since a raised bound would let a silent re-inclusion fit underneath it.
+- `Device.from_text` builds rings from a text the reader supplies, with
+  `scripts/rings_from_text.py` writing one out for the `DENCKRING_DEVICE_PATH` cartridge
+  path — so `denckring apply poesie_automat -p device=notes` runs on rings drawn from
+  `notes.txt`. Deterministic, because `check` and `apply` derive it separately: falling
+  frequency, ties broken by first appearance. Words are dealt round-robin so every ring
+  spans the frequency range rather than the first ring holding the commonest words.
+  **No catalogue row**: the technique has no historical precedent, and neither
+  `attribution` nor `attested` has a value meaning "contemporary, with no source".
+  Amendment to ADR 0031.
 
 ### Changed
 
