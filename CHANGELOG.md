@@ -603,6 +603,18 @@ All notable changes to this project are documented here. The format follows
   twenty-seven while the twenty-eighth was landing; `list_procedures` answers it exactly
   and cannot go stale.
 
+### Fixed
+
+- `quenina` accepted every text put to it whenever `n` was left out — which is the
+  default. The size inference asked for the first `n` whose first `n` end-words are all
+  distinct, and that is `1` for every text there is, so no stanza was ever compared
+  against the rotation, `total` came back 0, and `_report` scored that 1.0 as vacuously
+  satisfied. A whole sestina with an end-word wrong passed. The checker itself was
+  correct all along: with `n` given it always graded properly, which is why the fault
+  was in the one path nothing exercised — every golden case, every strategy and every
+  unit test passed `n` explicitly. The inference now reads the size off the longest
+  all-distinct run of end-words, and two golden cases cover the unparametrised path.
+
 ### Changed
 
 - Twenty-five fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC

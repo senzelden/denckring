@@ -26,3 +26,35 @@ cases:
       x c
     params: { n: 3 }
     satisfied: false
+  - name: size-inferred-from-the-text
+    source: >-
+      constructed example; the same three-word quenina with `n` left out, so the
+      size is read off the end-words. Every case above passes `n`, which is how
+      the inference went uncovered while returning 1 for every text and scoring
+      whatever it was given 1.0.
+    text: |-
+      x a
+      x b
+      x c
+      x c
+      x a
+      x b
+      x b
+      x c
+      x a
+    params: {}
+    satisfied: true
+  - name: no-rotation-size-inferred
+    source: >-
+      constructed counterexample; the case the broken inference used to pass. The
+      end-words repeat by stanza instead of rotating, and with the size inferred
+      rather than given that is now a failure.
+    text: |-
+      x a
+      x b
+      x c
+      x a
+      x b
+      x c
+    params: {}
+    satisfied: false
