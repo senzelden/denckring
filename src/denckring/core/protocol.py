@@ -74,12 +74,16 @@ class Report(BaseModel):
 class Candidate(BaseModel):
     """One result, with whatever the generator knows about it.
 
-    `Production.texts` was a list of strings, and for twenty-six of the
-    twenty-seven generators that is still the whole truth. `anagram` is the
-    exception ADR 0026 anticipated in writing: it ranks its covers by the SCOWL
-    band of their least common word, and a bare string cannot carry the number
-    the ranking was computed from. A caller shown `room dirty` ahead of
-    `morty dior` deserves to see why, rather than trusting the order.
+    `Production.texts` was a list of strings, and for most generators that is
+    still the whole truth. `anagram` is the exception ADR 0026 anticipated in
+    writing: it ranks its covers by the SCOWL band of their least common word,
+    and a bare string cannot carry the number the ranking was computed from. A
+    caller shown `room dirty` ahead of `morty dior` deserves to see why, rather
+    than trusting the order. `denckring` joined it under ADR 0031's mask, which
+    marks each spun word attested or neglected.
+
+    No count of which generators are in which case is kept here. One was, and it
+    was wrong within two chapters.
 
     `metrics` is open rather than a fixed set of fields because what a generator
     knows is generator-specific, and a schema listing every score any procedure

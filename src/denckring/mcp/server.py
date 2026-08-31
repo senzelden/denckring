@@ -84,10 +84,14 @@ def apply_procedure_tool(
 ) -> dict[str, Any]:
     """Run a procedure that generates rather than only checks.
 
-    Twenty-seven of the procedures have a generator here. `kind` says whether the
-    form admits one; `constructive` in `describe_procedure` says whether this
-    install has it. Read `constructive`, not `kind`, before calling this, and
-    `apply_params` — not `params` — for what may go in `params` here.
+    Some of the procedures have a generator here and most do not. `kind` says
+    whether the form admits one; `constructive` in `describe_procedure` says
+    whether this install has it. Read `constructive`, not `kind`, before calling
+    this, and `apply_params` — not `params` — for what may go in `params` here.
+
+    No count is given, deliberately: this said twenty-seven and was read by
+    callers as current while the twenty-eighth was landing. `list_procedures`
+    answers it exactly and cannot go stale.
 
     `text` is the first and best of `texts` — kept for callers that only ever
     wanted one result. `truncated` says whether more were found than

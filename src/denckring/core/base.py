@@ -266,8 +266,8 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """The parameters `apply` accepts.
 
         Declared, not defaulted. This used to synthesise the checker's model
-        widened by `ApplyParams` via `create_model`, and every one of the 27
-        generators overrides it anyway — `mypy --strict` wants a named class to
+        widened by `ApplyParams` via `create_model`, and every generator
+        overrides it anyway — `mypy --strict` wants a named class to
         annotate `_produce`'s `params` with — so the default had no production
         caller, its only coverage was a test double built to reach it, and it
         carried an MRO trap for any `params_model()` returning `BaseModel`

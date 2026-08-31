@@ -1,8 +1,23 @@
 name: Release
 
+# Two entry points, and the second one is why this file changed before the first
+# release rather than after it.
+#
+# A `v*` tag publishes to PyPI for real. `workflow_dispatch` publishes to TestPyPI
+# instead, so the whole path — build, check, upload through Trusted Publishing —
+# can be walked once against a registry where a mistake is recoverable. PyPI
+# refuses a re-upload of a version that already exists, so without a rehearsal the
+# first genuine tag is also the first time this workflow has ever run end to end.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which index to publish to.
+        type: choice
+        default: testpypi
+        options: [testpypi, none]
 
 jobs:
   build:
@@ -19,10 +34,63 @@ jobs:
           name: distributions
           path: dist/
 
+  # Before `publish`, not after it. This used to run last, so a docs failure left
+  # the release on PyPI and undocumented — and unrecoverable, because PyPI will not
+  # take the version again. It also fails outright on a private repository, where
+  # `gh-deploy` needs a paid plan, which meant the old order guaranteed that the
+  # first release would publish and then go red.
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --extra en
+      - run: uv run python scripts/build_docs.py
+      # A dispatch run rehearses the site build without deploying it: a rehearsal
+      # that pushed to gh-pages would not be a rehearsal.
+      - if: github.event_name == 'workflow_dispatch'
+        run: uv run mkdocs build --strict
+      - if: github.event_name == 'push'
+        run: uv run mkdocs gh-deploy --force --strict
+
+  rehearse:
+    # TestPyPI, from a manual run. Needs its own Trusted Publisher for each of the
+    # four distributions, registered against this workflow, exactly as PyPI does.
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    needs: [build, docs]
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          # Off here and on for the real thing: TestPyPI is periodically pruned,
+          # so an attestation made against it outlives what it attests to.
+          attestations: false
+          # A rehearsal that has been rehearsed before should not fail on that.
+          skip-existing: true
+
   publish:
-    # Both distributions publish from one workflow because they must stay
-    # version-locked: denckring-en-data subclasses the core English pack.
-    needs: build
+    # All four distributions publish from one workflow because they must stay
+    # version-locked: denckring-en-data subclasses the core English pack,
+    # denckring-de-data carries the sole `de` entry point, and
+    # denckring-de-wiktionary is the pack that entry point resolves to when it is
+    # installed. `uv build --all-packages` picks up every workspace member, so a
+    # fifth needs no change here — only its own Trusted Publisher.
+    if: github.event_name == 'push'
+    needs: [build, docs]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -37,17 +105,3 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: true
-
-  docs:
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-      - run: uv sync --extra en
-      - run: uv run python scripts/build_docs.py
-      - run: uv run mkdocs gh-deploy --force --strict
