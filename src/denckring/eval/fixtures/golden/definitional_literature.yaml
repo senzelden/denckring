@@ -39,3 +39,20 @@ cases:
       definiter Artikel (bestimmtes Geschlechtswort) Gegenstand zum Schließen und Öffnen eines Schlosses
     params: { source: "der Schlüssel" }
     satisfied: true
+  - name: le-roi
+    lang: fr
+    source: >-
+      constructed example; one round of expansion, `le` and `roi` each replaced
+      by a sense the French lexicon carries, read verbatim rather than
+      hand-typed.
+    text: |-
+      Ce… dont on parle maintenant. Déterminant marquant un nom masculin singulier, référant à une seule entité possible dans un contexte. Celui qui est à la tête d’une collectivité.
+    params: { source: le roi }
+    satisfied: true
+  - name: aucun-tour-ne-l-atteint
+    lang: fr
+    source: constructed counterexample; the source retyped unchanged, so no word is expanded at all
+    text: |-
+      le roi
+    params: { source: le roi }
+    satisfied: false

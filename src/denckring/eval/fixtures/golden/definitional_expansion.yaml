@@ -29,3 +29,23 @@ cases:
       definiter Artikel (bestimmtes Geschlechtswort) vor einem Wirtshaus aufgestellte Kübelbäume war im Zustand der Bewegungslosigkeit, der Unbewegtheit und der Ruhe
     params: { source: "der Garten war still" }
     satisfied: true
+  - name: le-chat-dort
+    lang: fr
+    source: >-
+      constructed example; `le` and `chat` are each replaced by the first sense
+      `get_pack("fr").glosses` returns for them, read verbatim rather than
+      hand-typed. `dort` does not resolve and is left as it was.
+    text: |-
+      Ce… dont on parle maintenant. Déterminant marquant un nom masculin singulier, référant à une seule entité possible dans un contexte. Mammifère carnivore félin de taille moyenne, au museau court et arrondi, domestiqué, apprivoisé ou encore à l’état sauvage. dort
+    params: { source: le chat dort }
+    satisfied: true
+  - name: un-mot-laisse-tel-quel
+    lang: fr
+    source: >-
+      constructed counterexample; `le` is expanded the same way as the case
+      above, but `chat` is left as the bare source word, which
+      `replaced_by_gloss` reports as `not_expanded`.
+    text: |-
+      Ce… dont on parle maintenant. Déterminant marquant un nom masculin singulier, référant à une seule entité possible dans un contexte. chat dort
+    params: { source: le chat dort }
+    satisfied: false
