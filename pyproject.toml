@@ -83,15 +83,16 @@ packages = ["src/denckring"]
 # explorer is a development tool and is published nowhere. `tests/` and `docs/` stay:
 # downstream packagers run the suite.
 #
-# `docs/expansion_ideas/` is excluded on the same argument rather than on size:
-# those are working documents — proposals, handovers and research notes addressed to
-# whoever picks the work up — not documentation of what this package does. They stay
-# in git, because the ADRs cite them and a citation pointing at nothing is worse than
-# a large sdist; they do not go to PyPI, because nothing downstream reads them. It is
-# also what keeps the archive under its bound: at the time of writing they were
-# 99 KB of prose against 14 KB of headroom.
+# `docs/expansion_ideas/` and `docs/audit/` are excluded on the same argument rather
+# than on size: those are working documents — proposals, handovers, research notes and
+# a dated per-procedure audit, addressed to whoever picks the work up — not
+# documentation of what this package does. They stay in git, because the ADRs and the
+# changelog cite them and a citation pointing at nothing is worse than a large sdist;
+# they do not go to PyPI, because nothing downstream reads them. The audit in
+# particular is a snapshot: it describes one commit and dates badly, which is the
+# clearest possible reason not to ship it with every release built from any commit.
 [tool.hatch.build.targets.sdist]
-exclude = ["/packages", "/apps", "/docs/expansion_ideas"]
+exclude = ["/packages", "/apps", "/docs/expansion_ideas", "/docs/audit"]
 
 [tool.ruff]
 line-length = 100
