@@ -28,10 +28,15 @@ cases:
       souriant
     params: { synonym: riant }
     satisfied: true
-  - name: lettres-dans-le-desordre
+  - name: lettres-presentes-mais-dans-le-desordre
     lang: fr
-    source: constructed counterexample; triste is a word, but its letters do not run in order inside souriant
+    source: >-
+      constructed counterexample; every letter of train is present in souriant —
+      so this fails on order alone, which is the constraint the case is here to
+      exercise. Its predecessor claimed the same thing with triste, whose e is
+      absent from souriant altogether, and so passed on letter absence rather
+      than on ordering.
     text: |-
       souriant
-    params: { synonym: triste }
+    params: { synonym: train }
     satisfied: false
