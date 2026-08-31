@@ -558,6 +558,15 @@ All notable changes to this project are documented here. The format follows
   which of its own outputs are real needs more than one to flag.
 - `Device.disputed_totals` carries the counts the literature asserts that the inventory
   does not support, with who asserts each. `combinations` stays computed. ADR 0031.
+- `hemeling`, the 155th catalogued row and the 121st implemented. Johann Hemeling's
+  *Arithmetische Letter- oder BuchstabWechslung* (1653) asks for an anagram of a name
+  *und durch Reime zu erklähren* — explicated beneath it in rhymed verse — and both
+  halves are mechanically checkable, which is what makes it the tightest rule in the
+  surveyed European material. The first line is judged by `anagram`'s multiset
+  comparison and the rest by `rhyme_scheme`'s scheme walk, imported rather than
+  reimplemented, so a text this row accepts is one those two accept. The halves are
+  scored separately, so a broken rhyme over a sound anagram reads 0.5 and says which.
+  The primary text has not been consulted; Kilcher, who read it, is named in the source.
 
 ### Changed
 

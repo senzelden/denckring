@@ -14,7 +14,7 @@ print(report.satisfied, report.score)
 $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
-154 catalogued · 129 implementable · 120 implemented · 120 validated · 25 not mechanically checkable
+155 catalogued · 130 implementable · 121 implemented · 121 validated · 25 not mechanically checkable
 ```
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
@@ -52,15 +52,15 @@ unchanged, and it is a built-in default exactly like English (ADR 0022):
 English's, rather than registering through a separate path.
 
 French ships in core for the same reason and carries no data files at all, so there is
-no `[fr]` extra to install: 70 of the 120 implemented rows run in it, and the other 50
+no `[fr]` extra to install: 70 of the 121 implemented rows run in it, and the other 51
 raise `MissingCapability` naming what the pack lacks — a lexicon, syllables, phonemes
 or stress — rather than `UnknownLanguage` naming the language, which is what asking for
 French used to get (ADR 0029).
 
 ## What's here
 
-A hundred and twenty of the 154 catalogued procedures are implemented, and every
-one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and
+A hundred and twenty-one of the 155 catalogued procedures are implemented, and
+every one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and
 are catalogued rather than implemented — see
 [What can be checked](#what-can-be-checked) — and the remaining 9 are sourced and
 awaiting implementation. `denckring list`

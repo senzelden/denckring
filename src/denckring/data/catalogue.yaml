@@ -301,6 +301,53 @@ procedures:
     prompt_hints:
       en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
 
+  - id: hemeling
+    names:
+      en: Hemeling's letter-exchange
+      de: Hemelings Buchstabwechslung
+      fr: Échange de lettres de Hemeling
+    definitions:
+      en: >-
+        An anagram of a name, explicated beneath it in rhymed verse. Both halves
+        are checked: the first line must use exactly the letters of the source,
+        and the lines under it must hold a rhyme scheme.
+      de: >-
+        Ein Anagramm eines Namens, darunter in Reimen erklärt. Beide Hälften
+        werden geprüft: die erste Zeile aus genau den Buchstaben der Vorlage, die
+        folgenden Zeilen nach einem Reimschema.
+      fr: >-
+        Une anagramme d'un nom, expliquée au-dessous en vers rimés. Les deux
+        moitiés sont vérifiées.
+    source: >-
+      Johann Hemeling, Arithmetische Letter- oder BuchstabWechslung (1653);
+      read here through Andreas B. Kilcher, mathesis und poiesis (Fink, 2003), p. 376
+    family: letter
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    kind: restrictive
+    languages: [en, de]
+    requires: [tokens, fold_diacritics, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Rearrange the letters of a name into a new phrase, then explain the
+        phrase in rhyming lines beneath it.
+      de: >-
+        Stelle die Buchstaben eines Namens zu einer neuen Wendung um und erkläre
+        sie darunter in Reimen.
+    notes: >-
+      The tightest rule in the surveyed European material, because both halves are
+      mechanically checkable where most combinatorial procedures have one half that
+      is not. Hemeling's title says so directly: the anagrams are to be made "und
+      durch Reime zu erklähren". He also specifies a Buchstabenwechsel-Tafel
+      pre-computing combinations up to six elements, played across with lettered
+      dice, and notes that as elements are added the count grows unmanageably — the
+      source itself frames combinatorial explosion as a constraint on the method.
+      Neither the tafel nor the dice are implemented here; only the rule is.
+      The primary text has not been consulted directly. Kilcher, who read it, is
+      named in the source for that reason.
+
   - id: larding
     names: { en: Larding, de: Spicken, fr: Lardage }
     definitions:
