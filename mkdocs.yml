@@ -101,5 +101,6 @@ not_in_nav: |
 exclude_docs: |
   superpowers/
   seed/
+  audit/
 
 strict: true
