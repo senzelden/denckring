@@ -29,16 +29,18 @@ pip install denckring          # English, German and French, no data files
 pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
 pip install denckring[de-wiktionary]   # + German pronunciations, stress and glosses
+pip install denckring[fr]      # + a word list, nouns, frequency bands and glosses
 ```
 
-The `[en]` and `[de]` extras improve or unlock procedures rather than changing the
-language itself. Without `[en]`, syllables are estimated from spelling and every report
-says how many words were guessed; with it, that number goes to zero for words the
-dictionary knows, and `apply anagram` runs at all — its search needs a word list graded
-by commonness, not just one that answers whether a string is a word (ADR 0028). Without
-`[de]`, `charade`, `semordnilap`, `word_square`, `n_plus_7` and `s_plus_7` raise
-`MissingCapability` for German; with it, they run. `lexicon.graded_words` is English
-only: the German lexicon is Wikidata Lexemes, which is flat.
+The extras improve or unlock procedures rather than changing the language itself.
+Without `[en]`, syllables are estimated from spelling and every report says how many
+words were guessed; with it, that number goes to zero for words the dictionary knows,
+and `apply anagram` runs at all — its search needs a word list graded by commonness, not
+just one that answers whether a string is a word (ADR 0028). Without `[de]` or `[fr]`,
+`charade`, `semordnilap`, `word_square`, `n_plus_7` and `s_plus_7` raise
+`MissingCapability` for those languages; with them, they run. `lexicon.graded_words` is
+English and French: SCOWL's bands for one, Lexique's corpus frequencies bucketed into six
+for the other. The German lexicon is Wikidata Lexemes, which is flat.
 
 `[de-wiktionary]` adds a fourth distribution carrying German pronunciations, stress and
 glosses from German Wiktionary, and with it **every implemented row runs in German**.
@@ -51,11 +53,18 @@ unchanged, and it is a built-in default exactly like English (ADR 0022):
 `denckring[de]` overrides that default the same way `denckring[en]` overrides
 English's, rather than registering through a separate path.
 
-French ships in core for the same reason and carries no data files at all, so there is
-no `[fr]` extra to install: 70 of the 121 implemented rows run in it, and the other 51
-raise `MissingCapability` naming what the pack lacks — a lexicon, syllables, phonemes
-or stress — rather than `UnknownLanguage` naming the language, which is what asking for
-French used to get (ADR 0029).
+French ships in core for the same reason, and on core alone 70 of the 121 implemented
+rows run in it. `[fr]` is a fifth distribution adding a word list, an ordered noun list,
+frequency bands and glosses, from Lexique 3.82 and French Wiktionary — both CC BY-SA,
+so unlike German they need no separate extra between them. It takes French to **80**.
+ADR 0032 records why Wikidata Lexemes, which supplies German, could not supply French:
+12,768 French noun lexemes against 188,948 German ones.
+
+The other 41 rows raise `MissingCapability` naming what the pack lacks — syllables,
+phonemes or stress — rather than `UnknownLanguage` naming the language, which is what
+asking for French used to get (ADR 0029). **18 of those 41 will not close.** They are
+accentual metres, French has no lexical stress, and they are not French forms; declaring
+the capability to reach a bigger number would be a promise the data cannot keep.
 
 ## What's here
 
@@ -108,7 +117,7 @@ not meet, raises rather than quietly returning an approximate answer.
 `describe` answers both halves of "can I run this in French": `languages` is the row's
 authored editorial scope — `wechselsatz` is German by nature, not merely by capability —
 and `runs_in` is computed from the installed packs, so it says what *this* install can
-actually check the row in. `anagram` is `languages: [en]` and `runs_in` all three.
+actually check the row in. `belle_absente` is `languages: [en]` and `runs_in` all three.
 
 Whether `ä` counts as `a` is an editorial decision rather than a library constant, so it
 is a parameter: `fold_diacritics` defaults to true and can be turned off per call. Glyph
@@ -201,7 +210,8 @@ Three kinds of thing a procedure can need, and they are handled differently. A *
 — Harsdörffer's five rings — is the procedure, so it ships with it. A **language pack**
 describes a language and ships separately when it carries weight: `denckring[en]` adds a
 pronouncing dictionary, a noun lexicon and SCOWL's commonness-graded word list,
-`denckring[de]` adds a word lexicon and a noun list. Each vendored source keeps its own
+`denckring[de]` adds a word lexicon and a noun list, and `denckring[fr]` adds a word
+list, nouns, frequency bands and glosses. Each vendored source keeps its own
 licence file beside the data it covers, which is why installing `[en]` for syllable
 counts also brings a word list down with it (ADR 0028). A **corpus** is somebody's
 collection, so the package carries the loader and you supply the reading:

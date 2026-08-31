@@ -88,6 +88,7 @@ nav:
       - "29. Where the catalogue already offered a choice, the parameter now exists": adr/0029-the-choices-the-catalogue-promised.md
       - "30. German pronunciations come from Wiktionary": adr/0030-german-pronunciations.md
       - "31. A device is an address space": adr/0031-devices-are-address-spaces.md
+      - "32. The French lexicon": adr/0032-the-french-lexicon.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 
