@@ -1,0 +1,68 @@
+procedure: proteus_verse
+lang: en
+cases:
+  - name: pentameter-that-permutes
+    source: >-
+      constructed example; the same line the iambic_pentameter fixture uses,
+      whose nine words admit 201,600 orderings that also scan
+    text: |-
+      the cat can see the moon above the tree
+    params: { metre: iambic_pentameter }
+    satisfied: true
+  - name: hexameter-tiled-from-known-stress
+    source: >-
+      constructed example; six words of known stress filling the hexameter, the
+      measure the whole tradition argues over. 120 of the 720 orderings scan.
+    text: |-
+      murmuring beautiful murmuring wonderful murmuring forest
+    params: {}
+    satisfied: true
+  - name: scans-but-does-not-permute-enough
+    source: >-
+      constructed counterexample; the line holds the metre and admits eight
+      orderings that do, and is asked for nine. Scores 0.5 rather than 0
+      because the two conditions are reported separately and a writer can fix
+      them separately.
+    text: |-
+      remember the beloved silver sea
+    params: { metre: iambic_pentameter, minimum: 9 }
+    satisfied: false
+  - name: does-not-scan-at-all
+    source: constructed counterexample
+    text: |-
+      the cat sat on the mat
+    params: {}
+    satisfied: false
+  - name: more-than-one-line
+    source: >-
+      constructed counterexample; a proteus verse is one line, and scanning the
+      second against the first's permutations would report a fault that is not
+      there
+    text: |-
+      the cat can see the moon above the tree
+      the dog will run across the field today
+    params: { metre: iambic_pentameter }
+    satisfied: false
+  - name: voss-odyssee
+    lang: de
+    source: >-
+      Johann Heinrich Voß, tr., Homers Odüssee (1781), opening line. Eight
+      words, 1,728 of whose 40,320 orderings still scan.
+    text: |-
+      Sage mir, Muse, die Taten des vielgewanderten Mannes
+    params: {}
+    satisfied: true
+  - name: deutscher-blankvers
+    lang: de
+    source: constructed example; the German Blankvers under permutation
+    text: |-
+      der Wind bewegt die Blätter in der Nacht
+    params: { metre: iambic_pentameter }
+    satisfied: true
+  - name: zu-kurz
+    lang: de
+    source: constructed counterexample
+    text: |-
+      die Katze schläft
+    params: {}
+    satisfied: false

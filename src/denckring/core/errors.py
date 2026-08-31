@@ -175,17 +175,22 @@ class InputTooLong(DenckringError):
 
     code = "input_too_long"
 
-    def __init__(self, procedure_id: str, given: int, limit: int) -> None:
+    def __init__(self, procedure_id: str, given: int, limit: int, unit: str = "letters") -> None:
+        """`unit` names what was counted, and defaults to what every caller
+        counted when this was written. `proteus_verse` rearranges *words*, and
+        a message telling its caller it can rearrange nine letters would be
+        precisely and confidently wrong about the limit it just hit."""
         self.procedure_id = procedure_id
         self.given = given
         self.limit = limit
+        self.unit = unit
         super().__init__(
-            f"{procedure_id} can rearrange at most {limit} letters and was given "
+            f"{procedure_id} can rearrange at most {limit} {unit} and was given "
             f"{given}. Shorten the text, or check it instead of generating it."
         )
 
     def detail(self) -> dict[str, Any]:
-        return {"limit": self.limit, "received": self.given}
+        return {"limit": self.limit, "received": self.given, "unit": self.unit}
 
 
 def counted(count: int, noun: str, plural: str | None = None) -> str:

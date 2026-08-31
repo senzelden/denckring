@@ -58,7 +58,7 @@ def test_an_unknown_id_raises_with_suggestions() -> None:
 
 def test_summaries_lists_every_implemented_procedure() -> None:
     rows = summaries()
-    assert len(rows) == 119
+    assert len(rows) == 120
     assert all(row.id and row.name for row in rows)
 
 
@@ -95,7 +95,7 @@ def test_runnable_only_shrinks_under_a_core_only_pack(monkeypatch: pytest.Monkey
     monkeypatch.setattr("denckring.lang.get_pack", lambda lang="en": EnglishPack())
     every = summaries()
     only = summaries(runnable_only=True)
-    assert len(every) == 119
+    assert len(every) == 120
     assert len(only) == 81
     assert len(only) < len(every)
     kept = {row.id for row in only}
