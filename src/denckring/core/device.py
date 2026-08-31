@@ -15,11 +15,12 @@ from __future__ import annotations
 import os
 import random
 import re
+from collections.abc import Sequence
 from functools import lru_cache
 from importlib.resources import files
 from itertools import combinations
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError
@@ -142,6 +143,22 @@ def _device_ids(directory: Path) -> set[str]:
         return set()
 
 
+class DisputedTotal(BaseModel):
+    """A count the literature asserts, and who asserts it.
+
+    Kept beside the computed one rather than instead of it. Harsdorffer's rings
+    are the case that forces this: 97,209,600 circulates widely and is not
+    divisible by 144, so it cannot be a product of rings of 12 and 120 at all,
+    and one survey attributes it to Leibniz's own 1666 calculation without a
+    primary citation. Recording it as disputed is the only honest option that
+    neither adopts it nor pretends it was never claimed.
+    """
+
+    value: int
+    source: str
+    note: str | None = None
+
+
 class Slot(BaseModel):
     """One ring, or one interchangeable position.
 
@@ -161,13 +178,116 @@ class Slot(BaseModel):
         return any(alternative.casefold() == folded for alternative in self.alternatives)
 
 
+class Mask(BaseModel):
+    """Which of a device's readings are attested, and what to do with the rest.
+
+    Al-Khalil ibn Ahmad al-Farahidi's *Kitab al-Ayn* (8th c.) enumerates every
+    ordering of a root's consonants and then marks which are realised and which
+    are *muhmal*, neglected. That is the shape this field records: a device plus
+    a validity mask, so a generator knows which of its own outputs are real
+    without a second pass over them.
+
+    `hold` is the default because it is what al-Khalil does. He does not discard
+    the muhmal forms; he enumerates and flags them, and that distinction is the
+    intellectual content of the device rather than an implementation detail.
+    `drop` is for a caller who wants only the attested readings.
+
+    `source` names the capability that answers, not a file: `lexicon.words` is a
+    question a pack answers, and which pack is installed is the caller's business.
+    """
+
+    kind: Literal["lexicon"]
+    source: str
+    unmarked_policy: Literal["hold", "drop"] = "hold"
+
+
 class Device(BaseModel):
-    """An ordered set of slots, and where it comes from."""
+    """An ordered set of slots, and where it comes from.
+
+    Also an **address space**: the slots have unequal lengths, so a reading is an
+    integer in a non-uniform base, and `at` and `address` are the two directions
+    of that. Pingala's *Chandahsastra* (c. 3rd-2nd c. BCE) names both — *nasta*
+    is address to pattern, *uddista* is pattern to address — which makes the
+    odometer reading of these devices an attested procedure rather than a modern
+    gloss on one. B. van Nooten, "Binary Numbers in Indian Antiquity", *Journal of
+    Indian Philosophy* 21.1 (1993): 31-50, defends the binary reading.
+    """
 
     id: str
     name: str
     source: str
     slots: list[Slot]
+    mask: Mask | None = None
+    #: Counts the literature asserts that the inventory does not support. A field
+    #: rather than a comment, because a device whose published totals disagree is
+    #: the normal case and the disagreement is worth carrying: the Denckring has
+    #: three irreconcilable figures and none of them is the product of its rings.
+    disputed_totals: list[DisputedTotal] = Field(default_factory=list)
+
+    @property
+    def radix(self) -> list[int]:
+        """How many ways each slot can come up, a skip counted as one of them.
+
+        The mixed base the address arithmetic runs in. `combinations` is its
+        product, and is kept as its own property because that is the number
+        every caller actually asks for.
+        """
+        return [len(slot.alternatives) + (1 if slot.optional else 0) for slot in self.slots]
+
+    def at(self, address: int) -> list[str]:
+        """The reading at this address. Pingala's *nasta*: address to pattern.
+
+        **The first slot is the most significant digit**, so incrementing the
+        address turns the last ring — an odometer, and the order the device is
+        read in. Stated rather than assumed: sources differ on which end of a
+        *prastara* row carries the low-order position, and presenting a choice as
+        *the* convention is how a caller ends up with a different device's
+        numbering.
+
+        A skipped optional slot reads as `""`, the same as `spin` and `segment`
+        report it, and sorts last within its slot so that address 0 is every ring
+        at its first alternative rather than every optional ring skipped.
+        """
+        total = self.combinations
+        if not 0 <= address < total:
+            raise IndexError(f"{self.id} has {total} readings; {address} is not one of them")
+        reading = []
+        remaining = address
+        for slot, base in zip(self.slots, self.radix, strict=True):
+            total //= base
+            digit, remaining = divmod(remaining, total)
+            reading.append(slot.alternatives[digit] if digit < len(slot.alternatives) else "")
+        return reading
+
+    def address(self, reading: Sequence[str]) -> int:
+        """This reading's address. Pingala's *uddista*: pattern to address.
+
+        The inverse of `at` on every reading `at` can produce, which is what makes
+        the pair a bijection rather than two functions that happen to be related.
+        Raises for a reading the device cannot produce, rather than returning some
+        nearby address: a wrong answer here is indistinguishable from a right one.
+        """
+        if len(reading) != len(self.slots):
+            raise ValueError(
+                f"{self.id} has {len(self.slots)} slots and was given {len(reading)} pieces"
+            )
+        address = 0
+        for slot, base, piece in zip(self.slots, self.radix, reading, strict=True):
+            address *= base
+            if piece == "" and slot.optional:
+                digit = len(slot.alternatives)
+            else:
+                folded = piece.casefold()
+                matches = [
+                    index
+                    for index, alternative in enumerate(slot.alternatives)
+                    if alternative.casefold() == folded
+                ]
+                if not matches:
+                    raise ValueError(f"{slot.name!r} does not carry {piece!r}")
+                digit = matches[0]
+            address += digit
+        return address
 
     @property
     def combinations(self) -> int:
@@ -198,6 +318,10 @@ class Device(BaseModel):
             name=f"{self.name}, line {line}",
             source=self.source,
             slots=[slot for slot in self.slots if slot.line == line],
+            mask=self.mask,
+            # Deliberately not carried: a disputed total is a claim about the
+            # whole device, and attaching it to one line would assert the
+            # literature disputed a number nobody published.
         )
 
 

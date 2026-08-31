@@ -20,6 +20,36 @@
 id: harsdoerffer_1651
 name: Fünffacher Denckring der Teutschen Sprache
 source: Georg Philipp Harsdörffer, Philosophische und Mathematische Erquickstunden (1651), p. 517
+# Which of the 103,680,000 readings are real German words. Al-Khalīl ibn Aḥmad
+# al-Farāhīdī enumerated every ordering of a root's consonants and then marked
+# which were realised and which were *muhmal*, neglected; `hold` is his policy,
+# and it is the default because flagging rather than discarding is the
+# intellectual content of the device. Applying it needs a capability core does
+# not have, so `denckring apply` reads it only when asked (`attestation: mask`).
+mask:
+  kind: lexicon
+  source: lexicon.words
+  unmarked_policy: hold
+# Published totals for this device do not reconcile with each other or with the
+# product of any stated inventory. Recorded rather than adjudicated: the computed
+# figure is `combinations`, from the slots below, and these are what the
+# literature says instead.
+disputed_totals:
+  - value: 82944000
+    source: "Harsdörffer's own announced inventory: 48 x 50 x 12 x 120 x 24"
+    note: >-
+      Arithmetic on the counts his text announces, which are not the counts the
+      surviving transcription carries (49, 60, 12, 120, 23).
+  - value: 97209600
+    source: "Whitney Trettien, Electronic Literature Directory"
+    note: >-
+      The figure that circulates most widely, and not divisible by 144, so it
+      cannot be a product of rings of 12 and 120 at all. A later survey attributes
+      the same number to Leibniz's own 1666 calculation; that attribution has no
+      primary citation and is not adopted here.
+  - value: 101606400
+    source: "Markus Hundt, \"Spracharbeit\" im 17. Jahrhundert (2000), fn. 135, p. 285"
+    note: Counting assumptions unstated.
 slots:
   - name: vorsylbe
     # ring 1: prefix, 49 entries
