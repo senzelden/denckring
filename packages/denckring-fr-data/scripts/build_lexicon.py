@@ -53,6 +53,18 @@ _ANY_LANGUAGE = re.compile(r"^==\s*\{\{langue\|[^}]+\}\}\s*==\s*$", re.M)
 #: A sense is a `#` line. `#*` is an example sentence under one, and `#:` a
 #: usage note; neither is a definition, hence the negative lookahead.
 _SENSE = re.compile(r"^#\s+(?!\*)(.+)$", re.M)
+#: A sense line consisting entirely of templates (domain labels, reference
+#: plumbing) strips to bare punctuation once `_strip_markup` drops the
+#: templates — measured over the shipped `glosses.txt.gz`, 14,110 of 700,213
+#: senses (2.0%) contained no letter at all, and the first sense of common
+#: headwords like `la`, `siège`, `bar` and `filtre` was one of them.
+#: `LanguagePack.glosses` documents an empty sequence as "could not resolve",
+#: but a `"."` sense is worse than that: it looks resolvable and, substituted
+#: into `definitional_expansion` or `definitional_literature`, yields nothing
+#: readable. Unicode-aware rather than `str.isalpha()` on the whole string,
+#: because a legitimate French definition contains spaces and punctuation.
+_HAS_LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
+
 #: A part-of-speech subsection inside a language section, e.g. `=== {{S|nom|fr}} ===`
 #: or `=== {{S|verbe|fr|flexion}} ===`. The `flexion` argument marks an inflected
 #: form rather than a headword's own entry: `accédons` under one reads "Première
@@ -189,7 +201,11 @@ def glosses_from(path: Path) -> Iterator[tuple[str, list[str]]]:
                     continue
                 chunk_end = headers[index + 1].start() if index + 1 < len(headers) else len(section)
                 chunk = section[header.end() : chunk_end]
-                senses += [s for s in (_strip_markup(m) for m in _SENSE.findall(chunk)) if s]
+                senses += [
+                    s
+                    for s in (_strip_markup(m) for m in _SENSE.findall(chunk))
+                    if s and _HAS_LETTER.search(s)
+                ]
             # `" | "` is the separator downstream, so a sense containing it is
             # dropped rather than escaped: splitting must be unambiguous, and
             # `denckring-en-data` and `denckring-de-wiktionary` both split this way.
