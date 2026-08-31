@@ -543,6 +543,21 @@ All notable changes to this project are documented here. The format follows
   than searched.
 - `InputTooLong` takes the noun it counted. It said "letters" unconditionally, which is
   right for `anagram` and wrong for a row that rearranges words.
+- A device is an address space. `Device.at` and `Device.address` are the two directions
+  of its index — Piṅgala's *naṣṭa* and *uddiṣṭa*, which makes the odometer reading an
+  attested procedure rather than a modern gloss — over the mixed base `Device.radix`.
+  The first slot is the most significant digit, stated as a choice because sources
+  differ. `Abbildung` is reading 52,699 of Harsdörffer's 103,680,000.
+- `Device.mask` records which readings are attested, after al-Khalīl's *muhmal* marking:
+  enumerate the space, then flag which members are real. `hold` is the default because
+  it is what the source does. `denckring apply` reads it under `attestation: mask`, and
+  refuses in both directions — a device with no mask, or a pack that cannot answer.
+  Measured: 0 of 20,000 spins of the rings is a word the German lexicon knows, while
+  4.40% of German nouns are spellable on them.
+- `denckring` spins `max_results` times rather than once, because a generator that flags
+  which of its own outputs are real needs more than one to flag.
+- `Device.disputed_totals` carries the counts the literature asserts that the inventory
+  does not support, with who asserts each. `combinations` stays computed. ADR 0031.
 
 ### Changed
 
