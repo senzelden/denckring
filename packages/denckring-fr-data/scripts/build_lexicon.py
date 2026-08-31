@@ -27,6 +27,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 LEXIQUE_URL = "http://www.lexique.org/databases/Lexique382/Lexique382.zip"
+#: Recorded for provenance and surfaced in `--dump`'s help text, but never fetched
+#: automatically the way `--lexique`'s omission fetches `LEXIQUE_URL`. The German
+#: sibling's equivalent dump is 267 MB; this one is 876 MB, and a flag omitted by
+#: accident should not silently start an 876 MB download — the caller must pass
+#: `--dump` and mean it.
 DUMP_URL = (
     "https://dumps.wikimedia.org/frwiktionary/latest/frwiktionary-latest-pages-articles.xml.bz2"
 )
@@ -199,7 +204,7 @@ def _write_table(path: Path, table: dict[str, int]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lexique", type=Path, help="A downloaded Lexique382.zip.")
-    parser.add_argument("--dump", type=Path, help="A downloaded frwiktionary dump.")
+    parser.add_argument("--dump", type=Path, help=f"A downloaded frwiktionary dump ({DUMP_URL}).")
     args = parser.parse_args()
 
     archive = args.lexique

@@ -221,8 +221,11 @@ def test_asking_a_device_with_no_mask_is_refused_rather_than_ignored(
 def test_asking_a_pack_that_cannot_answer_is_refused_by_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """French ships no lexicon, so it cannot say whether a reading is attested.
-    Naming the capability is what ADR 0004 asks of every unmet requirement."""
-    device = _install(tmp_path, monkeypatch)
-    with pytest.raises(MissingCapability, match=r"lexicon\.words"):
+    """`lexicon.words` was this test's original subject, but chapter 6 gave
+    French a lexicon, so it can say whether a reading is attested now and no
+    longer illustrates a pack that cannot answer. `phonemes` still does — this
+    chapter ships no phonetic data for French — and naming the capability is
+    what ADR 0004 asks of every unmet requirement, whichever one it is."""
+    device = _install(tmp_path, monkeypatch, mask={"kind": "lexicon", "source": "phonemes"})
+    with pytest.raises(MissingCapability, match=r"phonemes"):
         _generator().produce("", lang="fr", device=device, attestation="mask")
