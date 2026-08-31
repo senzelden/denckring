@@ -6,6 +6,7 @@ English data tests skip without theirs.
 
 import gzip
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,27 @@ def test_glosses_carry_every_sense_in_wiktionary_s_order() -> None:
 
 def test_a_headword_with_no_definition_is_absent_rather_than_empty() -> None:
     assert "zzzzqq" not in fr_data.gloss_table()
+
+
+def test_no_shipped_sense_is_letterless() -> None:
+    """A sense line made entirely of Wiktionary templates strips to bare
+    punctuation once `_strip_markup` drops the templates: `build_lexicon.py`
+    measured 14,110 of 700,213 senses (2.0%) this way over the first build,
+    the first sense of `la`, `siège`, `bar` and `filtre` among them. A hollow
+    `"."` sense is worse than an absent word: `LanguagePack.glosses` documents
+    an empty sequence as "could not resolve", but a `"."` sense looks
+    resolvable and yields nothing readable when substituted into
+    `definitional_expansion` or `definitional_literature`. Sampled (every
+    50th headword) rather than scanning all ~700k senses, which is slow and
+    unnecessary to catch a regression in the filter.
+    """
+    has_letter = re.compile(r"[^\W\d_]", re.UNICODE)
+    table = fr_data.gloss_table()
+    words = sorted(table)[::50]
+    assert words, "sample should not be empty"
+    for word in words:
+        for sense in table[word]:
+            assert has_letter.search(sense), f"{word!r} has a letterless sense: {sense!r}"
 
 
 def test_the_metadata_counts_match_the_files() -> None:
