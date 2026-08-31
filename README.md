@@ -14,7 +14,7 @@ print(report.satisfied, report.score)
 $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
-154 catalogued · 128 implementable · 119 implemented · 119 validated · 26 not mechanically checkable
+155 catalogued · 130 implementable · 121 implemented · 121 validated · 25 not mechanically checkable
 ```
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
@@ -28,6 +28,7 @@ and only meaningful for the constructive ones.
 pip install denckring          # English, German and French, no data files
 pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
+pip install denckring[de-wiktionary]   # + German pronunciations, stress and glosses
 ```
 
 The `[en]` and `[de]` extras improve or unlock procedures rather than changing the
@@ -39,21 +40,27 @@ by commonness, not just one that answers whether a string is a word (ADR 0028). 
 `MissingCapability` for German; with it, they run. `lexicon.graded_words` is English
 only: the German lexicon is Wikidata Lexemes, which is flat.
 
+`[de-wiktionary]` adds a fourth distribution carrying German pronunciations, stress and
+glosses from German Wiktionary, and with it **every implemented row runs in German**.
+It is a separate extra because its data is CC BY-SA where `[de]`'s is CC0, and ADR 0013
+quarantines a data licence in its own distribution. ADR 0030 records the measurement
+behind it: 94.0% token coverage over 341,000 tokens of Wieland, Goethe, Kafka and Mann.
+
 German ships in core because the procedures that need no lexicon work for it
 unchanged, and it is a built-in default exactly like English (ADR 0022):
 `denckring[de]` overrides that default the same way `denckring[en]` overrides
 English's, rather than registering through a separate path.
 
 French ships in core for the same reason and carries no data files at all, so there is
-no `[fr]` extra to install: 70 of the 119 implemented rows run in it, and the other 49
+no `[fr]` extra to install: 70 of the 121 implemented rows run in it, and the other 51
 raise `MissingCapability` naming what the pack lacks — a lexicon, syllables, phonemes
 or stress — rather than `UnknownLanguage` naming the language, which is what asking for
 French used to get (ADR 0029).
 
 ## What's here
 
-A hundred and nineteen of the 154 catalogued procedures are implemented, and every
-one of them is validated. Of the rest, 26 have no mechanical acceptance criterion and
+A hundred and twenty-one of the 155 catalogued procedures are implemented, and
+every one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and
 are catalogued rather than implemented — see
 [What can be checked](#what-can-be-checked) — and the remaining 9 are sourced and
 awaiting implementation. `denckring list`

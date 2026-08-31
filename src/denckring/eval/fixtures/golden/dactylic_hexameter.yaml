@@ -13,3 +13,17 @@ cases:
     source: constructed counterexample
     text: ""
     satisfied: false
+  - name: goethe-hermann-und-dorothea
+    lang: de
+    source: "Johann Wolfgang von Goethe, Hermann und Dorothea (1797), opening line"
+    text: |-
+      Hab ich den Markt und die Straßen doch nie so einsam gesehen
+    params: {}
+    satisfied: true
+  - name: voss-odyssee
+    lang: de
+    source: "Johann Heinrich Voß, tr., Homers Odüssee (1781), opening line"
+    text: |-
+      Sage mir, Muse, die Taten des vielgewanderten Mannes
+    params: {}
+    satisfied: true

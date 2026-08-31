@@ -31,9 +31,16 @@ def test_a_catalogued_but_unimplemented_procedure_is_grey() -> None:
 
 
 def test_the_board_renders_with_the_scoreboard_line() -> None:
+    """Against the line the board itself computes, not a literal.
+
+    It pinned `154 catalogued`, so it went red the moment the library catalogued a
+    155th row — reporting a change in the library as a fault in the explorer. The
+    board's job here is to render the scoreboard, not to know what it says.
+    """
     response = client.get("/board")
     assert response.status_code == 200
-    assert "154 catalogued" in response.text
+    assert board.scoreboard_line() in response.text
+    assert "catalogued" in board.scoreboard_line()
 
 
 def test_a_tile_is_readable_and_not_just_an_id() -> None:

@@ -21,3 +21,14 @@ cases:
       have all flown away and disappeared
     params: {}
     satisfied: true
+  - name: aabba
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+      der Wandrer sieht ein Licht
+      der Bote spricht es nicht
+      die Blume welkt im Schatten an der Wand
+    params: {}
+    satisfied: true

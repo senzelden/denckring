@@ -28,3 +28,21 @@ cases:
       the moon will rise behind the hill at nine
     params: {}
     satisfied: true
+  - name: vier-reimlose-zeilen
+    lang: de
+    source: "constructed example; unrhymed, which is what makes it blank"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      ein Vogel singt am Morgen auf dem Baum
+      die Lampe steht und gibt uns wenig Licht
+    params: {}
+    satisfied: true
+  - name: gereimtes-paar
+    lang: de
+    source: "constructed counterexample; a rhyme is what blank verse must not have"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+    params: {}
+    satisfied: false

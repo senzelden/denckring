@@ -102,6 +102,7 @@ DOES_NOT_DRAW = [
     "n_plus_7",
     "paragram",
     "pasigraphy",
+    "proteus_verse",
     "s_plus_7",
     "slenderizing",
     "spoonerism",

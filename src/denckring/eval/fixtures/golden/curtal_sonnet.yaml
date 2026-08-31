@@ -64,3 +64,20 @@ cases:
       the birds will sing before the break of day
     params: {}
     satisfied: false
+  - name: hopkins-proportion
+    lang: de
+    source: "constructed example; the rhyme scheme and measure of Hopkins's curtal sonnets"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      ein Vogel singt am Morgen auf dem Baum
+      das Feuer brennt und wärmt die kalte Hand
+      der Regen fällt und niemand hat gelacht
+      ein Kind erwacht und ruft nach seinem Traum
+      die Lampe steht und gibt uns wenig Licht
+      die Glocke schlägt und alles ist vollbracht
+      der Nebel füllt den stillen kalten Raum
+      der Bote kommt, doch bringt er Botschaft nicht
+      der Fluss bewegt sich unter weißem Schaum
+    params: {}
+    satisfied: true

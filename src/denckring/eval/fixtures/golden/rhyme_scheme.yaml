@@ -19,3 +19,23 @@ cases:
       the sun will set behind the hill at nine
     params: { scheme: ABAB }
     satisfied: false
+  - name: paarreim
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+      der Wind bewegt die Blätter in der Nacht
+      der Regen fällt und niemand hat gelacht
+    params: { scheme: "AABB" }
+    satisfied: true
+  - name: kreuzreim-verfehlt
+    lang: de
+    source: "constructed counterexample; the scheme asks for ABAB and the text pairs"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+      der Wind bewegt die Blätter in der Nacht
+      der Regen fällt und niemand hat gelacht
+    params: { scheme: "ABAB" }
+    satisfied: false

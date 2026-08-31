@@ -52,3 +52,17 @@ cases:
       the birds will sing before the day has flown
     params: {}
     satisfied: false
+  - name: abababcc
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Regen fällt und niemand hat gelacht
+      die Blume welkt im Schatten an der Wand
+      die Glocke schlägt und alles ist vollbracht
+      ein Vogel singt am Morgen auf dem Baum
+      ein Kind erwacht und ruft nach seinem Traum
+    params: {}
+    satisfied: true

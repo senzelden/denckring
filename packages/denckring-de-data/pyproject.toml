@@ -17,7 +17,7 @@ classifiers = [
 dependencies = ["denckring==0.1.0"]
 
 [project.entry-points."denckring.lang"]
-de = "denckring_de_data:GermanDataPack"
+de = "denckring_de_data:pack"
 
 [build-system]
 requires = ["hatchling"]

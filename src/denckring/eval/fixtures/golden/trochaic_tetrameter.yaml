@@ -21,3 +21,10 @@ cases:
       seldom eating apple butter
     params: {}
     satisfied: true
+  - name: heine-leise-zieht
+    lang: de
+    source: "Heinrich Heine, Neuer Frühling (1831), Prolog"
+    text: |-
+      Leise zieht durch mein Gemüte
+    params: {}
+    satisfied: true

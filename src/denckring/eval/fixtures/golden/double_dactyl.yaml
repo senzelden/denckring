@@ -34,3 +34,17 @@ cases:
     source: constructed counterexample
     text: ""
     satisfied: false
+  - name: gefuegte-strophe
+    lang: de
+    source: "constructed example; the second quatrain opens on `Inselbewohnerin`, one word carrying both dactyls"
+    text: |-
+      Wald Wald Wald Wald Wald Wald
+      Wald Wald Wald Wald Wald Wald
+      Ostermond Ostermond
+      Wald Wald Wald Wald
+      Inselbewohnerin
+      Abakus Abakus
+      Abakus Abakus
+      Lexikon Gold
+    params: {}
+    satisfied: true
