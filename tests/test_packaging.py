@@ -17,11 +17,24 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 
 #: The core sdist carried both workspace members before this bound existed: the CMU
-#: dictionary, the WordNet glosses and the German lexicon, 7.1 MB of data the core
-#: package never reads and ships no licence expression for. It builds at 935,439 bytes
-#: (0.94 MB) on a clean checkout now — 93.5% of this bound, largely from the docs this
-#: chapter added (ADR 0029 and its specs); the next docs-heavy chapter could trip it.
-MAX_SDIST_BYTES = 1_000_000
+#: dictionary, the WordNet glosses and the German lexicon, 21 MB of data the core
+#: package never reads and ships no licence expression for.
+#:
+#: Raised from 1,000,000 on 2026-08-31, by decision, after chapter 4 tranche B crossed it
+#: for real at 1,000,590 bytes on a clean checkout. Prose is what pushes this number:
+#: `uv.lock`, the catalogue and four planning documents are the six largest members and
+#: none of them is data.
+#:
+#: **1,200,000 is a trade, and the two halves of it are these.** A clean checkout builds
+#: at 963,222 bytes, so the bound leaves 236,778 for prose — several chapters. The
+#: smallest file this test exists to catch is `graded_words.txt.gz` at 249,917 bytes,
+#: which would land the archive at about 1,213,000; the margin on *that* side is
+#: therefore only ~13,000 bytes. Raising the bound further buys prose headroom by giving
+#: up the ability to catch that file at all, and there is no per-file bound that
+#: separates them — the largest legitimate member, `uv.lock`, is 330,098 bytes, larger
+#: than the smallest data file. Whoever raises this next should raise it knowing which
+#: half they are spending.
+MAX_SDIST_BYTES = 1_200_000
 
 
 @pytest.fixture(scope="module")
@@ -50,6 +63,16 @@ def test_the_sdist_does_not_carry_the_workspace_members(sdist: Path) -> None:
     several megabytes and puts third-party data under a declaration that does not
     describe it. The explorer is a development tool published nowhere."""
     stowaways = [name for name in _members(sdist) if name.startswith(("packages/", "apps/"))]
+    assert stowaways == []
+
+
+def test_the_sdist_does_not_carry_the_working_documents(sdist: Path) -> None:
+    """`docs/expansion_ideas/` holds proposals, handovers and research notes addressed to
+    whoever picks the work up — not documentation of what this package does, and nothing
+    downstream reads them. Named here rather than left to the size bound alone, because
+    the size bound has just been raised and a silent re-inclusion would now fit under it.
+    They stay in git: ADRs 0030 and 0031 cite them."""
+    stowaways = [name for name in _members(sdist) if name.startswith("docs/expansion_ideas/")]
     assert stowaways == []
 
 

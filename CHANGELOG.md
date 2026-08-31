@@ -571,6 +571,17 @@ All notable changes to this project are documented here. The format follows
   existing exclusions already make: those are working documents — proposals, handovers
   and research notes addressed to whoever picks the work up — not documentation of what
   this package does. They stay in git, because the ADRs cite them.
+- The sdist bound is raised from 1,000,000 to 1,200,000 bytes, by maintainer decision
+  after chapter 4 crossed the old one for real. A side effect worth naming: the whole
+  suite now passes on a working tree, where `test_the_sdist_stays_small` had failed
+  locally and passed in CI for as long as the bound existed — the untracked 68 KB blob
+  the local build swallows no longer pushes the archive over. The new number is a stated
+  trade: 236,778 bytes of prose headroom against roughly 13,000 bytes of margin on the
+  other side, which is what still lets the bound catch the smallest vendored data file
+  being re-included. There is no per-file bound that separates the two, because
+  `uv.lock` is larger than `graded_words.txt.gz`.
+- `docs/expansion_ideas/` is now kept out of the sdist by a name-based test as well as by
+  the size bound, since a raised bound would let a silent re-inclusion fit underneath it.
 
 ### Changed
 
