@@ -1,0 +1,57 @@
+procedure: hemeling
+lang: en
+cases:
+  - name: anagram-and-couplet
+    source: >-
+      constructed example; the compound rule Hemeling's title states, with the
+      shortest explication that can be said to rhyme
+    text: |-
+      listen
+      the letters of your name will turn and then
+      they say a truer thing than they did when
+    params: { source: "silent" }
+    satisfied: true
+  - name: the-anagram-holds-and-the-rhyme-does-not
+    source: >-
+      constructed counterexample; scores 0.5 because the two halves are scored
+      separately, and a writer fixes them by different means
+    text: |-
+      listen
+      the letters of your name will turn and then
+      they say a truer thing than they did now
+    params: { source: "silent" }
+    satisfied: false
+  - name: the-rhyme-holds-and-the-anagram-does-not
+    source: constructed counterexample; one letter surplus
+    text: |-
+      listens
+      the letters of your name will turn and then
+      they say a truer thing than they did when
+    params: { source: "silent" }
+    satisfied: false
+  - name: no-explication-at-all
+    source: >-
+      constructed counterexample; the anagram alone is an anagram, and this row
+      exists because Hemeling asks for more than one
+    text: |-
+      listen
+    params: { source: "silent" }
+    satisfied: false
+  - name: nebel-und-leben
+    lang: de
+    source: constructed example
+    text: |-
+      Leben
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+    params: { source: "Nebel" }
+    satisfied: true
+  - name: ungereimte-erklaerung
+    lang: de
+    source: constructed counterexample
+    text: |-
+      Leben
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+    params: { source: "Nebel" }
+    satisfied: false
