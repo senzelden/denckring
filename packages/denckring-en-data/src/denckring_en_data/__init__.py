@@ -25,7 +25,6 @@ from denckring.lang.base import (
     NOUNS,
     PHONEMES,
     STRESS,
-    SYLLABLES,
     SYLLABLES_DICTIONARY,
     SYLLABLES_HEURISTIC,
     TOKENS,
@@ -146,7 +145,16 @@ class EnglishDataPack(EnglishPack):
             LETTER_SHAPES,
             SYLLABLES_HEURISTIC,
             SYLLABLES_DICTIONARY,
-            SYLLABLES,
+            # `SYLLABLES` is deliberately absent, and used to be here. That
+            # capability is `syllables(word)`, the written syllables of a word,
+            # and this pack has never implemented it — the inherited method
+            # raised `MissingCapability` naming a capability the pack declared,
+            # which is the one contradiction the error exists to rule out. A
+            # pronouncing dictionary carries phonemes, not a division of the
+            # spelling, so the claim was never true. Nothing required it, so
+            # nothing broke; but `runs_in` (ADR 0029) computes from this set, so
+            # the first row to require it would have been reported as running in
+            # `en` and would then have raised. ADR 0030.
             PHONEMES,
             STRESS,
             NOUNS,
@@ -201,6 +209,14 @@ class EnglishDataPack(EnglishPack):
     def phonemes(self, word: str) -> list[str]:
         """The word's phonemes, or raise if the dictionary does not know it."""
         return _phones_or_raise(self, word)
+
+    def is_vowel_phoneme(self, phoneme: str) -> bool:
+        """A CMU-style vowel carries a stress digit; a consonant does not.
+
+        This test used to live in `assonance_constraint` and `spoonerism`, where
+        it was a rule about English wearing the name of a rule about phonemes.
+        """
+        return phoneme[-1:].isdigit()
 
     def rhyme_key(self, word: str) -> str:
         """The first pronunciation's rhyme key."""

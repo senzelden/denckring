@@ -33,3 +33,13 @@ cases:
       wonderful garden
     params: {}
     satisfied: true
+  - name: gefuegte-strophe
+    lang: de
+    source: "constructed example; tiles German words of known stress across the fixed pattern, the way the English case tiles English ones"
+    text: |-
+      Wald Oktober Abakus Wald Oktober
+      Gold Gold Gold Gold Lexikon Gold Gold Gold Gold
+      Blume Blume Blume Zitrone Blume
+      Ostermond Garten
+    params: {}
+    satisfied: true

@@ -133,3 +133,37 @@ cases:
       until the northern wind has blown
     params: {}
     satisfied: false
+  - name: drei-strophen-und-geleit
+    lang: de
+    source: "constructed example; three eight-line stanzas in iambic tetrameter on three rhymes, closing on the refrain, then the four-line envoi"
+    text: |-
+      der Wandrer zieht durch weites Land
+      die Glocke schlägt zur langen Nacht
+      das Feuer wärmt die kalte Hand
+      der Regen fällt und niemand lacht
+      der Morgen hat das Licht gebracht
+      der Wind bewegt den alten Baum
+      die Stunde ist nun ganz vollbracht
+      ein Kind erwacht in seinem Traum
+      die Blume welkt an jener Wand
+      der Bote hat es nicht bedacht
+      die Welle stirbt am flachen Strand
+      der Richter hat daran gedacht
+      der Garten steht in voller Pracht
+      der Nebel füllt den kalten Raum
+      der Abend kommt und alles sacht
+      ein Kind erwacht in seinem Traum
+      der Wandrer geht durch feinen Sand
+      der Kaiser zeigt uns seine Macht
+      das Feuer greift zum grünen Rand
+      das Heer verliert die große Schlacht
+      das Schiff verliert die schwere Fracht
+      das Wasser trägt den weißen Schaum
+      das Kind ist aus dem Traum erwacht
+      ein Kind erwacht in seinem Traum
+      die Sonne hat den Tag entfacht
+      das Kleid bekommt am Rand den Saum
+      der Wächter hat das Tor bewacht
+      ein Kind erwacht in seinem Traum
+    params: {}
+    satisfied: true

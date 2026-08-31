@@ -5,7 +5,15 @@ English pack has had since ADR 0015: `lexicon.words` and `lexicon.nouns`.
 Nothing branches on whether it is present — the same procedures answer the same
 calls, in a second language.
 
-The data is Wikidata Lexemes, CC0. See LICENSE-WIKIDATA.
+It also carries the *only* `de` language-pack registration, and since ADR 0030
+that is a load-bearing fact rather than an incidental one. `denckring-de-wiktionary`
+holds German pronunciations and glosses under CC BY-SA, which ADR 0013 forbids
+merging into this CC0 distribution — and `denckring/lang/__init__.py` refuses two
+entry points claiming one language, so it cannot register `de` for itself either.
+The entry point therefore resolves to `pack()` below rather than to a class, and
+that one function is the whole of the seam.
+
+The data here is Wikidata Lexemes, CC0. See LICENSE-WIKIDATA.
 """
 
 from __future__ import annotations
@@ -91,3 +99,30 @@ class GermanDataPack(GermanPack):
         procedure rather than a property of the lexicon.
         """
         return "".join(ch for ch in word.casefold() if ch.isalpha())
+
+
+def pack() -> GermanPack:
+    """The best German pack this install can supply. The `de` entry point.
+
+    A factory rather than a class, because two distributions have German data
+    under two licences and only one of them may register the language.
+    `denckring/lang/__init__.py` raises `DuplicatePack` for a second `de` entry
+    point — deliberately, so that no installer has to choose between two packs —
+    and ADR 0013 forbids merging CC BY-SA data into this CC0 distribution. A
+    factory satisfies both: one entry point, and the richer pack wins when its
+    data is installed.
+
+    `entry.load()()` is what the registry calls, so a function and a class are
+    interchangeable there; nothing in core learns that German is special.
+
+    The subclass is imported here rather than at module scope because this
+    distribution does not depend on that one — the dependency runs the other way.
+    """
+    try:
+        from denckring_de_wiktionary import GermanWiktionaryPack
+    except ImportError:
+        # Not installed. The lexical pack is the whole answer, and a procedure
+        # wanting `phonemes` will raise `MissingCapability` naming it, which is
+        # the honest failure rather than a guessed pronunciation.
+        return GermanDataPack()
+    return GermanWiktionaryPack()

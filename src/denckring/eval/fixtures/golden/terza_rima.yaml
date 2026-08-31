@@ -21,3 +21,18 @@ cases:
       a bird can fly around the house at three
     params: {}
     satisfied: false
+  - name: aba-bcb-cdc
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Regen fällt und niemand hat gelacht
+      ein Vogel singt am Morgen auf dem Baum
+      die Glocke schlägt und alles ist vollbracht
+      ein Kind erwacht und ruft nach seinem Traum
+      die Lampe steht und gibt uns wenig Licht
+      der Nebel füllt den stillen kalten Raum
+    params: {}
+    satisfied: true

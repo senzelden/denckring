@@ -32,3 +32,10 @@ cases:
       the key
     params: { source: "the key" }
     satisfied: false
+  - name: der-schluessel
+    lang: de
+    source: "constructed example; one round of expansion, each word replaced by a sense the German lexicon carries"
+    text: |-
+      definiter Artikel (bestimmtes Geschlechtswort) Gegenstand zum Schließen und Öffnen eines Schlosses
+    params: { source: "der Schlüssel" }
+    satisfied: true

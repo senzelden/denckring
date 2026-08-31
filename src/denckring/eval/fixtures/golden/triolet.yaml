@@ -27,3 +27,17 @@ cases:
       the dog will run across the field today
     params: {}
     satisfied: false
+  - name: mit-refrains
+    lang: de
+    source: "constructed example; the refrains are the same line repeated"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Wandrer zieht durch jenes weite Land
+      der Wandrer zieht durch jenes weite Land
+      der Regen fällt und niemand hat gelacht
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+    params: {}
+    satisfied: true

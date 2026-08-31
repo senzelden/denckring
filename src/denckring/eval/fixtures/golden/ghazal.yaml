@@ -23,3 +23,13 @@ cases:
       are lying in the code today
     params: {}
     satisfied: false
+  - name: radif-und-qafia
+    lang: de
+    source: "constructed example; `heut Nacht` is the radif, repeated at every closing"
+    text: |-
+      ich finde nicht den Weg im Wald heut Nacht
+      die Lampen sind schon alle kalt heut Nacht
+      der Fluss nimmt eine andre Wendung an
+      und lässt sein schweres Wasser alt heut Nacht
+    params: {}
+    satisfied: true

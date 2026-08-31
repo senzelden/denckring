@@ -24,9 +24,16 @@ from denckring.core.registry import register
 from denckring.core.text import line_spans, word_spans
 
 
-#: A CMU-style vowel phoneme carries a stress digit; a consonant does not.
 def _vowels(word: str, pack: LanguagePack) -> list[str]:
-    return [p.rstrip("012") for p in pack.phonemes(word) if p[-1:].isdigit()]
+    """Every vowel phoneme of the word, with CMUdict's stress digit removed.
+
+    Which phonemes are vowels is the pack's question, not this row's: the test
+    used to be "carries a stress digit", which is CMUdict's convention, and it
+    found no vowels at all in a German transcription. `rstrip` is a no-op on a
+    source that marks no stress on the segment, and stays because it is what
+    makes `AY1` and `AY0` one vowel.
+    """
+    return [p.rstrip("012") for p in pack.phonemes(word) if pack.is_vowel_phoneme(p)]
 
 
 def _vowels_or_none(word: str, pack: LanguagePack) -> list[str] | None:
