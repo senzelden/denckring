@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import random
 import re
+from collections import Counter
 from collections.abc import Sequence
 from functools import lru_cache
 from importlib.resources import files
@@ -26,12 +27,15 @@ import yaml
 from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core.errors import (
+    InputTooShort,
     MalformedDevice,
     MalformedFigure,
     UnknownDevice,
     UnknownFigure,
     UnknownLevel,
+    counted,
 )
+from denckring.core.protocol import LanguagePack
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
 
@@ -323,6 +327,75 @@ class Device(BaseModel):
             # whole device, and attaching it to one line would assert the
             # literature disputed a number nobody published.
         )
+
+
+def from_text(
+    text: str,
+    pack: LanguagePack,
+    *,
+    device_id: str,
+    name: str,
+    slots: int = 5,
+    per_slot: int = 8,
+    drop_commonest: int = 0,
+) -> Device:
+    """Build a device whose rings are filled from a text.
+
+    The only shape here with no historical precedent, and the reason it is worth
+    having anyway: structure fixed and enumerable, content input-dependent. Every
+    other device in this package ships its own contents, so a reader wanting rings
+    over *their* material had no way to get any.
+
+    **Not a catalogue row, deliberately.** This catalogue records procedures with
+    provenance, and `attribution` offers `primary`, `reference` and `traditional` —
+    none of which means "contemporary, with no source". Adding an entry for a
+    technique this project invented would put it beside Harsdörffer's rings under
+    fields that would have to lie. It is a device constructor instead, and the
+    devices it makes are read by the rows that already exist, through the
+    `DENCKRING_DEVICE_PATH` cartridge mechanism `load` documents.
+    Use `scripts/rings_from_text.py` to write one out.
+
+    **Deterministic, because two callers have to agree.** `check` and `apply` derive
+    the same rings from the same text or a generator produces output its own checker
+    rejects — the drift ADR 0025 made `apply` inherit `check`'s spine to prevent. So
+    the order is total: by falling frequency, ties broken by first appearance.
+
+    `drop_commonest` is this package's whole stoplist, and saying so is more honest
+    than shipping one: a real stoplist is per-language data, and dropping the *n*
+    most frequent types is the crude standard substitute. At 0 the rings fill with
+    function words, which is a faithful reading of the text and rarely the wanted one.
+
+    Words are dealt round-robin rather than in blocks, so every ring spans the
+    frequency range. In blocks the first ring would hold the commonest words and the
+    last the rarest, and every reading would be one register sliding into another.
+    """
+    order: dict[str, int] = {}
+    counts: Counter[str] = Counter()
+    for token in pack.tokenize(text):
+        folded = token.casefold()
+        counts[folded] += 1
+        order.setdefault(folded, len(order))
+    ranked = sorted(counts, key=lambda word: (-counts[word], order[word]))
+    usable = ranked[drop_commonest:]
+    wanted = slots * per_slot
+    if len(usable) < wanted:
+        raise InputTooShort(
+            device_id,
+            counted(wanted, "distinct word") + f" after dropping {drop_commonest}",
+            counted(len(usable), "distinct word"),
+        )
+    return Device(
+        id=device_id,
+        name=name,
+        source=(
+            f"derived from {name}: the {wanted} most frequent words after the "
+            f"{drop_commonest} most frequent, dealt round-robin into {slots} rings"
+        ),
+        slots=[
+            Slot(name=f"ring{index + 1}", alternatives=usable[index:wanted:slots])
+            for index in range(slots)
+        ],
+    )
 
 
 def load(device_id: str) -> Device:

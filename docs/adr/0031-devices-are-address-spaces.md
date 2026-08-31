@@ -108,3 +108,42 @@ declared with an oracle that cannot answer.
 API with tests and no caller inside the package. That is deliberate — the handover wants
 enumeration and the index pair as primitives the rest builds on — but it is a cost:
 untested-in-anger code, kept honest only by its own round-trip property.
+
+---
+
+## Amendment, 2026-08-31: corpus-derived rings, and why they are not a catalogue row
+
+`Device.from_text` builds a device whose rings are filled from a text the reader
+supplies — the handover's §1.1 "corpus-derived rings", which it calls the only
+genuinely contemporary capability in the whole set and the one needing no scholarship.
+Structure fixed and enumerable, content input-dependent; `radix`, `at` and `address`
+work on it unchanged, which is what D1 was for.
+
+**It gets no catalogue entry, and the reason is a hole in the schema rather than a
+judgement about the technique.** `attribution` offers `primary`, `reference` and
+`traditional`, and `attested` offers `author-stated`, `codified` and `reconstruction`.
+None of the six means *contemporary, with no source*. The handover says so itself: "no
+historical precedent". Cataloguing it would put a technique this project invented beside
+Harsdörffer's rings under provenance fields that would have to lie, in a catalogue whose
+tests enforce those fields.
+
+So it is a **device constructor plus `scripts/rings_from_text.py`**, and the devices it
+writes are read by the rows that already exist, through the `DENCKRING_DEVICE_PATH`
+cartridge mechanism `load` already documents. `denckring apply poesie_automat -p
+device=notes` runs on rings drawn from `notes.txt` with no row claiming anything.
+
+**This also answers a cost the Consequences above recorded.** `at` and `address` were
+public API with tests and no caller; a derived device is enumerable by construction and
+is the first thing that makes the pair worth having to someone outside this repository.
+
+**Two costs of its own, stated.** The derivation must be total or a generator produces
+output its own checker rejects, so ties are broken by first appearance and a test pins
+that — a set iteration here would be a heisenbug in a row's verdict. And
+`drop_commonest` is the whole stoplist: this package ships none, a real one is
+per-language data, and dropping the *n* commonest types is the crude standard
+substitute. At its default of 0 the rings fill with function words, which is a faithful
+reading of the text and rarely the wanted one.
+
+**If the schema ever grows a value for "contemporary, no source"** — the layer split in
+§3 of the handover is where that would be decided — this is the first entry that would
+want it.
