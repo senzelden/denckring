@@ -61,7 +61,7 @@ jobs:
 
   rehearse:
     # TestPyPI, from a manual run. Needs its own Trusted Publisher for each of the
-    # four distributions, registered against this workflow, exactly as PyPI does.
+    # five distributions, registered against this workflow, exactly as PyPI does.
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
     needs: [build, docs]
     runs-on: ubuntu-latest
@@ -83,12 +83,13 @@ jobs:
           skip-existing: true
 
   publish:
-    # All four distributions publish from one workflow because they must stay
+    # All five distributions publish from one workflow because they must stay
     # version-locked: denckring-en-data subclasses the core English pack,
-    # denckring-de-data carries the sole `de` entry point, and
+    # denckring-de-data carries the sole `de` entry point,
     # denckring-de-wiktionary is the pack that entry point resolves to when it is
-    # installed. `uv build --all-packages` picks up every workspace member, so a
-    # fifth needs no change here — only its own Trusted Publisher.
+    # installed, and denckring-fr-data subclasses the core French pack (ADR 0032).
+    # `uv build --all-packages` picks up every workspace member, so a sixth needs
+    # no change here — only its own Trusted Publisher.
     if: github.event_name == 'push'
     needs: [build, docs]
     runs-on: ubuntu-latest
