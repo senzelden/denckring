@@ -40,6 +40,32 @@ def is_valid_size(size: int) -> bool:
     return False
 
 
+def infer_size(endings: list[str]) -> int:
+    """How many end-words a stanza has, read off the text.
+
+    The first stanza uses each end-word once and the second reuses them, so the
+    size is the length of the longest all-distinct run at the start: for a
+    sestina, `a b c d e f` before `f` comes round again.
+
+    This used to ask for the *first* `n` whose first `n` endings are all distinct,
+    which is `1` for every text there is — a single element is always a set of
+    one. So the inferred size was always 1, `range(1, size)` never iterated, no
+    stanza was ever compared against the rotation, and `total` came back 0, which
+    `_report` scores 1.0 as vacuously satisfied. Unparametrised, this row accepted
+    every text put to it, including a sestina with an end-word wrong.
+
+    Nothing caught it because every golden case, every strategy and every unit
+    test passed `n` explicitly, so the inference — which is the default, and what
+    a caller who has not read the parameter list gets — had no coverage at all.
+    """
+    seen: set[str] = set()
+    for size, word in enumerate(endings):
+        if word in seen:
+            return size
+        seen.add(word)
+    return len(endings)
+
+
 def end_words(text: str, pack: LanguagePack) -> list[str]:
     return [words[-1].casefold() for _, line in line_spans(text) if (words := pack.tokenize(line))]
 
@@ -66,11 +92,7 @@ class Quenina(BaseProcedure[QueninaParams]):
         endings = end_words(text, pack)
         if not endings:
             return self._report(good=0, total=0, violations=[], metrics={"lines": 0.0})
-        size = params.n if params.n is not None else len(set(endings[: len(endings)])) or 1
-        if params.n is None:
-            size = next(
-                (n for n in range(1, len(endings) + 1) if len(set(endings[:n])) == n), len(endings)
-            )
+        size = params.n if params.n is not None else infer_size(endings)
         violations: list[Violation] = []
         if not is_valid_size(size):
             violations.append(
