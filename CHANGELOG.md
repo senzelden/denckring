@@ -591,6 +591,17 @@ All notable changes to this project are documented here. The format follows
   **No catalogue row**: the technique has no historical precedent, and neither
   `attribution` nor `attested` has a value meaning "contemporary, with no source".
   Amendment to ADR 0031.
+- `release.yml` gains a TestPyPI rehearsal on `workflow_dispatch`. PyPI refuses a
+  re-upload of a version that already exists, so without one the first genuine `v*` tag
+  would also be the first time this workflow had ever run end to end.
+- `release.yml`'s `docs` job runs *before* `publish` rather than after it. As written, a
+  docs failure left the release on PyPI and undocumented, and unrecoverable — and
+  `mkdocs gh-deploy` fails outright on a private repository, so the old order guaranteed
+  the first release would publish and then go red.
+- Three docstrings that counted the generators no longer do. The worst was the
+  `apply_procedure` MCP tool description, read by callers at call time, which said
+  twenty-seven while the twenty-eighth was landing; `list_procedures` answers it exactly
+  and cannot go stale.
 
 ### Changed
 
