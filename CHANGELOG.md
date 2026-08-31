@@ -567,6 +567,10 @@ All notable changes to this project are documented here. The format follows
   reimplemented, so a text this row accepts is one those two accept. The halves are
   scored separately, so a broken rhyme over a sound anagram reads 0.5 and says which.
   The primary text has not been consulted; Kilcher, who read it, is named in the source.
+- `docs/expansion_ideas/` is excluded from the source distribution, on the argument the
+  existing exclusions already make: those are working documents — proposals, handovers
+  and research notes addressed to whoever picks the work up — not documentation of what
+  this package does. They stay in git, because the ADRs cite them.
 
 ### Changed
 
