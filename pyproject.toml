@@ -77,12 +77,21 @@ build-backend = "hatchling.build"
 packages = ["src/denckring"]
 
 # The workspace members build their own distributions; a source distribution that
-# carried them too would ship the CMU dictionary, the WordNet glosses and the German
-# lexicon a second time — 7.1 MB of data this package does not read — under a licence
-# expression that does not describe them. The explorer is a development tool and is
-# published nowhere. `tests/` and `docs/` stay: downstream packagers run the suite.
+# carried them too would ship the CMU dictionary, the WordNet glosses, the German
+# lexicon and now the German pronunciations a second time — 21 MB of data this
+# package does not read — under a licence expression that does not describe them. The
+# explorer is a development tool and is published nowhere. `tests/` and `docs/` stay:
+# downstream packagers run the suite.
+#
+# `docs/expansion_ideas/` is excluded on the same argument rather than on size:
+# those are working documents — proposals, handovers and research notes addressed to
+# whoever picks the work up — not documentation of what this package does. They stay
+# in git, because the ADRs cite them and a citation pointing at nothing is worse than
+# a large sdist; they do not go to PyPI, because nothing downstream reads them. It is
+# also what keeps the archive under its bound: at the time of writing they were
+# 99 KB of prose against 14 KB of headroom.
 [tool.hatch.build.targets.sdist]
-exclude = ["/packages", "/apps"]
+exclude = ["/packages", "/apps", "/docs/expansion_ideas"]
 
 [tool.ruff]
 line-length = 100
