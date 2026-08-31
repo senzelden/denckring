@@ -22,6 +22,7 @@ from denckring.lang.fr import FrenchPack
 WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "words.txt.gz"))
 NOUNS_PATH = Path(str(files("denckring_fr_data") / "data" / "nouns.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "graded_words.txt.gz"))
+GLOSSES_PATH = Path(str(files("denckring_fr_data") / "data" / "glosses.txt.gz"))
 
 __version__ = "0.1.0"
 
@@ -63,6 +64,21 @@ def graded_words() -> Mapping[str, int]:
             if band:
                 table[word] = int(band)
     return table
+
+
+@lru_cache(maxsize=1)
+def gloss_table() -> dict[str, tuple[str, ...]]:
+    """Headword to every sense's definition, in Wiktionary's order.
+
+    Split on `" | "` rather than `"|"`, because a definition may contain a bare
+    pipe and the build rejects any that contains the spaced separator.
+    """
+    with gzip.open(GLOSSES_PATH, mode="rt", encoding="utf-8") as handle:
+        return {
+            key: tuple(values.split(" | "))
+            for key, _, values in (line.rstrip("\n").partition("\t") for line in handle)
+            if values
+        }
 
 
 class FrenchDataPack(FrenchPack):
