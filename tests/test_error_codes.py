@@ -80,15 +80,23 @@ def test_missing_capability_names_the_extra_that_supplies_it() -> None:
 def test_missing_capability_promises_no_extra_that_does_not_exist() -> None:
     """The remedy has to be one the reader can follow.
 
-    French is a built-in pack with no lexicon (ADR 0029), so every lexicon row fails
-    through this error — and the message used to interpolate the language into
-    `pip install denckring[{lang}]`, sending a French caller after a distribution
-    that has never existed. English and German have one; nothing else does.
+    The message interpolates the language into `pip install denckring[{lang}]`, and
+    it may only do so for a language a distribution exists for. This test used to
+    assert the opposite for French: ADR 0029 left French a built-in pack with no
+    lexicon, so every lexicon row failed through here and the message sent a French
+    caller after a distribution that had never existed. ADR 0032 shipped it, so `fr`
+    is now a followable remedy and the case that still has to hold is the one for a
+    language with no extra at all.
     """
     payload = MissingCapability("n_plus_7", "fr", "lexicon.nouns").to_dict()
-    assert "denckring[fr]" not in payload["message"]
+    assert "denckring[fr]" in payload["message"]
     assert "lexicon.nouns" in payload["message"]
     assert payload["detail"]["lang"] == "fr"
+
+    # `it` is not a language this project has a pack or a distribution for, so the
+    # remedy must say there is none rather than inventing `denckring[it]`.
+    unsupported = MissingCapability("n_plus_7", "it", "lexicon.nouns").to_dict()
+    assert "denckring[it]" not in unsupported["message"]
 
 
 def test_invalid_params_carries_the_field_errors() -> None:

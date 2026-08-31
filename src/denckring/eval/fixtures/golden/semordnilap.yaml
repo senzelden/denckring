@@ -27,3 +27,17 @@ cases:
       Otto
     params: {}
     satisfied: false
+  - name: port-trop
+    lang: fr
+    source: constructed example; port reversed is trop, and both are words the lexicon knows, verified with is_word
+    text: |-
+      port
+    params: {}
+    satisfied: true
+  - name: un-palindrome-francais
+    lang: fr
+    source: constructed counterexample; radar reverses to itself
+    text: |-
+      radar
+    params: {}
+    satisfied: false

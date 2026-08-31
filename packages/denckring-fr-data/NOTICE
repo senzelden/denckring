@@ -1,0 +1,15 @@
+denckring-fr-data
+Copyright 2026 senzelden
+
+The code in this distribution is licensed under the Apache License, Version 2.0.
+See LICENSE.
+
+The data in this distribution comes from two sources, both licensed under the
+Creative Commons Attribution-ShareAlike 4.0 International licence:
+
+  - Lexique 3.82 (lexique.org) — see LICENSE-LEXIQUE
+  - French Wiktionary — see LICENSE-WIKTIONARY
+
+Both impose attribution and share-alike. That they agree is why this is one
+distribution where German needs two: ADR 0013 quarantines a data licence per
+distribution, and there is only one licence here to quarantine.

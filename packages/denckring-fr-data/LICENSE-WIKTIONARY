@@ -1,0 +1,17 @@
+The French glosses in this distribution are derived from French Wiktionary
+(https://fr.wiktionary.org), specifically from the
+`frwiktionary-latest-pages-articles` XML dump published by the Wikimedia
+Foundation.
+
+Wiktionary text is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International licence:
+
+    https://creativecommons.org/licenses/by-sa/4.0/
+
+Attribution: the French Wiktionary contributors. Page histories, which name
+them, are at https://fr.wiktionary.org/wiki/<headword> under "Historique".
+
+Share-alike: the derived data files in this distribution are offered under the
+same CC BY-SA 4.0 licence.
+
+Regenerate the vendored files with scripts/build_lexicon.py.

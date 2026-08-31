@@ -33,3 +33,20 @@ cases:
       Eine Katze schläft auf dem Tisch.
     params: { source: "Die Katze schläft auf dem Tisch.", offset: 3 }
     satisfied: false
+  - name: francais-deplace-de-trois
+    lang: fr
+    source: >-
+      constructed example; produced by `apply("s_plus_7", "le chat dort",
+      lang="fr", offset=3)` rather than hand-written. chat (noun_index 7980) is
+      displaced three entries forward in nouns() to chatière.
+    text: |-
+      le chatière dort
+    params: { source: le chat dort, offset: 3 }
+    satisfied: true
+  - name: francais-mauvais-decalage
+    lang: fr
+    source: constructed counterexample; the same text read against an offset of 7, which chatière is not
+    text: |-
+      le chatière dort
+    params: { source: le chat dort, offset: 7 }
+    satisfied: false

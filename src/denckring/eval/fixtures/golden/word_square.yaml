@@ -37,3 +37,21 @@ cases:
       ja
     params: {}
     satisfied: false
+  - name: mer-eau-rue
+    lang: fr
+    source: constructed example; mer, eau and rue are all words the lexicon knows, and the square reads the same down as across
+    text: |-
+      mer
+      eau
+      rue
+    params: {}
+    satisfied: true
+  - name: mer-repetee
+    lang: fr
+    source: constructed counterexample; repeating the same row breaks the row/column symmetry
+    text: |-
+      mer
+      mer
+      mer
+    params: {}
+    satisfied: false

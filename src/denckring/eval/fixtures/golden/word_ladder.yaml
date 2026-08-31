@@ -41,3 +41,17 @@ cases:
       schon schön
     params: {}
     satisfied: false
+  - name: chat-a-chez
+    lang: fr
+    source: constructed example; each step changes one letter and every rung is a word the lexicon knows
+    text: |-
+      chat char cher chez
+    params: {}
+    satisfied: true
+  - name: deux-lettres-en-un-pas
+    lang: fr
+    source: constructed counterexample; chat to cher changes two letters at once
+    text: |-
+      chat cher chez
+    params: {}
+    satisfied: false

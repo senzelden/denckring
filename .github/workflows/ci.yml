@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
       - run: uv run ruff check
       - run: uv run ruff format --check
 
@@ -31,7 +31,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra mcp
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr --extra mcp
       - run: >-
           uv run mypy --strict src tests packages/denckring-en-data/src
           packages/denckring-de-data/src packages/denckring-de-wiktionary/src
@@ -55,7 +55,7 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
-      - run: uv sync --extra en --extra de --extra de-wiktionary
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
       - run: uv run pytest -q
 
   eval:
@@ -68,7 +68,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
       - run: uv run denckring eval --all
       - run: uv run denckring status
 
@@ -82,7 +82,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra mcp
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr --extra mcp
       - run: uv run pytest tests/test_mcp_tools.py -q
       - name: The server starts and lists its four tools
         run: |
@@ -164,6 +164,36 @@ jobs:
               raise SystemExit('iambic_pentameter needs stress, which this install lacks')
           "
 
+  french-without-data:
+    # French ships in core with no data at all, which is a real install shape and
+    # the one the suite never runs: it always has `denckring[fr]`. ADR 0032 leaves
+    # 41 rows blocked in French, and a syllabic or lexical one must refuse by
+    # naming what is missing rather than guessing.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install the core distribution alone
+        run: |
+          uv venv /tmp/fr-core
+          VIRTUAL_ENV=/tmp/fr-core uv pip install .
+      - name: The data-free French rows work and the lexical ones name what is missing
+        run: |
+          /tmp/fr-core/bin/python -c "
+          from denckring import check
+          from denckring.core.errors import MissingCapability
+          assert check('lipogram', 'aaa', forbidden='z', lang='fr').satisfied
+          try:
+              check('n_plus_7', 'la maison', lang='fr')
+          except MissingCapability as exc:
+              assert 'lexicon.nouns' in str(exc), exc
+              print('fr-core: raised as expected —', exc)
+          else:
+              raise SystemExit('n_plus_7 needs lexicon.nouns, which this install lacks')
+          "
+
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -171,7 +201,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
       - name: Regenerate the gallery
         run: uv run python scripts/build_docs.py
       - name: Build the site

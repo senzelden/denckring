@@ -602,6 +602,38 @@ All notable changes to this project are documented here. The format follows
   `apply_procedure` MCP tool description, read by callers at call time, which said
   twenty-seven while the twenty-eighth was landing; `list_procedures` answers it exactly
   and cannot go stale.
+- `denckring-fr-data`, installed by `pip install denckring[fr]` — a fifth distribution
+  giving French `lexicon.words`, `lexicon.nouns`, `lexicon.glosses` and
+  `lexicon.graded_words`: 125,343 words, 44,746 nouns, six frequency bands and 510,973
+  gloss headwords. **French goes from 70 to 80 of the 121 implemented rows**, unblocking
+  `charade`, `definitional_expansion`, `definitional_literature`, `kangaroo_word`,
+  `n_plus_7`, `s_plus_7`, `semordnilap`, `tmesis`, `word_ladder` and `word_square`, with
+  22 golden cases across eleven rows. `denckring eval --all` goes from 417 to 439.
+  Two sources, both CC BY-SA 4.0, so one distribution rather than German's two: Lexique
+  3.82 for membership, nouns and frequency, and the `frwiktionary` dump for definitions.
+  French registers its own entry point resolving to a class, not to a `pack()` factory —
+  there is no second French distribution to choose between. ADR 0032, which records why
+  Wikidata Lexemes could not carry it: 12,768 French noun lexemes against German's
+  188,948, 6.8%, measured before anything was built.
+- French is the second pack with `lexicon.graded_words`, so `apply anagram` now runs in
+  it. Lexique's frequencies are inverted at build time into SCOWL's direction, where
+  larger means *less* common, because that is what the capability's contract says and
+  what `anagram` sorts by; a test pins the direction. The bucketing into six bands is
+  arbitrary — Lexique gives a continuous frequency — so roughly 20,900 words share each
+  band with no ordering inside it, which is coarser than English's editorially-graded
+  bands.
+- A `french-without-data` CI job, mirroring `german-without-pronunciations`: the
+  data-free French install is a real shape the suite never runs, and a lexical row in it
+  must refuse by naming `lexicon.nouns` rather than guessing.
+- **French declares no prosody, and 41 rows stay blocked — 18 of them permanently.**
+  Lexique's `orthosyll`, `phon` and `syll` columns are present and deliberately unused:
+  the 23 syllabic rows need a line-level count, because a French mute *e* counts before a
+  consonant, elides before a vowel and never counts at line end, so summing citation
+  forms undercounts systematically. The other 18 are accentual metres and French has no
+  lexical stress, so no future data source closes them. ADR 0032 D5.
+- `MissingCapability` now names `pip install denckring[fr]` as the remedy for a French
+  lexicon row, and `denckring.lang`'s docstring no longer says no such extra exists.
+  Both were true when written and were falsified by the distribution above.
 
 ### Fixed
 

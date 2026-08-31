@@ -83,13 +83,17 @@ class UnknownLanguage(DenckringError):
 #: hint can honestly name. Listed rather than read from packaging metadata for the
 #: reason `denckring.lang` keeps the packs themselves as built-in defaults: core
 #: does not depend on its own installed metadata being readable. ADR 0029 made this
-#: matter — French is a built-in pack carrying no lexicon, so every lexicon row now
-#: fails through here, and `pip install denckring[fr]` names a distribution that has
-#: never existed. A remedy nobody can follow is worse than no remedy.
+#: matter — French is a built-in pack carrying no lexicon, so every lexicon row fails
+#: through here, and at the time `pip install denckring[fr]` named a distribution that
+#: had never existed. A remedy nobody can follow is worse than no remedy. ADR 0032
+#: shipped `denckring-fr-data`, so `fr` is now a remedy a reader can follow and it is
+#: listed; the entry has to be added by hand for each new extra, which is the cost of
+#: not reading packaging metadata.
 #: Naming a language's extra still assumes that extra supplies the missing
-#: capability, which is not always true — `denckring[de]` carries no `stress` —
-#: and that inaccuracy predates this and is untouched here.
-_EXTRAS = frozenset({"en", "de"})
+#: capability, which is not always true — `denckring[de]` carries no `stress`, and
+#: `denckring[fr]` carries no syllables or phonemes (ADR 0032 D5) — and that
+#: inaccuracy predates this and is untouched here.
+_EXTRAS = frozenset({"en", "de", "fr"})
 
 
 class MissingCapability(DenckringError):
