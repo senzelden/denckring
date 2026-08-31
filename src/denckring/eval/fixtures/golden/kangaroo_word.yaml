@@ -21,3 +21,17 @@ cases:
     text: cafés
     params: { synonym: cafe, fold_diacritics: false }
     satisfied: false
+  - name: souriant-riant
+    lang: fr
+    source: constructed example; riant is a word the lexicon knows and its letters run in order inside souriant
+    text: |-
+      souriant
+    params: { synonym: riant }
+    satisfied: true
+  - name: lettres-dans-le-desordre
+    lang: fr
+    source: constructed counterexample; triste is a word, but its letters do not run in order inside souriant
+    text: |-
+      souriant
+    params: { synonym: triste }
+    satisfied: false

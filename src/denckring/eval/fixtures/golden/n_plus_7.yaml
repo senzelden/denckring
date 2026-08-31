@@ -38,3 +38,23 @@ cases:
       Eine Katze schläft auf dem Tisch.
     params: { source: "Die Katze schläft auf dem Tisch." }
     satisfied: false
+  - name: francais-deplace-de-sept
+    lang: fr
+    source: >-
+      constructed example; produced by `apply("n_plus_7", "le chat dort",
+      lang="fr")` rather than hand-written. chat (noun_index 7980) is displaced
+      seven entries forward in nouns() to chatons; le and dort are not in the
+      noun list and stay as they are.
+    text: |-
+      le chatons dort
+    params: { source: le chat dort }
+    satisfied: true
+  - name: francais-non-substantif-change
+    lang: fr
+    source: >-
+      constructed counterexample; the displacement above with le changed to un,
+      a non-noun substitution the checker flags.
+    text: |-
+      un chatons dort
+    params: { source: le chat dort }
+    satisfied: false

@@ -20,3 +20,17 @@ cases:
       Bahnhof
     params: {}
     satisfied: true
+  - name: bonjour
+    lang: fr
+    source: constructed example; bonjour divides into bon and jour, verified with splits_into against the French lexicon
+    text: |-
+      bonjour
+    params: {}
+    satisfied: true
+  - name: musique-ne-se-divise-pas
+    lang: fr
+    source: constructed counterexample; musique admits no cut into two words the lexicon knows
+    text: |-
+      musique
+    params: {}
+    satisfied: false

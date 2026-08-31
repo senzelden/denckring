@@ -27,3 +27,17 @@ cases:
       Katze-lustig-Hund
     params: {}
     satisfied: false
+  - name: extra-vraiment-ordinaire
+    lang: fr
+    source: constructed example; extra-ordinaire rejoins as extraordinaire, a word the lexicon knows
+    text: |-
+      extra-vraiment-ordinaire
+    params: {}
+    satisfied: true
+  - name: les-moities-ne-se-rejoignent-pas
+    lang: fr
+    source: constructed counterexample; chat and chien do not rejoin into a word
+    text: |-
+      chat-vraiment-chien
+    params: {}
+    satisfied: false
