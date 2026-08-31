@@ -11,3 +11,17 @@ cases:
     text: cat dog jumps
     params: {}
     satisfied: false
+  - name: wiederholtes-a
+    lang: de
+    source: "constructed example; Wald, am, Rand, hat and Sand all carry the same vowel"
+    text: |-
+      der Wald am Rand hat Sand
+    params: {}
+    satisfied: true
+  - name: kein-geteilter-vokal
+    lang: de
+    source: "constructed counterexample"
+    text: |-
+      die Blume blüht im Sommer
+    params: {}
+    satisfied: false

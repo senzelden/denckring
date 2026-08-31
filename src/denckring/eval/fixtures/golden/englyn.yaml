@@ -37,3 +37,13 @@ cases:
       and the river hums today
     params: {}
     satisfied: false
+  - name: zehn-sechs-sieben-sieben
+    lang: de
+    source: "constructed example; the 10-6-7-7 measure and single rhyme of the strict-metre form"
+    text: |-
+      der Sommerabend legt sich auf das Land
+      am stillen weißen Strand
+      und die Schwalbe ruft zur Hand
+      und der Fluss singt in dem Sand
+    params: {}
+    satisfied: true

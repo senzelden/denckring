@@ -35,16 +35,17 @@ from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
-def _phoneme_onset(phonemes: list[str]) -> list[str]:
+def _phoneme_onset(phonemes: list[str], pack: LanguagePack) -> list[str]:
     """Every consonant phoneme before the first vowel.
 
-    A CMU-style vowel phoneme carries a stress digit; a consonant does not,
-    matching `assonance_constraint._vowels`'s test in reverse. A word with no
-    vowel phoneme at all (an initialism CMUdict spells out consonant by
-    consonant) has no onset/rest split to make, so the whole thing is the onset.
+    Which phonemes are vowels is the pack's question, not this row's — see
+    `LanguagePack.is_vowel_phoneme`, and `assonance_constraint._vowels` for the
+    same test the other way up. A word with no vowel phoneme at all (an
+    initialism CMUdict spells out consonant by consonant) has no onset/rest
+    split to make, so the whole thing is the onset.
     """
     for index, phoneme in enumerate(phonemes):
-        if phoneme[-1:].isdigit():
+        if pack.is_vowel_phoneme(phoneme):
             return phonemes[:index]
     return list(phonemes)
 
@@ -59,7 +60,7 @@ def _onset_or_none(word: str, pack: LanguagePack) -> list[str] | None:
         phonemes = pack.phonemes(word)
     except MissingCapability:
         return None
-    return _phoneme_onset(phonemes)
+    return _phoneme_onset(phonemes, pack)
 
 
 def _letter_onset(word: str, pack: LanguagePack) -> tuple[str, str]:

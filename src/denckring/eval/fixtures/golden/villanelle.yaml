@@ -36,3 +36,28 @@ cases:
       the birds will sing before the break of day
     params: {}
     satisfied: false
+  - name: neunzehn-zeilen
+    lang: de
+    source: "constructed example; two rhymes and two alternating refrains"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Wandrer zieht durch jenes weite Land
+      der Regen fällt und niemand hat gelacht
+      der Wandrer zieht durch jenes weite Land
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Wandrer zieht durch jenes weite Land
+      der Regen fällt und niemand hat gelacht
+      der Wandrer zieht durch jenes weite Land
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Wandrer zieht durch jenes weite Land
+      der Regen fällt und niemand hat gelacht
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+    params: {}
+    satisfied: true

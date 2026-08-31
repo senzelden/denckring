@@ -82,9 +82,14 @@ def test_a_pack_genuinely_lacking_phonemes_still_raises() -> None:
 
     A pack with no pronunciation at all cannot check rhyme by any reading, and
     saying so is what `MissingCapability` is for.
+
+    French, and no longer German: chapter 4's tranche B gave `de` a pronouncing
+    dictionary, so it stopped being an example of a pack without one. `fr` ships
+    no data at all, which is what this test needs and is the state ADR 0029
+    recorded for it.
     """
     with pytest.raises(MissingCapability):
-        check("rhyme_scheme", "the cat sat\nthe dog ran", scheme="AA", lang="de")
+        check("rhyme_scheme", "le chat dort\nle chien court", scheme="AA", lang="fr")
 
 
 #: Every row that pairs rhymes. `assonance_constraint` and `spoonerism` declare

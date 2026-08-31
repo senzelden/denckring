@@ -13,3 +13,17 @@ cases:
       cat cap
     params: {}
     satisfied: false
+  - name: verschiedene-anlaute
+    lang: de
+    source: "constructed example; Katze (onset K) and Blume (onset B) exchange cleanly"
+    text: |-
+      Katze Blume
+    params: {}
+    satisfied: true
+  - name: gleiche-anlaute
+    lang: de
+    source: "constructed counterexample; Katze and Kanne both carry the onset K"
+    text: |-
+      Katze Kanne
+    params: {}
+    satisfied: false

@@ -22,3 +22,10 @@ cases:
       the a plot of ground where plants are cultivated was quiet
     params: { source: "the garden was quiet" }
     satisfied: false
+  - name: der-garten-war-still
+    lang: de
+    source: "constructed example; `der`, `Garten` and `still` are each replaced by one of the senses `get_pack(\"de\").glosses` returns for them, read verbatim rather than hand-typed. `war` does not resolve and is left as it was."
+    text: |-
+      definiter Artikel (bestimmtes Geschlechtswort) vor einem Wirtshaus aufgestellte Kübelbäume war im Zustand der Bewegungslosigkeit, der Unbewegtheit und der Ruhe
+    params: { source: "der Garten war still" }
+    satisfied: true

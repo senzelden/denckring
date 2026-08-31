@@ -513,6 +513,22 @@ All notable changes to this project are documented here. The format follows
   each is already a run of adjacent vowels. It undercounts a vowel sequence spanning a
   morpheme boundary — `Museum` gives 2 where German says 3 — which a test pins rather
   than leaves to be found later. German goes from 78 of 119 runnable rows to 89.
+- German runs every row. `denckring[de-wiktionary]`, a fourth distribution, vendors
+  837,689 pronunciations and 179,831 glosses extracted from the German Wiktionary dump,
+  giving the German pack `phonemes`, `stress`, `syllables.dictionary` and
+  `lexicon.glosses`. **German goes from 89 of 119 runnable rows to 119**, and
+  `denckring eval --all` from 365 passing cases to 401. Syllable counts and stress are
+  read off the transcription rather than sourced separately, so `stress` can never be
+  present without `phonemes`. Measured 94.0% token coverage over 340,958 tokens of
+  Wieland, Goethe, Kafka and Mann; the residue is pre-1901 orthography and proper names.
+  ADR 0030.
+- `denckring-de-data` gains a `pack()` factory, and the `de` entry point resolves to it
+  rather than to a class. Core refuses two packs claiming one language and ADR 0013
+  forbids merging CC BY-SA data into a CC0 distribution; a factory satisfies both, and
+  every pack's `capabilities` stays a fixed `ClassVar` rather than becoming computed.
+- 36 German golden cases across 30 rows, including Goethe's opening hexameter from
+  *Hermann und Dorothea*, Voß's from the *Odüssee* and Heine's trochaic tetrameter,
+  which scan under the checkers unmodified.
 
 ### Changed
 
@@ -638,6 +654,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- `assonance_constraint` and `spoonerism` identified a vowel phoneme by CMUdict's stress
+  digit — a convention no other source uses. Both rows declare only `phonemes`, so the
+  moment German had phonemes they ran in German and found no vowels in any German word:
+  `assonance_constraint` failed every German text and `spoonerism` read every word as
+  pure onset. `LanguagePack.is_vowel_phoneme` puts the question on the pack, where the
+  answer lives.
+- `denckring-en-data` declared the `syllables` capability and never implemented it, so
+  `get_pack("en").syllables("table")` raised `MissingCapability` naming a capability the
+  pack declared. No row requires it, so nothing was broken; but `runs_in` computes from
+  `capabilities`, so the first row to require it would have been reported as running in
+  `en` and would then have raised. The claim is removed: a pronouncing dictionary is not
+  a hyphenation dictionary.
 - `device.load` and `device.load_figure` built a filename by interpolating the caller's
   id directly — `directory / f"{item_id}.yaml"` — which `Path` does not make safe:
   `Path.__truediv__` silently discards the left operand when the right is absolute, and

@@ -631,3 +631,22 @@ parses it — exactly the placeholder this skill forbids.
 **B's plan comes after the dump is measured**, in that order: measure, write the ADR with the
 real figure, then plan. Tranche A waits for none of it, which is why the spec made A
 independently shippable.
+
+---
+
+## Tranche B, as executed — 2026-08-31
+
+Recorded here rather than written as a plan, because by the time the plan would have been
+written there was nothing left to plan. The dump was downloaded and measured first, as this
+section required; the structure it revealed made the build script a two-hour job rather than
+the unknown this document was protecting against, and the design questions that remained were
+decisions rather than steps. Those are in **ADR 0030**, which is where they belong.
+
+What changed against the spec: the distribution is `denckring-de-wiktionary`, not
+`denckring-de-phon`, because the same dump supplies `lexicon.glosses` and a source-named
+package is honest about a licence question that covers both. And the spec's D3 — computing
+`GermanDataPack.capabilities` from a probe, at the stated cost that a reader could no longer
+see what the class does — was built, then replaced by a `pack()` factory that removes the cost
+instead of paying it. ADR 0030's D2 records both.
+
+German went 89 → **119 of 119**, which was the whole point of chapter 4.

@@ -1,7 +1,8 @@
 # denckring — German prosody
 
 **Date:** 2026-08-30
-**Status:** tranche A implemented 2026-08-30; tranche B not started
+**Status:** tranche A implemented 2026-08-30; tranche B implemented 2026-08-31, with
+D3 and the distribution's name amended — see ADR 0030
 **Scope:** the syllable, stress and phoneme capabilities the German pack has never had, and the data distribution that can supply them
 **Branch point:** `f0ffdcb` (154 catalogued · 128 implementable · 119 implemented · 119 validated · 26 not mechanically checkable)
 

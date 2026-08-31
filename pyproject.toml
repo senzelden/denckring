@@ -28,6 +28,10 @@ dependencies = ["pydantic>=2.7", "pyyaml>=6.0", "typer>=0.12"]
 en = ["denckring-en-data==0.1.0"]
 # Word membership and a noun list for German, from Wikidata Lexemes.
 de = ["denckring-de-data==0.1.0"]
+# Everything `de` gives, plus pronunciation, stress and glosses from German
+# Wiktionary. A separate extra because its data is CC BY-SA where `de` is CC0,
+# and ADR 0013 quarantines a data licence in its own distribution.
+de-wiktionary = ["denckring-de-data==0.1.0", "denckring-de-wiktionary==0.1.0"]
 # An MCP server, so a model can check its own constrained writing.
 mcp = ["mcp[cli]>=2"]
 
@@ -49,6 +53,7 @@ members = ["packages/*"]
 denckring = { workspace = true }
 denckring-en-data = { workspace = true }
 denckring-de-data = { workspace = true }
+denckring-de-wiktionary = { workspace = true }
 
 [dependency-groups]
 dev = [
@@ -87,6 +92,12 @@ extend-exclude = ["docs"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "N", "ANN"]
 ignore = ["ANN401"]
+# IPA, not typos. Chapter 4 tranche B reads German pronunciations off Wiktionary's
+# transcriptions, so `ˈ`, `ː`, `ɡ`, `ɪ`, `ʏ` and `ɑ` appear in docstrings and
+# comments that explain what the arithmetic is doing. Naming the six characters
+# rather than switching RUF001-003 off keeps the rule live for a real confusable
+# arriving anywhere else in the project.
+allowed-confusables = ["ˈ", "ː", "ɡ", "ɪ", "ʏ", "ɑ"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ANN"]

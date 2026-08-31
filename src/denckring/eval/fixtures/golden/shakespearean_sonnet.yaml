@@ -50,3 +50,23 @@ cases:
       the bell will ring and slowly start to chime
     params: {}
     satisfied: true
+  - name: drei-quartette-und-couplet
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Regen fällt und niemand hat gelacht
+      ein Vogel singt am Morgen auf dem Baum
+      die Lampe steht und gibt uns wenig Licht
+      ein Kind erwacht und ruft nach seinem Traum
+      der Bote kommt, doch bringt er Botschaft nicht
+      der Bauer geht am Abend nicht allein
+      der Mond erhebt sich über jenem Feld
+      die Sonne sinkt und lässt den Himmel rein
+      die Krone fällt und niemand ist ein Held
+      der Wandrer geht hinunter in das Tal
+      die Fenster leuchten hell im großen Saal
+    params: {}
+    satisfied: true

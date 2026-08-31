@@ -19,3 +19,13 @@ cases:
       and left the lab in the pale light
     params: {}
     satisfied: false
+  - name: zwei-paarreime
+    lang: de
+    source: "constructed example after Edmund Clerihew Bentley's form"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+      der Wind bewegt die Blätter in der Nacht
+      der Regen fällt und niemand hat gelacht
+    params: {}
+    satisfied: true
