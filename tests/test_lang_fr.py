@@ -17,7 +17,10 @@ def test_french_declares_the_same_four_capabilities_as_german() -> None:
     assert {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES} <= get_pack("fr").capabilities
 
 
-def test_french_has_no_lexicon_or_syllables() -> None:
+def test_the_core_french_pack_has_no_lexicon_or_syllables() -> None:
+    """Names `FrenchPack`, not "French": under `denckring[fr]` (chapter 6)
+    French does have a lexicon — it is the bare `FrenchPack`, instantiated
+    directly here rather than resolved through `get_pack`, that never does."""
     pack = FrenchPack()
     with pytest.raises(MissingCapability):
         pack.syllables("chien")
@@ -41,7 +44,7 @@ def test_a_core_only_check_runs_in_french() -> None:
     assert report.satisfied
 
 
-def test_a_row_needing_a_lexicon_fails_on_the_capability_not_the_language() -> None:
+def test_a_row_needing_syllables_fails_on_the_capability_not_the_language() -> None:
     """`n_plus_7` was this test's original subject: it named `lexicon.nouns`,
     which `denckring[fr]` now supplies (chapter 6), so it runs in French and can
     no longer illustrate the failure. `haiku` needs `syllables.heuristic`, which

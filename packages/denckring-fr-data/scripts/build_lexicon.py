@@ -109,7 +109,17 @@ def build_tables(rows: list[dict[str, str]]) -> tuple[list[str], list[str], dict
         if not word or not word.replace("-", "").replace("'", "").isalpha():
             continue
         best[word] = max(best.get(word, 0.0), frequency(row))
-        if row["cgram"] == "NOM":
+        # Nouns are further restricted to purely alphabetic forms: N+7 walks this
+        # list and substitutes a noun in running text, so a displacement must be
+        # a word the tokeniser gives back whole. `denckring-en-data`'s
+        # `noun_list` docstring names the same rule — "a displacement must be a
+        # word the tokeniser gives back whole — `cat's-paw` comes back as three
+        # tokens and would break the correspondence" — and 3,324 of 48,070 French
+        # nouns break it the same way (`abat-jour`, hyphenated, is most of them;
+        # a few carry an apostrophe instead). `words.txt` and `graded_words` keep
+        # these forms: membership and ranking are asked about tokens, and the
+        # tokeniser never yields a hyphenated or apostrophed one either way.
+        if row["cgram"] == "NOM" and word.isalpha():
             nouns.add(word)
     ranked = sorted(best, key=lambda w: (-best[w], w))
     bands = {

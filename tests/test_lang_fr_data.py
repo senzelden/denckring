@@ -103,3 +103,25 @@ def test_the_entry_point_gives_this_pack() -> None:
     from denckring.lang import get_pack
 
     assert isinstance(get_pack("fr"), fr_data.FrenchDataPack)
+
+
+def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:
+    """`tests/test_round_trip.py` drives every registered procedure's round trip
+    through `meta.languages[0]`, which for `n_plus_7` is `en` — so it could
+    never have caught a French-only bug in this pack's noun list. There was one:
+    `nouns.txt.gz` originally kept hyphenated forms like `abat-jour`, the
+    tokeniser splits a hyphenated word into two tokens, and N+7 could displace
+    into a noun its own checker would then see as the wrong word count. Fixed by
+    restricting the built noun list to `word.isalpha()`, matching
+    `denckring-en-data`'s `noun_list` docstring. This is the French leg the
+    shared round-trip gate cannot supply for itself.
+    """
+    from denckring.core.base import ConstructiveProcedure
+    from denckring.core.registry import get
+
+    n_plus_7 = get("n_plus_7")
+    assert isinstance(n_plus_7, ConstructiveProcedure)
+    source = "abalone"
+    produced = n_plus_7.apply(source, lang="fr")
+    report = n_plus_7.check(produced, lang="fr", source=source)
+    assert report.satisfied

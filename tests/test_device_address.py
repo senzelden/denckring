@@ -15,6 +15,7 @@ from denckring.core.base import ConstructiveProcedure
 from denckring.core.device import DEVICE_PATH_ENV, load, segment
 from denckring.core.errors import InvalidParams, MissingCapability
 from denckring.core.registry import get
+from denckring.lang.fr import FrenchPack
 
 RINGS = load("harsdoerffer_1651")
 
@@ -221,11 +222,17 @@ def test_asking_a_device_with_no_mask_is_refused_rather_than_ignored(
 def test_asking_a_pack_that_cannot_answer_is_refused_by_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """`lexicon.words` was this test's original subject, but chapter 6 gave
-    French a lexicon, so it can say whether a reading is attested now and no
-    longer illustrates a pack that cannot answer. `phonemes` still does — this
-    chapter ships no phonetic data for French — and naming the capability is
-    what ADR 0004 asks of every unmet requirement, whichever one it is."""
-    device = _install(tmp_path, monkeypatch, mask={"kind": "lexicon", "source": "phonemes"})
-    with pytest.raises(MissingCapability, match=r"phonemes"):
+    """`fr` resolving to a pack with no lexicon was this test's original
+    subject, but chapter 6 gave `denckring[fr]` a real one, so `lang="fr"`
+    alone no longer illustrates a pack that cannot answer. `test_describe.py`'s
+    `test_runnable_only_shrinks_under_a_core_only_pack` already has the faithful
+    repoint: monkeypatch `denckring.lang.get_pack` to the bare `FrenchPack`,
+    which never claims `lexicon.words` regardless of what is installed. That
+    keeps the original mask (`{"kind": "lexicon", "source": "lexicon.words"}`)
+    intact — `_mask` answers it with `pack.is_word`, so a `phonemes` source
+    would be a mask no pack could ever satisfy, not a demonstration of one this
+    install merely lacks."""
+    monkeypatch.setattr("denckring.lang.get_pack", lambda lang="fr": FrenchPack())
+    device = _install(tmp_path, monkeypatch)
+    with pytest.raises(MissingCapability, match=r"lexicon\.words"):
         _generator().produce("", lang="fr", device=device, attestation="mask")
