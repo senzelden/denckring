@@ -529,6 +529,20 @@ All notable changes to this project are documented here. The format follows
 - 36 German golden cases across 30 rows, including Goethe's opening hexameter from
   *Hermann und Dorothea*, Voß's from the *Odüssee* and Heine's trochaic tetrameter,
   which scan under the checkers unmodified.
+- `proteus_verse`, the 120th implemented procedure and the 28th generator. A line whose
+  words permute into many metrically valid variants: `check` asks that the line scans as
+  written *and* that its words admit at least `minimum` orderings that also scan,
+  scored separately because a writer can fix them separately. `produce` returns the
+  orderings. Voß's opening hexameter admits 1,728 of its 40,320.
+  No new prosody abstraction: the scansion is `core.prosody`'s, and the handover that
+  proposed a `Meter`/`Syllabifier` pair was answered by what already existed — a pack's
+  `stress_patterns` already returns every reading a word has, which is the ambiguity
+  that proposal existed to model. The factorial is guarded by counting rather than
+  enumerating: a walk over (words placed, syllables filled) is bounded by 2^n where
+  scanning each ordering is n! * 32, and lines above `max_words` are refused rather
+  than searched.
+- `InputTooLong` takes the noun it counted. It said "letters" unconditionally, which is
+  right for `anagram` and wrong for a row that rearranges words.
 
 ### Changed
 

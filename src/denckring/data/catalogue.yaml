@@ -577,17 +577,20 @@ procedures:
   - id: proteus_verse
     names: { en: Proteus verse, de: Proteusvers, fr: Vers protée }
     definitions:
-      en: A line whose words can be permuted into many metrically valid variants.
+      en: >-
+        A line whose words can be permuted into many metrically valid variants. The
+        checker asks two things of a line: that it scans as written, and that its
+        words admit at least a given number of orderings that also scan.
       de: Ein Vers, dessen Wörter zu vielen metrisch gültigen Varianten permutierbar sind.
       fr: Un vers dont les mots se permutent en de multiples variantes métriques.
     source: Julius Caesar Scaliger, Poetices libri septem (1561)
     family: permutation
     attribution: primary
-    checkability: none
+    checkability: self
     attested: author-stated
-    kind: constructive
-    languages: [en]
-    requires: [tokens]
+    kind: both
+    languages: [en, de]
+    requires: [tokens, syllables.heuristic, stress]
     deterministic: true
     prompt_hints:
       en: Write a line whose words can be reordered freely while the metre still holds.
@@ -595,7 +598,12 @@ procedures:
       Harsdörffer states 39,916,800 permutations for an eleven-word line, which is 11!
       exactly, and Leibniz takes the figure up in De Arte Combinatoria (1666). It is one
       of the few counts in this field that can be recomputed from the elements and comes
-      out right.
+      out right. The scanning counts are a different matter: for Bauhusius's hexameter to
+      the Virgin, Puteanus printed 1,022 in 1617, Prestet 2,196 in 1675, Wallis 3,096 in
+      1685, Leibniz 2,580 in 1686, Bernoulli 3,312 in 1692. They disagree over the
+      ruleset, not the arithmetic, which is why the ruleset is a parameter here and the
+      count a metric rather than a number this row asserts. Knuth gives the history in
+      The Art of Computer Programming 7.2.1.7.
 
   - id: wechselsatz
     names: { en: Wechselsatz, de: Wechselsatz, fr: Vers permutatif }
