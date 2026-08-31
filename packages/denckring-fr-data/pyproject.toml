@@ -1,0 +1,31 @@
+[project]
+name = "denckring-fr-data"
+version = "0.1.0"
+description = "French lexicon data for denckring: word membership, nouns, frequency bands and glosses"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0 AND CC-BY-SA-4.0"
+license-files = ["LICENSE", "NOTICE", "LICENSE-LEXIQUE", "LICENSE-WIKTIONARY"]
+authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: French",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+# Version-locked, for the reason denckring-en-data records.
+dependencies = ["denckring==0.1.0"]
+
+# A class, not a factory. German needs `denckring_de_data:pack` because its data
+# is split across a CC0 distribution and a CC BY-SA one and only one may claim
+# `fr`'s equivalent (ADR 0030). French has one distribution and both its sources
+# carry the same licence, so there is nothing to choose between.
+[project.entry-points."denckring.lang"]
+fr = "denckring_fr_data:FrenchDataPack"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denckring_fr_data"]
