@@ -11,3 +11,19 @@ cases:
     text: silence
     params: { source: listen }
     satisfied: false
+  - name: chien-niche
+    lang: fr
+    source: >-
+      constructed example; this is what `apply("anagram", "chien", lang="fr")`
+      returns now that the French pack carries `lexicon.graded_words` — the
+      checker already ran in French, and this is the generation the capability
+      adds.
+    text: niche
+    params: { source: chien }
+    satisfied: true
+  - name: une-lettre-en-trop
+    lang: fr
+    source: constructed counterexample; chiens carries a letter chien does not
+    text: chiens
+    params: { source: chien }
+    satisfied: false

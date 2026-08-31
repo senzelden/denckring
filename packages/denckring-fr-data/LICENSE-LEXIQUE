@@ -1,0 +1,20 @@
+The French word list, noun list and frequency bands in this distribution are
+derived from Lexique 3.82.
+
+    New, B., Pallier, C., Ferrand, L., Matos, R. (2001). Une base de données
+    lexicales du français contemporain sur internet: LEXIQUE. L'Année
+    Psychologique, 101, 447-462.
+    http://www.lexique.org
+
+Lexique is licensed under the Creative Commons Attribution-ShareAlike 4.0
+International licence, as stated in the README bundled with Lexique382.zip:
+
+    https://creativecommons.org/licenses/by-sa/4.0/
+
+Attribution: Boris New and Christophe Pallier, and the Lexique contributors.
+
+Share-alike: the derived data files in this distribution
+(`src/denckring_fr_data/data/`) are offered under the same CC BY-SA 4.0 licence.
+The code in this distribution is Apache-2.0 and is not a derivative of the data.
+
+Regenerate the vendored files with scripts/build_lexicon.py.

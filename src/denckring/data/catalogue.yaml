@@ -257,7 +257,7 @@ procedures:
     attested: author-stated
     aliases: [N+7]
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
@@ -275,7 +275,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
@@ -293,7 +293,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, fold_diacritics]
     apply_requires:
       - lexicon.graded_words
@@ -381,7 +381,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, lexicon.glosses]
     deterministic: true
     prompt_hints:
@@ -758,7 +758,7 @@ procedures:
       en: Write a phrase whose Roman-numeral letters add up to the target year.
 
   - id: semordnilap
-    names: { en: Semordnilap, de: Semordnilap }
+    names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
     definitions:
       en: >-
         A word or text that spells a different word when reversed, unlike a
@@ -766,6 +766,9 @@ procedures:
       de: >-
         Ein Wort oder Text, der rückwärts gelesen ein anderes Wort ergibt — anders
         als das Palindrom, das dasselbe ergibt.
+      fr: >-
+        Un mot ou un texte qui, lu à l'envers, en donne un autre — à la différence
+        du palindrome, qui redonne le même.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
@@ -773,7 +776,7 @@ procedures:
     attested: codified
     aliases: [emordnilap, reversible word]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
@@ -794,7 +797,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
@@ -904,18 +907,21 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Choose words that split cleanly into smaller words and build the line around them.
 
   - id: kangaroo_word
-    names: { en: Kangaroo word }
+    names: { en: Kangaroo word, fr: Mot kangourou }
     definitions:
       en: >-
         A word containing the letters of a synonym of itself, in order but not
         necessarily adjacent.
+      fr: >-
+        Un mot contenant les lettres d'un de ses synonymes, dans l'ordre mais pas
+        nécessairement à la suite.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
@@ -923,7 +929,7 @@ procedures:
     attested: codified
     aliases: [marsupial word]
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
@@ -1422,16 +1428,18 @@ procedures:
     attested: author-stated
     aliases: [doublets, word golf]
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, alphabet, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
       en: Move from the first word to the last, changing one letter at a time, each step a real word.
     notes: >-
-      German is declared, and the checker takes a `fold_diacritics` parameter so
-      the declaration holds. Folded — the house default — `schon` and `schön` are
-      the same word and the step is rightly refused; unfolded, they differ in
-      exactly one letter and the canonical German doublet is accepted. The
+      German and French are declared, and the checker takes a `fold_diacritics`
+      parameter so both declarations hold. Folded — the house default — `schon`
+      and `schön` are the same word and the step is rightly refused; unfolded,
+      they differ in exactly one letter and the canonical German doublet is
+      accepted. French raises the identical question with `cote`/`côte` and
+      `sur`/`sûr`, and the same parameter answers it the same way. The
       generator substitutes over `alphabet()` widened by `vowels()`, which is
       how it reaches ä, ö and ü at all; ß is in neither, so `apply` cannot
       produce *Maße* from *Masse* although `check` accepts that step unfolded.
@@ -1629,7 +1637,7 @@ procedures:
     checkability: self
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
@@ -1718,18 +1726,21 @@ procedures:
       own `MissingCapability`, not a false pass from this row.
 
   - id: definitional_expansion
-    names: { en: Definitional expansion }
+    names: { en: Definitional expansion, fr: Expansion définitionnelle }
     definitions:
       en: >-
         A single iteration of definitional literature, in which each substantive
         word is replaced once by its dictionary definition.
+      fr: >-
+        Une seule itération de la littérature définitionnelle, où chaque mot plein
+        est remplacé une fois par sa définition.
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
     family: word
     attribution: primary
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, lexicon.glosses]
     deterministic: true
     prompt_hints:

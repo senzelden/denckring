@@ -113,10 +113,16 @@ def test_runnable_reports_what_is_missing(monkeypatch: pytest.MonkeyPatch) -> No
 
 def test_describe_reports_the_languages_the_install_can_actually_run() -> None:
     """`meta.languages` is authored editorial scope; `runs_in` is computed from
-    capabilities, so the two cannot drift into a false claim."""
+    capabilities, so the two cannot drift into a false claim.
+
+    `n_plus_7` was this test's original negative case, but chapter 6 gave French
+    `lexicon.nouns`, so it now runs there and can no longer stand in for "still
+    missing a capability". `haiku` needs `syllables.heuristic`, which this
+    chapter deliberately ships no data for.
+    """
     description = describe("anagram")
     assert "fr" in description.runs_in
-    assert "fr" not in describe("n_plus_7").runs_in
+    assert "fr" not in describe("haiku").runs_in
 
 
 def test_renga_and_haibun_match_haikus_catalogued_requirements() -> None:
