@@ -1434,10 +1434,12 @@ procedures:
     prompt_hints:
       en: Move from the first word to the last, changing one letter at a time, each step a real word.
     notes: >-
-      German is declared, and the checker takes a `fold_diacritics` parameter so
-      the declaration holds. Folded — the house default — `schon` and `schön` are
-      the same word and the step is rightly refused; unfolded, they differ in
-      exactly one letter and the canonical German doublet is accepted. The
+      German and French are declared, and the checker takes a `fold_diacritics`
+      parameter so both declarations hold. Folded — the house default — `schon`
+      and `schön` are the same word and the step is rightly refused; unfolded,
+      they differ in exactly one letter and the canonical German doublet is
+      accepted. French raises the identical question with `cote`/`côte` and
+      `sur`/`sûr`, and the same parameter answers it the same way. The
       generator substitutes over `alphabet()` widened by `vowels()`, which is
       how it reaches ä, ö and ü at all; ß is in neither, so `apply` cannot
       produce *Maße* from *Masse* although `check` accepts that step unfolded.
