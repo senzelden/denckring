@@ -1,0 +1,11 @@
+denckring-de-wiktionary
+Copyright 2026 senzelden
+
+The code in this distribution is licensed under the Apache License, Version 2.0.
+See LICENSE.
+
+The data in this distribution is derived from German Wiktionary and is licensed
+under the Creative Commons Attribution-ShareAlike 4.0 International licence — see
+LICENSE-WIKTIONARY. Unlike the CC0 data in denckring-de-data, this licence does
+impose attribution and share-alike, which is why it is quarantined in a
+distribution of its own rather than merged into that one. ADR 0013 and ADR 0030.

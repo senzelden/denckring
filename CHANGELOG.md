@@ -513,6 +513,64 @@ All notable changes to this project are documented here. The format follows
   each is already a run of adjacent vowels. It undercounts a vowel sequence spanning a
   morpheme boundary — `Museum` gives 2 where German says 3 — which a test pins rather
   than leaves to be found later. German goes from 78 of 119 runnable rows to 89.
+- German runs every row. `denckring[de-wiktionary]`, a fourth distribution, vendors
+  837,689 pronunciations and 179,831 glosses extracted from the German Wiktionary dump,
+  giving the German pack `phonemes`, `stress`, `syllables.dictionary` and
+  `lexicon.glosses`. **German goes from 89 of 119 runnable rows to 119**, and
+  `denckring eval --all` from 365 passing cases to 401. Syllable counts and stress are
+  read off the transcription rather than sourced separately, so `stress` can never be
+  present without `phonemes`. Measured 94.0% token coverage over 340,958 tokens of
+  Wieland, Goethe, Kafka and Mann; the residue is pre-1901 orthography and proper names.
+  ADR 0030.
+- `denckring-de-data` gains a `pack()` factory, and the `de` entry point resolves to it
+  rather than to a class. Core refuses two packs claiming one language and ADR 0013
+  forbids merging CC BY-SA data into a CC0 distribution; a factory satisfies both, and
+  every pack's `capabilities` stays a fixed `ClassVar` rather than becoming computed.
+- 36 German golden cases across 30 rows, including Goethe's opening hexameter from
+  *Hermann und Dorothea*, Voß's from the *Odüssee* and Heine's trochaic tetrameter,
+  which scan under the checkers unmodified.
+- `proteus_verse`, the 120th implemented procedure and the 28th generator. A line whose
+  words permute into many metrically valid variants: `check` asks that the line scans as
+  written *and* that its words admit at least `minimum` orderings that also scan,
+  scored separately because a writer can fix them separately. `produce` returns the
+  orderings. Voß's opening hexameter admits 1,728 of its 40,320.
+  No new prosody abstraction: the scansion is `core.prosody`'s, and the handover that
+  proposed a `Meter`/`Syllabifier` pair was answered by what already existed — a pack's
+  `stress_patterns` already returns every reading a word has, which is the ambiguity
+  that proposal existed to model. The factorial is guarded by counting rather than
+  enumerating: a walk over (words placed, syllables filled) is bounded by 2^n where
+  scanning each ordering is n! * 32, and lines above `max_words` are refused rather
+  than searched.
+- `InputTooLong` takes the noun it counted. It said "letters" unconditionally, which is
+  right for `anagram` and wrong for a row that rearranges words.
+- A device is an address space. `Device.at` and `Device.address` are the two directions
+  of its index — Piṅgala's *naṣṭa* and *uddiṣṭa*, which makes the odometer reading an
+  attested procedure rather than a modern gloss — over the mixed base `Device.radix`.
+  The first slot is the most significant digit, stated as a choice because sources
+  differ. `Abbildung` is reading 52,699 of Harsdörffer's 103,680,000.
+- `Device.mask` records which readings are attested, after al-Khalīl's *muhmal* marking:
+  enumerate the space, then flag which members are real. `hold` is the default because
+  it is what the source does. `denckring apply` reads it under `attestation: mask`, and
+  refuses in both directions — a device with no mask, or a pack that cannot answer.
+  Measured: 0 of 20,000 spins of the rings is a word the German lexicon knows, while
+  4.40% of German nouns are spellable on them.
+- `denckring` spins `max_results` times rather than once, because a generator that flags
+  which of its own outputs are real needs more than one to flag.
+- `Device.disputed_totals` carries the counts the literature asserts that the inventory
+  does not support, with who asserts each. `combinations` stays computed. ADR 0031.
+- `hemeling`, the 155th catalogued row and the 121st implemented. Johann Hemeling's
+  *Arithmetische Letter- oder BuchstabWechslung* (1653) asks for an anagram of a name
+  *und durch Reime zu erklähren* — explicated beneath it in rhymed verse — and both
+  halves are mechanically checkable, which is what makes it the tightest rule in the
+  surveyed European material. The first line is judged by `anagram`'s multiset
+  comparison and the rest by `rhyme_scheme`'s scheme walk, imported rather than
+  reimplemented, so a text this row accepts is one those two accept. The halves are
+  scored separately, so a broken rhyme over a sound anagram reads 0.5 and says which.
+  The primary text has not been consulted; Kilcher, who read it, is named in the source.
+- `docs/expansion_ideas/` is excluded from the source distribution, on the argument the
+  existing exclusions already make: those are working documents — proposals, handovers
+  and research notes addressed to whoever picks the work up — not documentation of what
+  this package does. They stay in git, because the ADRs cite them.
 
 ### Changed
 
@@ -638,6 +696,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- `assonance_constraint` and `spoonerism` identified a vowel phoneme by CMUdict's stress
+  digit — a convention no other source uses. Both rows declare only `phonemes`, so the
+  moment German had phonemes they ran in German and found no vowels in any German word:
+  `assonance_constraint` failed every German text and `spoonerism` read every word as
+  pure onset. `LanguagePack.is_vowel_phoneme` puts the question on the pack, where the
+  answer lives.
+- `denckring-en-data` declared the `syllables` capability and never implemented it, so
+  `get_pack("en").syllables("table")` raised `MissingCapability` naming a capability the
+  pack declared. No row requires it, so nothing was broken; but `runs_in` computes from
+  `capabilities`, so the first row to require it would have been reported as running in
+  `en` and would then have raised. The claim is removed: a pronouncing dictionary is not
+  a hyphenation dictionary.
 - `device.load` and `device.load_figure` built a filename by interpolating the caller's
   id directly — `directory / f"{item_id}.yaml"` — which `Path` does not make safe:
   `Path.__truediv__` silently discards the left operand when the right is absolute, and

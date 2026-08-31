@@ -28,3 +28,13 @@ cases:
       the sun will set behind the hill in may
     params: {}
     satisfied: true
+  - name: gereimte-paare
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      das Feuer brennt und wärmt die kalte Hand
+      der Wind bewegt die Blätter in der Nacht
+      der Regen fällt und niemand hat gelacht
+    params: {}
+    satisfied: true

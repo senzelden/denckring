@@ -99,6 +99,23 @@ class BasePack:
     def phonemes(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
 
+    def is_vowel_phoneme(self, phoneme: str) -> bool:
+        """Whether one phoneme from `phonemes()` is a syllable's vowel.
+
+        On the pack because the answer is a property of the transcription
+        scheme, not of the phoneme string. `assonance_constraint` and
+        `spoonerism` both used to test it as "carries a stress digit", which is
+        CMUdict's convention and true of no other source — so when German gained
+        `phonemes` from IPA, both rows ran and found no vowels in any German word
+        at all. They ran, they were reported as running, and they were silently
+        wrong. ADR 0030.
+
+        A glide is not a vowel by this test even though it is written with a
+        vowel symbol: the second element of a German diphthong carries no
+        syllable of its own, so `haʊ̯s` has one vowel and an onset of `h`.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)
+
     def rhyme_key(self, word: str) -> str:
         """Phonemes from the last primary-stressed vowel to the end of the word."""
         raise MissingCapability(DIRECT_CALL, self.lang, PHONEMES)

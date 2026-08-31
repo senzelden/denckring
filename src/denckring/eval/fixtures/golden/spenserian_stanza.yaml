@@ -57,3 +57,18 @@ cases:
       and now the birds will sing before the day has flown
     params: {}
     satisfied: false
+  - name: ababbcbcc-mit-alexandriner
+    lang: de
+    source: "constructed example; the ninth line is the twelve-syllable alexandrine"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      das Feuer brennt und wärmt die kalte Hand
+      der Regen fällt und niemand hat gelacht
+      die Glocke schlägt und alles ist vollbracht
+      ein Vogel singt am Morgen auf dem Baum
+      der Morgen kommt und hat den Tag gebracht
+      ein Kind erwacht und ruft nach seinem Traum
+      der Nebel füllt den stillen kalten weiten Raum
+    params: {}
+    satisfied: true

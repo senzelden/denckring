@@ -1,0 +1,31 @@
+[project]
+name = "denckring-de-wiktionary"
+version = "0.1.0"
+description = "German pronunciation and gloss data for denckring, from German Wiktionary"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0 AND CC-BY-SA-4.0"
+license-files = ["LICENSE", "NOTICE", "LICENSE-WIKTIONARY"]
+authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: German",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+# Version-locked, for the reason denckring-en-data records. `denckring-de-data`
+# and not `denckring` alone: this distribution registers no language pack of its
+# own (ADR 0030), and is read by the one `denckring-de-data` registers.
+dependencies = ["denckring-de-data==0.1.0"]
+
+# No [project.entry-points."denckring.lang"] section, and its absence is the
+# design. `denckring/lang/__init__.py` refuses two entry points claiming one
+# language, so a second `de` pack could not be installed beside the first.
+# `denckring-de-data` detects this distribution instead. ADR 0030.
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denckring_de_wiktionary"]

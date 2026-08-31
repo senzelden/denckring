@@ -1,0 +1,23 @@
+The German pronunciations and glosses in this distribution are derived from
+German Wiktionary (https://de.wiktionary.org), specifically from the
+`dewiktionary-latest-pages-articles` XML dump published by the Wikimedia
+Foundation.
+
+Wiktionary text is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International licence:
+
+    https://creativecommons.org/licenses/by-sa/4.0/
+
+Attribution: the German Wiktionary contributors. Page histories, which name
+them, are at https://de.wiktionary.org/wiki/<headword> under "Versionsgeschichte".
+
+Share-alike: the derived data files in this distribution
+(`src/denckring_de_wiktionary/data/`) are offered under the same CC BY-SA 4.0
+licence. The code in this distribution is Apache-2.0 and is not a derivative of
+the data.
+
+This is why the data lives here and not in denckring-de-data, whose Wikidata
+Lexemes are CC0 and impose neither condition. Merging the two would apply the
+stricter licence to data that never carried it. See ADR 0013 and ADR 0030.
+
+Regenerate the vendored files with scripts/build_pronunciations.py.

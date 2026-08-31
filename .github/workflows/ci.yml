@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de
+      - run: uv sync --extra en --extra de --extra de-wiktionary
       - run: uv run ruff check
       - run: uv run ruff format --check
 
@@ -31,8 +31,10 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra mcp
-      - run: uv run mypy --strict src tests packages/denckring-en-data/src packages/denckring-de-data/src
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra mcp
+      - run: >-
+          uv run mypy --strict src tests packages/denckring-en-data/src
+          packages/denckring-de-data/src packages/denckring-de-wiktionary/src
 
   test:
     strategy:
@@ -53,7 +55,7 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
-      - run: uv sync --extra en --extra de
+      - run: uv sync --extra en --extra de --extra de-wiktionary
       - run: uv run pytest -q
 
   eval:
@@ -66,7 +68,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de
+      - run: uv sync --extra en --extra de --extra de-wiktionary
       - run: uv run denckring eval --all
       - run: uv run denckring status
 
@@ -80,7 +82,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra mcp
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra mcp
       - run: uv run pytest tests/test_mcp_tools.py -q
       - name: The server starts and lists its four tools
         run: |
@@ -127,6 +129,41 @@ jobs:
               raise SystemExit('iambic_pentameter should require a capability core lacks')
           "
 
+  german-without-pronunciations:
+    # `denckring[de]` is two distributions and either may be installed alone, so
+    # the lexical-only install is a real shape a user can have. ADR 0030 puts the
+    # choice between the two packs in one factory; this is the job that proves the
+    # factory picks the lexical one and that a phonetic row then refuses rather
+    # than guessing. Nothing in the suite covers it, because the suite runs with
+    # both installed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install the lexical German data and not the phonetic
+        run: |
+          uv venv /tmp/de-lexical
+          VIRTUAL_ENV=/tmp/de-lexical uv pip install ".[de]"
+      - name: The lexical rows work and the phonetic ones name what is missing
+        run: |
+          /tmp/de-lexical/bin/python -c "
+          from denckring import check
+          from denckring.core.errors import MissingCapability
+          from denckring.lang import get_pack
+          pack = get_pack('de')
+          assert type(pack).__name__ == 'GermanDataPack', type(pack).__name__
+          assert check('charade', 'Tal', lang='de').satisfied is not None
+          try:
+              check('iambic_pentameter', 'der Wind bewegt die Blätter in der Nacht', lang='de')
+          except MissingCapability as exc:
+              assert 'stress' in str(exc), exc
+              print('de-lexical: raised as expected —', exc)
+          else:
+              raise SystemExit('iambic_pentameter needs stress, which this install lacks')
+          "
+
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -134,7 +171,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de
+      - run: uv sync --extra en --extra de --extra de-wiktionary
       - name: Regenerate the gallery
         run: uv run python scripts/build_docs.py
       - name: Build the site

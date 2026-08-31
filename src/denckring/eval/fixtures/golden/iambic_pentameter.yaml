@@ -25,3 +25,20 @@ cases:
       the sun will set behind the hill in may
     params: {}
     satisfied: true
+  - name: blankvers
+    lang: de
+    source: "constructed example; the German Blankvers is this measure"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      ein Vogel singt am Morgen auf dem Baum
+      die Lampe steht und gibt uns wenig Licht
+    params: {}
+    satisfied: true
+  - name: zu-kurz
+    lang: de
+    source: "constructed counterexample"
+    text: |-
+      die Katze schläft
+    params: {}
+    satisfied: false

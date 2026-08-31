@@ -301,6 +301,53 @@ procedures:
     prompt_hints:
       en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
 
+  - id: hemeling
+    names:
+      en: Hemeling's letter-exchange
+      de: Hemelings Buchstabwechslung
+      fr: Échange de lettres de Hemeling
+    definitions:
+      en: >-
+        An anagram of a name, explicated beneath it in rhymed verse. Both halves
+        are checked: the first line must use exactly the letters of the source,
+        and the lines under it must hold a rhyme scheme.
+      de: >-
+        Ein Anagramm eines Namens, darunter in Reimen erklärt. Beide Hälften
+        werden geprüft: die erste Zeile aus genau den Buchstaben der Vorlage, die
+        folgenden Zeilen nach einem Reimschema.
+      fr: >-
+        Une anagramme d'un nom, expliquée au-dessous en vers rimés. Les deux
+        moitiés sont vérifiées.
+    source: >-
+      Johann Hemeling, Arithmetische Letter- oder BuchstabWechslung (1653);
+      read here through Andreas B. Kilcher, mathesis und poiesis (Fink, 2003), p. 376
+    family: letter
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    kind: restrictive
+    languages: [en, de]
+    requires: [tokens, fold_diacritics, phonemes]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Rearrange the letters of a name into a new phrase, then explain the
+        phrase in rhyming lines beneath it.
+      de: >-
+        Stelle die Buchstaben eines Namens zu einer neuen Wendung um und erkläre
+        sie darunter in Reimen.
+    notes: >-
+      The tightest rule in the surveyed European material, because both halves are
+      mechanically checkable where most combinatorial procedures have one half that
+      is not. Hemeling's title says so directly: the anagrams are to be made "und
+      durch Reime zu erklähren". He also specifies a Buchstabenwechsel-Tafel
+      pre-computing combinations up to six elements, played across with lettered
+      dice, and notes that as elements are added the count grows unmanageably — the
+      source itself frames combinatorial explosion as a constraint on the method.
+      Neither the tafel nor the dice are implemented here; only the rule is.
+      The primary text has not been consulted directly. Kilcher, who read it, is
+      named in the source for that reason.
+
   - id: larding
     names: { en: Larding, de: Spicken, fr: Lardage }
     definitions:
@@ -577,17 +624,20 @@ procedures:
   - id: proteus_verse
     names: { en: Proteus verse, de: Proteusvers, fr: Vers protée }
     definitions:
-      en: A line whose words can be permuted into many metrically valid variants.
+      en: >-
+        A line whose words can be permuted into many metrically valid variants. The
+        checker asks two things of a line: that it scans as written, and that its
+        words admit at least a given number of orderings that also scan.
       de: Ein Vers, dessen Wörter zu vielen metrisch gültigen Varianten permutierbar sind.
       fr: Un vers dont les mots se permutent en de multiples variantes métriques.
     source: Julius Caesar Scaliger, Poetices libri septem (1561)
     family: permutation
     attribution: primary
-    checkability: none
+    checkability: self
     attested: author-stated
-    kind: constructive
-    languages: [en]
-    requires: [tokens]
+    kind: both
+    languages: [en, de]
+    requires: [tokens, syllables.heuristic, stress]
     deterministic: true
     prompt_hints:
       en: Write a line whose words can be reordered freely while the metre still holds.
@@ -595,7 +645,12 @@ procedures:
       Harsdörffer states 39,916,800 permutations for an eleven-word line, which is 11!
       exactly, and Leibniz takes the figure up in De Arte Combinatoria (1666). It is one
       of the few counts in this field that can be recomputed from the elements and comes
-      out right.
+      out right. The scanning counts are a different matter: for Bauhusius's hexameter to
+      the Virgin, Puteanus printed 1,022 in 1617, Prestet 2,196 in 1675, Wallis 3,096 in
+      1685, Leibniz 2,580 in 1686, Bernoulli 3,312 in 1692. They disagree over the
+      ruleset, not the arithmetic, which is why the ruleset is a parameter here and the
+      count a metric rather than a number this row asserts. Knuth gives the history in
+      The Art of Computer Programming 7.2.1.7.
 
   - id: wechselsatz
     names: { en: Wechselsatz, de: Wechselsatz, fr: Vers permutatif }

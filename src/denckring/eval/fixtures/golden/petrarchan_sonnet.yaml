@@ -50,3 +50,23 @@ cases:
       the stars will burn until the end of night
     params: {}
     satisfied: true
+  - name: oktett-und-sextett
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Wandrer zieht durch jenes weite Land
+      der Wind bewegt die Blätter in der Nacht
+      der Regen fällt und niemand hat gelacht
+      das Feuer brennt und wärmt die kalte Hand
+      die Blume welkt im Schatten an der Wand
+      die Glocke schlägt und alles ist vollbracht
+      der Morgen kommt und hat den Tag gebracht
+      die Welle rollt und stirbt am flachen Strand
+      ein Vogel singt am Morgen auf dem Baum
+      die Lampe steht und gibt uns wenig Licht
+      der Bauer geht am Abend nicht allein
+      ein Kind erwacht und ruft nach seinem Traum
+      der Bote kommt, doch bringt er Botschaft nicht
+      die Sonne sinkt und lässt den Himmel rein
+    params: {}
+    satisfied: true

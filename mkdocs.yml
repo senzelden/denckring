@@ -86,6 +86,8 @@ nav:
       - "27. `_produce` returns `Produced`, so a candidate can carry its score": adr/0027-candidates-carry-their-scores.md
       - "28. A word list graded by commonness, because a membership oracle cannot rank": adr/0028-the-graded-lexicon.md
       - "29. Where the catalogue already offered a choice, the parameter now exists": adr/0029-the-choices-the-catalogue-promised.md
+      - "30. German pronunciations come from Wiktionary": adr/0030-german-pronunciations.md
+      - "31. A device is an address space": adr/0031-devices-are-address-spaces.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

@@ -22,3 +22,11 @@ cases:
       murmuring murmuring song murmuring murmuring stone
     params: {}
     satisfied: true
+  - name: hexameter-dann-pentameter
+    lang: de
+    source: "constructed example; tiles German words of known stress"
+    text: |-
+      Nebelung Nebelung Nebelung Nebelung Nebelung Morgen
+      Ostermond Ostermond Wald Ostermond Ostermond Wald
+    params: {}
+    satisfied: true

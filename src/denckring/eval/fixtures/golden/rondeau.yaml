@@ -41,3 +41,24 @@ cases:
       the summer holds
     params: { rentrement_words: 3 }
     satisfied: false
+  - name: zwei-reime-und-rentrement
+    lang: de
+    source: "constructed example"
+    text: |-
+      der Sommer hält das Land
+      die Ziegel liegen warm am Rand
+      die Schwalbe kreuzt das Licht
+      und keiner sagt warum sie spricht
+      der Garten wartet an der Wand
+      das Brot bleibt hinter jener Hand
+      die Boote ziehen an den Strand
+      die Möwe ruft und schweigt doch nicht
+      der Sommer hält
+      der Donner rollt und wird zum Brand
+      die Kerze brennt am weißen Band
+      der Wind geht fort mit dem Gedicht
+      die Wahrheit zeigt ihr Gesicht
+      die Ernte kehrt zurück zum Sand
+      der Sommer hält
+    params: { rentrement_words: 3 }
+    satisfied: true
