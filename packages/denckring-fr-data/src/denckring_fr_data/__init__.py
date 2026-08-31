@@ -16,7 +16,19 @@ from collections.abc import Mapping
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
+from types import MappingProxyType
+from typing import ClassVar
 
+from denckring.lang.base import (
+    ALPHABET,
+    FOLD_DIACRITICS,
+    GLOSSES,
+    GRADED_WORDS,
+    LETTER_SHAPES,
+    NOUNS,
+    TOKENS,
+    WORDS,
+)
 from denckring.lang.fr import FrenchPack
 
 WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "words.txt.gz"))
@@ -82,6 +94,46 @@ def gloss_table() -> dict[str, tuple[str, ...]]:
 
 
 class FrenchDataPack(FrenchPack):
-    """French with lexicon data. No data is yet vendored; skeleton only."""
+    """French with a lexicon behind it: membership, nouns, glosses and frequency.
 
-    pass
+    A fixed `ClassVar`, as on every pack but German's: German's `pack()` factory
+    (`denckring_de_data`) exists because two distributions carry German data
+    under two different licences and the registry allows only one `de` entry
+    point to win. This distribution is the only source of French lexicon data,
+    under one licence, so there is nothing for the install to choose between —
+    a plain class is the honest shape.
+    """
+
+    capabilities: ClassVar[frozenset[str]] = frozenset(
+        {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, NOUNS, WORDS, GLOSSES, GRADED_WORDS}
+    )
+
+    def is_word(self, word: str) -> bool:
+        return self._lemma(word) in known_words()
+
+    def nouns(self) -> tuple[str, ...]:
+        return noun_list()
+
+    def noun_index(self, word: str) -> int | None:
+        return noun_positions().get(self._lemma(word))
+
+    def glosses(self, word: str) -> tuple[str, ...]:
+        """Every sense, or nothing. Empty rather than raising, matching English."""
+        return gloss_table().get(self._lemma(word), ())
+
+    def graded_words(self) -> Mapping[str, int]:
+        """A read-only view over the cached table, for the reason English gives:
+        the module function is `lru_cache`d and shared, so handing the dict out
+        would let one caller's mutation corrupt it for all the others."""
+        return MappingProxyType(graded_words())
+
+    @staticmethod
+    def _lemma(word: str) -> str:
+        """Casefold, and keep accents.
+
+        English strips to ASCII here. French must not: `fold_diacritics` would
+        collide `côte` with `cote` and `pêcheur` with `pecheur`, and ADR 0009
+        makes folding a parameter of the procedure rather than a property of the
+        lexicon. German keeps its umlauts for the same reason.
+        """
+        return "".join(ch for ch in word.casefold() if ch.isalpha())

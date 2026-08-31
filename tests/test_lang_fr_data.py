@@ -10,6 +10,9 @@ from pathlib import Path
 
 import pytest
 
+from denckring.core.errors import MissingCapability
+from denckring.lang.base import GLOSSES, GRADED_WORDS, NOUNS, PHONEMES, STRESS, WORDS
+
 fr_data = pytest.importorskip("denckring_fr_data", reason="needs denckring[fr]")
 
 DATA = (
@@ -76,3 +79,27 @@ def test_the_metadata_counts_match_the_files() -> None:
     for name, expected in counts.items():
         with gzip.open(DATA / name, mode="rt", encoding="utf-8") as handle:
             assert sum(1 for _ in handle) == expected, name
+
+
+def test_the_pack_declares_the_four_lexical_capabilities_and_no_prosody() -> None:
+    pack = fr_data.FrenchDataPack()
+    for capability in (WORDS, NOUNS, GLOSSES, GRADED_WORDS):
+        assert capability in pack.capabilities
+    # French has no lexical stress and this tranche ships no syllable data.
+    # Declaring either would be the false-capability defect ADR 0030 fixed twice.
+    for capability in (PHONEMES, STRESS):
+        assert capability not in pack.capabilities
+    with pytest.raises(MissingCapability):
+        pack.phonemes("maison")
+
+
+def test_accents_are_kept_because_cote_and_cote_are_different_words() -> None:
+    pack = fr_data.FrenchDataPack()
+    assert pack.is_word("côte")
+    assert pack.noun_index("côte") != pack.noun_index("cote")
+
+
+def test_the_entry_point_gives_this_pack() -> None:
+    from denckring.lang import get_pack
+
+    assert isinstance(get_pack("fr"), fr_data.FrenchDataPack)
