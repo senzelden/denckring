@@ -172,6 +172,20 @@ def test_a_homograph_keeps_its_most_frequent_reading() -> None:
     assert fr_data.syllable_table()["parent"][0] == 2
 
 
+def test_the_aspirated_h_list_separates_haricot_from_hotel() -> None:
+    """Lexique gives `haricot` /aRiko/ and `hôtel` /otEl/ and cannot tell them
+    apart; the elision rule needs the difference, so it comes from
+    frwiktionary. The prototype's ad-hoc list missed `hais`, and "je hais"
+    then elided wrongly -- inflected forms have to be in here too."""
+    aspire = fr_data.h_aspire()
+    assert "haricot" in aspire
+    assert "hais" in aspire
+    assert "hauteur" in aspire
+    assert "hôtel" not in aspire
+    assert "homme" not in aspire
+    assert "heure" not in aspire
+
+
 def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:
     """`tests/test_round_trip.py` drives every registered procedure's round trip
     through `meta.languages[0]`, which for `n_plus_7` is `en` — so it could
