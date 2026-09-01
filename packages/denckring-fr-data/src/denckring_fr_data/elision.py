@@ -14,6 +14,56 @@ from collections.abc import Mapping
 VOWELS = frozenset("aeiouyàâéèêëîïôöùûüœæ")
 _VOWEL_RUN = re.compile(r"[aeiouyàâéèêëîïôöùûüœæ]+")
 
+#: SAMPA consonants (Lexique's alphabet, `sampa.SAMPA_TO_IPA` minus the
+#: vowels and the three glides j/w/8). Used only by the diérèse pass below.
+_SAMPA_CONSONANTS = frozenset("bdfgklmnNpRsStvzZGx")
+
+
+def _dierese_extra(ortho: str, phon: str) -> int:
+    """Extra syllables classical diérèse adds to Lexique's citation count.
+
+    ADR 0034. Classical French diérèse -- whether a Latin/Greek-derived `i`
+    or `u` glide (`diadème`, `division`) counts as its own syllable, as
+    against a native word's fixed glide (`pied`, `moindre`) that never does
+    -- is etymological, not spelling-derived (Task 7 brief). Three mechanical
+    variants were measured against Racine's *Mithridate* and Hugo's *Hernani*
+    (interior lines only, ADR 0034 has the harness and the full table):
+
+    - a glide after a consonant CLUSTER ending in a liquid (R, l): worse than
+      no rule at all on both texts (84.5%/74.7% against an 89.3%/79.3%
+      baseline);
+    - every `j` after a single consonant, excluding verb-inflection and
+      adjective endings that are reliably synérèse (`-iez`, `-ions`, `-ier`,
+      `-ien`, `-iable`, `-iant`, `-iance` and their plurals/feminines) --
+      those grammatical endings are the plurality of every "j after a single
+      consonant" site in the whole Lexique table, which is why a still
+      blunter blanket rule scored a catastrophic 49.5%/36.6%; excluding them
+      only brought it to 86.7%/70.0%, still below baseline on Hugo;
+    - `j` after a single consonant, narrowed further to the `-ion(s)` noun
+      suffix (the textbook diérèse site: Latin `-io`/`-ionem`) and the
+      `dia-` prefix: the only variant that beat baseline on BOTH texts
+      (90.3%/80.0%), and the one shipped here.
+
+    None reached the 94% accept bar, so this ships as the honest ceiling of
+    a three-variant budget, not a solved rule -- `line_syllables`'s count
+    stays an estimate (spec D4), never dictionary-exact. `w` and `8` are
+    left out entirely: they overwhelmingly spell native `oi`/`ou`/`ui`
+    digraphs that are never split, and no variant that touched them
+    improved on one that ignored them.
+    """
+    is_ion = ortho.endswith(("ion", "ions")) and not ortho.endswith(("iation", "iations"))
+    if not (is_ion or ortho.startswith("dia")):
+        return 0
+    extra = 0
+    for index, char in enumerate(phon):
+        if char != "j" or index == 0 or phon[index - 1] not in _SAMPA_CONSONANTS:
+            continue
+        cluster = index >= 2 and phon[index - 2] in _SAMPA_CONSONANTS
+        if not cluster:
+            extra += 1
+    return extra
+
+
 #: Proclitics whose own vowel is already elided in the spelling. They carry no
 #: syllable, but they are CONSONANTS for the word in front of them: in
 #: "ne t'attendais" the schwa of `ne` cannot elide across the `t'`. Dropping
@@ -85,14 +135,20 @@ def _estimate(ortho: str) -> tuple[int, bool]:
 
 
 def _lookup(ortho: str, table: Mapping[str, tuple[int, str, str]]) -> tuple[int, bool, bool]:
-    """(syllables excluding a pending mute e, mute e pending, estimated)."""
+    """(syllables excluding a pending mute e, mute e pending, estimated).
+
+    Diérèse (Task 7, ADR 0034) is added here rather than at the caller: it is
+    a property of the word's own phonetics, the same footing as the mute-e
+    count it sits beside, and an unknown word (`_estimate`) has no `phon` to
+    judge it by, so the diérèse pass only ever runs on a table hit.
+    """
     entry = table.get(ortho)
     if entry is None:
         count, pending = _estimate(ortho)
         return count, pending, True
     nbsyll, phon, orthosyll = entry
     count, pending = latent_schwa(ortho, nbsyll, phon, orthosyll)
-    return count, pending, False
+    return count + _dierese_extra(ortho, phon), pending, False
 
 
 def starts_with_vowel(word: str, aspire: frozenset[str]) -> bool:
@@ -161,6 +217,7 @@ def count_line(
             # `aujourd'hui`, `prud'homme`: a fused word, not a proclitic plus
             # a word -- 94 Lexique entries carry an internal apostrophe.
             count, pending = latent_schwa(lower, *entry)
+            count += _dierese_extra(lower, entry[1])
             parsed.append((count, pending, False, lower))
             continue
         # The whole form isn't a table entry, so it wasn't a fused word like
@@ -174,6 +231,7 @@ def count_line(
             # `lorsqu'il` etc: already elided in the spelling, so the mute e
             # is gone, not merely pending.
             count, _pending = latent_schwa(full, *word_entry)
+            count += _dierese_extra(full, word_entry[1])
             parsed.append((count, False, False, stem))
         else:
             # An elided proclitic neither list recognises -- there is no
