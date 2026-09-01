@@ -634,6 +634,50 @@ All notable changes to this project are documented here. The format follows
 - `MissingCapability` now names `pip install denckring[fr]` as the remedy for a French
   lexicon row, and `denckring.lang`'s docstring no longer says no such extra exists.
   Both were true when written and were falsified by the distribution above.
+- `LanguagePack.line_syllables`, a pack answering how many syllables are in a whole
+  **line** and how many of its words were estimated. `BasePack` implements it as the
+  per-word sum `syllable_count.line_syllables` ran inline before, so English and German
+  are unchanged by construction and a test asserts it. French overrides it, because a
+  French final mute *e* is a syllable before a consonant, elides before a vowel or a
+  mute *h* and never counts at the end of a line — Lexique gives `femme`, `une`, `belle`
+  and `porte` all one syllable in citation form where verse frequently wants two. ADR
+  0034 D1; the seam is on the pack because "how long is this line" is a question about
+  the language.
+- `denckring-fr-data` gains `phonemes`, `syllables`, `syllables.dictionary` and
+  `syllables.heuristic` from a 125,653-row table of Lexique's `nbsyll`, SAMPA `phon` and
+  `orthosyll`, plus a 3,370-entry aspirated-*h* list Lexique cannot supply — extracted
+  from `{{h aspiré}}` in frwiktionary and expanded through Lexique's `lemme` column,
+  which adds only 85 forms but among them `hais`, the high-frequency verb forms verse
+  actually uses. **French goes from 80 to 103 of the 121 implemented rows**, unblocking
+  all 23 syllabic ones — `alexandrine`, `arca_musarithmica`, `assonance_constraint`,
+  `cinquain`, `clerihew`, `englyn`, `ghazal`, `haibun`, `haiku`, `hemeling`,
+  `hendecasyllable`, `limerick`, `monosyllabic_prose`, `renga`, `rhyme_scheme`,
+  `rondeau`, `senryu`, `spoonerism`, `syllable_count`, `tanka`, `terza_rima`, `triolet`
+  and `villanelle` — with 48 golden cases across them. `denckring eval --all` goes from
+  439 to 487. **French is the first pack that can honestly declare `syllables`**: the
+  capability means a segmentation of the written word, `orthosyll` is one
+  (`car-ros-se`), and ADR 0030 removed the same capability from `denckring-en-data`,
+  which had declared it and never implemented it. ADR 0034.
+- **The French line count is an estimate and always will be (`exact=False`).** Diérèse
+  is etymological rather than spelling-derived, and the rule that ships is narrow: a
+  glide after any consonant, gated on the `-ion(s)` suffix or the `dia-` prefix. Its
+  measured effect is **Racine's *Mithridate* 89.3% → 90.3% and Hugo's *Hernani* 79.3% →
+  80.2%** of interior alexandrines scored at exactly twelve, against ceilings of 96.6%
+  and 84.8% for a perfect per-site oracle — **1.0 of the 7.3 points available on Racine,
+  short of the 94% accept bar, and recorded as a STOP rather than a success.** The
+  chapter plan's own proposed rule (a glide after a consonant cluster ending in a
+  liquid) measured 84.5%/74.7%, five points *below* doing nothing. ADR 0034 D5 records
+  the failed variants so the plausible ones are not proposed again.
+- **French coverage stops at 103, and the remaining 18 rows are blocked on `stress`
+  alone** — now measured mechanically against `meta.requires` rather than projected.
+  They are accentual metres and French has no lexical stress, so no data source closes
+  them. ADR 0034 D3, confirming ADR 0032 D5.
+- The `french-without-data` CI job now also asserts that a syllabic row (`alexandrine`)
+  refuses by naming `syllables` and a rhyme row (`rhyme_scheme`) by naming `phonemes`.
+  The second has no other home: French gaining `phonemes` means no installed pack lacks
+  that capability any more, so `tests/test_prosody_robustness.py` moved its refusal test
+  to `sonnet`/`stress` and a core-only install is the last place a phonemes refusal
+  runs at all.
 
 ### Fixed
 
