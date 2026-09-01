@@ -93,6 +93,24 @@ class BasePack:
         """
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES_HEURISTIC)
 
+    def line_syllables(self, line: str) -> tuple[int, int]:
+        """How many syllables the line has, and how many words were estimated.
+
+        On the pack because the answer is a property of the language: French
+        counts a final mute e as a syllable before a consonant and elides it
+        before a vowel, so summing citation forms word by word undercounts
+        systematically, and French verse is entirely syllable-counting. English
+        and German want exactly this sum and inherit it unchanged (spec D3).
+        """
+        total = 0
+        estimated = 0
+        for word in self.tokenize(line):
+            count, exact = self.syllable_count(word)
+            total += count
+            if not exact:
+                estimated += 1
+        return total, estimated
+
     def syllables(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES)
 
