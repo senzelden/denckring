@@ -70,9 +70,15 @@ def test_a_fused_apostrophe_word_is_tried_whole_before_splitting() -> None:
     `aujourd'hui` as the proclitic `d'` plus a nonsense stem, scoring 1 where
     the table says 3, and reported `estimated == 0` while doing it. That is
     the specific failure this project treats as worse than an honest guess: a
-    wrong count presented as a confident one."""
+    wrong count presented as a confident one.
+
+    `prud'homme`'s count is 2 either way, but `homme` ends in a mute e like
+    any other word, and Finding 3 of the whole-branch review made a pending
+    mute e count toward `estimated` even on an in-vocabulary word -- so this
+    one is `(2, 1)`, not `(2, 0)`. `aujourd'hui` ends in a vowel with nothing
+    pending, so it stays `(3, 0)`."""
     assert counted("aujourd'hui") == (3, 0)
-    assert counted("prud'homme") == (2, 0)
+    assert counted("prud'homme") == (2, 1)
 
 
 def test_the_proclitic_split_still_works_for_a_word_the_table_does_not_fuse() -> None:
@@ -110,3 +116,25 @@ def test_dierese_splits_a_glide_the_classical_line_counts_as_two() -> None:
     poet -- so these pin the common cases, not a general rule."""
     assert line("Avec son diadème a remis son épée") == 12
     assert line("Sont les moindres sujets de nos divisions") == 12
+
+
+def test_a_line_of_known_words_still_reports_estimated_words() -> None:
+    """Finding 3 of the whole-branch review: spec D4 and ADR 0034 both say the
+    French line count is `exact=False`, always, and ADR 0012's `exact` flag
+    is what already exists to say so -- but before this fix, `estimated`
+    only fired for a word outside Lexique. A line built entirely from known
+    words, none of them out of vocabulary, could still carry a mute-e
+    judgment (elides or counts, depending on the next word) or a diérèse
+    judgment (`_dierese_extra`), and reported `estimated_words == 0` while
+    doing it: the "confidently wrong" shape D4 exists to rule out, and the
+    same shape Tasks 6 and 8 each spent a fix round removing at word level.
+
+    Every word here is a Lexique entry -- nothing is out-of-vocabulary --
+    and the line still carries a pending mute e (`porte`) and a diérèse site
+    (`divisions`), so `estimated_words` must be positive on each."""
+    total, estimated = counted("Le jour n'est pas plus pur que le fond de mon coeur")
+    assert estimated > 0
+    assert isinstance(total, int)
+
+    total, estimated = counted("Sont les moindres sujets de nos divisions")
+    assert estimated > 0

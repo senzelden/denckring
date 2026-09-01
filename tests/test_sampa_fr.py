@@ -46,8 +46,26 @@ def test_the_nasal_is_a_vowel_and_the_glides_are_not() -> None:
     assert "ɥ" not in IPA_VOWELS
 
 
-def test_every_symbol_lexique_uses_has_a_mapping() -> None:
-    """An unmapped symbol must raise rather than pass through, because a
-    silent pass-through is how a transcription scheme leaks into a count."""
+def test_an_unmapped_symbol_raises_rather_than_passing_through() -> None:
+    """A silent pass-through is how a transcription scheme leaks into a count."""
     with pytest.raises(KeyError):
         to_ipa("d¤")
+
+
+def test_every_symbol_lexique_uses_has_a_mapping() -> None:
+    """Whole-branch review Finding 7: the old test of this name swept no
+    symbol -- it only asserted that one invented, never-shipped character
+    raises. Sweep every distinct character that appears anywhere in the
+    125,653-row `phon` column and assert each is in `SAMPA_TO_IPA`, which is
+    what the name has always promised. Measured over the shipped table on
+    2026-09-01: zero unmapped symbols. If this ever fails, it is a real
+    defect -- a table update or a new Lexique release added a symbol this
+    project has not looked at -- and must not be weakened to pass."""
+    from denckring_fr_data import syllable_table
+    from denckring_fr_data.sampa import SAMPA_TO_IPA
+
+    symbols: set[str] = set()
+    for _nbsyll, phon, _orthosyll in syllable_table().values():
+        symbols.update(phon)
+    unmapped = symbols - SAMPA_TO_IPA.keys()
+    assert not unmapped, f"unmapped SAMPA symbols: {sorted(unmapped)}"

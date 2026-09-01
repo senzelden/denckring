@@ -30,8 +30,10 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     extra syllable, gated on the word ending in the `-ion(s)` noun suffix
     (the textbook diérèse site: Latin `-io`/`-ionem`) or starting with
     `dia-`. Measured against Racine's *Mithridate* and Hugo's *Hernani*
-    (interior lines only, ADR 0034 has the harness and the full table),
-    this is **Racine 89.3% -> 90.3%, Hugo 79.3% -> 80.2%**, against a
+    (interior lines only; the harness that produced the table below was a
+    throwaway script, per spec, and is not shipped -- ADR 0034 D5 carries
+    the rule and the table, not the method), this is **Racine 89.3% ->
+    90.3%, Hugo 79.3% -> 80.2%**, against a
     diérèse ceiling of 96.6%/84.8% -- a mechanical rule takes about 1.0 of
     the 7.3 points a perfect per-site oracle would.
 
@@ -70,8 +72,21 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     they overwhelmingly spell native `oi`/`ou`/`ui` digraphs that are never
     split, and no variant that touched them improved on one that ignored
     them.
+
+    Whole-branch review (2026-09-01) found an undocumented `-iation`/`-iations`
+    exclusion on the `-ion(s)` gate -- present in code, named nowhere: not
+    here, not in ADR 0034 D5, not in the plan. Re-measured against Racine and
+    Hugo interior lines with and without it: **identical to four significant
+    figures both ways, 90.3%/80.2%**, because neither corpus contains a
+    French `-iation`/`-iations` word at all (the only hits are English
+    "appreciation"/"abbreviation"/"associations" in Hugo's front matter,
+    outside any verse block). An exclusion with no measured effect and no
+    citable justification earns nothing, so it was dropped rather than
+    documented: `aviation`, `association` and `initiation` now take diérèse
+    like any other `-ion(s)` word, on the same unverified footing as the
+    rest of the gate.
     """
-    is_ion = ortho.endswith(("ion", "ions")) and not ortho.endswith(("iation", "iations"))
+    is_ion = ortho.endswith(("ion", "ions"))
     if not (is_ion or ortho.startswith("dia")):
         return 0
     extra = 0
@@ -152,6 +167,29 @@ def _estimate(ortho: str) -> tuple[int, bool]:
     return max(len(_VOWEL_RUN.findall(stripped)), 1), True
 
 
+def _judge(ortho: str, entry: tuple[int, str, str]) -> tuple[int, bool, bool]:
+    """(syllables excluding a pending mute e, mute e pending, judged).
+
+    A table hit's `nbsyll` is a citation fact, not a guess -- Lexique's
+    dictionary count for a known spelling is exact. What sits on top of it is
+    not: whether a mute e is pending (elides or counts depending on the next
+    word) and whether classical diérèse adds a syllable are both editorial
+    judgments the spelling alone does not settle (`extraordinaire` is five
+    syllables or six depending on the poet, D5's own example). Finding 3 of
+    the whole-branch review: spec D4 and ADR 0034 both say the French line
+    count is `exact=False`, always, and before this the flag only fired on an
+    out-of-vocabulary word -- a line entirely of known words with a pending
+    mute e or a diérèse site reported `estimated_words == 0`, confidently
+    wrong in the D4/`test_prosody_robustness`-flagged sense. `judged` is True
+    when either call was made, so `count_line` can fold it into the same
+    `estimated_words` counter it already keeps for out-of-vocabulary words.
+    """
+    nbsyll, phon, orthosyll = entry
+    count, pending = latent_schwa(ortho, nbsyll, phon, orthosyll)
+    extra = _dierese_extra(ortho, phon)
+    return count + extra, pending, pending or extra > 0
+
+
 def _lookup(ortho: str, table: Mapping[str, tuple[int, str, str]]) -> tuple[int, bool, bool]:
     """(syllables excluding a pending mute e, mute e pending, estimated).
 
@@ -159,14 +197,16 @@ def _lookup(ortho: str, table: Mapping[str, tuple[int, str, str]]) -> tuple[int,
     a property of the word's own phonetics, the same footing as the mute-e
     count it sits beside, and an unknown word (`_estimate`) has no `phon` to
     judge it by, so the diérèse pass only ever runs on a table hit.
+
+    `estimated` covers two different reasons now (Finding 3): a word outside
+    Lexique altogether (`_estimate`, always estimated), and a table hit whose
+    count rests on a mute-e or diérèse judgment (`_judge`, delegated to it).
     """
     entry = table.get(ortho)
     if entry is None:
         count, pending = _estimate(ortho)
         return count, pending, True
-    nbsyll, phon, orthosyll = entry
-    count, pending = latent_schwa(ortho, nbsyll, phon, orthosyll)
-    return count + _dierese_extra(ortho, phon), pending, False
+    return _judge(ortho, entry)
 
 
 def starts_with_vowel(word: str, aspire: frozenset[str]) -> bool:
@@ -202,6 +242,17 @@ def count_line(
 ) -> tuple[int, int]:
     """(syllables in the line, words whose count was estimated).
 
+    "Estimated" covers three cases now, all folded into one counter (Finding
+    3 of the whole-branch review, spec D4): a word outside Lexique
+    (`_estimate`'s vowel-run guess), a word carrying a pending mute e, and a
+    word whose diérèse gate fired. The first is out-of-vocabulary; the other
+    two are in-vocabulary but their contribution to the count rests on an
+    editorial judgment the spelling does not settle -- which is exactly what
+    D4 means by "estimated, never exact." Before this fix a line built
+    entirely from known words could carry a mute-e or diérèse judgment and
+    still report `estimated_words == 0`, the confidently-wrong shape D4
+    exists to rule out.
+
     A token that carries an internal apostrophe is tried WHOLE against the
     table first: 94 Lexique entries are keyed with one (`aujourd'hui`,
     `prud'homme`), and splitting them unconditionally silently returned a
@@ -234,9 +285,8 @@ def count_line(
         if entry is not None:
             # `aujourd'hui`, `prud'homme`: a fused word, not a proclitic plus
             # a word -- 94 Lexique entries carry an internal apostrophe.
-            count, pending = latent_schwa(lower, *entry)
-            count += _dierese_extra(lower, entry[1])
-            parsed.append((count, pending, False, lower))
+            count, pending, judged = _judge(lower, entry)
+            parsed.append((count, pending, judged, lower))
             continue
         # The whole form isn't a table entry, so it wasn't a fused word like
         # those -- read the apostrophe as an elision boundary instead.
@@ -247,10 +297,14 @@ def count_line(
             word_entry := table.get(full)
         ) is not None:
             # `lorsqu'il` etc: already elided in the spelling, so the mute e
-            # is gone, not merely pending.
-            count, _pending = latent_schwa(full, *word_entry)
-            count += _dierese_extra(full, word_entry[1])
-            parsed.append((count, False, False, stem))
+            # is gone, not merely pending -- `pending` stays False regardless
+            # of what `latent_schwa` would say about `full` on its own. A
+            # diérèse site is still a live judgment here, so it alone decides
+            # `estimated` (Finding 3).
+            nbsyll, phon, orthosyll = word_entry
+            count, _pending = latent_schwa(full, nbsyll, phon, orthosyll)
+            extra = _dierese_extra(full, phon)
+            parsed.append((count + extra, False, extra > 0, stem))
         else:
             # An elided proclitic neither list recognises -- there is no
             # basis for a confident zero, so flag it estimated rather than
