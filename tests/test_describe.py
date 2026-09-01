@@ -117,12 +117,14 @@ def test_describe_reports_the_languages_the_install_can_actually_run() -> None:
 
     `n_plus_7` was this test's original negative case, but chapter 6 gave French
     `lexicon.nouns`, so it now runs there and can no longer stand in for "still
-    missing a capability". `haiku` needs `syllables.heuristic`, which this
-    chapter deliberately ships no data for.
+    missing a capability". `haiku` needed `syllables.heuristic` next, but
+    chapter 6 tranche B (Task 5, 2026-09-01) gave `fr` exactly that, so it runs
+    too now. `sonnet` needs `stress`, which French has none of and never will
+    (spec D2).
     """
     description = describe("anagram")
     assert "fr" in description.runs_in
-    assert "fr" not in describe("haiku").runs_in
+    assert "fr" not in describe("sonnet").runs_in
 
 
 def test_renga_and_haibun_match_haikus_catalogued_requirements() -> None:

@@ -129,16 +129,20 @@ def test_the_metadata_counts_match_the_files() -> None:
             assert sum(1 for _ in handle) == expected, name
 
 
-def test_the_pack_declares_the_four_lexical_capabilities_and_no_prosody() -> None:
+def test_the_pack_declares_prosody_but_not_stress() -> None:
+    """Task 5 (2026-09-01) adds `syllables`/`phonemes`: Lexique carries an
+    orthographic syllabation and a phonemic transcription. French still has no
+    lexical stress, so `STRESS` stays refused -- declaring it to reach more
+    rows would be the false-capability defect ADR 0030 fixed twice."""
     pack = fr_data.FrenchDataPack()
-    for capability in (WORDS, NOUNS, GLOSSES, GRADED_WORDS):
+    for capability in (WORDS, NOUNS, GLOSSES, GRADED_WORDS, PHONEMES):
         assert capability in pack.capabilities
-    # French has no lexical stress and this tranche ships no syllable data.
-    # Declaring either would be the false-capability defect ADR 0030 fixed twice.
-    for capability in (PHONEMES, STRESS):
-        assert capability not in pack.capabilities
+    assert STRESS not in pack.capabilities
+    # rhyme_key is implemented (from the last vowel -- French has no stressed
+    # one to anchor on), so the still-refused capability is exercised through
+    # a method that actually needs it.
     with pytest.raises(MissingCapability):
-        pack.phonemes("maison")
+        pack.stress_pattern("belle")
 
 
 def test_accents_are_kept_because_cote_and_cote_are_different_words() -> None:
@@ -184,6 +188,61 @@ def test_the_aspirated_h_list_separates_haricot_from_hotel() -> None:
     assert "hôtel" not in aspire
     assert "homme" not in aspire
     assert "heure" not in aspire
+
+
+def test_a_word_in_lexique_is_exact_and_one_outside_it_is_not() -> None:
+    pack = fr_data.FrenchDataPack()
+    assert pack.syllable_count("belle") == (1, True)
+    _count, exact = pack.syllable_count("zzzzblorf")
+    assert exact is False
+
+
+def test_syllables_returns_the_orthographic_division() -> None:
+    """French is the first pack that can honestly declare `syllables`: Lexique
+    carries an orthographic syllabation, where German's transcriptions carry
+    none and English's distribution declared the capability without one
+    (ADR 0030, spec D5)."""
+    assert fr_data.FrenchDataPack().syllables("carrosse") == ["car", "ros", "se"]
+
+
+def test_phonemes_are_ipa_not_sampa() -> None:
+    assert fr_data.FrenchDataPack().phonemes("dans") == ["d", "ɑ̃"]
+
+
+def test_the_nasal_counts_as_a_vowel() -> None:
+    """The trap that cost fifteen points in the prototype: `@` is /ɑ̃/, a
+    vowel, and reading it as a schwa loses a syllable on every nasal-final
+    word."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.is_vowel_phoneme("ɑ̃") is True
+    assert pack.is_vowel_phoneme("j") is False
+
+
+def test_rhyme_key_is_from_the_last_vowel_because_french_has_no_stress() -> None:
+    """`rhyme_scheme` and `ghazal` get their keys through
+    `core.prosody.word_rhyme_keys`, which calls `pack.rhyme_keys`; without this
+    method both rows ran in French and scored 0.0 on every input forever,
+    because `BasePack.rhyme_keys` raises and prosody reads that as "undecidable"
+    rather than "unimplemented" -- two hollow rows counted toward 103 would
+    have been exactly the inflated-capability defect ADR 0030 exists to
+    prevent. The four pairs are hand-verified rhymes; `rose`/`table` is a
+    verified non-rhyme sharing no key."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.rhyme_key("rose") == pack.rhyme_key("chose") == "oz"
+    assert pack.rhyme_key("belle") == pack.rhyme_key("chandelle") == "ɛl"
+    assert pack.rhyme_key("amour") == pack.rhyme_key("jour") == "uʁ"
+    assert pack.rhyme_key("rose") != pack.rhyme_key("table")
+    assert pack.rhyme_keys("rose") == ["oz"]
+
+
+def test_rhyme_key_raises_rather_than_guessing_an_unknown_word() -> None:
+    """A guessed rhyme is worse than an unknown one -- matching `phonemes()`,
+    which this is built on."""
+    pack = fr_data.FrenchDataPack()
+    with pytest.raises(KeyError):
+        pack.rhyme_key("zzzzblorf")
+    with pytest.raises(KeyError):
+        pack.rhyme_keys("zzzzblorf")
 
 
 def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:
