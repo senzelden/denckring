@@ -42,6 +42,8 @@ WORDS = DATA / "words.txt.gz"
 NOUNS = DATA / "nouns.txt.gz"
 GRADED = DATA / "graded_words.txt.gz"
 GLOSSES = DATA / "glosses.txt.gz"
+SYLLABLES = DATA / "syllables.txt.gz"
+H_ASPIRE = DATA / "h_aspire.txt.gz"
 METADATA = DATA / "metadata.json"
 
 #: The dump's export schema version appears in every tag name. Read from the root
@@ -64,6 +66,15 @@ _SENSE = re.compile(r"^#\s+(?!\*)(.+)$", re.M)
 #: readable. Unicode-aware rather than `str.isalpha()` on the whole string,
 #: because a legitimate French definition contains spaces and punctuation.
 _HAS_LETTER = re.compile(r"[^\W\d_]", re.UNICODE)
+
+#: Measured against the dump on 2026-09-01: `{{h aspiré}}` appears 2,689+ times,
+#: `{{h aspiré|fr}}` and `{{h aspiré|nocat=1}}` a handful more, and `{{asp|fr}}`
+#: -- which an earlier draft of this plan guessed at -- appears ZERO times. The
+#: character class catches the parameterised forms the anchored `}}` would miss.
+H_ASPIRE_RE = re.compile(r"\{\{h aspiré[|}]")
+#: The dump carries several languages per page (`{{h muet|en}}` is attested), so
+#: a whole-body search can attribute another language's aspiration to French.
+FR_SECTION_RE = re.compile(r"==\s*\{\{langue\|fr\}\}\s*==(.*?)(?=\n==\s*\{\{langue\||\Z)", re.S)
 
 #: A part-of-speech subsection inside a language section, e.g. `=== {{S|nom|fr}} ===`
 #: or `=== {{S|verbe|fr|flexion}} ===`. The `flexion` argument marks an inflected
@@ -141,6 +152,44 @@ def build_tables(rows: list[dict[str, str]]) -> tuple[list[str], list[str], dict
     return sorted(best), sorted(nouns), bands
 
 
+def write_syllables(rows: list[dict[str, str]], path: Path) -> int:
+    """One row per spelling: nbsyll, phon and the orthosyll segment string.
+
+    Lexique carries several rows per spelling for homographs. Only one can be
+    kept, because the pack is asked about a spelling and not about a reading,
+    so the most frequent wins and ADR 0034 records that `parent` the verb is
+    therefore counted as `parent` the noun.
+    """
+    best: dict[str, tuple[float, int, str, str]] = {}
+    for row in rows:
+        ortho = row["ortho"].strip().lower()
+        if not ortho:
+            continue
+        try:
+            nbsyll = int(float(row["nbsyll"]))
+            freq = float(row["freqlivres"] or 0)
+        except (ValueError, TypeError):
+            continue
+        if nbsyll <= 0:
+            continue
+        osyll = (row.get("orthosyll") or "").strip() or ortho
+        previous = best.get(ortho)
+        if previous is None or freq > previous[0]:
+            best[ortho] = (freq, nbsyll, row["phon"], osyll)
+    lines = []
+    for ortho in sorted(best):
+        _, nbsyll, phon, osyll = best[ortho]
+        lines.append(f"{ortho}\t{nbsyll}\t{phon}\t{osyll}\n")
+    # `GzipFile(..., mtime=0)`, matching `_write_list`/`_write_table`/the glosses
+    # writer below: `gzip.open`'s default stamps wall-clock time into the header,
+    # which would make a content-identical rebuild diff every time and break the
+    # reproducibility this module's docstring promises.
+    payload = "".join(lines).encode("utf-8")
+    with gzip.GzipFile(path, "wb", mtime=0) as handle:
+        handle.write(payload)
+    return len(best)
+
+
 def _namespace(path: Path) -> str:
     with bz2.open(path, "rb") as handle:
         for _, elem in ET.iterparse(handle, events=("start",)):
@@ -164,12 +213,15 @@ def _strip_markup(raw: str) -> str:
     return re.sub(r"\s+", " ", text).strip(" ;,")
 
 
-def glosses_from(path: Path) -> Iterator[tuple[str, list[str]]]:
-    """Every French headword in the dump with its definitions.
+def _pages(path: Path) -> Iterator[tuple[str, str]]:
+    """Every namespace-0 page in the dump, as `(title, wikitext)`.
 
     Streaming, and clearing each element as it is consumed: the uncompressed dump
     is several gigabytes and holding it would need more memory than the machines
-    this runs on have.
+    this runs on have. Shared by `glosses_from` and `aspirated_lemmas`, which each
+    make their own pass over the dump -- two passes cost time, not memory, and
+    fusing the two extractions into one would tangle unrelated parsing for no
+    measured gain.
     """
     namespace = _namespace(path)
     tag = f"{{{namespace}}}" if namespace else ""
@@ -185,33 +237,75 @@ def glosses_from(path: Path) -> Iterator[tuple[str, list[str]]]:
             # are apparatus over entries rather than entries.
             if page_namespace != "0" or not title or not wikitext:
                 continue
-            start = _FRENCH.search(wikitext)
-            if start is None:
+            yield title, wikitext
+
+
+def glosses_from(path: Path) -> Iterator[tuple[str, list[str]]]:
+    """Every French headword in the dump with its definitions."""
+    for title, wikitext in _pages(path):
+        start = _FRENCH.search(wikitext)
+        if start is None:
+            continue
+        following = _ANY_LANGUAGE.search(wikitext, start.end())
+        section = wikitext[start.end() : following.start() if following else len(wikitext)]
+        # Senses are read subsection by subsection, not from the language
+        # section as a whole, so a `flexion` subsection's inflection notes
+        # (see `_POS_HEADER`) can be skipped without also losing the etymology
+        # or pronunciation subsections' surrounding text.
+        senses: list[str] = []
+        headers = list(_POS_HEADER.finditer(section))
+        for index, header in enumerate(headers):
+            if "flexion" in header.group(1).split("|"):
                 continue
-            following = _ANY_LANGUAGE.search(wikitext, start.end())
-            section = wikitext[start.end() : following.start() if following else len(wikitext)]
-            # Senses are read subsection by subsection, not from the language
-            # section as a whole, so a `flexion` subsection's inflection notes
-            # (see `_POS_HEADER`) can be skipped without also losing the etymology
-            # or pronunciation subsections' surrounding text.
-            senses: list[str] = []
-            headers = list(_POS_HEADER.finditer(section))
-            for index, header in enumerate(headers):
-                if "flexion" in header.group(1).split("|"):
-                    continue
-                chunk_end = headers[index + 1].start() if index + 1 < len(headers) else len(section)
-                chunk = section[header.end() : chunk_end]
-                senses += [
-                    s
-                    for s in (_strip_markup(m) for m in _SENSE.findall(chunk))
-                    if s and _HAS_LETTER.search(s)
-                ]
-            # `" | "` is the separator downstream, so a sense containing it is
-            # dropped rather than escaped: splitting must be unambiguous, and
-            # `denckring-en-data` and `denckring-de-wiktionary` both split this way.
-            usable = [s for s in dict.fromkeys(senses) if " | " not in s and "\t" not in s]
-            if usable:
-                yield title, usable
+            chunk_end = headers[index + 1].start() if index + 1 < len(headers) else len(section)
+            chunk = section[header.end() : chunk_end]
+            senses += [
+                s
+                for s in (_strip_markup(m) for m in _SENSE.findall(chunk))
+                if s and _HAS_LETTER.search(s)
+            ]
+        # `" | "` is the separator downstream, so a sense containing it is
+        # dropped rather than escaped: splitting must be unambiguous, and
+        # `denckring-en-data` and `denckring-de-wiktionary` both split this way.
+        usable = [s for s in dict.fromkeys(senses) if " | " not in s and "\t" not in s]
+        if usable:
+            yield title, usable
+
+
+def aspirated_lemmas(pages: Iterator[tuple[str, str]]) -> set[str]:
+    """Headwords frwiktionary marks as taking an aspirated h, French section only."""
+    found: set[str] = set()
+    for title, body in pages:
+        if not title.lower().startswith("h") or ":" in title:
+            continue
+        section = FR_SECTION_RE.search(body)
+        if section and H_ASPIRE_RE.search(section.group(1)):
+            found.add(title.lower())
+    return found
+
+
+def write_h_aspire(lemmas: set[str], rows: list[dict[str, str]], path: Path) -> int:
+    """Aspirated lemmas, expanded to every inflected form Lexique knows.
+
+    **The expansion is not optional.** frwiktionary marks the template on the
+    lemma page and not on the inflected-form pages: `haïr` carries it and `hais`
+    carries nothing at all. Without this step "je hais" elides -- which is the
+    single case the elision rule was written for -- so the lemma list alone is
+    worse than useless. Lexique's `lemme` column supplies the 29 forms of `haïr`,
+    `hais` among them, and costs nothing because the rows are already in memory.
+    """
+    found = set(lemmas)
+    for row in rows:
+        if row["lemme"].strip().lower() in lemmas:
+            found.add(row["ortho"].strip().lower())
+    # `GzipFile(..., mtime=0)` rather than `gzip.open`, matching `_write_list`
+    # and `_write_table`: the script's own docstring promises the data files are
+    # "reproducible and diffable", and a wall-clock mtime in the header makes a
+    # no-op rebuild show a spurious diff.
+    payload = "".join(f"{word}\n" for word in sorted(found)).encode("utf-8")
+    with gzip.GzipFile(path, "wb", mtime=0) as handle:
+        handle.write(payload)
+    return len(found)
 
 
 def _write_list(path: Path, items: list[str]) -> None:
@@ -242,11 +336,15 @@ def main() -> None:
             while chunk := response.read(1 << 20):
                 handle.write(chunk)
 
-    words, nouns, bands = build_tables(lexique_rows(archive))
+    # `lexique_rows` returns a list rather than a generator, so it can feed
+    # both `build_tables` and `write_syllables` from the one parse.
+    rows = lexique_rows(archive)
+    words, nouns, bands = build_tables(rows)
     DATA.mkdir(parents=True, exist_ok=True)
     _write_list(WORDS, words)
     _write_list(NOUNS, nouns)
     _write_table(GRADED, bands)
+    syllable_count = write_syllables(rows, SYLLABLES)
 
     existing = json.loads(METADATA.read_text(encoding="utf-8")) if METADATA.exists() else {}
     counts = {
@@ -254,6 +352,7 @@ def main() -> None:
         WORDS.name: len(words),
         NOUNS.name: len(nouns),
         GRADED.name: len(bands),
+        SYLLABLES.name: syllable_count,
     }
 
     if args.dump is not None:
@@ -263,6 +362,16 @@ def main() -> None:
             handle.write(payload)
         counts[GLOSSES.name] = len(rendered)
         print(f"{len(rendered)} glosses", file=sys.stderr)
+
+        # A second pass over the dump, deliberately: fusing this into the gloss
+        # pass above would tangle two unrelated extractions for no measured gain.
+        lemmas = aspirated_lemmas(_pages(args.dump))
+        h_aspire_count = write_h_aspire(lemmas, rows, H_ASPIRE)
+        counts[H_ASPIRE.name] = h_aspire_count
+        print(
+            f"{len(lemmas)} h-aspiré lemmas -> {h_aspire_count} with inflected forms",
+            file=sys.stderr,
+        )
 
     METADATA.write_text(
         json.dumps(
@@ -281,7 +390,11 @@ def main() -> None:
         + "\n",
         encoding="utf-8",
     )
-    print(f"{len(words)} words, {len(nouns)} nouns, {len(bands)} bands", file=sys.stderr)
+    print(
+        f"{len(words)} words, {len(nouns)} nouns, {len(bands)} bands, "
+        f"{syllable_count} syllable rows",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

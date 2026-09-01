@@ -17,3 +17,15 @@ cases:
     text: der Abend kommt und bringt uns die Stille mit
     params: {}
     satisfied: true
+  - name: onze-syllabes
+    lang: fr
+    source: constructed example
+    text: Le vent se lève et la nuit tombe sur nous
+    params: {}
+    satisfied: true
+  - name: trop-court
+    lang: fr
+    source: constructed counterexample
+    text: Le vent se lève
+    params: {}
+    satisfied: false

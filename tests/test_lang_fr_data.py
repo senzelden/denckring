@@ -129,16 +129,20 @@ def test_the_metadata_counts_match_the_files() -> None:
             assert sum(1 for _ in handle) == expected, name
 
 
-def test_the_pack_declares_the_four_lexical_capabilities_and_no_prosody() -> None:
+def test_the_pack_declares_prosody_but_not_stress() -> None:
+    """Task 5 (2026-09-01) adds `syllables`/`phonemes`: Lexique carries an
+    orthographic syllabation and a phonemic transcription. French still has no
+    lexical stress, so `STRESS` stays refused -- declaring it to reach more
+    rows would be the false-capability defect ADR 0030 fixed twice."""
     pack = fr_data.FrenchDataPack()
-    for capability in (WORDS, NOUNS, GLOSSES, GRADED_WORDS):
+    for capability in (WORDS, NOUNS, GLOSSES, GRADED_WORDS, PHONEMES):
         assert capability in pack.capabilities
-    # French has no lexical stress and this tranche ships no syllable data.
-    # Declaring either would be the false-capability defect ADR 0030 fixed twice.
-    for capability in (PHONEMES, STRESS):
-        assert capability not in pack.capabilities
+    assert STRESS not in pack.capabilities
+    # rhyme_key is implemented (from the last vowel -- French has no stressed
+    # one to anchor on), so the still-refused capability is exercised through
+    # a method that actually needs it.
     with pytest.raises(MissingCapability):
-        pack.phonemes("maison")
+        pack.stress_pattern("belle")
 
 
 def test_accents_are_kept_because_cote_and_cote_are_different_words() -> None:
@@ -151,6 +155,177 @@ def test_the_entry_point_gives_this_pack() -> None:
     from denckring.lang import get_pack
 
     assert isinstance(get_pack("fr"), fr_data.FrenchDataPack)
+
+
+def test_the_syllable_table_carries_the_three_columns_the_rules_need() -> None:
+    table = fr_data.syllable_table()
+    # nbsyll is the citation count, orthosyll judges a mute -ent, and phon
+    # distinguishes `de` (d2, a schwa) from `les` (le, none).
+    assert table["belle"] == (1, "bEl", "bel-le")
+    assert table["les"] == (1, "le", "les")
+    assert table["de"] == (1, "d2", "de")
+    assert table["chantent"] == (1, "S@t", "chan-tent")
+    assert table["vient"] == (1, "vj5", "vient")
+    assert table["carrosse"][2] == "car-ros-se"
+
+
+def test_a_homograph_keeps_its_most_frequent_reading() -> None:
+    """`parent` is a noun of two syllables and a verb of one. The table holds
+    one row per spelling, so it holds the commoner one and the pack is wrong
+    about the other -- recorded in ADR 0034 rather than hidden."""
+    assert fr_data.syllable_table()["parent"][0] == 2
+
+
+def test_the_aspirated_h_list_separates_haricot_from_hotel() -> None:
+    """Lexique gives `haricot` /aRiko/ and `hôtel` /otEl/ and cannot tell them
+    apart; the elision rule needs the difference, so it comes from
+    frwiktionary. The prototype's ad-hoc list missed `hais`, and "je hais"
+    then elided wrongly -- inflected forms have to be in here too."""
+    aspire = fr_data.h_aspire()
+    assert "haricot" in aspire
+    assert "hais" in aspire
+    assert "hauteur" in aspire
+    assert "hôtel" not in aspire
+    assert "homme" not in aspire
+    assert "heure" not in aspire
+
+
+def test_a_word_in_lexique_is_exact_and_one_outside_it_is_not() -> None:
+    pack = fr_data.FrenchDataPack()
+    assert pack.syllable_count("belle") == (1, True)
+    _count, exact = pack.syllable_count("zzzzblorf")
+    assert exact is False
+
+
+def test_syllables_returns_the_orthographic_division() -> None:
+    """French is the first pack that can honestly declare `syllables`: Lexique
+    carries an orthographic syllabation, where German's transcriptions carry
+    none and English's distribution declared the capability without one
+    (ADR 0030, spec D5)."""
+    assert fr_data.FrenchDataPack().syllables("carrosse") == ["car", "ros", "se"]
+
+
+def test_phonemes_are_ipa_not_sampa() -> None:
+    assert fr_data.FrenchDataPack().phonemes("dans") == ["d", "ɑ̃"]
+
+
+def test_the_nasal_counts_as_a_vowel() -> None:
+    """The trap that cost fifteen points in the prototype: `@` is /ɑ̃/, a
+    vowel, and reading it as a schwa loses a syllable on every nasal-final
+    word."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.is_vowel_phoneme("ɑ̃") is True
+    assert pack.is_vowel_phoneme("j") is False
+
+
+def test_rhyme_key_is_from_the_last_vowel_because_french_has_no_stress() -> None:
+    """`rhyme_scheme` and `ghazal` get their keys through
+    `core.prosody.word_rhyme_keys`, which calls `pack.rhyme_keys`; without this
+    method both rows ran in French and scored 0.0 on every input forever,
+    because `BasePack.rhyme_keys` raises and prosody reads that as "undecidable"
+    rather than "unimplemented" -- two hollow rows counted toward 103 would
+    have been exactly the inflated-capability defect ADR 0030 exists to
+    prevent. The four pairs are hand-verified rhymes; `rose`/`table` is a
+    verified non-rhyme sharing no key."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.rhyme_key("rose") == pack.rhyme_key("chose") == "oz"
+    assert pack.rhyme_key("belle") == pack.rhyme_key("chandelle") == "ɛl"
+    assert pack.rhyme_key("amour") == pack.rhyme_key("jour") == "uʁ"
+    assert pack.rhyme_key("rose") != pack.rhyme_key("table")
+    assert pack.rhyme_keys("rose") == ["oz"]
+
+
+def test_rhyme_key_raises_missing_capability_rather_than_guessing_an_unknown_word() -> None:
+    """A guessed rhyme is worse than an unknown one -- matching `phonemes()`,
+    which this is built on. `MissingCapability`, not `KeyError`: fix-round 1
+    found that `core.prosody.word_rhyme_keys` catches only `MissingCapability`
+    around `rhyme_keys`, so a plain `KeyError` escaped uncaught out of
+    `check('rhyme_scheme', ..., lang='fr')` on the first unknown word."""
+    pack = fr_data.FrenchDataPack()
+    with pytest.raises(MissingCapability):
+        pack.rhyme_key("zzzzblorf")
+    with pytest.raises(MissingCapability):
+        pack.rhyme_keys("zzzzblorf")
+
+
+def test_rhyme_key_falls_back_past_a_leading_elision() -> None:
+    """Fix-round 2 (2026-09-01): task 8's fixture verification hit a line
+    ending `d'espoir` and found the whole-form-only lookup made it
+    undecidable rather than a rhyme for `espoir` -- an ordinary elided form,
+    not one of the 94 fused Lexique entries like `aujourd'hui`. An elided
+    form is extremely common at a French line ending (`d'espoir`, `l'amour`,
+    `qu'un`), so `rhyme_scheme` and `ghazal` were silently hollow on it: the
+    same "reads as undecidable, not as unimplemented" failure shape ADR 0030
+    exists to catch, just reached through a lookup gap rather than a missing
+    method. `_table_entry` now retries past the apostrophe when the whole
+    form fails."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.rhyme_key("d'espoir") == pack.rhyme_key("espoir")
+    assert pack.rhyme_key("l'amour") == pack.rhyme_key("amour")
+
+
+def test_rhyme_scheme_reads_a_line_ending_in_an_elided_word() -> None:
+    """The end-to-end case fix-round 2 was found from: a couplet ending
+    `d'espoir`/`noir` is ordinary French verse, and before the fix it scored
+    `rhyme_undecidable` rather than being read at all."""
+    from denckring import check
+
+    report = check("rhyme_scheme", "un rayon d'espoir\nun ciel tout noir", lang="fr", scheme="AA")
+    assert report.satisfied is True
+    assert report.score == 1.0
+
+
+def test_aujourd_hui_still_resolves_as_one_word_after_the_elision_fallback() -> None:
+    """The regression guard for fix-round 2: `_table_entry` must try the
+    whole lowercased form FIRST and only fall back past the apostrophe when
+    that fails. `aujourd'hui` is one of the 94 Lexique entries that carry an
+    apostrophe internally -- three syllables, `(3, True)` -- and if the
+    fallback ran unconditionally (splitting at the last apostrophe before
+    trying the whole form) it would instead resolve as `hui`, which Lexique
+    also carries but as one syllable. This test fails loudly if that
+    ordering is ever reversed."""
+    assert fr_data.FrenchDataPack().syllable_count("aujourd'hui") == (3, True)
+
+
+def test_phonemes_of_an_unknown_word_raises_missing_capability_not_key_error() -> None:
+    """Fix-round 1 (2026-09-01): `phonemes()` shipped raising plain `KeyError`
+    for a word `syllable_table()` does not carry. `assonance_constraint` and
+    `spoonerism` both catch only `MissingCapability` around their own call to
+    `pack.phonemes`, and `core.prosody.word_rhyme_keys` does the same around
+    `rhyme_keys` -- so `KeyError` was not "undecidable", it was unhandled.
+    `check('assonance_constraint', 'la belle zzzzblorf', lang='fr')` crashed
+    outright, on a routine event (one word Lexique lacks) rather than an edge
+    case. Fixed to match the convention `denckring-en-data` and
+    `denckring-de-wiktionary` already use for exactly this call.
+    """
+    with pytest.raises(MissingCapability):
+        fr_data.FrenchDataPack().phonemes("zzzzblorf")
+
+
+def test_the_rows_that_read_phonemes_survive_an_unknown_word_in_french() -> None:
+    """The gate that would have caught fix-round 1's crash and did not.
+
+    `tests/test_round_trip.py` drives every registered procedure's round trip
+    through `meta.languages[0]`, which is English for all three of these rows
+    -- so it could never exercise their French out-of-vocabulary path.
+    `tests/test_prosody_robustness.py` exercises unknown words only in
+    English. So `rhyme_scheme`, `assonance_constraint` and `spoonerism` had
+    zero coverage of their commonest French failure -- ordinary text
+    containing one word Lexique does not carry -- and the full gate was green
+    while all three crashed with an uncaught `KeyError` on it. This test
+    asserts a `Report` comes back, not an exception; the reading each row
+    lands on for the unknown word is not this test's concern.
+    """
+    from denckring import check
+
+    text = "la belle zzzzblorf\nune autre chose"
+    for procedure_id, kwargs in (
+        ("rhyme_scheme", {"scheme": "AA"}),
+        ("assonance_constraint", {}),
+        ("spoonerism", {}),
+    ):
+        report = check(procedure_id, text, lang="fr", **kwargs)
+        assert report.procedure == procedure_id
 
 
 def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:

@@ -35,3 +35,27 @@ cases:
       source: "die Katze schläft\nder Hund lief nach Hause"
       pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
     satisfied: true
+  - name: chat-et-chien-tablet
+    lang: fr
+    source: >-
+      constructed example with a synthetic tablet; the mechanism is Kircher's
+      Musurgia Universalis (1650) book VIII, the patterns are not his
+    text: |-
+      5 3 1 3
+      5 5 3 1 3 5
+    params:
+      source: "le soleil brille\nle chien court dans la rue"
+      pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+    satisfied: true
+  - name: motif-du-mauvais-tableau
+    lang: fr
+    source: >-
+      constructed counterexample; the box is indexed by syllable count, so a
+      four-syllable pattern will not set a six-syllable phrase
+    text: |-
+      5 3 1 3
+      5 3 1 3
+    params:
+      source: "le soleil brille\nle chien court dans la rue"
+      pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+    satisfied: false

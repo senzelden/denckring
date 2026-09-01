@@ -31,3 +31,19 @@ cases:
       die Katze rennt sehr schnell
     params: { pattern: [3, 3] }
     satisfied: false
+  - name: syllabes-conformes-au-motif
+    lang: fr
+    source: constructed example
+    text: |-
+      le vent
+      la nuit tombe
+    params: { pattern: [2, 3] }
+    satisfied: true
+  - name: une-ligne-trop-longue
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      le vent
+      la pluie tombe
+    params: { pattern: [2, 3] }
+    satisfied: false

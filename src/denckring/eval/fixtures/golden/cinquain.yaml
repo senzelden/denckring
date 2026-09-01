@@ -32,3 +32,25 @@ cases:
       ganz still
     params: {}
     satisfied: true
+  - name: mesure-de-crapsey
+    lang: fr
+    source: constructed example; the 2-4-6-8-2 measure is Adelaide Crapsey's
+    text: |-
+      le vent
+      sur le jardin
+      sur la vieille montagne
+      et la pluie tombe sans bruit
+      au loin
+    params: {}
+    satisfied: true
+  - name: deuxieme-ligne-erronee
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      le vent
+      le jardin
+      sur la vieille montagne
+      et la pluie tombe sans bruit
+      au loin
+    params: {}
+    satisfied: false

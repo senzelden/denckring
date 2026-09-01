@@ -39,3 +39,19 @@ cases:
       der Regen fällt und niemand hat gelacht
     params: { scheme: "ABAB" }
     satisfied: false
+  - name: rime-plate
+    lang: fr
+    source: "constructed example"
+    text: |-
+      la belle rose
+      une autre chose
+    params: { scheme: "AA" }
+    satisfied: true
+  - name: rime-manquante
+    lang: fr
+    source: "constructed counterexample; rose and noir do not rhyme"
+    text: |-
+      la belle rose
+      un grand chat noir
+    params: { scheme: "AA" }
+    satisfied: false
