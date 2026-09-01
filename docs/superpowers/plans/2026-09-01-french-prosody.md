@@ -359,7 +359,8 @@ Spec F4. Vendored as data rather than as a rule in code, because it is a list of
 
 **Interfaces:**
 - Consumes: the frwiktionary dump, via the existing `--dump PATH` flag. That flag is never fetched automatically — the dump is 876 MB and the script says so.
-- Produces: `denckring_fr_data.h_aspire() -> frozenset[str]`.
+- Produces: `denckring_fr_data.h_aspire() -> frozenset[str]`, containing lemmas **and** their Lexique-derived inflected forms.
+- Note `aspirated_lemmas` takes the dump pages and `write_h_aspire` takes that set plus the Lexique rows, so the two sources meet in the build script rather than in the pack.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -395,26 +396,49 @@ sibling's regex.
 
 ```python
 H_ASPIRE = DATA / "h_aspire.txt.gz"
-#: frwiktionary marks it on the pronunciation line. `\bh aspiré` rather than an
-#: anchored match, because the template appears inside a larger line.
-H_ASPIRE_RE = re.compile(r"\{\{h aspiré\}\}|\{\{asp\|fr\}\}")
+#: Measured against the dump on 2026-09-01: `{{h aspiré}}` appears 2,689+ times,
+#: `{{h aspiré|fr}}` and `{{h aspiré|nocat=1}}` a handful more, and `{{asp|fr}}`
+#: -- which an earlier draft of this plan guessed at -- appears ZERO times. The
+#: character class catches the parameterised forms the anchored `}}` would miss.
+H_ASPIRE_RE = re.compile(r"\{\{h aspiré[|}]")
+#: The dump carries several languages per page (`{{h muet|en}}` is attested), so
+#: a whole-body search can attribute another language's aspiration to French.
+FR_SECTION_RE = re.compile(r"==\s*\{\{langue\|fr\}\}\s*==(.*?)(?=\n==\s*\{\{langue\||\Z)", re.S)
 
 
-def write_h_aspire(pages: Iterator[tuple[str, str]], path: Path) -> int:
-    """Every headword frwiktionary marks as taking an aspirated h.
-
-    Inflected forms are included: the elision rule is applied to the word as it
-    appears in the line, and "je hais" needs `hais`, not only `haïr`.
-    """
+def aspirated_lemmas(pages: Iterator[tuple[str, str]]) -> set[str]:
+    """Headwords frwiktionary marks as taking an aspirated h, French section only."""
     found: set[str] = set()
     for title, body in pages:
         if not title.lower().startswith("h") or ":" in title:
             continue
-        if H_ASPIRE_RE.search(body):
+        section = FR_SECTION_RE.search(body)
+        if section and H_ASPIRE_RE.search(section.group(1)):
             found.add(title.lower())
-    with gzip.open(path, "wt", encoding="utf-8", newline="\n") as handle:
-        for word in sorted(found):
-            handle.write(f"{word}\n")
+    return found
+
+
+def write_h_aspire(lemmas: set[str], rows: list[dict[str, str]], path: Path) -> int:
+    """Aspirated lemmas, expanded to every inflected form Lexique knows.
+
+    **The expansion is not optional.** frwiktionary marks the template on the
+    lemma page and not on the inflected-form pages: `haïr` carries it and `hais`
+    carries nothing at all. Without this step "je hais" elides -- which is the
+    single case the elision rule was written for -- so the lemma list alone is
+    worse than useless. Lexique's `lemme` column supplies the 29 forms of `haïr`,
+    `hais` among them, and costs nothing because the rows are already in memory.
+    """
+    found = set(lemmas)
+    for row in rows:
+        if row["lemme"].strip().lower() in lemmas:
+            found.add(row["ortho"].strip().lower())
+    # `GzipFile(..., mtime=0)` rather than `gzip.open`, matching `_write_list`
+    # and `_write_table`: the script's own docstring promises the data files are
+    # "reproducible and diffable", and a wall-clock mtime in the header makes a
+    # no-op rebuild show a spurious diff.
+    payload = "".join(f"{word}\n" for word in sorted(found)).encode("utf-8")
+    with gzip.GzipFile(path, "wb", mtime=0) as handle:
+        handle.write(payload)
     return len(found)
 ```
 
@@ -436,7 +460,13 @@ def h_aspire() -> frozenset[str]:
 uv run --project packages/denckring-fr-data python packages/denckring-fr-data/scripts/build_lexicon.py --dump <path-to-frwiktionary-dump>
 uv run pytest tests/test_lang_fr_data.py -v
 ```
-Expected: PASS. Report the count in the commit message; a plausible figure is low thousands including inflections. **If the count is under 200 the regex did not match the dump's actual template** — inspect a known page (`haricot`) before going further rather than shipping a list that silently fails open.
+Expected: PASS. Report the count in the commit message. Measured expectations, taken
+from the dump directly on 2026-09-01 rather than guessed: the template scan finds
+**2,689+ `{{h aspiré}}` occurrences**, and lemma expansion multiplies that, so a figure
+in the low-to-mid thousands is right. **If the count is under 500, the regex missed** —
+`haricot`, `hasard`, `hauteur`, `haïr` and `héros` are all confirmed ASPIRE in the French
+section, and `heure`, `homme` and `hôtel` are confirmed MUET, so probe those eight before
+going further rather than shipping a list that silently fails open.
 
 - [ ] **Step 5: Commit**
 
@@ -492,7 +522,7 @@ def test_the_default_is_the_per_word_sum() -> None:
 def test_english_and_german_line_counts_are_unchanged() -> None:
     """Asserted rather than assumed: this function is shared by five rows in
     three languages, and the seam exists to change exactly one of them."""
-    assert line_syllables(FIXTURE, get_pack("en")) == [(0, 12, 0), (51, 4, 0)]
+    assert line_syllables(FIXTURE, get_pack("en")) == [(0, 12, 0), (52, 4, 0)]
 
 
 def test_a_pack_may_answer_for_a_whole_line() -> None:
@@ -500,14 +530,22 @@ def test_a_pack_may_answer_for_a_whole_line() -> None:
     the language -- the move ADR 0030 made for `is_vowel_phoneme` after
     `assonance_constraint` answered it with CMUdict's convention."""
 
-    class Counting(type(get_pack("en"))):  # type: ignore[misc]
+    from denckring.lang.en import EnglishPack
+
+    class Counting(EnglishPack):
+        """A pack that answers for the line rather than summing its words."""
+
         def line_syllables(self, line: str) -> tuple[int, int]:
             return (99, 1)
 
     assert line_syllables("anything at all", Counting()) == [(0, 99, 1)]
 ```
 
-Before writing the expected tuples in `test_english_and_german_line_counts_are_unchanged`, run
+**The tuple above is measured, not guessed** — taken from the pre-change tree on
+2026-09-01, where an earlier draft of this plan said `(51, 4, 0)` and was wrong by one on
+the offset. German's `der Wind zieht durch das Land und trägt den Schnee davon` measures
+`[(0, 12, 0)]` on the same tree, if you want a second language in the guard. To re-derive
+either, run
 `uv run python -c "from denckring.lang import get_pack; from denckring.procedures.syllable_count import line_syllables; print(line_syllables('the cat sat on the mat and thought of the wild mice\nthe dog ran home', get_pack('en')))"`
 on the **current** tree and paste what it prints. The test's job is that the number does not move, so it must be seeded from the number before the change.
 
@@ -731,8 +769,13 @@ The chapter's real algorithm, and the three traps as named tests.
 - Test: `tests/test_elision_fr.py`
 
 **Interfaces:**
-- Consumes: `syllable_table()`, `h_aspire()`.
+- Consumes: `syllable_table()` (Task 2), `h_aspire()` (Task 3).
 - Produces: `latent_schwa(ortho, nbsyll, phon, orthosyll) -> tuple[int, bool]`, `count_line(line, table, aspire) -> tuple[int, int]`; `FrenchDataPack.line_syllables` overriding Task 4's default.
+
+**`test_an_aspirated_h_blocks_elision` depends on Task 3 having landed.** Verified against
+the prototype: with `hais` absent from the aspirated list, "je hais" scores 1 rather than
+2, because `je`'s schwa elides across what it reads as a mute h. That is the whole reason
+Task 3 exists, and this test is what proves the list is wired in.
 
 - [ ] **Step 1: Write the failing test — one per trap, plus the rules**
 
@@ -757,7 +800,7 @@ def test_a_mute_e_counts_before_a_consonant_and_elides_before_a_vowel() -> None:
 
 
 def test_a_mute_e_never_counts_at_the_end_of_a_line() -> None:
-    assert line("la porte") == 3             # la por-te, not por-te-<e>
+    assert line("la porte") == 2             # la por-te: the final e never counts
 
 
 def test_the_nasal_is_not_a_schwa() -> None:
@@ -779,7 +822,7 @@ def test_an_elided_proclitic_is_a_consonant_for_the_word_in_front() -> None:
     """TRAP 2. Dropping `t'`, `d'`, `l'` from the token stream lets the
     preceding mute e see a vowel and elide -- six points."""
     assert line("ne t'attendais") == 4       # ne-t'at-ten-dais, the schwa holds
-    assert line("dignes d'être") == 4        # di-gnes d'ê-tre
+    assert line("dignes d'être") == 3        # di-gnes d'ê-tre, final e dropped
 
 
 def test_orthosyll_judges_a_mute_ent_and_letter_runs_do_not() -> None:
@@ -795,7 +838,7 @@ def test_orthosyll_judges_a_mute_ent_and_letter_runs_do_not() -> None:
 def test_an_aspirated_h_blocks_elision() -> None:
     """The prototype's ad-hoc list missed `hais`, so "je hais" elided wrongly."""
     assert line("je hais") == 2              # je holds its schwa
-    assert line("je hôtel") == 2             # mute h: j' elides... 
+    assert line("une heure") == 2            # mute h: u-n'heu-re, the schwa elides
 ```
 
 Hand-count every expected number in this file against classical scansion before
@@ -922,9 +965,20 @@ last line of a speech may be half of an alexandrine shared between speakers; Hug
 unfiltered run has a 266-line spike at exactly 6, the caesura). Reproduce the baseline
 before changing anything:
 
-Expected baseline: Racine 89.7% at exactly twelve (n=1209), Hugo 80.2% (n=1139).
-**If you do not reproduce those two numbers, stop** — the harness disagrees with the
-one the go/no-go decision rests on, and the disagreement is the finding.
+**Measured against the SHIPPED implementation on 2026-09-01, which is what you must
+reproduce** — not the prototype's figures, which were taken before the real h-aspiré list
+and the fixed apostrophe tokeniser existed:
+
+| | interior lines | scored exactly 12 | ceiling, choosing diérèse |
+|---|---|---|---|
+| Racine, *Mithridate* | n=1213 | **89.3%** | **96.6%** |
+| Hugo, *Hernani* | n=1283 | **79.3%** | **84.8%** |
+
+Lines where `line_syllables` reports `estimated > 0` are excluded — a line containing a
+word Lexique does not carry cannot test the elision rules.
+
+**If you do not reproduce 89.3% and 79.3% within a few tenths, stop** — your harness
+disagrees with the one this decision rests on, and that disagreement is the finding.
 
 - [ ] **Step 2: Write the failing test for the clearest cases**
 
@@ -946,11 +1000,20 @@ synérèse. Then measure. Record the Racine and Hugo figures after each variant.
 
 - [ ] **Step 4: The stop condition**
 
-**Accept** when Racine's interior figure reaches **≥ 95%** without Hugo's falling below
-its 80.2% baseline. **Stop and report** if three rule variants fail to pass 93%: at that
-point the remaining residue is editorial rather than mechanical, and the honest move is
-to ship the count as `exact=False` at whatever it reaches and record the figure in ADR
-0034 — not to keep tuning against the two texts, which is fitting to the test set.
+**Accept** when Racine's interior figure reaches **≥ 94%** without Hugo's falling below
+its **79.3%** baseline. **Stop and report** if three rule variants fail to pass **92%**.
+
+**Both thresholds are calibrated against the measured ceiling, not invented.** An earlier
+draft said 95%/93% against a prototype ceiling of 97.4% — 2.4 points of slack. The
+shipped ceiling is 96.6%, so preserving that same distance gives 94%/92%. Reaching 94%
+means capturing about two thirds of the 7.3 points of headroom a perfect per-site oracle
+would take, which is a real bar: classical diérèse is etymological, and no mechanical rule
+will take all of it.
+
+At the stop condition the remaining residue is editorial rather than mechanical, and the
+honest move is to ship the count as `exact=False` at whatever it reaches and record the
+figure in ADR 0034 — not to keep tuning against two texts, which is fitting to the test
+set and would make the number meaningless.
 
 Either way the number that goes in the ADR is the one measured here, and the ADR states
 it as a limitation rather than a benefit.
@@ -1053,7 +1116,20 @@ one this chapter makes reachable:
               print('fr-core: syllabic row raised as expected —', exc)
           else:
               raise SystemExit('alexandrine needs syllables, which this install lacks')
+          try:
+              check('rhyme_scheme', 'le chat dort\nle chien court', scheme='AA', lang='fr')
+          except MissingCapability as exc:
+              assert 'phonemes' in str(exc), exc
+              print('fr-core: rhyme row raised as expected —', exc)
+          else:
+              raise SystemExit('rhyme_scheme needs phonemes, which this install lacks')
 ```
+
+**The `phonemes` half is not optional, and this job is now its only home.** Task 5 gave
+French `phonemes`, so **no installed pack lacks that capability any more** — all three
+have it. `tests/test_prosody_robustness.py` used to cover the refusal with `fr` and had
+to move to `sonnet`/`stress` when that stopped being true. The core-only install is the
+last place the phonemes refusal can be exercised at all.
 
 - [ ] **Step 2: Correct the job's comment, which this chapter makes false**
 

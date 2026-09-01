@@ -26,3 +26,21 @@ cases:
       das Wasser klingt hell
     params: {}
     satisfied: true
+  - name: jardin-et-silence
+    lang: fr
+    source: constructed example
+    text: |-
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+    params: {}
+    satisfied: true
+  - name: deuxieme-ligne-trop-courte
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      un vieux jardin dort
+      le silence tombe
+      un chat noir traverse
+    params: {}
+    satisfied: false

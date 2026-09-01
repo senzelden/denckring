@@ -77,19 +77,21 @@ def test_undecidable_refuses_to_pass_a_text_it_could_not_judge_at_all() -> None:
     assert any(v.rule == "rhyme_undecidable" for v in report.violations)
 
 
-def test_a_pack_genuinely_lacking_phonemes_still_raises() -> None:
+def test_a_pack_genuinely_lacking_stress_still_raises() -> None:
     """The exception is not the bug — refusing a word the dictionary lacks was.
 
-    A pack with no pronunciation at all cannot check rhyme by any reading, and
-    saying so is what `MissingCapability` is for.
+    A pack with no stress information at all cannot judge a metre by any
+    reading, and saying so is what `MissingCapability` is for.
 
     French, and no longer German: chapter 4's tranche B gave `de` a pronouncing
-    dictionary, so it stopped being an example of a pack without one. `fr` ships
-    no data at all, which is what this test needs and is the state ADR 0029
-    recorded for it.
+    dictionary, so it stopped being an example of a pack without one. `fr`
+    then stopped illustrating a *phonemes* gap too, when chapter 6 tranche B
+    (Task 5, 2026-09-01) gave it `phonemes` and `rhyme_scheme` started running
+    there. `sonnet` still needs `stress`, which French has none of and never
+    will (spec D2).
     """
     with pytest.raises(MissingCapability):
-        check("rhyme_scheme", "le chat dort\nle chien court", scheme="AA", lang="fr")
+        check("sonnet", "le chat dort\nle chien court", lang="fr")
 
 
 #: Every row that pairs rhymes. `assonance_constraint` and `spoonerism` declare

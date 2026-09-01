@@ -55,3 +55,32 @@ cases:
       der Wind bewegt die Blätter in der Nacht
     params: { source: "Nebel" }
     satisfied: false
+  - name: marie-et-aimer
+    lang: fr
+    source: >-
+      constructed example; 'aimer' is a genuine letter anagram of 'Marie'
+    text: |-
+      aimer
+      On voit Marie qui sait aimer toujours
+      Elle chante et danse nuit et jour
+    params: { source: "Marie" }
+    satisfied: true
+  - name: la-rime-ne-tient-pas
+    lang: fr
+    source: >-
+      constructed counterexample; the anagram holds and the couplet does not rhyme
+    text: |-
+      aimer
+      On voit Marie qui sait aimer toujours
+      Elle chante et danse dans le froid gris
+    params: { source: "Marie" }
+    satisfied: false
+  - name: lettre-en-surplus
+    lang: fr
+    source: constructed counterexample; one letter surplus
+    text: |-
+      aimers
+      On voit Marie qui sait aimer toujours
+      Elle chante et danse nuit et jour
+    params: { source: "Marie" }
+    satisfied: false

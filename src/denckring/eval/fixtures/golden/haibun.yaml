@@ -28,3 +28,21 @@ cases:
       das Wasser klingt hell
     params: {}
     satisfied: true
+  - name: prose-puis-haiku
+    lang: fr
+    source: constructed example
+    text: |-
+      Le chemin tournait vers le nord et la pluie ne cessa qu'au soir.
+
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+    params: {}
+    satisfied: true
+  - name: prose-seule
+    lang: fr
+    source: constructed counterexample; no haiku block is present
+    text: |-
+      Le chemin tournait vers le nord et la pluie ne cessa qu'au soir.
+    params: {}
+    satisfied: false

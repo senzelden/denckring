@@ -29,3 +29,23 @@ cases:
       der Regen fällt und niemand hat gelacht
     params: {}
     satisfied: true
+  - name: deux-rimes-plates
+    lang: fr
+    source: "constructed example after Edmund Clerihew Bentley's form"
+    text: |-
+      Monsieur Dupont aimait le vent
+      Il regardait passer le temps
+      Il partit un jour plein d'espoir
+      Et disparut dans le soir noir
+    params: {}
+    satisfied: true
+  - name: deuxieme-rime-rompue
+    lang: fr
+    source: "constructed counterexample"
+    text: |-
+      Monsieur Dupont aimait le vent
+      Il regardait passer le temps
+      Il partit un jour plein d'espoir
+      Et disparut dans le froid gris
+    params: {}
+    satisfied: false

@@ -5,7 +5,7 @@ from denckring.lang import get_pack, installed_languages
 from denckring.lang.base import ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, TOKENS
 from denckring.lang.fr import FrenchPack
 from denckring.procedures.anagram import Anagram
-from denckring.procedures.haiku import Haiku
+from denckring.procedures.sonnet import Sonnet
 
 
 def test_french_pack_is_discovered() -> None:
@@ -44,16 +44,18 @@ def test_a_core_only_check_runs_in_french() -> None:
     assert report.satisfied
 
 
-def test_a_row_needing_syllables_fails_on_the_capability_not_the_language() -> None:
+def test_a_row_needing_stress_fails_on_the_capability_not_the_language() -> None:
     """`n_plus_7` was this test's original subject: it named `lexicon.nouns`,
     which `denckring[fr]` now supplies (chapter 6), so it runs in French and can
-    no longer illustrate the failure. `haiku` needs `syllables.heuristic`, which
-    this chapter deliberately ships no data for — the error must still name the
-    missing capability rather than the language, which is merely undersupplied.
+    no longer illustrate the failure. `haiku` needed `syllables.heuristic` next,
+    but chapter 6 tranche B (Task 5, 2026-09-01) gave `fr` exactly that, so it
+    runs too now. `sonnet` needs `stress`, which French has none of and never
+    will (spec D2) — the error must still name the missing capability rather
+    than the language, which is merely undersupplied.
     """
     with pytest.raises(MissingCapability) as excinfo:
-        Haiku().check("un vieil étang", lang="fr")
-    assert "syllables.heuristic" in str(excinfo.value)
+        Sonnet().check("un vieil étang", lang="fr")
+    assert "stress" in str(excinfo.value)
 
 
 def test_the_ligatures_fold_because_nfkd_does_not_fold_them() -> None:

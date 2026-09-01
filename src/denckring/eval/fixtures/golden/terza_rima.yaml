@@ -36,3 +36,27 @@ cases:
       der Nebel füllt den stillen kalten Raum
     params: {}
     satisfied: true
+  - name: aba-bcb-fr
+    lang: fr
+    source: "constructed example; the form of Dante's Commedia"
+    text: |-
+      Le vent emporte au loin tout notre amour
+      Il traversait un long chemin
+      Le temps s'efface et dure toujours
+      Il se leva tôt le matin
+      Il regardait au loin la montagne
+      Puis s'en alla vers son jardin
+    params: {}
+    satisfied: true
+  - name: rime-b-rompue
+    lang: fr
+    source: "constructed counterexample; the B rhyme (chemin/matin) breaks on the last line"
+    text: |-
+      Le vent emporte au loin tout notre amour
+      Il traversait un long chemin
+      Le temps s'efface et dure toujours
+      Il se leva tôt le matin
+      Il regardait au loin la montagne
+      Puis s'en alla dans le froid gris
+    params: {}
+    satisfied: false

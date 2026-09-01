@@ -25,3 +25,17 @@ cases:
       die Blume blüht im Sommer
     params: {}
     satisfied: false
+  - name: voyelle-nasale-repetee
+    lang: fr
+    source: "constructed example; vent, grand and champ all carry the nasal vowel /ɑ̃/"
+    text: |-
+      le vent souffle sur le grand champ
+    params: {}
+    satisfied: true
+  - name: aucune-voyelle-partagee
+    lang: fr
+    source: "constructed counterexample"
+    text: |-
+      le chat dort
+    params: {}
+    satisfied: false
