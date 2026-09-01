@@ -41,3 +41,31 @@ cases:
       der Wind bewegt die Blätter in der Nacht
     params: {}
     satisfied: true
+  - name: avec-refrains
+    lang: fr
+    source: "constructed example; the refrains are the same line repeated"
+    text: |-
+      Le vent emporte notre amour
+      Il ne reviendra plus jamais
+      Le silence dure toujours
+      Le vent emporte notre amour
+      Les feuilles tombent alentour
+      Le brouillard cache le palais
+      Le vent emporte notre amour
+      Il ne reviendra plus jamais
+    params: {}
+    satisfied: true
+  - name: refrain-rompu
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      Le vent emporte notre amour
+      Il ne reviendra plus jamais
+      Le silence dure toujours
+      Le vent emporte notre amour
+      Les feuilles tombent alentour
+      Le brouillard cache le palais
+      Le froid emporte notre amour
+      Il ne reviendra plus jamais
+    params: {}
+    satisfied: false

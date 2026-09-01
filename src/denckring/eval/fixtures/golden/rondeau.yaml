@@ -62,3 +62,45 @@ cases:
       der Sommer hält
     params: { rentrement_words: 3 }
     satisfied: true
+  - name: deux-rimes-et-rentrement
+    lang: fr
+    source: "constructed example"
+    text: |-
+      Sous le grand ciel s'étend l'amour
+      Le temps s'écoule et dure toujours
+      Il traversait un long chemin
+      Il se levait tôt le matin
+      Les fleurs se penchent tout autour
+      Il espérait un prompt retour
+      La nuit tombait douce et de velours
+      Il s'endormait dans le jardin
+      Sous le grand
+      Le roi passait dans la cour
+      Le peuple appelait au secours
+      Chacun suivait son destin
+      Le loup rôdait chez le voisin
+      Le silence régnait alentour
+      Sous le grand
+    params: { rentrement_words: 3 }
+    satisfied: true
+  - name: rentrement-rompu
+    lang: fr
+    source: "constructed counterexample"
+    text: |-
+      Sous le grand ciel s'étend l'amour
+      Le temps s'écoule et dure toujours
+      Il traversait un long chemin
+      Il se levait tôt le matin
+      Les fleurs se penchent tout autour
+      Il espérait un prompt retour
+      La nuit tombait douce et de velours
+      Il s'endormait dans le jardin
+      Sous le grand
+      Le roi passait dans la cour
+      Le peuple appelait au secours
+      Chacun suivait son destin
+      Le loup rôdait chez le voisin
+      Le silence régnait alentour
+      Dans le grand
+    params: { rentrement_words: 3 }
+    satisfied: false
