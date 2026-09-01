@@ -12,6 +12,7 @@ which supplies German, could not supply French.
 from __future__ import annotations
 
 import gzip
+import re
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from importlib.resources import files
@@ -26,10 +27,22 @@ from denckring.lang.base import (
     GRADED_WORDS,
     LETTER_SHAPES,
     NOUNS,
+    PHONEMES,
+    SYLLABLES,
+    SYLLABLES_DICTIONARY,
+    SYLLABLES_HEURISTIC,
     TOKENS,
     WORDS,
 )
 from denckring.lang.fr import FrenchPack
+from denckring_fr_data.sampa import IPA_VOWELS, to_phonemes
+
+#: Orthographic vowel runs, for the estimate a word outside Lexique gets.
+#: Answers "roughly how long is this unknown word" from spelling alone --
+#: deliberately not shared with `elision.py`'s pattern (Task 6), which answers
+#: "does this known word end in a mute e" over a different alphabet of
+#: concerns entirely.
+_VOWEL_RUN = re.compile(r"[aeiouyàâäéèêëîïôöùûüÿœæ]+")
 
 #: What `look_up` returns is whatever the table holds, and the caller must get
 #: its own type back. The same shape as `denckring_de_wiktionary.look_up`.
@@ -159,11 +172,78 @@ class FrenchDataPack(FrenchPack):
     """
 
     capabilities: ClassVar[frozenset[str]] = frozenset(
-        {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, NOUNS, WORDS, GLOSSES, GRADED_WORDS}
+        {
+            TOKENS,
+            ALPHABET,
+            FOLD_DIACRITICS,
+            LETTER_SHAPES,
+            NOUNS,
+            WORDS,
+            GLOSSES,
+            GRADED_WORDS,
+            SYLLABLES,
+            SYLLABLES_DICTIONARY,
+            SYLLABLES_HEURISTIC,
+            PHONEMES,
+        }
     )
 
     def is_word(self, word: str) -> bool:
         return self._lemma(word) in known_words()
+
+    def syllable_count(self, word: str) -> tuple[int, bool]:
+        """Lexique's citation count, or a vowel-run estimate outside it.
+
+        The count is the *citation* one: `femme` is one syllable here and
+        frequently two in verse. The line rules, not this method, are where
+        verse is answered -- spec D3.
+        """
+        entry = syllable_table().get(word.casefold())
+        if entry is not None:
+            return entry[0], True
+        return max(len(_VOWEL_RUN.findall(word.casefold())), 1), False
+
+    def syllables(self, word: str) -> list[str]:
+        entry = syllable_table().get(word.casefold())
+        if entry is None:
+            raise KeyError(word)
+        return entry[2].split("-")
+
+    def phonemes(self, word: str) -> list[str]:
+        entry = syllable_table().get(word.casefold())
+        if entry is None:
+            raise KeyError(word)
+        return to_phonemes(entry[1])
+
+    def is_vowel_phoneme(self, phoneme: str) -> bool:
+        return phoneme in IPA_VOWELS
+
+    def rhyme_key(self, word: str) -> str:
+        """Phonemes from the last vowel to the end of the word.
+
+        The base definition says "from the last primary-stressed vowel", but
+        French has no lexical stress (spec D2), so the final vowel is the
+        rhyme-bearing one -- the *rime suffisante* every French prosodist
+        assumes. Feminine/masculine alternation is NOT modelled here; this
+        project's `rhyme_scheme` models it in no language, and that stays a
+        separate, recorded gap rather than something this method papers over.
+
+        Raises `KeyError` for a word Lexique does not carry, exactly as
+        `phonemes()` does -- a guessed rhyme is worse than an unknown one, and
+        `core.prosody` already reads a missing key as undecidable rather than
+        wrong.
+        """
+        phones = self.phonemes(word)
+        for index in range(len(phones) - 1, -1, -1):
+            if self.is_vowel_phoneme(phones[index]):
+                return "".join(phones[index:])
+        return "".join(phones)
+
+    def rhyme_keys(self, word: str) -> list[str]:
+        """Every pronunciation's rhyme key -- one, since the table holds a
+        single transcription per spelling (ADR 0034 records the homograph
+        cost that comes with that)."""
+        return [self.rhyme_key(word)]
 
     def nouns(self) -> tuple[str, ...]:
         return noun_list()
