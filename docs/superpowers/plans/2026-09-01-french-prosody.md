@@ -530,7 +530,11 @@ def test_a_pack_may_answer_for_a_whole_line() -> None:
     the language -- the move ADR 0030 made for `is_vowel_phoneme` after
     `assonance_constraint` answered it with CMUdict's convention."""
 
-    class Counting(type(get_pack("en"))):  # type: ignore[misc]
+    from denckring.lang.en import EnglishPack
+
+    class Counting(EnglishPack):
+        """A pack that answers for the line rather than summing its words."""
+
         def line_syllables(self, line: str) -> tuple[int, int]:
             return (99, 1)
 
