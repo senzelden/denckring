@@ -159,6 +159,10 @@ CAPABILITY_METHODS: dict[str, tuple[str, ...]] = {
     # returns methods bound to `self._inner`), so a fixture that reaches counting only
     # through a line-syllabic row now calls `syllable_count` invisibly to the spy. The
     # row still exercises the real capability; only the spy's vantage point moved.
+    # `line_syllables` also needs a matching entry in `METHOD_CAPABILITY` below — the
+    # two dicts are hand-maintained and not derived from each other, and
+    # `test_the_two_capability_tables_agree` is the guard that a name added here alone
+    # is a mistake.
     "syllables.heuristic": ("syllable_count", "line_syllables"),
 }
 
@@ -178,6 +182,7 @@ METHOD_CAPABILITY: dict[str, str] = {
     "descenders": LETTER_SHAPES,
     "exceeds_x_height": LETTER_SHAPES,
     "syllable_count": SYLLABLES_HEURISTIC,
+    "line_syllables": SYLLABLES_HEURISTIC,
     "syllables": SYLLABLES,
     "phonemes": PHONEMES,
     "rhyme_key": PHONEMES,
@@ -189,6 +194,18 @@ METHOD_CAPABILITY: dict[str, str] = {
     "noun_index": NOUNS,
     "glosses": GLOSSES,
 }
+
+
+def test_the_two_capability_tables_agree() -> None:
+    """Every method the overstating guard tracks must also be known to the
+    refusal side, or a capability is enforced in one direction only.
+
+    `line_syllables` was added to `CAPABILITY_METHODS` alone once, which left
+    `_StrictPack` returning the unwrapped method and silently disarmed
+    `test_declared_capabilities_are_sufficient` for eleven line-syllabic rows.
+    """
+    missing = _TRACKED_METHODS - set(METHOD_CAPABILITY)
+    assert not missing, f"tracked but not refusable: {sorted(missing)}"
 
 
 class _SpyPack:
