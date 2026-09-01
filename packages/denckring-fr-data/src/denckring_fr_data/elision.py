@@ -25,13 +25,22 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     ADR 0034. Classical French diérèse -- whether a Latin/Greek-derived `i`
     or `u` glide (`diadème`, `division`) counts as its own syllable, as
     against a native word's fixed glide (`pied`, `moindre`) that never does
-    -- is etymological, not spelling-derived (Task 7 brief). Three mechanical
-    variants were measured against Racine's *Mithridate* and Hugo's *Hernani*
-    (interior lines only, ADR 0034 has the harness and the full table):
+    -- is etymological, not spelling-derived (Task 7 brief). The rule
+    shipped here: every `j` after any consonant, single or a cluster, is an
+    extra syllable, gated on the word ending in the `-ion(s)` noun suffix
+    (the textbook diérèse site: Latin `-io`/`-ionem`) or starting with
+    `dia-`. Measured against Racine's *Mithridate* and Hugo's *Hernani*
+    (interior lines only, ADR 0034 has the harness and the full table),
+    this is **Racine 89.3% -> 90.3%, Hugo 79.3% -> 80.2%**, against a
+    diérèse ceiling of 96.6%/84.8% -- a mechanical rule takes about 1.0 of
+    the 7.3 points a perfect per-site oracle would.
 
-    - a glide after a consonant CLUSTER ending in a liquid (R, l): worse than
-      no rule at all on both texts (84.5%/74.7% against an 89.3%/79.3%
-      baseline);
+    Three mechanical variants were measured on the way here, none of which
+    ships unchanged:
+
+    - a glide after a consonant CLUSTER ending in a liquid (R, l): worse
+      than no rule at all on both texts (84.5%/74.7% against the
+      89.3%/79.3% baseline);
     - every `j` after a single consonant, excluding verb-inflection and
       adjective endings that are reliably synérèse (`-iez`, `-ions`, `-ier`,
       `-ien`, `-iable`, `-iant`, `-iance` and their plurals/feminines) --
@@ -40,25 +49,27 @@ def _dierese_extra(ortho: str, phon: str) -> int:
       blunter blanket rule scored a catastrophic 49.5%/36.6%; excluding them
       only brought it to 86.7%/70.0%, still below baseline on Hugo;
     - `j` after a single consonant, narrowed further to the `-ion(s)` noun
-      suffix (the textbook diérèse site: Latin `-io`/`-ionem`) and the
-      `dia-` prefix: the only variant that beat baseline on BOTH texts
-      (90.3%/80.0%), and the shape kept below.
+      suffix and the `dia-` prefix: the only variant that beat baseline on
+      BOTH texts, measured **as tried, with the single-consonant
+      restriction still in place, at 90.3%/80.0%**.
 
-    None reached the 94% accept bar, so this ships as the honest ceiling of
-    a three-variant budget, not a solved rule -- `line_syllables`'s count
-    stays an estimate (spec D4), never dictionary-exact. `w` and `8` are
-    left out entirely: they overwhelmingly spell native `oi`/`ou`/`ui`
-    digraphs that are never split, and no variant that touched them
-    improved on one that ignored them.
+    The `-ion(s)`/`dia-` gate is the shape that third variant kept. Its
+    single-consonant restriction was not: fix round 1 found it carried over
+    from the first, rejected variant (cluster-ending-in-a-liquid) without
+    independent justification, isolated it, and measured it as actively
+    costing 0.2 points on Hugo -- for no gain on Racine -- by wrongly
+    suppressing `factions` and `predictions`, both genuine `-ion` diérèse
+    sites whose `j` follows a `ks`/`ts` cluster. It was dropped; every `j`
+    after any consonant now counts once the gate passes, which is the
+    90.3%/80.2% above, not the 90.3%/80.0% the gated variant measured.
 
-    Fix round 1: the shipped v3 also required the `j` to follow a single
-    consonant rather than a cluster -- carried over from v1 without being
-    re-justified, since v1 itself (the cluster-ending-in-a-liquid rule) was
-    measured as actively harmful (84.5%/74.7%). Isolating that clause found
-    it cost 0.2 points on Hugo for no gain on Racine, by wrongly suppressing
-    `factions` and `predictions` -- both genuine `-ion` diérèse sites whose
-    `j` follows a `ks`/`ts` cluster. Every `j` after ANY consonant run now
-    counts once the `-ion(s)`/`dia-` gate above has passed.
+    None of the three reached the 94% accept bar -- this is a STOP, not an
+    ACCEPT -- so it ships as the honest ceiling of a three-variant budget,
+    not a solved rule: `line_syllables`'s count stays an estimate
+    (spec D4), never dictionary-exact. `w` and `8` are left out entirely:
+    they overwhelmingly spell native `oi`/`ou`/`ui` digraphs that are never
+    split, and no variant that touched them improved on one that ignored
+    them.
     """
     is_ion = ortho.endswith(("ion", "ions")) and not ortho.endswith(("iation", "iations"))
     if not (is_ion or ortho.startswith("dia")):
