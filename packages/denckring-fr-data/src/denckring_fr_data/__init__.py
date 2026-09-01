@@ -20,6 +20,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import ClassVar, TypeVar
 
+from denckring.core.errors import MissingCapability
 from denckring.lang.base import (
     ALPHABET,
     FOLD_DIACRITICS,
@@ -204,15 +205,39 @@ class FrenchDataPack(FrenchPack):
         return max(len(_VOWEL_RUN.findall(word.casefold())), 1), False
 
     def syllables(self, word: str) -> list[str]:
+        """The orthographic segments, or `MissingCapability` for a word
+        Lexique does not carry.
+
+        Not `KeyError`: nothing in `core/` calls this yet, so the choice is
+        latent, but Task 6's line rules will call it the same way
+        `core/prosody.py` already calls `rhyme_keys` -- catching only
+        `MissingCapability` on an out-of-vocabulary word, which is a routine
+        event in real verse rather than an edge case. `KeyError` here would
+        repeat exactly the crash fix-round 1 found in `phonemes` and
+        `rhyme_key`/`rhyme_keys`.
+        """
         entry = syllable_table().get(word.casefold())
         if entry is None:
-            raise KeyError(word)
+            raise MissingCapability(f"<word {word!r}>", self.lang, SYLLABLES)
         return entry[2].split("-")
 
     def phonemes(self, word: str) -> list[str]:
+        """The IPA transcription, or `MissingCapability` for a word Lexique
+        does not carry.
+
+        Not `KeyError`: `core/prosody.py`'s `word_rhyme_keys` and
+        `assonance_constraint`/`spoonerism`'s own lookups catch only
+        `MissingCapability` around a pack call, reading it as "this word is
+        undecidable" rather than letting it propagate. A plain `KeyError`
+        went uncaught there -- `check('assonance_constraint', ..., lang='fr')`
+        crashed outright on the first unknown word, which is routine in real
+        French text, not an edge case. Matches the convention
+        `denckring-en-data` and `denckring-de-wiktionary` already established
+        for exactly this call.
+        """
         entry = syllable_table().get(word.casefold())
         if entry is None:
-            raise KeyError(word)
+            raise MissingCapability(f"<word {word!r}>", self.lang, PHONEMES)
         return to_phonemes(entry[1])
 
     def is_vowel_phoneme(self, phoneme: str) -> bool:
@@ -228,10 +253,12 @@ class FrenchDataPack(FrenchPack):
         project's `rhyme_scheme` models it in no language, and that stays a
         separate, recorded gap rather than something this method papers over.
 
-        Raises `KeyError` for a word Lexique does not carry, exactly as
-        `phonemes()` does -- a guessed rhyme is worse than an unknown one, and
-        `core.prosody` already reads a missing key as undecidable rather than
-        wrong.
+        Raises `MissingCapability` for a word Lexique does not carry, via
+        `phonemes()` -- a guessed rhyme is worse than an unknown one, and
+        `core.prosody.word_rhyme_keys` catches exactly that exception around
+        `rhyme_keys` and reads it as "this word is undecidable", which is what
+        makes an unknown word in a French poem non-fatal rather than an
+        uncaught crash (fix-round 1: it was `KeyError` and unhandled there).
         """
         phones = self.phonemes(word)
         for index in range(len(phones) - 1, -1, -1):
