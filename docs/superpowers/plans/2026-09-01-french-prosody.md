@@ -965,9 +965,20 @@ last line of a speech may be half of an alexandrine shared between speakers; Hug
 unfiltered run has a 266-line spike at exactly 6, the caesura). Reproduce the baseline
 before changing anything:
 
-Expected baseline: Racine 89.7% at exactly twelve (n=1209), Hugo 80.2% (n=1139).
-**If you do not reproduce those two numbers, stop** — the harness disagrees with the
-one the go/no-go decision rests on, and the disagreement is the finding.
+**Measured against the SHIPPED implementation on 2026-09-01, which is what you must
+reproduce** — not the prototype's figures, which were taken before the real h-aspiré list
+and the fixed apostrophe tokeniser existed:
+
+| | interior lines | scored exactly 12 | ceiling, choosing diérèse |
+|---|---|---|---|
+| Racine, *Mithridate* | n=1213 | **89.3%** | **96.6%** |
+| Hugo, *Hernani* | n=1283 | **79.3%** | **84.8%** |
+
+Lines where `line_syllables` reports `estimated > 0` are excluded — a line containing a
+word Lexique does not carry cannot test the elision rules.
+
+**If you do not reproduce 89.3% and 79.3% within a few tenths, stop** — your harness
+disagrees with the one this decision rests on, and that disagreement is the finding.
 
 - [ ] **Step 2: Write the failing test for the clearest cases**
 
@@ -989,11 +1000,20 @@ synérèse. Then measure. Record the Racine and Hugo figures after each variant.
 
 - [ ] **Step 4: The stop condition**
 
-**Accept** when Racine's interior figure reaches **≥ 95%** without Hugo's falling below
-its 80.2% baseline. **Stop and report** if three rule variants fail to pass 93%: at that
-point the remaining residue is editorial rather than mechanical, and the honest move is
-to ship the count as `exact=False` at whatever it reaches and record the figure in ADR
-0034 — not to keep tuning against the two texts, which is fitting to the test set.
+**Accept** when Racine's interior figure reaches **≥ 94%** without Hugo's falling below
+its **79.3%** baseline. **Stop and report** if three rule variants fail to pass **92%**.
+
+**Both thresholds are calibrated against the measured ceiling, not invented.** An earlier
+draft said 95%/93% against a prototype ceiling of 97.4% — 2.4 points of slack. The
+shipped ceiling is 96.6%, so preserving that same distance gives 94%/92%. Reaching 94%
+means capturing about two thirds of the 7.3 points of headroom a perfect per-site oracle
+would take, which is a real bar: classical diérèse is etymological, and no mechanical rule
+will take all of it.
+
+At the stop condition the remaining residue is editorial rather than mechanical, and the
+honest move is to ship the count as `exact=False` at whatever it reaches and record the
+figure in ADR 0034 — not to keep tuning against two texts, which is fitting to the test
+set and would make the number meaningless.
 
 Either way the number that goes in the ADR is the one measured here, and the ADR states
 it as a limitation rather than a benefit.
