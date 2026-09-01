@@ -39,6 +39,7 @@ WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "words.txt.gz"))
 NOUNS_PATH = Path(str(files("denckring_fr_data") / "data" / "nouns.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "graded_words.txt.gz"))
 GLOSSES_PATH = Path(str(files("denckring_fr_data") / "data" / "glosses.txt.gz"))
+SYLLABLES_PATH = Path(str(files("denckring_fr_data") / "data" / "syllables.txt.gz"))
 
 __version__ = "0.1.0"
 
@@ -95,6 +96,21 @@ def gloss_table() -> dict[str, tuple[str, ...]]:
             for key, _, values in (line.rstrip("\n").partition("\t") for line in handle)
             if values
         }
+
+
+@lru_cache(maxsize=1)
+def syllable_table() -> Mapping[str, tuple[int, str, str]]:
+    """spelling -> (citation syllables, Lexique SAMPA, orthographic syllabation).
+
+    The third element is the segmented spelling (`car-ros-se`), which serves two
+    callers: `syllables()` returns its segments, and the mute-e rules compare
+    its segment count against `nbsyll` to judge a final `-ent`.
+    """
+    table: dict[str, tuple[int, str, str]] = {}
+    for line in _read(SYLLABLES_PATH):
+        ortho, nbsyll, phon, osyll = line.split("\t")
+        table[ortho] = (int(nbsyll), phon, osyll)
+    return MappingProxyType(table)
 
 
 def look_up(table: Mapping[str, _V], word: str) -> _V | None:
