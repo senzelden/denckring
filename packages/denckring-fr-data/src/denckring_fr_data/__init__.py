@@ -40,6 +40,7 @@ NOUNS_PATH = Path(str(files("denckring_fr_data") / "data" / "nouns.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_fr_data") / "data" / "graded_words.txt.gz"))
 GLOSSES_PATH = Path(str(files("denckring_fr_data") / "data" / "glosses.txt.gz"))
 SYLLABLES_PATH = Path(str(files("denckring_fr_data") / "data" / "syllables.txt.gz"))
+H_ASPIRE_PATH = Path(str(files("denckring_fr_data") / "data" / "h_aspire.txt.gz"))
 
 __version__ = "0.1.0"
 
@@ -111,6 +112,12 @@ def syllable_table() -> Mapping[str, tuple[int, str, str]]:
         ortho, nbsyll, phon, osyll = line.split("\t")
         table[ortho] = (int(nbsyll), phon, osyll)
     return MappingProxyType(table)
+
+
+@lru_cache(maxsize=1)
+def h_aspire() -> frozenset[str]:
+    """Words whose initial h blocks elision. Lexique cannot answer this."""
+    return frozenset(_read(H_ASPIRE_PATH))
 
 
 def look_up(table: Mapping[str, _V], word: str) -> _V | None:
