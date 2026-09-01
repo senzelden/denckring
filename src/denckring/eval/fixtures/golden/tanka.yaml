@@ -30,3 +30,23 @@ cases:
       und niemand sagt ein Wort mehr
     params: {}
     satisfied: true
+  - name: cinq-lignes
+    lang: fr
+    source: constructed example; the 5-7-5-7-7 measure is the form's
+    text: |-
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+      et le temps passe en silence
+      la brume couvre la ville
+    params: {}
+    satisfied: true
+  - name: trois-lignes-seulement
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+    params: {}
+    satisfied: false
