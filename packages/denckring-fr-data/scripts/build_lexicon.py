@@ -166,10 +166,17 @@ def write_syllables(rows: list[dict[str, str]], path: Path) -> int:
         previous = best.get(ortho)
         if previous is None or freq > previous[0]:
             best[ortho] = (freq, nbsyll, row["phon"], osyll)
-    with gzip.open(path, "wt", encoding="utf-8", newline="\n") as handle:
-        for ortho in sorted(best):
-            _, nbsyll, phon, osyll = best[ortho]
-            handle.write(f"{ortho}\t{nbsyll}\t{phon}\t{osyll}\n")
+    lines = []
+    for ortho in sorted(best):
+        _, nbsyll, phon, osyll = best[ortho]
+        lines.append(f"{ortho}\t{nbsyll}\t{phon}\t{osyll}\n")
+    # `GzipFile(..., mtime=0)`, matching `_write_list`/`_write_table`/the glosses
+    # writer below: `gzip.open`'s default stamps wall-clock time into the header,
+    # which would make a content-identical rebuild diff every time and break the
+    # reproducibility this module's docstring promises.
+    payload = "".join(lines).encode("utf-8")
+    with gzip.GzipFile(path, "wb", mtime=0) as handle:
+        handle.write(payload)
     return len(best)
 
 
