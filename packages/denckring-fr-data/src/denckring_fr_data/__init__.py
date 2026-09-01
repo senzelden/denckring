@@ -249,13 +249,35 @@ class FrenchDataPack(FrenchPack):
         """The orthographic segments, or `MissingCapability` for a word
         Lexique does not carry.
 
-        Not `KeyError`: nothing in `core/` calls this yet, so the choice is
-        latent, but Task 6's line rules will call it the same way
-        `core/prosody.py` already calls `rhyme_keys` -- catching only
-        `MissingCapability` on an out-of-vocabulary word, which is a routine
-        event in real verse rather than an edge case. `KeyError` here would
-        repeat exactly the crash fix-round 1 found in `phonemes` and
-        `rhyme_key`/`rhyme_keys`.
+        Not `KeyError`: a plain `KeyError` here would repeat exactly the
+        crash fix-round 1 found in `phonemes` and `rhyme_key`/`rhyme_keys`,
+        and `MissingCapability` on an out-of-vocabulary word is a routine
+        event in real verse rather than an edge case, the same convention
+        every other lookup on this pack follows.
+
+        Task 6 shipped in ADR 0034 and its line rules do not call this
+        method -- `line_syllables` reads `syllable_table()` directly (see
+        `elision.count_line`), because it needs `nbsyll` and `phon` together
+        and `syllables()` exposes neither. As of the whole-branch review
+        (2026-09-01) nothing outside the test suite calls `syllables()` at
+        all; it exists to answer the `syllables` capability directly, for a
+        caller that wants the segmentation itself rather than a count.
+
+        It diverges from every other lookup on this pack in one respect:
+        it is the only one of the four (`syllables`, `phonemes`,
+        `syllable_count`, `rhyme_key`) not routed through `_table_entry`, so
+        it does not fall back past a leading elision. `phonemes("d'espoir")`
+        succeeds (`_table_entry` retries on `espoir` after the whole form
+        misses) while `syllables("d'espoir")` raises `MissingCapability` --
+        looking the whole elided form up directly, with no retry. This
+        divergence is deliberate, not an oversight: `_table_entry`'s retry
+        returns the *following* word's entry, and `syllables()`'s job is to
+        segment the word exactly as it was asked for, so returning
+        `espoir`'s segments (`es-poir`) for the token `d'espoir` would be
+        answering a question that was not asked -- silently dropping the
+        `d'` rather than reporting that the whole elided form is not one of
+        Lexique's 125,653 orthographic keys. No test exercises this path,
+        because nothing calls it outside the test suite.
         """
         entry = syllable_table().get(word.casefold())
         if entry is None:
