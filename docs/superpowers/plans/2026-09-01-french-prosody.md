@@ -432,9 +432,13 @@ def write_h_aspire(lemmas: set[str], rows: list[dict[str, str]], path: Path) -> 
     for row in rows:
         if row["lemme"].strip().lower() in lemmas:
             found.add(row["ortho"].strip().lower())
-    with gzip.open(path, "wt", encoding="utf-8", newline="\n") as handle:
-        for word in sorted(found):
-            handle.write(f"{word}\n")
+    # `GzipFile(..., mtime=0)` rather than `gzip.open`, matching `_write_list`
+    # and `_write_table`: the script's own docstring promises the data files are
+    # "reproducible and diffable", and a wall-clock mtime in the header makes a
+    # no-op rebuild show a spurious diff.
+    payload = "".join(f"{word}\n" for word in sorted(found)).encode("utf-8")
+    with gzip.GzipFile(path, "wb", mtime=0) as handle:
+        handle.write(payload)
     return len(found)
 ```
 
