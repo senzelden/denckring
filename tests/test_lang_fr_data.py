@@ -235,14 +235,58 @@ def test_rhyme_key_is_from_the_last_vowel_because_french_has_no_stress() -> None
     assert pack.rhyme_keys("rose") == ["oz"]
 
 
-def test_rhyme_key_raises_rather_than_guessing_an_unknown_word() -> None:
+def test_rhyme_key_raises_missing_capability_rather_than_guessing_an_unknown_word() -> None:
     """A guessed rhyme is worse than an unknown one -- matching `phonemes()`,
-    which this is built on."""
+    which this is built on. `MissingCapability`, not `KeyError`: fix-round 1
+    found that `core.prosody.word_rhyme_keys` catches only `MissingCapability`
+    around `rhyme_keys`, so a plain `KeyError` escaped uncaught out of
+    `check('rhyme_scheme', ..., lang='fr')` on the first unknown word."""
     pack = fr_data.FrenchDataPack()
-    with pytest.raises(KeyError):
+    with pytest.raises(MissingCapability):
         pack.rhyme_key("zzzzblorf")
-    with pytest.raises(KeyError):
+    with pytest.raises(MissingCapability):
         pack.rhyme_keys("zzzzblorf")
+
+
+def test_phonemes_of_an_unknown_word_raises_missing_capability_not_key_error() -> None:
+    """Fix-round 1 (2026-09-01): `phonemes()` shipped raising plain `KeyError`
+    for a word `syllable_table()` does not carry. `assonance_constraint` and
+    `spoonerism` both catch only `MissingCapability` around their own call to
+    `pack.phonemes`, and `core.prosody.word_rhyme_keys` does the same around
+    `rhyme_keys` -- so `KeyError` was not "undecidable", it was unhandled.
+    `check('assonance_constraint', 'la belle zzzzblorf', lang='fr')` crashed
+    outright, on a routine event (one word Lexique lacks) rather than an edge
+    case. Fixed to match the convention `denckring-en-data` and
+    `denckring-de-wiktionary` already use for exactly this call.
+    """
+    with pytest.raises(MissingCapability):
+        fr_data.FrenchDataPack().phonemes("zzzzblorf")
+
+
+def test_the_rows_that_read_phonemes_survive_an_unknown_word_in_french() -> None:
+    """The gate that would have caught fix-round 1's crash and did not.
+
+    `tests/test_round_trip.py` drives every registered procedure's round trip
+    through `meta.languages[0]`, which is English for all three of these rows
+    -- so it could never exercise their French out-of-vocabulary path.
+    `tests/test_prosody_robustness.py` exercises unknown words only in
+    English. So `rhyme_scheme`, `assonance_constraint` and `spoonerism` had
+    zero coverage of their commonest French failure -- ordinary text
+    containing one word Lexique does not carry -- and the full gate was green
+    while all three crashed with an uncaught `KeyError` on it. This test
+    asserts a `Report` comes back, not an exception; the reading each row
+    lands on for the unknown word is not this test's concern.
+    """
+    from denckring import check
+
+    text = "la belle zzzzblorf\nune autre chose"
+    for procedure_id, kwargs in (
+        ("rhyme_scheme", {"scheme": "AA"}),
+        ("assonance_constraint", {}),
+        ("spoonerism", {}),
+    ):
+        report = check(procedure_id, text, lang="fr", **kwargs)
+        assert report.procedure == procedure_id
 
 
 def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:
