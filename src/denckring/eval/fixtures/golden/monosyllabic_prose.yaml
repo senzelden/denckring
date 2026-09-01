@@ -17,3 +17,15 @@ cases:
     text: Der Hund läuft und der Baum steht
     params: {}
     satisfied: true
+  - name: mots-tous-monosyllabiques
+    lang: fr
+    source: constructed example
+    text: Le chat dort sur le lit
+    params: {}
+    satisfied: true
+  - name: un-mot-plus-long
+    lang: fr
+    source: constructed counterexample
+    text: Le chat dort sur la montagne
+    params: {}
+    satisfied: false

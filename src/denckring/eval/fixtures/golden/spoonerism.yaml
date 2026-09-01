@@ -27,3 +27,17 @@ cases:
       Katze Kanne
     params: {}
     satisfied: false
+  - name: attaques-distinctes
+    lang: fr
+    source: "constructed example; chat (onset ʃ) and loup (onset l) exchange cleanly"
+    text: |-
+      chat loup
+    params: {}
+    satisfied: true
+  - name: meme-attaque
+    lang: fr
+    source: "constructed counterexample; chat and chose both carry the onset ʃ"
+    text: |-
+      chat chose
+    params: {}
+    satisfied: false
