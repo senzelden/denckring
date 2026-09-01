@@ -27,12 +27,16 @@ ELIDED_WORD: dict[str, str] = {
     "jusqu": "jusque",
 }
 
-#: Word-shaped tokens, letters plus an optional trailing apostrophe. The
-#: trailing apostrophe is what turns "t'attendais" into two tokens, "t'" and
-#: "attendais", instead of losing the proclitic to a hyphen/apostrophe split
-#: entirely (TRAP 2). Hyphens and whitespace both fall outside `\w` in a
-#: Unicode pattern, so a compound like "dit-elle" tokenises the same way.
-_TOKEN_RE = re.compile(r"[^\W\d_]+['’]?")  # noqa: RUF001
+#: Word-shaped tokens, keeping an internal apostrophe joined rather than
+#: splitting on it -- the same shape as `denckring.lang.base.WORD_RE`. Fix
+#: round 1: splitting unconditionally corrupted the 94 Lexique entries keyed
+#: WITH an internal apostrophe (`aujourd'hui`, `prud'homme`), which are real
+#: single words, not a proclitic plus a word -- `count_line` tries the whole
+#: token against the table first and only falls back to splitting when that
+#: fails (`l'ami` is not a table entry, so it still splits). Hyphens and
+#: whitespace both fall outside `\w` in a Unicode pattern, so a compound like
+#: "dit-elle" tokenises as two tokens without any special case for the hyphen.
+_TOKEN_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*")  # noqa: RUF001
 
 
 def latent_schwa(ortho: str, nbsyll: int, phon: str, orthosyll: str) -> tuple[int, bool]:
@@ -106,16 +110,35 @@ def starts_with_vowel(word: str, aspire: frozenset[str]) -> bool:
     return word[0] == "h" and word not in aspire
 
 
+def _split_at_apostrophe(word: str) -> tuple[str, str]:
+    """(stem before the first apostrophe, everything after it).
+
+    Called only once the whole token has already failed a table lookup, so
+    this never runs on `aujourd'hui` or `prud'homme` -- both are single
+    Lexique entries and are used whole (fix round 1).
+    """
+    for index, ch in enumerate(word):
+        if ch in ("'", "’"):  # noqa: RUF001
+            return word[:index], word[index + 1 :]
+    return word, ""
+
+
 def count_line(
     line: str, table: Mapping[str, tuple[int, str, str]], aspire: frozenset[str]
 ) -> tuple[int, int]:
     """(syllables in the line, words whose count was estimated).
 
-    Tokenises on letters plus a trailing apostrophe, so an elided proclitic
-    ("t'", "d'", "qu'") survives in the stream as its own zero-syllable,
-    consonant-initial token -- TRAP 2: dropping it would let the preceding
-    word's schwa see the vowel behind the proclitic and elide across it,
-    which it must not.
+    A token that carries an internal apostrophe is tried WHOLE against the
+    table first: 94 Lexique entries are keyed with one (`aujourd'hui`,
+    `prud'homme`), and splitting them unconditionally silently returned a
+    confidently wrong count with `estimated` left at 0 -- fix round 1's
+    finding, and the failure mode this project cares most about, a wrong
+    answer reported as certain. Only a token the table does not recognise
+    whole falls back to splitting at the apostrophe and treating the stem as
+    a proclitic ("t'", "d'", "qu'") -- a zero-syllable, consonant-initial
+    token that survives in the stream rather than being dropped, which is
+    TRAP 2: dropping it would let the preceding word's schwa see the vowel
+    behind the proclitic and elide across it, which it must not.
 
     Walks the tokens once, adding one syllable for each pending mute e whose
     successor is consonant-initial. A pending mute e with no successor -- the
@@ -129,26 +152,38 @@ def count_line(
     parsed: list[tuple[int, bool, bool, str]] = []
     for token in tokens:
         lower = token.casefold()
-        if lower.endswith(("'", "’")):  # noqa: RUF001
-            stem = lower[:-1]
-            if stem in ELIDED_ZERO:
-                parsed.append((0, False, False, stem))
-                continue
-            full = ELIDED_WORD.get(stem)
-            if full is not None:
-                entry = table.get(full)
-                if entry is not None:
-                    # `lorsqu'il` etc: already elided in the spelling, so the
-                    # mute e is gone, not merely pending.
-                    count, _pending = latent_schwa(full, *entry)
-                    parsed.append((count, False, False, stem))
-                    continue
-            # An elided proclitic this table doesn't recognise -- treat as
-            # the silent consonant it spells rather than crashing the line.
-            parsed.append((0, False, False, stem))
+        if "'" not in lower and "’" not in lower:  # noqa: RUF001
+            count, pending, estimated = _lookup(lower, table)
+            parsed.append((count, pending, estimated, lower))
             continue
-        count, pending, estimated = _lookup(lower, table)
-        parsed.append((count, pending, estimated, lower))
+        entry = table.get(lower)
+        if entry is not None:
+            # `aujourd'hui`, `prud'homme`: a fused word, not a proclitic plus
+            # a word -- 94 Lexique entries carry an internal apostrophe.
+            count, pending = latent_schwa(lower, *entry)
+            parsed.append((count, pending, False, lower))
+            continue
+        # The whole form isn't a table entry, so it wasn't a fused word like
+        # those -- read the apostrophe as an elision boundary instead.
+        stem, rest = _split_at_apostrophe(lower)
+        if stem in ELIDED_ZERO:
+            parsed.append((0, False, False, stem))
+        elif (full := ELIDED_WORD.get(stem)) is not None and (
+            word_entry := table.get(full)
+        ) is not None:
+            # `lorsqu'il` etc: already elided in the spelling, so the mute e
+            # is gone, not merely pending.
+            count, _pending = latent_schwa(full, *word_entry)
+            parsed.append((count, False, False, stem))
+        else:
+            # An elided proclitic neither list recognises -- there is no
+            # basis for a confident zero, so flag it estimated rather than
+            # silently asserting one (fix round 1, same defect as the
+            # whole-token case above, now on the proclitic path).
+            parsed.append((0, False, True, stem))
+        if rest:
+            count, pending, estimated = _lookup(rest, table)
+            parsed.append((count, pending, estimated, rest))
 
     total = 0
     estimated_words = 0

@@ -12,6 +12,10 @@ def line(text: str) -> int:
     return count_line(text, syllable_table(), h_aspire())[0]
 
 
+def counted(text: str) -> tuple[int, int]:
+    return count_line(text, syllable_table(), h_aspire())
+
+
 def test_a_mute_e_counts_before_a_consonant_and_elides_before_a_vowel() -> None:
     assert line("une belle porte") == 5  # u-ne bel-le por-te, final e dropped
     assert line("une belle amie") == 5  # bel-l' a-mi-e
@@ -57,3 +61,43 @@ def test_an_aspirated_h_blocks_elision() -> None:
     """The prototype's ad-hoc list missed `hais`, so "je hais" elided wrongly."""
     assert line("je hais") == 2  # je holds its schwa
     assert line("une heure") == 2  # mute h: u-n'heu-re, the schwa elides
+
+
+def test_a_fused_apostrophe_word_is_tried_whole_before_splitting() -> None:
+    """Fix round 1. 94 Lexique entries are keyed WITH an internal apostrophe --
+    `aujourd'hui` and `prud'homme` among them -- and a tokeniser that splits on
+    every apostrophe unconditionally loses every one of them: it read
+    `aujourd'hui` as the proclitic `d'` plus a nonsense stem, scoring 1 where
+    the table says 3, and reported `estimated == 0` while doing it. That is
+    the specific failure this project treats as worse than an honest guess: a
+    wrong count presented as a confident one."""
+    assert counted("aujourd'hui") == (3, 0)
+    assert counted("prud'homme") == (2, 0)
+
+
+def test_the_proclitic_split_still_works_for_a_word_the_table_does_not_fuse() -> None:
+    """The fix must not just stop splitting -- `l'ami` is not itself a table
+    entry (`l'` plus `ami` are), so it still has to fall back to the
+    proclitic path and score correctly once the whole-word lookup fails."""
+    assert counted("l'ami") == (2, 0)
+
+
+def test_an_unknown_fused_word_is_reported_as_estimated_not_confident() -> None:
+    """A compound Lexique does not carry at all -- fused or split -- must
+    surface its uncertainty through `estimated` rather than a silently
+    confident number, exactly like any other out-of-vocabulary word."""
+    total, estimated = counted("grand'mère")
+    assert estimated >= 1
+    assert isinstance(total, int)  # degrades to a number, never raises
+
+
+def test_elided_word_proclitics_carry_their_own_syllables() -> None:
+    """`ELIDED_WORD` gives `lorsqu'`, `puisqu'`, `quoiqu'` and `jusqu'` their
+    unelided spelling's syllable count instead of the flat zero every other
+    proclitic carries -- flagged in the task-6 report as implemented but
+    untested; independently verified by the coordinator against classical
+    scansion."""
+    assert line("lorsqu'il vient") == 3
+    assert line("puisqu'il dort") == 3
+    assert line("jusqu'au jour") == 3
+    assert line("quoiqu'il parte") == 3
