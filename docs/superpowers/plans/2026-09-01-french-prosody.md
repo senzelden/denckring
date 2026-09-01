@@ -359,7 +359,8 @@ Spec F4. Vendored as data rather than as a rule in code, because it is a list of
 
 **Interfaces:**
 - Consumes: the frwiktionary dump, via the existing `--dump PATH` flag. That flag is never fetched automatically — the dump is 876 MB and the script says so.
-- Produces: `denckring_fr_data.h_aspire() -> frozenset[str]`.
+- Produces: `denckring_fr_data.h_aspire() -> frozenset[str]`, containing lemmas **and** their Lexique-derived inflected forms.
+- Note `aspirated_lemmas` takes the dump pages and `write_h_aspire` takes that set plus the Lexique rows, so the two sources meet in the build script rather than in the pack.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -395,23 +396,42 @@ sibling's regex.
 
 ```python
 H_ASPIRE = DATA / "h_aspire.txt.gz"
-#: frwiktionary marks it on the pronunciation line. `\bh aspiré` rather than an
-#: anchored match, because the template appears inside a larger line.
-H_ASPIRE_RE = re.compile(r"\{\{h aspiré\}\}|\{\{asp\|fr\}\}")
+#: Measured against the dump on 2026-09-01: `{{h aspiré}}` appears 2,689+ times,
+#: `{{h aspiré|fr}}` and `{{h aspiré|nocat=1}}` a handful more, and `{{asp|fr}}`
+#: -- which an earlier draft of this plan guessed at -- appears ZERO times. The
+#: character class catches the parameterised forms the anchored `}}` would miss.
+H_ASPIRE_RE = re.compile(r"\{\{h aspiré[|}]")
+#: The dump carries several languages per page (`{{h muet|en}}` is attested), so
+#: a whole-body search can attribute another language's aspiration to French.
+FR_SECTION_RE = re.compile(r"==\s*\{\{langue\|fr\}\}\s*==(.*?)(?=\n==\s*\{\{langue\||\Z)", re.S)
 
 
-def write_h_aspire(pages: Iterator[tuple[str, str]], path: Path) -> int:
-    """Every headword frwiktionary marks as taking an aspirated h.
-
-    Inflected forms are included: the elision rule is applied to the word as it
-    appears in the line, and "je hais" needs `hais`, not only `haïr`.
-    """
+def aspirated_lemmas(pages: Iterator[tuple[str, str]]) -> set[str]:
+    """Headwords frwiktionary marks as taking an aspirated h, French section only."""
     found: set[str] = set()
     for title, body in pages:
         if not title.lower().startswith("h") or ":" in title:
             continue
-        if H_ASPIRE_RE.search(body):
+        section = FR_SECTION_RE.search(body)
+        if section and H_ASPIRE_RE.search(section.group(1)):
             found.add(title.lower())
+    return found
+
+
+def write_h_aspire(lemmas: set[str], rows: list[dict[str, str]], path: Path) -> int:
+    """Aspirated lemmas, expanded to every inflected form Lexique knows.
+
+    **The expansion is not optional.** frwiktionary marks the template on the
+    lemma page and not on the inflected-form pages: `haïr` carries it and `hais`
+    carries nothing at all. Without this step "je hais" elides -- which is the
+    single case the elision rule was written for -- so the lemma list alone is
+    worse than useless. Lexique's `lemme` column supplies the 29 forms of `haïr`,
+    `hais` among them, and costs nothing because the rows are already in memory.
+    """
+    found = set(lemmas)
+    for row in rows:
+        if row["lemme"].strip().lower() in lemmas:
+            found.add(row["ortho"].strip().lower())
     with gzip.open(path, "wt", encoding="utf-8", newline="\n") as handle:
         for word in sorted(found):
             handle.write(f"{word}\n")
@@ -436,7 +456,13 @@ def h_aspire() -> frozenset[str]:
 uv run --project packages/denckring-fr-data python packages/denckring-fr-data/scripts/build_lexicon.py --dump <path-to-frwiktionary-dump>
 uv run pytest tests/test_lang_fr_data.py -v
 ```
-Expected: PASS. Report the count in the commit message; a plausible figure is low thousands including inflections. **If the count is under 200 the regex did not match the dump's actual template** — inspect a known page (`haricot`) before going further rather than shipping a list that silently fails open.
+Expected: PASS. Report the count in the commit message. Measured expectations, taken
+from the dump directly on 2026-09-01 rather than guessed: the template scan finds
+**2,689+ `{{h aspiré}}` occurrences**, and lemma expansion multiplies that, so a figure
+in the low-to-mid thousands is right. **If the count is under 500, the regex missed** —
+`haricot`, `hasard`, `hauteur`, `haïr` and `héros` are all confirmed ASPIRE in the French
+section, and `heure`, `homme` and `hôtel` are confirmed MUET, so probe those eight before
+going further rather than shipping a list that silently fails open.
 
 - [ ] **Step 5: Commit**
 
