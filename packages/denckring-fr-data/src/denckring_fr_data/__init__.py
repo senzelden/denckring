@@ -36,6 +36,7 @@ from denckring.lang.base import (
     WORDS,
 )
 from denckring.lang.fr import FrenchPack
+from denckring_fr_data.elision import count_line
 from denckring_fr_data.sampa import IPA_VOWELS, to_phonemes
 
 #: Orthographic vowel runs, for the estimate a word outside Lexique gets.
@@ -203,6 +204,10 @@ class FrenchDataPack(FrenchPack):
         if entry is not None:
             return entry[0], True
         return max(len(_VOWEL_RUN.findall(word.casefold())), 1), False
+
+    def line_syllables(self, line: str) -> tuple[int, int]:
+        """French counts a line, not a bag of words. Spec D3, ADR 0034."""
+        return count_line(line, syllable_table(), h_aspire())
 
     def syllables(self, word: str) -> list[str]:
         """The orthographic segments, or `MissingCapability` for a word
