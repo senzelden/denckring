@@ -26,3 +26,21 @@ cases:
       ein alter Teich dort
     params: {}
     satisfied: true
+  - name: mesure-du-haiku
+    lang: fr
+    source: constructed example; the measure is the haiku's, the subject is not
+    text: |-
+      un chat noir traverse
+      le silence tombe enfin
+      un vieux jardin dort
+    params: {}
+    satisfied: true
+  - name: mauvaise-mesure
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      un chat noir traverse
+      le silence tombe
+      un vieux
+    params: {}
+    satisfied: false

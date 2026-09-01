@@ -32,3 +32,24 @@ cases:
       und niemand sagt ein Wort mehr
     params: {}
     satisfied: true
+  - name: chaine-jardin-et-silence
+    lang: fr
+    source: constructed example
+    text: |-
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+
+      et le temps passe en silence
+      la brume couvre la ville
+    params: {}
+    satisfied: true
+  - name: une-seule-strophe
+    lang: fr
+    source: constructed counterexample; one hokku is not a renga
+    text: |-
+      un vieux jardin dort
+      le silence tombe enfin
+      un chat noir traverse
+    params: {}
+    satisfied: false
