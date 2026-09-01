@@ -153,6 +153,25 @@ def test_the_entry_point_gives_this_pack() -> None:
     assert isinstance(get_pack("fr"), fr_data.FrenchDataPack)
 
 
+def test_the_syllable_table_carries_the_three_columns_the_rules_need() -> None:
+    table = fr_data.syllable_table()
+    # nbsyll is the citation count, orthosyll judges a mute -ent, and phon
+    # distinguishes `de` (d2, a schwa) from `les` (le, none).
+    assert table["belle"] == (1, "bEl", "bel-le")
+    assert table["les"] == (1, "le", "les")
+    assert table["de"] == (1, "d2", "de")
+    assert table["chantent"] == (1, "S@t", "chan-tent")
+    assert table["vient"] == (1, "vj5", "vient")
+    assert table["carrosse"][2] == "car-ros-se"
+
+
+def test_a_homograph_keeps_its_most_frequent_reading() -> None:
+    """`parent` is a noun of two syllables and a verb of one. The table holds
+    one row per spelling, so it holds the commoner one and the pack is wrong
+    about the other -- recorded in ADR 0034 rather than hidden."""
+    assert fr_data.syllable_table()["parent"][0] == 2
+
+
 def test_n_plus_7_apply_survives_its_own_checker_in_french_which_the_gate_missed() -> None:
     """`tests/test_round_trip.py` drives every registered procedure's round trip
     through `meta.languages[0]`, which for `n_plus_7` is `en` — so it could

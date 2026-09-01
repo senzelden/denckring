@@ -42,6 +42,7 @@ WORDS = DATA / "words.txt.gz"
 NOUNS = DATA / "nouns.txt.gz"
 GRADED = DATA / "graded_words.txt.gz"
 GLOSSES = DATA / "glosses.txt.gz"
+SYLLABLES = DATA / "syllables.txt.gz"
 METADATA = DATA / "metadata.json"
 
 #: The dump's export schema version appears in every tag name. Read from the root
@@ -139,6 +140,37 @@ def build_tables(rows: list[dict[str, str]]) -> tuple[list[str], list[str], dict
         for index, word in enumerate(ranked)
     }
     return sorted(best), sorted(nouns), bands
+
+
+def write_syllables(rows: list[dict[str, str]], path: Path) -> int:
+    """One row per spelling: nbsyll, phon and the orthosyll segment string.
+
+    Lexique carries several rows per spelling for homographs. Only one can be
+    kept, because the pack is asked about a spelling and not about a reading,
+    so the most frequent wins and ADR 0034 records that `parent` the verb is
+    therefore counted as `parent` the noun.
+    """
+    best: dict[str, tuple[float, int, str, str]] = {}
+    for row in rows:
+        ortho = row["ortho"].strip().lower()
+        if not ortho:
+            continue
+        try:
+            nbsyll = int(float(row["nbsyll"]))
+            freq = float(row["freqlivres"] or 0)
+        except (ValueError, TypeError):
+            continue
+        if nbsyll <= 0:
+            continue
+        osyll = (row.get("orthosyll") or "").strip() or ortho
+        previous = best.get(ortho)
+        if previous is None or freq > previous[0]:
+            best[ortho] = (freq, nbsyll, row["phon"], osyll)
+    with gzip.open(path, "wt", encoding="utf-8", newline="\n") as handle:
+        for ortho in sorted(best):
+            _, nbsyll, phon, osyll = best[ortho]
+            handle.write(f"{ortho}\t{nbsyll}\t{phon}\t{osyll}\n")
+    return len(best)
 
 
 def _namespace(path: Path) -> str:
@@ -242,11 +274,15 @@ def main() -> None:
             while chunk := response.read(1 << 20):
                 handle.write(chunk)
 
-    words, nouns, bands = build_tables(lexique_rows(archive))
+    # `lexique_rows` returns a list rather than a generator, so it can feed
+    # both `build_tables` and `write_syllables` from the one parse.
+    rows = lexique_rows(archive)
+    words, nouns, bands = build_tables(rows)
     DATA.mkdir(parents=True, exist_ok=True)
     _write_list(WORDS, words)
     _write_list(NOUNS, nouns)
     _write_table(GRADED, bands)
+    syllable_count = write_syllables(rows, SYLLABLES)
 
     existing = json.loads(METADATA.read_text(encoding="utf-8")) if METADATA.exists() else {}
     counts = {
@@ -254,6 +290,7 @@ def main() -> None:
         WORDS.name: len(words),
         NOUNS.name: len(nouns),
         GRADED.name: len(bands),
+        SYLLABLES.name: syllable_count,
     }
 
     if args.dump is not None:
@@ -281,7 +318,11 @@ def main() -> None:
         + "\n",
         encoding="utf-8",
     )
-    print(f"{len(words)} words, {len(nouns)} nouns, {len(bands)} bands", file=sys.stderr)
+    print(
+        f"{len(words)} words, {len(nouns)} nouns, {len(bands)} bands, "
+        f"{syllable_count} syllable rows",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

@@ -3,8 +3,9 @@
     "glosses.txt.gz": 510973,
     "graded_words.txt.gz": 125343,
     "nouns.txt.gz": 44746,
+    "syllables.txt.gz": 125653,
     "words.txt.gz": 125343
   },
-  "generated": "2026-08-31",
+  "generated": "2026-09-01",
   "source": "Lexique 3.82 (lexique.org), CC BY-SA 4.0, and French Wiktionary, CC BY-SA 4.0 - see LICENSE-LEXIQUE, LICENSE-WIKTIONARY and scripts/build_lexicon.py"
 }
