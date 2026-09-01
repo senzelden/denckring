@@ -61,3 +61,40 @@ cases:
       das Feuer brennt und wärmt die kalte Hand
     params: {}
     satisfied: true
+  - name: dix-neuf-lignes
+    lang: fr
+    source: "constructed example; two rhymes and two alternating refrains"
+    text: |-
+      Le vent emporte notre amour
+      Il traversait un long chemin
+      Le silence dure toujours
+      Les feuilles tombent tout autour
+      Il se levait tôt le matin
+      Le vent emporte notre amour
+      Il espérait un prompt retour
+      Il s'endormait dans le jardin
+      Le silence dure toujours
+      La nuit tombait douce et de velours
+      Chacun suivait son destin
+      Le vent emporte notre amour
+      Le roi passait dans la cour
+      Le loup rôdait chez le voisin
+      Le silence dure toujours
+      Le peuple appelait au secours
+      Il tenait fort avec sa main
+      Le vent emporte notre amour
+      Le silence dure toujours
+    params: {}
+    satisfied: true
+  - name: trop-court
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      Le vent emporte notre amour
+      Il traversait un long chemin
+      Le silence dure toujours
+      Les feuilles tombent tout autour
+      Il se levait tôt le matin
+      Le vent emporte notre amour
+    params: {}
+    satisfied: false
