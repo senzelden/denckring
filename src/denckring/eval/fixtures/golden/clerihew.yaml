@@ -35,7 +35,7 @@ cases:
     text: |-
       Monsieur Dupont aimait le vent
       Il regardait passer le temps
-      Il partit avec grand espoir
+      Il partit un jour plein d'espoir
       Et disparut dans le soir noir
     params: {}
     satisfied: true
@@ -45,7 +45,7 @@ cases:
     text: |-
       Monsieur Dupont aimait le vent
       Il regardait passer le temps
-      Il partit avec grand espoir
+      Il partit un jour plein d'espoir
       Et disparut dans le froid gris
     params: {}
     satisfied: false

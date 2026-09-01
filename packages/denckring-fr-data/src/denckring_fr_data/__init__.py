@@ -129,6 +129,37 @@ def syllable_table() -> Mapping[str, tuple[int, str, str]]:
     return MappingProxyType(table)
 
 
+def _table_entry(word: str) -> tuple[int, str, str] | None:
+    """The table entry for `word`, falling back past a leading elision.
+
+    Task 6's tokeniser (`elision._TOKEN_RE`) deliberately keeps an
+    apostrophe-bearing token whole -- `aujourd'hui` and `prud'homme` are 94
+    real Lexique entries, and splitting every apostrophe unconditionally
+    would silently misread those as a proclitic plus a word. So the whole
+    lowercased form is tried first, exactly as before.
+
+    But not every apostrophe-bearing form is one of those 94: `d'espoir`,
+    `l'amour`, `qu'un` are ordinary elision, the proclitic written onto the
+    following word, and were never table entries themselves. A whole-form-only
+    lookup made `phonemes`/`rhyme_key`/`rhyme_keys`/`syllable_count` fail on
+    them with `MissingCapability`, which is a routine event elsewhere but
+    silently starved `rhyme_scheme` and `ghazal` of exactly the line-ending
+    words French verse ends on most often (fix round 2). The rhyme- and
+    syllable-bearing unit of an elided form is what follows the apostrophe,
+    so a whole-form miss retries there -- the segment after the LAST
+    apostrophe, in case of a chained elision -- before giving up.
+    """
+    table = syllable_table()
+    lower = word.casefold()
+    entry = table.get(lower)
+    if entry is not None:
+        return entry
+    if "'" not in lower and "’" not in lower:  # noqa: RUF001
+        return None
+    tail = re.split(r"['’]", lower)[-1]  # noqa: RUF001
+    return table.get(tail)
+
+
 @lru_cache(maxsize=1)
 def h_aspire() -> frozenset[str]:
     """Words whose initial h blocks elision. Lexique cannot answer this."""
@@ -199,8 +230,13 @@ class FrenchDataPack(FrenchPack):
         The count is the *citation* one: `femme` is one syllable here and
         frequently two in verse. The line rules, not this method, are where
         verse is answered -- spec D3.
+
+        `_table_entry` tries the whole form first and only then falls back
+        past a leading elision (`d'espoir` -> `espoir`), so `aujourd'hui`
+        still resolves whole and an ordinary elided form no longer falls
+        through to the vowel-run estimate for no reason (fix round 2).
         """
-        entry = syllable_table().get(word.casefold())
+        entry = _table_entry(word)
         if entry is not None:
             return entry[0], True
         return max(len(_VOWEL_RUN.findall(word.casefold())), 1), False
@@ -239,8 +275,13 @@ class FrenchDataPack(FrenchPack):
         French text, not an edge case. Matches the convention
         `denckring-en-data` and `denckring-de-wiktionary` already established
         for exactly this call.
+
+        `_table_entry` tries the whole form first and only then falls back
+        past a leading elision (fix round 2) -- see its docstring. `rhyme_key`
+        and `rhyme_keys` both call this method, so the fallback reaches them
+        for free.
         """
-        entry = syllable_table().get(word.casefold())
+        entry = _table_entry(word)
         if entry is None:
             raise MissingCapability(f"<word {word!r}>", self.lang, PHONEMES)
         return to_phonemes(entry[1])
