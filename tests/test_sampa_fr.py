@@ -23,6 +23,8 @@ from denckring_fr_data.sampa import IPA_VOWELS, to_ipa, to_phonemes
         ("kaR@t", "kaʁɑ̃t"),  # quarante
         ("pRet@sj§", "pʁetɑ̃sjɔ̃"),  # prétentions
         ("f8ij@", "fɥijɑ̃"),  # fuyant
+        ("bEtiG", "bɛtiŋ"),  # betting - G is the velar nasal, not /ɡ/
+        ("ak§paNa", "akɔ̃paɲa"),  # accompagna - N is the palatal nasal
     ],
 )
 def test_sampa_converts_to_ipa(sampa: str, ipa: str) -> None:
