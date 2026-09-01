@@ -101,3 +101,12 @@ def test_elided_word_proclitics_carry_their_own_syllables() -> None:
     assert line("puisqu'il dort") == 3
     assert line("jusqu'au jour") == 3
     assert line("quoiqu'il parte") == 3
+
+
+def test_dierese_splits_a_glide_the_classical_line_counts_as_two() -> None:
+    """`diadème` is di-a-dème in Racine and /djadɛm/ in Lexique; `prétentions`
+    is pré-ten-ti-ons against /pʁetɑ̃sjɔ̃/. The count is estimated either way
+    (spec D4) -- `extraordinaire` is four syllables or five depending on the
+    poet -- so these pin the common cases, not a general rule."""
+    assert line("Avec son diadème a remis son épée") == 12
+    assert line("Sont les moindres sujets de nos divisions") == 12
