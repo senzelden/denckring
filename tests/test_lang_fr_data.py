@@ -248,6 +248,45 @@ def test_rhyme_key_raises_missing_capability_rather_than_guessing_an_unknown_wor
         pack.rhyme_keys("zzzzblorf")
 
 
+def test_rhyme_key_falls_back_past_a_leading_elision() -> None:
+    """Fix-round 2 (2026-09-01): task 8's fixture verification hit a line
+    ending `d'espoir` and found the whole-form-only lookup made it
+    undecidable rather than a rhyme for `espoir` -- an ordinary elided form,
+    not one of the 94 fused Lexique entries like `aujourd'hui`. An elided
+    form is extremely common at a French line ending (`d'espoir`, `l'amour`,
+    `qu'un`), so `rhyme_scheme` and `ghazal` were silently hollow on it: the
+    same "reads as undecidable, not as unimplemented" failure shape ADR 0030
+    exists to catch, just reached through a lookup gap rather than a missing
+    method. `_table_entry` now retries past the apostrophe when the whole
+    form fails."""
+    pack = fr_data.FrenchDataPack()
+    assert pack.rhyme_key("d'espoir") == pack.rhyme_key("espoir")
+    assert pack.rhyme_key("l'amour") == pack.rhyme_key("amour")
+
+
+def test_rhyme_scheme_reads_a_line_ending_in_an_elided_word() -> None:
+    """The end-to-end case fix-round 2 was found from: a couplet ending
+    `d'espoir`/`noir` is ordinary French verse, and before the fix it scored
+    `rhyme_undecidable` rather than being read at all."""
+    from denckring import check
+
+    report = check("rhyme_scheme", "un rayon d'espoir\nun ciel tout noir", lang="fr", scheme="AA")
+    assert report.satisfied is True
+    assert report.score == 1.0
+
+
+def test_aujourd_hui_still_resolves_as_one_word_after_the_elision_fallback() -> None:
+    """The regression guard for fix-round 2: `_table_entry` must try the
+    whole lowercased form FIRST and only fall back past the apostrophe when
+    that fails. `aujourd'hui` is one of the 94 Lexique entries that carry an
+    apostrophe internally -- three syllables, `(3, True)` -- and if the
+    fallback ran unconditionally (splitting at the last apostrophe before
+    trying the whole form) it would instead resolve as `hui`, which Lexique
+    also carries but as one syllable. This test fails loudly if that
+    ordering is ever reversed."""
+    assert fr_data.FrenchDataPack().syllable_count("aujourd'hui") == (3, True)
+
+
 def test_phonemes_of_an_unknown_word_raises_missing_capability_not_key_error() -> None:
     """Fix-round 1 (2026-09-01): `phonemes()` shipped raising plain `KeyError`
     for a word `syllable_table()` does not carry. `assonance_constraint` and
