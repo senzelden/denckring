@@ -47,3 +47,23 @@ cases:
       und der Fluss singt in dem Sand
     params: {}
     satisfied: true
+  - name: dix-six-sept-sept
+    lang: fr
+    source: "constructed example; the 10-6-7-7 measure and single rhyme of the strict-metre form"
+    text: |-
+      Le vent se lève et emporte l'amour
+      et la nuit suit le jour
+      le vent se tait pour toujours
+      et les feuilles tombent autour
+    params: {}
+    satisfied: true
+  - name: premiere-ligne-trop-courte
+    lang: fr
+    source: "constructed counterexample; the syllable count is wrong and the rhyme breaks too"
+    text: |-
+      Le vent se lève
+      et la nuit suit le jour
+      le vent se tait pour toujours
+      et les feuilles tombent autour
+    params: {}
+    satisfied: false
