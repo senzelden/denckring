@@ -731,8 +731,13 @@ The chapter's real algorithm, and the three traps as named tests.
 - Test: `tests/test_elision_fr.py`
 
 **Interfaces:**
-- Consumes: `syllable_table()`, `h_aspire()`.
+- Consumes: `syllable_table()` (Task 2), `h_aspire()` (Task 3).
 - Produces: `latent_schwa(ortho, nbsyll, phon, orthosyll) -> tuple[int, bool]`, `count_line(line, table, aspire) -> tuple[int, int]`; `FrenchDataPack.line_syllables` overriding Task 4's default.
+
+**`test_an_aspirated_h_blocks_elision` depends on Task 3 having landed.** Verified against
+the prototype: with `hais` absent from the aspirated list, "je hais" scores 1 rather than
+2, because `je`'s schwa elides across what it reads as a mute h. That is the whole reason
+Task 3 exists, and this test is what proves the list is wired in.
 
 - [ ] **Step 1: Write the failing test — one per trap, plus the rules**
 
@@ -757,7 +762,7 @@ def test_a_mute_e_counts_before_a_consonant_and_elides_before_a_vowel() -> None:
 
 
 def test_a_mute_e_never_counts_at_the_end_of_a_line() -> None:
-    assert line("la porte") == 3             # la por-te, not por-te-<e>
+    assert line("la porte") == 2             # la por-te: the final e never counts
 
 
 def test_the_nasal_is_not_a_schwa() -> None:
@@ -779,7 +784,7 @@ def test_an_elided_proclitic_is_a_consonant_for_the_word_in_front() -> None:
     """TRAP 2. Dropping `t'`, `d'`, `l'` from the token stream lets the
     preceding mute e see a vowel and elide -- six points."""
     assert line("ne t'attendais") == 4       # ne-t'at-ten-dais, the schwa holds
-    assert line("dignes d'être") == 4        # di-gnes d'ê-tre
+    assert line("dignes d'être") == 3        # di-gnes d'ê-tre, final e dropped
 
 
 def test_orthosyll_judges_a_mute_ent_and_letter_runs_do_not() -> None:
@@ -795,7 +800,7 @@ def test_orthosyll_judges_a_mute_ent_and_letter_runs_do_not() -> None:
 def test_an_aspirated_h_blocks_elision() -> None:
     """The prototype's ad-hoc list missed `hais`, so "je hais" elided wrongly."""
     assert line("je hais") == 2              # je holds its schwa
-    assert line("je hôtel") == 2             # mute h: j' elides... 
+    assert line("une heure") == 2            # mute h: u-n'heu-re, the schwa elides
 ```
 
 Hand-count every expected number in this file against classical scansion before
