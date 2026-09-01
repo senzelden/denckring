@@ -518,7 +518,7 @@ def test_the_default_is_the_per_word_sum() -> None:
 def test_english_and_german_line_counts_are_unchanged() -> None:
     """Asserted rather than assumed: this function is shared by five rows in
     three languages, and the seam exists to change exactly one of them."""
-    assert line_syllables(FIXTURE, get_pack("en")) == [(0, 12, 0), (51, 4, 0)]
+    assert line_syllables(FIXTURE, get_pack("en")) == [(0, 12, 0), (52, 4, 0)]
 
 
 def test_a_pack_may_answer_for_a_whole_line() -> None:
@@ -533,7 +533,11 @@ def test_a_pack_may_answer_for_a_whole_line() -> None:
     assert line_syllables("anything at all", Counting()) == [(0, 99, 1)]
 ```
 
-Before writing the expected tuples in `test_english_and_german_line_counts_are_unchanged`, run
+**The tuple above is measured, not guessed** — taken from the pre-change tree on
+2026-09-01, where an earlier draft of this plan said `(51, 4, 0)` and was wrong by one on
+the offset. German's `der Wind zieht durch das Land und trägt den Schnee davon` measures
+`[(0, 12, 0)]` on the same tree, if you want a second language in the guard. To re-derive
+either, run
 `uv run python -c "from denckring.lang import get_pack; from denckring.procedures.syllable_count import line_syllables; print(line_syllables('the cat sat on the mat and thought of the wild mice\nthe dog ran home', get_pack('en')))"`
 on the **current** tree and paste what it prints. The test's job is that the number does not move, so it must be seeded from the number before the change.
 
