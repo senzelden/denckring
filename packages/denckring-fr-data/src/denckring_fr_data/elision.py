@@ -42,7 +42,7 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     - `j` after a single consonant, narrowed further to the `-ion(s)` noun
       suffix (the textbook diérèse site: Latin `-io`/`-ionem`) and the
       `dia-` prefix: the only variant that beat baseline on BOTH texts
-      (90.3%/80.0%), and the one shipped here.
+      (90.3%/80.0%), and the shape kept below.
 
     None reached the 94% accept bar, so this ships as the honest ceiling of
     a three-variant budget, not a solved rule -- `line_syllables`'s count
@@ -50,6 +50,15 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     left out entirely: they overwhelmingly spell native `oi`/`ou`/`ui`
     digraphs that are never split, and no variant that touched them
     improved on one that ignored them.
+
+    Fix round 1: the shipped v3 also required the `j` to follow a single
+    consonant rather than a cluster -- carried over from v1 without being
+    re-justified, since v1 itself (the cluster-ending-in-a-liquid rule) was
+    measured as actively harmful (84.5%/74.7%). Isolating that clause found
+    it cost 0.2 points on Hugo for no gain on Racine, by wrongly suppressing
+    `factions` and `predictions` -- both genuine `-ion` diérèse sites whose
+    `j` follows a `ks`/`ts` cluster. Every `j` after ANY consonant run now
+    counts once the `-ion(s)`/`dia-` gate above has passed.
     """
     is_ion = ortho.endswith(("ion", "ions")) and not ortho.endswith(("iation", "iations"))
     if not (is_ion or ortho.startswith("dia")):
@@ -58,9 +67,7 @@ def _dierese_extra(ortho: str, phon: str) -> int:
     for index, char in enumerate(phon):
         if char != "j" or index == 0 or phon[index - 1] not in _SAMPA_CONSONANTS:
             continue
-        cluster = index >= 2 and phon[index - 2] in _SAMPA_CONSONANTS
-        if not cluster:
-            extra += 1
+        extra += 1
     return extra
 
 
