@@ -23,6 +23,12 @@ cases:
     text: Le jour n'est pas plus pur que le fond de mon coeur
     params: {}
     satisfied: true
+  - name: alexandrin-de-corneille
+    lang: fr
+    source: Pierre Corneille, Le Cid (1637), IV.3
+    text: Nous partîmes cinq cents, mais par un prompt renfort
+    params: {}
+    satisfied: true
   - name: trop-court
     lang: fr
     source: constructed counterexample
