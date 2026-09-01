@@ -89,6 +89,7 @@ nav:
       - "30. German pronunciations come from Wiktionary": adr/0030-german-pronunciations.md
       - "31. A device is an address space": adr/0031-devices-are-address-spaces.md
       - "32. The French lexicon": adr/0032-the-french-lexicon.md
+      - "33. The catalogue has two layers": adr/0033-the-layer-split.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

@@ -78,7 +78,7 @@ describe them.
 
 ## Consequences
 
-**The layer split is not taken.** The handover's §3 proposes splitting the collection into
+**The layer split is not taken here.** (It was taken on 2026-09-01; see ADR 0033.) The handover's §3 proposes splitting the collection into
 `Verfahren` (run it, get text) and `Instrument` (the mechanism is faithfully formalised),
 with separate counters and the 500 target belonging to the first. Nothing here needs that
 decision: no catalogue entry is added, and both changes are to devices that already ship.
@@ -146,4 +146,6 @@ reading of the text and rarely the wanted one.
 
 **If the schema ever grows a value for "contemporary, no source"** — the layer split in
 §3 of the handover is where that would be decided — this is the first entry that would
-want it.
+want it. ADR 0033 took that decision and declined: an instrument must be *formalised and
+sourced*, so a mechanism invented here fails its bar too, and `from_text` stays a
+constructor catalogued on neither layer.
