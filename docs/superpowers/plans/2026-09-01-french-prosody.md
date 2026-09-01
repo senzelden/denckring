@@ -1096,7 +1096,20 @@ one this chapter makes reachable:
               print('fr-core: syllabic row raised as expected —', exc)
           else:
               raise SystemExit('alexandrine needs syllables, which this install lacks')
+          try:
+              check('rhyme_scheme', 'le chat dort\nle chien court', scheme='AA', lang='fr')
+          except MissingCapability as exc:
+              assert 'phonemes' in str(exc), exc
+              print('fr-core: rhyme row raised as expected —', exc)
+          else:
+              raise SystemExit('rhyme_scheme needs phonemes, which this install lacks')
 ```
+
+**The `phonemes` half is not optional, and this job is now its only home.** Task 5 gave
+French `phonemes`, so **no installed pack lacks that capability any more** — all three
+have it. `tests/test_prosody_robustness.py` used to cover the refusal with `fr` and had
+to move to `sonnet`/`stress` when that stopped being true. The core-only install is the
+last place the phonemes refusal can be exercised at all.
 
 - [ ] **Step 2: Correct the job's comment, which this chapter makes false**
 
