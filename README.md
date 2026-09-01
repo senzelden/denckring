@@ -29,7 +29,7 @@ pip install denckring          # English, German and French, no data files
 pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
 pip install denckring[de-wiktionary]   # + German pronunciations, stress and glosses
-pip install denckring[fr]      # + a word list, nouns, frequency bands and glosses
+pip install denckring[fr]      # + a word list, nouns, frequency bands, glosses, syllables and phonemes
 ```
 
 The extras improve or unlock procedures rather than changing the language itself.
@@ -55,14 +55,18 @@ English's, rather than registering through a separate path.
 
 French ships in core for the same reason, and on core alone 70 of the 121 implemented
 rows run in it. `[fr]` is a fifth distribution adding a word list, an ordered noun list,
-frequency bands and glosses, from Lexique 3.82 and French Wiktionary — both CC BY-SA,
-so unlike German they need no separate extra between them. It takes French to **80**.
-ADR 0032 records why Wikidata Lexemes, which supplies German, could not supply French:
-12,768 French noun lexemes against 188,948 German ones.
+frequency bands, glosses, a syllable/phoneme table and an aspirated-*h* list, from
+Lexique 3.82 and French Wiktionary — both CC BY-SA, so unlike German they need no
+separate extra between them. It takes French to **103**. ADR 0032 records why Wikidata
+Lexemes, which supplies German, could not supply French: 12,768 French noun lexemes
+against 188,948 German ones. ADR 0034 records the line-level syllable seam French needs
+and English and German do not — a final mute *e* elides or counts depending on what
+follows it, so French cannot be counted word by word — and the mute-e and diérèse rules
+built on top of it; the French line count is always `estimated`, never exact.
 
-The other 41 rows raise `MissingCapability` naming what the pack lacks — syllables,
-phonemes or stress — rather than `UnknownLanguage` naming the language, which is what
-asking for French used to get (ADR 0029). **18 of those 41 will not close.** They are
+The other **18** rows raise `MissingCapability` naming what the pack lacks — always
+`stress` for French — rather than `UnknownLanguage` naming the language, which is what
+asking for French used to get (ADR 0029). **None of those 18 will close.** They are
 accentual metres, French has no lexical stress, and they are not French forms; declaring
 the capability to reach a bigger number would be a promise the data cannot keep.
 
@@ -211,7 +215,8 @@ Three kinds of thing a procedure can need, and they are handled differently. A *
 describes a language and ships separately when it carries weight: `denckring[en]` adds a
 pronouncing dictionary, a noun lexicon and SCOWL's commonness-graded word list,
 `denckring[de]` adds a word lexicon and a noun list, and `denckring[fr]` adds a word
-list, nouns, frequency bands and glosses. Each vendored source keeps its own
+list, nouns, frequency bands, glosses and a syllable/phoneme table with the line-level
+elision rules built on it (ADR 0034). Each vendored source keeps its own
 licence file beside the data it covers, which is why installing `[en]` for syllable
 counts also brings a word list down with it (ADR 0028). A **corpus** is somebody's
 collection, so the package carries the loader and you supply the reading:
