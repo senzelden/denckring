@@ -33,3 +33,27 @@ cases:
       und lässt sein schweres Wasser alt heut Nacht
     params: {}
     satisfied: true
+  - name: radif-et-qafia
+    lang: fr
+    source: "constructed example; `encore` is the radif, repeated at every closing"
+    text: |-
+      Le vent se lève et je pleure encore
+      La nuit s'installe et je pleure encore
+      Le temps passe et rien ne change
+      Il sent la douleur encore
+      Le silence dure et s'étend
+      Mon coeur bat de chaleur encore
+    params: {}
+    satisfied: true
+  - name: radif-perdu-sur-la-derniere-ligne
+    lang: fr
+    source: "constructed counterexample; the last carrier line drops the radif"
+    text: |-
+      Le vent se lève et je pleure encore
+      La nuit s'installe et je pleure encore
+      Le temps passe et rien ne change
+      Il sent la douleur encore
+      Le silence dure et s'étend
+      Mon coeur bat de chaleur toujours
+    params: {}
+    satisfied: false

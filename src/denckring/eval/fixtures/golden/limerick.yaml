@@ -32,3 +32,25 @@ cases:
       die Blume welkt im Schatten an der Wand
     params: {}
     satisfied: true
+  - name: aabba-fr
+    lang: fr
+    source: "constructed example"
+    text: |-
+      Il y avait un chat nommé Amour
+      Qui cherchait le bonheur toujours
+      Il prit un jour un chemin
+      Et partit tôt le matin
+      Et rêva de son retour
+    params: {}
+    satisfied: true
+  - name: rime-b-rompue
+    lang: fr
+    source: "constructed counterexample"
+    text: |-
+      Il y avait un chat nommé Amour
+      Qui cherchait le bonheur toujours
+      Il prit un jour un chemin
+      Et partit dans le froid gris
+      Et rêva de son retour
+    params: {}
+    satisfied: false
