@@ -17,16 +17,13 @@ def line_syllables(text: str, pack: LanguagePack) -> list[tuple[int, int, int]]:
 
     The estimate count is what keeps a heuristic pack honest — every syllabic
     report carries it, and installing `denckring[en]` drives it to zero.
+
+    The counting itself belongs to the pack (spec D3): French cannot be counted
+    word by word, and the other two languages must not change to accommodate it.
     """
     measured: list[tuple[int, int, int]] = []
     for offset, line in line_spans(text):
-        total = 0
-        estimated = 0
-        for word in pack.tokenize(line):
-            count, exact = pack.syllable_count(word)
-            total += count
-            if not exact:
-                estimated += 1
+        total, estimated = pack.line_syllables(line)
         measured.append((offset, total, estimated))
     return measured
 

@@ -153,7 +153,13 @@ CAPABILITY_METHODS: dict[str, tuple[str, ...]] = {
     "phonemes": ("phonemes", "rhyme_key", "rhyme_keys"),
     "stress": ("stress_pattern", "stress_patterns"),
     "syllables": ("syllables",),
-    "syllables.heuristic": ("syllable_count",),
+    # `line_syllables` alongside `syllable_count`: spec F3 moved the per-line sum onto
+    # `BasePack.line_syllables`, which calls `self.syllable_count` on the *unwrapped*
+    # inner pack (the spy's `__getattr__` only wraps names it is asked to track, and it
+    # returns methods bound to `self._inner`), so a fixture that reaches counting only
+    # through a line-syllabic row now calls `syllable_count` invisibly to the spy. The
+    # row still exercises the real capability; only the spy's vantage point moved.
+    "syllables.heuristic": ("syllable_count", "line_syllables"),
 }
 
 _TRACKED_METHODS = frozenset(m for methods in CAPABILITY_METHODS.values() for m in methods)
