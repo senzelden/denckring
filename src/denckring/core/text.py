@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack
 
 
@@ -19,6 +20,39 @@ def letter_spans(text: str, pack: LanguagePack, *, fold: bool = True) -> list[tu
         letters = pack.fold_diacritics(ch) if fold else ch.lower()
         spans.extend((offset, letter) for letter in letters if letter.isalpha())
     return spans
+
+
+def fold_letter(ch: str, pack: LanguagePack, *, fold: bool) -> str:
+    """One source character as the letters it contributes to a folded text.
+
+    The parameter-side twin of `letter_spans`: that folds the text, and until
+    this existed nothing folded the value compared against it, so `vowel="ä"`
+    was unsatisfiable in German (ADR 0035). Multi-character under folding —
+    `ß` gives `ss` — which is why `single_letter` exists beside it.
+    """
+    return pack.fold_diacritics(ch) if fold else ch.lower()
+
+
+def single_letter(
+    value: str, pack: LanguagePack, *, fold: bool, procedure_id: str, field: str
+) -> str:
+    """The one folded letter a single-letter parameter denotes.
+
+    Refused when the fold yields more than one letter, because these callers
+    compare letter against letter and a two-letter `expected` against a
+    one-character `got` is not a comparison the violation can report honestly.
+    The message names `fold_diacritics: false` because that genuinely works —
+    the old `degenerate_output`/`allow_identity` advice named neither the cause
+    nor a remedy (ADR 0035, D4).
+    """
+    folded = fold_letter(value, pack, fold=fold)
+    if len(folded) != 1:
+        raise InvalidParams(
+            procedure_id,
+            f"{field}={value!r} folds to {folded!r} under fold_diacritics; "
+            f"pass fold_diacritics=false to use it as a single letter",
+        )
+    return folded
 
 
 def word_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
