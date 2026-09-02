@@ -11,3 +11,11 @@ cases:
     text: no one atom
     params: { consonant: n }
     satisfied: false
+  - name: eszett-consonant-with-folding-off
+    lang: de
+    source: >-
+      constructed example; under folding ß is two letters and the parameter is
+      refused by name, so this is the configuration in which it means something
+    text: ßeiß
+    params: { consonant: "ß", fold_diacritics: false }
+    satisfied: true

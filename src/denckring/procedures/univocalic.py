@@ -9,7 +9,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, single_letter
 
 
 class UnivocalicParams(DiacriticParams):
@@ -42,7 +42,20 @@ class Univocalic(BaseProcedure[UnivocalicParams]):
             for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
             if ch in vowel_set
         ]
-        permitted = params.vowel
+        # Folded the same way the text was, or `vowel="ä"` is unsatisfiable in
+        # German: the text side folds `ä` to `a` and the comparison never met.
+        # ADR 0035, D3.
+        permitted = (
+            None
+            if params.vowel is None
+            else single_letter(
+                params.vowel,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="vowel",
+            )
+        )
         if permitted is None and found:
             permitted = Counter(ch for _, ch in found).most_common(1)[0][0]
         violations = [

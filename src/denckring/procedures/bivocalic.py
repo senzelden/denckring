@@ -9,7 +9,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, single_letter
 
 PERMITTED = 2
 
@@ -44,8 +44,19 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
             for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
             if ch in vowel_set
         ]
+        # Each of the two folded as the text was — ADR 0035, D3. `vowels="äö"`
+        # was unsatisfiable in German for want of this.
         if params.vowels is not None:
-            permitted = set(params.vowels)
+            permitted = {
+                single_letter(
+                    ch,
+                    pack,
+                    fold=params.fold_diacritics,
+                    procedure_id=self.id,
+                    field="vowels",
+                )
+                for ch in params.vowels
+            }
         else:
             permitted = {ch for ch, _ in Counter(ch for _, ch in found).most_common(PERMITTED)}
         violations = [

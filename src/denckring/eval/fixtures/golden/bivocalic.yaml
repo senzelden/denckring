@@ -11,3 +11,9 @@ cases:
     text: a bad tea sit
     params: { vowels: ae }
     satisfied: false
+  - name: two-umlaut-vowels-under-folding
+    lang: de
+    source: constructed example; the same seam as univocalic's umlaut case
+    text: Bähö
+    params: { vowels: "äö" }
+    satisfied: true
