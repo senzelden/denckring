@@ -923,10 +923,15 @@ In `src/denckring/lang/base.py`, immediately after `vowels`:
 and at module level in the same file, above `BasePack`:
 
 ```python
-#: Letters whose class depends on where they sit, so they belong to no
-#: inventory: `y` in all three languages, and French's `ÿ` which folds to it.
-#: The contextual reading of these lives in `letter_classes` and is licensed
-#: only for rows declaring `phonemes` — ADR 0035, D2.
+#: Letters that are vowels in some positions and consonants in others, so they
+#: belong to no inventory: `y` in all three languages, and French's `ÿ` which
+#: folds to it. `supervocalic` publishes "each of the five vowels", and `y` is
+#: not one of the five in any of them — French lists it among its vowels but
+#: writes `yeux` with it as /j/. ADR 0035, D1.
+#:
+#: Deliberately NOT the same set as a pack's glide inventory, which is wider
+#: (English `y w u i o`): removing those from the inventory would leave English
+#: requiring `a` and `e` alone.
 _AMBIGUOUS = frozenset("yÿ")
 ```
 
@@ -1021,7 +1026,21 @@ Assisted-by: Claude:claude-opus-5[1m]"
 
 ---
 
-### Task 6: `letter_classes()` and `spoonerism`
+### Task 6: `letter_classes()` and `spoonerism` — DEFERRED, DO NOT IMPLEMENT
+
+> **Deferred on 2026-09-02 during pre-flight, before any dispatch.** Implemented exactly
+> as written below, this task's rule disagrees with 4 of its own 18 expectations —
+> including `fr yoyo`, the case the feature exists for. It gives `CCCV`, not `CVCV`,
+> because French `vowels()` contains `y`, so the second `o`'s lookahead sees a vowel;
+> and `de Quelle` gives `CVVCCV` against an expected `CCVCCV`, because the German glide
+> set excludes `u` while the comment justifying that exclusion argues `qu` is /kv/ — that
+> is, that `u` *is* a consonant there. The `ou` digraph pulls against the fix `yoyo`
+> needs, so the rule wants another design pass rather than an implementer.
+>
+> Nothing waits on it: it fixes no row in the Purpose table, and Task 7's
+> `test_spoonerism_is_the_licensed_row` reads the catalogue's `requires` only. The text
+> below is kept verbatim as the starting point for that design pass — **its expectations
+> are known wrong and must be re-derived by measurement, not reused.**
 
 **Files:**
 - Modify: `src/denckring/core/protocol.py` (add beside `vowel_inventory`)
@@ -1402,11 +1421,13 @@ Create `tests/test_reading_boundary.py`:
 
 `univocalic` and its neighbours are `family: letter`, sourced to Bombaugh (1867)
 and Word Ways, and declare `requires: [tokens, alphabet, fold_diacritics]` with
-no `phonemes`. The glide rule in `letter_classes` is measurably correct
-linguistically and measurably wrong here: it makes each of the words below a
-univocalic, which no Word Ways editor accepts.
+no `phonemes`. A glide-aware reading — `y w u i o` in English, `y i u ou` in
+French — is measurably correct linguistically and measurably wrong here: it
+makes each of the words below a univocalic, which no Word Ways editor accepts.
 
-This is the test that fails if that rule ever leaks across. ADR 0035, D2.
+This is the test that fails if such a rule is ever wired into these rows. It
+guards a boundary rather than an implementation, so it holds whether or not the
+phonetic reading has been built yet. ADR 0035, D2.
 """
 
 import yaml
