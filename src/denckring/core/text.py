@@ -29,12 +29,43 @@ def fold_letter(ch: str, pack: LanguagePack, *, fold: bool) -> str:
     this existed nothing folded the value compared against it, so `vowel="ä"`
     was unsatisfiable in German (ADR 0035). Multi-character under folding —
     `ß` gives `ss` — which is why `single_letter` exists beside it.
+
+    The `isalpha` filter on the *result* is `letter_spans`' own, so the two
+    sides of a comparison cannot disagree about which characters a fold
+    contributes; a fold yielding no letters gives `""`. The filter on the
+    *input* is not here, because a caller iterating a phrase decides for
+    itself what counts as a character worth folding — `fold_target` is that
+    caller, and it applies it.
     """
-    return pack.fold_diacritics(ch) if fold else ch.lower()
+    return "".join(
+        letter for letter in (pack.fold_diacritics(ch) if fold else ch.lower()) if letter.isalpha()
+    )
+
+
+def fold_target(value: str, pack: LanguagePack, *, fold: bool) -> list[str]:
+    """A multi-character parameter flattened the way the text side flattens it.
+
+    Not one entry per source character: `ß` folds to two letters and the text
+    side already spends two units on it, so a per-character expectation
+    compared a two-letter `"ss"` against a one-character `got` (ADR 0035, D3).
+
+    One function rather than one expression per checker. The ADR rejects
+    per-checker folding as "five checkers, five chances to differ", and the
+    acrostic pair had already proved it by diverging with one copy each —
+    which was still true of this expression, copied three times, after the
+    fix that cited it.
+    """
+    return [letter for ch in value if ch.isalpha() for letter in fold_letter(ch, pack, fold=fold)]
 
 
 def single_letter(
-    value: str, pack: LanguagePack, *, fold: bool, procedure_id: str, field: str
+    value: str,
+    pack: LanguagePack,
+    *,
+    fold: bool,
+    procedure_id: str,
+    field: str,
+    whole: str | None = None,
 ) -> str:
     """The one folded letter a single-letter parameter denotes.
 
@@ -44,12 +75,18 @@ def single_letter(
     The message names `fold_diacritics: false` because that genuinely works —
     the old `degenerate_output`/`allow_identity` advice named neither the cause
     nor a remedy (ADR 0035, D4).
+
+    `whole` is for a caller mapping this over the characters of a longer
+    parameter: `bivocalic`'s `vowels="ße"` is two letters, and reporting only
+    `vowels='ß'` named the offending character while misquoting what the
+    caller passed. Given it, the message carries both.
     """
     folded = fold_letter(value, pack, fold=fold)
     if len(folded) != 1:
+        named = f"{field}={value!r}" if whole is None else f"{field}={whole!r}: {value!r}"
         raise InvalidParams(
             procedure_id,
-            f"{field}={value!r} folds to {folded!r} under fold_diacritics; "
+            f"{named} folds to {folded!r} under fold_diacritics; "
             f"pass fold_diacritics=false to use it as a single letter",
         )
     return folded
