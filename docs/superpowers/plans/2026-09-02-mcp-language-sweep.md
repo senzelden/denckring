@@ -202,3 +202,345 @@ prediction can be scored honestly afterwards.
   your own scansion. And check the *violation list* against the case name rather than only
   `satisfied` — a French `kangaroo_word` negative once passed for the wrong rule, and that
   is trap 2 of chapter 6.
+
+---
+
+# Executed — German and French, 2026-09-02
+
+Both sweeps ran as specified: six German agents, five French, the agent prompt verbatim,
+the group lists regenerated first and identical to the ones above.
+
+## The precondition was satisfied, and checked three ways
+
+The reconnect took. `check_text(alexandrine, lang="fr", ...)` returned a verdict rather
+than `missing_capability`; `check_text(dactylic_hexameter, lang="de", ...)` — a `stress`
+row blocked at the stale 89 — also returned a verdict, so the Wiktionary distribution was
+live too. Every one of the eleven agents independently re-verified the environment before
+spending anything.
+
+**Both languages swept clean against the fixtures.** 121 German rows and 103 French rows:
+**zero verdict disagreements**, every constructive row's `apply` output satisfied its own
+checker *in the fixtured configuration*, and every malformed call returned a structured
+error naming the right cause. Negative cases were compared against the violation list, not
+just the boolean, as trap 2 requires; none failed for the wrong rule.
+
+**Every defect below therefore lies outside what the fixtures cover.** That is the finding
+about the fixtures, not only about the rows.
+
+## The eighteen French rows refuse for the right reason
+
+All eighteen return `missing_capability` naming **`stress`** and nothing else. None names
+`syllables.heuristic` or `phonemes`. 103 is confirmed as the ceiling through the MCP
+surface rather than only in the library. ADR 0034 D3 stands.
+
+## Finding 1 — one root cause, seven rows: a parameter compared against folded text without being folded the same way
+
+The largest structural result of the sweep. `fold_diacritics` defaults to `true`; the text
+side folds, the *parameter* side does not, or folds differently. `fold_diacritics: false`
+is the workaround in every case, which is what identifies the seam.
+
+| Row | Default-params failure |
+|---|---|
+| `supervocalic` | **No German or French text can satisfy it.** Umlauts fold before counting, so `ä ö ü` are permanently `missing_vowel` *and* inflate `a o u` into `repeated_vowel`. |
+| `univocalic` | `vowel: "ä"` unsatisfiable; a pure-`ä` text reports `found: "a", expected: "ä"`. |
+| `bivocalic` | `vowels: "äö"` unsatisfiable, same shape. |
+| `monoconsonantal` | `consonant: "ß"` unsatisfiable; violation mixes folded `found` with unfolded `expected`. |
+| `acrostic` / `telestich` | a `ß` target is unsatisfiable, and `expected` reports `"ss"` — a two-letter "letter" against a one-character `got`. |
+| `slenderizing` | **`apply` output fails its own checker** — see Finding 2. |
+| `kangaroo_word` | an accented French synonym is unknown — see Finding 3. |
+
+**`pack.vowels()` is doing two incompatible jobs**, which is why `supervocalic` is the worst
+of these:
+
+```
+en.py:19  _VOWELS = frozenset("aeiou")
+de.py:28  _VOWELS = frozenset("aeiouäöü")
+fr.py:20  _VOWELS = frozenset("aeiouyàâäéèêëîïôöùûüÿ")
+```
+
+`monoconsonantal` needs it as *which letters in a text are vowels* (so it wants the accented
+forms); `supervocalic` needs it as *the inventory to require one of each* (so it wants base
+letters only). English is correct solely because its two readings coincide. French
+therefore demands 21 vowels — including `ä ö ü ÿ`, which are not French orthography at all —
+while `describe_procedure` publishes "each of the **five** vowels exactly once" and a
+`prompt_hints` naming `a, e, i, o, u`. German demands eight against the same published five.
+
+`de.py`'s own `alphabet()` comment takes the opposite position on the same letters — "the
+umlauts and ß count as decorated forms, not as alphabet members" — and that is the reading
+`pangrammatic_window` follows when it accepts a 26-letter German pangram. The two halves of
+one pack disagree.
+
+Related, and a **false positive** rather than an unsatisfiable one: `monoconsonantal` with
+`consonant: "y"` in French returns `satisfied: true` on `yoyo` with `consonants: 0` —
+vacuously true, because French counts `y` as a vowel so the checker finds no consonants at
+all. English gives `consonants: 2` and is true for the right reason.
+
+## Finding 2 — `slenderizing`: a generator whose output fails its own checker, in the one row the safety net cannot reach
+
+The project's thesis is that the validator is the eval. This row breaks it in German under
+**default parameters — the ones every MCP caller gets**.
+
+```
+apply_procedure(slenderizing, lang="de", text="Die Straße war groß.", params={"deleted":"s"})
+→ "Die traße war groß."
+check_text(slenderizing, lang="de", text="Die traße war groß.",
+           params={"source":"Die Straße war groß.","deleted":"s"})
+→ satisfied: false, score: 0.41, 6× wrong_letter + extra_letters "ross"
+```
+
+`_produce` (`slenderizing.py:95`) keeps a character when
+`pack.fold_diacritics(ch).lower() != params.deleted`; `ß` folds to `"ss"`, which never
+equals a single letter, so `ß` always survives. `_check` builds its expectation from
+`letter_spans(source, pack, fold=fold)`, which expands `ß` into two `s` and drops both.
+`fold_diacritics: false` makes the pair agree.
+
+**Why nothing caught it, and this is the part worth keeping.** `slenderizing` is one of the
+four ids in `PARAMETER_GATED` (`tests/test_round_trip.py:160`), so the round-trip property
+never exercises it in any language; `test_generators.py` round-trips it in ASCII English
+only; and `golden/slenderizing.yaml` sets `lang: en` at file level with two ASCII cases.
+The row excluded from the safety net is the row that broke. The gate is green.
+
+An accented `deleted` is a second symptom: `deleted: "ä"` raises `degenerate_output`
+advising `allow_identity=true`, which is actively wrong — the cause is that the fold makes
+`ä` unmatchable, and `allow_identity` would return the untouched text as a slenderizing.
+`_produce` also ignores `params.fold_diacritics` entirely, so with folding off the checker
+*requires* the `ä` removed while `apply` refuses to remove it.
+
+## Finding 3 — French elision, three rows, and one of them inverts the verdict
+
+**`s_plus_7` and `n_plus_7` fail the correct answer and pass the null one.** The sharpest
+defect of the sweep.
+
+| Call — `offset: 3`, `ambiguous_nouns: "strict"` | Result | Should be |
+|---|---|---|
+| `l'îlot` from source `l'île` — the correct S+7 | `satisfied: false`, `changed_a_non_noun` | satisfied |
+| `l'île` from source `l'île` — the source retyped | `satisfied: true`, score 1 | flagged; `strict` exists for exactly this |
+
+The bare forms work (`île` → `îlot`, `Île` → `îlot`), so one word gives two verdicts
+depending on a preceding `l'`. `d'`, `qu'` and the typographic `’` behave the same. Both
+rows reproduce it, so it sits in the shared `displacement_report` seam. The violation also
+names the wrong cause — `changed_a_non_noun` about a noun the pack lists and reports as
+such one call later.
+
+This is **chapter 6's trap 1 again**: a lookup normalising differently from the way its
+table is keyed. CLAUDE.md records that the *prosody* path already learned it ("try a token
+whole in the table before splitting at an apostrophe"). The lexicon path never did.
+
+**`kangaroo_word` is inverted by its own default.** `synonym: "école"` fails with
+`not_a_word` under `fold_diacritics: true` and passes with folding off: the query folds to
+`ecole` while the French table is keyed on the accented form, so accented French synonyms —
+a large share of the vocabulary — are silently unknown. French-only (English tables are
+keyed on folded forms) and row-specific: `word_ladder` resolves `école étole` with folding
+on, so two rows sharing one capability disagree about what folding means. The violation
+reports `école` as unknown when what was looked up was `ecole`. The French fixture is blind
+to it — `souriant`/`riant` is unaccented.
+
+**Elision defeats `identical_rhyme` on every rhyme row.** A minimal pair on `hemeling`
+differing only by a proclitic `l'` scores 1.0, where the bare pair correctly reports
+`identical_rhyme`. `l'amour` and `amour` are the same rhyme word in French. Reproduced on
+`limerick`. Sharper than a generic gap because `hemeling` publishes `allow_identical`
+described as "Permit a word to rhyme with itself, as French rime riche does" — the row
+explicitly models French self-rhyme, and the dial is bypassed by the commonest
+orthographic fact in the language.
+
+## Finding 4 — `definitional_expansion` in French: a maintainer decision, not a patch
+
+A sentence-initial capital resolves a common noun to its proper-noun senses. Measured:
+
+```
+fr  le 10 / Le 1     chat 16 / Chat 2     jardin 7 / Jardin 4     montagne 8 / Montagne 5
+fr  souffle 10 / Souffle 10               paris 6 / Paris 6        (no capitalised page)
+en  cat 10 / Cat 10          de  Garten 3 / garten 3
+```
+
+French is the only pack where case changes the sense set. The fixture's own positive case
+flips to `satisfied: false` when its source is capitalised normally. Cause:
+`denckring_fr_data/__init__.py:189` tries `(word, word.capitalize(), word.lower(),
+word.upper())` and French `glosses` (line 349) passes the word **as written**, bypassing
+`_lemma`, where English lowercases first. Trying the exact form first is deliberate and the
+docstring at :169-188 defends it — it recovers the 51.2% of headwords casefolding hid. What
+the docstring does not cost out is the other direction. French capitalises the first word of
+every sentence, so this is the ordinary case. **Two real costs traded against each other:
+it needs a decision, not a fix.**
+
+## Finding 5 — `missing_capability` advises a remedy that cannot work
+
+Fires on **all eighteen** French `stress` refusals and on German `anagram`:
+
+```
+"Procedure 'alcaic_stanza' requires the capability 'stress', which the 'fr' language pack
+ does not provide. Install the extra that supplies it: `pip install denckring[fr]`."
+```
+
+`denckring[fr]` is installed and will never carry `stress`. German `anagram` refuses on
+`lexicon.graded_words` and advises `denckring[de]`, which is installed and which no German
+extra ships — SCOWL is vendored into `denckring-en-data` (ADR 0028). `errors.py:104` picks
+the remedy from `lang in _EXTRAS` alone, never asking whether that extra supplies the
+capability. The comment above `_EXTRAS` already admits the class; this sweep shows it
+firing across a documented **permanent** ceiling, which is where a wrong remedy is most
+likely to send someone to "fix" a gap ADR 0034 D3 says is not a gap.
+
+**The same comment has gone false about French** (`errors.py:92-93`): it says
+"`denckring[fr]` carries no syllables or phonemes (ADR 0032 D5)", but since ADR 0034 the
+French pack declares `syllables`, `syllables.dictionary`, `syllables.heuristic` and
+`phonemes`. Its English half is still right. House style makes a false comment a defect.
+
+## Finding 6 — the published contract disagrees with the checker
+
+- **`describe_procedure`'s `constructive` is language-blind while the docstring points
+  callers at it.** `describe_procedure(anagram, lang="de")` returns `"constructive": true`
+  beside `"apply_missing": ["lexicon.graded_words"]`, and `apply_procedure`'s docstring says
+  "Read `constructive`, not `kind`, before calling this." Following that verbatim in German
+  errors. `describe.py:134` computes it as `isinstance(procedure, Constructive)`;
+  `apply_missing` is the language-aware answer the docstring never mentions. Contrast
+  `check_text`, whose `runnable`/`missing` pair the docstring does not mis-signpost.
+
+- **A definition promising what the checker structurally cannot do.** Six confirmed
+  instances, and `requires` proves several mechanically:
+  - `alexandrine` — both payloads promise "césure à l'hémistiche" / "a caesura after the
+    sixth"; the class docstring says "Checks the syllable measure only, not the caesura or
+    the stress pattern." The docstring is honest and is not exposed over MCP. **Missed by
+    the English sweep**, not French-specific.
+  - `limerick` — "the third and fourth notably shorter"; `requires` is `['tokens',
+    'phonemes']`, **no syllable capability at all**. A limerick whose lines 3 and 4 are the
+    longest scores 1.0.
+  - `alliterative_verse` — "Lines split by a caesura in which the stressed syllables of both
+    halves alliterate"; `requires` is `['tokens', 'fold_diacritics']`. It counts words in a
+    line sharing an initial letter. So the row does not survive French because French
+    alliteration was solved — it survives because the accentual half is unimplemented
+    everywhere.
+  - `homoteleuton` — "end with the same letter **or syllable**"; requires neither.
+  - `dactylic_hexameter` — declares `de` and ships German fixtures, but models the spondee
+    as `11`. German hexameter substitutes a **trochee** (`10`) as a matter of course, so that
+    branch is close to dead in German. Measured on eight canonical lines: 3 pass, 5 fail,
+    four of the five on the trochee. The two fixtures pass only because they are all-dactyl.
+  - `blank_verse` — runs the identical strict pattern as `iambic_pentameter` but withholds
+    the caveat that row publishes, on the row German actually names. Goethe's *Iphigenie*
+    opening fails two of four lines on the feminine ending.
+
+  A regex screen over definitions against `requires` flags ten rows, but most are false
+  positives (`snowball`'s "longer" is letters) and it misses `alexandrine` by construction.
+  **The class is real and recurring; bounding it needs a definition-by-definition read, not
+  a regex.**
+
+- **`denckring`'s `attestation: "mask"` is a no-op over MCP.** `mask` and `ignore` return
+  byte-identical output. `mcp/server.py:105-107` serializes only `texts[0]`, `texts` and
+  `truncated`, discarding the `Candidate.metrics` carrying `attested`. Since the device's
+  `unmarked_policy` is `hold`, nothing is dropped, so that marking is the parameter's *only*
+  observable effect. The device file calls flagging-rather-than-discarding "the intellectual
+  content of the device".
+
+- **`univocalic` / `monoconsonantal` accept a letter outside the pack's set** and return a
+  confident scored verdict rather than `invalid_params`. `vowel: "z"` in French yields six
+  `foreign_vowel` violations reading `found: "e", expected: "z"` — unsatisfiable in any
+  language, reported as an ordinary failure. The validator checks shape, never membership.
+
+- **`fold_in` on a single-page source** emits `expected: ""` — an unmeetable target, the same
+  class as the known `reverse_snowball` `"-1 letters"`. Language-independent.
+
+- **`definitional_literature` passes vacuously when nothing resolves.** `iterations: 0` with
+  `satisfied: true`, where the fixture asserts the opposite for that shape. Reproduces in
+  English (`text="xyzzy", source="xyzzy"`), so it is one write-up, not two.
+
+- **`proteus_verse`'s `InputTooLong` on the *check* path advises the apply remedy** —
+  "Shorten the text, or check it instead of generating it", to a caller who did check it.
+  `max_words` is declared on the check params, so refusing is deliberate; only the advice is
+  wrong. Not German-specific.
+
+- **`telestich` publishes its params schema titled `AcrosticParams`**, and its validation
+  errors cite that name. Cosmetic, but it names a different procedure to the caller.
+
+## Finding 7 — localisation falls back silently, per field
+
+Measured over all 155 rows:
+
+```
+names        en 155   de  95   fr  98
+definitions  en 155   de  95   fr  95
+prompt_hints en 155   de   4   fr   0
+```
+
+Nothing in the payload marks a fallback, so a caller cannot tell a translated row from an
+untranslated one, and the fallback is **per field**: `arca_musarithmica` returns a French
+name with an English definition in one `lang="fr"` payload; `haikuization` returns a French
+name and definition then an English `prompt_hints`. `prompt_hints` is English on every
+French row and on 151 of 155 German ones.
+
+The sharpest instance is `wechselsatz`, whose `languages` is `["de"]` alone: its German
+definition drops a sentence the English one carries — "The checker asks whether each word of
+a given line is one the template offers for that position" — which is the only place the
+surface says what `source` must contain. A German caller gets a strictly less informative
+definition than an English one, plus an English instruction.
+
+Also: **`languages` misleads as a language guide.** Rows ship verified German or French
+golden cases while declaring `languages: ["en"]` — six in one German group alone
+(`syllable_count`, `curtal_sonnet`, `rhyme_royal`, `senryu`, `tanka`, `villanelle`), 19 of
+20 in one French group. `runs_in` is right in every case and the invariant holds, so this is
+under-declaration rather than a false claim — but the tool docstrings document neither
+field.
+
+## Scoring the predictions, as the plan required
+
+**The German prediction missed.** It named the four German-only rows as "the ones to watch".
+They came out **almost entirely clean**: `poesie_automat` reproduced two fixtures
+byte-for-byte from seeds 5 and 82, `denckring` went 3/3 on fixtures and 10/10 on
+round-trips, `wechselsatz` was clean across five extra probes including both
+`InputTooShort` paths. The one finding among them is minor (`buchstabwechsel` scores the
+identity `Johann`/`Johann` a perfect 1.0, against its own definition's "zu **anderen**
+Wörtern" — inherited from `anagram`, which behaves identically). **The real German defects
+were in the diacritic-folding seam, which the prediction never mentioned.**
+
+**The German non-defect prediction held.** Phonetic syllable counts were correctly
+anticipated; no group reported them, and no case turned on them.
+
+**The French prediction held on trap 1 and was half-right on trap 2.** No group reported a
+scansion disagreement as a defect — the warning did its job, and the `alexandrine` probes
+confirmed the hard cases (`je hais` refusing to elide while `les hommes` elides,
+`aujourd'hui` as 3 via whole-token lookup, `d'espoir` as 2). Trap 2's specific instance came
+up clean: every fixtured negative failed for the rule its case name states. But the *class*
+it warns about appeared elsewhere — `s_plus_7`'s `changed_a_non_noun` and
+`kangaroo_word`'s `not_a_word` both name the wrong thing, outside fixture coverage.
+
+**The general lesson.** Both predictions looked at the rows with the least coverage. The
+defects were in the rows with the *most* — reachable only by parameter values no fixture
+supplies. Fixture count was the wrong risk signal.
+
+## Checked and cleared, so nobody re-investigates
+
+- `poesie_automat` and `denckring` under `lang="fr"`: genuinely language-neutral
+  (`requires: []`), serving French names over German board and ring data. Consistent with
+  their `languages`, not a defect — but a caller reading the French definition gets German
+  output, and the negative names `module 3 (Subjekt)` inside a French-labelled payload.
+- `n_plus_7`'s French noun order is raw-codepoint, not collated, so accented lemmas sit at
+  the end of their letter block (`fête` → `gaba`). The `dictionary` field's description makes
+  order the contract, generator and checker walk the same list, and every round-trip passed.
+- `s_plus_7` on `abat-jour` is the *intended* consequence of restricting the noun list to
+  purely alphabetic lemmas.
+- `prisoners_constraint` rejects French accented vowels, consistent with the German umlaut
+  fixture. Defensible, but it makes the French row nearly unwritable and nothing says so.
+- `spoonerism`'s German and French generators are much narrower than their checkers
+  (four of five German pairs return `no_candidate_word` on text `check` accepts, including
+  the fixture's own positive `Katze Blume`). Apply's contract is legitimately stricter; the
+  errors are well worded. Worth a `prompt_hints` note, not a code change.
+- `paragram.apply` inserts lowercase German nouns; output still satisfies its own
+  case-folding checker.
+- The French pack declares a bare `syllables` capability English and German do not. No
+  procedure requires it; it backs the pack's own guard. Asymmetric, not a defect.
+- `?` appears verbatim in user-facing `found` strings (`"ausgestorben (10?0)"`) meaning free
+  or secondary stress, documented only in source. Needs a `note`.
+- `alcaic_stanza` reports several `wrong_stress` violations at one offset (the line start).
+  The docstring only promises an offset "usually", and `found` names the right word.
+
+## What to do next, in the order the evidence supports
+
+1. **Fix the folding seam** (Finding 1) — seven rows, one cause, and `slenderizing` breaks
+   the project's thesis. Splitting `pack.vowels()` into its two meanings is the part that
+   needs design; the rest is folding the parameter the way the text is folded.
+2. **Fix the elided-proclitic lookup** (Finding 3) — `s_plus_7`/`n_plus_7` invert a verdict,
+   which is worse than refusing. The prosody path's fix is the model.
+3. **Close the round-trip blind spot that hid Finding 2** before or with it. A row in
+   `PARAMETER_GATED` with a `lang: en` fixture is unexercised twice over; that combination
+   is the thing to search for, not the row.
+4. **Decide Finding 4** (French capitalisation) and the `apply_params.source` contract from
+   the English run. Both are trades, and neither is an assistant's to take.
+5. Everything in Finding 6 is disclosure — cheaper than the above and independently useful.
