@@ -9,7 +9,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, single_letter
 
 
 class MonoconsonantalParams(DiacriticParams):
@@ -42,7 +42,20 @@ class Monoconsonantal(BaseProcedure[MonoconsonantalParams]):
             for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
             if ch not in vowel_set
         ]
-        permitted = params.consonant
+        # ADR 0035, D3. `consonant="ß"` is refused rather than silently
+        # unsatisfiable, because ß folds to two letters and this row compares
+        # letter against letter.
+        permitted = (
+            None
+            if params.consonant is None
+            else single_letter(
+                params.consonant,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="consonant",
+            )
+        )
         if permitted is None and found:
             permitted = Counter(ch for _, ch in found).most_common(1)[0][0]
         violations = [

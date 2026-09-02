@@ -23,3 +23,11 @@ cases:
     text: Der Wind trug die Blumen fort.
     params: { vowel: e }
     satisfied: false
+  - name: umlaut-vowel-under-folding
+    lang: de
+    source: >-
+      constructed example; the text side folded ä to a and the parameter did
+      not, so vowel "ä" could not be satisfied at all (ADR 0035)
+    text: Bäh
+    params: { vowel: "ä" }
+    satisfied: true
