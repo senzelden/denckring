@@ -36,3 +36,11 @@ cases:
       Nebel steht im Tal
     params: { target: WE }
     satisfied: false
+  - name: eszett-target-claims-two-units
+    lang: de
+    source: >-
+      constructed example; ß folds to ss and the text side already spends two
+      units on it, so the target must too (ADR 0035)
+    text: "Sonne\nsehr\ntanzt"
+    params: { target: "ßt", unit: line }
+    satisfied: true
