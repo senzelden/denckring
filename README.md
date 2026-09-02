@@ -15,6 +15,7 @@ $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
 155 catalogued · 130 implementable · 121 implemented · 121 validated · 25 not mechanically checkable
+0 instruments catalogued
 ```
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
@@ -313,6 +314,13 @@ weaker `primary`; it is an honest statement that the origin is not established.
 Entries are filed under one of eight families — `letter`, `word`, `syntax`, `form`,
 `permutation`, `procedural`, `translation`, `visual` — and carry the other names each
 form travels under, so a search for `isogram` finds `heterogram`.
+
+Each entry also declares a `layer`. A `verfahren` is accepted the way everything in this
+catalogue has always been accepted: run it, get text, have a checker score it. An
+`instrument` is a combinatorial device — temurah, the zāʾirja — admitted for a mechanism
+that is faithfully formalised and sourced, whether or not anyone would read its output.
+Every row is a `verfahren` today, and `denckring status` counts the two on separate lines
+so that the headline number keeps meaning what it has always meant (ADR 0033).
 
 ## Licence
 

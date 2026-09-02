@@ -678,6 +678,19 @@ All notable changes to this project are documented here. The format follows
   that capability any more, so `tests/test_prosody_robustness.py` moved its refusal test
   to `sonnet`/`stress` and a core-only install is the last place a phonemes refusal
   runs at all.
+- **`layer` on every catalogue row — `verfahren` or `instrument` — and a second counter
+  beside the five-part coverage line.** ADR 0033 took the split with no instrument entry
+  in hand; this implements its D1 and D3 and still adds no row, so `denckring status`
+  prints the unchanged `155 catalogued · 130 implementable · 121 implemented · 121
+  validated · 25 not mechanically checkable` and then `0 instruments catalogued`. The
+  zero is printed rather than hidden, because a counter at zero is the expected state
+  after that ADR and a line that appeared from nowhere with the first instrument would
+  read as a regression. Every field of `Coverage` counts `verfahren` alone — including
+  `implemented`, which is now the registry intersected with the `verfahren` ids, so an
+  instrument shipping a checker of its own could not move the denominator that every
+  coverage figure in ADRs 0025 through 0032 was recorded against. `catalogue.ids()`
+  unnarrowed still returns both layers: `list`, `search` and `export` describe the whole
+  dataset, and only the counters read one layer at a time.
 
 ### Fixed
 

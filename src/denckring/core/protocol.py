@@ -50,6 +50,14 @@ ATTESTATIONS: tuple[str, ...] = get_args(Attestation)
 Checkability = Literal["self", "source", "none"]
 CHECKABILITIES: tuple[str, ...] = get_args(Checkability)
 
+#: Which acceptance test an entry answers to (ADR 0033). A `verfahren` is accepted
+#: when it runs and yields text a checker scores; an `instrument` is accepted when its
+#: mechanism is faithfully formalised and sourced, and may produce no text at all —
+#: temurah, Ifá, the 231 gates. The German word stays because `procedure` already names
+#: both layers everywhere else in this package, from the YAML key to the CLI.
+Layer = Literal["verfahren", "instrument"]
+LAYERS: tuple[str, ...] = get_args(Layer)
+
 
 class Violation(BaseModel):
     """One place where a text fails a procedure."""
@@ -164,6 +172,10 @@ class Meta(BaseModel):
     family: Family
     attribution: Attribution
     checkability: Checkability
+    #: Which of the two acceptance tests this row answers to (ADR 0033). Defaults
+    #: to `verfahren`, which is what every row written before the split is, and what
+    #: the five-part coverage line has always counted.
+    layer: Layer = "verfahren"
     attested: Attestation = "codified"
     aliases: list[str] = Field(default_factory=list)
     kind: Kind

@@ -54,6 +54,16 @@ def test_readme_scoreboard_is_the_one_the_harness_reports() -> None:
     )
 
 
+def test_readme_transcript_carries_both_counters() -> None:
+    """ADR 0033 D3 put a second counter under the five-part line, and `denckring status`
+    prints both. A transcript showing only the first is the same staleness the test
+    above exists to catch, one line lower.
+    """
+    text = README.read_text(encoding="utf-8")
+    coverage = harness.status()
+    assert f"{coverage.line()}\n{coverage.instrument_line()}" in text
+
+
 def _scoreboard_line(text: str) -> str:
     """The README's scoreboard line, whatever it currently says."""
     for line in text.splitlines():

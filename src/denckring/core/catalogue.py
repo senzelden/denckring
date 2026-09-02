@@ -10,7 +10,7 @@ from typing import Any
 import yaml
 
 from denckring.core.errors import UnknownProcedure
-from denckring.core.protocol import Meta
+from denckring.core.protocol import Layer, Meta
 
 CATALOGUE_PATH = Path(str(files("denckring") / "data" / "catalogue.yaml"))
 
@@ -36,6 +36,11 @@ def get(procedure_id: str) -> Meta:
         raise UnknownProcedure(procedure_id) from None
 
 
-def ids() -> list[str]:
-    """Every catalogued id, sorted."""
-    return sorted(load())
+def ids(layer: Layer | None = None) -> list[str]:
+    """Every catalogued id, sorted; `layer` narrows to one of ADR 0033's two.
+
+    Unnarrowed it stays what it was — both layers — because the catalogue is one
+    dataset and `list`, `search` and `export` describe all of it. Only the coverage
+    counters read one layer at a time.
+    """
+    return sorted(pid for pid, meta in load().items() if layer is None or meta.layer == layer)

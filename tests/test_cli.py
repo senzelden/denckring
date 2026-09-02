@@ -4,6 +4,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from denckring.cli import app
+from denckring.eval import harness
 
 runner = CliRunner()
 
@@ -46,6 +47,15 @@ def test_status_prints_the_coverage_line() -> None:
     result = runner.invoke(app, ["status"])
     assert "catalogued" in result.stdout
     assert "validated" in result.stdout
+
+
+def test_status_prints_the_instrument_counter_on_its_own_line() -> None:
+    """ADR 0033 D3: two counters, and the first keeps its meaning. The zero is printed
+    rather than hidden, so the line cannot appear from nowhere with the first
+    instrument entry."""
+    coverage = harness.status()
+    result = runner.invoke(app, ["status"])
+    assert result.stdout.splitlines() == [coverage.line(), coverage.instrument_line()]
 
 
 def test_eval_all_is_green() -> None:
