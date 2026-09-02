@@ -51,5 +51,20 @@ def test_french_permits_y_without_requiring_it() -> None:
     assert check("supervocalic", "Le stylo du jardin", lang="fr").satisfied
 
 
+def test_an_unfolded_umlaut_is_inert() -> None:
+    """With folding off the inventory is still the folded `aeiou` while `ä`
+    stays `ä` in the text, so it neither satisfies `a` nor counts against it.
+    Measured both ways on one text: with all five base letters present the `ä`
+    is not a repeat, and with the plain `a` removed it does not supply one.
+    """
+    both = check("supervocalic", "Rätsel bloß im Duft, Stadt", lang="de", fold_diacritics=False)
+    assert both.satisfied
+    assert both.metrics["excess"] == 0.0
+
+    without_a = check("supervocalic", "Rätsel bloß im Duft", lang="de", fold_diacritics=False)
+    assert not without_a.satisfied
+    assert [v.rule for v in without_a.violations] == ["missing_vowel"]
+
+
 def test_english_is_unchanged() -> None:
     assert check("supervocalic", "facetious", lang="en").satisfied

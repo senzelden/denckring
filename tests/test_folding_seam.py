@@ -75,10 +75,15 @@ def test_telestich_inherits_the_flattened_target() -> None:
 
 
 def test_a_double_acrostic_target_flattens_on_both_edges() -> None:
+    """Both targets carry a `ß`, deliberately. An ASCII `last` passes unchanged
+    under the unflattened code, so it could not show the second edge was fixed:
+    with `last="ßt"` the pre-fix expression yields the two units `["ß", "t"]`
+    and the third line becomes an `extra_line`.
+    """
     assert check(
         "double_acrostic",
         "sonnes\nsehrs\ntanzt",
         lang="de",
         first="ßt",
-        last="sst",
+        last="ßt",
     ).satisfied

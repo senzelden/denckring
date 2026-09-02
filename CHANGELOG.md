@@ -691,6 +691,14 @@ All notable changes to this project are documented here. The format follows
   coverage figure in ADRs 0025 through 0032 was recorded against. `catalogue.ids()`
   unnarrowed still returns both layers: `list`, `search` and `export` describe the whole
   dataset, and only the counters read one layer at a time.
+- **`LanguagePack.vowel_inventory()`**, the base vowel letters a language names, split out
+  of `vowels()` — which answers a different question and therefore carries the accented
+  forms. All three packs inherit `aeiou` and none overrides. `vowels()` keeps its name and
+  its meaning because `word_ladder` widens an alphabet with it and asks nothing about
+  vowelhood. The third reading the one method was conflating — a contextual, phonetic
+  classification, where `y` in `yoyo` is a consonant — is designed and deliberately **not**
+  built: ADR 0035 D2 licenses it for `spoonerism` alone, the one row declaring `phonemes`,
+  and D5 records that `_letter_onset` still splits on flat `vowels()` membership until then.
 
 ### Changed
 
@@ -1010,5 +1018,36 @@ All notable changes to this project are documented here. The format follows
   anyone who types a word the way people write one. Fixed at the spine rather than in
   `anagram`, because the rule is the spine's and belongs in one place. See **Changed**
   for the one existing result this moves.
+- **The diacritic fold applied to the text but not to the parameter compared against it**,
+  so `vowel="ä"`, `vowels="äö"` and a `ß` acrostic target were unsatisfiable in German
+  under the **default** `fold_diacritics: true`, and the violation mixed a folded `found`
+  with an unfolded `expected`. Worse, `slenderizing`'s generated output failed its own
+  checker: `_produce` kept a character when `fold_diacritics(ch).lower() != deleted`, and
+  `ß` folds to `ss`, so `ß` always survived a deletion `_check` then required — `apply`
+  gave `Die traße war groß.` and its own check scored that **0.412 with seven violations**.
+  `core.text.fold_letter` is the parameter-side twin of `letter_spans` and is now applied
+  at every such comparison; a target that is a phrase is flattened, so a `ß` claims the two
+  units its two letters need. The acrostic family is three rows, not two: `telestich`
+  inherits from `Acrostic`, `double_acrostic` keeps its own copy of the expression.
+  ADR 0035 D3 and D6.
+- **A single-letter parameter that folds to several characters is now refused by name.**
+  `consonant="ß"` compared a two-character `expected` against a one-character `got` and
+  could never be satisfied; `single_letter()` raises `InvalidParams` saying what it folded
+  to and naming `fold_diacritics: false`, which genuinely works. This replaces
+  `slenderizing`'s `degenerate_output` advising `allow_identity=true`, which named neither
+  the cause nor a remedy and would have returned the untouched text as a slenderizing.
+  ADR 0035 D4.
+- **`supervocalic` required every accented vowel letter its pack names — eight in German,
+  twenty-one in French — against a published definition that says five.** Folded text can
+  never contain an umlaut, so `ä ö ü` were permanently missing while inflating `a o u` into
+  repeats: no German or French text could satisfy the row at all. `vowel_inventory()` is
+  the reading it wanted. ADR 0035 D1.
+- **`slenderizing` was unexercised twice over** — in `PARAMETER_GATED` in
+  `tests/test_round_trip.py` *and* pinning `lang: en` at file level in its golden file — so
+  the row that broke the project's thesis was the one row neither net could see. A
+  structural guard now holds those two facts together for every gated row that declares
+  `fold_diacritics`, and `tests/test_fold_symmetry.py` states the invariant the whole seam
+  violated once rather than per row: a verdict on folded input with folding on must agree
+  with the verdict on pre-folded input with folding off.
 
 [Unreleased]: https://github.com/senzelden/denckring/commits/main

@@ -91,6 +91,7 @@ nav:
       - "32. The French lexicon": adr/0032-the-french-lexicon.md
       - "33. The catalogue has two layers": adr/0033-the-layer-split.md
       - "34. French verse is counted a line at a time": adr/0034-french-prosody.md
+      - "35. A letter has two readings, and `requires` says which": adr/0035-orthographic-and-phonetic-readings.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 
