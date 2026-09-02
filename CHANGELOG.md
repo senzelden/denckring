@@ -694,8 +694,9 @@ All notable changes to this project are documented here. The format follows
 - **`LanguagePack.vowel_inventory()`**, the base vowel letters a language names, split out
   of `vowels()` — which answers a different question and therefore carries the accented
   forms. All three packs inherit `aeiou` and none overrides. `vowels()` keeps its name and
-  its meaning because `word_ladder` widens an alphabet with it and asks nothing about
-  vowelhood. The third reading the one method was conflating — a contextual, phonetic
+  its meaning because `word_ladder._alphabet` widens an alphabet with it and asks nothing
+  about vowelhood; the five other call sites do ask, and keep the written set, which is the
+  orthographic reading ADR 0035 D2 entitles them to. The third reading the one method was conflating — a contextual, phonetic
   classification, where `y` in `yoyo` is a consonant — is designed and deliberately **not**
   built: ADR 0035 D2 licenses it for `spoonerism` alone, the one row declaring `phonemes`,
   and D5 records that `_letter_onset` still splits on flat `vowels()` membership until then.

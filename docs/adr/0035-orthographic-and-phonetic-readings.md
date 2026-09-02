@@ -66,13 +66,17 @@ answered so far.** Reading its call sites finds three:
 
 | method | returns | consumers |
 |---|---|---|
-| `vowels()` | every character *written* as a vowel, accented forms included | `word_ladder:93`, which widens an alphabet with it |
+| `vowels()` | every character *written* as a vowel, accented forms included | `word_ladder._alphabet`, `univocalic`, `bivocalic`, `monoconsonantal`, `source_compare` (`homoconsonantism`, `homovocalism`) and `spoonerism._letter_onset` — **six call sites across seven rows, two questions**, see Consequences |
 | `vowel_inventory()` | the base vowel letters the language names | `supervocalic` alone |
 | a contextual classifier | one class per character, **phonetically** | `spoonerism` alone — **not built**, see D5 |
 
-`vowels()` keeps its name and its meaning because `word_ladder` asks no question about
-vowelhood at all: it wants the diacritic variants a ladder step may be, and renaming the
-method would make that call site read as a classification it is not.
+`vowels()` keeps its name and its meaning because of the first of those call sites:
+`word_ladder._alphabet` asks no question about vowelhood at all — it wants the diacritic
+variants a ladder step may be — and renaming the method would make that site read as a
+classification it is not. The other five sites, serving six rows, do ask a classification
+question, and get the orthographic answer, which is the one D2 says they are entitled to.
+So this split takes one of the three readings out of `vowels()` and leaves two behind it;
+the Consequences say what that costs.
 
 `vowel_inventory()` lives on `LanguagePack` with a `BasePack` default that folds the
 written set and removes the ambiguous letters (`_AMBIGUOUS = frozenset("yÿ")`). **All
@@ -177,11 +181,12 @@ definition that says five, and it is also a rule nobody would guess from the out
 `tests/test_vowel_inventory.py` measures both halves so it cannot drift silently.
 
 **`vowels()` still answers two questions, not one.** D1 split off the inventory and leaves
-`univocalic`, `bivocalic`, `monoconsonantal` and the two `source_compare` rows reading the
-written set to decide which letters in a text *are* vowels. That is the reading D2 says
-they are entitled to, so it is correct — but the method's name still covers two readings,
-and the next person to add a consumer has only this record to tell them which one they are
-getting.
+`univocalic`, `bivocalic`, `monoconsonantal`, the two `source_compare` rows and
+`spoonerism._letter_onset` reading the written set to decide which letters in a text *are*
+vowels, beside `word_ladder._alphabet`, which asks something else entirely. Both readings
+are the ones those rows are entitled to under D2, so both are correct — but the method's
+name still covers two questions, and the next person to add a consumer has only this
+record to tell them which one they are getting.
 
 **`denckring eval --all` goes from 487 to 495 passing cases and `denckring status` does
 not move**, staying `155 · 130 · 121 · 121 · 25` and `0 instruments catalogued`. This
