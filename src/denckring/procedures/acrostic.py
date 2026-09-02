@@ -9,7 +9,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, line_spans, word_spans
+from denckring.core.text import fold_letter, letter_spans, line_spans, word_spans
 
 
 class AcrosticParams(DiacriticParams):
@@ -45,10 +45,15 @@ class Acrostic(BaseProcedure[AcrosticParams]):
         return line_spans(text) if unit == "line" else word_spans(text, pack)
 
     def _check(self, text: str, pack: LanguagePack, params: AcrosticParams) -> Report:
+        # Flattened, not one entry per source character: `ß` folds to two
+        # letters and the text side already spends two units on it, so a
+        # per-character expectation compared a two-letter "ss" against a
+        # one-character got. ADR 0035, D3.
         expected = [
-            pack.fold_diacritics(ch) if params.fold_diacritics else ch.lower()
+            letter
             for ch in params.target
             if ch.isalpha()
+            for letter in fold_letter(ch, pack, fold=params.fold_diacritics)
         ]
         actual: list[tuple[int, str]] = []
         for offset, unit_text in self._units(text, pack, params.unit):

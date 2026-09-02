@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, line_spans
+from denckring.core.text import fold_letter, letter_spans, line_spans
 
 
 class DoubleAcrosticParams(DiacriticParams):
@@ -39,8 +39,21 @@ class DoubleAcrostic(BaseProcedure[DoubleAcrosticParams]):
             for offset, line in line_spans(text)
             if (letters := letter_spans(line, pack, fold=fold))
         ]
-        wanted_first = [ch.lower() for ch in params.first if ch.isalpha()]
-        wanted_last = [ch.lower() for ch in params.last if ch.isalpha()]
+        # The same flattening as `acrostic`, ADR 0035 D3: one target letter
+        # can fold to more than one character, and each must claim its own
+        # line rather than being compared whole against a single letter.
+        wanted_first = [
+            letter
+            for ch in params.first
+            if ch.isalpha()
+            for letter in fold_letter(ch, pack, fold=fold)
+        ]
+        wanted_last = [
+            letter
+            for ch in params.last
+            if ch.isalpha()
+            for letter in fold_letter(ch, pack, fold=fold)
+        ]
         expected_length = max(len(wanted_first), len(wanted_last))
 
         violations: list[Violation] = []
