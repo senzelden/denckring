@@ -11,3 +11,19 @@ cases:
     text: ab ec id of
     params: {}
     satisfied: false
+  - name: german-umlaut-supplies-the-a
+    lang: de
+    source: >-
+      constructed example; the row required ä ö ü, which folded text can never
+      contain, so no German text could satisfy it at all (ADR 0035)
+    text: Rätsel bloß im Duft
+    params: {}
+    satisfied: true
+  - name: french-does-not-require-y
+    lang: fr
+    source: >-
+      constructed example; French vowels() has 21 members and the published
+      definition says five
+    text: Le mot du jardin
+    params: {}
+    satisfied: true

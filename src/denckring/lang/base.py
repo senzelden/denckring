@@ -33,6 +33,17 @@ WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)  # noqa: RUF0
 #: than through `BaseProcedure.check`, which knows what it is checking.
 DIRECT_CALL = "<direct call>"
 
+#: Letters that are vowels in some positions and consonants in others, so they
+#: belong to no inventory: `y` in all three languages, and French's `ÿ` which
+#: folds to it. `supervocalic` publishes "each of the five vowels", and `y` is
+#: not one of the five in any of them — French lists it among its vowels but
+#: writes `yeux` with it as /j/. ADR 0035, D1.
+#:
+#: Deliberately NOT the same set as a pack's glide inventory, which is wider
+#: (English `y w u i o`): removing those from the inventory would leave English
+#: requiring `a` and `e` alone.
+_AMBIGUOUS = frozenset("yÿ")
+
 
 class BasePack:
     """Shared behaviour. A method whose capability is undeclared must raise."""
@@ -62,6 +73,26 @@ class BasePack:
 
     def vowels(self) -> frozenset[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, ALPHABET)
+
+    def vowel_inventory(self) -> frozenset[str]:
+        """The base vowel letters, one of each of which a supervocalic needs.
+
+        Distinct from `vowels()`, which answers which characters are written as
+        vowels and therefore carries the accented forms — the reading
+        `word_ladder` needs to widen an alphabet. `supervocalic` publishes "each
+        of the five vowels exactly once" and folded text can never contain an
+        umlaut, so requiring the accented forms made the row unsatisfiable in
+        German and French (ADR 0035, D1).
+
+        Folds *before* removing the ambiguous letters, and the order is
+        load-bearing: measured, removing `y` without folding first answers eight
+        for German and nineteen for French. All three packs inherit `aeiou` and
+        none overrides.
+        """
+        return (
+            frozenset({folded for ch in self.vowels() for folded in self.fold_diacritics(ch)})
+            - _AMBIGUOUS
+        )
 
     def ascenders(self) -> frozenset[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, LETTER_SHAPES)
