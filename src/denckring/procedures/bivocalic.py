@@ -54,6 +54,7 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
                     fold=params.fold_diacritics,
                     procedure_id=self.id,
                     field="vowels",
+                    whole=params.vowels,
                 )
                 for ch in params.vowels
             }

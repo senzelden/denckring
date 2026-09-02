@@ -85,12 +85,23 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     def _produce(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> Produced:
         """Strike the letter out of `text` and let the rest close up.
 
-        Goes through the same letter model as `_check` — `letter_spans`, and the
-        same folded `deleted` — because comparing a folded character against an
-        unfolded parameter is what let `ß` survive a deletion the checker then
-        required, breaking the round trip in German under default parameters
-        (ADR 0035, D6). A character is dropped when *any* letter it folds to is
-        the deleted one, which is what makes `ß` go with `s`.
+        Folds `deleted` the way `_check` folds it, and decides per source
+        character by looking at *every* letter that character folds to — which
+        it must, because `_check` works on the flattened letter stream and
+        drops only the letters that match:
+
+        - none of them is `deleted`: keep the source character untouched, so
+          case and the ligature itself survive;
+        - all of them are: drop it, which is what takes `ß` out with `s`;
+        - some but not all: emit the survivors, folded, because there is no
+          single character left that spells them.
+
+        Dropping the whole character whenever *any* of its letters matched was
+        the earlier rule. It agrees with `_check` only for a uniform fold, and
+        `œ` is not uniform: `apply("Le cœur et la sœur", lang="fr",
+        deleted="e")` gave `L cur t la sur`, whose own check scored 0.167 —
+        the same broken thesis as the `ß` case one language over (ADR 0035,
+        D6).
 
         No seed: there is exactly one slenderizing of a text for a given letter,
         which is why this generator takes no choices at all.
@@ -99,12 +110,14 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
         deleted = single_letter(
             params.deleted, pack, fold=fold, procedure_id=self.id, field="deleted"
         )
-        return plain(
-            [
-                "".join(
-                    ch
-                    for ch in text
-                    if not ch.isalpha() or deleted not in fold_letter(ch, pack, fold=fold)
-                )
-            ]
-        )
+        out: list[str] = []
+        for ch in text:
+            if not ch.isalpha():
+                out.append(ch)
+                continue
+            letters = fold_letter(ch, pack, fold=fold)
+            if deleted not in letters:
+                out.append(ch)
+            else:
+                out.append("".join(letter for letter in letters if letter != deleted))
+        return plain(["".join(out)])

@@ -74,6 +74,7 @@ version of this paragraph named `paragram` alone. The count was measured over
 
 from pathlib import Path
 
+import yaml
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -423,8 +424,6 @@ def test_every_gated_folding_row_has_a_non_default_language_case() -> None:
     and requires only `tokens`, its whole mechanism being a caller-supplied
     table, so a German case there would assert nothing.
     """
-    import yaml
-
     for pid in sorted(PARAMETER_GATED):
         if "fold_diacritics" not in all_procedures()[pid].meta.requires:
             continue

@@ -25,3 +25,27 @@ cases:
     text: Die traße war groß.
     params: { source: Die Straße war groß., deleted: s }
     satisfied: false
+  - name: oe-ligature-loses-only-its-e
+    lang: fr
+    source: >-
+      constructed example; œ folds to oe, so deleting e must leave the o standing
+      where deleting s takes the whole ß — the mixed fold ADR 0035 D6 turns on
+    text: L cour t la sour
+    params: { source: Le cœur et la sœur, deleted: e }
+    satisfied: true
+  - name: oe-ligature-dropped-whole-while-deleting-e
+    lang: fr
+    source: >-
+      constructed counterexample; this is what apply produced when it dropped a
+      character whenever any letter it folds to matched
+    text: L cur t la sur
+    params: { source: Le cœur et la sœur, deleted: e }
+    satisfied: false
+  - name: oe-ligature-loses-only-its-o
+    lang: fr
+    source: >-
+      constructed example; the other half of the same ligature, where the old code
+      refused with degenerate_output rather than answering
+    text: Le ceur et la seur
+    params: { source: Le cœur et la sœur, deleted: o }
+    satisfied: true
