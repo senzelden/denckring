@@ -283,7 +283,13 @@ def show_command(
 def status_command(as_json: Annotated[bool, typer.Option("--json")] = False) -> None:
     """Print catalogue coverage — the project metric."""
     coverage = harness.status()
-    typer.echo(coverage.model_dump_json(indent=2) if as_json else coverage.line())
+    if as_json:
+        typer.echo(coverage.model_dump_json(indent=2))
+        return
+    typer.echo(coverage.line())
+    typer.echo(coverage.instrument_line())
+    # ADR 0033 D3: two counters, and `eval` prints only the first. Its line summarises
+    # a run over golden cases, and an instrument has none to run.
 
 
 @app.command("eval")
