@@ -72,6 +72,8 @@ version of this paragraph named `paragram` alone. The count was measured over
 `anagram` turns out to have been live all along — the flat draw reaches it too.
 """
 
+from pathlib import Path
+
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -83,12 +85,15 @@ from hypothesis import strategies as st
 # dropping the check: `test_the_flat_draw_keeps_half_the_branches` explains what it buys.
 from hypothesis.strategies._internal.strategies import OneOfStrategy
 
+import denckring.eval as _eval
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import DegenerateOutput, DenckringError
 from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
 
 CONSTRUCTIVE = sorted(pid for pid, p in all_procedures().items() if isinstance(p, Constructive))
+
+FIXTURES = Path(_eval.__file__).parent / "fixtures"
 
 #: The newline is deliberate: half the constructive rows operate on lines or pages and
 #: cannot be reached at all without one. The bar and the full stop are deliberate for
@@ -404,3 +409,31 @@ def test_apply_is_deterministic_under_a_fixed_seed(text: str) -> None:
         except DenckringError:
             continue
         assert first == procedure.apply(text, lang=lang, **_apply_args(procedure_id, 7))
+
+
+def test_every_gated_folding_row_has_a_non_default_language_case() -> None:
+    """A `PARAMETER_GATED` row is invisible to the property above, so its golden
+    file is the only net it has — and a golden file pinning one language is not a
+    net at all for a row whose defect is language-shaped.
+
+    `slenderizing` was gated *and* fixtured `lang: en` at file level with two
+    ASCII cases, so the row excluded from the safety net was the row that broke,
+    and the gate stayed green. Narrowed to rows declaring `fold_diacritics`,
+    because that is what makes a row language-shaped: `pasigraphy` is gated too
+    and requires only `tokens`, its whole mechanism being a caller-supplied
+    table, so a German case there would assert nothing.
+    """
+    import yaml
+
+    for pid in sorted(PARAMETER_GATED):
+        if "fold_diacritics" not in all_procedures()[pid].meta.requires:
+            continue
+        path = FIXTURES / "golden" / f"{pid}.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        default = data.get("lang", "en")
+        languages = {case.get("lang", default) for case in data["cases"]}
+        assert languages != {default}, (
+            f"{pid} is parameter-gated out of the round-trip property and its golden "
+            f"file only exercises {default!r}; the property cannot see it and neither "
+            f"can the fixtures"
+        )

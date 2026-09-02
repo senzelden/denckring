@@ -13,7 +13,7 @@ from denckring.core.base import (
 )
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import fold_letter, letter_spans, single_letter
 
 
 class SlenderizingParams(SourceParams, DiacriticParams):
@@ -43,9 +43,10 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
 
     def _check(self, text: str, pack: LanguagePack, params: SlenderizingParams) -> Report:
         fold = params.fold_diacritics
-        expected = [
-            ch for _, ch in letter_spans(params.source, pack, fold=fold) if ch != params.deleted
-        ]
+        deleted = single_letter(
+            params.deleted, pack, fold=fold, procedure_id=self.id, field="deleted"
+        )
+        expected = [ch for _, ch in letter_spans(params.source, pack, fold=fold) if ch != deleted]
         actual = [ch for _, ch in letter_spans(text, pack, fold=fold)]
         violations: list[Violation] = []
         matched = 0
@@ -84,15 +85,26 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     def _produce(self, text: str, pack: LanguagePack, params: SlenderizingApplyParams) -> Produced:
         """Strike the letter out of `text` and let the rest close up.
 
+        Goes through the same letter model as `_check` — `letter_spans`, and the
+        same folded `deleted` — because comparing a folded character against an
+        unfolded parameter is what let `ß` survive a deletion the checker then
+        required, breaking the round trip in German under default parameters
+        (ADR 0035, D6). A character is dropped when *any* letter it folds to is
+        the deleted one, which is what makes `ß` go with `s`.
+
         No seed: there is exactly one slenderizing of a text for a given letter,
         which is why this generator takes no choices at all.
         """
+        fold = params.fold_diacritics
+        deleted = single_letter(
+            params.deleted, pack, fold=fold, procedure_id=self.id, field="deleted"
+        )
         return plain(
             [
                 "".join(
                     ch
                     for ch in text
-                    if not ch.isalpha() or pack.fold_diacritics(ch).lower() != params.deleted
+                    if not ch.isalpha() or deleted not in fold_letter(ch, pack, fold=fold)
                 )
             ]
         )
