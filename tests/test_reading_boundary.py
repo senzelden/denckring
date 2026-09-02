@@ -8,9 +8,9 @@ makes each of the words below a univocalic, which no Word Ways editor accepts.
 
 This is the test that fails if such a rule is ever wired into these rows. It
 guards a boundary rather than an implementation, so it holds whether or not the
-phonetic reading has been built — and it has not been: `letter_classes()` is
-deferred, and `spoonerism` still splits an onset on flat `vowels()` membership.
-ADR 0035, D2.
+phonetic reading has been built — and it has not been: the contextual
+classifier is deferred (ADR 0035, D5) and `spoonerism` still splits an onset on
+flat `vowels()` membership. ADR 0035, D2.
 """
 
 from denckring import check
