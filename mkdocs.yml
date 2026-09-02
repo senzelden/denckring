@@ -100,10 +100,13 @@ nav:
 not_in_nav: |
   gallery/*.md
 
-# Specs and plans are working documents, not publications.
+# Specs, plans, audits and handovers are working documents, not publications.
+# `expansion_ideas/` joined them late: `tests/test_packaging.py` had already kept it
+# out of the sdist on this reasoning while `gh-deploy` would still have published it.
 exclude_docs: |
   superpowers/
   seed/
   audit/
+  expansion_ideas/
 
 strict: true
