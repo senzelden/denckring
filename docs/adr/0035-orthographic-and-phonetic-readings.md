@@ -113,11 +113,20 @@ whether or not the phonetic reading exists.
 
 **D3. The parameter side folds the way the text side folds.** `core/text.py` gains
 `fold_letter(ch, pack, *, fold)`, the parameter-side twin of `letter_spans`, applied at
-every site that compares a parameter against a folded text. `fold_diacritics: false` stops
-being the workaround it was. A target that is a phrase rather than a single letter is
-*flattened*, so a `ß` claims the two units its two letters need: `acrostic`, `telestich`
-by inheritance, and `double_acrostic`, which keeps its own copy of the expression and had
-to be fixed separately — which is why the sweep's two acrostic rows are three.
+**the seven rows this decision covers** — `univocalic`, `bivocalic`, `monoconsonantal`,
+`slenderizing`, and the acrostic family. Not at every comparison of a parameter against
+folded text in the library; the rows that still do not fold are listed under *Known
+remaining*, and this decision does not reach them. `fold_diacritics: false` stops being
+the workaround it was **for these seven**.
+
+A target that is a phrase rather than a single letter is *flattened*, so a `ß` claims the
+two units its two letters need: `acrostic`, `telestich` by inheritance, and
+`double_acrostic`, which kept its own copy of the expression and had to be fixed
+separately — which is why the sweep's two acrostic rows are three. The flatten itself is
+`fold_target(value, pack, *, fold)` beside `fold_letter`, and all three sites call it:
+leaving three copies of the expression while *Alternatives considered* rejects
+per-checker folding as "five checkers, five chances to differ" would have been the
+rejected alternative written in smaller print.
 
 **D4. A single-letter parameter that folds to several characters is refused, by name.**
 `single_letter()` raises `InvalidParams` naming the field, the value, what it folded to,
@@ -140,9 +149,55 @@ splits on flat `vowels()` membership, so French `yoyo` still has an empty onset 
 English `myth` is still entirely onset. That is a known-wrong approximation that continues
 to ship, and D2 is the reason it is the *only* place the fix would be allowed to land.
 
-**D6. `slenderizing`'s `_produce` goes through the same letter model as `_check`.** D3
-applied to a generator. It is what restores the thesis for that row, and its round-trip is
-now exercised in German rather than only in the English its fixture pinned.
+**D6. `slenderizing`'s `_produce` decides per source character by looking at every letter
+that character folds to.** D3 applied to a generator, and stated at that precision because
+the weaker version of it was wrong. Folding `deleted` is necessary and not sufficient: the
+first fix dropped a source character whenever *any* letter it folds to was `deleted`, which
+agrees with `_check` only when a fold is uniform. `ß` → `ss` is uniform; `œ` → `oe` is not,
+and `apply("Le cœur et la sœur", lang="fr", deleted="e")` returned `L cur t la sur`, which
+its own checker scored **0.167, unsatisfied** — the German defect one language over, in the
+fix for it. The rule is three-way:
+
+| the character's folded letters | `_produce` emits |
+|---|---|
+| none is `deleted` | the source character, untouched — case and the ligature survive |
+| all are `deleted` | nothing; this is what takes `ß` out with `s` |
+| some are | the survivors, folded, since no single character spells them |
+
+`œ` under `deleted="o"` is the sharper case: the old code raised `DegenerateOutput`, an
+honest refusal, and the first fix turned that into text failing its own checker — a
+regression, not a shortfall. Both now round-trip at 1.0 (`L cour t la sour`,
+`Le ceur et la seur`), pinned by French tests and a golden case beside the German ones.
+
+## Known remaining
+
+**Five more rows declare `fold_diacritics` and still compare an unfolded parameter against
+folded text.** They are out of scope here — this record fixes the seven the sweep filed —
+but an unqualified "every such comparison" would have been false, so they are named.
+Reproduced on this branch, at **default** parameters:
+
+| row | call | verdict |
+|---|---|---|
+| `lipogram` | `("Rätsel", lang="de", forbidden="ä")` | **`satisfied=True`, score 1.0** |
+| `pangrammatic_lipogram` | a German pangram containing `ä`, `forbidden="ä"` | **`satisfied=True`, score 1.0** |
+| `tautogram` | `("Ähre Ähnlich Ärmel", lang="de", initial="ä")` | three `wrong_initial`, score 0.0 |
+| `homoteleuton` | `("café passé", lang="fr", final="é")` | two `wrong_final`, score 0.0 |
+| `abecedarian` | `("ähnlich bald cool", lang="de", start="ä")` | `satisfied=True` — and vacuous |
+
+**`lipogram` is the serious one**, with `pangrammatic_lipogram` the same shape behind it: a
+lipogram is a claim of *absence*, so an unfolded `forbidden` inverts the verdict rather
+than refusing it. The text plainly contains the letter and the row says it does not. The
+other three fail closed — annoying, honest. `abecedarian` fails neither way: `"ä"` is not
+in `alphabet()`, `alphabet.index` is guarded, so `first` falls back to `0` and `start="ä"`
+is silently `start="a"`; both spellings return the identical report, which is what makes it
+vacuous rather than wrong.
+
+`beau_present`, `belle_absente` and `letter_bank` were checked and are fine — they fold
+their parameter as *text*, through `letter_spans`, so they never had the seam.
+
+Sweeping these is its own chapter, and it is not only a fold: `lipogram` reaches
+`serial_lipogram` and `pangrammatic_lipogram`, `abecedarian` needs a decision about a
+parameter its alphabet does not contain, and each is a verdict change wanting golden cases.
 
 ## Consequences
 
@@ -174,6 +229,15 @@ than callers previously met: a script that passed `consonant="ß"` and read `sat
 now gets an exception instead of `false`. The message names the remedy, and the remedy
 works, which is the whole difference from the error it replaces.
 
+**`slenderizing.apply(..., fold_diacritics=false)` now refuses where it used to return
+text.** The old `_produce` ignored the parameter and always folded, so
+`apply("Bäh", lang="de", deleted="a", fold_diacritics=False)` returned `"Bh"` — deleting a
+letter the caller had just said not to fold `ä` into. It now raises `DegenerateOutput`,
+because with folding off `ä` is `ä`, the text contains no `a`, and the slenderizing of it
+is the text itself. That is the answer `_check` gives, so the two agree for the first time;
+it is still a behaviour change nobody asked for, arriving in a bug fix, and a caller
+reading `fold_diacritics: false` as the safe setting will meet it.
+
 **With folding off, an accented vowel is inert in `supervocalic`.** The inventory is
 always the folded `aeiou`, while `ä` stays `ä` in the text — so it neither supplies the
 `a` the row requires nor counts as a repeat of one. That is the intended reading of a
@@ -188,7 +252,7 @@ are the ones those rows are entitled to under D2, so both are correct — but th
 name still covers two questions, and the next person to add a consumer has only this
 record to tell them which one they are getting.
 
-**`denckring eval --all` goes from 487 to 495 passing cases and `denckring status` does
+**`denckring eval --all` goes from 487 to 498 passing cases and `denckring status` does
 not move**, staying `155 · 130 · 121 · 121 · 25` and `0 instruments catalogued`. This
 chapter adds no catalogue row and implements no procedure; it fixes six that were already
 counted as implemented, which is precisely the kind of change the coverage line cannot
@@ -198,7 +262,9 @@ see.
 
 **Folding the parameter inside each checker.** Five checkers, five chances to differ, and
 the two acrostic rows had already proved the point by diverging with one copy each of the
-same expression. `fold_letter` is one function on the seam that already owns folding.
+same expression. `fold_letter` and `fold_target` are two functions on the seam that
+already owns folding — `fold_target` because the first pass at this decision left the
+flatten copied three times, which is the rejected alternative at one third the scale.
 
 **Leaving `fold_diacritics: false` as the documented workaround.** It is what the sweep
 found callers doing, and it is a per-call instruction to disable a default that exists
