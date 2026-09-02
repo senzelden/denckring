@@ -11,3 +11,17 @@ cases:
     text: brat
     params: { source: brat, deleted: r }
     satisfied: false
+  - name: eszett-goes-with-the-s
+    lang: de
+    source: >-
+      constructed example; ß casefolds to ss, so a text deleting s must lose the
+      ß too — the disagreement between apply and check that ADR 0035 D6 fixed
+    text: Die trae war gro.
+    params: { source: Die Straße war groß., deleted: s }
+    satisfied: true
+  - name: eszett-kept-while-deleting-s
+    lang: de
+    source: constructed counterexample; this is exactly what apply used to produce
+    text: Die traße war groß.
+    params: { source: Die Straße war groß., deleted: s }
+    satisfied: false
