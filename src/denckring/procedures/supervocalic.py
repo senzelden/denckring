@@ -16,7 +16,12 @@ class SupervocalicParams(DiacriticParams):
 
 @register
 class Supervocalic(BaseProcedure[SupervocalicParams]):
-    """Every vowel once and once only, so an empty text supplies none of them."""
+    """Every vowel once and once only, so an empty text supplies none of them.
+
+    Reads `vowel_inventory()` rather than `vowels()`: the latter carries the
+    accented forms, which folded text can never contain, so this row was
+    unsatisfiable in German and French (ADR 0035, D1).
+    """
 
     id = "supervocalic"
 
@@ -25,7 +30,7 @@ class Supervocalic(BaseProcedure[SupervocalicParams]):
         return SupervocalicParams
 
     def _check(self, text: str, pack: LanguagePack, params: SupervocalicParams) -> Report:
-        vowel_set = pack.vowels()
+        vowel_set = pack.vowel_inventory()
         counts = Counter(
             ch for _, ch in letter_spans(text, pack, fold=params.fold_diacritics) if ch in vowel_set
         )
