@@ -25,15 +25,18 @@ ROOT = Path(__file__).resolve().parent.parent
 #: `uv.lock`, the catalogue and four planning documents are the six largest members and
 #: none of them is data.
 #:
-#: **1,200,000 is a trade, and the two halves of it are these.** A clean checkout builds
-#: at 963,222 bytes, so the bound leaves 236,778 for prose — several chapters. The
-#: smallest file this test exists to catch is `graded_words.txt.gz` at 249,917 bytes,
-#: which would land the archive at about 1,213,000; the margin on *that* side is
-#: therefore only ~13,000 bytes. Raising the bound further buys prose headroom by giving
-#: up the ability to catch that file at all, and there is no per-file bound that
-#: separates them — the largest legitimate member, `uv.lock`, is 330,098 bytes, larger
-#: than the smallest data file. Whoever raises this next should raise it knowing which
-#: half they are spending.
+#: **1,200,000 is a trade, and the two halves of it are these.** A clean checkout built
+#: 1,045,247 bytes on 2026-09-02 — measured in a detached worktree, because a build from
+#: the working tree swallows the untracked `undefined/queneau-seams.png` and reads about
+#: 68,000 higher. So the bound leaves ~155,000 for prose, down from 236,778 when it was
+#: set: chapters 5 and 6 spent the difference in ADRs, changelog and plans. The smallest
+#: file this test exists to catch is `graded_words.txt.gz` at 249,917 bytes, which would
+#: now land the archive around 1,295,000 — over the bound by ~95,000, so raising it by
+#: more than that stops catching the file at all. The two halves move against each
+#: other: every chapter of prose shrinks the first and grows the second. There is no
+#: per-file bound that separates them — the largest legitimate member, `uv.lock`, is
+#: 330,512 bytes, larger than the smallest data file. Whoever raises this next should
+#: raise it knowing which half they are spending.
 MAX_SDIST_BYTES = 1_200_000
 
 
