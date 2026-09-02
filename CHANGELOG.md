@@ -696,13 +696,21 @@ All notable changes to this project are documented here. The format follows
   forms. All three packs inherit `aeiou` and none overrides. `vowels()` keeps its name and
   its meaning because `word_ladder._alphabet` widens an alphabet with it and asks nothing
   about vowelhood; the five other call sites do ask, and keep the written set, which is the
-  orthographic reading ADR 0035 D2 entitles them to. The third reading the one method was conflating — a contextual, phonetic
+  orthographic reading ADR 0035 D2 entitles them to. The third reading the one method was
+  conflating — a contextual, phonetic
   classification, where `y` in `yoyo` is a consonant — is designed and deliberately **not**
   built: ADR 0035 D2 licenses it for `spoonerism` alone, the one row declaring `phonemes`,
   and D5 records that `_letter_onset` still splits on flat `vowels()` membership until then.
 
 ### Changed
 
+- **`slenderizing.apply(..., fold_diacritics=false)` now refuses where it used to return
+  text.** The old `_produce` ignored the parameter and always folded, so
+  `apply("Bäh", lang="de", deleted="a", fold_diacritics=False)` returned `"Bh"` — deleting
+  a letter through the very fold the caller had switched off. It now raises
+  `DegenerateOutput`, because with folding off `ä` is `ä`, the text holds no `a`, and the
+  slenderizing of it is the text itself — which is also the answer `_check` gives, so the
+  refusal is the two agreeing for the first time. ADR 0035, Consequences.
 - Twenty-five fillers in `data/devices/poesieautomat_2000.yaml` — published data, CC
   BY 4.0 — replaced, because assembled they read as camp and confinement imagery.
   Twenty-four were of that family: `der Zaun`, `am Zaun`, `Die Mauer`, `Die Sperre`,
@@ -1027,10 +1035,24 @@ All notable changes to this project are documented here. The format follows
   `ß` folds to `ss`, so `ß` always survived a deletion `_check` then required — `apply`
   gave `Die traße war groß.` and its own check scored that **0.412 with seven violations**.
   `core.text.fold_letter` is the parameter-side twin of `letter_spans` and is now applied
-  at every such comparison; a target that is a phrase is flattened, so a `ß` claims the two
-  units its two letters need. The acrostic family is three rows, not two: `telestich`
-  inherits from `Acrostic`, `double_acrostic` keeps its own copy of the expression.
-  ADR 0035 D3 and D6.
+  at **the seven rows this decision covers** — `univocalic`, `bivocalic`,
+  `monoconsonantal`, `slenderizing` and the acrostic family — not at every such comparison;
+  five more are named under *Known remaining* in ADR 0035 and are a chapter of their own.
+  A target that is a phrase is flattened by `core.text.fold_target`, so a `ß` claims the
+  two units its two letters need. The acrostic family is three rows, not two: `telestich`
+  inherits from `Acrostic`, `double_acrostic` kept its own copy of the expression and now
+  shares the one function. ADR 0035 D3 and D6.
+- **`slenderizing`'s generator failed its own checker in French too, and on one letter it
+  had been made worse rather than better.** Folding `deleted` was necessary and not
+  sufficient: dropping a source character whenever *any* letter it folds to matched agrees
+  with `_check` only for a uniform fold, and `œ` → `oe` is not uniform.
+  `apply("Le cœur et la sœur", lang="fr", deleted="e")` returned `L cur t la sur`, scoring
+  **0.167**; `deleted="o"` returned `Le cur et la sur`, scoring **0.214**, where the code
+  before this release raised `DegenerateOutput` — an honest refusal turned into text
+  failing its own checker. The rule is now three-way: keep the source character untouched
+  when none of its letters is `deleted`, drop it when all are, emit the survivors when only
+  some are. Both round-trip at 1.0 (`L cour t la sour`, `Le ceur et la seur`), with three
+  golden cases and French unit tests. ADR 0035 D6.
 - **A single-letter parameter that folds to several characters is now refused by name.**
   `consonant="ß"` compared a two-character `expected` against a one-character `got` and
   could never be satisfied; `single_letter()` raises `InvalidParams` saying what it folded
