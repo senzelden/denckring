@@ -84,10 +84,9 @@ class BasePack:
         umlaut, so requiring the accented forms made the row unsatisfiable in
         German and French (ADR 0035, D1).
 
-        Folds *before* removing the ambiguous letters, and the order is
-        load-bearing: measured, removing `y` without folding first answers eight
-        for German and nineteen for French. All three packs inherit `aeiou` and
-        none overrides.
+        Must fold: measured, skipping the fold entirely answers eight for German
+        and nineteen for French, since `vowels()` there carries the accented
+        forms. All three packs inherit `aeiou` and none overrides.
         """
         return (
             frozenset({folded for ch in self.vowels() for folded in self.fold_diacritics(ch)})

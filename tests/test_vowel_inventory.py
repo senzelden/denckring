@@ -16,9 +16,9 @@ def test_every_pack_names_the_same_five() -> None:
         assert get_pack(lang).vowel_inventory() == frozenset("aeiou")
 
 
-def test_the_default_folds_before_removing_the_ambiguous_letters() -> None:
-    """Measured: removing `y` without folding first answers eight for German and
-    nineteen for French. The order is the whole of the default.
+def test_the_default_folds_at_all() -> None:
+    """Measured: skipping the fold entirely answers eight for German and
+    nineteen for French, since `vowels()` there carries the accented forms.
     """
     assert len(get_pack("de").vowels()) == 8
     assert len(get_pack("fr").vowels()) == 21
