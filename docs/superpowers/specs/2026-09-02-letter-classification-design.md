@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-02
 **Status:** designed, not started
-**Scope:** the two jobs `pack.vowels()` is doing at once, the parameter side of the diacritic fold, and the `slenderizing` generator that fails its own checker
+**Scope:** the three jobs `pack.vowels()` is doing at once, the parameter side of the diacritic fold, and the `slenderizing` generator that fails its own checker
 **Branch point:** `9472ff0` (155 catalogued · 130 implementable · 121 implemented · 121 validated · 25 not mechanically checkable · 0 instruments)
 
 This answers Findings 1 and 2 of the MCP language sweep
@@ -21,7 +21,7 @@ the parameter side does not.
 | `supervocalic` | unsatisfiable — folded text can never contain `ä ö ü` | de, fr |
 | `univocalic` | `vowel: "ä"` unsatisfiable; `found: "a"` against `expected: "ä"` | de |
 | `bivocalic` | `vowels: "äö"` unsatisfiable, same shape | de |
-| `monoconsonantal` | `consonant: "ß"` unsatisfiable; `y` misclassified in French | de, fr |
+| `monoconsonantal` | `consonant: "ß"` unsatisfiable | de |
 | `acrostic` / `telestich` / `double_acrostic` | a `ß` target is unsatisfiable; `expected: "ss"` against a one-character `got` | de |
 | `slenderizing` | **`apply` output fails its own checker** | de |
 
@@ -31,6 +31,10 @@ but it bounds what the fix may claim: **no editorial `languages` value changes h
 
 `kangaroo_word` appears in the sweep's Finding 1 table and is **not** in scope. It points
 at Finding 3, French elision, and belongs with `s_plus_7`.
+
+The sweep also reports French `monoconsonantal("yoyo")` as a defect. **It is not one**,
+and establishing why is the substance of D2: these rows are defined on letters, and a
+letter's phonetic function is a reading they do not declare.
 
 ## The measurements that chose the design
 
@@ -54,16 +58,27 @@ German's eight fold to exactly the five the definition publishes. French folds t
 because `y` is a French vowel letter — so consistent folding alone leaves `supervocalic`
 demanding six against a published *"each of the five vowels exactly once"*.
 
-**The French `yoyo` result is not a vacuity bug.** Both `y` in `yoyo` are /j/ —
-consonants. The defect is that a flat `frozenset` cannot express a letter whose class
-depends on where it sits, and `y` is that letter in all three languages. The candidate
-rule — **`y` is a consonant before a vowel letter and a vowel otherwise** — was measured
-per position and is correct, identically, in en, de and fr:
+**The French `yoyo` result is a convention difference, not a bug — but the phonetics
+behind it are real, and they are far wider than `y`.** Both `y` in `yoyo` are /j/,
+consonants. A flat `frozenset` cannot express a letter whose class depends on position,
+and every one of the three languages has such letters:
+
+| | vowel letters doing consonant work | consonant letters doing vowel work |
+|---|---|---|
+| en | `y w u i` (+ `o`): `yes`/`myth`, `wet`/`cwm`, `quick`, `onion`, `one` | `l m n r` syllabic: `bottle`, `rhythm`, `button`, `bird` |
+| de | `y i`: `Yacht`/`Physik`, `Familie`, `Nation` | `l n r`: `Vogel`, `laufen`, `Vater` |
+| fr | `y i u ou`: `yeux`/`stylo`, `pied`, `huit`, `oui` | — mute `e` carries the syllable |
+
+`rhythm` has two syllables and no vowel letter at all. French `ou` is a **digraph**, which
+is the one item here that does not fit a per-character model.
+
+The candidate rule — **a vowel letter before another vowel letter is a consonant** —
+scored **30 of 34** on those cases:
 
 | word | classes | |
 |---|---|---|
-| `yoyo` | `CVCV` | both `y` consonants — the French defect |
-| `myth` | `CVCC` | `y` a vowel — the **English** defect, same cause |
+| `yoyo` | `CVCV` | both `y` consonants — where the flat set says none |
+| `myth` | `CVCC` | `y` a vowel — where English's flat set says none |
 | `gym` | `CVC` | " |
 | `happy` | `CVCCV` | " |
 | `stylo` | `CCVCV` | French /stilo/ |
@@ -71,10 +86,33 @@ per position and is correct, identically, in en, de and fr:
 | `yeux` | `CVVC` | |
 | `crayon` | `CCVCVC` | the one approximation: `y` does double duty in /kʁɛjɔ̃/ |
 
-**The rule flips zero existing golden cases.** The only fixture text among the affected
-rows containing a `y` is `univocalic`'s `"Persever, ye perfect men, ever keep these
-precepts ten."`, where `ye`'s `y` precedes a vowel and is classed a consonant — exactly
-as today.
+Three of the four misses were probe error — it indexed the first occurrence, so it tested
+the wrong `i` in `million`, `Familie` and `Linie`. The genuine miss is German `Quelle`,
+where `qu` is /kv/.
+
+**But applying that rule to the letter-play rows is measurably wrong**, and this is what
+decided D2:
+
+```
+en onion    vowel letters oio  → oo   UNIVOCALIC in o
+en quick    vowel letters ui   → i    UNIVOCALIC in i
+en million  vowel letters iio  → o    UNIVOCALIC in o
+fr oui      vowel letters oui  → i    UNIVOCALIC in i
+fr huit / lui / nuit           → i    UNIVOCALIC in i
+```
+
+No *Word Ways* editor accepts `onion` as an o-univocalic.
+
+**`en.py` already carries both readings, and already keeps them apart:**
+
+```
+en.py:19  _VOWELS      = frozenset("aeiou")        # letter-play
+en.py:22  _VOWEL_GROUP = re.compile(r"[aeiouy]+")  # syllable counting
+```
+
+The phonetic reading lives in the syllable path, where `_SYLLABIC_LE` already encodes the
+syllabic-consonant class. The flat set is the orthographic reading, and its exclusion of
+`y` is a choice rather than an oversight.
 
 ## Decisions
 
@@ -87,23 +125,44 @@ question at all:
 | `vowels()` | unchanged | every character *written* as a vowel, accented forms included | `word_ladder:93` alphabet widening; the classifier's default |
 | `vowel_inventory()` | new | the base vowel letters the language names — `aeiou` in all three packs | `supervocalic` only |
 | *ambiguous letters* | new | the letters `letter_classes` decides contextually: `y`, and French's `ÿ` | the two methods above |
-| `letter_classes(word)` | new | one `"vowel"`/`"consonant"` per alphabetic character of the unfolded word | `univocalic`, `bivocalic`, `monoconsonantal`, `source_compare`, `spoonerism` |
+| `letter_classes(word)` | new | one `"vowel"`/`"consonant"` per alphabetic character, **phonetically** | `spoonerism` only |
 
 `word_ladder` is the reason `vowels()` keeps both its name and its meaning: it widens an
 alphabet with diacritic variants and asks no question about vowelhood at all. Renaming it
 would make that call site read as a classification it is not.
 
-**D2. The contextual `y` rule lives in `BasePack`, and it changes English.** One rule for
-three languages, because it measured identical in all three. English today treats `y` as
-never a vowel, so `myth`, `gym` and `happy` gain a vowel under this rule.
+`univocalic`, `bivocalic`, `monoconsonantal` and `source_compare`'s two rows
+(`homoconsonantism`, `homovocalism`) keep the flat `vowels()` reading — see D2.
 
-*The cost, stated plainly:* this is a verdict change in English on texts no fixture
-covers, in the most-covered language, and the sweep's own lesson is that golden fixtures
-cannot see the parameter space around them. Zero measured flips is evidence, not proof.
-The alternative — French-only, the ADR 0034 `line_syllables` pattern that changes nothing
-by construction — was rejected because it would knowingly leave `myth` with no vowels in
-English while fixing the identical defect in French, and this project treats a
-half-applied rule as a defect rather than a caution.
+**D2. The contextual rule is licensed by `phonemes`, so it goes to `spoonerism` alone.**
+The split is by row, not by language.
+
+`univocalic`, `bivocalic`, `monoconsonantal` and `supervocalic` are `family: letter`,
+sourced to Bombaugh (1867) and *Word Ways*, and declare
+`requires: [tokens, alphabet, fold_diacritics]` — **no `phonemes`**. `homoconsonantism`
+and `homovocalism`, the two `source_compare` rows, declare the same. A glide rule in any
+of them is a row making a pronunciation judgement while advertising that it works on
+letters alone: the defect class ADR 0030 fixed twice in one day. The measurement above
+is what it costs — `onion`, `quick`, `million`, `oui`, `huit`, `lui` and `nuit` all become
+univocalics.
+
+`spoonerism` is the one consumer that declares `phonemes`, and `_letter_onset` already
+calls itself "a written stand-in for the phonetic boundary it cannot reconstruct" and
+already labels itself an approximation. The rule belongs there, where it is both correct
+and licensed, and it should carry the **whole** glide inventory rather than `y` alone:
+en `y w u i o`, de `y i`, fr `y i u ou`.
+
+*The cost, stated plainly:* French `monoconsonantal("yoyo")` keeps reporting
+`consonants: 0`. Under French orthographic convention `y` is a vowel letter, so that is
+the consistent answer for a row defined on letters — but it is consistent, not obviously
+right, and a caller who reads `yoyo` as /jojo/ will disagree. It also leaves en and fr
+answering differently for the same text, which is a convention difference this design
+declines to erase. Whether a text with zero consonants should satisfy `monoconsonantal`
+at all is a separate verdict question, deliberately not settled here.
+
+*Rejected:* one rule in `BasePack` for all three languages. It measured correct
+linguistically and flipped zero golden cases, but zero flips is evidence rather than
+proof, and correctness for the phonetics is not licence for rows defined on orthography.
 
 **D3. The parameter side folds the way the text side folds.** A `fold_letter` helper in
 `core/text.py`, applied at every site comparing a parameter against `letter_spans` output.
@@ -124,6 +183,12 @@ every violation they emit.
 cross a word boundary. Classification runs on the **unfolded** word — `ß` is a consonant
 whether or not it has become `ss` — and a character folding to several letters gives its
 class to each of them.
+
+French `ou` is a **digraph**: /w/ in `oui`, `ouest`, `Louis` is carried by two letters. A
+per-character return cannot say "these two are jointly one glide", so `FrenchPack` marks
+**both** characters consonant in that position. That is an approximation, and it is the
+same kind `_letter_onset` already declares — acceptable only because `spoonerism` is the
+sole consumer and wants a boundary, not a count.
 
 **D6. `slenderizing`'s `_produce` goes through the same letter model as `_check`.** Today
 it compares `pack.fold_diacritics(ch).lower()` against an unfolded parameter and ignores
@@ -168,16 +233,25 @@ fr                     aeiouàâäèéêëîïôöùûü    aeiou
 So all three packs inherit `aeiou` and none overrides. `supervocalic` is the only
 consumer, and German `supervocalic` becomes satisfiable.
 
-Under `fold_diacritics: false` the inventory stays `aeiou` while `ä` remains a vowel by
-`letter_classes` — so an unfolded German text carrying `ä` and all five base vowels
-satisfies the row, and the `ä` is neither required nor counted against it. That is the
-intended reading of a definition that says five.
+Under `fold_diacritics: false` the inventory stays `aeiou` while `ä` is still a member of
+`vowels()` — so an unfolded German text carrying `ä` and all five base vowels satisfies
+the row, and the `ä` is neither required nor counted against it. That is the intended
+reading of a definition that says five.
 
-### L3. `letter_classes(word)`
+### L3. `letter_classes(word)` — `spoonerism` only
 
-`LanguagePack`, `BasePack` with the D2 rule, and a `core/text.py` helper zipping it
-against folded `letter_spans` per D5. Five consumers move onto it. French
-`monoconsonantal("yoyo")` reports two consonants, for the right reason.
+`LanguagePack`, a `BasePack` default, and per-pack glide inventories: en `y w u i o`,
+de `y i`, fr `y i u ou`. **One consumer**, `_letter_onset`, which today splits on flat
+`vowels()` membership and so takes `yoyo`'s onset as empty. It is the only site licensed
+for this, per D2, and the only one whose row declares `phonemes`.
+
+The German inventory is the smallest and is loanword-bound (`Yacht`, `Physik`) apart from
+`i` before a vowel (`Familie`, `Nation`). `Quelle` is the measured miss — `qu` is /kv/,
+not a glide — so `GermanPack` excludes `u` after `q` explicitly rather than by rule.
+
+This layer is **independent of L1 and L2** and can ship separately; it fixes no row in the
+Purpose table and is an improvement to an approximation, not a defect fix. If it slips,
+nothing in L0–L2 or L4 waits on it.
 
 ### L4. `slenderizing`
 
@@ -203,6 +277,10 @@ Two properties carry the weight:
   `fold_diacritics: false` on the equivalent unfolded input. This is the invariant the
   seam violates, stated once rather than per row.
 
+A regression test pins D2's boundary directly: `onion`, `quick`, `million`, `oui`, `huit`
+and `nuit` must **not** be univocalics. Those are the words a later glide rule leaking
+into the orthographic rows would silently reclassify, and the test names why.
+
 Compare the **violation list** against each case name, not just `satisfied` — chapter 6's
 trap 2, where a French `kangaroo_word` negative passed for the wrong rule.
 
@@ -217,5 +295,8 @@ separate editorial decision.
 
 ## ADR
 
-One ADR, recording D1, D2 and D4 — the three that change a published contract. D2's cost
-belongs in Consequences and is stated in full above.
+One ADR, recording D1, D2 and D4 — the three that change a published contract. D2 is the
+substantial one: it decides that a row's `requires` list licenses which reading of a
+letter it may take, and that orthography and phonetics are separate readings the packs
+must keep apart. Its Consequences carry the `yoyo` cost and the en/fr divergence stated
+in full above.
