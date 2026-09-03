@@ -8,11 +8,11 @@ The 2026-09-02 MCP language sweep's Findings 1 and 2 are one cause with two face
 not, so a parameter was compared against text it could never equal: `vowel="ä"` reported
 `found: "a"` against `expected: "ä"` in German, `vowels="äö"` the same, `consonant="ß"`
 compared a two-character `expected` against a one-character `got`, and a `ß` in an
-acrostic target was a "letter" no unit could match. Six rows were wrong under **default**
+acrostic target was a "letter" no unit could match. Seven rows were wrong under **default**
 parameters — the values no golden fixture supplies, which is what the sweep found out
 about the fixtures rather than about the rows.
 
-One of the six broke the project's thesis. `slenderizing._produce` kept a character when
+One of the seven broke the project's thesis. `slenderizing._produce` kept a character when
 `fold_diacritics(ch).lower() != params.deleted`; `ß` folds to `ss`, which never equals one
 letter, so `ß` always survived a deletion `_check` then required. Measured: `apply` gave
 `Die traße war groß.` and its own checker scored that **0.412 with seven violations**,
@@ -238,6 +238,12 @@ is the text itself. That is the answer `_check` gives, so the two agree for the 
 it is still a behaviour change nobody asked for, arriving in a bug fix, and a caller
 reading `fold_diacritics: false` as the safe setting will meet it.
 
+**A mixed fold also costs case.** D6's third row — some of a character's folded letters
+`deleted`, some not — emits the survivors *folded*, so a ligature that opens a word loses
+its case along with the deleted member: `apply("Œuvre et Sœur", lang="fr", deleted="e")`
+returns `"ouvr t Sour"`, the leading `Œ` becoming a lowercase `o`. The output still
+satisfies its own checker, so this is a cost to record, not a bug to fix.
+
 **With folding off, an accented vowel is inert in `supervocalic`.** The inventory is
 always the folded `aeiou`, while `ä` stays `ä` in the text — so it neither supplies the
 `a` the row requires nor counts as a repeat of one. That is the intended reading of a
@@ -254,7 +260,7 @@ record to tell them which one they are getting.
 
 **`denckring eval --all` goes from 487 to 498 passing cases and `denckring status` does
 not move**, staying `155 · 130 · 121 · 121 · 25` and `0 instruments catalogued`. This
-chapter adds no catalogue row and implements no procedure; it fixes six that were already
+chapter adds no catalogue row and implements no procedure; it fixes eight that were already
 counted as implemented, which is precisely the kind of change the coverage line cannot
 see.
 
