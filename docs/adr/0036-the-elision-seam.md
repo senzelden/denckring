@@ -1,4 +1,4 @@
-# 36. A leading proclitic is not a noun
+# 36. A leading proclitic is not a noun, and it is not a rhyme word either
 
 ## Context
 
@@ -54,6 +54,32 @@ behaviour so it is a known limitation rather than a silent one.
 Language-blind by construction: no English or German word carries an apostrophe, so
 `split_elision` is a no-op there and the fix costs nothing outside French.
 
+**`split_elision` lives in `core/text.py`, not `n_plus_7.py`, because a second caller
+needed it the same day.** `identical_rhyme` (`core/prosody.py`) compares each rhyme
+scheme line's final word against another's to decide whether they are the same word —
+`l'amour` and `amour` are, and the comparison read them as different, so a minimal pair
+differing only by a leading `l'` matched by `does_rhyme` and by neither `identical_rhyme`
+nor `does_not_rhyme`, scoring 1.0 where the bare pair correctly failed.
+`hemeling`/`limerick`/`rhyme_scheme` all share `core/prosody.scheme_violations`, so one
+fix reaches all three. Sharper than a generic gap: `hemeling` publishes
+`allow_identical` as *"Permit a word to rhyme with itself, as French rime riche does"* —
+the row explicitly models French self-rhyme, and the dial was bypassed by the commonest
+orthographic fact in the language. This caller does not need the try-whole-first step
+either, for a different reason than `noun_index`'s: it only ever compares one split
+segment against another split the same way, so even a genuine apostrophe-word compared
+with itself still comes out correctly identical.
+
+**Also fixed the same day: `kangaroo_word`'s own lookup, a different root cause under the
+same MCP sweep finding.** `synonym: "école"` failed `not_a_word` under default
+`fold_diacritics`, because `is_word` is not fold-aware — French keeps its accents on
+purpose (ADR 0009) — and `kangaroo_word` folded the synonym before asking it, so a
+diacritic-folded `ecole` could never match the table's `école`. Not an elision bug and
+`split_elision` is not involved: every other `is_word` caller in this codebase
+(`paragram`, `word_ladder`, `semordnilap`) already checks membership on the word as
+written and folds only for its own scattering/order comparison, so the fix is `is_word`
+on `params.synonym` rather than on the pre-folded copy — bringing the one row that
+disagreed into line with the rest, not a new decision.
+
 ## Consequences
 
 **The generator inherits the same literal-reattachment limit as the checker.**
@@ -65,14 +91,9 @@ recorded rather than hidden.
 **`changed_proclitic` is a new rule name.** Any caller pattern-matching on
 `displacement_report`'s violation rules for these two procedures gains one more value.
 
-**Two related defects in the same MCP sweep finding are NOT fixed here.**
-`kangaroo_word`'s `synonym` parameter is unsatisfiable for an accented French synonym
-under default `fold_diacritics` — a folding bug, not an elision one, and it is
-`kangaroo_word`'s own lookup, not `noun_index`. And `identical_rhyme` on `hemeling` and
-`limerick` cannot tell `l'amour` from `amour`, because rhyme keys are computed on the
-whole word and no elision-splitting reaches them. Both are real and both are out of scope
-here; they belong to a pass over French elision in the prosody and lexicon-synonym paths
-respectively, not to `n_plus_7`/`s_plus_7`'s own displacement.
+**Both related sub-findings from the same MCP sweep finding are fixed alongside this
+one**, recorded above rather than as open items: `kangaroo_word`'s accent-folding bug and
+`identical_rhyme`'s elision blindness on `hemeling`, `limerick` and `rhyme_scheme`.
 
 ## Alternatives considered
 

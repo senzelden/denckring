@@ -40,3 +40,13 @@ cases:
       souriant
     params: { synonym: train }
     satisfied: false
+  - name: accented-synonym-under-default-folding
+    lang: fr
+    source: >-
+      constructed example; écologie scatters école's letters in order and is
+      itself a real, distinct word. is_word is not fold-aware — French keeps
+      its accents on purpose — so a folded "ecole" never matched the table's
+      "école" under default fold_diacritics (ADR 0036).
+    text: écologie
+    params: { synonym: école }
+    satisfied: true

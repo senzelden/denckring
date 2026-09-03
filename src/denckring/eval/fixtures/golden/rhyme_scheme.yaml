@@ -55,3 +55,14 @@ cases:
       un grand chat noir
     params: { scheme: "AA" }
     satisfied: false
+  - name: identical-rhyme-across-elision
+    lang: fr
+    source: >-
+      constructed counterexample; l'amour and amour are the same rhyme word,
+      and identical_rhyme must catch that even though the text-level word
+      forms differ (ADR 0036)
+    text: |-
+      Il chante leur amour
+      Il pense à l'amour
+    params: { scheme: "AA" }
+    satisfied: false
