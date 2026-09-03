@@ -23,3 +23,17 @@ cases:
     text: Bunte Blumen wachsen bei Berlin
     params: { initial: b }
     satisfied: false
+  - name: umlaut-a
+    lang: de
+    source: >-
+      constructed example; initial="ä" folds to "a" and every word's own
+      initial letter folds the same way (ADR 0035)
+    text: Ärger Ähnlich Ärmel
+    params: { initial: ä }
+    satisfied: true
+  - name: gebrochene-reihe
+    lang: de
+    source: constructed counterexample
+    text: Ärger Berg Ähnlich
+    params: { initial: ä }
+    satisfied: false

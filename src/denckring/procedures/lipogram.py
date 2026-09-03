@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, single_letter
 
 
 class LipogramParams(DiacriticParams):
@@ -32,16 +32,27 @@ class Lipogram(BaseProcedure[LipogramParams]):
         return LipogramParams
 
     def _check(self, text: str, pack: LanguagePack, params: LipogramParams) -> Report:
+        # Folded the same way the text is, or `forbidden="ä"` never matched a
+        # folded letter and the row was vacuously satisfied by any text at
+        # all — the text plainly contains the letter and the row said it did
+        # not. ADR 0035, D3; Known remaining.
+        forbidden = single_letter(
+            params.forbidden,
+            pack,
+            fold=params.fold_diacritics,
+            procedure_id=self.id,
+            field="forbidden",
+        )
         letters = letter_spans(text, pack, fold=params.fold_diacritics)
         violations = [
             Violation(
                 rule="forbidden_letter",
                 offset=offset,
                 found=letter,
-                expected=f"any letter but {params.forbidden!r}",
+                expected=f"any letter but {forbidden!r}",
             )
             for offset, letter in letters
-            if letter == params.forbidden
+            if letter == forbidden
         ]
         return self._report(
             good=len(letters) - len(violations),

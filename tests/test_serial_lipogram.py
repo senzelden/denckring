@@ -81,8 +81,13 @@ def test_start_must_be_a_single_letter() -> None:
 
 
 def test_start_outside_the_alphabet_is_invalid() -> None:
+    """`start="ä"` folds to `a` under default `fold_diacritics` and is a valid
+    English start — ADR 0035 fixed this row's own over-strict refusal. With
+    folding off, `ä` stays `ä`, which is genuinely outside the flat English
+    alphabet, and that is still refused.
+    """
     with pytest.raises(InvalidParams):
-        check("serial_lipogram", "x", start="ä")
+        check("serial_lipogram", "x", start="ä", fold_diacritics=False)
 
 
 def test_violation_in_the_second_paragraph_has_a_correctly_rebased_offset() -> None:

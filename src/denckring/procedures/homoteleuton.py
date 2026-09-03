@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, word_spans
+from denckring.core.text import letter_spans, single_letter, word_spans
 
 
 class HomoteleutonParams(DiacriticParams):
@@ -39,7 +39,20 @@ class Homoteleuton(BaseProcedure[HomoteleutonParams]):
             for offset, word in word_spans(text, pack)
             if (letters := letter_spans(word, pack, fold=params.fold_diacritics))
         ]
-        expected = params.final
+        # Folded the same way each word's own final letter is folded, or
+        # `final="é"` never matched the folded finals it was compared
+        # against. ADR 0035, D3; Known remaining.
+        expected = (
+            None
+            if params.final is None
+            else single_letter(
+                params.final,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="final",
+            )
+        )
         if expected is None and finals:
             expected = finals[0][2]
         violations = [

@@ -1037,7 +1037,8 @@ All notable changes to this project are documented here. The format follows
   `core.text.fold_letter` is the parameter-side twin of `letter_spans` and is now applied
   at **the seven rows this decision covers** — `univocalic`, `bivocalic`,
   `monoconsonantal`, `slenderizing` and the acrostic family — not at every such comparison;
-  five more are named under *Known remaining* in ADR 0035 and are a chapter of their own.
+  five more were named under *Known remaining* in ADR 0035 and were fixed the same day,
+  below.
   A target that is a phrase is flattened by `core.text.fold_target`, so a `ß` claims the
   two units its two letters need. The acrostic family is three rows, not two: `telestich`
   inherits from `Acrostic`, `double_acrostic` kept its own copy of the expression and now
@@ -1053,6 +1054,21 @@ All notable changes to this project are documented here. The format follows
   when none of its letters is `deleted`, drop it when all are, emit the survivors when only
   some are. Both round-trip at 1.0 (`L cour t la sour`, `Le ceur et la seur`), with three
   golden cases and French unit tests. ADR 0035 D6.
+- **Five more rows had the identical seam, unfiled by the sweep because it walks fixtures
+  and these needed a parameter no fixture supplies.** `lipogram(forbidden="ä")` on
+  `"Rätsel"` returned `satisfied=True` — an **inverted verdict**, the text plainly
+  contained the letter — with `pangrammatic_lipogram` the same shape behind it.
+  `tautogram` and `homoteleuton` failed closed instead: an unfolded `initial`/`final`
+  never matched a folded word boundary. `abecedarian`'s `start="ä"` was vacuous rather
+  than wrong — `alphabet.index` fell back to `0` and agreed with the right answer only
+  because `ä` happens to fold to the alphabet's first letter; `start="ö"` (index 14)
+  showed the real defect, disagreeing with the correct answer on every line.
+  `serial_lipogram` had its own copy of the bug, the opposite way: it refused `start="ä"`
+  outright with `InvalidParams`, even under default folding, stricter than its own
+  text-side comparison. All six now fold via `single_letter()`; `abecedarian` and
+  `serial_lipogram` raise `InvalidParams` when a folded `start` still is not a letter of
+  the row's own flat alphabet, rather than silently defaulting. Ten golden cases, one per
+  row plus a negative for four of them. ADR 0035, *Known remaining*.
 - **A single-letter parameter that folds to several characters is now refused by name.**
   `consonant="ß"` compared a two-character `expected` against a one-character `got` and
   could never be satisfied; `single_letter()` raises `InvalidParams` saying what it folded

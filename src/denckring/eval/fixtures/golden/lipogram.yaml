@@ -26,3 +26,19 @@ cases:
     text: Der Wind weht heute wieder gegen jedes Fenster.
     params: { forbidden: e }
     satisfied: false
+  - name: ohne-umlaut-a
+    lang: de
+    source: >-
+      constructed example; forbidden="ä" folds to "a" and the text side folds
+      too, so a text with no "a" at all must satisfy it (ADR 0035)
+    text: Wolken ziehen über den Fluss
+    params: { forbidden: ä }
+    satisfied: true
+  - name: enthaelt-umlaut-a
+    lang: de
+    source: >-
+      constructed counterexample; contains "ä", which folds to the forbidden
+      "a" — the inverted verdict ADR 0035's Known remaining names
+    text: Wolken ziehen über den Fluss und Wälder
+    params: { forbidden: ä }
+    satisfied: false

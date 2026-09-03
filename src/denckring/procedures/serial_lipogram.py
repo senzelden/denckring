@@ -10,7 +10,7 @@ from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, line_spans, paragraph_spans
+from denckring.core.text import letter_spans, line_spans, paragraph_spans, single_letter
 
 
 class SerialLipogramParams(DiacriticParams):
@@ -48,11 +48,26 @@ class SerialLipogram(BaseProcedure[SerialLipogramParams]):
     def _check(self, text: str, pack: LanguagePack, params: SerialLipogramParams) -> Report:
         alphabet = pack.alphabet()
         parts = paragraph_spans(text) if params.unit == "paragraph" else line_spans(text)
-        if params.start is not None and params.start not in alphabet:
-            raise InvalidParams(
-                self.id, f"start {params.start!r} is not a letter of the {pack.lang} alphabet"
+        # Folded before the alphabet-membership check, or `start="ä"` refused
+        # outright even with folding on — stricter than the fold this row's
+        # own comparison already performs against the text. ADR 0035, D3;
+        # Known remaining.
+        start = (
+            None
+            if params.start is None
+            else single_letter(
+                params.start,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="start",
             )
-        first = alphabet.index(params.start) if params.start is not None else 0
+        )
+        if start is not None and start not in alphabet:
+            raise InvalidParams(
+                self.id, f"start {start!r} is not a letter of the {pack.lang} alphabet"
+            )
+        first = alphabet.index(start) if start is not None else 0
 
         violations: list[Violation] = []
         good = 0

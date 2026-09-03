@@ -7,9 +7,10 @@ from typing import Literal
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, line_spans, word_spans
+from denckring.core.text import letter_spans, line_spans, single_letter, word_spans
 
 
 class AbecedarianParams(DiacriticParams):
@@ -46,8 +47,28 @@ class Abecedarian(BaseProcedure[AbecedarianParams]):
         ]
         if not initials:
             return self._report(good=0, total=0, violations=[], metrics={"units": 0.0})
-        start = params.start if params.start is not None else initials[0][1]
-        first = alphabet.index(start) if start in alphabet else 0
+        # Folded the same way each unit's own initial is folded, or
+        # `start="ä"` never matched `alphabet`, which is flat and unaccented —
+        # `alphabet.index` fell back to 0 unconditionally, agreeing with the
+        # correct answer only when the intended letter happened to be `a`
+        # (index 0) and silently disagreeing for any other umlaut. ADR 0035,
+        # D3; Known remaining.
+        start = (
+            initials[0][1]
+            if params.start is None
+            else single_letter(
+                params.start,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="start",
+            )
+        )
+        if start not in alphabet:
+            raise InvalidParams(
+                self.id, f"start {start!r} is not a letter of the {pack.lang} alphabet"
+            )
+        first = alphabet.index(start)
         violations = [
             Violation(
                 rule="wrong_initial",
