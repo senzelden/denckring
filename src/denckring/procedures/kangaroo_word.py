@@ -50,7 +50,13 @@ class KangarooWord(BaseProcedure[KangarooWordParams]):
         good = 0
         total = 3
 
-        if pack.is_word(synonym):
+        # `is_word` is not fold-aware -- French keeps its accents on purpose
+        # (ADR 0009), so a diacritic-folded "ecole" could never match the
+        # table's "école". Checked on the parameter as written, casefolding
+        # only -- the way `paragram` and `word_ladder` already call `is_word`
+        # -- rather than on `synonym`, which is folded for the distinctness
+        # and ordering checks below. ADR 0036.
+        if pack.is_word(params.synonym):
             good += 1
         else:
             violations.append(

@@ -8,7 +8,7 @@ from typing import Literal, NamedTuple
 
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import LanguagePack, Violation
-from denckring.core.text import line_spans
+from denckring.core.text import line_spans, split_elision
 from denckring.lang.base import PHONEMES, STRESS
 
 #: `?` matches either, so a monosyllable takes whatever stress the line needs.
@@ -345,7 +345,14 @@ def scheme_violations(
             checks += 1
             should_rhyme = letters[i] == letters[j]
             does_rhyme = bool(keys[i][2] & keys[j][2])
-            identical = keys[i][1].casefold() == keys[j][1].casefold()
+            # Compared past any leading elided proclitic, or `l'amour` and
+            # `amour` — the same rhyme word — read as two different ones:
+            # `identical_rhyme` exists to catch French rime riche's commonest
+            # orthographic shape, and a `l'` in front of it defeated the
+            # check that `hemeling`'s own `allow_identical` names it for.
+            identical = (
+                split_elision(keys[i][1])[1].casefold() == split_elision(keys[j][1])[1].casefold()
+            )
             if should_rhyme and identical and not allow_identical:
                 violations.append(
                     Violation(

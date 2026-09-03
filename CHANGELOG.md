@@ -846,6 +846,22 @@ All notable changes to this project are documented here. The format follows
   the displaced noun — `l'aïoli` displaced by one entry becomes `l'b`, a known, honestly
   pinned limitation rather than a silent one; choosing `l'`/`le`/`la` correctly needs the
   noun's gender, which the list does not carry. ADR 0036.
+- **`identical_rhyme` could not tell `l'amour` from `amour`.** The comparison read each
+  rhyme scheme line's final word as written, so a minimal pair differing only by a
+  leading `l'` matched by `does_rhyme` and by neither `identical_rhyme` nor
+  `does_not_rhyme`, scoring 1.0 where the bare pair correctly failed —
+  `hemeling`'s own `allow_identical` publishes "Permit a word to rhyme with itself, as
+  French rime riche does," and this was the dial bypassed by the commonest orthographic
+  fact in the language. Fixed with the same `split_elision`, moved to `core/text.py` so
+  `core/prosody.py` can share it; `hemeling`, `limerick` and `rhyme_scheme` all inherit
+  the fix through `scheme_violations`. ADR 0036.
+- **`kangaroo_word`'s own lookup broke on any accented French synonym under default**
+  **folding.** `synonym: "école"` failed `not_a_word`, because `is_word` is not
+  fold-aware — French keeps its accents on purpose (ADR 0009) — and this row folded the
+  synonym before asking it, so a diacritic-folded `ecole` could never match the table's
+  `école`. Every other `is_word` caller (`paragram`, `word_ladder`, `semordnilap`)
+  already checks membership on the word as written; this row now does too, folding only
+  for its own distinctness and ordering checks. ADR 0036.
 - `quenina` accepted every text put to it whenever `n` was left out — which is the
   default. The size inference asked for the first `n` whose first `n` end-words are all
   distinct, and that is `1` for every text there is, so no stanza was ever compared

@@ -16,7 +16,7 @@ from denckring.core.base import (
 )
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import word_spans
+from denckring.core.text import split_elision, word_spans
 
 
 def resolve_dictionary(
@@ -34,38 +34,6 @@ def resolve_dictionary(
     entries = tuple(dictionary)
     positions = {word.casefold(): index for index, word in enumerate(entries)}
     return entries, lambda word: positions.get(word.casefold())
-
-
-#: A straight apostrophe and its typographic cousin. French elides a proclitic
-#: onto the following word with either.
-_ELISION_MARKS = ("'", "\u2019")
-
-
-def split_elision(word: str) -> tuple[str, str]:
-    """(proclitic-with-apostrophe or `""`, the rest).
-
-    The tokeniser keeps an apostrophe-bearing token whole -- `l'île`,
-    `d'espoir` -- because 94 real French words carry an internal apostrophe
-    of their own (`aujourd'hui`), and splitting every apostrophe
-    unconditionally would misread those. No noun does, though, so a leading
-    `proclitic'` before a noun is always an elision boundary, never part of
-    the noun itself, which is what makes it safe to always split here rather
-    than trying the whole word against the noun index first the way
-    `denckring_fr_data._table_entry` tries a whole form before falling back
-    (that helper's table DOES hold apostrophe-bearing entries; the noun list
-    does not, checked against the shipped lexicon).
-
-    Splits at the LAST mark, the same as `_table_entry`, for a chained
-    elision. Language-blind: no English or German word carries an
-    apostrophe, so this is a silent no-op there, and every one of the words
-    it splits stays a single call site (`displace`, `displacement_report`)
-    rather than a difference in `noun_index` between languages.
-    """
-    for mark in _ELISION_MARKS:
-        if mark in word:
-            prefix, _, tail = word.rpartition(mark)
-            return prefix + mark, tail
-    return "", word
 
 
 def displace(
