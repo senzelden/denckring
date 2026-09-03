@@ -58,3 +58,12 @@ cases:
       un chatons dort
     params: { source: le chat dort }
     satisfied: false
+  - name: elided-proclitic-displaced-by-the-default-offset
+    lang: fr
+    source: >-
+      constructed example; produced by `apply("n_plus_7", "l'ami", lang="fr")`.
+      ami (noun_index 1291) is displaced seven entries forward in nouns() to
+      amidon; the l' proclitic is not a noun and stays as it is.
+    text: l'amidon
+    params: { source: l'ami }
+    satisfied: true

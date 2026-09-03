@@ -36,6 +36,38 @@ def resolve_dictionary(
     return entries, lambda word: positions.get(word.casefold())
 
 
+#: A straight apostrophe and its typographic cousin. French elides a proclitic
+#: onto the following word with either.
+_ELISION_MARKS = ("'", "\u2019")
+
+
+def split_elision(word: str) -> tuple[str, str]:
+    """(proclitic-with-apostrophe or `""`, the rest).
+
+    The tokeniser keeps an apostrophe-bearing token whole -- `l'île`,
+    `d'espoir` -- because 94 real French words carry an internal apostrophe
+    of their own (`aujourd'hui`), and splitting every apostrophe
+    unconditionally would misread those. No noun does, though, so a leading
+    `proclitic'` before a noun is always an elision boundary, never part of
+    the noun itself, which is what makes it safe to always split here rather
+    than trying the whole word against the noun index first the way
+    `denckring_fr_data._table_entry` tries a whole form before falling back
+    (that helper's table DOES hold apostrophe-bearing entries; the noun list
+    does not, checked against the shipped lexicon).
+
+    Splits at the LAST mark, the same as `_table_entry`, for a chained
+    elision. Language-blind: no English or German word carries an
+    apostrophe, so this is a silent no-op there, and every one of the words
+    it splits stays a single call site (`displace`, `displacement_report`)
+    rather than a difference in `noun_index` between languages.
+    """
+    for mark in _ELISION_MARKS:
+        if mark in word:
+            prefix, _, tail = word.rpartition(mark)
+            return prefix + mark, tail
+    return "", word
+
+
 def displace(
     text: str,
     pack: LanguagePack,
@@ -53,14 +85,25 @@ def displace(
     `nouns` and `noun_index` are the resolved pair from `resolve_dictionary`,
     passed in rather than re-resolved here: two call sites resolving
     independently is how they come to disagree about which list was walked.
+
+    `split_elision` isolates a leading proclitic first, so a token like
+    `l'île` displaces only `île` and keeps `l'` untouched. The proclitic is
+    reattached exactly as written -- not re-elided against the new noun's
+    initial sound -- because choosing `l'`/`le`/`la`/`de`/`d'` correctly
+    needs the noun's grammatical gender, which the noun list does not carry.
+    A displacement landing on a consonant-initial noun therefore keeps a
+    vowel-elided proclitic literally; that is a known, honest limitation
+    pinned by a test, not a defect this generator tries to paper over.
     """
     pieces: list[str] = []
     cursor = 0
     for offset_in_text, word in word_spans(text, pack):
-        index = noun_index(word)
+        prefix, tail = split_elision(word)
+        index = noun_index(tail)
         if index is None:
             continue
         pieces.append(text[cursor:offset_in_text])
+        pieces.append(prefix)
         pieces.append(nouns[(index + offset) % len(nouns)])
         cursor = offset_in_text + len(word)
     pieces.append(text[cursor:])
@@ -158,8 +201,24 @@ def displacement_report(
     undecided = 0
     good = 0
     for (offset, produced), (_, original) in zip(candidate, source, strict=True):
-        index = noun_index(original)
-        if produced.casefold() == original.casefold():
+        # A leading proclitic glued on by elision (`l'`, `d'`, `qu'`) is
+        # never itself a noun, so it is compared separately and must not
+        # change; the noun index and every reading below runs on the tail
+        # alone. ADR 0036, the elision seam.
+        original_prefix, original_tail = split_elision(original)
+        produced_prefix, produced_tail = split_elision(produced)
+        if produced_prefix.casefold() != original_prefix.casefold():
+            violations.append(
+                Violation(
+                    rule="changed_proclitic",
+                    offset=offset,
+                    found=produced,
+                    expected=f"{original_prefix}{original_tail}",
+                )
+            )
+            continue
+        index = noun_index(original_tail)
+        if produced_tail.casefold() == original_tail.casefold():
             if index is None:
                 good += 1
             else:
@@ -177,7 +236,7 @@ def displacement_report(
                             rule="ambiguous_noun_unchanged",
                             offset=offset,
                             found=produced,
-                            expected=f"a displacement of {original!r} (listed as a noun)",
+                            expected=f"a displacement of {original_tail!r} (listed as a noun)",
                         )
                     )
                 else:
@@ -193,13 +252,13 @@ def displacement_report(
                 )
             )
             continue
-        expected = nouns[(index + params.offset) % len(nouns)]
+        expected_tail = nouns[(index + params.offset) % len(nouns)]
         # The noun list preserves each language's own capitalisation — German
         # nouns are capitalised, English ones are not — so `expected` must be
         # casefolded too, matching the identity comparison above. Comparing a
         # folded left side to an unfolded right side would silently reject
         # every correct German displacement.
-        if produced.casefold() == expected.casefold():
+        if produced_tail.casefold() == expected_tail.casefold():
             good += 1
         else:
             violations.append(
@@ -207,7 +266,7 @@ def displacement_report(
                     rule="wrong_displacement",
                     offset=offset,
                     found=produced,
-                    expected=expected,
+                    expected=f"{original_prefix}{expected_tail}",
                 )
             )
     decided = len(candidate) - undecided

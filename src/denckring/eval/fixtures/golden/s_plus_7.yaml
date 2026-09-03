@@ -50,3 +50,23 @@ cases:
       le chatière dort
     params: { source: le chat dort, offset: 7 }
     satisfied: false
+  - name: elided-proclitic-displaced-by-three
+    lang: fr
+    source: >-
+      constructed example; produced by `apply("s_plus_7", "l'île", lang="fr",
+      offset=3)`. île (noun_index 44740) is displaced three entries forward
+      in nouns() to îlot; the l' proclitic is not a noun and stays as it is —
+      the seam ADR 0036 closes, where the whole token l'île was previously
+      invisible to the noun index.
+    text: l'îlot
+    params: { source: l'île, offset: 3 }
+    satisfied: true
+  - name: elided-source-retyped-unchanged-under-strict
+    lang: fr
+    source: >-
+      constructed counterexample; île is a listed noun left unchanged, which
+      ambiguous_nouns="strict" exists to flag — the proclitic must not hide
+      that behind an unfolded lookup
+    text: l'île
+    params: { source: l'île, offset: 3, ambiguous_nouns: strict }
+    satisfied: false
