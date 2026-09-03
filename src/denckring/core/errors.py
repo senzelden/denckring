@@ -89,11 +89,29 @@ class UnknownLanguage(DenckringError):
 #: shipped `denckring-fr-data`, so `fr` is now a remedy a reader can follow and it is
 #: listed; the entry has to be added by hand for each new extra, which is the cost of
 #: not reading packaging metadata.
-#: Naming a language's extra still assumes that extra supplies the missing
-#: capability, which is not always true — `denckring[de]` carries no `stress`, and
-#: `denckring[fr]` carries no syllables or phonemes (ADR 0032 D5) — and that
-#: inaccuracy predates this and is untouched here.
+#: Naming a language's extra still assumed that extra supplies the missing
+#: capability, which is not always true. Measured on the 2026-09-02 MCP sweep:
+#: `denckring[fr]` carries `syllables`, `syllables.dictionary`, `syllables.heuristic`
+#: and `phonemes` since ADR 0034, but never `stress` -- French has none, permanently
+#: (ADR 0034 D2), so all eighteen `stress` refusals recommended a `pip install` that
+#: would run and change nothing. `denckring[de]` never carries `lexicon.graded_words`
+#: either -- SCOWL is vendored into `denckring-en-data` alone (ADR 0028) -- so
+#: `apply(anagram, lang="de")` recommended reinstalling an extra already installed.
+#: `_PERMANENTLY_MISSING` names both so the generic remedy is skipped for them.
 _EXTRAS = frozenset({"en", "de", "fr"})
+
+#: `(lang, capability)` pairs no extra for that language will ever supply. Named by
+#: hand for the reason `_EXTRAS` itself is: reading capability metadata across every
+#: installable extra to answer this generically would make core depend on packaging
+#: state it does not otherwise need. Each entry cites the ADR that makes the ceiling
+#: permanent rather than an unfinished migration, so a future data chapter that lifts
+#: one is a one-line removal, not a guess.
+_PERMANENTLY_MISSING = frozenset(
+    {
+        ("fr", "stress"),  # ADR 0034 D2: French has no lexical stress.
+        ("de", "lexicon.graded_words"),  # ADR 0028: SCOWL ships in denckring-en-data only.
+    }
+)
 
 
 class MissingCapability(DenckringError):
@@ -104,9 +122,9 @@ class MissingCapability(DenckringError):
         self.lang = lang
         self.capability = capability
         remedy = (
-            f"Install the extra that supplies it: `pip install denckring[{lang}]`."
-            if lang in _EXTRAS
-            else f"No data distribution supplies it for {lang!r}."
+            f"No data distribution supplies it for {lang!r}."
+            if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING
+            else f"Install the extra that supplies it: `pip install denckring[{lang}]`."
         )
         super().__init__(
             f"Procedure {procedure_id!r} requires the capability {capability!r}, "
