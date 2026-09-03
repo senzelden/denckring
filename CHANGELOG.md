@@ -833,6 +833,19 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **`s_plus_7`/`n_plus_7` inverted a verdict on a word carrying an elided proclitic —**
+  **worse than refusing.** `noun_index` looked an apostrophe-bearing token like `l'île` up
+  whole and never found it, since no noun carries an internal apostrophe, so the correct
+  S+7 `l'îlot` failed as `changed_a_non_noun` while retyping the source unchanged passed,
+  hiding exactly what `ambiguous_nouns: "strict"` exists to catch. `d'`, `qu'` and the
+  typographic `’` behaved the same; both rows share the bug, since `s_plus_7` delegates
+  entirely to `n_plus_7`'s `displace`/`displacement_report`. A new `split_elision` splits
+  at the last apostrophe; the checker and generator both work on the tail and treat the
+  proclitic as a separate unit that must match exactly, under a new `changed_proclitic`
+  violation. The proclitic is reattached exactly as written rather than re-elided against
+  the displaced noun — `l'aïoli` displaced by one entry becomes `l'b`, a known, honestly
+  pinned limitation rather than a silent one; choosing `l'`/`le`/`la` correctly needs the
+  noun's gender, which the list does not carry. ADR 0036.
 - `quenina` accepted every text put to it whenever `n` was left out — which is the
   default. The size inference asked for the first `n` whose first `n` end-words are all
   distinct, and that is `1` for every text there is, so no stanza was ever compared
