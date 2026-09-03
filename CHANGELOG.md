@@ -862,6 +862,16 @@ All notable changes to this project are documented here. The format follows
   `école`. Every other `is_word` caller (`paragram`, `word_ladder`, `semordnilap`)
   already checks membership on the word as written; this row now does too, folding only
   for its own distinctness and ordering checks. ADR 0036.
+- **`missing_capability` advised a remedy that could not work.** The remedy was picked
+  from `lang in _EXTRAS` alone, never asking whether that extra supplies the missing
+  capability: all 18 French `stress` refusals said `pip install denckring[fr]`, where
+  French has no lexical stress at all, permanently (ADR 0034 D2); German `anagram`
+  said `denckring[de]` for `lexicon.graded_words`, which only `denckring-en-data`
+  ships (ADR 0028) — measured with `denckring-de-data` already installed, so the
+  advice was to reinstall what was already there. A hand-maintained set of `(lang,
+  capability)` pairs no extra will ever supply is checked first. The comment claiming
+  French carries no syllables or phonemes was also false since ADR 0034 and is
+  corrected in the same place.
 - `quenina` accepted every text put to it whenever `n` was left out — which is the
   default. The size inference asked for the first `n` whose first `n` end-words are all
   distinct, and that is `1` for every text there is, so no stanza was ever compared
