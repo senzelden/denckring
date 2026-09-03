@@ -11,3 +11,17 @@ cases:
     text: many funny cat
     params: { final: y }
     satisfied: false
+  - name: accented-final
+    lang: fr
+    source: >-
+      constructed example; final="é" folds to "e" and each word's own final
+      letter folds the same way (ADR 0035)
+    text: café passé
+    params: { final: é }
+    satisfied: true
+  - name: broken-ending
+    lang: fr
+    source: constructed counterexample
+    text: café chat
+    params: { final: é }
+    satisfied: false

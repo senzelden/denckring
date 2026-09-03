@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans
+from denckring.core.text import letter_spans, single_letter
 
 
 class PangrammaticLipogramParams(DiacriticParams):
@@ -36,13 +36,24 @@ class PangrammaticLipogram(BaseProcedure[PangrammaticLipogramParams]):
         return PangrammaticLipogramParams
 
     def _check(self, text: str, pack: LanguagePack, params: PangrammaticLipogramParams) -> Report:
-        required = [ch for ch in pack.alphabet() if ch != params.forbidden]
+        # Folded the same way the text is — ADR 0035, D3; Known remaining.
+        # Unfolded, `forbidden="ä"` never matched a folded letter, so `hits`
+        # stayed empty and `pack.alphabet()` (already unaccented) was
+        # unaffected by excluding it either.
+        forbidden = single_letter(
+            params.forbidden,
+            pack,
+            fold=params.fold_diacritics,
+            procedure_id=self.id,
+            field="forbidden",
+        )
+        required = [ch for ch in pack.alphabet() if ch != forbidden]
         present = {ch for _, ch in letter_spans(text, pack, fold=params.fold_diacritics)}
         missing = [ch for ch in required if ch not in present]
         hits = [
             (offset, ch)
             for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
-            if ch == params.forbidden
+            if ch == forbidden
         ]
         violations = [
             Violation(rule="missing_letter", offset=None, found="", expected=ch) for ch in missing
@@ -52,7 +63,7 @@ class PangrammaticLipogram(BaseProcedure[PangrammaticLipogramParams]):
                 rule="forbidden_letter",
                 offset=offset,
                 found=ch,
-                expected=f"any letter but {params.forbidden!r}",
+                expected=f"any letter but {forbidden!r}",
             )
             for offset, ch in hits
         ]

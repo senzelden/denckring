@@ -87,3 +87,106 @@ def test_a_double_acrostic_target_flattens_on_both_edges() -> None:
         first="ßt",
         last="ßt",
     ).satisfied
+
+
+def test_a_german_lipogram_forbidding_an_umlaut_is_satisfiable() -> None:
+    """`forbidden="ä"` reported no hits because the text side folds `ä` to `a`
+    and the parameter never did — the inverted verdict in ADR 0035's "Known
+    remaining": the text plainly contains the letter and the row said it did
+    not.
+    """
+    assert check("lipogram", "Wolken ziehen über den Fluss", lang="de", forbidden="ä").satisfied
+
+
+def test_the_umlaut_lipogram_still_rejects_the_forbidden_letter() -> None:
+    report = check("lipogram", "Wolken ziehen über den Fluss und Wälder", lang="de", forbidden="ä")
+    assert not report.satisfied
+    assert any(v.rule == "forbidden_letter" for v in report.violations)
+
+
+def test_a_german_pangrammatic_lipogram_forbidding_an_umlaut_is_satisfiable() -> None:
+    assert check(
+        "pangrammatic_lipogram", "bcdefghijklmnopqrstuvwxyz", lang="de", forbidden="ä"
+    ).satisfied
+
+
+def test_the_umlaut_pangrammatic_lipogram_still_rejects_the_forbidden_letter() -> None:
+    report = check("pangrammatic_lipogram", "abcdefghijklmnopqrstuvwxyz", lang="de", forbidden="ä")
+    assert not report.satisfied
+    assert any(v.rule == "forbidden_letter" for v in report.violations)
+
+
+def test_a_german_tautogram_on_an_umlaut_initial_is_satisfiable() -> None:
+    assert check("tautogram", "Ärger Ähnlich Ärmel", lang="de", initial="ä").satisfied
+
+
+def test_the_umlaut_tautogram_still_rejects_a_foreign_initial() -> None:
+    report = check("tautogram", "Ärger Berg Ähnlich", lang="de", initial="ä")
+    assert not report.satisfied
+    assert [v.found for v in report.violations] == ["Berg"]
+
+
+def test_a_french_homoteleuton_on_an_accented_final_is_satisfiable() -> None:
+    """`final="é"` reported `wrong_final` on both words, because the text side
+    folds `é` to `e` and the parameter never did."""
+    assert check("homoteleuton", "café passé", lang="fr", final="é").satisfied
+
+
+def test_the_accented_homoteleuton_still_rejects_a_foreign_final() -> None:
+    report = check("homoteleuton", "café chat", lang="fr", final="é")
+    assert not report.satisfied
+    assert [v.found for v in report.violations] == ["chat"]
+
+
+def test_an_abecedarian_umlaut_start_is_satisfiable() -> None:
+    text = "Ärger folgt\nBerg steht\nCurry duftet"
+    assert check("abecedarian", text, lang="de", start="ä").satisfied
+
+
+def test_an_abecedarian_umlaut_start_is_not_vacuously_satisfied() -> None:
+    """`start="ä"` used to fall back to index 0 whenever the raw letter was not
+    in the flat alphabet, coincidentally agreeing with the correct answer for
+    `ä` (index 0) and disagreeing for any other umlaut. `ö` folds to `o`,
+    index 14 — the unfixed code silently checked against `start="a"` instead
+    and reported every line wrong.
+    """
+    text = "Ozean ruht\nParadies wacht\nQuelle blinkt"
+    assert check("abecedarian", text, lang="de", start="ö").satisfied
+
+
+def test_an_abecedarian_umlaut_start_is_refused_with_folding_off() -> None:
+    """With folding off, `ä` is not a letter of the flat `de` alphabet at all —
+    a decision this row's own alphabet forces, named rather than silently
+    defaulted."""
+    with pytest.raises(InvalidParams) as caught:
+        check(
+            "abecedarian",
+            "Ärger folgt\nBerg steht",
+            lang="de",
+            start="ä",
+            fold_diacritics=False,
+        )
+    assert "alphabet" in str(caught.value)
+
+
+def test_a_serial_lipogram_umlaut_start_is_accepted_under_folding() -> None:
+    """`serial_lipogram` refused `start="ä"` outright, even with folding on —
+    stricter than the fold this row's own comparison already performs on the
+    text side. `ä` folds to `a`, so this is `start="a"` under another spelling
+    and must be accepted the same way — not full 26-part satisfaction, just
+    that the refusal is gone.
+    """
+    report = check("serial_lipogram", "bcdefghijklmnopqrstuvwxyz", lang="de", start="ä")
+    assert not any(v.rule == "forbidden_letter" for v in report.violations)
+
+
+def test_a_serial_lipogram_umlaut_start_is_still_refused_with_folding_off() -> None:
+    with pytest.raises(InvalidParams) as caught:
+        check(
+            "serial_lipogram",
+            "Bcdfghijk\nLmnopqrst",
+            lang="de",
+            start="ä",
+            fold_diacritics=False,
+        )
+    assert "alphabet" in str(caught.value)

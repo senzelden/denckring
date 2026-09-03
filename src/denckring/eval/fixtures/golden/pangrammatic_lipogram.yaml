@@ -11,3 +11,17 @@ cases:
     text: the quick brown fox jumps over the lazy dog
     params: { forbidden: e }
     satisfied: false
+  - name: alle-bis-auf-umlaut-a
+    lang: de
+    source: >-
+      constructed example; every base letter but "a", with forbidden="ä"
+      folding to "a" (ADR 0035)
+    text: bcdefghijklmnopqrstuvwxyz
+    params: { forbidden: ä }
+    satisfied: true
+  - name: enthaelt-umlaut-a
+    lang: de
+    source: constructed counterexample; a full 26-letter pangram, "a" included
+    text: abcdefghijklmnopqrstuvwxyz
+    params: { forbidden: ä }
+    satisfied: false

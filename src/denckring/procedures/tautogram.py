@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import word_spans
+from denckring.core.text import single_letter, word_spans
 
 
 class TautogramParams(DiacriticParams):
@@ -43,7 +43,20 @@ class Tautogram(BaseProcedure[TautogramParams]):
             (offset, word, self._initial(word, pack, params.fold_diacritics))
             for offset, word in words
         ]
-        expected = params.initial
+        # Folded the same way `_initial` folds a word's own first letter, or
+        # `initial="ä"` never matched the folded initials it was compared
+        # against. ADR 0035, D3; Known remaining.
+        expected = (
+            None
+            if params.initial is None
+            else single_letter(
+                params.initial,
+                pack,
+                fold=params.fold_diacritics,
+                procedure_id=self.id,
+                field="initial",
+            )
+        )
         if expected is None and initials:
             expected = initials[0][2]
         violations = [

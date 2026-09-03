@@ -67,3 +67,63 @@ cases:
       abcdefghijklmnopqrstuvwxyz
     params: {}
     satisfied: false
+  - name: umlaut-start-under-folding
+    lang: de
+    source: >-
+      constructed example; start="ä" folds to "a", the same starting point as
+      the default — the unfixed row refused this outright even with folding
+      on (ADR 0035)
+    text: |-
+      bcdefghijklmnopqrstuvwxyz
+
+      acdefghijklmnopqrstuvwxyz
+
+      abdefghijklmnopqrstuvwxyz
+
+      abcefghijklmnopqrstuvwxyz
+
+      abcdfghijklmnopqrstuvwxyz
+
+      abcdeghijklmnopqrstuvwxyz
+
+      abcdefhijklmnopqrstuvwxyz
+
+      abcdefgijklmnopqrstuvwxyz
+
+      abcdefghjklmnopqrstuvwxyz
+
+      abcdefghiklmnopqrstuvwxyz
+
+      abcdefghijlmnopqrstuvwxyz
+
+      abcdefghijkmnopqrstuvwxyz
+
+      abcdefghijklnopqrstuvwxyz
+
+      abcdefghijklmopqrstuvwxyz
+
+      abcdefghijklmnpqrstuvwxyz
+
+      abcdefghijklmnoqrstuvwxyz
+
+      abcdefghijklmnoprstuvwxyz
+
+      abcdefghijklmnopqstuvwxyz
+
+      abcdefghijklmnopqrtuvwxyz
+
+      abcdefghijklmnopqrsuvwxyz
+
+      abcdefghijklmnopqrstvwxyz
+
+      abcdefghijklmnopqrstuwxyz
+
+      abcdefghijklmnopqrstuvxyz
+
+      abcdefghijklmnopqrstuvwyz
+
+      abcdefghijklmnopqrstuvwxz
+
+      abcdefghijklmnopqrstuvwxy
+    params: { start: ä }
+    satisfied: true

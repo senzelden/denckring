@@ -18,3 +18,15 @@ cases:
       Birds go
     params: { start: a }
     satisfied: false
+  - name: umlaut-start
+    lang: de
+    source: >-
+      constructed example; start="ö" folds to "o" (index 14) — the unfixed
+      code fell back to index 0 and reported every line wrong, not vacuously
+      right (ADR 0035)
+    text: |-
+      Ozean ruht
+      Paradies wacht
+      Quelle blinkt
+    params: { start: ö }
+    satisfied: true

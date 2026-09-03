@@ -169,14 +169,17 @@ honest refusal, and the first fix turned that into text failing its own checker 
 regression, not a shortfall. Both now round-trip at 1.0 (`L cour t la sour`,
 `Le ceur et la seur`), pinned by French tests and a golden case beside the German ones.
 
-## Known remaining
+## Known remaining, FIXED 2026-09-03
 
-**Five more rows declare `fold_diacritics` and still compare an unfolded parameter against
-folded text.** They are out of scope here — this record fixes the seven the sweep filed —
-but an unqualified "every such comparison" would have been false, so they are named.
-Reproduced on this branch, at **default** parameters:
+**Five more rows declared `fold_diacritics` and still compared an unfolded parameter
+against folded text.** They were out of scope in the branch that shipped this ADR — that
+work fixed the seven the sweep filed — but an unqualified "every such comparison" would
+have been false, so they were named here and fixed the same day, once folded, using the
+same `single_letter` helper as the seven above. A sixth row not named in the original
+finding, `serial_lipogram`, was fixed alongside `lipogram` for the reason given below.
+Reproduced on this branch before the fix, at **default** parameters:
 
-| row | call | verdict |
+| row | call | verdict before the fix |
 |---|---|---|
 | `lipogram` | `("Rätsel", lang="de", forbidden="ä")` | **`satisfied=True`, score 1.0** |
 | `pangrammatic_lipogram` | a German pangram containing `ä`, `forbidden="ä"` | **`satisfied=True`, score 1.0** |
@@ -184,20 +187,32 @@ Reproduced on this branch, at **default** parameters:
 | `homoteleuton` | `("café passé", lang="fr", final="é")` | two `wrong_final`, score 0.0 |
 | `abecedarian` | `("ähnlich bald cool", lang="de", start="ä")` | `satisfied=True` — and vacuous |
 
-**`lipogram` is the serious one**, with `pangrammatic_lipogram` the same shape behind it: a
-lipogram is a claim of *absence*, so an unfolded `forbidden` inverts the verdict rather
-than refusing it. The text plainly contains the letter and the row says it does not. The
-other three fail closed — annoying, honest. `abecedarian` fails neither way: `"ä"` is not
-in `alphabet()`, `alphabet.index` is guarded, so `first` falls back to `0` and `start="ä"`
-is silently `start="a"`; both spellings return the identical report, which is what makes it
-vacuous rather than wrong.
+**`lipogram` was the serious one**, with `pangrammatic_lipogram` the same shape behind it: a
+lipogram is a claim of *absence*, so an unfolded `forbidden` inverted the verdict rather
+than refusing it. The text plainly contained the letter and the row said it did not. The
+other three failed closed — annoying, honest. `abecedarian` failed neither way: `"ä"` was
+not in `alphabet()`, `alphabet.index` was guarded, so `first` fell back to `0` and
+`start="ä"` was silently `start="a"`; both spellings returned the identical report, which
+is what made it vacuous rather than wrong. A sharper example than the table's own, found
+while fixing it: `start="ö"` folds to `"o"` (index 14, not 0), so the fallback disagreed
+with the correct answer on every line rather than agreeing by coincidence — a genuine
+wrong verdict, not merely a vacuous one.
 
 `beau_present`, `belle_absente` and `letter_bank` were checked and are fine — they fold
 their parameter as *text*, through `letter_spans`, so they never had the seam.
 
-Sweeping these is its own chapter, and it is not only a fold: `lipogram` reaches
-`serial_lipogram` and `pangrammatic_lipogram`, `abecedarian` needs a decision about a
-parameter its alphabet does not contain, and each is a verdict change wanting golden cases.
+**The fix was not only a fold, as anticipated here.** `lipogram`'s fix reaches
+`pangrammatic_lipogram` (same fold, same helper) but not `serial_lipogram`, which has its
+own comparison and its own bug: it refused `start="ä"` outright with an `InvalidParams`,
+even under default folding — stricter than the fold its own text-side comparison already
+performs. Folding `start` before the alphabet-membership check fixes it. `abecedarian`
+needed the decision this section flagged as open: what happens when a folded `start` is
+still not a letter of the row's own flat `alphabet()`, which is only reachable with
+`fold_diacritics=False` on a genuinely accented letter. The decision taken is the one
+`serial_lipogram` already modelled — refuse by name by raising `InvalidParams`, rather than
+silently defaulting to index 0 as before. Ten golden cases were added, one per fixed row
+plus a negative for four of them, all in the language the original defect was reproduced
+in (`tests/test_folding_seam.py`, `eval --all` 498 → 508).
 
 ## Consequences
 
