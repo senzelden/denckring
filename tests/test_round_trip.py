@@ -9,16 +9,18 @@ Every call below is `apply(text, lang=lang, **_apply_args(...))`: no parameter
 beyond `source` and, where the procedure takes one, `seed` is ever supplied, so a
 generator whose `params_model` requires another field is skipped on every single
 call via the `except DenckringError`, not exercised by it.
-That is the four rows in `PARAMETER_GATED` below, and
+That is the five rows in `PARAMETER_GATED` below, and
 `test_the_named_coverage_gap_is_the_whole_coverage_gap` re-derives the set from
 what `apply` actually produces rather than trusting this paragraph. `diastic` and
 `mesostic` also take an extra parameter (`seed_phrase`, `spine`) but escape the gap
 because their defaults happen to produce a usable selection on generic text.
 Extending this harness to supply row-specific extra parameters is out of scope
 here — it is its own piece of work with its own review surface. Until then, each of
-the four gated rows relies on its own row-level round-trip test (e.g.
-`test_word_ladder.py::test_apply_finds_a_ladder_its_own_check_accepts`) as the
-substitute for what this property cannot reach.
+the gated rows relies on its own row-level round-trip test (e.g.
+`test_word_ladder.py::test_apply_finds_a_ladder_its_own_check_accepts`, and
+`test_calculator_word.py::test_what_the_generator_makes_satisfies_its_own_checker`,
+which does it in all three languages) as the substitute for what this property
+cannot reach.
 
 The seed is drawn, not pinned. Every property here used to pass `0`, so the ten
 rows that draw were exercised at one draw per input and the rest of the seed space
@@ -158,12 +160,21 @@ TEXT = st.one_of(FLAT, FLAT_AGAIN, PARAGRAPHS, PROSE)
 SEED = st.integers(min_value=0, max_value=2**16 - 1)
 
 #: Rows this property cannot reach, because `apply` here is only ever called with
-#: `seed` and (where the model has it) `source`. Each needs a further parameter with no
+#: `seed` and (where the model has it) `source`. Four need a further parameter with no
 #: usable default: `word_ladder` (`target`), `arca_musarithmica` (`pinakes`),
 #: `pasigraphy` (`table`/`from_language`/`to_language`), `slenderizing` (`deleted`).
+#:
+#: `calculator_word` is here for a different reason, and the distinction matters to
+#: whoever extends this harness. Its parameters all have usable defaults; what it
+#: cannot take is the *text*. Its `apply` argument is a digit string — the material
+#: the generator decodes — so every text `TEXT` can draw raises `InvalidParams`
+#: before any parameter is consulted. Supplying `digits` would not reach it; only a
+#: per-row text strategy would.
 #: Asserted below against what `apply` really produces, so the list cannot rot into
 #: prose the way it already did once.
-PARAMETER_GATED = frozenset({"arca_musarithmica", "pasigraphy", "slenderizing", "word_ladder"})
+PARAMETER_GATED = frozenset(
+    {"arca_musarithmica", "calculator_word", "pasigraphy", "slenderizing", "word_ladder"}
+)
 
 
 def _ignores_input(procedure_id: str) -> bool:

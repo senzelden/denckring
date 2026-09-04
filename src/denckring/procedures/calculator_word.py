@@ -20,9 +20,10 @@ from __future__ import annotations
 
 from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
 from denckring.core.calculator import ALPHABET, FROM_DIGIT, from_digits, to_digits
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_letter, word_spans
 
@@ -72,8 +73,12 @@ class CalculatorWordParams(DiacriticParams):
         return value
 
 
+class CalculatorWordApplyParams(CalculatorWordParams, ApplyParams):
+    pass
+
+
 @register
-class CalculatorWord(BaseProcedure[CalculatorWordParams]):
+class CalculatorWord(ConstructiveProcedure[CalculatorWordParams, CalculatorWordApplyParams]):
     """A word spelled by turning a calculator over."""
 
     id = "calculator_word"
@@ -81,6 +86,10 @@ class CalculatorWord(BaseProcedure[CalculatorWordParams]):
     @classmethod
     def params_model(cls) -> type[CalculatorWordParams]:
         return CalculatorWordParams
+
+    @classmethod
+    def apply_params_model(cls) -> type[CalculatorWordApplyParams]:
+        return CalculatorWordApplyParams
 
     def _check(self, text: str, pack: LanguagePack, params: CalculatorWordParams) -> Report:
         words = word_spans(text, pack)
@@ -171,6 +180,64 @@ class CalculatorWord(BaseProcedure[CalculatorWordParams]):
             metrics={"words": float(len(words)), "digits": float(len(params.digits))},
         )
 
+    def _produce(
+        self, text: str, pack: LanguagePack, params: CalculatorWordApplyParams
+    ) -> Produced:
+        """Partition the digit string into `words` segments that each decode to
+        a real word.
+
+        Decode first, then ask the lexicon. Scanning the word list for
+        candidates of each segment's length would cost the size of the lexicon
+        per segment; decoding costs the length of the digit string and asks
+        `is_word` once per candidate. The digit string is short and the lexicon
+        is not, so the direction matters.
+
+        The ranking corpus is `graded_words` where the pack declares it and the
+        noun list otherwise — ADR 0037 D5. German declares no `graded_words` at
+        all (ADR 0028), so a row demanding it could not generate in the language
+        of this row's own example; `apply_requires` names `lexicon.nouns`, the
+        floor every pack meets, and this method uses the better source where it
+        exists rather than refusing.
+        """
+        digits = text.strip() or params.digits
+        if not digits.isdigit():
+            raise InvalidParams(self.id, "the text to apply must be a string of digits")
+        unreadable = sorted({ch for ch in digits if ch not in FROM_DIGIT})
+        if unreadable:
+            raise InvalidParams(
+                self.id,
+                f"the digit(s) {''.join(unreadable)} show no letter on a seven-segment display",
+            )
+
+        grades = pack.graded_words() if "lexicon.graded_words" in pack.capabilities else {}
+        found: list[tuple[int, str]] = []
+        for parts in _partitions(digits, params.words):
+            # Reversed: the machine is read from the other end, so the LAST
+            # segment of the digit string is the FIRST word of the phrase.
+            # Entering to_digits("esel") + to_digits("hose") and turning the
+            # display over reads "hose esel", not "esel hose".
+            candidates = [from_digits(part) for part in reversed(parts)]
+            if any(not word or not pack.is_word(word) for word in candidates):
+                continue
+            # A missing grade sorts as if mid-band rather than as if commonest:
+            # `nouns()` supplies no grades at all, so defaulting to 0 would make
+            # every German candidate tie and fall back to alphabetical order.
+            rank = sum(grades.get(word, 50) for word in candidates)
+            found.append((rank, " ".join(candidates)))
+
+        if not found:
+            raise NoCandidateWord(
+                f"no {params.words}-word reading of {digits!r} is a word in {pack.lang!r}"
+            )
+        found.sort(key=lambda pair: (pair[0], pair[1]))
+        limited = found[: params.max_results]
+        return Produced(
+            candidates=[
+                Candidate(text=word, metrics={"rank": float(rank)}) for rank, word in limited
+            ],
+            truncated=len(found) > len(limited),
+        )
+
 
 def _same_reading(left: str, right: str) -> bool:
     """Whether two digit strings show the same letters.
@@ -181,3 +248,19 @@ def _same_reading(left: str, right: str) -> bool:
     knows about the ambiguity inside `core/calculator`.
     """
     return len(left) == len(right) and from_digits(left) == from_digits(right)
+
+
+def _partitions(digits: str, parts: int) -> list[list[str]]:
+    """Every way of cutting `digits` into exactly `parts` non-empty runs.
+
+    An explicit walk rather than `itertools.combinations` over cut points, so
+    an empty segment is impossible by construction: a segment of no digits
+    decodes to the empty string, which would then be handed to `is_word`.
+    """
+    if parts == 1:
+        return [[digits]] if digits else []
+    out: list[list[str]] = []
+    for cut in range(1, len(digits) - parts + 2):
+        for rest in _partitions(digits[cut:], parts - 1):
+            out.append([digits[:cut], *rest])
+    return out

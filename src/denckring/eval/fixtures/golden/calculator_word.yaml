@@ -1,0 +1,103 @@
+procedure: calculator_word
+lang: en
+cases:
+  - name: hello
+    source: >-
+      attested; Michael Quinion, World Wide Words, "Beghilos" (2009). Verified by
+      decoding the digits, not by transcribing them.
+    text: hello
+    params: { digits: "07734" }
+    satisfied: true
+  - name: illegible-with-nine-for-g
+    source: >-
+      attested; the circulating form uses 9 for the g, where this row's generator
+      emits 6. Both decode to the same word — ADR 0037 D4.
+    text: illegible
+    params: { digits: "378193771" }
+    satisfied: true
+  - name: illegible-with-six-for-g
+    source: constructed; the same word in the generator's own spelling
+    text: illegible
+    params: { digits: "378163771" }
+    satisfied: true
+  - name: undisplayable-letter
+    source: constructed counterexample; c, a and t are not on the display
+    text: cat
+    params: { digits: "743" }
+    satisfied: false
+  - name: displayable-but-not-a-word
+    source: >-
+      constructed counterexample; the display can write it, English does not know
+      it. Fails on not_a_word, never on the mapping.
+    text: hlose
+    params: { digits: "35074" }
+    satisfied: false
+  - name: combinations-mode-admits-a-non-word
+    source: constructed; require_words=false checks the display mapping alone
+    text: hlose
+    params: { digits: "35074", require_words: false }
+    satisfied: true
+
+  - name: esel
+    lang: de
+    source: >-
+      traditional German schoolyard example; the canonical demonstration of the
+      practice in German
+    text: Esel
+    params: { digits: "7353" }
+    satisfied: true
+  - name: igel-with-nine-for-g
+    lang: de
+    source: constructed; 6 and 9 both rotate onto G — ADR 0037 D4
+    text: Igel
+    params: { digits: "7391" }
+    satisfied: true
+  - name: two-words-read-last-first
+    lang: de
+    source: >-
+      constructed; the machine is read from the other end, so Hose Esel is
+      entered as the digits of Esel followed by those of Hose
+    text: Hose Esel
+    params: { digits: "73533504", words: 2 }
+    satisfied: true
+  - name: sharp-s-is-not-displayable
+    lang: de
+    source: >-
+      constructed counterexample; the display shows GEHEISS where German spells
+      Geheiß, so this is not a calculator word under the row's default — ADR 0037 D3
+    text: Geheiß
+    params: { digits: "5513436" }
+    satisfied: false
+  - name: sharp-s-under-explicit-folding
+    lang: de
+    source: constructed; the lenient reading stays reachable, only the default changed
+    text: Geheiß
+    params: { digits: "5513436", fold_diacritics: true }
+    satisfied: true
+  - name: wrong-digits
+    lang: de
+    source: constructed counterexample; Esel is 7353, not 7354
+    text: Esel
+    params: { digits: "7354" }
+    satisfied: false
+
+  - name: soleil
+    lang: fr
+    source: constructed example; verified by decoding, 713705 reads SOLEIL
+    text: soleil
+    params: { digits: "713705" }
+    satisfied: true
+  - name: accented-word-is-not-displayable
+    lang: fr
+    source: >-
+      constructed counterexample; the display shows BLESSE where French spells
+      blessé — ADR 0037 D3, and this row's fold default is false
+    text: blessé
+    params: { digits: "355378" }
+    satisfied: false
+  - name: accented-word-under-explicit-folding
+    lang: fr
+    source: constructed; the lenient reading stays reachable
+    text: blessé
+    params: { digits: "355378", fold_diacritics: true }
+    satisfied: true
