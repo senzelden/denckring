@@ -617,6 +617,23 @@
 
 .ring-dial {
   pointer-events: none;
+  /* The rotation origin, stated rather than inherited.
+     
+     JS sets `transform: rotate(Ndeg)` on this group, and the discs are drawn
+     centred at 300,300 of a `viewBox="0 0 600 600"`. That lands on the centre
+     only when `transform-box` resolves to `view-box`, which is its *initial
+     value* — and that initial value has not always been `view-box`: Firefox
+     used `border-box` until 118, and older WebKit differs again. Under
+     `border-box` or `fill-box` the origin becomes the group's own bounding
+     box, so each disc swings out along an arc instead of turning in place —
+     the discs appear to fly off the figure.
+     
+     Chromium happens to be right today, which is why nothing here caught it:
+     the app's tests render no CSS at all, and the browser scripts drive
+     Chromium only. Stated explicitly so the figure does not depend on a
+     default that has already changed once. */
+  transform-box: view-box;
+  transform-origin: 50% 50%;
 }
 
 .ring-part {
@@ -2142,6 +2159,23 @@
 
 .wheel-dial {
   pointer-events: none;
+  /* The rotation origin, stated rather than inherited.
+     
+     JS sets `transform: rotate(Ndeg)` on this group, and the discs are drawn
+     centred at 300,300 of a `viewBox="0 0 600 600"`. That lands on the centre
+     only when `transform-box` resolves to `view-box`, which is its *initial
+     value* — and that initial value has not always been `view-box`: Firefox
+     used `border-box` until 118, and older WebKit differs again. Under
+     `border-box` or `fill-box` the origin becomes the group's own bounding
+     box, so each disc swings out along an arc instead of turning in place —
+     the discs appear to fly off the figure.
+     
+     Chromium happens to be right today, which is why nothing here caught it:
+     the app's tests render no CSS at all, and the browser scripts drive
+     Chromium only. Stated explicitly so the figure does not depend on a
+     default that has already changed once. */
+  transform-box: view-box;
+  transform-origin: 50% 50%;
 }
 
 .wheel-letter {

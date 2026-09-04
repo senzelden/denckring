@@ -6169,3 +6169,30 @@ def test_no_bare_class_selector_is_declared_twice_where_one_rule_sizes_it() -> N
         if count > 1 and name in sizes and name not in DELIBERATE_REPEATS
     )
     assert clashing == [], f"declared twice unscoped, one rule sizing, in stage.css: {clashing}"
+
+
+def test_every_rotating_svg_group_states_its_own_origin() -> None:
+    """A CSS `transform` on an SVG group needs `transform-box` stated.
+
+    Both volvelles have JS set `transform: rotate(Ndeg)` on a group drawn
+    centred at 300,300 of a `viewBox="0 0 600 600"`. That is the centre only
+    while `transform-box` resolves to `view-box` — its initial value, and one
+    that has changed: Firefox used `border-box` until 118. Under `border-box`
+    or `fill-box` the origin becomes the group's own bounding box and each disc
+    swings out along an arc rather than turning in place, which is what a
+    viewer sees as the discs flying off the figure.
+
+    Chromium is right today, which is why nothing caught it: this suite renders
+    no CSS, and `tests/browser/*.mjs` drive Chromium only. Asserted on the
+    stylesheet's text for the same reason the `.tile` guard is.
+    """
+    css = (Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css").read_text(
+        encoding="utf-8"
+    )
+    stripped = re.sub(r"/\*.*?\*/", " ", css, flags=re.S)
+    for selector in (".ring-dial", ".wheel-dial"):
+        block = stripped.split(f"{selector} {{", 1)
+        assert len(block) == 2, f"{selector} is not declared"
+        body = block[1].split("}", 1)[0]
+        assert "transform-box" in body, f"{selector} does not state transform-box"
+        assert "transform-origin" in body, f"{selector} does not state transform-origin"
