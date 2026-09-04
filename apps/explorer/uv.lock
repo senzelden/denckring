@@ -336,7 +336,9 @@ en = [
 [package.metadata]
 requires-dist = [
     { name = "denckring-de-data", marker = "extra == 'de'", editable = "../../packages/denckring-de-data" },
+    { name = "denckring-de-data", marker = "extra == 'de-frequency'", editable = "../../packages/denckring-de-data" },
     { name = "denckring-de-data", marker = "extra == 'de-wiktionary'", editable = "../../packages/denckring-de-data" },
+    { name = "denckring-de-frequency", marker = "extra == 'de-frequency'", editable = "../../packages/denckring-de-frequency" },
     { name = "denckring-de-wiktionary", marker = "extra == 'de-wiktionary'", editable = "../../packages/denckring-de-wiktionary" },
     { name = "denckring-en-data", marker = "extra == 'en'", editable = "../../packages/denckring-en-data" },
     { name = "denckring-fr-data", marker = "extra == 'fr'", editable = "../../packages/denckring-fr-data" },
@@ -345,7 +347,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
-provides-extras = ["en", "de", "de-wiktionary", "fr", "mcp"]
+provides-extras = ["en", "de", "de-wiktionary", "fr", "de-frequency", "mcp"]
 
 [package.metadata.requires-dev]
 dev = [
