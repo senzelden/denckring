@@ -97,7 +97,12 @@ class UnknownLanguage(DenckringError):
 #: would run and change nothing. `denckring[de]` never carries `lexicon.graded_words`
 #: either -- SCOWL is vendored into `denckring-en-data` alone (ADR 0028) -- so
 #: `apply(anagram, lang="de")` recommended reinstalling an extra already installed.
-#: `_PERMANENTLY_MISSING` names both so the generic remedy is skipped for them.
+#: `_PERMANENTLY_MISSING` named both so the generic remedy was skipped for them.
+#: German's half of that has since been lifted: ADR 0038 gave `denckring[de-frequency]`
+#: frequency bands from the Leipzig Corpora Collection, so the pair moved to
+#: `_SPECIALIST_EXTRAS` and now names an extra that genuinely supplies it. French
+#: `stress` remains, and remains permanent (ADR 0034 D2) -- the difference between a
+#: gap awaiting a data chapter and a ceiling is what these two tables exist to keep.
 _EXTRAS = frozenset({"en", "de", "fr"})
 
 #: `(lang, capability)` pairs no extra for that language will ever supply. Named by
@@ -109,7 +114,6 @@ _EXTRAS = frozenset({"en", "de", "fr"})
 _PERMANENTLY_MISSING = frozenset(
     {
         ("fr", "stress"),  # ADR 0034 D2: French has no lexical stress.
-        ("de", "lexicon.graded_words"),  # ADR 0028: SCOWL ships in denckring-en-data only.
     }
 )
 
@@ -125,6 +129,11 @@ _PERMANENTLY_MISSING = frozenset(
 #: layer up: a remedy nobody can follow is worse than no remedy, and a remedy that
 #: reinstalls what is already there is the same failure wearing a install command.
 _SPECIALIST_EXTRAS = {
+    # Lifted out of `_PERMANENTLY_MISSING` by ADR 0038, which is the removal that
+    # set's own comment anticipated. SCOWL still ships in `denckring-en-data`
+    # alone (ADR 0028) — German no longer needs it, because the Leipzig Corpora
+    # Collection supplies frequency directly under CC BY, in its own distribution.
+    ("de", "lexicon.graded_words"): "de-frequency",
     ("de", "stress"): "de-wiktionary",
     ("de", "phonemes"): "de-wiktionary",
     ("de", "syllables.dictionary"): "de-wiktionary",
