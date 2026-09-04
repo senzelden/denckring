@@ -50,6 +50,7 @@ plugins:
 nav:
   - Home: index.md
   - Gallery: gallery/index.md
+  - Showcase: showcase/index.md
   - API reference:
       - Reading a report: api/index.md
       - Functions: api/functions.md
