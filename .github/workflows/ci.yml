@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr
       - run: uv run ruff check
       - run: uv run ruff format --check
 
@@ -31,10 +31,11 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr --extra mcp
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr --extra mcp
       - run: >-
           uv run mypy --strict src tests packages/denckring-en-data/src
           packages/denckring-de-data/src packages/denckring-de-wiktionary/src
+          packages/denckring-de-frequency/src
 
   test:
     strategy:
@@ -55,7 +56,7 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr
       - run: uv run pytest -q
 
   eval:
@@ -68,7 +69,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr
       - run: uv run denckring eval --all
       - run: uv run denckring status
 
@@ -82,7 +83,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr --extra mcp
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr --extra mcp
       - run: uv run pytest tests/test_mcp_tools.py -q
       - name: The server starts and lists its four tools
         run: |
@@ -221,7 +222,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - run: uv sync --extra en --extra de --extra de-wiktionary --extra fr
+      - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr
       - name: Regenerate the gallery
         run: uv run python scripts/build_docs.py
       - name: Build the site

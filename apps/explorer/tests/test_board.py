@@ -94,10 +94,16 @@ def test_the_remedy_is_named_from_the_error_code_not_from_its_prose() -> None:
 def test_a_permanent_ceiling_does_not_offer_an_install() -> None:
     """French has no lexical stress and never will (ADR 0034 D2), so no extra
     can be named. Offering one would be the defect `_PERMANENTLY_MISSING`
-    exists to prevent, wearing a tile instead of an error message."""
+    exists to prevent, wearing a tile instead of an error message.
+
+    German `lexicon.graded_words` was the second example here until ADR 0038
+    gave it `denckring[de-frequency]` — which is why a gap and a ceiling are
+    kept in separate tables, and why this test now asserts the difference rather
+    than a list of things that happen to be missing today.
+    """
     from denckring.core.errors import extra_for
 
     assert extra_for("fr", "stress") is None
-    assert extra_for("de", "lexicon.graded_words") is None
     assert extra_for("fr", "syllables.heuristic") == "fr"
     assert extra_for("de", "phonemes") == "de-wiktionary"
+    assert extra_for("de", "lexicon.graded_words") == "de-frequency"

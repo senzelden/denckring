@@ -711,6 +711,13 @@ All notable changes to this project are documented here. The format follows
   roughly half the corpus in every language; `fold_diacritics` defaults to `false` on this
   row alone, because a calculator cannot write `Geheiß` or `blessé`; and `6` and `9` both
   give `G`, so `apply` is not the inverse of `check` for about a third of every corpus.
+- `denckring-de-frequency`, a sixth distribution: German frequency bands from the
+  Leipzig Corpora Collection, under CC BY. 101,296 graded words, 434 KB, between
+  English's 77,078 and French's 125,343. It gives German `lexicon.graded_words`, so
+  `apply anagram` runs in German — `Lebensmittel` → `mitbestellen`. ADR 0038 records
+  the case rule it turns on: German capitalises common nouns, so a noun is counted only
+  from a corpus's capitalised rows, and a source that lowercases everything cannot tell
+  German `Tag` from English `tag` at all.
 - `denckring.core.calculator` — the display table and its two pure functions, shared by
   the procedure and the explorer's stage scene so neither imports the other's internals.
 - A ninth stage scene for it, drawing seven real segments per digit and rotating the whole
@@ -862,6 +869,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- German `lexicon.graded_words` is no longer reported as a permanent ceiling. It was in
+  `_PERMANENTLY_MISSING` citing ADR 0028, whose own comment anticipated the removal; it
+  now names `denckring[de-frequency]`. French `stress` remains permanent (ADR 0034 D2).
 - `missing_capability` no longer names an extra that cannot supply the missing capability.
   German is the one language with two: `stress`, `phonemes`, `syllables.dictionary` and
   `lexicon.glosses` come only from `denckring[de-wiktionary]`, and the remedy named
