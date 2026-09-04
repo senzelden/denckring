@@ -1,0 +1,44 @@
+{# The display itself, and the verdict under it. Shared by the scene's first paint
+   and by the fragment `/act` swaps back — the same split `_stage_ladder.html` uses,
+   so editing the digits re-renders the machine rather than leaving it showing a
+   reading the panel beside it no longer claims.
+
+   The digits are drawn as seven real segments each and the whole display is rotated
+   180 degrees by CSS, so the flip is the machine turning over rather than a text
+   substitution. That matters for what the scene claims: a viewer can read the
+   unrotated digits and the rotated letters off the *same* marks. #}
+<div class="calc-display{{ ' flipped' if reading.problem != 'invalid' }}">
+  {% for digit in reading.digits %}
+  <svg class="calc-digit" viewBox="0 0 40 68" aria-hidden="true">
+    {% set lit = segments[digit] %}
+    <polygon class="seg{{ ' on' if 'a' in lit }}" points="8,3 32,3 27,8 13,8"/>
+    <polygon class="seg{{ ' on' if 'f' in lit }}" points="6,5 11,10 11,29 6,33"/>
+    <polygon class="seg{{ ' on' if 'b' in lit }}" points="34,5 34,33 29,29 29,10"/>
+    <polygon class="seg{{ ' on' if 'g' in lit }}" points="8,35 13,31 27,31 32,35 27,39 13,39"/>
+    <polygon class="seg{{ ' on' if 'e' in lit }}" points="6,37 11,41 11,60 6,65"/>
+    <polygon class="seg{{ ' on' if 'c' in lit }}" points="34,37 34,65 29,60 29,41"/>
+    <polygon class="seg{{ ' on' if 'd' in lit }}" points="13,62 27,62 32,67 8,67"/>
+  </svg>
+  {% endfor %}
+</div>
+
+{% if reading.problem == "invalid" %}
+{# The display cannot read this at all — a digit outside the table, and `2` is the
+   one a reader will actually type, because every folk table on the internet lists
+   it as Z. Named rather than silently dropped (ADR 0037 D2). #}
+<p class="calc-problem">{{ reading.message }}</p>
+{% elif reading.problem == "not_a_word" %}
+{# Distinct from "unreadable": the display shows perfectly good letters and the
+   language simply does not know the word. A true and interesting answer, not an
+   error to hide. #}
+<p class="calc-reading">{{ reading.word|upper }}</p>
+<p class="calc-problem">{{ reading.message }}</p>
+{% else %}
+<p class="calc-reading">{{ reading.word|upper }}</p>
+{% if report %}
+<p class="verdict {{ 'yes' if report.satisfied else 'no' }}">
+  {{ "checked — the display writes it, and it is a word"
+     if report.satisfied else "checked — the library does not accept this" }}
+</p>
+{% endif %}
+{% endif %}

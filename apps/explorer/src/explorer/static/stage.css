@@ -294,7 +294,8 @@
 .cutup-area .verdict,
 .poem-verdict,
 .llull-reading-panel .verdict,
-.automat-reading .verdict {
+.automat-reading .verdict,
+.calc-wrap .verdict {
   display: block;
   border-bottom: none;
   padding-bottom: 0;
@@ -3181,4 +3182,65 @@
 .cutup-uncheckable-head {
   color: var(--ink);
   margin-top: 0;
+}
+
+/* ── Scene nine: the calculator ────────────────────────────────────────────
+   The display is drawn as seven real polygons per digit and the whole block
+   is rotated 180 degrees, so a viewer reads the digits and the letters off
+   the same marks. Substituting text for the flipped reading would be quicker
+   and would make the scene's central claim untrue, which is the one thing a
+   recorded stage cannot afford (ADR 0037). */
+.calc-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.calc-display {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 0.5rem;
+  background: #14181b;
+  box-shadow: inset 0 2px 10px rgb(0 0 0 / 55%);
+  /* The flip is a transform on the machine, not a different set of glyphs. */
+  transition: transform 700ms cubic-bezier(0.6, 0, 0.3, 1);
+}
+
+.calc-display.flipped {
+  transform: rotate(180deg);
+}
+
+.calc-digit {
+  width: 2.2rem;
+  height: 3.7rem;
+}
+
+/* An unlit segment stays faintly visible, the way a real LCD's does. Hiding it
+   entirely would let a reader mistake an 8 for a 0. */
+.seg {
+  fill: #232a2e;
+}
+
+.seg.on {
+  fill: #e8402a;
+}
+
+.calc-reading {
+  font-family: var(--display, var(--body));
+  font-size: 1.9rem;
+  letter-spacing: 0.28em;
+  margin: 0;
+  color: var(--ink);
+}
+
+.calc-problem {
+  font-family: var(--body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--lead);
+  max-width: var(--measure);
+  margin: 0;
+  text-align: center;
 }
