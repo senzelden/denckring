@@ -1,0 +1,40 @@
+[project]
+name = "denckring-de-frequency"
+version = "0.1.0"
+description = "German frequency bands for denckring, from the Leipzig Corpora Collection"
+readme = "README.md"
+requires-python = ">=3.11"
+# CC-BY-3.0 rather than 4.0, and the choice is recorded in NOTICE: Leipzig's
+# terms say "the Creative Commons licence CC BY" with no version, and the corpus
+# archive documents no licence at all — its meta.txt is eight lines of build
+# statistics. The older licence is declared because the asymmetry runs one way.
+# Declaring 3.0 where the grant is really 4.0 understates our own rights and
+# harms nobody; declaring 4.0 where the grant is really 3.0 would pass on terms
+# the licensor never gave.
+license = "Apache-2.0 AND CC-BY-3.0"
+license-files = ["LICENSE", "NOTICE", "LICENSE-LEIPZIG"]
+authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: German",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+# Version-locked, for the reason denckring-en-data records. `denckring-de-data`
+# rather than `denckring`, because the build's case rule needs `nouns()` and the
+# pack below subclasses `GermanDataPack` — the same direction the Wiktionary
+# distribution's dependency runs.
+dependencies = ["denckring-de-data==0.1.0"]
+
+# No [project.entry-points."denckring.lang"] section, and its absence is the
+# design — the same absence `denckring-de-wiktionary` documents.
+# `denckring/lang/__init__.py` refuses two entry points claiming one language,
+# so `de` stays with `denckring-de-data`, whose `pack()` factory composes this
+# distribution in when it is importable (ADR 0013, ADR 0030, ADR 0038).
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denckring_de_frequency"]
