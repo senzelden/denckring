@@ -7,12 +7,18 @@ from itertools import combinations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, plain
+from denckring.core.base import (
+    MID_BAND,
+    ApplyParams,
+    ConstructiveProcedure,
+    DiacriticParams,
+    plain,
+)
 from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC
+from denckring.lang.base import GRADED_WORDS, NOUNS, SYLLABLES_HEURISTIC
 
 #: What makes one candidate swap better than another. Highest first:
 #: (1) the pronouncing dictionary actually has an entry for it — `pack.nouns()`
@@ -24,7 +30,13 @@ from denckring.lang.base import NOUNS, SYLLABLES_HEURISTIC
 #: checks; (3) it is the longer word. A ranking, not a filter: a candidate
 #: that clears none of these is still better than no candidate at all, so it
 #: is never dropped from consideration, only ranked last.
-CandidateScore = tuple[bool, bool, int]
+#: Ranks a swap, richest signal first, and sorted *descending* — so a larger
+#: element wins. The fourth is the negated frequency band, because bands run
+#: the other way (larger means rarer), and it sits last on purpose: it breaks
+#: ties among candidates already equal on pronunciation, nounhood and length,
+#: which is exactly the `bight` vs `light` case. Putting it earlier would let
+#: commonness overrule those three rather than settle between them.
+CandidateScore = tuple[bool, bool, int, int]
 
 
 class ParagramParams(DiacriticParams):
@@ -123,6 +135,10 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
         has_nouns = NOUNS in pack.capabilities
         has_syllables = SYLLABLES_HEURISTIC in pack.capabilities
 
+        # Read only where the pack declares it. `lexicon.graded_words` is
+        # deliberately absent from this row's `apply_requires`: a ranking signal
+        # is worth having, and not worth refusing to generate without.
+        grades = pack.graded_words() if GRADED_WORDS in pack.capabilities else {}
         found: list[tuple[CandidateScore, int, str, str]] = []
         for offset, word in word_spans(text, pack):
             if not word.isalpha():
@@ -141,7 +157,11 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
                     # every syllabic procedure's `estimated_words` metric rests on.
                     pronounced = has_syllables and pack.syllable_count(swapped)[1]
                     is_noun = has_nouns and pack.noun_index(swapped) is not None
-                    score: CandidateScore = (pronounced, is_noun, len(swapped))
+                    # A word the table does not list is mid-band, not
+                    # commonest — the same default `calculator_word` chose, and
+                    # for the same reason: absent is not evidence of anything.
+                    band = grades.get(swapped, MID_BAND)
+                    score: CandidateScore = (pronounced, is_noun, len(swapped), -band)
                     found.append((score, offset, word, swapped))
         if not found:
             raise NoCandidateWord(self.id)

@@ -2473,8 +2473,13 @@ def test_the_english_ladder_marks_the_letter_that_actually_changed() -> None:
     marked — a marked letter that was not the one substituted would be
     exactly wrong for a scene whose whole explanatory burden is this mark."""
     result = stage.word_ladder("cold", "warm", "en")
-    assert [rung.word for rung in result.rungs] == ["cold", "wold", "wald", "ward", "warm"]
-    assert [rung.changed for rung in result.rungs] == [None, 0, 1, 2, 3]
+    # Was `cold wold wald ward warm` until the search learned to prefer common
+    # rungs: `wold` is SCOWL band 55 and `wald` is absent from the graded list
+    # entirely, so the canonical example on this stage climbed through two words
+    # most readers do not know. Same length, same guarantee — the search still
+    # returns a shortest ladder — and every rung is now ordinary English.
+    assert [rung.word for rung in result.rungs] == ["cold", "cord", "word", "ward", "warm"]
+    assert [rung.changed for rung in result.rungs] == [None, 2, 0, 1, 3]
 
 
 def test_the_german_ladder_marks_the_letter_that_actually_changed() -> None:
