@@ -60,3 +60,44 @@ def test_the_board_prints_no_empty_caption() -> None:
     response = client.get("/board")
     assert '<p class="stage-caption"></p>' not in response.text
     assert "run just now" in response.text
+
+
+def test_a_capability_gap_is_blocked_rather_than_red() -> None:
+    """A row whose only failures are missing capabilities is not broken.
+
+    On a `denckring[en,de]` install that is 52 of the 156 tiles, and every one
+    was `red` until 2026-09-04 — while `denckring eval --all` reported 0 failed
+    on a full install at the same moment. The board was the only surface calling
+    them failures.
+    """
+    from explorer import board
+
+    tiles = {tile.id: tile for tile in board.tiles()}
+    # `alexandrine` needs `syllables.heuristic` in French, which `denckring[fr]`
+    # supplies and this app does not install.
+    blocked = tiles["alexandrine"]
+    assert blocked.state == "blocked"
+    assert blocked.detail == "requires denckring[fr]"
+
+
+def test_the_remedy_is_named_from_the_error_code_not_from_its_prose() -> None:
+    """`CaseResult.code` carries `missing_capability`; the message is English
+    that has already changed twice this week. A tile built by matching prose
+    would have followed it."""
+    from denckring.eval import harness
+
+    failures = [r for r in harness.run().results if not r.passed]
+    assert failures, "this install is expected to lack some data"
+    assert all(r.code == "missing_capability" for r in failures)
+
+
+def test_a_permanent_ceiling_does_not_offer_an_install() -> None:
+    """French has no lexical stress and never will (ADR 0034 D2), so no extra
+    can be named. Offering one would be the defect `_PERMANENTLY_MISSING`
+    exists to prevent, wearing a tile instead of an error message."""
+    from denckring.core.errors import extra_for
+
+    assert extra_for("fr", "stress") is None
+    assert extra_for("de", "lexicon.graded_words") is None
+    assert extra_for("fr", "syllables.heuristic") == "fr"
+    assert extra_for("de", "phonemes") == "de-wiktionary"
