@@ -752,6 +752,60 @@ procedures:
     prompt_hints:
       en: Write lines whose initials spell one word and whose final letters spell another.
 
+  - id: calculator_word
+    names: { en: Calculator word, de: Taschenrechnerwort, fr: Mot de calculatrice }
+    definitions:
+      en: >-
+        A word a seven-segment display can write, entered as digits and read by
+        turning the machine over: 7353 is ESEL. The checker compares the letters
+        the display actually shows, so an accented letter is not displayable
+        unless fold_diacritics is asked for.
+      de: >-
+        Ein Wort, das eine Siebensegmentanzeige schreiben kann: als Ziffern
+        eingegeben und auf dem Kopf gelesen ergibt 7353 ESEL. Verglichen wird,
+        was die Anzeige zeigt — ein Buchstabe mit Akzent und das ß gelten
+        deshalb nicht als darstellbar.
+      fr: >-
+        Un mot qu'un afficheur à sept segments peut écrire, saisi en chiffres et
+        lu en retournant la machine : 7353 donne ESEL. Le vérificateur compare ce
+        que l'afficheur montre, si bien qu'une lettre accentuée n'est pas
+        affichable.
+    source: >-
+      Michael Quinion, World Wide Words, "Beghilos" (2009); the practice dates to
+      pocket LED calculators of the 1970s
+    family: letter
+    attribution: reference
+    checkability: self
+    attested: codified
+    kind: both
+    languages: [en, de, fr]
+    requires: [tokens, lexicon.words, fold_diacritics]
+    apply_requires: [lexicon.nouns]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Write a word using only the letters B, E, G, H, I, L, O and S, then give
+        the digits that spell it upside down on a calculator.
+      de: >-
+        Schreibe ein Wort nur aus den Buchstaben B, E, G, H, I, L, O und S und
+        gib die Ziffern an, die es auf dem Kopf ergeben.
+      fr: >-
+        Écris un mot n'utilisant que les lettres B, E, G, H, I, L, O et S, puis
+        donne les chiffres qui l'affichent à l'envers.
+    notes: >-
+      The digit table is a module constant in `core/calculator.py`, not a pack
+      capability: seven-segment geometry does not vary by orthography the way the
+      ascenders `prisoners_constraint` reads from `letter_shapes` do (ADR 0037
+      D1). `6` and `9` both rotate onto G, so a word containing one has two digit
+      spellings; `check` accepts either and `apply` emits `6` (D4), which is why
+      `apply` is not the byte-for-byte inverse of `check` for about a third of
+      every corpus. `fold_diacritics` defaults to `false` here and to `true` on
+      every other row (D3): the display cannot write an accent or an ß, so
+      folding would admit words the machine provably cannot show. `apply` draws
+      from `lexicon.graded_words` where a pack declares it and from the noun list
+      otherwise, so its corpus differs by language — German declares no graded
+      words at all (ADR 0028), which is why `apply_requires` names the noun list
+      rather than the richer source (D5).
   - id: chronogram
     names: { en: Chronogram, de: Chronogramm, fr: Chronogramme }
     definitions:
