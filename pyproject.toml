@@ -112,6 +112,13 @@ exclude = [
     "/docs/audit",
     "/docs/superpowers",
     "/docs/seed",
+    # Excluded on size rather than on the working-document argument above: the
+    # overview GIF is 3 MB and is documentation of what this package does, so it
+    # belongs on the docs site — but a source distribution is what a packager
+    # builds from, and a recording is not part of building anything. It stays out
+    # of `WORKING_DOCUMENTS` for exactly that reason: that list is about what the
+    # docs site refuses, and the site publishes this.
+    "/docs/showcase",
 ]
 
 [tool.ruff]
