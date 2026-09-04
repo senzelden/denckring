@@ -2663,6 +2663,7 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
         "cut_up",
         "llull_figure",
         "poesie_automat",
+        "calculator_word",
     }
 
 
@@ -3316,7 +3317,8 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
     normalised = " ".join(css_path.read_text(encoding="utf-8").split())
     group = (
         ".displaced-area .verdict, .ladder-wrap .verdict, .cutup-area .verdict, "
-        ".poem-verdict, .llull-reading-panel .verdict, .automat-reading .verdict"
+        ".poem-verdict, .llull-reading-panel .verdict, .automat-reading .verdict, "
+        ".calc-wrap .verdict"
     )
     assert group in normalised
     body = normalised.split(group + " {", 1)[1].split("}", 1)[0]
@@ -3337,6 +3339,7 @@ def test_every_scene_that_checks_reads_one_verdict_rule() -> None:
             ".poem-verdict",
             ".llull-reading-panel .verdict",
             ".automat-reading .verdict",
+            ".calc-wrap .verdict",
         }
     )
 
@@ -6056,3 +6059,43 @@ def test_the_word_bag_is_given_no_verdict_because_it_can_have_none() -> None:
     route = app_src.split("async def stage_cut_up_act", 1)[1].split("\n@app.", 1)[0]
     assert "if method.procedure is None:" in route
     assert route.index("if method.procedure is None:") < route.index("denckring_check")
+
+
+# ── scene nine: the calculator ──────────────────────────────────────────────
+
+
+def test_the_calculator_scene_opens_on_a_word_and_a_verdict() -> None:
+    reading = stage.calculator_word(stage.CALCULATOR_WORD_DEFAULT, "de")
+    assert reading.word == "esel"
+    assert reading.problem == ""
+
+
+def test_the_calculator_tells_its_two_failures_apart() -> None:
+    """`2` is rotationally symmetric and shows no letter at all (ADR 0037 D2),
+    which is a different and more basic failure than a legible reading the
+    language does not know. Folded into one message, a reader who typed the
+    digit every folk table lists as Z would be told their word was not a word."""
+    unreadable = stage.calculator_word("2222", "de")
+    assert unreadable.problem == "invalid"
+    assert "no letter" in unreadable.message
+
+    legible = stage.calculator_word("35074", "en")
+    assert legible.problem == "not_a_word"
+    assert legible.word == "hlose"
+
+
+def test_the_same_digits_read_differently_by_language() -> None:
+    """The language toggle is not decoration: 7353 is ESEL, a German word and
+    not an English one, so the toggle changes the verdict on identical input."""
+    assert stage.calculator_word("7353", "de").problem == ""
+    assert stage.calculator_word("7353", "en").problem == "not_a_word"
+
+
+def test_the_display_draws_real_segments_rather_than_substituting_text() -> None:
+    """The scene's whole claim is that the digits and the letters are the same
+    marks seen from two sides. Rendering the flipped reading as text would be
+    quicker and would make that claim untrue, so the segments are pinned."""
+    body = client.get("/stage/calculator_word").text
+    assert body.count("calc-digit") == len(stage.CALCULATOR_WORD_DEFAULT)
+    assert "calc-display flipped" in body
+    assert "ESEL" in body

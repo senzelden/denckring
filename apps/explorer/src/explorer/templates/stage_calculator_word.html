@@ -1,0 +1,44 @@
+{% extends "stage.html" %}
+{% block title %}Taschenrechnerwort{% endblock %}
+{% block main %}
+<header class="scene-head">
+  <p class="scene-kicker">Pocket calculators &middot; from the 1970s</p>
+  <h1>{{ scene.title }}</h1>
+</header>
+<div class="calc-stage scene-split">
+  <div class="scene-figure">
+    <div id="display" class="calc-wrap">
+      {% include "_stage_display.html" %}
+    </div>
+  </div>
+  <div class="control-panel">
+    <form class="actions" hx-post="/stage/calculator_word/act" hx-target="#display" hx-swap="innerHTML">
+      <span class="scene-field">
+      <label for="digits-field">Digits</label>
+      <input id="digits-field" type="text" name="digits" inputmode="numeric" value="{{ digits }}">
+      </span>
+      <span class="scene-field">
+      <label for="lang-select">Language</label>
+      {# `data-sync`: refill the digit field from the chosen language's own example
+         (see `_stage_sync.html`, and `CALCULATOR_WORD_EXAMPLES`). Three options, not
+         the word ladder's two: this row declares [en, de, fr] and runs in each
+         without new data. #}
+      <select id="lang-select" name="lang" data-sync="digits-field:digits">
+        <option value="en" data-digits="{{ examples.en }}"
+                {% if default_lang == "en" %}selected{% endif %}>English</option>
+        <option value="de" data-digits="{{ examples.de }}"
+                {% if default_lang == "de" %}selected{% endif %}>German</option>
+        <option value="fr" data-digits="{{ examples.fr }}"
+                {% if default_lang == "fr" %}selected{% endif %}>French</option>
+      </select>
+      </span>
+      <button type="submit">Turn it over</button>
+    </form>
+    {# The toggle changes which lexicon decides, the way the word ladder's does: the
+       same digits read as a word in one language and as nothing in another, which is
+       the whole reason this row declares three. Try 7353 in English. #}
+    {% include "_stage_sync.html" %}
+  </div>
+</div>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

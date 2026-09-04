@@ -775,6 +775,60 @@ async def stage_word_ladder_act(request: Request) -> HTMLResponse:
 CUT_UP_LANG: Lang = "en"
 
 
+@app.get("/stage/calculator_word", response_class=HTMLResponse)
+def stage_calculator_word(request: Request, chrome: str = "on") -> HTMLResponse:
+    lang = stage.CALCULATOR_WORD_DEFAULT_LANG
+    digits = stage.CALCULATOR_WORD_EXAMPLES[lang]
+    reading = stage.calculator_word(digits, lang)
+    report = (
+        denckring_check("calculator_word", reading.word, lang=lang, digits=digits)
+        if not reading.problem
+        else None
+    )
+    return page(
+        request,
+        "stage_calculator_word.html",
+        scene=stage.scene("calculator_word"),
+        segments=stage.SEGMENTS,
+        reading=reading,
+        report=report,
+        digits=digits,
+        default_lang=lang,
+        examples=stage.CALCULATOR_WORD_EXAMPLES,
+        chrome_off=chrome == "off",
+    )
+
+
+@app.post("/stage/calculator_word/act", response_class=HTMLResponse)
+async def stage_calculator_word_act(request: Request) -> HTMLResponse:
+    """Decode the posted digits, then check the reading independently — both
+    halves of the round trip, run here exactly as the library runs them, the
+    same shape the word ladder's own action route uses.
+
+    `stage.calculator_word` already tells the two failure modes apart, so this
+    route only reads back which one happened rather than re-deriving it from an
+    exception message.
+    """
+    form = dict(await request.form())
+    digits = str(form.get("digits", ""))
+    lang = bench.as_lang(str(form.get("lang", "")))
+    reading = stage.calculator_word(digits, lang)
+    report = (
+        denckring_check("calculator_word", reading.word, lang=lang, digits=reading.digits)
+        if not reading.problem
+        else None
+    )
+    return page(
+        request,
+        "_stage_display.html",
+        segments=stage.SEGMENTS,
+        reading=reading,
+        report=report,
+        digits=digits,
+        lang=lang,
+    )
+
+
 @app.get("/stage/cut_up", response_class=HTMLResponse)
 def stage_cut_up(request: Request, chrome: str = "on") -> HTMLResponse:
     """First paint: the page, uncut, and nothing else — no cut has run yet,

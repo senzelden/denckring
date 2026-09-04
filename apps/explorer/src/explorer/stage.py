@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from denckring.core import device
+from denckring.core.calculator import FROM_DIGIT, from_digits
 from denckring.core.errors import InvalidParams, NoCandidateWord
 from denckring.core.protocol import Constructive, Lang, LanguagePack
 from denckring.core.registry import get
@@ -178,6 +179,15 @@ SCENES: list[Scene] = [
             "Enzensberger, Landsberg 2000. Press the button; the flaps clatter "
             "into one of 10\u00b3\u2076 poems."
         ),
+    ),
+    Scene(
+        slug="calculator_word",
+        title="Taschenrechnerwort",
+        caption=(
+            "Pocket calculators, from the 1970s. Type the digits, turn the machine "
+            "over: 7353 is ESEL."
+        ),
+        procedure_id="calculator_word",
     ),
 ]
 
@@ -2349,3 +2359,88 @@ def automat_inventory(device_id: str | None = None) -> tuple[int, int, int]:
     board = flap_board(device_id)
     modules = board.modules
     return len(board.lines), len(modules), sum(len(m.alternatives) for m in modules)
+
+
+#: Which of the seven segments each digit lights, in the standard labelling:
+#: `a` top, `b` top-right, `c` bottom-right, `d` bottom, `e` bottom-left,
+#: `f` top-left, `g` middle. The template draws these as real polygons and
+#: rotates the whole display, so a viewer reads the digits and the letters off
+#: the same marks — which is the scene's whole claim, and would be a lie if the
+#: letters were substituted text. Rotating swaps a<->d, b<->e, c<->f and fixes
+#: g, which is where ADR 0037's table comes from.
+SEGMENTS = {
+    "0": "abcdef",
+    "1": "bc",
+    "2": "abdeg",
+    "3": "abcdg",
+    "4": "bcfg",
+    "5": "acdfg",
+    "6": "acdefg",
+    "7": "abc",
+    "8": "abcdefg",
+    "9": "abcdfg",
+}
+
+#: The digits the scene opens on, and the language they are read in. German
+#: because `Esel` is the example the practice is known by here, and because it
+#: is the one reading that needs no gloss on a recorded stage.
+CALCULATOR_WORD_DEFAULT = "7353"
+CALCULATOR_WORD_DEFAULT_LANG: Lang = "de"
+
+#: The languages the scene offers. All three, unlike the word ladder's two: the
+#: row declares `[en, de, fr]` and runs in each without new data.
+CALCULATOR_WORD_EXAMPLES: dict[Lang, str] = {
+    "en": "07734",
+    "de": CALCULATOR_WORD_DEFAULT,
+    "fr": "713705",
+}
+
+
+@dataclass(frozen=True)
+class CalculatorReading:
+    """What the display shows, and whether it is a word.
+
+    `problem` is `""` for a real calculator word, `"invalid"` for an entry the
+    display cannot read at all (a digit outside the table — `2` shows no
+    letter), and `"not_a_word"` when the letters are legible but the language
+    does not know them. Three answers rather than one, for the reason
+    `Ladder.problem` gives: "the display shows GLOSE and that is not a word" is
+    a different and more interesting fact than "you typed a 2".
+    """
+
+    digits: str
+    word: str
+    problem: str
+    message: str
+
+
+def calculator_word(digits: str, lang: Lang = "de") -> CalculatorReading:
+    """Decode `digits` and say whether the display's reading is a word.
+
+    Reads `core.calculator` directly rather than going through the procedure,
+    which is why that table is not inside the procedure module: a scene must not
+    import a procedure's internals, and both need the same eight letters.
+
+    The lexicon is asked here rather than by catching the procedure's own
+    exception, the same choice `word_ladder` above makes and for the same
+    reason: matching English prose in an error message to tell two failure modes
+    apart breaks the moment either wording changes.
+    """
+    cleaned = digits.strip()
+    if not cleaned or not cleaned.isdigit():
+        return CalculatorReading(cleaned, "", "invalid", "Type digits to read them back.")
+    unreadable = sorted({ch for ch in cleaned if ch not in FROM_DIGIT})
+    if unreadable:
+        # `2` is rotationally symmetric on a seven-segment display and shows no
+        # letter at all — ADR 0037 D2. Named rather than silently dropped, or
+        # the reader sees a shorter word than they typed and no reason why.
+        shown = " and ".join(unreadable)
+        return CalculatorReading(
+            cleaned, "", "invalid", f"{shown} shows no letter when the display is turned over."
+        )
+    word = from_digits(cleaned)
+    if not get_pack(lang).is_word(word):
+        return CalculatorReading(
+            cleaned, word, "not_a_word", f"The display reads {word.upper()}, which is not a word."
+        )
+    return CalculatorReading(cleaned, word, "", "")
