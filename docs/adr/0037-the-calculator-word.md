@@ -90,14 +90,21 @@ genuinely differ by orthography; seven-segment geometry does not. The cost is th
 reader who has internalised `prisoners_constraint` will expect the pack to own this
 and has to be told otherwise, which the row's `notes` does.
 
-**`apply_requires` names `lexicon.nouns`, not `lexicon.graded_words`.** German
-declares no graded words — SCOWL ships in `denckring-en-data` alone (ADR 0028) — so a
-row demanding them could not generate in the language of this row's own example, and
-would emit exactly the misleading `missing_capability` remedy fixed on 2026-09-04. The
-generator therefore floors on the noun list, the capability every pack meets, and
-prefers graded words where a pack declares them. The cost is real and is not visible
-in the published capability list: the generator's corpus differs by language for a
-reason only `notes` and this record state.
+**`apply_requires` names `lexicon.nouns`, not `lexicon.graded_words`.** At the time
+this was written German declared no graded words — SCOWL ships in
+`denckring-en-data` alone (ADR 0028) — so a row demanding them could not generate in
+the language of this row's own example, and would have emitted exactly the misleading
+`missing_capability` remedy fixed the same day. The generator therefore floors on the
+noun list, the capability every pack meets, and uses graded words only to rank where a
+pack declares them.
+
+*Amended 2026-09-04, later the same day.* ADR 0038 gave German `lexicon.graded_words`
+from the Leipzig Corpora Collection, so the reason above no longer holds. **The
+decision does.** `apply_requires` should name what a row genuinely needs rather than
+the best thing currently available, and `lexicon.nouns` remains the floor every pack
+meets; a row that demanded graded words would refuse on a core-only install for no
+gain. Left standing with its original reasoning intact rather than rewritten, because
+a decision that survives the collapse of its own premise is worth being able to see.
 
 **The row is a `verfahren`, not the first `instrument`.** The calculator is tempting
 as one — its address space is genuine, radix 10, one digit per position — but ADR 0033

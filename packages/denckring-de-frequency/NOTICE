@@ -10,27 +10,18 @@ LICENSE-LEIPZIG for attribution.
 
 ON THE LICENCE VERSION
 ----------------------
-The declared expression is `Apache-2.0 AND CC-BY-3.0`, and the CC BY version is
-an assumption rather than a quotation. It is recorded here rather than hidden,
-because a licence version in package metadata is a claim about somebody else's
-rights.
-
-The Leipzig terms of usage say, of the material this distribution derives from:
+Creative Commons Attribution 4.0, established from the Leipzig project's own
+page: its terms of usage say only
 
     The text corpora offered for download are made available under the
     Creative Commons licence CC BY.
 
-No version is given there. The corpus archive documents no licence at all: its
-`meta.txt` is eight lines of build statistics, and its only other non-data
-member is a MySQL schema dump. Secondary sources disagree — the project's older
-printed frequency dictionaries are described as CC BY 3.0, while Wiktionary
-lists the downloads as CC BY 4.0.
+with no version in the prose, and the corpus archive documents no licence at all
+— its meta.txt is eight lines of build statistics and its only other non-data
+member is a MySQL schema dump. The version is carried by the link on "CC BY",
+which points at the 4.0 deed.
 
-The older licence is declared deliberately, because the asymmetry runs one way.
-If the grant is really 4.0, declaring 3.0 understates rights this project holds
-and harms no one downstream. If the grant is really 3.0, declaring 4.0 would
-pass on terms the licensor never gave.
-
-Attribution — the obligation common to both versions — is satisfied by
-LICENSE-LEIPZIG regardless. If the project confirms a version, this file and the
-`license` field are a one-line change each.
+Recorded because secondary sources disagree — the project's older printed
+frequency dictionaries are described as CC BY 3.0 — and because a licence
+version in package metadata is a claim about somebody else's rights, which is
+worth sourcing rather than inferring.

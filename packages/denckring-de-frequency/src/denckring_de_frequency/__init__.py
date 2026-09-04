@@ -18,6 +18,12 @@ from collections.abc import Mapping
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
+from types import MappingProxyType
+from typing import ClassVar
+
+from denckring_de_data import GermanDataPack
+
+from denckring.lang.base import GRADED_WORDS
 
 GRADED_WORDS_PATH = Path(str(files("denckring_de_frequency") / "data" / "graded_words.txt.gz"))
 
@@ -47,4 +53,47 @@ def graded_words() -> Mapping[str, int]:
     return table
 
 
-__all__ = ["GRADED_WORDS_PATH", "graded_words"]
+class GermanFrequencyPack(GermanDataPack):
+    """German with a lexicon and frequency bands behind it."""
+
+    capabilities: ClassVar[frozenset[str]] = GermanDataPack.capabilities | {GRADED_WORDS}
+
+    def graded_words(self) -> Mapping[str, int]:
+        """A read-only view over the cached table, for the reason English gives:
+        the module function is `lru_cache`d and shared, so handing the dict out
+        would let one caller's mutation corrupt it for all the others."""
+        return MappingProxyType(graded_words())
+
+
+try:
+    from denckring_de_wiktionary import GermanWiktionaryPack
+except ImportError:  # pragma: no cover - depends on what is installed
+    #: Without the Wiktionary distribution there is no richer pack to combine
+    #: with, and the factory in `denckring-de-data` never reaches for this name.
+    #: Bound anyway so the module's exports do not depend on an install.
+    GermanWiktionaryFrequencyPack = GermanFrequencyPack
+else:
+
+    class GermanWiktionaryFrequencyPack(GermanWiktionaryPack):  # type: ignore[no-redef]
+        """Everything German has: lexicon, pronunciations, and frequency.
+
+        Declared here rather than in `denckring-de-wiktionary`, because that
+        distribution must not learn about this one. Either is installable
+        without the other, and a hard dependency in that direction would make
+        one of those installs impossible. This package imports it optionally
+        instead — the same shape `denckring-de-data`'s own factory uses, and for
+        the same reason (ADR 0013, ADR 0030).
+        """
+
+        capabilities: ClassVar[frozenset[str]] = GermanWiktionaryPack.capabilities | {GRADED_WORDS}
+
+        def graded_words(self) -> Mapping[str, int]:
+            return MappingProxyType(graded_words())
+
+
+__all__ = [
+    "GRADED_WORDS_PATH",
+    "GermanFrequencyPack",
+    "GermanWiktionaryFrequencyPack",
+    "graded_words",
+]

@@ -4,14 +4,13 @@ version = "0.1.0"
 description = "German frequency bands for denckring, from the Leipzig Corpora Collection"
 readme = "README.md"
 requires-python = ">=3.11"
-# CC-BY-3.0 rather than 4.0, and the choice is recorded in NOTICE: Leipzig's
-# terms say "the Creative Commons licence CC BY" with no version, and the corpus
-# archive documents no licence at all — its meta.txt is eight lines of build
-# statistics. The older licence is declared because the asymmetry runs one way.
-# Declaring 3.0 where the grant is really 4.0 understates our own rights and
-# harms nobody; declaring 4.0 where the grant is really 3.0 would pass on terms
-# the licensor never gave.
-license = "Apache-2.0 AND CC-BY-3.0"
+# The version is not in the terms' prose — they say only "the Creative Commons
+# licence CC BY" — nor anywhere in the corpus archive, whose meta.txt is eight
+# lines of build statistics. It is in the link: the page's "CC BY" points at the
+# 4.0 deed, which is the project's own statement rather than a secondary one.
+# Worth recording because secondary sources disagree, and because a licence
+# version in package metadata is a claim about somebody else's rights.
+license = "Apache-2.0 AND CC-BY-4.0"
 license-files = ["LICENSE", "NOTICE", "LICENSE-LEIPZIG"]
 authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
 classifiers = [

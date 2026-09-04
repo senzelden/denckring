@@ -104,25 +104,45 @@ class GermanDataPack(GermanPack):
 def pack() -> GermanPack:
     """The best German pack this install can supply. The `de` entry point.
 
-    A factory rather than a class, because two distributions have German data
-    under two licences and only one of them may register the language.
+    A factory rather than a class, because three distributions carry German data
+    under three licences and only one of them may register the language.
     `denckring/lang/__init__.py` raises `DuplicatePack` for a second `de` entry
-    point — deliberately, so that no installer has to choose between two packs —
-    and ADR 0013 forbids merging CC BY-SA data into this CC0 distribution. A
-    factory satisfies both: one entry point, and the richer pack wins when its
-    data is installed.
+    point — deliberately, so no installer has to choose between packs — and ADR
+    0013 forbids merging their licences. A factory satisfies both: one entry
+    point, and the richest pack whose data is installed wins.
 
     `entry.load()()` is what the registry calls, so a function and a class are
     interchangeable there; nothing in core learns that German is special.
 
-    The subclass is imported here rather than at module scope because this
-    distribution does not depend on that one — the dependency runs the other way.
+    **Four combinations, each naming a class rather than composing one at
+    runtime.** ADR 0030 replaced a computed-capabilities probe with a named
+    factory once already, and its reason still holds: a reader should be able to
+    see what a class carries without running it. Two optional distributions made
+    two branches; a third (ADR 0038) makes four, and four named branches are
+    still cheaper to read than one clever line.
+
+    The subclasses are imported here rather than at module scope because this
+    distribution depends on neither of them — the dependencies run the other way.
     """
     try:
-        from denckring_de_wiktionary import GermanWiktionaryPack
+        from denckring_de_frequency import (
+            GermanFrequencyPack,
+            GermanWiktionaryFrequencyPack,
+        )
     except ImportError:
-        # Not installed. The lexical pack is the whole answer, and a procedure
-        # wanting `phonemes` will raise `MissingCapability` naming it, which is
-        # the honest failure rather than a guessed pronunciation.
-        return GermanDataPack()
-    return GermanWiktionaryPack()
+        # No frequency data. `anagram` can still check in German and will raise
+        # `MissingCapability` naming `lexicon.graded_words` if asked to generate,
+        # which is the honest failure rather than an unranked pile of covers.
+        try:
+            from denckring_de_wiktionary import GermanWiktionaryPack
+        except ImportError:
+            return GermanDataPack()
+        return GermanWiktionaryPack()
+    try:
+        import denckring_de_wiktionary  # noqa: F401
+    except ImportError:
+        # Not installed. A procedure wanting `phonemes` will raise
+        # `MissingCapability` naming it, which is the honest failure rather than
+        # a guessed pronunciation.
+        return GermanFrequencyPack()
+    return GermanWiktionaryFrequencyPack()
