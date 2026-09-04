@@ -120,3 +120,49 @@ def test_apply_procedure_text_is_still_the_first_text() -> None:
 
     out = apply_procedure_tool("cut_up", "one two three four", {"seed": 1})
     assert out["text"] == out["texts"][0]
+
+
+def test_apply_procedure_carries_the_metrics_a_ranking_was_computed_from() -> None:
+    """ADR 0031's `attestation: "mask"` is a no-op over MCP without this.
+
+    `denckring` ranks its spun words by whether the dictionary attests them and
+    puts that on each `Candidate.metrics`; `anagram` ranks covers by the SCOWL
+    band of their least common word. The tool returned `texts` alone, so a client
+    was shown an order and never the number it was computed from — which
+    `Candidate`'s own docstring calls the thing a caller "deserves to see".
+    """
+    from denckring.mcp.server import apply_procedure_tool
+
+    out = apply_procedure_tool(
+        "denckring", "", {"attestation": "mask", "max_results": 5}, lang="de"
+    )
+    assert "candidates" in out, out
+    assert [c["text"] for c in out["candidates"]] == out["texts"]
+    assert any(c["metrics"] for c in out["candidates"]), "every metric was dropped"
+
+
+def test_apply_procedure_reports_a_language_it_cannot_generate_in() -> None:
+    """`constructive` is language-blind and `apply_missing` is not.
+
+    `anagram` is `constructive: true` everywhere, and in German its generator
+    cannot run at all: SCOWL ships in `denckring-en-data` alone (ADR 0028). A
+    caller who did what `apply_procedure`'s docstring said — read `constructive`
+    — was sent straight into a `missing_capability`.
+    """
+    from denckring.mcp.server import apply_procedure_tool, describe_procedure_tool
+
+    described = describe_procedure_tool("anagram", lang="de")
+    assert described["constructive"] is True
+    assert described["apply_missing"] == ["lexicon.graded_words"]
+
+    refused = apply_procedure_tool("anagram", "dormitory", lang="de")
+    assert refused["code"] == "missing_capability"
+
+
+def test_the_apply_docstring_sends_callers_to_the_language_aware_field() -> None:
+    """The docstring named `constructive` and never `apply_missing`, so it was
+    telling callers to read the field that cannot answer the question."""
+    from denckring.mcp.server import apply_procedure_tool
+
+    doc = apply_procedure_tool.__doc__ or ""
+    assert "apply_missing" in doc

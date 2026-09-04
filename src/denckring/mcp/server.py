@@ -89,6 +89,13 @@ def apply_procedure_tool(
     whether this install has it. Read `constructive`, not `kind`, before calling
     this, and `apply_params` — not `params` — for what may go in `params` here.
 
+    `constructive` is not the whole answer, because it does not depend on `lang`.
+    A row can have a generator this install can run and still not run it in the
+    language you asked for: `anagram` needs SCOWL, which ships for English alone
+    (ADR 0028), and `proteus_verse` needs stress, which French has not got (ADR
+    0034 D2). `apply_missing` is the language-aware field — empty means this call
+    will run, non-empty names the capabilities it would refuse on. Check both.
+
     No count is given, deliberately: this said twenty-seven and was read by
     callers as current while the twenty-eighth was landing. `list_procedures`
     answers it exactly and cannot go stale.
@@ -105,6 +112,15 @@ def apply_procedure_tool(
         "text": produced.texts[0],
         "texts": produced.texts,
         "truncated": produced.truncated,
+        # `texts` alone made ADR 0031's `attestation: "mask"` a no-op over MCP:
+        # the mask's whole output is a per-word attested/neglected mark on
+        # `Candidate.metrics`, and `anagram` likewise ranks covers by a SCOWL
+        # band the client never saw. A caller shown an order deserves the number
+        # it was computed from, which is `Candidate`'s own stated contract.
+        # `texts` stays, and stays first: ADR 0026 made `texts[0]` the definition
+        # of `apply` and every existing consumer reads it.
+        "candidates": [candidate.model_dump() for candidate in produced.candidates],
+        "metrics": produced.metrics,
     }
 
 
