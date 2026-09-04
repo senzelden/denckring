@@ -40,6 +40,7 @@ pip install denckring          # English, German and French, no data files
 pip install denckring[en]      # + a pronouncing dictionary, a noun lexicon and a graded word list
 pip install denckring[de]      # + a word lexicon and a noun list
 pip install denckring[de-wiktionary]   # + German pronunciations, stress and glosses
+pip install denckring[de-frequency]    # + German frequency bands, so `apply anagram` runs in German
 pip install denckring[fr]      # + a word list, nouns, frequency bands, glosses, syllables and phonemes
 ```
 
@@ -47,7 +48,9 @@ The extras improve or unlock procedures rather than changing the language itself
 Without `[en]`, syllables are estimated from spelling and every report says how many
 words were guessed; with it, that number goes to zero for words the dictionary knows,
 and `apply anagram` runs at all — its search needs a word list graded by commonness, not
-just one that answers whether a string is a word (ADR 0028). Without `[de]` or `[fr]`,
+just one that answers whether a string is a word (ADR 0028). German gets the same from
+`[de-frequency]`, whose bands come from the Leipzig Corpora Collection (ADR 0038);
+without it German `anagram` checks but does not generate. Without `[de]` or `[fr]`,
 `charade`, `semordnilap`, `word_square`, `n_plus_7` and `s_plus_7` raise
 `MissingCapability` for those languages; with them, they run. `lexicon.graded_words` is
 English and French: SCOWL's bands for one, Lexique's corpus frequencies bucketed into six
