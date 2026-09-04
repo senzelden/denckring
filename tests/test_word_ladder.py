@@ -84,3 +84,28 @@ def test_an_endpoint_the_lexicon_does_not_know_is_a_search_failure() -> None:
     assert isinstance(procedure, Constructive)
     with pytest.raises(NoCandidateWord):
         procedure.apply("cold", target="zzzz")
+
+
+def test_the_ladder_prefers_rungs_a_reader_recognises() -> None:
+    """`cold -> warm` climbed through `wold` (SCOWL band 55) and `wald` (absent
+    from the graded list entirely), because the breadth-first search enqueued
+    neighbours in the order `_substitutions` generated them — alphabetical.
+
+    Sorting the *valid* neighbours by band before enqueuing does not touch the
+    search's guarantee: every neighbour at depth d is still enqueued before any
+    at depth d+1, so the ladder returned is still a shortest one. Only which
+    shortest ladder is found first changes.
+    """
+    from denckring import apply
+
+    rungs = apply("word_ladder", "cold", lang="en", target="warm").split()
+    assert rungs[0] == "cold" and rungs[-1] == "warm"
+    assert "wold" not in rungs
+
+
+def test_ranking_did_not_lengthen_the_ladder() -> None:
+    """The search's whole claim is that it returns a *shortest* ladder. A
+    preference that made it longer would have broken the thing it decorates."""
+    from denckring import apply
+
+    assert len(apply("word_ladder", "cold", lang="en", target="warm").split()) == 5

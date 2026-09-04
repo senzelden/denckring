@@ -176,3 +176,37 @@ def test_apply_raises_when_no_swap_exists(monkeypatch: pytest.MonkeyPatch) -> No
     assert isinstance(procedure, Constructive)
     with pytest.raises(NoCandidateWord):
         procedure.apply("   ", lang="en")
+
+
+def test_a_common_swap_outranks_a_rare_one() -> None:
+    """The ordering among equally-scoring candidates was the search's own —
+    alphabetical — so `bight` (SCOWL band 50) came back ahead of `light`,
+    `might` and `fight` (band 10). All five are five letters, all are in the
+    pronouncing dictionary and none is a noun, so the first three score
+    elements tie and the fourth is what separates them.
+
+    `lexicon.graded_words` is read only when the pack declares it. It is not on
+    `apply_requires`, because refusing to generate on a core-only install would
+    trade a working procedure for a nicety.
+    """
+    from denckring import produce
+
+    texts = produce("paragram", "silent night holy night", lang="en", max_results=40).texts
+    swapped = [t.split()[2] for t in texts]
+    # Not dropped — ranked. `max_results=40` is wide enough to see it at all:
+    # at the default 10 the band-10 swaps fill the list and `bight` never
+    # appears, which is the improvement rather than a filter.
+    assert "bight" in swapped
+    for common in ("light", "might", "fight", "eight"):
+        assert swapped.index(common) < swapped.index("bight"), common
+
+
+def test_a_word_the_table_does_not_know_ranks_mid_not_best() -> None:
+    """`dat` is absent from the graded list and `bat` is band 20. Absent must
+    not read as commonest — the same mid-band default `calculator_word` chose."""
+    from denckring import produce
+
+    texts = produce("paragram", "a small cat sat on the mat", lang="en", max_results=12).texts
+    swapped = [t.split()[3] for t in texts]
+    if "dat" in swapped and "bat" in swapped:
+        assert swapped.index("bat") < swapped.index("dat")

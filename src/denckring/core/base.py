@@ -217,6 +217,16 @@ def parse_into(model: type[BaseModel], params: dict[str, Any], procedure_id: str
         raise InvalidParams(procedure_id, str(exc)) from exc
 
 
+#: The frequency band a word absent from `lexicon.graded_words` is ranked at.
+#:
+#: Mid-scale rather than best or worst, because absence is evidence of neither.
+#: Treating it as commonest would promote exactly the words no frequency list
+#: has ever seen; treating it as rarest would bury every word a corpus happened
+#: to miss. Shared by the three generators that rank — `anagram` uses its own
+#: `max_size` ceiling instead, which is a filter rather than a tiebreak.
+MID_BAND = 50
+
+
 def plain(texts: Iterable[str]) -> Produced:
     """Candidates with nothing known about them beyond their text.
 

@@ -39,11 +39,18 @@ from itertools import pairwise
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams, plain
+from denckring.core.base import (
+    MID_BAND,
+    ApplyParams,
+    ConstructiveProcedure,
+    DiacriticParams,
+    plain,
+)
 from denckring.core.errors import InvalidParams, NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
+from denckring.lang.base import GRADED_WORDS
 
 #: A ladder longer than this is not worth searching for. Carroll's own puzzles
 #: run to a handful of steps; a breadth-first search that has not reached the
@@ -300,6 +307,10 @@ def _search_ladder(
     """
     if start == target:
         return [start], False
+    # Read only where the pack declares it, and never named in `apply_requires`:
+    # a ladder through commoner words is worth having, and not worth refusing to
+    # climb without. An unlisted word is mid-band rather than commonest.
+    grades = pack.graded_words() if GRADED_WORDS in pack.capabilities else {}
     parents: dict[str, str] = {start: start}
     frontier: deque[tuple[str, int]] = deque([(start, 1)])
     explored = 0
@@ -307,9 +318,24 @@ def _search_ladder(
         word, depth = frontier.popleft()
         if depth >= MAX_LADDER_WORDS:
             continue
-        for candidate in _substitutions(word, alphabet):
-            if candidate in parents or not pack.is_word(candidate):
-                continue
+        # The valid neighbours, commonest first. Sorted here rather than inside
+        # `_substitutions`, which is `lru_cache`d on the word and the alphabet
+        # *string* precisely so it never holds on to a pack — see its docstring.
+        #
+        # This does not weaken the search. Every neighbour at depth d is still
+        # enqueued before any at depth d+1, so the first discovery of `target`
+        # is still by a shortest path; only *which* shortest ladder is found
+        # first changes. It changed for the better: `cold -> warm` climbed
+        # through `wold` (band 55) and `wald` (absent from the graded list)
+        # because the generator emitted substitutions alphabetically.
+        neighbours = [
+            candidate
+            for candidate in _substitutions(word, alphabet)
+            if candidate not in parents and pack.is_word(candidate)
+        ]
+        # Stable, so a pack with no bands leaves the order exactly as it was.
+        neighbours.sort(key=lambda candidate: grades.get(candidate, MID_BAND))
+        for candidate in neighbours:
             parents[candidate] = word
             if candidate == target:
                 return _reconstruct(parents, target), False
