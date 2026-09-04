@@ -113,6 +113,24 @@ _PERMANENTLY_MISSING = frozenset(
     }
 )
 
+#: `(lang, capability)` pairs supplied by an extra that is *not* named after the
+#: language. Only German has two, and the split is a licence boundary rather than
+#: a packaging convenience: `denckring[de]` is CC0 Wikidata, while pronunciation,
+#: stress, phonetic syllables and glosses come from the CC BY-SA Wiktionary dump,
+#: which ADR 0013 quarantines in `denckring-de-wiktionary`.
+#:
+#: Without this the remedy named the language, so a German `stress` refusal read
+#: `pip install denckring[de]` — an extra the caller may already have and which
+#: has never carried stress. That is the defect `_PERMANENTLY_MISSING` fixed one
+#: layer up: a remedy nobody can follow is worse than no remedy, and a remedy that
+#: reinstalls what is already there is the same failure wearing a install command.
+_SPECIALIST_EXTRAS = {
+    ("de", "stress"): "de-wiktionary",
+    ("de", "phonemes"): "de-wiktionary",
+    ("de", "syllables.dictionary"): "de-wiktionary",
+    ("de", "lexicon.glosses"): "de-wiktionary",
+}
+
 
 class MissingCapability(DenckringError):
     code = "missing_capability"
@@ -121,10 +139,11 @@ class MissingCapability(DenckringError):
         self.procedure_id = procedure_id
         self.lang = lang
         self.capability = capability
+        extra = _SPECIALIST_EXTRAS.get((lang, capability), lang)
         remedy = (
             f"No data distribution supplies it for {lang!r}."
             if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING
-            else f"Install the extra that supplies it: `pip install denckring[{lang}]`."
+            else f"Install the extra that supplies it: `pip install denckring[{extra}]`."
         )
         super().__init__(
             f"Procedure {procedure_id!r} requires the capability {capability!r}, "
