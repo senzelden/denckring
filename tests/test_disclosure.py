@@ -44,3 +44,48 @@ def test_an_absent_field_is_not_reported_as_a_fallback() -> None:
     assert _fell_back({}, "fr") is False
     assert _fell_back({"en": "a hint"}, "fr") is True
     assert _fell_back({"fr": "un indice"}, "fr") is False
+
+
+#: Phrases a definition can only be read as a promise about what is verified.
+#: `caesura` needs no entry in `requires` because nothing in this project locates
+#: one at all, so naming it is always a promise nothing keeps.
+_DISCLOSURE = ("checker", "checked", "read as", "only the", "compares", "counts")
+
+
+def _promises_beyond_requires(meta: object) -> list[str]:
+    definition = meta.definitions.get("en", "").lower()  # type: ignore[attr-defined]
+    requires = meta.requires  # type: ignore[attr-defined]
+    promises = []
+    if "caesura" in definition:
+        promises.append("caesura")
+    if "stress" in definition and "stress" not in requires:
+        promises.append("stress")
+    if "syllable" in definition and not any(c.startswith("syllables") for c in requires):
+        promises.append("syllable")
+    return promises
+
+
+def test_a_definition_promising_what_the_checker_lacks_says_so() -> None:
+    """Finding 6: six rows published a definition promising what the checker
+    structurally cannot do, and `describe_procedure` hands that definition to a
+    model as the description of the constraint.
+
+    Four of the six are reachable this way. `limerick` (line lengths) and
+    `blank_verse` (the caveat `iambic_pentameter` publishes) are not: their
+    promises are ordinary prose with no capability word to key on, which is why
+    the sweep called for a definition-by-definition read rather than a regex.
+    This guard holds the four that generalise, so the next row to name a caesura
+    it does not locate fails here rather than shipping.
+    """
+    from denckring.core import catalogue
+
+    rows = catalogue.load()
+    bare = []
+    for meta in rows.values() if isinstance(rows, dict) else rows:
+        promises = _promises_beyond_requires(meta)
+        if not promises:
+            continue
+        definition = meta.definitions.get("en", "").lower()
+        if not any(mark in definition for mark in _DISCLOSURE):
+            bare.append((meta.id, promises))
+    assert bare == [], f"definitions promise what the checker cannot do: {bare}"
