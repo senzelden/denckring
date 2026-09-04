@@ -74,8 +74,22 @@ def test_the_sdist_does_not_carry_the_working_documents(sdist: Path) -> None:
     whoever picks the work up — not documentation of what this package does, and nothing
     downstream reads them. Named here rather than left to the size bound alone, because
     the size bound has just been raised and a silent re-inclusion would now fit under it.
-    They stay in git: ADRs 0030 and 0031 cite them."""
-    stowaways = [name for name in _members(sdist) if name.startswith("docs/expansion_ideas/")]
+    They stay in git: ADRs 0030 and 0031 cite them.
+
+    Read from `test_published_docs.WORKING_DOCUMENTS` rather than restated here.
+    That list has always been right and the sdist's was not: `superpowers/` and
+    `seed/` were kept off the docs site from the start and shipped to PyPI anyway,
+    which nothing caught, because the two lists were maintained separately and
+    the omission cost nothing until a spec pushed the archive past the size bound.
+    One list, two consumers.
+    """
+    from test_published_docs import WORKING_DOCUMENTS
+
+    stowaways = [
+        name
+        for name in _members(sdist)
+        if any(name.startswith(f"docs/{folder}") for folder in WORKING_DOCUMENTS)
+    ]
     assert stowaways == []
 
 
