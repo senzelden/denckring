@@ -83,6 +83,13 @@ def test_readme_prose_counts_match_the_scoreboard() -> None:
         f"the {coverage.catalogued} catalogued procedures",
         f"{coverage.unreachable} have no mechanical acceptance criterion",
         f"the remaining {unimplemented} are sourced",
+        # Two more that went stale unnoticed while the three above were pinned:
+        # "the catalogue is 154 sourced procedures" survived two rows being
+        # added, and "70 of the 121 implemented" survived one. A count in prose
+        # rots exactly as fast as a count in the transcript; the only difference
+        # was that nothing was watching these.
+        f"catalogue is {coverage.catalogued} sourced procedures",
+        f"of the {coverage.implemented} implemented",
     ):
         assert claim in text, f"README's prose does not say {claim!r}"
 
