@@ -75,6 +75,15 @@ class Description(BaseModel):
     #: by `apply` from the text it transforms, and passing it as a parameter is
     #: refused.
     apply_params: dict[str, Any]
+    #: Which of `name`, `definition` and `prompt_hints` are not in the language
+    #: asked for but in a substitute. Localisation has always fallen back to
+    #: English, silently and per field, so a French caller received English prose
+    #: in a field typed as French with nothing marking it: measured over 155 rows
+    #: on 2026-09-04, `names` de 95 / fr 98, `definitions` de 95 / fr 95, and
+    #: `prompt_hints` de 4 / fr 0. Empty means everything present is in `lang`.
+    #: The fallback itself is unchanged — a substitute beats a blank field — this
+    #: only stops it being invisible.
+    untranslated: list[str]
     scholarly: Scholarly | None = None
 
 
@@ -127,6 +136,22 @@ def _text(mapping: dict[Lang, str], lang: Lang) -> str:
     return next(iter(mapping.values()), "")
 
 
+def _fell_back(mapping: dict[Lang, str], lang: Lang) -> bool:
+    """Whether `_text` substituted another language for `lang`.
+
+    An *empty* mapping is not a fallback: a row carrying no `prompt_hints` at all
+    has none to translate, and `prompt_hints` is already `None` to say so.
+    Reporting it as untranslated would say a row was mistranslated when it is
+    merely silent, which is the error this field exists to avoid making.
+
+    No catalogue row reaches that branch today — all 155 carry at least one
+    `prompt_hints` entry, measured 2026-09-04 — but `prompt_hints` is optional in
+    `Meta`, so the case is reachable by the next row added and is covered by a
+    test against the mapping rather than against a row.
+    """
+    return bool(mapping) and lang not in mapping
+
+
 def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -> Description:
     """One procedure, in full. Raises `UnknownProcedure` for an unknown id."""
     meta = catalogue.get(procedure_id)
@@ -150,6 +175,15 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         missing=missing,
         apply_requires=list(meta.apply_requires),
         apply_missing=apply_missing,
+        untranslated=[
+            field
+            for field, mapping in (
+                ("name", meta.names),
+                ("definition", meta.definitions),
+                ("prompt_hints", meta.prompt_hints),
+            )
+            if _fell_back(mapping, lang)
+        ],
         params=procedure.params_model().model_json_schema(),
         # Asked of the spine rather than the `Constructive` protocol, which
         # declares `apply` alone. The two cannot disagree: every procedure that
