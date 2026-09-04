@@ -719,6 +719,14 @@ All notable changes to this project are documented here. The format follows
   has always fallen back to English silently and per field — measured over 155 rows, `names`
   de 95 / fr 98, `definitions` de 95 / fr 95, `prompt_hints` de 4 / fr 0 — so a French caller
   received English prose in a field typed as French with nothing marking it.
+- **Over MCP** — an explorer page where a local model uses denckring's own MCP tools.
+  The first consumer this repository has for that server, and a real stdio client rather
+  than an in-process shortcut. Only `gemma4` of the four installed Ollama models can call
+  tools at all; the three German and European ones are listed with Ollama's own reason for
+  refusing them. `explorer/models.py` is a second model provider beside the Anthropic one.
+- An overview recording — `docs/showcase/` — of the catalogue, all nine stage scenes and
+  two live MCP tool calls, produced by `apps/explorer/tests/browser/overview-gif.mjs` and
+  `scripts/build_overview_gif.py`. On the documentation site, out of the sdist.
 - `apply_procedure` over MCP now returns `candidates` and `metrics` alongside `texts`.
   Without them ADR 0031's `attestation: "mask"` was a no-op over that surface, since the
   mask's entire output is a per-word mark on `Candidate.metrics`.
@@ -865,6 +873,11 @@ All notable changes to this project are documented here. The format follows
   strict-stress caveat `iambic_pentameter` already published.
 - `apply_procedure`'s docstring sent callers to `constructive`, which does not depend on
   `lang` and so cannot answer whether a call will run. It now names `apply_missing`.
+- The word ladder's letter box had been sizing every tile on the board. Two unscoped
+  `.tile` rules sat in one stylesheet; the ladder's, declared later at equal specificity,
+  forced all 156 board tiles to a 38px square with their contents overflowing across their
+  neighbours. Both landed on 2026-08-20 and nothing caught it, because the explorer's
+  tests drive Starlette's `TestClient`, which renders no CSS.
 - The source distribution shipped `docs/superpowers/` and `docs/seed/` — 1.22 MB of specs
   and plans that the documentation site had always refused on the same argument. The two
   exclusion lists are now one list with two consumers.
