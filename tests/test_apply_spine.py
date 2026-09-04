@@ -90,6 +90,7 @@ def test_apply_params_are_visible_to_a_non_python_caller() -> None:
 #: pytest_generate_tests auto-parametrises any argument literally named
 #: "procedure_id", and colliding with it raises "duplicate parametrization".
 DOES_NOT_DRAW = [
+    "calculator_word",
     "anagram",
     "boustrophedon",
     "column_reading",

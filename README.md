@@ -14,7 +14,7 @@ print(report.satisfied, report.score)
 $ denckring check snowball poem.txt
 $ denckring check lipogram --lang de gedicht.txt
 $ denckring status
-155 catalogued · 130 implementable · 121 implemented · 121 validated · 25 not mechanically checkable
+156 catalogued · 131 implementable · 122 implemented · 122 validated · 25 not mechanically checkable
 0 instruments catalogued
 ```
 
@@ -73,7 +73,7 @@ the capability to reach a bigger number would be a promise the data cannot keep.
 
 ## What's here
 
-A hundred and twenty-one of the 155 catalogued procedures are implemented, and
+A hundred and twenty-two of the 156 catalogued procedures are implemented, and
 every one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and
 are catalogued rather than implemented — see
 [What can be checked](#what-can-be-checked) — and the remaining 9 are sourced and

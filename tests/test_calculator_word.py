@@ -4,6 +4,7 @@ import pytest
 
 from denckring import check
 from denckring.core.errors import InvalidParams
+from denckring.core.protocol import Lang
 
 
 def test_esel_satisfies_7353_in_german() -> None:
@@ -117,3 +118,57 @@ def test_an_empty_text_is_not_vacuously_satisfied() -> None:
         report = check("calculator_word", text, lang="de", digits="7353")
         assert not report.satisfied, repr(text)
         assert report.violations
+
+
+def test_apply_decodes_the_digits_to_a_word() -> None:
+    from denckring import apply
+
+    assert apply("calculator_word", "7353", lang="de").lower() == "esel"
+
+
+def test_produce_partitions_into_the_requested_number_of_words() -> None:
+    from denckring import produce
+
+    production = produce("calculator_word", "73533504", lang="de", words=2)
+    assert production.texts
+    for text in production.texts:
+        assert len(text.split()) == 2
+
+
+def test_a_partition_that_cannot_be_made_raises_rather_than_returning_junk() -> None:
+    from denckring import produce
+    from denckring.core.errors import NoCandidateWord
+
+    with pytest.raises(NoCandidateWord):
+        produce("calculator_word", "73533504", lang="de", words=1)
+
+
+def test_what_the_generator_makes_satisfies_its_own_checker() -> None:
+    """The project's thesis, on this row, in all three languages."""
+    from denckring import apply
+
+    cases: list[tuple[Lang, str]] = [("en", "07734"), ("de", "7353"), ("fr", "713705")]
+    for lang, digits in cases:
+        text = apply("calculator_word", digits, lang=lang)
+        assert check("calculator_word", text, lang=lang, digits=digits).satisfied, lang
+
+
+def test_the_generator_emits_six_for_g_where_the_attested_form_uses_nine() -> None:
+    """ADR 0037 D4, and the asymmetry it creates. The circulating ILLEGIBLE is
+    378193771; this generator's own spelling of the same word is 378163771.
+    Both decode correctly, and a reader assuming one canonical spelling will
+    read the other as a bug."""
+    from denckring import apply
+    from denckring.core.calculator import to_digits
+
+    assert to_digits("illegible") == "378163771"
+    assert apply("calculator_word", "378193771", lang="en").lower() == "illegible"
+
+
+def test_a_two_word_production_reads_in_the_order_the_display_shows() -> None:
+    """The partition must be reversed before decoding: entering to_digits("esel")
+    then to_digits("hose") and turning the machine over reads "hose esel"."""
+    from denckring import produce
+
+    texts = [t.lower() for t in produce("calculator_word", "73533504", lang="de", words=2).texts]
+    assert "hose esel" in texts
