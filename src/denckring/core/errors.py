@@ -132,6 +132,20 @@ _SPECIALIST_EXTRAS = {
 }
 
 
+def extra_for(lang: str, capability: str) -> str | None:
+    """The extra that supplies `capability` for `lang`, or `None` if none can.
+
+    Public because a caller that has *caught* a `MissingCapability` should be
+    able to say what would fix it without parsing the English out of the
+    message. The explorer's board does exactly that, and matching prose to
+    recover a fact the raiser already knew is the failure mode
+    `stage.word_ladder` names: it breaks the moment either wording changes.
+    """
+    if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING:
+        return None
+    return _SPECIALIST_EXTRAS.get((lang, capability), lang)
+
+
 class MissingCapability(DenckringError):
     code = "missing_capability"
 
@@ -139,10 +153,10 @@ class MissingCapability(DenckringError):
         self.procedure_id = procedure_id
         self.lang = lang
         self.capability = capability
-        extra = _SPECIALIST_EXTRAS.get((lang, capability), lang)
+        extra = extra_for(lang, capability)
         remedy = (
             f"No data distribution supplies it for {lang!r}."
-            if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING
+            if extra is None
             else f"Install the extra that supplies it: `pip install denckring[{extra}]`."
         )
         super().__init__(

@@ -150,6 +150,18 @@
   border-left-color: var(--rubric);
 }
 
+/* Blocked, not broken: every failing case on this tile is a capability this
+   install does not have. On a `denckring[en,de]` install that is 52 of the 156
+   tiles, and calling them red said the checkers were wrong when
+   `denckring eval --all` reports 0 failed on a full install.
+
+   `--rubric-soft` rather than `--rubric`: warm enough to read as "something is
+   missing here", not the alarm colour reserved for a verdict that is actually
+   wrong. */
+.tile.blocked {
+  border-left-color: var(--rubric-soft);
+}
+
 .tile.grey {
   opacity: 0.55;
 }
@@ -192,7 +204,11 @@
 
 .tile-detail {
   font-size: 0.7rem;
-  color: var(--rubric);
+  /* Not `--rubric`. This line is usually `requires denckring[fr]` — a fact
+     about this install, not an error — and setting it in the alarm colour made
+     a board of 52 uninstalled data packs look like a board of 52 bugs. A real
+     failure still stands out: its tile keeps the red border. */
+  color: var(--lead);
   margin: 0.2rem 0 0;
   /* These are `missing_capability` messages, and they carry runs no line
      breaker will split on its own: `denckring[de-wiktionary]`,

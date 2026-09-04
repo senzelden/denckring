@@ -37,6 +37,12 @@ class CaseResult(BaseModel):
     lang: Lang
     passed: bool
     detail: str | None = None
+    #: The `DenckringError.code` of the refusal, where the case failed by
+    #: raising rather than by disagreeing. `detail` has always carried the
+    #: message and threw away the one machine-readable field the error has, so
+    #: a consumer wanting to tell "this install lacks the data" from "this
+    #: checker is wrong" had to match English prose for it.
+    code: str | None = None
 
 
 class Coverage(BaseModel):
@@ -148,6 +154,7 @@ def run() -> Scoreboard:
     results: list[CaseResult] = []
     for case in golden_cases():
         detail: str | None = None
+        code: str | None = None
         try:
             report = get(case.procedure).check(case.text, lang=case.lang, **case.params)
             passed = report.satisfied is case.satisfied
@@ -160,6 +167,7 @@ def run() -> Scoreboard:
         except DenckringError as exc:
             passed = False
             detail = str(exc)
+            code = exc.code
         results.append(
             CaseResult(
                 case=case.name,
@@ -167,6 +175,7 @@ def run() -> Scoreboard:
                 lang=case.lang,
                 passed=passed,
                 detail=detail,
+                code=code,
             )
         )
     return Scoreboard(results=results, coverage=status())
