@@ -50,6 +50,31 @@ def test_german_graded_words_does_not_recommend_a_remedy_that_cannot_work() -> N
     assert "No data distribution supplies it" in message
 
 
+def test_german_prosody_names_the_wiktionary_extra_not_the_lexical_one() -> None:
+    """German has two extras and the remedy used to name the language.
+
+    `denckring[de]` is the CC0 lexical pack; `stress`, `phonemes`,
+    `syllables.dictionary` and `lexicon.glosses` come only from
+    `denckring[de-wiktionary]`, quarantined in its own distribution because its
+    data is CC BY-SA (ADR 0013). A reader following `pip install denckring[de]`
+    for any of the four installs what they may already have and gains nothing —
+    the same defect class as the French `stress` remedy above, one extra deeper.
+    """
+    for capability in ("stress", "phonemes", "syllables.dictionary", "lexicon.glosses"):
+        message = str(MissingCapability("some_row", "de", capability))
+        assert "pip install denckring[de-wiktionary]" in message, capability
+        assert "denckring[de]`" not in message, capability
+
+
+def test_the_lexical_german_extra_is_still_named_for_what_it_does_supply() -> None:
+    """The fix must not send every German gap to the Wiktionary extra: `de-data`
+    is what supplies the noun list, and naming the heavier distribution for it
+    would trade one misleading remedy for another."""
+    for capability in ("lexicon.nouns", "lexicon.words", "syllables.heuristic"):
+        message = str(MissingCapability("some_row", "de", capability))
+        assert "pip install denckring[de]" in message, capability
+
+
 def test_unknown_procedure_names_the_id() -> None:
     assert "wobble" in str(UnknownProcedure("wobble"))
 
