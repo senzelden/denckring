@@ -35,6 +35,12 @@ de-wiktionary = ["denckring-de-data==0.1.0", "denckring-de-wiktionary==0.1.0"]
 # Word membership, an ordered noun list, frequency bands and glosses for French,
 # from Lexique 3.82 and French Wiktionary. Both CC BY-SA, so one distribution.
 fr = ["denckring-fr-data==0.1.0"]
+# Frequency bands for German, from the Leipzig Corpora Collection. A separate
+# extra because its data is CC BY where `de`'s is CC0, and ADR 0013 quarantines a
+# data licence in its own distribution. Light — 434 KB — and deliberately
+# independent of `de-wiktionary`, so German `anagram` does not drag in 6.5 MB of
+# pronunciations it never reads.
+de-frequency = ["denckring-de-data==0.1.0", "denckring-de-frequency==0.1.0"]
 # An MCP server, so a model can check its own constrained writing.
 mcp = ["mcp[cli]>=2"]
 
@@ -58,6 +64,7 @@ denckring-en-data = { workspace = true }
 denckring-de-data = { workspace = true }
 denckring-de-wiktionary = { workspace = true }
 denckring-fr-data = { workspace = true }
+denckring-de-frequency = { workspace = true }
 
 [dependency-groups]
 dev = [

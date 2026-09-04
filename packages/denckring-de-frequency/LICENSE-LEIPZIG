@@ -1,0 +1,17 @@
+The frequency data in this distribution is derived from the Leipzig Corpora
+Collection (corpus deu_news_2023_1M), © Universität Leipzig / Sächsische
+Akademie der Wissenschaften / InfAI, made available under a Creative Commons
+Attribution licence.
+
+    https://corpora.uni-leipzig.de/
+
+Only a derived table is redistributed here: each word is paired with a band
+from 10 to 60 giving its frequency rank. No sentence, source list or
+co-occurrence table from the corpus is included, and the corpus archive itself
+is downloaded at build time and never vendored.
+
+Cite the collection as its authors ask:
+
+    D. Goldhahn, T. Eckart, U. Quasthoff. Building Large Monolingual
+    Dictionaries at the Leipzig Corpora Collection: From 100 to 200 Languages.
+    Proceedings of LREC 2012.
