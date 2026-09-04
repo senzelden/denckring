@@ -1,5 +1,9 @@
 # denckring
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
+[![Licence: Apache-2.0 AND CC-BY-4.0](https://img.shields.io/badge/licence-Apache--2.0%20AND%20CC--BY--4.0-green)](#licence)
+[![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-261230)](https://docs.astral.sh/ruff/)
+
 A library of experimental writing procedures — lipograms, snowballs, acrostics and
 a hundred and fifty more — where **the validator is the eval**.
 
@@ -17,6 +21,12 @@ $ denckring status
 156 catalogued · 131 implementable · 122 implemented · 122 validated · 25 not mechanically checkable
 0 instruments catalogued
 ```
+
+![The catalogue, the stage, and a local model checking and generating over MCP](docs/showcase/denckring-overview.gif)
+
+*The board, nine machines on the stage, and `gemma4` running on the same laptop calling
+`check_text` and `apply_procedure` through this package's own MCP server. Nothing in it
+is staged — the verdicts are the library's own.*
 
 Every procedure pairs a generator with a validator, and the acceptance criterion is
 intrinsic: a lipogram either contains the forbidden letter or it does not. Nothing has
@@ -54,7 +64,7 @@ unchanged, and it is a built-in default exactly like English (ADR 0022):
 `denckring[de]` overrides that default the same way `denckring[en]` overrides
 English's, rather than registering through a separate path.
 
-French ships in core for the same reason, and on core alone 70 of the 121 implemented
+French ships in core for the same reason, and on core alone 70 of the 122 implemented
 rows run in it. `[fr]` is a fifth distribution adding a word list, an ordered noun list,
 frequency bands, glosses, a syllable/phoneme table and an aspirated-*h* list, from
 Lexique 3.82 and French Wiktionary — both CC BY-SA, so unlike German they need no
@@ -294,7 +304,7 @@ publish, or on a site presenting your fork as the original, is the line.
 
 ## The catalogue as data
 
-The catalogue is 154 sourced procedures and is a contribution in its own right — useful
+The catalogue is 156 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.
 
 ```console
