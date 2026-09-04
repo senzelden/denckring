@@ -1,7 +1,7 @@
-# The whole thing, in half a minute
+# The whole thing, in forty seconds
 
-The catalogue, every scene on the stage, and a local model checking and
-generating through this package's own MCP server.
+The catalogue, every machine on the stage **being driven**, and a local model
+checking and generating through this package's own MCP server.
 
 ![denckring: the catalogue, the stage, and a local model over MCP](denckring-overview.gif)
 
@@ -17,7 +17,12 @@ The three parts:
 **The board.** All 156 catalogued rows, with the golden cases each one carries
 and — in red — what an unimplemented row is waiting for.
 
-**The stage.** Nine machines, each 1280×720 and driven by hand: Harsdörffer's
+**The stage.** Nine machines, each 1280×720, and each one actually turned rather
+than photographed: the rings spin and stagger inward, the blades cut, the 426
+flaps clatter, the ladder's rungs arrive one by one, and the calculator turns
+over. Ideenwürfeln throws three excerpts filed under *control* from three
+distinct fields — fluid dynamics, soft matter, and the epidemiology of rabies —
+which is the collision the procedure exists for. The machines are: Harsdörffer's
 *Denckring*, Jean Paul's excerpt boxes, N+7, Queneau's *Cent mille milliards*,
 Carroll's Doublets, the cut-up, a Llullian figure, Enzensberger's
 *Poesie-Automat*, and a pocket calculator turned upside down.
