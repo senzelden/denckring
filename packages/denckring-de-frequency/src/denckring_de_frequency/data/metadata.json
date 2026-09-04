@@ -1,0 +1,9 @@
+{
+  "corpus": "deu_news_2023_1M",
+  "counts": {
+    "graded_words.txt.gz": 101296
+  },
+  "generated": "2026-09-04",
+  "rows_read": 759696,
+  "source": "Leipzig Corpora Collection, CC BY - see LICENSE-LEIPZIG, NOTICE on the licence version, and scripts/build_frequency.py"
+}

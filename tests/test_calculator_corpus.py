@@ -13,28 +13,39 @@ from denckring.lang import get_pack
 
 
 def _corpus(lang: str) -> list[str]:
-    """The enumerable word source for a pack: graded words where it has them,
-    the noun list otherwise. Mirrors what `_produce` does — ADR 0037 D5."""
-    pack = get_pack(lang)
-    if "lexicon.graded_words" in pack.capabilities:
-        return list(pack.graded_words())
-    return list(pack.nouns())
+    """The source ADR 0037 measured its figures against, named per language.
 
-
-def test_german_has_no_graded_words_which_is_why_apply_floors_on_nouns() -> None:
-    """The premise D5 rests on.
-
-    SCOWL is vendored into `denckring-en-data` alone (ADR 0028); French got its
-    own in chapter 6; German never has. Declaring `lexicon.graded_words` on this
-    row would therefore make German `apply` fail — in the language of the row's
-    own example — and emit the misleading remedy fixed on 2026-09-04. If this
-    ever becomes false, D5 is free to be simplified, and this is how anyone
-    finds out.
+    Was "graded words where the pack has them, the noun list otherwise", which
+    read as mirroring `_produce`. It did not: `calculator_word` never enumerates
+    a corpus — it decodes digit partitions and asks `is_word` — and uses
+    `graded_words` only to *rank*. The distinction went unnoticed while German
+    had no graded words, and ADR 0038 gave it some, at which point the helper
+    silently switched German from 184,040 nouns to 101,296 graded words and the
+    pinned figures moved. Named explicitly now, so a future data chapter cannot
+    move a figure by changing what some other pack happens to carry.
     """
-    assert "lexicon.graded_words" not in get_pack("de").capabilities
-    assert "lexicon.graded_words" in get_pack("en").capabilities
-    assert "lexicon.graded_words" in get_pack("fr").capabilities
-    assert "lexicon.nouns" in get_pack("de").capabilities
+    pack = get_pack(lang)
+    if lang == "de":
+        return list(pack.nouns())
+    return list(pack.graded_words())
+
+
+def test_apply_still_floors_on_the_capability_every_pack_meets() -> None:
+    """D5's decision outlived its reason, and that is worth pinning.
+
+    It floored `apply_requires` on `lexicon.nouns` because German had no
+    `lexicon.graded_words` and a row demanding them could not generate in the
+    language of its own example. ADR 0038 gave German graded words, so that
+    reason is gone — and the decision is still right, because `lexicon.nouns` is
+    the floor every pack meets and `apply_requires` should name what a row
+    genuinely needs rather than the best thing available.
+
+    This test is what noticed: it asserted German had no graded words, and went
+    red the day German got some.
+    """
+    for lang in ("en", "de", "fr"):
+        assert "lexicon.nouns" in get_pack(lang).capabilities
+        assert "lexicon.graded_words" in get_pack(lang).capabilities
 
 
 @pytest.mark.parametrize(("lang", "expected"), [("en", 304), ("de", 216), ("fr", 207)])

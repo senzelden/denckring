@@ -144,18 +144,22 @@ def test_apply_procedure_carries_the_metrics_a_ranking_was_computed_from() -> No
 def test_apply_procedure_reports_a_language_it_cannot_generate_in() -> None:
     """`constructive` is language-blind and `apply_missing` is not.
 
-    `anagram` is `constructive: true` everywhere, and in German its generator
-    cannot run at all: SCOWL ships in `denckring-en-data` alone (ADR 0028). A
-    caller who did what `apply_procedure`'s docstring said — read `constructive`
-    — was sent straight into a `missing_capability`.
+    `proteus_verse` is `constructive: true` everywhere, and in French its
+    generator cannot run at all: it needs `stress`, which French has not got and
+    never will (ADR 0034 D2). A caller who did what `apply_procedure`'s docstring
+    said — read `constructive` — was sent straight into a `missing_capability`.
+
+    This used to use `anagram` in German, which stopped being an example when
+    ADR 0038 gave German frequency data. French `stress` is the sturdier choice:
+    it is a permanent ceiling rather than a gap awaiting a data chapter.
     """
     from denckring.mcp.server import apply_procedure_tool, describe_procedure_tool
 
-    described = describe_procedure_tool("anagram", lang="de")
+    described = describe_procedure_tool("proteus_verse", lang="fr")
     assert described["constructive"] is True
-    assert described["apply_missing"] == ["lexicon.graded_words"]
+    assert described["apply_missing"] == ["stress"]
 
-    refused = apply_procedure_tool("anagram", "dormitory", lang="de")
+    refused = apply_procedure_tool("proteus_verse", "un vers", lang="fr")
     assert refused["code"] == "missing_capability"
 
 
