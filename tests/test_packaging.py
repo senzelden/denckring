@@ -25,18 +25,31 @@ ROOT = Path(__file__).resolve().parent.parent
 #: `uv.lock`, the catalogue and four planning documents are the six largest members and
 #: none of them is data.
 #:
-#: **1,200,000 is a trade, and the two halves of it are these.** A clean checkout built
-#: 1,045,247 bytes on 2026-09-02 — measured in a detached worktree, because a build from
-#: the working tree swallows the untracked `undefined/queneau-seams.png` and reads about
-#: 68,000 higher. So the bound leaves ~155,000 for prose, down from 236,778 when it was
-#: set: chapters 5 and 6 spent the difference in ADRs, changelog and plans. The smallest
-#: file this test exists to catch is `graded_words.txt.gz` at 249,917 bytes, which would
-#: now land the archive around 1,295,000 — over the bound by ~95,000, so raising it by
-#: more than that stops catching the file at all. The two halves move against each
-#: other: every chapter of prose shrinks the first and grows the second. There is no
-#: per-file bound that separates them — the largest legitimate member, `uv.lock`, is
-#: 330,512 bytes, larger than the smallest data file. Whoever raises this next should
-#: raise it knowing which half they are spending.
+#: **This bound no longer catches the file it was set to catch, and that is a decision
+#: waiting on the maintainer rather than an oversight.** Excluding `docs/superpowers/`
+#: and `docs/seed/` on 2026-09-04 — they were always in `WORKING_DOCUMENTS` and always
+#: refused by the docs site, and only the sdist's separate list disagreed — took a clean
+#: checkout from 1,045,247 bytes (2026-09-02) to **759,242** (2026-09-04), both measured
+#: in a detached worktree, because a build from the working tree swallows the untracked
+#: `undefined/queneau-seams.png` and `CLAUDE.md` and reads about 82,000 higher.
+#:
+#: Removing ~360,000 bytes of prose does to this test's *purpose* exactly what raising
+#: the number by 360,000 would have done. The smallest file it exists to catch is
+#: `graded_words.txt.gz` at 249,917 bytes; re-included under `src/` it would now land the
+#: archive near 1,009,000, which passes. The bound is presently decorative.
+#:
+#: Restoring it means lowering the number into the window `(841,816, 1,009,159)` — above
+#: the working-tree build so a local run stays green, below the figure a re-included data
+#: file would reach. **950,000 is the recommended value**: ~108,000 of headroom over a
+#: working-tree build and ~191,000 over a clean one, while still failing on the data file.
+#: 1,200,000 was raised by the maintainer's decision on 2026-08-31 and is left to the
+#: maintainer to lower.
+#:
+#: The two halves of the trade still move against each other — every chapter of prose
+#: shrinks the headroom and grows the archive — and there is still no per-file bound that
+#: separates them: the largest legitimate member, `uv.lock`, is 330,512 bytes, larger than
+#: the smallest data file. Whoever sets this next should set it knowing which half they
+#: are spending.
 MAX_SDIST_BYTES = 1_200_000
 
 
