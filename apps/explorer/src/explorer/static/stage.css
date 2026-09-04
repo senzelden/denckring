@@ -134,6 +134,12 @@
   border-left: 3px solid var(--lead);
   padding: 0.3rem 0.5rem;
   background: var(--paper-shade);
+  /* A grid item's `min-width` defaults to `auto` — its *content* width — so a
+     tile would refuse to shrink below its longest unbreakable run and overflow
+     its column. Defensive rather than the fix for the overflow that was
+     actually here: that was the word ladder's unscoped `.tile` (see `.rung
+     .tile` below) forcing every one of these to a 2.35rem square. */
+  min-width: 0;
 }
 
 .tile.green {
@@ -188,6 +194,12 @@
   font-size: 0.7rem;
   color: var(--rubric);
   margin: 0.2rem 0 0;
+  /* These are `missing_capability` messages, and they carry runs no line
+     breaker will split on its own: `denckring[de-wiktionary]`,
+     `'syllables.heuristic'`, `lexicon.graded_words`. `anywhere` rather than
+     `break-word` because it also lets the *tile* shrink, which is half of why
+     the column overflowed. */
+  overflow-wrap: anywhere;
 }
 
 .scoreboard {
@@ -1732,8 +1744,17 @@
 }
 
 /* One letter per box, dark case-furniture like the Denckring's own word panel
-   and the N+7 reels — the motion is the demonstration here too. */
-.tile {
+   and the N+7 reels — the motion is the demonstration here too.
+   
+   **Scoped to `.rung`, and it must stay scoped.** Unscoped, this rule sat in the
+   same stylesheet as the board's own `.tile` (line ~133), later and at equal
+   specificity, so it won — and forced all 156 board tiles to a 2.35rem square
+   whose content overflowed across its neighbours. Both landed on 2026-08-20 and
+   the board was unreadable from that day until someone opened it in a browser on
+   2026-09-04: `pytest` here drives Starlette's TestClient, which renders no CSS,
+   so nothing in the suite could see it. Two unscoped rules sharing one class
+   name in one file is the whole bug. */
+.rung .tile {
   width: 2.35rem;
   height: 2.35rem;
   flex: none;
@@ -1752,7 +1773,7 @@
 /* The one letter that changed to reach this rung — the scene's entire
    explanatory burden (see the brief), so it is the one tile marked apart
    from its neighbours rather than merely described near them. */
-.tile.changed {
+.rung .tile.changed {
   background: var(--rubric);
   color: var(--paper);
 }

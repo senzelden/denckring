@@ -6099,3 +6099,73 @@ def test_the_display_draws_real_segments_rather_than_substituting_text() -> None
     assert body.count("calc-digit") == len(stage.CALCULATOR_WORD_DEFAULT)
     assert "calc-display flipped" in body
     assert "ESEL" in body
+
+
+#: Bare class selectors this stylesheet declares twice at top level on purpose,
+#: with the reason written beside them in the CSS. All three are the cut-up
+#: scene's z-index stacking block, which is written as one block "rather than
+#: left to document order" because splitting it is what broke that scene's drag
+#: once — so each of these has a sizing or positioning rule of its own elsewhere
+#: and a stacking line in the block. Every other deliberate repeat in this file
+#: sets tokens or stacking alone and so never reaches the check below.
+DELIBERATE_REPEATS = frozenset({".cutup-page", ".cutup-page-b", ".cutup-folded"})
+
+
+def test_no_bare_class_selector_is_declared_twice_where_one_rule_sizes_it() -> None:
+    """One class name, one box — the bug this catches cost the whole board.
+
+    `stage.css` carried two unscoped `.tile` rules: the board's near the top,
+    which sets a border and padding, and the word ladder's letter box further
+    down, which sets `width: 2.35rem; height: 2.35rem`. Same specificity,
+    declared later, so the ladder's won — and all 156 board tiles became 38px
+    squares with their contents overflowing across their neighbours. Both landed
+    on 2026-08-20 and the board stayed unreadable until someone opened it in a
+    browser on 2026-09-04. Nothing in this suite could have seen it: pytest
+    drives Starlette's TestClient, which renders no CSS.
+
+    **The signal is a repeat where *either* rule sizes, not where both do.** A
+    first version of this test required both and passed against the very
+    stylesheet it was written to condemn — the board's own `.tile` declares no
+    width at all, so only one of the pair was a sizing rule. It was caught by
+    checking the guard out against the pre-fix CSS, which is the only thing that
+    can catch a test unable to fail for its own reason.
+    """
+    css_path = Path(__file__).parent.parent / "src" / "explorer" / "static" / "stage.css"
+    # Comments first: several of them quote selectors while explaining a fix.
+    stripped = re.sub(r"/\*.*?\*/", " ", css_path.read_text(encoding="utf-8"), flags=re.S)
+
+    # Only top-level rules count. A rule inside `@media (prefers-reduced-motion)`
+    # is a deliberate second declaration, so brace depth is tracked rather than
+    # splitting on "}", which cannot tell an override from a collision.
+    seen: dict[str, int] = {}
+    sizes: set[str] = set()
+    depth = 0
+    head_start = 0
+    for index, char in enumerate(stripped):
+        if char == "{":
+            if depth == 0:
+                head = stripped[head_start:index]
+                body_end = stripped.find("}", index)
+                body = stripped[index + 1 : body_end if body_end != -1 else None]
+                sized = re.search(r"(?<![\w-])(width|height)\s*:", body) is not None
+                if not head.lstrip().startswith("@"):
+                    for selector in head.split(","):
+                        selector = selector.strip()
+                        # Bare single-class selectors only: `.foo`, never
+                        # `.foo .bar`, `.foo.bar` or `.foo:hover`.
+                        if re.fullmatch(r"\.[a-z][a-z0-9-]*", selector):
+                            seen[selector] = seen.get(selector, 0) + 1
+                            if sized:
+                                sizes.add(selector)
+            depth += 1
+        elif char == "}":
+            depth = max(depth - 1, 0)
+            if depth == 0:
+                head_start = index + 1
+
+    clashing = sorted(
+        name
+        for name, count in seen.items()
+        if count > 1 and name in sizes and name not in DELIBERATE_REPEATS
+    )
+    assert clashing == [], f"declared twice unscoped, one rule sizing, in stage.css: {clashing}"
