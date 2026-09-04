@@ -701,6 +701,27 @@ All notable changes to this project are documented here. The format follows
   classification, where `y` in `yoyo` is a consonant — is designed and deliberately **not**
   built: ADR 0035 D2 licenses it for `spoonerism` alone, the one row declaring `phonemes`,
   and D5 records that `_letter_onset` still splits on flat `vowels()` membership until then.
+- `calculator_word` — a word a seven-segment display can write, entered as digits and read
+  by turning the machine over: `7353` is `ESEL`. The 156th catalogued row and the first
+  whose constraint is a property of a machine rather than of an orthography or a lexicon.
+  Checks a text against a `digits` parameter, generates by partitioning a digit string
+  into `words` segments, and runs in all three languages with no new data. ADR 0037
+  records the three decisions a reader would otherwise take for defects: the folk `2 → Z`
+  is refused because `2` is rotationally symmetric on a seven-segment display, which costs
+  roughly half the corpus in every language; `fold_diacritics` defaults to `false` on this
+  row alone, because a calculator cannot write `Geheiß` or `blessé`; and `6` and `9` both
+  give `G`, so `apply` is not the inverse of `check` for about a third of every corpus.
+- `denckring.core.calculator` — the display table and its two pure functions, shared by
+  the procedure and the explorer's stage scene so neither imports the other's internals.
+- A ninth stage scene for it, drawing seven real segments per digit and rotating the whole
+  display, so the digits and the letters a viewer reads are the same marks.
+- `Description.untranslated`, naming the fields served in a substitute language. Localisation
+  has always fallen back to English silently and per field — measured over 155 rows, `names`
+  de 95 / fr 98, `definitions` de 95 / fr 95, `prompt_hints` de 4 / fr 0 — so a French caller
+  received English prose in a field typed as French with nothing marking it.
+- `apply_procedure` over MCP now returns `candidates` and `metrics` alongside `texts`.
+  Without them ADR 0031's `attestation: "mask"` was a no-op over that surface, since the
+  mask's entire output is a per-word mark on `Candidate.metrics`.
 
 ### Changed
 
@@ -832,6 +853,21 @@ All notable changes to this project are documented here. The format follows
   when the budget is cut.
 
 ### Fixed
+
+- `missing_capability` no longer names an extra that cannot supply the missing capability.
+  German is the one language with two: `stress`, `phonemes`, `syllables.dictionary` and
+  `lexicon.glosses` come only from `denckring[de-wiktionary]`, and the remedy named
+  `denckring[de]`, which the caller may already have installed.
+- Six catalogue definitions promised what their checkers structurally cannot do, in all
+  three languages: `alexandrine`'s caesura, `limerick`'s metre and line lengths,
+  `alliterative_verse`'s caesura and stress, `homoteleuton`'s "or syllable",
+  `dactylic_hexameter`'s reading of the German spondee, and `blank_verse` withholding the
+  strict-stress caveat `iambic_pentameter` already published.
+- `apply_procedure`'s docstring sent callers to `constructive`, which does not depend on
+  `lang` and so cannot answer whether a call will run. It now names `apply_missing`.
+- The source distribution shipped `docs/superpowers/` and `docs/seed/` — 1.22 MB of specs
+  and plans that the documentation site had always refused on the same argument. The two
+  exclusion lists are now one list with two consumers.
 
 - **`s_plus_7`/`n_plus_7` inverted a verdict on a word carrying an elided proclitic —**
   **worse than refusing.** `noun_index` looked an apostrophe-bearing token like `l'île` up
