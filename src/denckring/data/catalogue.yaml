@@ -293,7 +293,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en, fr]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics]
     apply_requires:
       - lexicon.graded_words

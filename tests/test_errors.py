@@ -41,15 +41,6 @@ def test_french_stress_does_not_recommend_a_remedy_that_cannot_work() -> None:
     assert "No data distribution supplies it" in message
 
 
-def test_german_graded_words_does_not_recommend_a_remedy_that_cannot_work() -> None:
-    """SCOWL is vendored into `denckring-en-data` alone (ADR 0028); no German
-    extra ships `lexicon.graded_words`, so `apply(anagram, lang="de")` used to
-    recommend reinstalling an extra already installed."""
-    message = str(MissingCapability("anagram", "de", "lexicon.graded_words"))
-    assert "pip install" not in message
-    assert "No data distribution supplies it" in message
-
-
 def test_german_prosody_names_the_wiktionary_extra_not_the_lexical_one() -> None:
     """German has two extras and the remedy used to name the language.
 
@@ -83,3 +74,30 @@ def test_invalid_params_names_the_procedure() -> None:
     err = InvalidParams("lipogram", "forbidden must be a single letter")
     assert "lipogram" in str(err)
     assert "single letter" in str(err)
+
+
+def test_german_graded_words_now_names_the_extra_that_supplies_it() -> None:
+    """`_PERMANENTLY_MISSING` carried `("de", "lexicon.graded_words")` citing
+    ADR 0028, and its own comment anticipated exactly this: "a future data
+    chapter that lifts one is a one-line removal, not a guess." ADR 0038 is that
+    chapter and this is that removal.
+
+    SCOWL is still English-only; German simply no longer needs it.
+    """
+    from denckring.core.errors import extra_for
+
+    assert extra_for("de", "lexicon.graded_words") == "de-frequency"
+    message = str(MissingCapability("anagram", "de", "lexicon.graded_words"))
+    assert "pip install denckring[de-frequency]" in message
+
+
+def test_lifting_one_ceiling_did_not_lift_the_idea_of_a_ceiling() -> None:
+    """French has no lexical stress and never will (ADR 0034 D2). A data chapter
+    that lifted a real gap must not blur the difference between a gap and a
+    ceiling, which is the whole point of `_PERMANENTLY_MISSING`."""
+    from denckring.core.errors import extra_for
+
+    assert extra_for("fr", "stress") is None
+    assert "No data distribution supplies it" in str(
+        MissingCapability("alcaic_stanza", "fr", "stress")
+    )
