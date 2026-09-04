@@ -481,9 +481,15 @@ procedures:
   - id: alexandrine
     names: { en: Alexandrine, de: Alexandriner, fr: Alexandrin }
     definitions:
-      en: A twelve-syllable line with a caesura after the sixth.
-      de: Ein zwölfsilbiger Vers mit Zäsur nach der sechsten Silbe.
-      fr: Un vers de douze syllabes avec césure à l'hémistiche.
+      en: >-
+        A twelve-syllable line with a caesura after the sixth. The checker counts
+        syllables only; it does not locate the caesura.
+      de: >-
+        Ein zwölfsilbiger Vers mit Zäsur nach der sechsten Silbe. Geprüft wird
+        allein die Silbenzahl, nicht die Zäsur.
+      fr: >-
+        Un vers de douze syllabes avec césure à l'hémistiche. Le vérificateur ne
+        compte que les syllabes ; il ne repère pas la césure.
     source: French classical prosody; Jean Racine
     family: form
     attribution: traditional
@@ -501,9 +507,18 @@ procedures:
     definitions:
       en: >-
         Verse in unrhymed iambic pentameter, holding the metre while dispensing
-        with the rhyme that would otherwise mark the line ends.
-      de: Reimloser fünfhebiger Jambus, der das Metrum ohne Reim trägt.
-      fr: Vers en pentamètre iambique sans rime.
+        with the rhyme that would otherwise mark the line ends. As in
+        `iambic_pentameter`, the checker verifies strict stress: the
+        substitutions real verse uses — an inverted first foot, a weak final
+        syllable — are not accepted.
+      de: >-
+        Reimloser fünfhebiger Jambus, der das Metrum ohne Reim trägt. Wie bei
+        `iambic_pentameter` wird streng alternierend geprüft; die üblichen
+        Tonbeugungen werden nicht zugelassen.
+      fr: >-
+        Vers en pentamètre iambique sans rime. Comme pour `iambic_pentameter`, le
+        vérificateur exige une alternance stricte et refuse les substitutions
+        usuelles.
     source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
     family: form
     attribution: primary
@@ -1172,10 +1187,15 @@ procedures:
     names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
     definitions:
       en: >-
-        A passage in which successive words or clauses end with the same letter or
-        syllable, the mirror of the tautogram's shared initials.
-      de: Ein Text, dessen aufeinanderfolgende Wörter gleich enden.
-      fr: Un texte dont les mots successifs se terminent de la même façon.
+        A passage in which successive words or clauses end with the same letter,
+        the mirror of the tautogram's shared initials. The classical figure also
+        admits a shared final syllable; this checker compares final letters only.
+      de: >-
+        Ein Text, dessen aufeinanderfolgende Wörter auf denselben Buchstaben
+        enden. Verglichen werden allein Endbuchstaben, keine Silben.
+      fr: >-
+        Un texte dont les mots successifs se terminent par la même lettre. Seules
+        les lettres finales sont comparées, jamais les syllabes.
     source: Traditional; a classical rhetorical figure described by Quintilian
     family: letter
     attribution: traditional
@@ -1918,9 +1938,14 @@ procedures:
     definitions:
       en: >-
         Five lines rhyming AABBA, the third and fourth notably shorter than the
-        other three, usually comic in register.
-      de: Fünf Zeilen im Reimschema AABBA mit zwei kürzeren Mittelzeilen.
-      fr: Cinq vers rimant AABBA, les troisième et quatrième plus courts.
+        other three, usually comic in register. Only the rhyme scheme is checked:
+        neither the anapestic metre nor the shorter middle couplet is scanned.
+      de: >-
+        Fünf Zeilen im Reimschema AABBA mit zwei kürzeren Mittelzeilen. Geprüft
+        wird allein das Reimschema, weder das Metrum noch die Zeilenlängen.
+      fr: >-
+        Cinq vers rimant AABBA, les troisième et quatrième plus courts. Seul le
+        schéma de rimes est vérifié, ni le mètre ni la longueur des vers.
     source: Traditional; popularised by Edward Lear, A Book of Nonsense (1846)
     family: form
     attribution: traditional
@@ -2340,9 +2365,19 @@ procedures:
   - id: dactylic_hexameter
     names: { en: Dactylic hexameter, de: Hexameter, fr: Hexamètre dactylique }
     definitions:
-      en: Six feet, each a dactyl or a spondee, the fifth almost always a dactyl.
-      de: Sechs Versfüße aus Daktylen und Spondeen.
-      fr: Six pieds, dactyles ou spondées, le cinquième presque toujours dactyle.
+      en: >-
+        Six feet, each a dactyl or a spondee, the fifth almost always a dactyl.
+        Read as accentual verse, stress standing in for the classical quantity
+        English has not got; the fifth foot is fixed as a dactyl and the caesura
+        is not checked.
+      de: >-
+        Sechs Versfüße aus Daktylen und Spondeen. Akzentuierend geprüft, wobei
+        der deutsche Hexameter den Spondeus regelmäßig durch einen Trochäus
+        ersetzt — diese Vertretung erkennt der Prüfer nicht als solche.
+      fr: >-
+        Six pieds, dactyles ou spondées, le cinquième presque toujours dactyle.
+        Lu comme vers accentuel ; le cinquième pied est fixé et la césure n'est
+        pas vérifiée.
     source: Traditional; the metre of Homer and Virgil
     family: form
     attribution: traditional
@@ -2366,9 +2401,16 @@ procedures:
     definitions:
       en: >-
         Lines split by a caesura in which the stressed syllables of both halves
-        alliterate, rather than rhyming at the end.
-      de: Verse mit Zäsur, deren Hebungen stabreimen statt zu reimen.
-      fr: Des vers à césure dont les syllabes accentuées allitèrent.
+        alliterate, rather than rhyming at the end. The checker compares bare
+        first letters: it locates no caesura, reads no stress, and counts
+        "knight" and "king" as alliterating where the Old English metre does not.
+      de: >-
+        Verse mit Zäsur, deren Hebungen stabreimen statt zu reimen. Verglichen
+        werden nur Anfangsbuchstaben: weder Zäsur noch Hebung werden bestimmt,
+        und st, sp und sch gelten hier nicht als eigene Stäbe.
+      fr: >-
+        Des vers à césure dont les syllabes accentuées allitèrent. Seules les
+        initiales sont comparées : ni la césure ni l'accent ne sont repérés.
     source: Traditional; the metre of Beowulf and the Old Norse Eddas
     family: form
     attribution: traditional
