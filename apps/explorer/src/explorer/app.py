@@ -18,7 +18,7 @@ from denckring.core.errors import UnknownProcedure
 from denckring.core.protocol import Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.procedures.n_plus_7 import displace, resolve_dictionary
-from explorer import ars, bench, board, catalogue_view, corpora, env, stage, witz
+from explorer import agent, ars, bench, board, catalogue_view, corpora, env, models, stage, witz
 
 env.load()
 
@@ -1066,6 +1066,33 @@ async def stage_poesie_automat_act(request: Request) -> HTMLResponse:
         device=cartridge.device_id,
     )
     return page(request, "_stage_flaps.html", report=report, positions=None, text=text)
+
+
+@app.get("/agent", response_class=HTMLResponse)
+def over_mcp(request: Request) -> HTMLResponse:
+    """A local model, denckring's own MCP server, and the calls in between.
+
+    The first consumer this repository has for that server: everything else
+    here calls the library in-process.
+    """
+    installed, problem = models.available()
+    return page(
+        request,
+        "agent.html",
+        page_id="agent",
+        installed=installed,
+        problem=problem,
+        presets=agent.PRESETS,
+        default_model=next((m.name for m in installed if m.tools), ""),
+        transcript=None,
+    )
+
+
+@app.post("/agent/ask", response_class=HTMLResponse)
+async def over_mcp_ask(request: Request) -> HTMLResponse:
+    form = dict(await request.form())
+    transcript = await agent.run(str(form.get("question", "")), str(form.get("model", "")))
+    return page(request, "_agent_transcript.html", transcript=transcript)
 
 
 @app.get("/search", response_class=HTMLResponse)

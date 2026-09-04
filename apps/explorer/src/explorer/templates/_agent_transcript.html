@@ -1,0 +1,33 @@
+{# The transcript, and the whole point of the page: not a chat window, but the
+   calls a model on this machine made against a schema it was handed at runtime,
+   and the JSON denckring sent back. Shared by the first paint (empty) and by the
+   fragment `/agent/ask` swaps in. #}
+{% if transcript is none %}
+<p class="placeholder">Pick a question and run it. The calls will appear here.</p>
+{% elif transcript.problem %}
+<p class="agent-problem">{{ transcript.problem }}</p>
+{% else %}
+<ol class="agent-steps">
+  {% for step in transcript.steps %}
+  <li class="agent-step">
+    <p class="agent-call"><span class="agent-tool">{{ step.name }}</span>
+      <code>{{ step.arguments }}</code></p>
+    {# Raw, not summarised. A reader has to be able to see that this is the
+       server's own answer and not the model's account of one. #}
+    <pre class="agent-result">{{ step.result }}</pre>
+  </li>
+  {% endfor %}
+</ol>
+{% if transcript.steps %}
+<p class="agent-note">{{ transcript.steps|length }}
+  {{ "call" if transcript.steps|length == 1 else "calls" }} to
+  <code>denckring-mcp</code> over stdio.</p>
+{% else %}
+{# Worth showing rather than hiding: a model that answers without calling
+   anything has not demonstrated the thing this page exists to demonstrate. #}
+<p class="agent-note">The model answered without calling a tool.</p>
+{% endif %}
+{% if transcript.answer %}
+<p class="agent-answer">{{ transcript.answer }}</p>
+{% endif %}
+{% endif %}

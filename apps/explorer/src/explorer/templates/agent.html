@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Over MCP — denckring{% endblock %}
+{% block main %}
+<h1>Over MCP</h1>
+<p class="agent-lead">
+  A model running on this machine, denckring's own MCP server, and the calls in
+  between. Everything else in this app calls the library in process; this page
+  speaks the protocol to <code>denckring-mcp</code> over stdio, the same way any
+  other client would.
+</p>
+
+{% if problem %}
+<p class="agent-problem">{{ problem }}</p>
+{% else %}
+<form class="agent-form" hx-post="/agent/ask" hx-target="#transcript" hx-swap="innerHTML"
+      hx-indicator="#agent-working">
+  <span class="scene-field">
+    <label for="model-select">Model</label>
+    <select id="model-select" name="model">
+      {% for model in installed %}
+      {# The three models Ollama refuses are shown, disabled, with its own words
+         for why. They are the German and European ones this project would most
+         want, and hiding them would leave the page silently offering only its
+         English-first model with no explanation. #}
+      <option value="{{ model.name }}" {% if not model.tools %}disabled{% endif %}
+              {% if model.name == default_model %}selected{% endif %}>
+        {{ model.name }}{% if not model.tools %} — {{ model.reason }}{% endif %}
+      </option>
+      {% endfor %}
+    </select>
+  </span>
+  <span class="scene-field agent-question">
+    <label for="question-field">Ask</label>
+    <textarea id="question-field" name="question" rows="3">{{ presets[0][1] }}</textarea>
+  </span>
+  <div class="agent-presets">
+    {% for label, text in presets %}
+    {# One preset exercises check_text and one apply_procedure, so the page can
+       be driven on camera without typing and still show both halves. #}
+    <button type="button" class="preset" data-question="{{ text }}">{{ label }}</button>
+    {% endfor %}
+  </div>
+  <button type="submit">Run it</button>
+  <span id="agent-working" class="agent-working">asking the model…</span>
+</form>
+{% endif %}
+
+<div id="transcript" class="agent-transcript">
+  {% include "_agent_transcript.html" %}
+</div>
+
+<script>
+  // Presets fill the box rather than posting directly, so a viewer sees the
+  // question that is about to be asked before it is asked.
+  document.querySelectorAll(".preset").forEach(function (button) {
+    button.addEventListener("click", function () {
+      document.getElementById("question-field").value = button.dataset.question;
+    });
+  });
+</script>
+{% endblock %}
