@@ -55,3 +55,37 @@ def test_a_release_names_each_change_type_once() -> None:
     for name, types in seen.items():
         duplicates = {t for t in types if types.count(t) > 1}
         assert not duplicates, f"{name} names {sorted(duplicates)} more than once"
+
+
+def test_the_generated_index_carries_no_link_into_docs() -> None:
+    """A root document points *into* `docs/`; once it is inside `docs/`, that
+    prefix is one level too many and `mkdocs --strict` aborts on the dangling
+    link. `build_docs.py` strips it, and this is what notices if it stops.
+
+    Worth a test of its own because the failure is invisible locally. The gate
+    in CLAUDE.md runs `mkdocs build --strict` but not `scripts/build_docs.py`
+    before it, so a stale `docs/index.md` — the file is gitignored and generated
+    — is what gets checked. The README gained an image link on 2026-09-04, four
+    local `--strict` runs passed against an index generated before it, and CI
+    caught it on the first push because CI regenerates first.
+    """
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "build_docs.py")],
+        check=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    index = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
+    assert "](docs/" not in index, "a link into docs/ survived generation"
+
+
+def test_every_adr_is_in_the_nav() -> None:
+    """`not_in_nav` silences the warning for the gallery; the ADRs are listed
+    one by one on purpose, so a new record that nobody adds is a page the site
+    publishes and no reader can reach."""
+    nav = MKDOCS.read_text(encoding="utf-8")
+    for adr in sorted((ROOT / "docs" / "adr").glob("[0-9]*.md")):
+        assert f"adr/{adr.name}" in nav, f"{adr.name} is not in the nav"
