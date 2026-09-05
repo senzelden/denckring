@@ -12,10 +12,42 @@
     </div>
   </div>
   <div class="control-panel">
-    <form class="actions" hx-post="/stage/calculator_word/act" hx-target="#display" hx-swap="innerHTML">
+    {# The keypad, on the right where the frame was empty. A real calculator's
+       layout — 7 8 9 / 4 5 6 / 1 2 3 / 0 — rather than the ascending order a
+       screen would choose, because the machine being imitated is a specific
+       object and its keys are where they are.
+
+       `2` is on it, and pressing it is worth doing. It lights on the display
+       like any other digit and contributes no letter at all, which is ADR 0037
+       D2 made pressable: `2` is rotationally symmetric on seven segments, so
+       the folk `2 -> Z` is a pun on the printed digit rather than a property of
+       the machine. A viewer who has read every folk table on the internet will
+       press it first. #}
+    <div class="calc-keypad" role="group" aria-label="Calculator keys">
+      {% for row in [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]] %}
+      {% for key in row %}
+      <button type="button" class="calc-key" data-digit="{{ key }}">{{ key }}</button>
+      {% endfor %}
+      {% endfor %}
+      <button type="button" class="calc-key calc-zero" data-digit="0">0</button>
+      <button type="button" class="calc-key calc-clear" id="calc-clear">C</button>
+    </div>
+
+    <form class="actions" id="calc-form" hx-post="/stage/calculator_word/act"
+          hx-target="#display" hx-swap="innerHTML">
       <span class="scene-field">
       <label for="digits-field">Digits</label>
-      <input id="digits-field" type="text" name="digits" inputmode="numeric" value="{{ digits }}">
+      {# Kept beside the keypad rather than replaced by it: pasting a long
+         number is how anyone tries a word they already know, and the keypad is
+         how the machine is played with.
+
+         `maxlength` is eight because that is a pocket calculator's display, and
+         `.calc-display` is sized to exactly eight digits. It is a property of
+         this scene's machine and not of the row: `calculator_word` itself caps
+         nothing, and the longest example here is seven (`Geheiß`, 5513436). #}
+      <input id="digits-field" type="text" name="digits" inputmode="numeric"
+             maxlength="8"
+             value="{{ digits }}">
       </span>
       <span class="scene-field">
       <label for="lang-select">Language</label>
@@ -40,5 +72,91 @@
     {% include "_stage_sync.html" %}
   </div>
 </div>
+
+<script>
+  // Digits are drawn in the browser as they are pressed, and the verdict still
+  // comes from the server on "Turn it over". Rendering here rather than posting
+  // per keystroke keeps a key press instant and keeps every judgement — is this
+  // readable, is it a word — where it belongs, which is the library.
+  //
+  // The segment table is the server's own, handed over rather than repeated:
+  // two copies of which segments a digit lights would be two things to keep in
+  // step, and the whole scene rests on the digits and the letters being the
+  // same marks.
+  const SEGMENTS = {{ segments | tojson }};
+  const ORDER = ["a", "f", "b", "g", "e", "c", "d"];
+  const POINTS = {
+    a: "8,3 32,3 27,8 13,8",
+    f: "6,5 11,10 11,29 6,33",
+    b: "34,5 34,33 29,29 29,10",
+    g: "8,35 13,31 27,31 32,35 27,39 13,39",
+    e: "6,37 11,41 11,60 6,65",
+    c: "34,37 34,65 29,60 29,41",
+    d: "13,62 27,62 32,67 8,67",
+  };
+  const NS = "http://www.w3.org/2000/svg";
+
+  const field = document.getElementById("digits-field");
+
+  function paint() {
+    const display = document.getElementById("calc-display");
+    if (!display) return;
+    // Turning it over is a separate act. Pressing a key while the machine is
+    // upside down puts it back the right way up, because the digits being
+    // entered are digits again — the alternative is typing into a mirror.
+    display.classList.remove("flipped");
+    display.textContent = "";
+    for (const digit of field.value) {
+      const lit = SEGMENTS[digit];
+      if (!lit) continue;
+      const svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("class", "calc-digit");
+      svg.setAttribute("viewBox", "0 0 40 68");
+      svg.setAttribute("aria-hidden", "true");
+      for (const segment of ORDER) {
+        const polygon = document.createElementNS(NS, "polygon");
+        polygon.setAttribute("class", lit.includes(segment) ? "seg on" : "seg");
+        polygon.setAttribute("points", POINTS[segment]);
+        svg.appendChild(polygon);
+      }
+      display.appendChild(svg);
+    }
+    // Whatever the last turn said is no longer about the number on screen, so
+    // it goes and the prompt comes back. Removed rather than rewritten: a
+    // verdict is the server's, and leaving its element in place with different
+    // words inside would be this scene claiming a judgement nobody made.
+    document
+      .querySelectorAll(".calc-reading, .calc-problem, .verdict, .calc-prompt")
+      .forEach(function (node) {
+        node.remove();
+      });
+    const prompt = document.createElement("p");
+    prompt.className = "calc-prompt";
+    prompt.textContent = "Type or press digits, then turn it over.";
+    display.parentNode.appendChild(prompt);
+  }
+
+  document.querySelectorAll(".calc-key[data-digit]").forEach(function (key) {
+    key.addEventListener("click", function () {
+      // Assigning to `value` bypasses `maxlength`, which the browser enforces
+      // only on typing — so the keypad has to honour it itself, or a held key
+      // runs the number past the end of a display built to hold eight.
+      if (field.value.length >= field.maxLength) return;
+      field.value += key.dataset.digit;
+      paint();
+    });
+  });
+  document.getElementById("calc-clear").addEventListener("click", function () {
+    field.value = "";
+    paint();
+  });
+  field.addEventListener("input", paint);
+  // The language toggle rewrites the field through `_stage_sync.html`, which
+  // fires no `input` event of its own, so the display would keep showing the
+  // previous language's number until the next press.
+  document.getElementById("lang-select").addEventListener("change", function () {
+    window.setTimeout(paint, 0);
+  });
+</script>
 {% endblock %}
 {% block caption %}{{ scene.caption }}{% endblock %}

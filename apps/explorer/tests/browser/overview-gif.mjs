@@ -194,10 +194,23 @@ const CHOREOGRAPHY = {
     await hold(page, "scene-automat-pressed", 10);
   },
 
+  // The one scene with an input device of its own, so the recording uses it:
+  // the number is *typed on the keypad*, a frame per key, before anything is
+  // turned. Clearing first because the scene arrives carrying its example, and
+  // a viewer who never sees an empty display cannot tell that the digits are
+  // being entered rather than animated.
+  //
   // The display turns over under a 700ms transform, so the default gap lands
   // roughly a dozen frames inside it.
   calculator_word: async (page) => {
-    await hold(page, "scene-calculator", 6);
+    await hold(page, "scene-calculator", 5);
+    if (await clickIfPresent(page, "#calc-clear")) {
+      await hold(page, "scene-calculator-clear", 3);
+      for (const digit of "7353") {
+        await clickIfPresent(page, `.calc-key[data-digit="${digit}"]`);
+        await hold(page, `scene-calculator-key-${digit}`, 4);
+      }
+    }
     if (await clickIfPresent(page, 'form.actions button[type="submit"]')) {
       await film(page, "scene-calculator-turn", 14);
     }

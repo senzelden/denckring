@@ -792,6 +792,10 @@ def stage_calculator_word(request: Request, chrome: str = "on") -> HTMLResponse:
         segments=stage.SEGMENTS,
         reading=reading,
         report=report,
+        # First paint shows the number, not the word. Turning the machine over
+        # is the gesture this scene exists for, and arriving already flipped
+        # gave the answer away before anyone had pressed a key.
+        turned=False,
         digits=digits,
         default_lang=lang,
         examples=stage.CALCULATOR_WORD_EXAMPLES,
@@ -824,6 +828,7 @@ async def stage_calculator_word_act(request: Request) -> HTMLResponse:
         segments=stage.SEGMENTS,
         reading=reading,
         report=report,
+        turned=True,
         digits=digits,
         lang=lang,
     )
