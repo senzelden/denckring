@@ -413,28 +413,33 @@ def test_valid_yaml_the_wrong_shape_raises_a_denckring_error_for_a_figure_too(
     assert "CANARY-VALUE" not in str(exc.to_dict())
 
 
-def test_the_search_path_splits_on_the_platform_separator(
+def test_the_search_path_honours_a_separator_that_is_not_a_colon(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """`DENCKRING_DEVICE_PATH` imitates `PATH` and must split the way `PATH`
-    does: ";" on Windows, where ":" is the drive separator.
+    does — ";" on Windows, where ":" is the drive separator.
 
     It split on a literal ":" until 2026-09-05, so `C:\\Users\\...` tore into
     "C" and "\\Users\\...", neither entry was a directory, and every extra path
-    was silently dropped — a documented feature that had never worked on
-    Windows. Fifteen tests failed the first time CI ran on windows-latest, all
-    from this one line.
+    was silently dropped. `DENCKRING_DEVICE_PATH` is a documented feature and
+    had never worked on Windows; fifteen tests failed the first time CI ran
+    there, all from that one line.
 
-    Simulated rather than skipped, so the regression is caught on any platform:
-    patching `os.pathsep` is enough, because the split reads it at call time.
+    Only the ";" direction is simulated, and that is the point. A first version
+    of this test looped over both separators, which meant joining two
+    `C:/Users/...` paths with ":" when it ran on Windows — a string that cannot
+    round-trip, because ":" is what makes those paths paths. It asserted an
+    impossible combination and failed on the platform it was written to protect.
+    Patching `os.pathsep` to ";" is meaningful everywhere: on POSIX it proves
+    the split is not hardcoded to ":", and on Windows it is simply the truth.
     """
     first = tmp_path / "first"
     second = tmp_path / "second"
     first.mkdir()
     second.mkdir()
 
-    for separator in (":", ";"):
-        monkeypatch.setattr(os, "pathsep", separator)
-        monkeypatch.setenv(DEVICE_PATH_ENV, separator.join([str(first), str(second)]))
-        found = devices._device_search_path()
-        assert first in found and second in found, separator
+    monkeypatch.setattr(os, "pathsep", ";")
+    monkeypatch.setenv(DEVICE_PATH_ENV, f"{first};{second}")
+    found = devices._device_search_path()
+    assert first in found
+    assert second in found
