@@ -3,6 +3,8 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![Licence: Apache-2.0 AND CC-BY-4.0](https://img.shields.io/badge/licence-Apache--2.0%20AND%20CC--BY--4.0-green)](#licence)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-261230)](https://docs.astral.sh/ruff/)
+[![CI](https://github.com/senzelden/denckring/actions/workflows/ci.yml/badge.svg)](https://github.com/senzelden/denckring/actions/workflows/ci.yml)
+[![Coverage ≥ 97%](https://img.shields.io/badge/coverage-%E2%89%A597%25-brightgreen)](https://github.com/senzelden/denckring/actions/workflows/ci.yml)
 
 A library of experimental writing procedures — lipograms, snowballs, acrostics and
 a hundred and fifty more — where **the validator is the eval**.

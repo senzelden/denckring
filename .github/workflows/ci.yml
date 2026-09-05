@@ -59,6 +59,34 @@ jobs:
       - run: uv sync --extra en --extra de --extra de-wiktionary --extra de-frequency --extra fr
       - run: uv run pytest -q
 
+  coverage:
+    # A floor, not a report. The README's badge states the same 97 this job
+    # enforces, so the badge cannot go stale upward-or-downward without CI
+    # going red — which is the only way a number in prose stays true here.
+    #
+    # Measured 97.1% on 2026-09-05: 6,015 of 6,194 statements. The margin over
+    # the floor is about seven statements, and hypothesis moves the last one or
+    # two between runs, so a drop that turns this red is a real drop. Raising
+    # the floor means raising the badge in the same commit.
+    #
+    # `--extra mcp` because the matrix runs without it and `pytest.importorskip`
+    # then skips every MCP test: measuring the suite that skips them would
+    # report `mcp/server.py` as uncovered code nobody had chosen not to cover.
+    #
+    # Scoped to `denckring` alone. The workspace data packages are vendored
+    # tables with a few lines of accessor each, and folding them in would move
+    # the figure without saying anything about the library.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: >-
+          uv sync --extra en --extra de --extra de-wiktionary
+          --extra de-frequency --extra fr --extra mcp
+      - run: uv run pytest -q --cov=denckring --cov-report=term-missing --cov-fail-under=97
+
   eval:
     # The acceptance criterion the project set itself for unattended runs. A
     # passing test suite is a different claim from a green scoreboard, so this

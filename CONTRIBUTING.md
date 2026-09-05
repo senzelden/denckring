@@ -35,8 +35,22 @@ fixture and catalogue row — each marked `FILL IN`. Fill them in; invent no str
 Then:
 
 ```console
-uv run pytest && uv run ruff check && uv run mypy --strict src tests
+uv run pytest
+uv run mypy --strict src tests
+uv run ruff check
+uv run ruff format --check
 uv run denckring eval --all
+```
+
+Four commands, not one. `ruff format --check` is separate from `ruff check` and the
+branch has been red on it while `check` passed, and `mypy --strict` covers `tests` as
+well as `src`. CI runs all four.
+
+Coverage is a floor rather than a report: CI fails below 97%, which is what the badge
+on the README states. To see where you stand before pushing:
+
+```console
+uv run pytest --cov=denckring --cov-report=term-missing --cov-fail-under=97
 ```
 
 The three registry-wide suites — `test_golden.py`, `test_strategies.py` and

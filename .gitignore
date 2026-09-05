@@ -32,3 +32,8 @@ apps/explorer/.env
 # The manifest and lockfile beside them ARE tracked, so `npm ci --prefix apps/explorer`
 # reinstalls exactly what those scripts were verified against; the 19MB tree is not.
 apps/explorer/node_modules/
+
+# pytest-cov writes this on every --cov run; the report is CI's, not the repo's.
+.coverage
+.coverage.*
+htmlcov/

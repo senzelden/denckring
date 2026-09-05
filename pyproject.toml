@@ -75,6 +75,7 @@ dev = [
     "types-PyYAML>=6",
     "mkdocs-material>=9.7.7",
     "mkdocstrings[python]>=0.26",
+    "pytest-cov>=5",
 ]
 # Build-only: regenerates the English lexicon (packages/denckring-en-data). Never
 # imported at runtime, never installed by `pip install denckring[en]`.
