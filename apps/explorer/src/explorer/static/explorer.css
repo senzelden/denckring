@@ -20,19 +20,37 @@
   --paper: #e9eae4;
   --paper-shade: #dcded5;
   --ink: #1d1d1b;
-  --rubric: #ff3d8b;
-  --rubric-soft: #ff8ab5;
-  /* The same ink overprinted, and the reason there are two.
+  /* ── Two drums, four steps ──────────────────────────────────────────────
+   * A risograph prints one colour per pass, and this app prints on two
+   * grounds. So each ink needs the step that reads on paper and the step that
+   * reads on the case — and the two inks reach them from opposite directions,
+   * which is the whole reason there are four values here and not two.
    *
-   * A risograph's fluorescent pink is a LIGHT ink — measured 2.76:1 on the
-   * stock, which is fine for a rule, a wash or a border and unreadable as
-   * running text. Every mark this app makes in pink on paper is a verdict
-   * somebody has to read, `.verdict.fail .verdict-word` first among them. So
-   * `--rubric` fills and edges, `--rubric-ink` speaks (5.02:1), and the pair is
-   * what a real second pass through the drum does to a pink. Text on the dark
-   * case keeps `--rubric`, where the bright ink measures 4.95:1 and the dark
-   * one would disappear. */
-  --rubric-ink: #c2005f;
+   * The pink is a LIGHT ink: 2.76:1 as text on the stock. Its paper step is
+   * therefore *darker*, the ink overprinted, which is what a second pass
+   * through the drum actually does to it.
+   *
+   * The blue is a DARK ink: 2.40:1 as text on the case. Its case step is
+   * therefore *lighter*, the ink lifted.
+   *
+   * Neither pair is decoration. Collapse either one and half the app loses a
+   * mark it cannot read, on a ground where it still looks deliberate. */
+  --pink: #ff3d8b;
+  --pink-ink: #c2005f;
+  --blue: #0057b8;
+  --blue-lift: #6ba8ee;
+  /* A pink softened rather than overprinted, for an edge on the dark case
+     that the full-strength ink would shout on. */
+  --pink-soft: #ff8ab5;
+
+  /* ── What the inks are for ──────────────────────────────────────────────
+   * Named apart from the drums above, because "which ink" and "what it means"
+   * are different questions and the app asks both. The Denckring's hub and the
+   * wordmark's second half are the blue and carry no verdict at all, so
+   * writing them as `--pass` would have been a lie in a token name. */
+  --rubric: var(--pink);
+  --rubric-ink: var(--pink-ink);
+  --rubric-soft: var(--pink-soft);
 
   --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
   --body: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
@@ -76,16 +94,17 @@
   --case-raise: #2b2b27;
   --case-floor: #0e0e0d;
 
-  /* Semantic marks. `--pass` moved here from stage.css, which had it because
-   * "none of explorer.css's seven tokens is green" — three sheets wanted it
-   * and two spelled it differently (#3f6b3a, #3f7d3f). */
-  --pass: #0057b8;
-  --pass-bright: #6ba8ee;
+  /* `--pass` moved here from stage.css, which had it because "none of
+   * explorer.css's seven tokens is green" — three sheets wanted it and two
+   * spelled it differently (#3f6b3a, #3f7d3f). It is the blue drum now, and
+   * `--pass-bright` is that drum's case step rather than a hue of its own. */
+  --pass: var(--blue);
+  --pass-bright: var(--blue-lift);
   --warn-well: #ffe9f1;
   --warn-edge: #ffaecb;
   --warn-ink: #a80050;
   /* The modern corpus speaks in its own material's voice. */
-  --preprint: #0057b8;
+  --preprint: var(--blue);
 
   /* The calculator's display is a physical object, not a brand surface: a
    * 1970s LED is this red whatever the rest of the app is wearing. */
@@ -148,7 +167,9 @@ a {
    at a time, so a two-colour mark is two passes through the machine. `denck`
    takes the stock's own bone, `ring` the fluorescent pink — which is also the
    ring the library is named for. The `<span>` in `base.html` has always been
-   there; before this it carried a softened rubric on the same warm ground. */
+   there; before this it carried a softened rubric on the same warm ground.
+   The blue rather than the pink, and lifted: #0057b8 on the case is 2.40:1,
+   which is a wordmark you cannot read at the size a wordmark is read. */
 .wordmark {
   font-family: var(--display);
   font-size: clamp(1.6rem, 3.4vw, 2.3rem);
@@ -161,7 +182,7 @@ a {
 }
 
 .wordmark span {
-  color: var(--rubric-soft);
+  color: var(--blue-lift);
 }
 
 .masthead nav {

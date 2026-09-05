@@ -7,19 +7,22 @@
 :root {
 
   /* The Denckring's five bands, innermost outward, lightening as they go so the
-     hub reads as the one rubricated ring. Named here because the scene's own
+     hub reads as the one inked ring. The blue drum, not the pink: the pink hub
+     was legible only as a colour — a fluorescent fill that far out-shouted the
+     five pale bands it sits inside, and whose labels needed dark type to be
+     read at all. Named here because the scene's own
      script paints the discs from these same five tokens (see its GEOMETRY);
      declared twice, in two languages, they would drift and the legend would
      end up naming a colour that no longer belongs to that ring. */
-  --ring-0: var(--rubric);
+  --ring-0: var(--blue);
   --ring-1: #c3c6ba;
   --ring-2: #d3d6ca;
   --ring-3: #e0e2d9;
   --ring-4: #eff0ea;
 
-  /* Paper at reading strength rather than full, for a dash or a spoke over a
-     dark accent that a full-strength mark would shout on. The Denckring's own
-     hub no longer uses it — see `.ring-part-hub` — but Llull's minium one does. */
+  /* Paper at reading strength rather than full: the blank dash on the hub, the
+     one band dark enough that a full-strength dash would shout, and the spokes
+     over Llull's minium. */
   --paper-faint: color-mix(in srgb, var(--paper) 70%, transparent);
   /* Jean Paul's own leaf — a half-step warmer than --paper-shade, which is the
      modern card's ground and must stay distinguishable from it. */
@@ -632,15 +635,16 @@
   user-select: none;
 }
 
-/* Ink, not paper, and the ring's own colour is why.
+/* Paper, because the hub is a dark ink again.
  *
- * `--ring-0` is `--rubric`, and under the risograph palette that is a
- * *fluorescent* pink — a light ink. Paper labels on it measured 1.95:1, which
- * is a hub you can see and cannot read. Dark type on a pink fill is what the
- * machine itself does when it prints one, and it measures 5.06:1. Every other
- * hub on this stage is a dark accent (Llull's minium) and keeps paper. */
+ * This followed `--ring-0` to the pink and back. On the fluorescent pink,
+ * paper measured 1.95:1 and the labels had to go dark; on the blue drum, dark
+ * type measures 2.46:1 and paper 5.68:1. The rule is not "hubs take paper" but
+ * "the label takes whichever step reads on the fill", which is the invariant
+ * `test_the_denckring_hub_sets_labels_that_read_on_it` states directly rather
+ * than pinning either answer. */
 .ring-part-hub {
-  fill: var(--ink);
+  fill: var(--paper);
 }
 
 .ring-part-current {
@@ -655,7 +659,7 @@
 }
 
 .ring-part-hub.blank {
-  fill: color-mix(in srgb, var(--ink) 55%, transparent);
+  fill: var(--paper-faint);
 }
 
 /* Everything that used to sit under the discs now reads down the right
@@ -2698,7 +2702,7 @@
  * were flat filled circles with word-parts floating on them. One line per
  * window slot, inside the dial so they travel with a finger.
  *
- * The hub is rubricated and the four bands are paper, so the line that reads
+ * The hub is inked and the four bands are paper, so the line that reads
  * on one disappears on the other — the same split `--pass` / `--pass-bright`
  * makes, and the same one the wheels make.
  */
@@ -2874,7 +2878,7 @@
  * parts of the word — which is the thing the caption says in words and the
  * figure did not say at all.
  *
- * Outline rather than fill: a wash would tint the rubricated hub and the paper
+ * Outline rather than fill: a wash would tint the inked hub and the paper
  * bands differently and would sit over the part it is meant to frame.
  */
 

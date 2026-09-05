@@ -37,16 +37,31 @@ def _uncommented(name: str) -> str:
 
 
 def _tokens() -> dict[str, str]:
-    """Every hex-valued custom property declared in `explorer.css`.
+    """Every custom property in the palette, resolved to a hex value.
 
-    That file is the one every page loads, so it is where the palette lives;
-    `stage.css` declares only what a scene adds to it.
+    `explorer.css` is the sheet every page loads, so it is where the palette
+    lives; `stage.css` declares only what a scene adds, and its `--ring-0` is
+    read here too because the Denckring's hub is painted from it.
+
+    Aliases are followed rather than skipped. The drums (`--pink`, `--blue`)
+    and what they mean (`--rubric`, `--pass`) are deliberately separate names,
+    so most of the palette now reaches its value through one `var()`.
     """
-    found = {}
-    for line in _uncommented("explorer.css").split("\n"):
-        match = re.match(r"\s*(--[a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;", line)
-        if match:
-            found[match.group(1)] = match.group(2)
+    found: dict[str, str] = {}
+    alias: dict[str, str] = {}
+    for sheet in ("explorer.css", "stage.css"):
+        for line in _uncommented(sheet).split("\n"):
+            literal = re.match(r"\s*(--[a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;", line)
+            if literal:
+                found.setdefault(literal.group(1), literal.group(2))
+                continue
+            indirect = re.match(r"\s*(--[a-z0-9-]+):\s*var\((--[a-z0-9-]+)\)\s*;", line)
+            if indirect:
+                alias.setdefault(indirect.group(1), indirect.group(2))
+    for _ in range(len(alias) + 1):  # chains are shallow; this settles them
+        for name, target in alias.items():
+            if name not in found and target in found:
+                found[name] = found[target]
     return found
 
 
@@ -155,27 +170,53 @@ def test_each_step_of_a_scale_reads_on_the_ground_it_is_for(
     assert measured >= floor, f"{name} on {ground} is {measured:.2f}, below {floor}"
 
 
-def test_the_denckring_hub_sets_its_labels_in_the_ink_it_can_carry() -> None:
-    """The one place a token's contrast is decided by an SVG fill.
+def test_the_denckring_hub_sets_labels_that_read_on_it() -> None:
+    """The one place a token's contrast is decided inside an SVG `fill:`.
 
-    `--ring-0` is `--rubric`, so the Denckring's hub is painted in the bright
-    ink — and the bright ink is light. The labels sat on it in `--paper` at
-    1.95:1: visible, unreadable, and invisible to every other guard here,
-    because neither colour is wrong on its own and the pairing only happens
-    inside a `fill:`. Caught by opening the scene, which is the second time
-    this app has needed an eye rather than a test, so it gets a test.
+    The hub is whichever ink `--ring-0` names, and this has already been both:
+    the fluorescent pink, where paper labels measured 1.95:1 and the type had
+    to go dark, and the blue drum, where dark type measures 2.46:1 and paper
+    5.68:1. The first was caught by opening the scene rather than by a test,
+    which is the second time this app has needed an eye.
+
+    So the assertion is the invariant and not either answer — whatever fills
+    the hub, the labels on it clear AA. Pinning `fill: var(--ink)` would have
+    gone red on a change that was correct, which is the failure mode of a guard
+    that encodes a value instead of a rule.
     """
     token = _tokens()
-    hub = token["--rubric"]  # --ring-0 is declared as var(--rubric) in stage.css
     stage = _uncommented("stage.css")
-
-    assert "--ring-0: var(--rubric);" in stage, "the hub is no longer the bright ink"
     rule = stage.split(".ring-part-hub {", 1)[1].split("}", 1)[0]
-    assert "fill: var(--ink);" in rule, rule
-    assert contrast(token["--ink"], hub) >= 4.5
-    assert contrast(token["--paper"], hub) < 3.0, (
-        "paper now reads on the hub, so the comment explaining why it does not is false"
-    )
+    label = re.search(r"fill:\s*var\((--[a-z0-9-]+)\)", rule)
+    assert label is not None, rule
+
+    measured = contrast(token[label.group(1)], token["--ring-0"])
+    assert measured >= 4.5, f"hub labels are {label.group(1)} on --ring-0 at {measured:.2f}"
+
+
+def test_the_wordmark_prints_its_two_halves_in_two_inks() -> None:
+    """`denck<span>ring</span>` — one mark, two passes through the drum.
+
+    Both halves sit on the case, so both need that ground's step: the bone for
+    the first, the *lifted* blue for the second. The unlifted `--blue` measures
+    2.40:1 there, which is a wordmark you cannot read at the size a wordmark is
+    read, and it is the obvious value for someone to reach for.
+    """
+    token = _tokens()
+    sheet = _uncommented("explorer.css")
+    first = sheet.split(".wordmark {", 1)[1].split("}", 1)[0]
+    second = sheet.split(".wordmark span {", 1)[1].split("}", 1)[0]
+
+    for rule in (first, second):
+        colour = re.search(r"color:\s*var\((--[a-z0-9-]+)\)", rule)
+        assert colour is not None, rule
+        assert contrast(token[colour.group(1)], token["--case"]) >= 4.5, colour.group(1)
+
+    halves = {
+        re.search(r"color:\s*var\((--[a-z0-9-]+)\)", rule).group(1)  # type: ignore[union-attr]
+        for rule in (first, second)
+    }
+    assert len(halves) == 2, "both halves print in the same ink, so there is no split"
 
 
 def test_a_fill_of_the_bright_ink_carries_type_that_reads_on_it() -> None:
