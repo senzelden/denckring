@@ -728,6 +728,9 @@ All notable changes to this project are documented here. The format follows
   clears the previous verdict; every judgement still comes from the library. `2` is on
   the keypad and worth pressing: it lights like any other digit and yields no letter,
   which is ADR 0037 D2 made pressable rather than argued.
+- Coverage is enforced rather than reported: CI fails below 97%, the figure the README's
+  badge states, so the badge cannot drift from the code without the build going red.
+  Measured 97.1% — 6,015 of 6,194 statements.
 - `Description.untranslated`, naming the fields served in a substitute language. Localisation
   has always fallen back to English silently and per field — measured over 155 rows, `names`
   de 95 / fr 98, `definitions` de 95 / fr 95, `prompt_hints` de 4 / fr 0 — so a French caller
