@@ -4604,6 +4604,33 @@ def test_the_module_handles_sit_over_the_cells_their_flaps_spell() -> None:
     assert "z-index: 2;" in modules_rule
 
 
+def _top_level_rules(css: str) -> list[tuple[str, str]]:
+    """Every top-level rule as `(selector, body)`, comments stripped.
+
+    Brace depth is tracked rather than splitting on "}", so a rule nested in an
+    `@media` block is not mistaken for a rule of its own — the same reason
+    `test_no_bare_class_selector_is_declared_twice_where_one_rule_sizes_it`
+    counts that way.
+    """
+    stripped = re.sub(r"/\*.*?\*/", " ", css, flags=re.S)
+    rules: list[tuple[str, str]] = []
+    depth = 0
+    head_start = 0
+    for index, char in enumerate(stripped):
+        if char == "{":
+            if depth == 0:
+                head = stripped[head_start:index]
+                end = stripped.find("}", index)
+                if not head.lstrip().startswith("@"):
+                    rules.append((" ".join(head.split()), stripped[index + 1 : end]))
+            depth += 1
+        elif char == "}":
+            depth = max(depth - 1, 0)
+            if depth == 0:
+                head_start = index + 1
+    return rules
+
+
 def test_a_cell_is_two_halves_and_a_fold() -> None:
     """A source-level guard, and named as one; `tests/browser/flap-board.mjs
     roll` and `frames` are what show it turning.
@@ -4639,10 +4666,24 @@ def test_a_cell_is_two_halves_and_a_fold() -> None:
     # it is asserted on code with the comments stripped rather than on prose.
     code = re.sub(r"//.*", "", script)
     assert "translateY" not in code
-    scene_css = _stage_css().split("scene eight: Enzensberger's Poesie-Automat", 1)[1]
-    assert "translateY" not in scene_css
-    assert "flap-strip" not in scene_css
-    assert "flap-cell" not in scene_css
+    # Scoped by *selector*, not by position in the file.
+    #
+    # This used to slice the stylesheet from scene eight's own header to the end
+    # and search that, which held only while scene eight was the last thing in
+    # it. The file is not ordered by scene — "the link out to a reading", scene
+    # seven's discs and scene four's address all sit after scene eight's header
+    # — so the slice was already wider than the claim, and scene nine's keypad
+    # made that visible: a `translateY(1px)` on a *calculator key*, which is a
+    # key press and not a flap, failed a test about the flap board. The same
+    # shape as the `.tile` collision, and the same lesson: a guard scoped to
+    # "the rest of the file" is not scoped.
+    board = re.compile(r"(cell|flap|automat|board)")
+    for selector, body_css in _top_level_rules(_stage_css()):
+        if not board.search(selector):
+            continue
+        assert "translateY" not in body_css, selector
+    assert "flap-strip" not in _stage_css()
+    assert "flap-cell" not in _stage_css()
     # And the last fold of a roll lands with an overshoot, which is what makes
     # it read as a mechanism rather than as a fade. The easing has to *be* one
     # that overshoots — a cubic-bezier whose second control point is past 1 —
@@ -6101,9 +6142,115 @@ def test_the_display_draws_real_segments_rather_than_substituting_text() -> None
     marks seen from two sides. Rendering the flipped reading as text would be
     quicker and would make that claim untrue, so the segments are pinned."""
     body = client.get("/stage/calculator_word").text
-    assert body.count("calc-digit") == len(stage.CALCULATOR_WORD_DEFAULT)
-    assert "calc-display flipped" in body
-    assert "ESEL" in body
+    # Counted inside the display itself, not across the page. The keypad's
+    # script builds these same elements in the browser and so names the class in
+    # its own source; counting the whole document found five digits in a
+    # four-digit number.
+    display = body.split('id="calc-display"', 1)[1].split("</div>", 1)[0]
+    assert display.count("calc-digit") == len(stage.CALCULATOR_WORD_DEFAULT)
+    # First paint arrives *unturned* — the machine shows a number, and turning
+    # it over is the gesture the viewer makes. It used to load already flipped,
+    # which gave the answer away before anyone had pressed a key.
+    assert "calc-display flipped" not in body
+    # The *reading* is absent, not the word: the caption still says "7353 is
+    # ESEL", which is the scene describing itself rather than the machine
+    # having answered.
+    # Matched on the tag, not the bare class name: the keypad's script names
+    # `.calc-reading` in a selector of its own, so a substring test finds it in
+    # the page whether or not anything rendered it — the same over-count that
+    # made `calc-digit` read as five in a four-digit number.
+    assert '<p class="calc-reading"' not in body
+    assert '<p class="calc-prompt"' in body
+
+
+def test_turning_it_over_flips_the_display_and_carries_a_verdict() -> None:
+    """The act route, which nothing tested before this.
+
+    `turned` gates the whole reading block, so a scene that arrives unflipped
+    put the verdict behind a flag no test set: the library was still deciding,
+    and the page could have stopped showing the answer without a single test
+    going red. Found against a running server, which is the wrong place to find
+    it.
+    """
+    body = client.post("/stage/calculator_word/act", data={"digits": "7353", "lang": "de"}).text
+    assert 'class="calc-display flipped"' in body
+    assert '<p class="calc-reading">ESEL</p>' in body
+    # The verdict is the library's, reached through `check`, not a string this
+    # scene decides for itself.
+    assert '<p class="verdict yes">' in body
+    # And the prompt is gone: something has been turned over, so there is
+    # nothing left to invite.
+    assert '<p class="calc-prompt"' not in body
+
+
+def test_a_two_is_shown_and_read_as_nothing() -> None:
+    """ADR 0037 D2, exercised rather than argued.
+
+    `2` is rotationally symmetric on seven segments and yields no letter, and
+    every folk table on the internet says it is a Z. It lights on the display
+    like any other digit and the machine then refuses to read the number —
+    named, not silently dropped — so the display stays the right way up.
+    """
+    body = client.post("/stage/calculator_word/act", data={"digits": "7352", "lang": "de"}).text
+    assert "calc-display flipped" not in body
+    assert '<p class="calc-problem">' in body
+    assert "verdict" not in body
+    # Shown, not dropped: four digits went in and four are lit.
+    display = body.split('id="calc-display"', 1)[1].split("</div>", 1)[0]
+    assert display.count("calc-digit") == 4
+
+
+def test_the_display_is_a_fixed_window_eight_digits_wide() -> None:
+    """A calculator's display does not resize with the number in it.
+
+    Cleared, this one used to collapse to a stub the width of its own padding,
+    which read as the machine vanishing rather than as its being empty — caught
+    in a recording frame, not by a test, which is why there is now a test.
+
+    The arithmetic is recomputed here rather than trusted, because the CSS
+    states it in a comment and this project treats a comment gone false as a
+    defect. `maxlength` is held to the same eight, so nothing enterable can
+    outgrow the window.
+    """
+    css = " ".join(_stage_css().split())
+    rules = dict(_top_level_rules(_stage_css()))
+    display = rules[".calc-display"]
+    digit = rules[".calc-digit"]
+
+    def rem(body_css: str, prop: str) -> float:
+        match = re.search(rf"(?:^|;)\s*{prop}:\s*([\d.]+)rem", body_css)
+        assert match is not None, (prop, body_css)
+        return float(match.group(1))
+
+    width = rem(digit, "width")
+    gap = rem(display, "gap")
+    # `padding: 1.1rem 1.4rem` — the horizontal half is the second value.
+    sides = re.search(r"padding:\s*[\d.]+rem\s+([\d.]+)rem", display)
+    assert sides is not None, display
+    padding = float(sides.group(1))
+    # Rounded: the sum is 23.900000000000002 in binary floating point, and an
+    # exact comparison fails against a stylesheet that can only say 23.9.
+    assert round(rem(display, "min-width"), 6) == round(8 * width + 7 * gap + 2 * padding, 6)
+    # And one digit tall, so an empty display is an empty window rather than a
+    # sliver. `padding: 1.1rem 1.4rem` — the vertical half is the first value.
+    ends = re.search(r"padding:\s*([\d.]+)rem", display)
+    assert ends is not None, display
+    assert round(rem(display, "min-height"), 6) == round(
+        rem(digit, "height") + 2 * float(ends.group(1)), 6
+    )
+    assert "box-sizing: border-box;" in display
+    # Right-aligned as a machine is, which is also what puts the word at the
+    # left once the whole display is rotated 180 degrees.
+    assert "justify-content: flex-end;" in display
+    assert css.count("min-width: 23.9rem;") == 1
+
+    body = client.get("/stage/calculator_word").text
+    assert 'maxlength="8"' in body
+    # The keypad assigns to `value`, which the browser does not police, so the
+    # cap has to be honoured in the handler as well as declared on the field.
+    assert "if (field.value.length >= field.maxLength) return;" in body
+    for example in stage.CALCULATOR_WORD_EXAMPLES.values():
+        assert len(example) <= 8, example
 
 
 #: Bare class selectors this stylesheet declares twice at top level on purpose,

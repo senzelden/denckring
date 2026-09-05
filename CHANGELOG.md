@@ -721,7 +721,13 @@ All notable changes to this project are documented here. The format follows
 - `denckring.core.calculator` — the display table and its two pure functions, shared by
   the procedure and the explorer's stage scene so neither imports the other's internals.
 - A ninth stage scene for it, drawing seven real segments per digit and rotating the whole
-  display, so the digits and the letters a viewer reads are the same marks.
+  display, so the digits and the letters a viewer reads are the same marks. It carries a
+  keypad of its own — `7 8 9 / 4 5 6 / 1 2 3 / 0`, a real machine's layout — and arrives
+  showing the number rather than the word, so turning it over is the viewer's gesture and
+  not the page's opening state. Pressing a key redraws the display in the browser and
+  clears the previous verdict; every judgement still comes from the library. `2` is on
+  the keypad and worth pressing: it lights like any other digit and yields no letter,
+  which is ADR 0037 D2 made pressable rather than argued.
 - `Description.untranslated`, naming the fields served in a substitute language. Localisation
   has always fallen back to English silently and per field — measured over 155 rows, `names`
   de 95 / fr 98, `definitions` de 95 / fr 95, `prompt_hints` de 4 / fr 0 — so a French caller

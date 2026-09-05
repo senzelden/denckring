@@ -1,13 +1,25 @@
-{# The display itself, and the verdict under it. Shared by the scene's first paint
-   and by the fragment `/act` swaps back — the same split `_stage_ladder.html` uses,
-   so editing the digits re-renders the machine rather than leaving it showing a
-   reading the panel beside it no longer claims.
+{# The display itself, and the verdict under it. Shared by the scene's first
+   paint and by the fragment `/act` swaps back — the same split
+   `_stage_ladder.html` uses, so pressing keys re-renders the machine rather
+   than leaving it showing a reading the panel beside it no longer claims.
 
-   The digits are drawn as seven real segments each and the whole display is rotated
-   180 degrees by CSS, so the flip is the machine turning over rather than a text
-   substitution. That matters for what the scene claims: a viewer can read the
-   unrotated digits and the rotated letters off the *same* marks. #}
-<div class="calc-display{{ ' flipped' if reading.problem != 'invalid' }}">
+   The digits are drawn as seven real segments each and the whole display is
+   rotated 180 degrees by CSS, so a viewer reads the digits and the letters off
+   the *same marks*. That is the scene's entire claim, and substituting text for
+   the flipped reading would make it untrue.
+
+   `turned` is false on first paint: the machine arrives showing the number the
+   way a calculator does, and turning it over is the gesture the viewer makes.
+   It used to arrive already flipped, which gave away the answer before anyone
+   had pressed anything. #}
+{# No `data-digits` honesty attribute here, unlike scene six's `data-checked`.
+   The keypad redraws this display in the browser from the field, so a
+   server-rendered attribute would keep saying the last number the server saw
+   while the screen showed a newer one — a stale claim is worse than none. What
+   plays that role instead is the prompt: an untried number carries no verdict
+   at all. #}
+<div class="calc-display{{ ' flipped' if turned and reading.problem != 'invalid' }}"
+     id="calc-display">
   {% for digit in reading.digits %}
   <svg class="calc-digit" viewBox="0 0 40 68" aria-hidden="true">
     {% set lit = segments[digit] %}
@@ -22,15 +34,18 @@
   {% endfor %}
 </div>
 
-{% if reading.problem == "invalid" %}
-{# The display cannot read this at all — a digit outside the table, and `2` is the
-   one a reader will actually type, because every folk table on the internet lists
-   it as Z. Named rather than silently dropped (ADR 0037 D2). #}
+{% if not turned %}
+{# Nothing to say yet. The machine is showing a number; it becomes a word only
+   when somebody turns it. #}
+<p class="calc-prompt">Type or press digits, then turn it over.</p>
+{% elif reading.problem == "invalid" %}
+{# The display cannot read this at all — a digit outside the table, and `2` is
+   the one a viewer will actually press, because every folk table on the
+   internet lists it as Z. Named rather than silently dropped (ADR 0037 D2). #}
 <p class="calc-problem">{{ reading.message }}</p>
 {% elif reading.problem == "not_a_word" %}
 {# Distinct from "unreadable": the display shows perfectly good letters and the
-   language simply does not know the word. A true and interesting answer, not an
-   error to hide. #}
+   language simply does not know the word. A true and interesting answer. #}
 <p class="calc-reading">{{ reading.word|upper }}</p>
 <p class="calc-problem">{{ reading.message }}</p>
 {% else %}
