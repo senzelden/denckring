@@ -59,7 +59,14 @@ def _device_search_path() -> tuple[Path, ...]:
     deeper inside `load`.
     """
     raw = os.environ.get(DEVICE_PATH_ENV, "")
-    extra = [Path(entry) for entry in raw.split(":") if entry]
+    # `os.pathsep`, not a literal ":". This variable imitates `PATH` and must
+    # split the way `PATH` does — ";" on Windows, where ":" is the drive
+    # separator. Splitting on ":" tore `C:\\Users\\...` into "C" and
+    # "\\Users\\...", so neither entry was a directory, every extra path was
+    # silently dropped, and `DENCKRING_DEVICE_PATH` — a documented feature, see
+    # "Bringing your own device" in the README — had never worked on Windows at
+    # all. Found when CI ran on windows-latest for the first time.
+    extra = [Path(entry) for entry in raw.split(os.pathsep) if entry]
     searchable = []
     for directory in [*extra, DEVICE_DIR]:
         try:

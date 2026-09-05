@@ -10,6 +10,7 @@ depth and are untouched by this module.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -190,7 +191,10 @@ slots:
     alternatives: ["from-second"]
 """,
     )
-    monkeypatch.setenv(DEVICE_PATH_ENV, f"{first_dir}:{second_dir}")
+    # Joined with `os.pathsep` rather than a literal ":" — the separator this
+    # variable is meant to use. A literal colon passes on POSIX and is the
+    # reason this test could not see that the loader split on ":" as well.
+    monkeypatch.setenv(DEVICE_PATH_ENV, os.pathsep.join([str(first_dir), str(second_dir)]))
     assert devices.load("ordering").slots[0].alternatives == ["from-first"]
 
 
@@ -407,3 +411,30 @@ def test_valid_yaml_the_wrong_shape_raises_a_denckring_error_for_a_figure_too(
     exc = excinfo.value
     assert "CANARY-VALUE" not in str(exc)
     assert "CANARY-VALUE" not in str(exc.to_dict())
+
+
+def test_the_search_path_splits_on_the_platform_separator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`DENCKRING_DEVICE_PATH` imitates `PATH` and must split the way `PATH`
+    does: ";" on Windows, where ":" is the drive separator.
+
+    It split on a literal ":" until 2026-09-05, so `C:\\Users\\...` tore into
+    "C" and "\\Users\\...", neither entry was a directory, and every extra path
+    was silently dropped — a documented feature that had never worked on
+    Windows. Fifteen tests failed the first time CI ran on windows-latest, all
+    from this one line.
+
+    Simulated rather than skipped, so the regression is caught on any platform:
+    patching `os.pathsep` is enough, because the split reads it at call time.
+    """
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+
+    for separator in (":", ";"):
+        monkeypatch.setattr(os, "pathsep", separator)
+        monkeypatch.setenv(DEVICE_PATH_ENV, separator.join([str(first), str(second)]))
+        found = devices._device_search_path()
+        assert first in found and second in found, separator
