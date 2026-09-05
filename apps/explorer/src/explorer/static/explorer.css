@@ -11,21 +11,91 @@
  */
 
 :root {
-  --case: #2a2622;
-  --case-deep: #1e1b18;
-  --case-lip: #3a342e;
-  --rule: #4a443e;
-  --lead: #8c8a85;
-  --lead-bright: #b8b5ae;
-  --paper: #f7f5f0;
-  --paper-shade: #e8e3d9;
-  --ink: #14110f;
-  --rubric: #b3121d;
-  --rubric-soft: #d9705a;
+  --case: #1f1f1d;
+  --case-deep: #161615;
+  --case-lip: #3a3a35;
+  --rule: #35352f;
+  --lead: #9b9c92;
+  --lead-bright: #d9dad1;
+  --paper: #e9eae4;
+  --paper-shade: #dcded5;
+  --ink: #1d1d1b;
+  --rubric: #ff3d8b;
+  --rubric-soft: #ff8ab5;
+  /* The same ink overprinted, and the reason there are two.
+   *
+   * A risograph's fluorescent pink is a LIGHT ink — measured 2.76:1 on the
+   * stock, which is fine for a rule, a wash or a border and unreadable as
+   * running text. Every mark this app makes in pink on paper is a verdict
+   * somebody has to read, `.verdict.fail .verdict-word` first among them. So
+   * `--rubric` fills and edges, `--rubric-ink` speaks (5.02:1), and the pair is
+   * what a real second pass through the drum does to a pink. Text on the dark
+   * case keeps `--rubric`, where the bright ink measures 4.95:1 and the dark
+   * one would disappear. */
+  --rubric-ink: #c2005f;
 
-  --display: "Fraunces", "Hoefler Text", "Iowan Old Style", Georgia, serif;
-  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+
+  /* ── The two scales ────────────────────────────────────────────────────
+   * Type in this app sits on one of two grounds and the steps are NOT
+   * interchangeable: `--ink-*` darkens on paper, `--lead-*` dims on the case.
+   * Before these existed the same warm browns were written into rules on both
+   * grounds — `.sort-face` at #4f4841 is a *case* grey, `.sort.is-set
+   * .sort-face` at #9a8f7e a *paper* one — and nothing said so, which is how a
+   * repaint silently makes one of the two illegible.
+   *
+   * Fifteen literals collapse to four steps here. The variation between them
+   * was accidental, not designed: #6f6a63, #6f675c and #6b645c were three
+   * spellings of one grey. */
+  --ink-strong: #33332e;
+  --ink-mid: #55564e;
+  --ink-soft: #66685e;
+  --ink-faint: #8a8c81;
+
+  --lead-dim: #74756c;
+  --lead-faint: #4e4f49;
+  --lead-ghost: #3a3a36;
+
+  /* Edges on paper, hairline to strong. */
+  --edge-strong: #9fa295;
+  --edge: #c2c4ba;
+  --edge-soft: #d5d7cd;
+  --edge-faint: #e2e4db;
+
+  /* A raised surface on paper: an input, a proof, a set compartment's face.
+   * `--well-top`/`--well-bottom` are the two stops of that raise. */
+  --well: #f5f6f0;
+  --well-top: #f5f6f0;
+  --well-bottom: #dcded5;
+
+  /* Two more steps of the case, for objects with a lit and a shadowed face:
+   * the split-flap leaves, the automat lamp. */
+  --case-raise: #2b2b27;
+  --case-floor: #0e0e0d;
+
+  /* Semantic marks. `--pass` moved here from stage.css, which had it because
+   * "none of explorer.css's seven tokens is green" — three sheets wanted it
+   * and two spelled it differently (#3f6b3a, #3f7d3f). */
+  --pass: #0057b8;
+  --pass-bright: #6ba8ee;
+  --warn-well: #ffe9f1;
+  --warn-edge: #ffaecb;
+  --warn-ink: #a80050;
+  /* The modern corpus speaks in its own material's voice. */
+  --preprint: #0057b8;
+
+  /* The calculator's display is a physical object, not a brand surface: a
+   * 1970s LED is this red whatever the rest of the app is wearing. */
+  --led: #e8402a;
+  --led-off: #232a2e;
+  --led-case: #14181b;
+
+  /* Llull's two outer discs. */
+  --disc-1: #cdd0c4;
+  --disc-2: #dfe1d8;
 
   --gutter: clamp(1rem, 3vw, 2.5rem);
   --measure: 68ch;
@@ -74,11 +144,16 @@ a {
   border-bottom: 1px solid var(--rule);
 }
 
+/* Two inks, and the split is the whole joke: a risograph drum holds one colour
+   at a time, so a two-colour mark is two passes through the machine. `denck`
+   takes the stock's own bone, `ring` the fluorescent pink — which is also the
+   ring the library is named for. The `<span>` in `base.html` has always been
+   there; before this it carried a softened rubric on the same warm ground. */
 .wordmark {
   font-family: var(--display);
   font-size: clamp(1.6rem, 3.4vw, 2.3rem);
   font-weight: 600;
-  font-variation-settings: "SOFT" 20, "WONK" 1;
+  font-variation-settings: "wdth" 90;
   letter-spacing: -0.015em;
   color: var(--paper);
   margin: 0;
@@ -143,7 +218,6 @@ main {
   font-family: var(--display);
   font-size: 1.25rem;
   font-weight: 500;
-  font-variation-settings: "SOFT" 0, "WONK" 0;
   color: var(--paper);
   margin: 0;
   letter-spacing: 0.01em;
@@ -199,8 +273,8 @@ main {
   font-size: 1.45rem;
   line-height: 1;
   font-weight: 500;
-  font-variation-settings: "SOFT" 30, "WONK" 1;
-  color: #4f4841;
+  font-variation-settings: "wdth" 85;
+  color: var(--lead-faint);
 }
 
 .sort-name {
@@ -214,17 +288,17 @@ main {
 
 /* Set: the compartment holds type. Paper-white face, raised. */
 .sort.is-set {
-  background: linear-gradient(180deg, #f9f7f2 0%, #ddd8cd 100%);
-  border-color: #cbc4b6;
+  background: linear-gradient(180deg, var(--well-top) 0%, var(--well-bottom) 100%);
+  border-color: var(--edge);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .sort.is-set .sort-face {
-  color: #9a8f7e;
+  color: var(--ink-faint);
 }
 
 .sort.is-set .sort-name {
-  color: #2c2721;
+  color: var(--ink-strong);
 }
 
 .sort.is-set:hover {
@@ -234,28 +308,28 @@ main {
 
 /* Uncut: an empty compartment, waiting. */
 .sort.is-uncut:hover {
-  background: #262220;
+  background: var(--case);
   border-color: var(--rule);
 }
 
 .sort.is-uncut .sort-face {
-  color: #433d37;
+  color: var(--lead-ghost);
 }
 
 .sort.is-uncut .sort-name {
-  color: #7d766d;
+  color: var(--lead-dim);
 }
 
 /* Blocked: ruled through. Nothing will ever be set here. */
 .sort.is-blocked {
   background: var(--case-deep);
   border-style: dashed;
-  border-color: #3a332d;
+  border-color: var(--case-lip);
 }
 
 .sort.is-blocked .sort-face,
 .sort.is-blocked .sort-name {
-  color: #453f39;
+  color: var(--lead-ghost);
 }
 
 .sort.is-blocked::after {
@@ -316,8 +390,8 @@ main {
 }
 
 .key.set i {
-  background: linear-gradient(180deg, #f9f7f2, #ddd8cd);
-  border-color: #cbc4b6;
+  background: linear-gradient(180deg, var(--well-top), var(--well-bottom));
+  border-color: var(--edge);
 }
 
 .key.blocked i {
@@ -343,7 +417,6 @@ main {
   font-family: var(--display);
   font-size: 1.35rem;
   font-weight: 500;
-  font-variation-settings: "SOFT" 0, "WONK" 0;
   margin: 0 0 0.9rem;
 }
 
@@ -353,7 +426,7 @@ main {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7a7166;
+  color: var(--ink-soft);
   margin: 1.6rem 0 0.6rem;
 }
 
@@ -367,7 +440,7 @@ main {
   font-family: var(--display);
   font-size: clamp(2rem, 5vw, 3.1rem);
   font-weight: 600;
-  font-variation-settings: "SOFT" 25, "WONK" 1;
+  font-variation-settings: "wdth" 88;
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--paper);
@@ -386,7 +459,7 @@ main {
 .definition {
   font-family: var(--display);
   font-size: 1.15rem;
-  font-variation-settings: "SOFT" 10, "WONK" 0;
+  font-variation-settings: "wdth" 95;
   line-height: 1.5;
   color: var(--paper-shade);
   max-width: var(--measure);
@@ -412,7 +485,7 @@ main {
   font-size: 0.64rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6f6a63;
+  color: var(--ink-mid);
   margin-bottom: 0.25rem;
 }
 
@@ -437,7 +510,7 @@ label {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #7a7166;
+  color: var(--ink-soft);
   margin-bottom: 0.3rem;
 }
 
@@ -446,7 +519,7 @@ label {
   font-size: 0.78rem;
   letter-spacing: 0;
   text-transform: none;
-  color: #8a8175;
+  color: var(--ink-faint);
   margin: 0.25rem 0 0;
 }
 
@@ -459,8 +532,8 @@ select {
   font-size: 0.92rem;
   line-height: 1.6;
   color: var(--ink);
-  background: #fffefb;
-  border: 1px solid #cfc8ba;
+  background: var(--well);
+  border: 1px solid var(--edge);
   border-radius: 2px;
   padding: 0.65rem 0.75rem;
 }
@@ -513,9 +586,15 @@ button {
   transition: background 120ms ease, color 120ms ease;
 }
 
+/* The ink flips with the ground. `button` sets paper on `--ink`; hovering
+   swaps the fill to the fluorescent pink, which is a LIGHT ink — paper on it
+   measures 1.94:1. Every rule in these sheets that fills with `--rubric` sets
+   its own `color` for this reason, and `test_a_fill_of_the_bright_ink_carries
+   _type_that_reads_on_it` is what keeps the next one from forgetting. */
 button:hover {
   background: var(--rubric);
   border-color: var(--rubric);
+  color: var(--ink);
 }
 
 button:focus-visible {
@@ -525,14 +604,14 @@ button:focus-visible {
 
 button.quiet {
   background: transparent;
-  color: #574f45;
-  border-color: #cfc8ba;
+  color: var(--ink-mid);
+  border-color: var(--edge);
 }
 
 button.quiet:hover {
   background: var(--paper-shade);
   color: var(--ink);
-  border-color: #a89e8e;
+  border-color: var(--edge-strong);
 }
 
 /* ── the proof ────────────────────────────────────────────────────────── */
@@ -551,7 +630,7 @@ button.quiet:hover {
   font-family: var(--display);
   font-size: 1.5rem;
   font-weight: 600;
-  font-variation-settings: "SOFT" 20, "WONK" 1;
+  font-variation-settings: "wdth" 90;
 }
 
 .verdict.pass .verdict-word {
@@ -559,13 +638,13 @@ button.quiet:hover {
 }
 
 .verdict.fail .verdict-word {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .score {
   font-family: var(--mono);
   font-size: 0.8rem;
-  color: #7a7166;
+  color: var(--ink-soft);
   margin-left: auto;
 }
 
@@ -588,6 +667,9 @@ button.quiet:hover {
 .verdict.fail + .gauge i,
 .gauge.fail i {
   background: var(--rubric);
+  /* No type in a gauge bar, but the rule states its ink anyway so the fill
+     invariant holds without an exception list. */
+  color: var(--ink);
 }
 
 .proof-text {
@@ -597,16 +679,16 @@ button.quiet:hover {
   white-space: pre-wrap;
   word-break: break-word;
   padding: 1rem 1.1rem;
-  background: #fffefb;
-  border: 1px solid #e0d9cb;
+  background: var(--well);
+  border: 1px solid var(--edge-soft);
   border-left: 3px solid var(--ink);
 }
 
 mark.hit {
   background: transparent;
-  color: var(--rubric);
+  color: var(--rubric-ink);
   font-weight: 700;
-  box-shadow: inset 0 -0.45em 0 rgba(179, 18, 29, 0.14);
+  box-shadow: inset 0 -0.45em 0 color-mix(in srgb, var(--rubric) 14%, transparent);
   border-bottom: 2px solid var(--rubric);
 }
 
@@ -614,7 +696,7 @@ mark.hit {
   list-style: none;
   margin: 1.2rem 0 0;
   padding: 0;
-  border-top: 1px solid #e0d9cb;
+  border-top: 1px solid var(--edge-soft);
 }
 
 .marks li {
@@ -622,14 +704,14 @@ mark.hit {
   grid-template-columns: 2.6rem 1fr;
   gap: 0.75rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid #eee8dc;
+  border-bottom: 1px solid var(--edge-faint);
   font-size: 0.87rem;
 }
 
 .marks .at {
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--rubric);
+  color: var(--rubric-ink);
   padding-top: 0.15rem;
 }
 
@@ -637,7 +719,7 @@ mark.hit {
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
-  color: #7a7166;
+  color: var(--ink-soft);
   display: block;
 }
 
@@ -647,7 +729,7 @@ mark.hit {
   gap: 0.4rem 1.4rem;
   font-family: var(--mono);
   font-size: 0.75rem;
-  color: #7a7166;
+  color: var(--ink-soft);
   margin-top: 1rem;
 }
 
@@ -661,10 +743,10 @@ mark.hit {
   font-size: 0.84rem;
   line-height: 1.6;
   padding: 0.9rem 1rem;
-  background: #fdf2f1;
-  border: 1px solid #e8c3bd;
+  background: var(--warn-well);
+  border: 1px solid var(--warn-edge);
   border-left: 3px solid var(--rubric);
-  color: #6d1219;
+  color: var(--warn-ink);
 }
 
 /* ── examples rail ────────────────────────────────────────────────────── */
@@ -688,7 +770,7 @@ mark.hit {
   text-transform: none;
   color: var(--ink);
   background: var(--paper);
-  border: 1px solid #ddd5c6;
+  border: 1px solid var(--edge-soft);
   padding: 0.6rem 0.7rem;
   margin-bottom: 0.5rem;
   cursor: pointer;
@@ -696,7 +778,7 @@ mark.hit {
 
 .example:hover {
   background: var(--paper-shade);
-  border-color: #a89e8e;
+  border-color: var(--edge-strong);
 }
 
 .example .verdict-chip {
@@ -709,18 +791,18 @@ mark.hit {
 }
 
 .example .yes {
-  color: #3f6b3a;
+  color: var(--pass);
 }
 
 .example .no {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .example .cite {
   display: block;
   margin-top: 0.3rem;
   font-size: 0.74rem;
-  color: #857b6e;
+  color: var(--ink-faint);
 }
 
 /* ── missing ──────────────────────────────────────────────────────────── */
@@ -778,7 +860,7 @@ mark.hit {
 
 /* On paper, the same devices invert. */
 .sheet .gap {
-  border-bottom-color: #e0d9cb;
+  border-bottom-color: var(--edge-soft);
 }
 
 .sheet .gap-key {
@@ -786,17 +868,17 @@ mark.hit {
 }
 
 .sheet .gap-count {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .sheet .chip {
-  color: #574f45;
-  border-color: #cfc8ba;
+  color: var(--ink-mid);
+  border-color: var(--edge);
 }
 
 .sheet .chip:hover {
   color: var(--ink);
-  border-color: #a89e8e;
+  border-color: var(--edge-strong);
   background: var(--paper-shade);
 }
 
@@ -816,7 +898,7 @@ mark.hit {
 }
 
 .search input::placeholder {
-  color: #6b645c;
+  color: var(--ink-mid);
 }
 
 .results {
@@ -874,7 +956,7 @@ mark.hit {
   gap: 0.6rem;
   margin-bottom: 1.4rem;
   padding-bottom: 1.2rem;
-  border-bottom: 1px solid var(--rule, #ddd);
+  border-bottom: 1px solid var(--rule);
 }
 
 .corpus-picker select { max-width: 32rem; }
@@ -887,8 +969,8 @@ mark.hit {
 .witz-reading {
   margin-top: 0.8rem;
   padding: 0.9rem 1.1rem;
-  border-left: 3px solid #4288c4;
-  background: rgba(66, 136, 196, 0.06);
+  border-left: 3px solid var(--preprint);
+  background: color-mix(in srgb, var(--preprint) 6%, transparent);
   font-style: italic;
   line-height: 1.55;
   white-space: pre-wrap;
@@ -897,10 +979,10 @@ mark.hit {
 .loaded-corpus {
   margin: 0;
   padding: 0.55rem 0.8rem;
-  border: 1px dashed var(--rule, #ccc);
+  border: 1px dashed var(--rule);
   border-radius: 3px;
   font-size: 0.9rem;
-  color: #444;
+  color: var(--ink-mid);
 }
 
 /* ── Over MCP ──────────────────────────────────────────────────────────────
@@ -974,8 +1056,8 @@ mark.hit {
 .agent-result {
   margin: 0;
   padding: 0.75rem 0.9rem;
-  border-left: 3px solid var(--rule, #ddd);
-  background: var(--well, #f6f6f4);
+  border-left: 3px solid var(--rule);
+  background: var(--well);
   font-size: 0.82rem;
   line-height: 1.45;
   overflow-x: auto;

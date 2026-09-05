@@ -46,7 +46,7 @@
 .reading-head h1 {
   font-family: var(--display);
   font-weight: 600;
-  font-variation-settings: "SOFT" 20, "WONK" 1;
+  font-variation-settings: "wdth" 90;
   font-size: clamp(2.1rem, 5.5vw, 3.4rem);
   line-height: 1.02;
   letter-spacing: -0.02em;
@@ -75,7 +75,7 @@
   font-family: var(--display);
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--rubric);
+  color: var(--rubric-ink);
   margin: 0 0 0.2rem;
   line-height: 1;
 }
@@ -134,11 +134,11 @@
 }
 
 .reading .sheet a:hover {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .reading .sheet s {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .reading .sheet sup {
@@ -266,7 +266,7 @@
 
 .reading-scissors {
   font-size: 1.7rem !important;
-  color: var(--rubric) !important;
+  color: var(--rubric-ink) !important;
   margin-bottom: 0.6rem !important;
 }
 
@@ -526,11 +526,11 @@
 }
 
 .ars-pro {
-  color: #3f7d3f;
+  color: var(--pass);
 }
 
 .ars-contra {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 .ars-nihil {

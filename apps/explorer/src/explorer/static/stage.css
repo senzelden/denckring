@@ -5,11 +5,6 @@
  */
 
 :root {
-  /* The board needs a pass colour; none of explorer.css's seven tokens is green. */
-  --pass: #3f7d3f;
-  /* The board's --pass sits on paper; the word panel sits on the dark case, where
-     that green all but disappears. A lighter step of the same hue, not a new one. */
-  --pass-bright: #6fae6f;
 
   /* The Denckring's five bands, innermost outward, lightening as they go so the
      hub reads as the one rubricated ring. Named here because the scene's own
@@ -17,25 +12,18 @@
      declared twice, in two languages, they would drift and the legend would
      end up naming a colour that no longer belongs to that ring. */
   --ring-0: var(--rubric);
-  --ring-1: #c9beaa;
-  --ring-2: #dcd5c5;
-  --ring-3: #e8e3d9;
-  --ring-4: #f2efe7;
+  --ring-1: #c3c6ba;
+  --ring-2: #d3d6ca;
+  --ring-3: #e0e2d9;
+  --ring-4: #eff0ea;
 
-  /* Paper at reading strength rather than full: the blank dash on the hub, the
-     one band dark enough that a full-strength dash would shout. */
-  --paper-faint: rgba(247, 245, 240, 0.7);
+  /* Paper at reading strength rather than full, for a dash or a spoke over a
+     dark accent that a full-strength mark would shout on. The Denckring's own
+     hub no longer uses it — see `.ring-part-hub` — but Llull's minium one does. */
+  --paper-faint: color-mix(in srgb, var(--paper) 70%, transparent);
   /* Jean Paul's own leaf — a half-step warmer than --paper-shade, which is the
      modern card's ground and must stay distinguishable from it. */
-  --leaf: #f2ecdd;
-  /* The modern corpus speaks in its own material's voice: a preprint blue,
-     deliberately nothing the type case carries. */
-  --preprint: #4288c4;
-  /* The rubric as a wash, for marking a region rather than a mark. It was
-     written for the N+7 reel's read line, which sits over the dark case and
-     needs a wash strong enough to read against it; that line now takes
-     `--accent-wash`, and this is the value `--accent-wash` falls back to. */
-  --rubric-wash-strong: rgba(179, 18, 29, 0.22);
+  --leaf: #e5e3d4;
 
   /* One accent per scene, and one only.
    *
@@ -55,21 +43,23 @@
    * a focus ring or a button — those were unified across the stage in earlier
    * work, and the verdict's single voice is the more valuable property. */
   --accent: var(--rubric);
-  --accent-wash: var(--rubric-wash-strong);
+  /* Derived, not restated. Every scene below used to spell its wash out as a
+     second literal beside its accent — `#a5301f` and `rgba(165, 48, 31, 0.22)`
+     — so the pair could drift, and a scene that changed its accent kept the
+     old wash. A scene now sets `--accent` alone and this follows it. */
+  --accent-wash: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 /* Minium — the vermilion of a rubricated manuscript, which is what Llull's
    own figures are drawn in. */
 .llull-stage {
   --accent: #a5301f;
-  --accent-wash: rgba(165, 48, 31, 0.22);
 }
 
 /* Newsprint red: the cut-up's material is the newspaper column Gysin's blade
    went through. */
 .cutup-stage {
   --accent: #cb2016;
-  --accent-wash: rgba(203, 32, 22, 0.22);
 }
 
 /* The Oulipo's own ground is a French cahier: squared paper in grid blue,
@@ -80,7 +70,7 @@
    changes only its hue. */
 .n7-stage {
   --accent: #1d2545;
-  --accent-wash: rgba(219, 231, 241, 0.2);
+  --accent-wash: color-mix(in srgb, #dbe7f1 20%, transparent);
 }
 
 /* The lamp behind a split-flap board's fascia. This one is not new: the module
@@ -88,7 +78,6 @@
    that came from no token. It has a name now. */
 .automat-stage {
   --accent: #e2603f;
-  --accent-wash: rgba(226, 96, 63, 0.18);
 }
 
 .stage-body {
@@ -643,8 +632,15 @@
   user-select: none;
 }
 
+/* Ink, not paper, and the ring's own colour is why.
+ *
+ * `--ring-0` is `--rubric`, and under the risograph palette that is a
+ * *fluorescent* pink — a light ink. Paper labels on it measured 1.95:1, which
+ * is a hub you can see and cannot read. Dark type on a pink fill is what the
+ * machine itself does when it prints one, and it measures 5.06:1. Every other
+ * hub on this stage is a dark accent (Llull's minium) and keeps paper. */
 .ring-part-hub {
-  fill: var(--paper);
+  fill: var(--ink);
 }
 
 .ring-part-current {
@@ -659,7 +655,7 @@
 }
 
 .ring-part-hub.blank {
-  fill: var(--paper-faint);
+  fill: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
 /* Everything that used to sit under the discs now reads down the right
@@ -835,7 +831,7 @@
 }
 
 .counts s {
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 /* The plate itself, where the quotation used to sit: the 1651 engraving,
@@ -1280,7 +1276,7 @@
   border: 1px solid var(--case-lip);
   border-radius: 2px;
   padding: 0.75rem 0.9rem 0.85rem;
-  box-shadow: 0 2px 9px rgba(20, 17, 15, 0.07);
+  box-shadow: 0 2px 9px color-mix(in srgb, var(--ink) 7%, transparent);
   max-width: 30rem;
 }
 
@@ -1316,7 +1312,7 @@
   font-family: var(--display);
   font-size: 0.86rem;
   line-height: 1.62;
-  color: #8d857a;
+  color: var(--ink-faint);
   break-inside: avoid;
   padding: 0 0.2rem;
   border-radius: 1px;
@@ -1327,17 +1323,17 @@
 .book-from {
   color: var(--ink);
   font-weight: 600;
-  background: rgba(179, 18, 29, 0.1);
+  background: color-mix(in srgb, var(--rubric) 10%, transparent);
 }
 
 .book-to {
   color: var(--ink);
   font-weight: 600;
-  background: rgba(63, 125, 63, 0.15);
+  background: color-mix(in srgb, var(--pass) 15%, transparent);
 }
 
 .book-through {
-  color: #6f675c;
+  color: var(--ink-mid);
 }
 
 .book-mark {
@@ -1367,14 +1363,14 @@
   text-transform: none;
   padding: 0.14rem 0.45rem;
   background: transparent;
-  color: #574f45;
-  border: 1px solid #cfc8ba;
+  color: var(--ink-mid);
+  border: 1px solid var(--edge);
   border-radius: 2px;
   cursor: pointer;
 }
 
 .book-noun:hover {
-  color: var(--rubric);
+  color: var(--rubric-ink);
   border-color: var(--rubric);
   background: transparent;
 }
@@ -1500,8 +1496,8 @@
   bottom: -0.15rem;
   width: 0.55rem;
   border-radius: 2px 0 0 2px;
-  background: #ddd6c6;
-  box-shadow: inset -2px 0 3px rgba(20, 17, 15, 0.16);
+  background: var(--well-bottom);
+  box-shadow: inset -2px 0 3px color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
 /* Fourteen lines of verse plus the header above and the panel below is the
@@ -1546,8 +1542,8 @@
   /* The cut edge, and the card below showing under it. Drawn as shadow rather
      than as a border so lifting one costs no layout. */
   box-shadow:
-    0 1px 0 rgba(20, 17, 15, 0.16),
-    0 2px 4px rgba(20, 17, 15, 0.08);
+    0 1px 0 color-mix(in srgb, var(--ink) 16%, transparent),
+    0 2px 4px color-mix(in srgb, var(--ink) 8%, transparent);
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
@@ -1558,8 +1554,8 @@
   background: var(--paper);
   transform: translateX(6px);
   box-shadow:
-    0 1px 0 rgba(20, 17, 15, 0.16),
-    0 6px 12px rgba(20, 17, 15, 0.14);
+    0 1px 0 color-mix(in srgb, var(--ink) 16%, transparent),
+    0 6px 12px color-mix(in srgb, var(--ink) 14%, transparent);
 }
 
 .strip-card:focus-visible {
@@ -1808,7 +1804,7 @@
    from its neighbours rather than merely described near them. */
 .rung .tile.changed {
   background: var(--rubric);
-  color: var(--paper);
+  color: var(--ink);
 }
 
 /* Distinct wording for a search that never ran (an endpoint the lexicon does
@@ -1947,7 +1943,7 @@
    word is still whole at this point, and colouring it would pre-empt
    `.cutup-fragment` below, which is the thing that has actually been cut. */
 .cutup-cut-through {
-  background: rgba(179, 18, 29, 0.14);
+  background: color-mix(in srgb, var(--rubric) 14%, transparent);
 }
 
 /* State two, "the cut": four quarters of real paper. Each is a window on the
@@ -1965,7 +1961,7 @@
   position: absolute;
   overflow: hidden;
   background: var(--paper);
-  box-shadow: 0 2px 7px rgba(20, 17, 15, 0.22);
+  box-shadow: 0 2px 7px color-mix(in srgb, var(--ink) 22%, transparent);
 }
 
 .cutup-piece-line {
@@ -2087,7 +2083,7 @@
   font-family: var(--mono);
   font-size: 0.72rem;
   line-height: 1.5;
-  color: var(--rubric);
+  color: var(--rubric-ink);
 }
 
 /* ── scene seven: Llull's rotating figure ─────────────────────────────────
@@ -2154,8 +2150,8 @@
    Llull's own figures are drawn in minium, so the hub is the accent here on
    purpose rather than by inheritance. */
 .wheel-disc-0 { fill: var(--accent); }
-.wheel-disc-1 { fill: #ddd3bd; }
-.wheel-disc-2 { fill: #ece5d5; }
+.wheel-disc-1 { fill: var(--disc-1); }
+.wheel-disc-2 { fill: var(--disc-2); }
 
 .wheel-dial {
   pointer-events: none;
@@ -2363,7 +2359,7 @@
      the tracking. */
   letter-spacing: 0;
   color: var(--paper);
-  background: #14120f;
+  background: var(--case-floor);
   /* A stacking context of the cell's own, so the `z-index` on its leaves and
      its hinge means "inside this cell" rather than "inside whatever ancestor
      happens to be one". Without it those two `z-index`es climbed past the
@@ -2431,14 +2427,14 @@
 .cell-front {
   top: 0;
   align-items: flex-start;
-  background: linear-gradient(#2b2823, #221f1b);
+  background: linear-gradient(var(--case-raise), var(--case-deep));
 }
 
 .cell-bottom,
 .cell-back {
   bottom: 0;
   align-items: flex-end;
-  background: linear-gradient(#1b1815, #131110);
+  background: linear-gradient(var(--case-deep), var(--case-floor));
 }
 
 /* The two leaves, and the fold itself. The front leaf hangs from the hinge and
@@ -2667,7 +2663,7 @@
 /* Tabular figures so a flip moves one digit and nothing else shifts under it —
    the whole point of the thing is that you can see which digit changed. */
 .address-ordinal {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--display);
   font-size: 2.5rem;
   font-weight: 600;
   line-height: 1.05;
@@ -2722,7 +2718,7 @@
 }
 
 .ring-cell-alt {
-  fill: rgba(20, 17, 15, 0.05);
+  fill: color-mix(in srgb, var(--ink) 5%, transparent);
 }
 
 #ring-0 .ring-cell {
@@ -2845,7 +2841,7 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: #2a211c;
+  background: var(--case);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
   transition: background 600ms ease, box-shadow 600ms ease;
 }
@@ -2922,7 +2918,7 @@
 
 .cutup-readout dd {
   margin: 0;
-  font-family: "Instrument Sans", Arial, sans-serif;
+  font-family: var(--body);
   font-size: 0.78rem;
   line-height: 1.5;
   color: var(--ink);
@@ -3060,7 +3056,7 @@
    because a third line moves the actions down and this scene has 88px of
    slack in a 720px frame. */
 .cutup-how {
-  font-family: "Instrument Sans", Arial, sans-serif;
+  font-family: var(--body);
   font-size: 0.72rem;
   line-height: 1.55;
   color: var(--lead);
@@ -3119,7 +3115,7 @@
    stage that has to print this, and it is printed rather than left blank so
    that "no verdict" cannot be read as "the verdict has not come back yet". */
 .cutup-uncheckable {
-  font-family: "Instrument Sans", Arial, sans-serif;
+  font-family: var(--body);
   font-size: 0.72rem;
   line-height: 1.55;
   color: var(--lead);
@@ -3220,7 +3216,7 @@
 }
 
 .cutup-column output {
-  font-family: "Instrument Sans", Arial, sans-serif;
+  font-family: var(--body);
   font-size: 0.7rem;
   color: var(--ink);
   white-space: nowrap;
@@ -3285,7 +3281,7 @@
      word to the left, where reading starts, with no rule of its own. */
   justify-content: flex-end;
   border-radius: 0.5rem;
-  background: #14181b;
+  background: var(--led-case);
   box-shadow: inset 0 2px 10px rgb(0 0 0 / 55%);
   /* The flip is a transform on the machine, not a different set of glyphs. */
   transition: transform 700ms cubic-bezier(0.6, 0, 0.3, 1);
@@ -3303,11 +3299,11 @@
 /* An unlit segment stays faintly visible, the way a real LCD's does. Hiding it
    entirely would let a reader mistake an 8 for a 0. */
 .seg {
-  fill: #232a2e;
+  fill: var(--led-off);
 }
 
 .seg.on {
-  fill: #e8402a;
+  fill: var(--led);
 }
 
 .calc-reading {
@@ -3375,6 +3371,7 @@
 .calc-clear {
   background: var(--rubric);
   border-color: var(--rubric);
+  color: var(--ink);
 }
 
 .calc-clear:hover {
