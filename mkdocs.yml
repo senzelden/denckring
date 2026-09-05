@@ -94,6 +94,8 @@ nav:
       - "34. French verse is counted a line at a time": adr/0034-french-prosody.md
       - "35. A letter has two readings, and `requires` says which": adr/0035-orthographic-and-phonetic-readings.md
       - "36. A leading proclitic is not a noun": adr/0036-the-elision-seam.md
+      - "37. The calculator word": adr/0037-the-calculator-word.md
+      - "38. German frequency, and a source whose case survives": adr/0038-german-frequency.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

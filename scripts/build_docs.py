@@ -226,6 +226,15 @@ def copy_shared_pages() -> int:
         # and mkdocs --strict treats the dangling link as an error.
         for other, renamed in SHARED_PAGES.items():
             body = body.replace(f"]({other})", f"]({renamed})")
+        # A root document points *into* `docs/`, which is what a reader of the
+        # repository needs — the README's overview GIF is `docs/showcase/...` so
+        # that it renders on GitHub. Once the document is itself inside `docs/`,
+        # that prefix is one level too many and `mkdocs --strict` aborts on the
+        # dangling link. Rewritten here rather than written relatively at the
+        # source, because the README is read on GitHub far more often than the
+        # documentation site is, and the GitHub rendering is the one that must
+        # be correct without a build step.
+        body = body.replace("](docs/", "](")
         (DOCS / target).write_text(body, encoding="utf-8")
     return len(SHARED_PAGES)
 
