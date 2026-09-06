@@ -112,6 +112,11 @@ exclude = [
     "/packages",
     "/apps",
     "/docs/audit",
+    # Untracked, and that is exactly why it must be named here: `uv build` reads
+    # the working tree, not the index, so a directory git ignores still lands in
+    # the archive. `docs/superpowers/` is a local scratch area again as of
+    # 2026-09-06 and would otherwise push the sdist past its bound.
+    "/docs/superpowers",
     # Excluded on size rather than on the working-document argument above: the
     # overview GIF is 3 MB and is documentation of what this package does, so it
     # belongs on the docs site — but a source distribution is what a packager

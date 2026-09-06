@@ -105,15 +105,21 @@ nav:
 not_in_nav: |
   gallery/*.md
 
-# Audits are working documents, not publications: a dated per-procedure snapshot
-# addressed to whoever picks the work up.
+# Working documents, not publications: a dated per-procedure snapshot, and the
+# specs and plans a chapter is worked out in.
 #
-# `superpowers/`, `seed/` and `expansion_ideas/` used to be listed here too. They
-# were removed from the repository and from its history on 2026-09-06, so naming
-# them would exclude nothing — which `test_every_excluded_directory_still_exists`
-# refuses, and rightly: an exclusion pointing at a directory that is not there
-# reads as protection and provides none.
+# `superpowers/` is here for an unusual reason and it is worth stating. It and its
+# history were removed from the repository on 2026-09-06, and then the directory
+# was recreated on disk as an *untracked* local scratch area — see
+# `.git/info/exclude`. So it is invisible to git and visible to mkdocs, which
+# publishes whatever sits under `docs/` regardless of what git thinks. Without
+# this line a local spec would be published to the public site.
+#
+# `seed/` and `expansion_ideas/` are not listed: those were removed outright and
+# not recreated, and `test_every_excluded_directory_still_exists` refuses an
+# exclusion naming a directory that is not there.
 exclude_docs: |
   audit/
+  superpowers/
 
 strict: true

@@ -22,11 +22,15 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 #: exactly this reasoning, and the two exclusions have to agree: a document not worth
 #: shipping is not worth publishing either.
 #:
-#: This was four entries until 2026-09-06. `superpowers/`, `seed/` and
-#: `expansion_ideas/` were not merely unlisted — they were removed from the repository
-#: and from all 552 commits of its history, so an exclusion naming them would be
-#: guarding a directory that cannot come back by accident.
-WORKING_DOCUMENTS = ("audit/",)
+#: This was four entries until 2026-09-06, when `seed/` and `expansion_ideas/` were
+#: removed from the repository and from all 552 commits of its history — an exclusion
+#: naming them would guard a directory that cannot come back by accident.
+#:
+#: `superpowers/` went the same way and then came back as an *untracked* local scratch
+#: area, so it is listed again. Untracked is not the same as absent: mkdocs publishes
+#: what is under `docs/` and `uv build` archives what is in the working tree, and
+#: neither consults git. A directory git cannot see still needs both exclusions.
+WORKING_DOCUMENTS = ("audit/", "superpowers/")
 
 
 def test_the_site_excludes_every_working_document() -> None:
