@@ -91,6 +91,12 @@ else:
             return MappingProxyType(graded_words())
 
 
+#: Kept in step with `pyproject.toml` by hand, the way the four sibling data
+#: distributions do. This one shipped without it (ADR 0038) and was the second
+#: thing about the sixth distribution to be half-integrated — the release plan
+#: had also counted five distributions, not six.
+__version__ = "0.1.0"
+
 __all__ = [
     "GRADED_WORDS_PATH",
     "GermanFrequencyPack",

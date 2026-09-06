@@ -25,32 +25,38 @@ ROOT = Path(__file__).resolve().parent.parent
 #: `uv.lock`, the catalogue and four planning documents are the six largest members and
 #: none of them is data.
 #:
-#: **This bound no longer catches the file it was set to catch, and that is a decision
-#: waiting on the maintainer rather than an oversight.** Excluding `docs/superpowers/`
-#: and `docs/seed/` on 2026-09-04 — they were always in `WORKING_DOCUMENTS` and always
-#: refused by the docs site, and only the sdist's separate list disagreed — took a clean
-#: checkout from 1,045,247 bytes (2026-09-02) to **759,242** (2026-09-04), both measured
-#: in a detached worktree, because a build from the working tree swallows the untracked
-#: `undefined/queneau-seams.png` and `CLAUDE.md` and reads about 82,000 higher.
+#: **Lowered to 950,000 on 2026-09-06, by decision, because at 1,200,000 it no longer
+#: caught the file it exists to catch.** Excluding `docs/superpowers/` and `docs/seed/`
+#: on 2026-09-04 removed ~360,000 bytes of prose, which does to this test's *purpose*
+#: exactly what raising the number by 360,000 would have done.
 #:
-#: Removing ~360,000 bytes of prose does to this test's *purpose* exactly what raising
-#: the number by 360,000 would have done. The smallest file it exists to catch is
-#: `graded_words.txt.gz` at 249,917 bytes; re-included under `src/` it would now land the
-#: archive near 1,009,000, which passes. The bound is presently decorative.
+#: Re-measured 2026-09-06, because the figures this comment carried had gone stale in
+#: both directions and one of them was load-bearing:
 #:
-#: Restoring it means lowering the number into the window `(841,816, 1,009,159)` — above
-#: the working-tree build so a local run stays green, below the figure a re-included data
-#: file would reach. **950,000 is the recommended value**: ~108,000 of headroom over a
-#: working-tree build and ~191,000 over a clean one, while still failing on the data file.
-#: 1,200,000 was raised by the maintainer's decision on 2026-08-31 and is left to the
-#: maintainer to lower.
+#:   - working tree, which swallows the untracked `undefined/queneau-seams.png`: 900,899
+#:   - clean, the same build with that blob moved aside:                         838,734
+#:   - the smallest file the bound exists to catch, `denckring-en-data`'s
+#:     `graded_words.txt.gz`:                                                    249,917
+#:
+#: So the failure this guards against lands at **1,088,651** (clean + that file, by
+#: arithmetic rather than measurement — the file is already gzipped, so a tar.gz cannot
+#: compress it further). At 1,200,000 that passed, which is why the bound was decorative.
+#:
+#: The safe window is therefore `(900,899, 1,088,651)`: above a working-tree build so a
+#: local run stays green, below the figure a re-included data file would reach. **950,000**
+#: sits in it with ~49,000 of headroom locally and ~111,000 in CI, which never has the
+#: untracked blob.
+#:
+#: Note the *smallest* data file sets the ceiling, not the largest. German's
+#: `graded_words.txt.gz` is 433,830 and French's 413,181; either would be caught far more
+#: easily. English is the binding constraint and the one to re-check if it ever shrinks.
 #:
 #: The two halves of the trade still move against each other — every chapter of prose
 #: shrinks the headroom and grows the archive — and there is still no per-file bound that
 #: separates them: the largest legitimate member, `uv.lock`, is 330,512 bytes, larger than
 #: the smallest data file. Whoever sets this next should set it knowing which half they
-#: are spending.
-MAX_SDIST_BYTES = 1_200_000
+#: are spending, and should re-measure rather than trust the numbers above.
+MAX_SDIST_BYTES = 950_000
 
 
 @pytest.fixture(scope="module")
@@ -126,3 +132,49 @@ def test_the_sdist_stays_small(sdist: Path) -> None:
     a data file added under `src/`, say, rather than under an excluded directory."""
     size = sdist.stat().st_size
     assert size < MAX_SDIST_BYTES, f"sdist is {size / 1_000_000:.1f} MB"
+
+
+#: Every distribution in this workspace, as (import name, pyproject path). The six
+#: publish from one workflow and must stay version-locked — `denckring-en-data`
+#: subclasses the core English pack, `denckring-de-frequency` adds a capability to
+#: the German one — so a version that drifts is a release that installs a pack
+#: against a core it was not built for.
+DISTRIBUTIONS = (
+    ("denckring", "pyproject.toml"),
+    ("denckring_en_data", "packages/denckring-en-data/pyproject.toml"),
+    ("denckring_de_data", "packages/denckring-de-data/pyproject.toml"),
+    ("denckring_de_wiktionary", "packages/denckring-de-wiktionary/pyproject.toml"),
+    ("denckring_de_frequency", "packages/denckring-de-frequency/pyproject.toml"),
+    ("denckring_fr_data", "packages/denckring-fr-data/pyproject.toml"),
+)
+
+
+def test_every_distribution_reports_the_same_version() -> None:
+    """One version across the workspace, checked structurally rather than per package.
+
+    Five separate assertions existed and only two were ever written, which is how
+    `denckring-de-frequency` shipped with no `__version__` at all: nothing walked
+    the list, so nothing noticed the sixth distribution was missing from it. That
+    was the second time the sixth went uncounted — `release.yml` also said "five
+    distributions" until 2026-09-06 — and the pattern is what this test is really
+    for. Add a distribution to `DISTRIBUTIONS` and it is checked from then on.
+
+    Both halves are held together: what the module reports at runtime, and what
+    the packaging metadata claims. They are maintained by hand in two files and
+    a release publishes the second while users import the first.
+    """
+    import tomllib
+    from importlib import import_module
+
+    root = Path(__file__).parent.parent
+    seen: dict[str, str] = {}
+    for module_name, pyproject in DISTRIBUTIONS:
+        module = import_module(module_name)
+        declared = getattr(module, "__version__", None)
+        assert declared is not None, f"{module_name} exports no __version__"
+        with (root / pyproject).open("rb") as handle:
+            packaged = tomllib.load(handle)["project"]["version"]
+        assert declared == packaged, f"{module_name}: {declared} but {pyproject} says {packaged}"
+        seen[module_name] = declared
+
+    assert len(set(seen.values())) == 1, f"versions have drifted apart: {seen}"
