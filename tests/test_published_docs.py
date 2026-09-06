@@ -18,10 +18,15 @@ MKDOCS = ROOT / "mkdocs.yml"
 CHANGELOG = ROOT / "CHANGELOG.md"
 
 #: Directories under `docs/` addressed to whoever picks the work up rather than to a
-#: reader of this package. `tests/test_packaging.py` keeps `docs/expansion_ideas/` out
-#: of the sdist on exactly this reasoning, and the two exclusions have to agree: a
-#: document not worth shipping is not worth publishing either.
-WORKING_DOCUMENTS = ("superpowers/", "seed/", "audit/", "expansion_ideas/")
+#: reader of this package. `tests/test_packaging.py` keeps them out of the sdist on
+#: exactly this reasoning, and the two exclusions have to agree: a document not worth
+#: shipping is not worth publishing either.
+#:
+#: This was four entries until 2026-09-06. `superpowers/`, `seed/` and
+#: `expansion_ideas/` were not merely unlisted — they were removed from the repository
+#: and from all 552 commits of its history, so an exclusion naming them would be
+#: guarding a directory that cannot come back by accident.
+WORKING_DOCUMENTS = ("audit/",)
 
 
 def test_the_site_excludes_every_working_document() -> None:

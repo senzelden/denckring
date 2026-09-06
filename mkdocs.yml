@@ -105,13 +105,15 @@ nav:
 not_in_nav: |
   gallery/*.md
 
-# Specs, plans, audits and handovers are working documents, not publications.
-# `expansion_ideas/` joined them late: `tests/test_packaging.py` had already kept it
-# out of the sdist on this reasoning while `gh-deploy` would still have published it.
+# Audits are working documents, not publications: a dated per-procedure snapshot
+# addressed to whoever picks the work up.
+#
+# `superpowers/`, `seed/` and `expansion_ideas/` used to be listed here too. They
+# were removed from the repository and from its history on 2026-09-06, so naming
+# them would exclude nothing — which `test_every_excluded_directory_still_exists`
+# refuses, and rightly: an exclusion pointing at a directory that is not there
+# reads as protection and provides none.
 exclude_docs: |
-  superpowers/
-  seed/
   audit/
-  expansion_ideas/
 
 strict: true

@@ -95,31 +95,23 @@ packages = ["src/denckring"]
 # explorer is a development tool and is published nowhere. `tests/` and `docs/` stay:
 # downstream packagers run the suite.
 #
-# `docs/expansion_ideas/`, `docs/audit/`, `docs/superpowers/` and `docs/seed/` are
-# excluded on the same argument rather than on size: those are working documents —
-# proposals, handovers, research notes, specs, implementation plans and a dated
-# per-procedure audit, addressed to whoever picks the work up — not documentation of
-# what this package does. They stay in git, because the ADRs and the changelog cite
-# them and a citation pointing at nothing is worse than a large sdist; they do not go
-# to PyPI, because nothing downstream reads them. The audit in particular is a
-# snapshot: it describes one commit and dates badly, which is the clearest possible
-# reason not to ship it with every release built from any commit.
+# `docs/audit/` is excluded on the same argument rather than on size: it is a working
+# document — a dated per-procedure snapshot addressed to whoever picks the work up —
+# not documentation of what this package does. It describes one commit and dates
+# badly, which is the clearest possible reason not to ship it with every release
+# built from any commit.
 #
-# `superpowers/` and `seed/` were missed when the other two were excluded on
-# 2026-08-31, and the omission was invisible because it cost nothing until a spec
-# pushed the archive past the bound: `docs/superpowers/` is 1.22 MB uncompressed,
-# larger than `src/`, and grows by one spec and one plan per chapter. The list that
-# had them right all along is `WORKING_DOCUMENTS` in `tests/test_published_docs.py`,
-# which mkdocs has always used to keep them off the site; the two lists disagreed,
-# and `test_the_sdist_does_not_carry_the_working_documents` now holds them together.
+# `docs/expansion_ideas/`, `docs/superpowers/` and `docs/seed/` were excluded here for
+# the same reason until 2026-09-06, when they were removed from the repository and its
+# history outright. The old note said they stayed in git "because the ADRs and the
+# changelog cite them and a citation pointing at nothing is worse than a large sdist".
+# That cost was accepted by decision rather than avoided: five ADRs now cite documents
+# that no longer exist, and ADR 0031 and 0033 open with one of them.
 [tool.hatch.build.targets.sdist]
 exclude = [
     "/packages",
     "/apps",
-    "/docs/expansion_ideas",
     "/docs/audit",
-    "/docs/superpowers",
-    "/docs/seed",
     # Excluded on size rather than on the working-document argument above: the
     # overview GIF is 3 MB and is documentation of what this package does, so it
     # belongs on the docs site — but a source distribution is what a packager
