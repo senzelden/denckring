@@ -64,14 +64,24 @@ def _label(alternatives: list[str], index: int) -> str:
 
 def _found_word() -> tuple[str, list[int]]:
     """`stage.find_word` is a bounded random search over ~21,000 possible real
-    words and can rarely exhaust its budget without a hit — not a bug, just
-    an unlucky draw (`test_find_me_one_can_report_failure_honestly` pins that
-    this can happen at all, with a budget of zero forcing it). The tests
+    words and can in principle exhaust its budget without a hit — not a bug,
+    just an unlucky draw (`test_find_me_one_can_report_failure_honestly` pins
+    that this can happen at all, with a budget of zero forcing it). The tests
     calling this one are about what a found word looks like, not about the
-    search's own completeness, so they retry past that rare draw rather than
-    flake on it — three tries makes the whole thing fail only if the same
-    draw goes unlucky three times running, which measured empirically never
-    happened in hundreds of calls (see the task report)."""
+    search's own completeness, so they retry past that draw.
+
+    **Measured 2026-09-06: 0 exhausted searches in 3,000 calls.** The retry has
+    never actually been needed, and an earlier version of this docstring —
+    "measured empirically never happened in hundreds of calls" — was cited as
+    the explanation when this file *did* go red on 2026-09-05. It was the wrong
+    explanation and cost real time: the failure was
+    `test_find_me_one_lands_on_a_word_off_the_rings_and_in_the_lexicon`'s last
+    assertion, on 0.15% of draws, because `device.segment` returned a valid
+    reading that did not join back to the word (`Bestes` read as `beStes`).
+    Fixed in the library, which now reads literally before folding.
+
+    So: if this file goes red on a draw again, do not assume it is the budget.
+    Print the word and the reassembly first."""
     for _ in range(3):
         found = stage.find_word()
         if found is not None:

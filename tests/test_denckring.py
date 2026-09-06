@@ -92,3 +92,44 @@ def test_requiring_every_ring_rejects_a_skipped_one() -> None:
 def test_an_unknown_device_names_what_is_available() -> None:
     with pytest.raises(UnknownDevice, match="harsdoerffer_1651"):
         check("denckring", "wort", lang="de", device="no_such_device")
+
+
+def test_segment_reads_a_word_literally_when_the_rings_can() -> None:
+    """The reading a caller gets back is the one that reproduces the input.
+
+    Matching is case- and ß-insensitive and the pieces come back spelled as the
+    plate spells them, so a word the rings can spell two ways used to come back
+    as whichever reading the walk hit first. Harsdörffer's ring II is the
+    *Anfangsbuchstabe* and carries capitals, so `Bestes` reads either as
+    `B` + `e` + `st` + `es` or as `be` + `St` + `e` + `s` — both correct, and
+    only the first joins back to what was asked about.
+
+    That was invisible to `check`, which only asks whether *a* reading exists.
+    It was not invisible in `apps/explorer`, which turns real discs to the
+    reading and prints the word beside them: the panel read `Bestes` while the
+    discs spelled `beStes`, on about 0.15% of the scene's draws.
+    """
+    rings = devices.load("harsdoerffer_1651")
+    for word in ("Bestes", "Misslich", "Antrieb", "Gesicht", "Aas"):
+        pieces = devices.segment(word, rings)
+        assert pieces is not None, word
+        assert "".join(pieces) == word, f"{word} read back as {''.join(pieces)}"
+
+
+def test_segment_still_folds_when_no_literal_reading_exists() -> None:
+    """The second pass, and why there is one.
+
+    A lowercase query has no literal reading — the plate capitalises the
+    initial ring — and must stay producible, because `check` asks about the
+    word a caller typed, not about the plate's own orthography. Preferring the
+    literal reading must never cost a caller an answer.
+    """
+    rings = devices.load("harsdoerffer_1651")
+    folded = devices.segment("bestes", rings)
+    assert folded is not None
+    # Spelled as the plate spells it, which is the whole reason the join
+    # differs from the query.
+    assert "".join(folded) == "beStes"
+    assert devices.segment("mißlich", rings) is not None
+    # And a word the rings cannot spell at all is still None, either way round.
+    assert devices.segment("zzz", rings) is None

@@ -16,7 +16,7 @@ import os
 import random
 import re
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from functools import lru_cache
 from importlib.resources import files
 from itertools import combinations
@@ -482,9 +482,26 @@ def _load_path(path: Path) -> Device:
 def segment(text: str, device: Device, *, separator: str = "") -> list[str] | None:
     """Cut `text` into one piece per slot, in order, or return None.
 
-    Slots marked optional may contribute nothing. Returns the first reading
-    found; a word the rings can spell in more than one way is still just
-    producible, so the first is as good as any.
+    Slots marked optional may contribute nothing.
+
+    **A word the rings can spell more than one way is read literally first.**
+    Matching is case- and ß-insensitive, so the pieces come back spelled as the
+    plate spells them and their join need not equal the input: Harsdörffer's
+    ring II is the *Anfangsbuchstabe* and carries capitals, so `Bestes` also
+    reads as `be` + `S` + `tes`, and `Misslich` as `mi` + `ß` + `lich`. For a
+    caller asking only whether the rings can produce a word, any reading will
+    do — which is what an earlier version of this docstring said, and it was
+    true for `check` alone.
+
+    It was not true for a caller that turns real discs to the reading and
+    prints the word beside them. `apps/explorer`'s Denckring scene did exactly
+    that and showed `Bestes` in the panel while the discs beside it spelled
+    `beStes`, on about 0.15% of draws. So this walks twice: once comparing the
+    text as written, and only then case-folded. A reading that reproduces the
+    input exactly is never worse, and where one exists the caller gets it.
+
+    The second pass is what keeps a *lowercase* query working — `bestes` typed
+    into the bench has no literal reading and must still be producible.
 
     `separator` is what stands between two neighbouring pieces. It defaults to
     the empty string, which is Harsdörffer's rings: the parts concatenate with
@@ -500,32 +517,40 @@ def segment(text: str, device: Device, *, separator: str = "") -> list[str] | No
     shipped data, because a branch defended in prose and reached by nothing is
     a branch nobody has checked.
     """
-    target = text.casefold()
-    joint = separator.casefold()
 
-    def walk(position: int, index: int, emitted: bool) -> list[str] | None:
-        if index == len(device.slots):
-            return [] if position == len(target) else None
-        slot = device.slots[index]
-        start: int | None = position
-        if emitted and joint:
-            start = position + len(joint) if target.startswith(joint, position) else None
-        if start is not None:
-            # Longest alternatives first, so a greedy-looking reading is preferred
-            # and the common case terminates sooner.
-            for alternative in sorted(slot.alternatives, key=len, reverse=True):
-                folded = alternative.casefold()
-                if target.startswith(folded, start):
-                    rest = walk(start + len(folded), index + 1, True)
-                    if rest is not None:
-                        return [alternative, *rest]
-        if slot.optional:
-            rest = walk(position, index + 1, emitted)
-            if rest is not None:
-                return ["", *rest]
-        return None
+    def read(normalise: Callable[[str], str]) -> list[str] | None:
+        target = normalise(text)
+        joint = normalise(separator)
 
-    return walk(0, 0, False)
+        def walk(position: int, index: int, emitted: bool) -> list[str] | None:
+            if index == len(device.slots):
+                return [] if position == len(target) else None
+            slot = device.slots[index]
+            start: int | None = position
+            if emitted and joint:
+                start = position + len(joint) if target.startswith(joint, position) else None
+            if start is not None:
+                # Longest alternatives first, so a greedy-looking reading is preferred
+                # and the common case terminates sooner.
+                for alternative in sorted(slot.alternatives, key=len, reverse=True):
+                    written = normalise(alternative)
+                    if target.startswith(written, start):
+                        rest = walk(start + len(written), index + 1, True)
+                        if rest is not None:
+                            return [alternative, *rest]
+            if slot.optional:
+                rest = walk(position, index + 1, emitted)
+                if rest is not None:
+                    return ["", *rest]
+            return None
+
+        return walk(0, 0, False)
+
+    # Literal first, folded second — and compared against None, not truth: an
+    # empty device reading empty text returns `[]`, which `or` would discard as
+    # a miss and silently re-walk.
+    literal = read(lambda piece: piece)
+    return literal if literal is not None else read(str.casefold)
 
 
 def select(pieces: list[str], device: Device) -> list[bool]:
