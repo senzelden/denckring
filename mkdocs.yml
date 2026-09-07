@@ -118,8 +118,17 @@ not_in_nav: |
 # `seed/` and `expansion_ideas/` are not listed: those were removed outright and
 # not recreated, and `test_every_excluded_directory_still_exists` refuses an
 # exclusion naming a directory that is not there.
+#
+# `stage_mockups/` is the A/B/C drafts the nine machines on the explorer's stage
+# were chosen from, `options/index.html` being the chooser itself. The stage that
+# was chosen is the running app under `apps/`, which mkdocs never sees; these are
+# the discarded alternatives, addressed to whoever picks the design work up. They
+# reached the build only because nothing links them and nothing had to: mkdocs
+# publishes what is under `docs/`, so 32 unreferenced files would have gone to a
+# public URL on the first tagged deploy.
 exclude_docs: |
   audit/
   superpowers/
+  stage_mockups/
 
 strict: true

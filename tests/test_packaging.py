@@ -30,22 +30,29 @@ ROOT = Path(__file__).resolve().parent.parent
 #: on 2026-09-04 removed ~360,000 bytes of prose, which does to this test's *purpose*
 #: exactly what raising the number by 360,000 would have done.
 #:
-#: Re-measured 2026-09-06, because the figures this comment carried had gone stale in
-#: both directions and one of them was load-bearing:
+#: Re-measured 2026-09-07, after `/docs/stage_mockups` was excluded. Both build figures
+#: moved; the number the bound is checked against did not:
 #:
-#:   - working tree, which swallows the untracked `undefined/queneau-seams.png`: 900,899
-#:   - clean, the same build with that blob moved aside:                         838,734
+#:   - working tree, which swallows the untracked `undefined/queneau-seams.png`: 786,749
+#:   - clean, the same build with that blob moved aside:                         724,345
 #:   - the smallest file the bound exists to catch, `denckring-en-data`'s
 #:     `graded_words.txt.gz`:                                                    249,917
 #:
-#: So the failure this guards against lands at **1,088,651** (clean + that file, by
+#: So the failure this guards against lands at **974,262** (clean + that file, by
 #: arithmetic rather than measurement — the file is already gzipped, so a tar.gz cannot
 #: compress it further). At 1,200,000 that passed, which is why the bound was decorative.
 #:
-#: The safe window is therefore `(900,899, 1,088,651)`: above a working-tree build so a
+#: The safe window is therefore `(786,749, 974,262)`: above a working-tree build so a
 #: local run stays green, below the figure a re-included data file would reach. **950,000**
-#: sits in it with ~49,000 of headroom locally and ~111,000 in CI, which never has the
+#: sits in it with ~163,000 of headroom locally and ~226,000 in CI, which never has the
 #: untracked blob.
+#:
+#: **Shrinking the archive spends the half of the trade that matters here, and it is the
+#: counterintuitive direction.** Excluding the mockups moved the catch figure down with
+#: the archive, so the bound's margin over it fell from ~139,000 to **24,262**. Prose
+#: growing is therefore safe — it raises both numbers together and the bound bites harder.
+#: Removing another ~25,000 bytes is what makes this decorative again, and the answer then
+#: is to lower the bound in the same commit, not to notice it later.
 #:
 #: Note the *smallest* data file sets the ceiling, not the largest. German's
 #: `graded_words.txt.gz` is 433,830 and French's 413,181; either would be caught far more
@@ -53,7 +60,7 @@ ROOT = Path(__file__).resolve().parent.parent
 #:
 #: The two halves of the trade still move against each other — every chapter of prose
 #: shrinks the headroom and grows the archive — and there is still no per-file bound that
-#: separates them: the largest legitimate member, `uv.lock`, is 330,512 bytes, larger than
+#: separates them: the largest legitimate member, `uv.lock`, is 382,109 bytes, larger than
 #: the smallest data file. Whoever sets this next should set it knowing which half they
 #: are spending, and should re-measure rather than trust the numbers above.
 MAX_SDIST_BYTES = 950_000

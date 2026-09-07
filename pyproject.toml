@@ -124,6 +124,11 @@ exclude = [
     # of `WORKING_DOCUMENTS` for exactly that reason: that list is about what the
     # docs site refuses, and the site publishes this.
     "/docs/showcase",
+    # The discarded A/B/C drafts for the explorer's nine machines. Excluded on the
+    # working-document argument, not on size — but it is 392 KB uncompressed against
+    # roughly 48,000 bytes of headroom under MAX_SDIST_BYTES, so the bound was being
+    # spent on the alternatives nobody chose.
+    "/docs/stage_mockups",
 ]
 
 [tool.ruff]

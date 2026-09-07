@@ -30,7 +30,15 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 #: area, so it is listed again. Untracked is not the same as absent: mkdocs publishes
 #: what is under `docs/` and `uv build` archives what is in the working tree, and
 #: neither consults git. A directory git cannot see still needs both exclusions.
-WORKING_DOCUMENTS = ("audit/", "superpowers/")
+#:
+#: `stage_mockups/` joined them on 2026-09-07. It is tracked, and it had neither
+#: exclusion — so it was bound for both the sdist and the public site while being
+#: linked from nothing at all. That is the failure mode this list exists for and the
+#: one nothing else catches: an unreferenced directory produces no dangling link, no
+#: nav warning and no `--strict` failure. It is the rejected options behind the nine
+#: machines on the stage; what was chosen is the app under `apps/`, which is not
+#: documentation of this package either way.
+WORKING_DOCUMENTS = ("audit/", "superpowers/", "stage_mockups/")
 
 
 def test_the_site_excludes_every_working_document() -> None:
