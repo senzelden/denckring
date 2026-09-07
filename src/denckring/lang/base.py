@@ -51,6 +51,13 @@ class BasePack:
     lang: ClassVar[Lang]
     capabilities: ClassVar[frozenset[str]] = frozenset()
     word_re: ClassVar[re.Pattern[str]] = WORD_RE
+    #: The data distributions this pack reads, in the order they layer. Empty
+    #: for a built-in default, which reads no data files and is versioned by the
+    #: package itself. A tuple and not one name because German is three of them,
+    #: and `GermanWiktionaryFrequencyPack` layers all three — see
+    #: `core/provenance.py`. Deliberately not on the `LanguagePack` protocol,
+    #: which is a published contract a third-party pack satisfies by structure.
+    data_distributions: ClassVar[tuple[str, ...]] = ()
 
     def tokenize(self, text: str) -> list[str]:
         return [word for _, word in self.word_spans(text)]

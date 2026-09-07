@@ -140,6 +140,13 @@ loop can tell whether a text missed by one word or by fifty.
 empty), `truncated`, and `metrics` — and `apply` is defined as `produce(...).texts[0]`,
 the one-text surface for a caller who wants the best answer and not the search behind it.
 
+Both carry `provenance`: the package version, a schema version that moves independently
+of it, which pack answered and which data distributions it was reading, the
+`fold_diacritics` policy in force, and the `seed` a drawing generator used. German names
+three distributions there, because `GermanWiktionaryFrequencyPack` layers three. The seed
+is the field that makes a draw repeatable — it is an input parameter, so until it was
+echoed here `apply --seed 7 --json` printed an object that did not contain 7.
+
 `texts` is derived from `candidates`, which is where a generator that ranks says why:
 `produce("anagram", "dormitory")` returns `dirty room` first, carrying the SCOWL size
 band of its least common word, ahead of covers built from rarer ones (ADR 0027). A caller
@@ -166,13 +173,16 @@ are built on them:
   replaced, the old id stays findable through `denckring search` as an alias — though
   `get` resolves ids only, and raises `UnknownProcedure` naming the replacement.
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
-- **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics` — and
-  the `--json` output of `check`, `show` and `describe` that carries it. Fields may be
-  added; the ones already there do not change type or meaning. `describe`'s `Description`
-  carries `runs_in` under the same promise.
-- **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics` —
-  and the `--json` output of `apply`. Covered by the same promise in the same words. Both
-  `candidates` and `texts` are ordered, best first, because `apply` returns `texts[0]`.
+- **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
+  `provenance` — and the `--json` output of `check`, `show` and `describe` that carries
+  it. Fields may be added; the ones already there do not change type or meaning.
+  `describe`'s `Description` carries `runs_in` under the same promise. `provenance`
+  carries its own `schema_version`, which moves when the *shape* of these objects does
+  and not when the package is released.
+- **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`,
+  `provenance` — and the `--json` output of `apply`. Covered by the same promise in the
+  same words. Both `candidates` and `texts` are ordered, best first, because `apply`
+  returns `texts[0]`.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
   and `attribution` keys the CC BY terms are carried by.
 - **The `denckring.lang` entry-point group** and the capability names a pack declares, so

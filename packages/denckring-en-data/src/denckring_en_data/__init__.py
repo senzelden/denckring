@@ -137,6 +137,7 @@ class EnglishDataPack(EnglishPack):
     """English with a pronouncing dictionary behind it."""
 
     lang: ClassVar[str] = "en"  # type: ignore[assignment]
+    data_distributions: ClassVar[tuple[str, ...]] = ("denckring-en-data",)
     capabilities: ClassVar[frozenset[str]] = frozenset(
         {
             TOKENS,

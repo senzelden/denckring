@@ -204,6 +204,7 @@ class FrenchDataPack(FrenchPack):
     a plain class is the honest shape.
     """
 
+    data_distributions: ClassVar[tuple[str, ...]] = ("denckring-fr-data",)
     capabilities: ClassVar[frozenset[str]] = frozenset(
         {
             TOKENS,

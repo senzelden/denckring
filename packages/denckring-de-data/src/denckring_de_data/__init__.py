@@ -77,6 +77,7 @@ def known_words() -> frozenset[str]:
 class GermanDataPack(GermanPack):
     """German with a lexicon behind it."""
 
+    data_distributions: ClassVar[tuple[str, ...]] = ("denckring-de-data",)
     capabilities: ClassVar[frozenset[str]] = frozenset(
         {TOKENS, ALPHABET, FOLD_DIACRITICS, LETTER_SHAPES, SYLLABLES_HEURISTIC, NOUNS, WORDS}
     )

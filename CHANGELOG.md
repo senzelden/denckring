@@ -22,6 +22,17 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `Report.provenance` and `Production.provenance`: the package version, a schema version
+  that moves independently of it, which pack answered and which data distributions it was
+  reading, the `fold_diacritics` policy in force, and the `seed` a drawing generator used.
+  Stamped once at `check` and `produce` rather than in each of the places a report is
+  built, so `pangram`, which builds its own, carries it too.
+- `LanguagePack` implementations declare `data_distributions`. A tuple rather than one
+  name because German is three of them — `GermanWiktionaryFrequencyPack` layers the
+  lexicon, the pronunciations and the frequency bands — and a single version would be a
+  lie about two. Read with `getattr` rather than added to the `LanguagePack` protocol,
+  which is `runtime_checkable` and a published contract, so a third-party pack that
+  predates this keeps satisfying it.
 - `denckring.core.text.clusters`, the base-plus-marks reading the fix above is built on.
 - `tests/test_normalisation.py`, pinning that the two forms agree, and pinning what was
   already true of zero-width spaces, byte-order marks and non-breaking spaces — that

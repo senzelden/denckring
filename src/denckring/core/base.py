@@ -27,6 +27,7 @@ from denckring.core.protocol import (
     Report,
     Violation,
 )
+from denckring.core.provenance import provenance
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -173,7 +174,13 @@ class BaseProcedure(ABC, Generic[P]):
             require_capability(pack, capability, self.id)
         # Silently dropping a mistyped parameter would let a caller believe a
         # constraint was applied when it was not, so parse_params refuses it.
-        return self._check(text, pack, self.parse_params(params))
+        parsed = self.parse_params(params)
+        report = self._check(text, pack, parsed)
+        # Stamped here rather than in `_report`, which does not know the pack,
+        # and once rather than in each of the procedures that build a `Report`
+        # themselves. `model_copy` because a procedure may return a report it
+        # cached or shares, and provenance is about this call.
+        return report.model_copy(update={"provenance": provenance(pack, lang, parsed)})
 
     def _report(
         self,
@@ -368,6 +375,9 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             # is not everything — but only one of them is visible from here.
             truncated=produced.truncated or len(found) > limit,
             metrics={"found": float(len(found))},
+            # `parsed` is where the seed is, which is the whole reason a
+            # `Production` needs this: without it a draw cannot be repeated.
+            provenance=provenance(pack, lang, parsed),
         )
 
     def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:

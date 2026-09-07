@@ -56,6 +56,10 @@ def graded_words() -> Mapping[str, int]:
 class GermanFrequencyPack(GermanDataPack):
     """German with a lexicon and frequency bands behind it."""
 
+    data_distributions: ClassVar[tuple[str, ...]] = (
+        "denckring-de-data",
+        "denckring-de-frequency",
+    )
     capabilities: ClassVar[frozenset[str]] = GermanDataPack.capabilities | {GRADED_WORDS}
 
     def graded_words(self) -> Mapping[str, int]:
@@ -85,6 +89,11 @@ else:
         the same reason (ADR 0013, ADR 0030).
         """
 
+        data_distributions: ClassVar[tuple[str, ...]] = (
+            "denckring-de-data",
+            "denckring-de-wiktionary",
+            "denckring-de-frequency",
+        )
         capabilities: ClassVar[frozenset[str]] = GermanWiktionaryPack.capabilities | {GRADED_WORDS}
 
         def graded_words(self) -> Mapping[str, int]:

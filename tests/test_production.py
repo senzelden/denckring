@@ -46,6 +46,10 @@ def test_it_serialises_for_a_caller_who_never_touches_python() -> None:
         "truncated": False,
         "metrics": {"found": 3.0},
         "texts": ["a"],
+        # `None` because this Production was built directly rather than returned
+        # by `produce`, which is the one place the stamp is applied. A caller
+        # constructing the model itself has no run to describe.
+        "provenance": None,
     }
 
 

@@ -8,6 +8,8 @@ from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, Field, computed_field
 
+from denckring.core.provenance import Provenance
+
 Lang = Literal["en", "de", "fr"]
 Kind = Literal["constructive", "restrictive", "both"]
 
@@ -77,6 +79,12 @@ class Report(BaseModel):
     score: float = Field(ge=0.0, le=1.0)
     violations: list[Violation] = Field(default_factory=list)
     metrics: dict[str, float] = Field(default_factory=dict)
+    #: How the verdict was reached: versions, pack, and the policies in force.
+    #: An added field, which the README's stability promise permits, and optional
+    #: because a procedure may build a `Report` itself — `pangram` does — and the
+    #: stamp is applied once in `BaseProcedure.check` rather than in each of the
+    #: hundred and twenty-two places a report is constructed.
+    provenance: Provenance | None = None
 
 
 class Candidate(BaseModel):
@@ -147,6 +155,11 @@ class Production(BaseModel):
     #: with another seed.
     truncated: bool = False
     metrics: dict[str, float] = Field(default_factory=dict)
+    #: The counterpart of `Report.provenance`, and the only place the seed a
+    #: drawing generator used is recoverable: `seed` is an input parameter, so
+    #: `apply --seed 7 --json` printed an object that did not contain 7 and a
+    #: caller who had not kept it could not reproduce the draw.
+    provenance: Provenance | None = None
 
     @computed_field  # type: ignore[prop-decorator]
     @property

@@ -282,6 +282,7 @@ class GermanWiktionaryPack(GermanDataPack):
     written on the class.
     """
 
+    data_distributions: ClassVar[tuple[str, ...]] = ("denckring-de-data", "denckring-de-wiktionary")
     capabilities: ClassVar[frozenset[str]] = frozenset(
         {
             TOKENS,
