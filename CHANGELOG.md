@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- `mutants/`, which `mutmut` fills with 5.6 MB and leaves behind, is excluded from the
+  source distribution and from git. Untracked, and `uv build` reads the working tree
+  rather than the index, so 312 of its files landed in the archive and pushed the sdist
+  from 0.9 MB to 1.2 MB; `test_the_sdist_stays_small` is what noticed. The fourth
+  instance in this repository of *untracked is not absent*, after `superpowers/`,
+  `stage_mockups/` and `feedback/`. The exclusion was verified with a 6.1 MB `mutants/`
+  present rather than after deleting it.
 - A text's Unicode normalisation form no longer changes a verdict. `letter_spans` walked
   the string character by character, so a decomposed `ä` — `a` followed by U+0308 —
   presented its base letter, which is alphabetic, and dropped the combining mark, which
@@ -22,6 +29,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Mutation testing, via `mutmut`, configured and deliberately outside the four-command
+  gate (ADR 0039). Coverage says a line ran; this says whether a test would notice the
+  line being wrong, which for a library of checkers is the question that matters. No
+  score is published yet: the first run was cut short by its own timeout, and its most
+  promising survivor turned out to be an **equivalent mutant** — verified over 9,757
+  generated inputs — so survivors are a worklist requiring judgement, not a defect count.
 - `Report.provenance` and `Production.provenance`: the package version, a schema version
   that moves independently of it, which pack answered and which data distributions it was
   reading, the `fold_diacritics` policy in force, and the `seed` a drawing generator used.

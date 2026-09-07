@@ -33,6 +33,12 @@ apps/explorer/.env
 # reinstalls exactly what those scripts were verified against; the 19MB tree is not.
 apps/explorer/node_modules/
 
+# mutmut copies the whole source tree here, mutates it, and leaves it behind.
+# 5.6 MB, regenerated on every run, and never anybody's to read.
+mutants/
+.mutmut-cache
+mutmut-stats.json
+
 # pytest-cov writes this on every --cov run; the report is CI's, not the repo's.
 .coverage
 .coverage.*

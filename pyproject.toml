@@ -55,6 +55,45 @@ Changelog = "https://github.com/senzelden/denckring/blob/main/CHANGELOG.md"
 denckring = "denckring.cli:app"
 denckring-mcp = "denckring.mcp.server:main"
 
+# Mutation testing. Coverage says a line ran; this says whether a test would
+# have noticed the line being wrong, which is the question that matters for a
+# checker — an off-by-one in a comparison or a boundary silently changes a
+# verdict and every statement still executes.
+#
+# Deliberately NOT part of the four-command gate in CLAUDE.md. A full run over
+# the catalogue is hours, and a slow gate is a gate people stop running. The
+# score is a baseline recorded in an ADR and re-measured on purpose; surviving
+# mutants are a worklist, not a build failure.
+#
+# `core/text.py` is the first target because it is the shared spine — 33 of the
+# 122 procedures read their letters through it — and because this is where the
+# NFC/NFD defect of 2026-09-07 lived, which a full suite of 4,772 tests and a
+# 97% floor did not catch. Widening to the rest of `core/` and then to
+# `procedures/` is the next step, and each widening should record its own cost.
+[tool.mutmut]
+# The whole package, not one file: `mutmut` copies `paths_to_mutate` into
+# `mutants/` and runs pytest there, so a single file makes a partial package
+# that shadows the installed one and every import of a sibling fails. Narrow a
+# run by naming mutants instead — `uv run mutmut run "denckring.core.text.*"`.
+paths_to_mutate = ["src/denckring"]
+# Not the whole suite. `mutmut` copies the tree into `mutants/` and runs pytest
+# there, and this suite contains tests that build a source distribution, render
+# the docs site and import from `scripts/` — none of which survive the copy, and
+# all of which are irrelevant to whether a mutant in `text.py` gets caught. The
+# list is the tests that actually read letters through the target.
+tests_dir = [
+    "tests/test_text.py",
+    "tests/test_normalisation.py",
+    "tests/test_text_helpers.py",
+    "tests/test_lipogram.py",
+    "tests/test_pangram.py",
+    "tests/test_acrostic.py",
+    "tests/test_heterogram.py",
+    "tests/test_prisoners_constraint.py",
+    "tests/test_fold_param.py",
+    "tests/test_fold_symmetry.py",
+]
+
 [tool.uv.workspace]
 members = ["packages/*"]
 
@@ -76,6 +115,7 @@ dev = [
     "mkdocs-material>=9.7.7",
     "mkdocstrings[python]>=0.26",
     "pytest-cov>=5",
+    "mutmut>=3",
 ]
 # Build-only: regenerates the English lexicon (packages/denckring-en-data). Never
 # imported at runtime, never installed by `pip install denckring[en]`.
@@ -117,6 +157,14 @@ exclude = [
     # the archive. `docs/superpowers/` is a local scratch area again as of
     # 2026-09-06 and would otherwise push the sdist past its bound.
     "/docs/superpowers",
+    # The same argument, from a directory that did not exist until mutation
+    # testing arrived: `mutmut` copies the source tree into `mutants/`, mutates
+    # it, and leaves 5.6 MB behind. Untracked, so git never sees it — and `uv
+    # build` does not consult git, so 312 of its files landed in the archive and
+    # pushed the sdist from 0.9 MB to 1.2 MB. `test_the_sdist_stays_small` is
+    # what noticed, which is the fourth time in this repository that a new
+    # untracked directory has had to be told apart from an absent one.
+    "/mutants",
     # Excluded on size rather than on the working-document argument above: the
     # overview GIF is 3 MB and is documentation of what this package does, so it
     # belongs on the docs site — but a source distribution is what a packager
