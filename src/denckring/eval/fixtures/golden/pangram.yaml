@@ -2,11 +2,13 @@ procedure: pangram
 lang: en
 cases:
   - name: quick-brown-fox
+    provenance: external
     source: Traditional typing exercise, in use by 1885
     text: The quick brown fox jumps over the lazy dog.
     params: {}
     satisfied: true
   - name: perfect-pangram
+    provenance: external
     source: Traditional perfect pangram
     text: Mr Jock, TV quiz PhD, bags few lynx
     params: { perfect: true }
@@ -17,6 +19,7 @@ cases:
     params: {}
     satisfied: false
   - name: victor-jagt
+    provenance: external
     lang: de
     source: Traditional German font-test sentence
     text: Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich

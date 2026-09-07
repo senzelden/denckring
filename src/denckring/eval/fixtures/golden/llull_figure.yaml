@@ -2,6 +2,7 @@ procedure: llull_figure
 lang: en
 cases:
   - name: chamber-as-letters
+    provenance: external
     source: Ramon Llull, Ars generalis ultima (1305–1308); the fourth figure's chambers
     text: BCD
     params: {}

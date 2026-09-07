@@ -13,6 +13,7 @@ cases:
     params: { source: "the key" }
     satisfied: true
   - name: two-round-expansion
+    provenance: self-generated
     source: >-
       the case above put through the procedure a second time: of that gloss's own
       words only `crucial` resolves, and it is replaced by its first sense, while

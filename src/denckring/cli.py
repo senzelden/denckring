@@ -309,6 +309,9 @@ def eval_command(
         procedures = len({r.procedure for r in board.results})
         typer.echo(f"{procedures} procedures · {board.passed} passed · {board.failed} failed")
         typer.echo(board.coverage.line())
+        # A third line, because the first two say how much agrees and none of it
+        # said how much of that agreement is independent of the code being tested.
+        typer.echo(board.provenance.line())
     if not board.ok:
         raise typer.Exit(EXIT_UNSATISFIED)
 

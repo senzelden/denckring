@@ -2,6 +2,7 @@ procedure: tmesis
 lang: en
 cases:
   - name: abso-bloody-lutely
+    provenance: external
     source: Traditional; the standard English example of tmesis
     text: |-
       abso-bloody-lutely

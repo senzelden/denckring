@@ -2,6 +2,7 @@ procedure: tautogram
 lang: en
 cases:
   - name: peter-piper
+    provenance: external
     source: Traditional English tongue-twister, first printed 1813
     text: Peter Piper picked pickled peppers
     params: { initial: p }

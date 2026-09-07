@@ -2,6 +2,7 @@ procedure: calculator_word
 lang: en
 cases:
   - name: hello
+    provenance: external
     source: >-
       attested; Michael Quinion, World Wide Words, "Beghilos" (2009). Verified by
       decoding the digits, not by transcribing them.
@@ -9,6 +10,7 @@ cases:
     params: { digits: "07734" }
     satisfied: true
   - name: illegible-with-nine-for-g
+    provenance: external
     source: >-
       attested; the circulating form uses 9 for the g, where this row's generator
       emits 6. Both decode to the same word — ADR 0037 D4.
@@ -39,6 +41,7 @@ cases:
     satisfied: true
 
   - name: esel
+    provenance: external
     lang: de
     source: >-
       traditional German schoolyard example; the canonical demonstration of the

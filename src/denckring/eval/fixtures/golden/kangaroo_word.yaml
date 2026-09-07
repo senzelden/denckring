@@ -2,6 +2,7 @@ procedure: kangaroo_word
 lang: en
 cases:
   - name: encourage-urge
+    provenance: external
     source: the form's most cited example
     text: encourage
     params: { synonym: urge }

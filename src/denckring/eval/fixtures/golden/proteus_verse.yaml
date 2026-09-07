@@ -44,6 +44,7 @@ cases:
     params: { metre: iambic_pentameter }
     satisfied: false
   - name: voss-odyssee
+    provenance: external
     lang: de
     source: >-
       Johann Heinrich Voß, tr., Homers Odüssee (1781), opening line. Eight

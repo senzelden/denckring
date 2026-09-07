@@ -2,6 +2,7 @@ procedure: haiku
 lang: en
 cases:
   - name: basho-frog-pond
+    provenance: external
     source: Matsuo Bashō (1686), in English translation; the 5-7-5 measure is the form's
     text: |-
       an old silent pond

@@ -2,6 +2,7 @@ procedure: univocalic
 lang: en
 cases:
   - name: bombaugh-e-univocalic
+    provenance: external
     source: C. C. Bombaugh, Gleanings for the Curious (1867)
     text: Persever, ye perfect men, ever keep these precepts ten.
     params: { vowel: e }

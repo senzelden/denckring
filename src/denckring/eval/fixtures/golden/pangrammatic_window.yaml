@@ -2,11 +2,13 @@ procedure: pangrammatic_window
 lang: en
 cases:
   - name: pack-my-box
+    provenance: external
     source: Traditional 32-letter pangram, in circulation by the early 20th century
     text: Pack my box with five dozen liquor jugs
     params: { max_length: 40 }
     satisfied: true
   - name: over-the-bar
+    provenance: external
     source: The fox pangram, checked against a bar shorter than its own length
     text: The quick brown fox jumps over the lazy dog
     params: { max_length: 30 }

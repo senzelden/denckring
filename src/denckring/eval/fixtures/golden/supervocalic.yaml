@@ -2,6 +2,7 @@ procedure: supervocalic
 lang: en
 cases:
   - name: facetious
+    provenance: external
     source: Traditional; the canonical English supervocalic
     text: facetious
     params: {}

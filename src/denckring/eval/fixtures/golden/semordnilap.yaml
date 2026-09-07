@@ -2,6 +2,7 @@ procedure: semordnilap
 lang: en
 cases:
   - name: stressed-desserts
+    provenance: external
     source: Traditional; the standard English example
     text: |-
       stressed

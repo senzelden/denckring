@@ -2,6 +2,7 @@ procedure: reverse_snowball
 lang: en
 cases:
   - name: borgmann-rhopalic-reversed
+    provenance: external
     source: Dmitri A. Borgmann, Language on Vacation (1965), read backwards
     text: handwriting perplexing illegibly acquired doctors family where know not do I
     params: {}

@@ -2,6 +2,7 @@ procedure: limerick
 lang: en
 cases:
   - name: lear-beard
+    provenance: external
     source: Edward Lear, A Book of Nonsense (1846); Lear rhymes 'beard' with itself, which strict practice counts a fault
     text: |-
       there was an old man with a beard

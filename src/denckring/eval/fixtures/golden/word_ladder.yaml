@@ -2,6 +2,7 @@ procedure: word_ladder
 lang: en
 cases:
   - name: cold-to-warm
+    provenance: external
     source: Lewis Carroll's own example ladder, Doublets, a Word Puzzle (1879)
     text: |-
       cold cord card ward warm

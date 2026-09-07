@@ -2,6 +2,7 @@ procedure: lipogram
 lang: en
 cases:
   - name: gadsby-opening
+    provenance: external
     source: Ernest Vincent Wright, Gadsby (1939)
     text: >-
       If youth, throughout all history, had had a champion to stand up for it;

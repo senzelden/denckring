@@ -2,6 +2,7 @@ procedure: snowball
 lang: en
 cases:
   - name: borgmann-rhopalic
+    provenance: external
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     text: I do not know where family doctors acquired illegibly perplexing handwriting
     params: {}

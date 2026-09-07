@@ -2,6 +2,7 @@ procedure: dactylic_hexameter
 lang: en
 cases:
   - name: longfellow-evangeline
+    provenance: external
     source: Longfellow, Evangeline, opening line
     text: This is the forest primeval the murmuring pines and the hemlocks
     satisfied: true
@@ -14,6 +15,7 @@ cases:
     text: ""
     satisfied: false
   - name: goethe-hermann-und-dorothea
+    provenance: external
     lang: de
     source: "Johann Wolfgang von Goethe, Hermann und Dorothea (1797), opening line"
     text: |-
@@ -21,6 +23,7 @@ cases:
     params: {}
     satisfied: true
   - name: voss-odyssee
+    provenance: external
     lang: de
     source: "Johann Heinrich Voß, tr., Homers Odüssee (1781), opening line"
     text: |-

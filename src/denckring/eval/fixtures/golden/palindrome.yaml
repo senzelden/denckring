@@ -2,6 +2,7 @@ procedure: palindrome
 lang: en
 cases:
   - name: mercer-panama
+    provenance: external
     source: Leigh Mercer, in Notes and Queries (1948)
     text: "A man, a plan, a canal: Panama"
     params: {}
@@ -12,12 +13,14 @@ cases:
     params: {}
     satisfied: false
   - name: ein-esel-lese-nie
+    provenance: external
     lang: de
     source: Traditional German palindrome
     text: Ein Esel lese nie
     params: {}
     satisfied: true
   - name: erika-feuert
+    provenance: external
     lang: de
     source: Traditional German palindrome
     text: Erika feuert nur untreue Fakire

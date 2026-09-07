@@ -34,6 +34,16 @@ All notable changes to this project are documented here. The format follows
   which is `runtime_checkable` and a published contract, so a third-party pack that
   predates this keeps satisfying it.
 - `denckring.core.text.clusters`, the base-plus-marks reading the fix above is built on.
+- Golden cases record a `provenance` — `external`, `constructed` or `self-generated` —
+  and `denckring eval` reports the split on a third line: **38 externally sourced (7.1%),
+  491 constructed, 3 self-generated** of 532. The pass count says how much agrees with
+  the implementation; only the first of these says how much of that agreement is evidence
+  the constraint was read correctly. `tests/conftest.py` loads `source` instead of
+  dropping it, and a guard now refuses a case that names none.
+- The value is explicit rather than inferred from the source prose: deriving it by
+  looking for an English "constructed" prefix mis-filed a German case reading
+  `konstruiertes Beispiel`, and three cases that say they were produced by the row's own
+  `apply` and accepted back by its own `check`.
 - `tests/test_normalisation.py`, pinning that the two forms agree, and pinning what was
   already true of zero-width spaces, byte-order marks and non-breaking spaces — that
   they are not letters, do not join the cluster before them, and do not shift offsets.

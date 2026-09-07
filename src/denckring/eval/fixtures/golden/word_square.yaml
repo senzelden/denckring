@@ -2,6 +2,7 @@ procedure: word_square
 lang: en
 cases:
   - name: heart-ember-abuse-resin-trend
+    provenance: external
     source: Traditional; a classic five-by-five word square
     text: |-
       heart

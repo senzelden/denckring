@@ -26,6 +26,11 @@ class GoldenCase:
     text: str
     params: dict[str, Any]
     satisfied: bool
+    #: Loaded rather than dropped. This field was absent here while every one of
+    #: the 122 fixture files carried it, so provenance was decorative — written
+    #: down, read by nobody, and asserted on by nothing.
+    source: str | None
+    provenance: str
     min_score: float | None
     max_score: float | None
 
@@ -47,6 +52,8 @@ def load_golden_cases() -> list[GoldenCase]:
                     text=case["text"],
                     params=case.get("params", {}),
                     satisfied=case["satisfied"],
+                    source=case.get("source"),
+                    provenance=case.get("provenance", "constructed"),
                     min_score=case.get("min_score"),
                     max_score=case.get("max_score"),
                 )

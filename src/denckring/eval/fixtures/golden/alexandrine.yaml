@@ -18,12 +18,14 @@ cases:
     params: {}
     satisfied: true
   - name: alexandrin-de-racine
+    provenance: external
     lang: fr
     source: Jean Racine, Phèdre (1677), IV.2
     text: Le jour n'est pas plus pur que le fond de mon coeur
     params: {}
     satisfied: true
   - name: alexandrin-de-corneille
+    provenance: external
     lang: fr
     source: Pierre Corneille, Le Cid (1637), IV.3
     text: Nous partîmes cinq cents, mais par un prompt renfort

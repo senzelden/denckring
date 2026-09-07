@@ -2,6 +2,7 @@ procedure: sator_square
 lang: en
 cases:
   - name: pompeii-square
+    provenance: external
     source: Traditional; attested at Pompeii before 79 AD
     text: |-
       sator

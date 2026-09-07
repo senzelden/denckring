@@ -2,6 +2,7 @@ procedure: acrostic
 lang: en
 cases:
   - name: carroll-alice
+    provenance: external
     source: Lewis Carroll, A Boat Beneath a Sunny Sky (1871), opening stanza
     text: |-
       A boat beneath a sunny sky

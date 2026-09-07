@@ -2,6 +2,7 @@ procedure: heterogram
 lang: en
 cases:
   - name: perfect-heterogram
+    provenance: external
     source: Traditional perfect pangram, also a heterogram
     text: Mr Jock, TV quiz PhD, bags few lynx
     params: {}

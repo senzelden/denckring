@@ -2,6 +2,7 @@ procedure: eodermdrome
 lang: en
 cases:
   - name: the-word-itself
+    provenance: external
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     text: eodermdrome
     params: {}
