@@ -130,5 +130,6 @@ exclude_docs: |
   audit/
   superpowers/
   stage_mockups/
+  feedback/
 
 strict: true

@@ -129,6 +129,12 @@ exclude = [
     # roughly 48,000 bytes of headroom under MAX_SDIST_BYTES, so the bound was being
     # spent on the alternatives nobody chose.
     "/docs/stage_mockups",
+    # Review of the released package, addressed to the maintainer rather than to
+    # a reader of it. Untracked, so `.git/info/exclude` hides it from git and
+    # nothing else — `uv build` reads the working tree and never consults that
+    # file, which is exactly how `undefined/queneau-seams.png` still reaches a
+    # local archive. Naming it here is what actually keeps it out.
+    "/docs/feedback",
 ]
 
 [tool.ruff]

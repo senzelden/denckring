@@ -59,7 +59,13 @@ TRACKED_WORKING_DOCUMENTS = ("audit/", "stage_mockups/")
 #: asserted it on a fresh checkout and was red in CI from the day the entry was added
 #: (2026-09-06) until this split, while passing locally the whole time. A guard that can
 #: only pass on one machine states a fact about that machine, not a rule about the project.
-LOCAL_ONLY_WORKING_DOCUMENTS = ("superpowers/",)
+#:
+#: `feedback/` joined it on 2026-09-07: a review of the released package, addressed to
+#: the maintainer and deliberately untracked. It arrived with neither exclusion, which
+#: would have published an internal document on the next `gh-deploy` and shipped it in
+#: the next sdist — the third instance in one day of *untracked is not absent*, after
+#: `superpowers/` and `stage_mockups/`.
+LOCAL_ONLY_WORKING_DOCUMENTS = ("superpowers/", "feedback/")
 
 #: Everything kept off the site and out of the sdist, whatever git knows about it.
 WORKING_DOCUMENTS = TRACKED_WORKING_DOCUMENTS + LOCAL_ONLY_WORKING_DOCUMENTS
