@@ -148,6 +148,27 @@ class BasePack:
                 estimated += 1
         return total, estimated
 
+    def syllable_evidence(self, line: str) -> list[tuple[str, str, int | None, int, bool]]:
+        """Per word: subject, scope, offset, count, and whether it was looked up.
+
+        The breakdown behind `line_syllables`' two numbers. English and German
+        count a bag of words, so the account is word by word and each entry says
+        for itself whether the dictionary answered or the spelling heuristic did.
+
+        A pack that counts a line rather than its words overrides this and returns
+        one `line`-scoped entry — French does, and must, because there is no
+        per-word breakdown there to report (ADR 0034).
+
+        Tuples rather than the `Evidence` model, so `lang` keeps not importing
+        `core.protocol`'s report types: the pack reports measurements and the
+        procedure decides how to present them.
+        """
+        entries: list[tuple[str, str, int | None, int, bool]] = []
+        for offset, word in self.word_spans(line):
+            count, exact = self.syllable_count(word)
+            entries.append((word, "word", offset, count, exact))
+        return entries
+
     def syllables(self, word: str) -> list[str]:
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES)
 

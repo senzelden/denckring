@@ -19,6 +19,7 @@ from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapabi
 from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
+    Evidence,
     Lang,
     LanguagePack,
     Meta,
@@ -189,6 +190,7 @@ class BaseProcedure(ABC, Generic[P]):
         total: int,
         violations: list[Violation],
         metrics: dict[str, float],
+        evidence: list[Evidence] | None = None,
     ) -> Report:
         """Build a Report enforcing `satisfied == (score == 1.0)`.
 
@@ -202,6 +204,7 @@ class BaseProcedure(ABC, Generic[P]):
             score=score,
             violations=violations,
             metrics=metrics,
+            evidence=evidence or [],
         )
 
 

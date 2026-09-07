@@ -71,6 +71,33 @@ class Violation(BaseModel):
     note: str | None = None
 
 
+class Evidence(BaseModel):
+    """One measurement a verdict rests on, and how it was obtained.
+
+    `metrics["estimated_words"]` has carried the uncertainty since the beginning,
+    and it carries it as a single number: a haiku report could say that two of its
+    words were guessed and never which two. A reader repairing the line, or an
+    auditor deciding whether to trust the verdict, needs the second thing.
+
+    `basis` is a closed set rather than a confidence score. The pack knows whether
+    a count came out of a dictionary or out of a spelling heuristic, and that is
+    the whole of what it knows; attaching `0.94` to it would invent a precision no
+    measurement here supports, which is what the review that asked for this
+    warned against in its own last paragraph.
+
+    `scope` exists because the answer is not always about a word. French counts a
+    *line* — a final mute e elides or counts depending on what follows, so summing
+    citation forms undercounts systematically (ADR 0034) — and there is no
+    per-word breakdown to report. Saying so is better than manufacturing one.
+    """
+
+    subject: str
+    scope: Literal["word", "line"] = "word"
+    offset: int | None = None
+    value: str
+    basis: Literal["dictionary", "estimated"]
+
+
 class Report(BaseModel):
     """The result of checking a text. `satisfied` is always `score == 1.0`."""
 
@@ -79,6 +106,12 @@ class Report(BaseModel):
     score: float = Field(ge=0.0, le=1.0)
     violations: list[Violation] = Field(default_factory=list)
     metrics: dict[str, float] = Field(default_factory=dict)
+    #: The measurements behind the verdict, where a procedure can name them.
+    #: Empty on the exactly decidable rows, which have nothing to explain: a
+    #: lipogram's violation already carries the offending character and its
+    #: offset. It is the syllabic and phonetic rows, where a number was estimated,
+    #: that owed the reader an account of which words they guessed at.
+    evidence: list[Evidence] = Field(default_factory=list)
     #: How the verdict was reached: versions, pack, and the policies in force.
     #: An added field, which the README's stability promise permits, and optional
     #: because a procedure may build a `Report` itself — `pangram` does — and the

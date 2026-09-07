@@ -246,6 +246,18 @@ class FrenchDataPack(FrenchPack):
         """French counts a line, not a bag of words. Spec D3, ADR 0034."""
         return count_line(line, syllable_table(), h_aspire())
 
+    def syllable_evidence(self, line: str) -> list[tuple[str, str, int | None, int, bool]]:
+        """One entry for the whole line, because that is the unit French counts.
+
+        A final mute e elides before a vowel and counts before a consonant, so a
+        word's contribution is not a property of the word (ADR 0034). Reporting a
+        per-word breakdown here would be inventing numbers that do not exist: the
+        line total is real and its parts are not. `count_line` never returns an
+        exact count — French's is always estimated — so the basis is fixed.
+        """
+        total, _ = self.line_syllables(line)
+        return [(line, "line", 0, total, False)]
+
     def syllables(self, word: str) -> list[str]:
         """The orthographic segments, or `MissingCapability` for a word
         Lexique does not carry.

@@ -33,6 +33,20 @@ All notable changes to this project are documented here. The format follows
   lie about two. Read with `getattr` rather than added to the `LanguagePack` protocol,
   which is `runtime_checkable` and a published contract, so a third-party pack that
   predates this keeps satisfying it.
+- `Report.evidence`: which words a syllabic verdict counted, what it made them, and
+  whether the number came from a dictionary or a spelling heuristic.
+  `metrics["estimated_words"]` said how many words were guessed and never which, which is
+  enough to know a verdict is soft and not enough to repair it or audit it. `basis` is a
+  closed set rather than a confidence score — the pack knows which of two ways it got an
+  answer and does not know a probability, and attaching one would invent precision no
+  measurement here supports. Empty on the exactly decidable rows, which have nothing to
+  explain. **Syllabic rows only so far**; metre and rhyme still report counts alone.
+- `LanguagePack.syllable_evidence`, the per-word breakdown behind `line_syllables`' two
+  numbers. `FrenchDataPack` overrides it to return one `line`-scoped entry, because a
+  final mute e elides or counts depending on what follows, so a word's contribution is
+  not a property of the word (ADR 0034) and there is no per-word breakdown to report.
+  Read with `getattr`, so a third-party pack written before it reports nothing rather
+  than failing.
 - `denckring.core.text.clusters`, the base-plus-marks reading the fix above is built on.
 - Golden cases record a `provenance` — `external`, `constructed` or `self-generated` —
   and `denckring eval` reports the split on a third line: **38 externally sourced (7.1%),

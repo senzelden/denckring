@@ -7,7 +7,7 @@ from typing import NamedTuple
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -39,6 +39,38 @@ class PatternResult(NamedTuple):
     total: int
     violations: list[Violation]
     metrics: dict[str, float]
+    evidence: list[Evidence]
+
+
+def syllable_evidence(text: str, pack: LanguagePack) -> list[Evidence]:
+    """Which words were counted, how, and which of them were guessed at.
+
+    `metrics["estimated_words"]` says how many were estimated and never which.
+    This is the same measurement with the identities kept, so a reader repairing
+    a line knows where to look and an auditor knows what the verdict rests on.
+
+    Read with `getattr` so a third-party pack that predates the method reports no
+    evidence rather than failing: `LanguagePack` is a published contract, and the
+    breakdown is an improvement on the count rather than a replacement for it.
+    """
+    breakdown = getattr(pack, "syllable_evidence", None)
+    if breakdown is None:  # pragma: no cover - every shipped pack has it
+        return []
+    evidence: list[Evidence] = []
+    for offset, line in line_spans(text):
+        for subject, scope, at, count, exact in breakdown(line):
+            evidence.append(
+                Evidence(
+                    subject=subject,
+                    scope=scope,
+                    # The pack measures within the line it was handed; the offset
+                    # a caller can use is into the whole text.
+                    offset=None if at is None else offset + at,
+                    value=f"{count} syllables",
+                    basis="dictionary" if exact else "estimated",
+                )
+            )
+    return evidence
 
 
 def pattern_result(text: str, pack: LanguagePack, pattern: list[int]) -> PatternResult:
@@ -76,6 +108,7 @@ def pattern_result(text: str, pack: LanguagePack, pattern: list[int]) -> Pattern
         total=max(len(pattern), len(measured)),
         violations=violations,
         metrics={"lines": float(len(measured)), "estimated_words": float(estimated)},
+        evidence=syllable_evidence(text, pack),
     )
 
 
