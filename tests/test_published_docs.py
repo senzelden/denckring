@@ -9,8 +9,11 @@ them, so the changelog's structure is published too.
 
 from __future__ import annotations
 
+import shutil
+import subprocess
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,7 +41,28 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 #: nav warning and no `--strict` failure. It is the rejected options behind the nine
 #: machines on the stage; what was chosen is the app under `apps/`, which is not
 #: documentation of this package either way.
-WORKING_DOCUMENTS = ("audit/", "superpowers/", "stage_mockups/")
+#:
+#: The list is split by a property rather than kept as one, because the check that an
+#: exclusion still matches something can only be made against a directory that is in
+#: the repository. Both halves are still excluded; `WORKING_DOCUMENTS` below is what
+#: every other consumer reads, including `tests/test_packaging.py`.
+TRACKED_WORKING_DOCUMENTS = ("audit/", "stage_mockups/")
+
+#: Working documents that exist only in a maintainer's working tree. `superpowers/` was
+#: removed from the repository and all 552 commits of its history on 2026-09-06 and then
+#: recreated on disk as untracked local scratch, ignored via `.git/info/exclude`.
+#:
+#: It still needs both exclusions — mkdocs publishes what is under `docs/` and `uv build`
+#: archives what is in the working tree, and neither consults git, so untracked is not
+#: absent. But it is absent everywhere except that one machine, which is why it cannot
+#: carry the existence check the tracked half does: `test_every_excluded_directory_still_exists`
+#: asserted it on a fresh checkout and was red in CI from the day the entry was added
+#: (2026-09-06) until this split, while passing locally the whole time. A guard that can
+#: only pass on one machine states a fact about that machine, not a rule about the project.
+LOCAL_ONLY_WORKING_DOCUMENTS = ("superpowers/",)
+
+#: Everything kept off the site and out of the sdist, whatever git knows about it.
+WORKING_DOCUMENTS = TRACKED_WORKING_DOCUMENTS + LOCAL_ONLY_WORKING_DOCUMENTS
 
 
 def test_the_site_excludes_every_working_document() -> None:
@@ -49,9 +73,38 @@ def test_the_site_excludes_every_working_document() -> None:
 
 def test_every_excluded_directory_still_exists() -> None:
     """An exclusion naming a directory that has since been renamed excludes nothing,
-    and nothing else in the build would say so."""
-    for name in WORKING_DOCUMENTS:
+    and nothing else in the build would say so.
+
+    Only the tracked half can be checked this way. The local-only half is verified by
+    `test_the_local_only_exclusions_are_untracked` instead, which is the invariant that
+    actually holds everywhere.
+    """
+    for name in TRACKED_WORKING_DOCUMENTS:
         assert (ROOT / "docs" / name).is_dir(), f"docs/{name} is named in an exclusion but gone"
+
+
+def test_the_local_only_exclusions_are_untracked() -> None:
+    """The split above is only honest while its two halves stay sorted, and the way it
+    goes wrong is a local scratch directory being committed: the entry would then belong
+    in `TRACKED_WORKING_DOCUMENTS`, where a rename is caught, and would sit unchecked in
+    the local-only half instead. Asking git is what keeps the categorisation from drifting
+    — and it is a question CI can answer, unlike whether the directory happens to be on
+    the machine running the suite.
+    """
+    if shutil.which("git") is None:
+        pytest.skip("git is what says whether a directory is tracked")
+    for name in LOCAL_ONLY_WORKING_DOCUMENTS:
+        tracked = subprocess.run(
+            ["git", "ls-files", f"docs/{name}"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+        assert not tracked.strip(), (
+            f"docs/{name} is tracked now, so it belongs in TRACKED_WORKING_DOCUMENTS "
+            f"where a rename would be caught"
+        )
 
 
 def test_a_release_names_each_change_type_once() -> None:
