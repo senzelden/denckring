@@ -12,7 +12,7 @@ license-files = [
     "LICENSE-WORDNET",
     "LICENSE-SCOWL",
 ]
-authors = [{ name = "senzelden", email = "dennis.senzel@posteo.com" }]
+authors = [{ name = "Dennis Senzel", email = "dennis.senzel@posteo.com" }]
 classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Text Processing :: Linguistic",

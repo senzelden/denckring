@@ -3,7 +3,9 @@ title: "denckring: a library of experimental writing procedures"
 message: "If you use this software or its catalogue, please cite it."
 type: software
 authors:
-  - alias: senzelden
+  - given-names: Dennis
+    family-names: Senzel
+    alias: senzelden
     email: dennis.senzel@posteo.com
 repository-code: "https://github.com/senzelden/denckring"
 url: "https://senzelden.github.io/denckring/"
