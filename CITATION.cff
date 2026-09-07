@@ -4,7 +4,7 @@ message: "If you use this software or its catalogue, please cite it."
 type: software
 authors:
   - alias: senzelden
-    email: senzelden@gmail.com
+    email: dennis.senzel@posteo.com
 repository-code: "https://github.com/senzelden/denckring"
 url: "https://senzelden.github.io/denckring/"
 abstract: >-

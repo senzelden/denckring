@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0 AND CC-BY-4.0"
 license-files = ["LICENSE", "NOTICE", "LICENSE-DATA"]
-authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+authors = [{ name = "senzelden", email = "dennis.senzel@posteo.com" }]
 keywords = ["oulipo", "constrained-writing", "lipogram", "poetics", "nlp"]
 classifiers = [
     "Development Status :: 3 - Alpha",

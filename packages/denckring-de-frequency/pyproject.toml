@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 # version in package metadata is a claim about somebody else's rights.
 license = "Apache-2.0 AND CC-BY-4.0"
 license-files = ["LICENSE", "NOTICE", "LICENSE-LEIPZIG"]
-authors = [{ name = "senzelden", email = "senzelden@gmail.com" }]
+authors = [{ name = "senzelden", email = "dennis.senzel@posteo.com" }]
 classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: German",

@@ -21,7 +21,7 @@ reasonably be considered inappropriate in a professional setting.
 
 ## Enforcement
 
-Report unacceptable behaviour to senzelden@gmail.com. All complaints will be reviewed
+Report unacceptable behaviour to dennis.senzel@posteo.com. All complaints will be reviewed
 and investigated promptly and fairly, and the reporter's privacy and security will be
 respected.
 
