@@ -60,19 +60,44 @@ jobs:
         run: uv run mkdocs gh-deploy --force --strict
 
   rehearse:
-    # TestPyPI, from a manual run. Needs its own Trusted Publisher for each of the
-    # six distributions, registered against this workflow, exactly as PyPI does.
+    # TestPyPI, from a manual run. One leg per distribution, for the reason the
+    # `publish` matrix below spells out.
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
     needs: [build, docs]
     runs-on: ubuntu-latest
-    environment: testpypi
+    strategy:
+      # Every leg is independent and each says something different: stopping the
+      # others on the first failure would hide which of the six are misconfigured,
+      # which is the whole question a rehearsal answers.
+      fail-fast: false
+      matrix:
+        include:
+          - {dist: denckring, files: "denckring-", environment: testpypi}
+          - {dist: denckring-en-data, files: "denckring_en_data-", environment: testpypi-en-data}
+          - {dist: denckring-de-data, files: "denckring_de_data-", environment: testpypi-de-data}
+          - {dist: denckring-de-wiktionary, files: "denckring_de_wiktionary-", environment: testpypi-de-wiktionary}
+          - {dist: denckring-de-frequency, files: "denckring_de_frequency-", environment: testpypi-de-frequency}
+          - {dist: denckring-fr-data, files: "denckring_fr_data-", environment: testpypi-fr-data}
+    environment: ${{ matrix.environment }}
     permissions:
       id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: distributions
-          path: dist/
+          path: all-dist/
+      - name: Take only this distribution's artefacts
+        run: |
+          mkdir -p dist
+          cp all-dist/${{ matrix.files }}* dist/
+          # An empty or over-full `dist/` is the failure this split can produce and
+          # the one an upload would not report: publishing nothing succeeds. Exactly
+          # a wheel and an sdist, or stop.
+          count=$(ls dist | wc -l)
+          test "$count" -eq 2 || {
+            echo "expected 2 artefacts for ${{ matrix.dist }}, found $count"; ls -l dist; exit 1;
+          }
+          ls -l dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
@@ -90,12 +115,40 @@ jobs:
     # installed, denckring-de-frequency adds `lexicon.graded_words` to that pack
     # under its own licence (ADR 0038), and denckring-fr-data subclasses the core
     # French pack (ADR 0032). `uv build --all-packages` picks up every workspace
-    # member, so the sixth needed no change here — only its own Trusted Publisher,
-    # which is the one step this file cannot do for you.
+    # member, so the sixth needed no change here.
+    #
+    # One job per distribution, each with its own environment, and that is forced
+    # rather than chosen. PyPI requires a *pending* publisher to be unique on
+    # (owner, repository, workflow, environment), so six pending publishers sharing
+    # one environment cannot be registered at all — the second is refused with "a
+    # pending trusted publisher matching this configuration has already been
+    # registered for a different project name" (pypi/warehouse#16920). Environment
+    # is the only part of that tuple this workflow can vary, so it varies.
+    #
+    # The alternatives were worse: create the projects with API tokens and enrol
+    # publishers afterwards, or publish one distribution per release event until
+    # each pending publisher has been converted. The first reintroduces the upload
+    # token this whole arrangement exists to avoid; the second breaks the version
+    # lock these six are released under.
     if: github.event_name == 'push'
     needs: [build, docs]
     runs-on: ubuntu-latest
-    environment: pypi
+    strategy:
+      # A partial release is the failure mode here, and it is worth seeing whole:
+      # if one distribution's publisher is misconfigured, the remaining five should
+      # still report rather than be cancelled. PyPI will not re-take a version that
+      # landed, so the recovery is a version bump either way — knowing which legs
+      # succeeded is what makes that recovery short.
+      fail-fast: false
+      matrix:
+        include:
+          - {dist: denckring, files: "denckring-", environment: pypi}
+          - {dist: denckring-en-data, files: "denckring_en_data-", environment: pypi-en-data}
+          - {dist: denckring-de-data, files: "denckring_de_data-", environment: pypi-de-data}
+          - {dist: denckring-de-wiktionary, files: "denckring_de_wiktionary-", environment: pypi-de-wiktionary}
+          - {dist: denckring-de-frequency, files: "denckring_de_frequency-", environment: pypi-de-frequency}
+          - {dist: denckring-fr-data, files: "denckring_fr_data-", environment: pypi-fr-data}
+    environment: ${{ matrix.environment }}
     permissions:
       # Trusted Publishing. No API token is stored in repository secrets.
       id-token: write
@@ -104,7 +157,19 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: distributions
-          path: dist/
+          path: all-dist/
+      - name: Take only this distribution's artefacts
+        run: |
+          mkdir -p dist
+          cp all-dist/${{ matrix.files }}* dist/
+          # `denckring-` is unambiguous because every other distribution builds with
+          # underscores — denckring_en_data-0.1.0 and so on — so the core's prefix
+          # cannot swallow its siblings. The count below is what actually enforces it.
+          count=$(ls dist | wc -l)
+          test "$count" -eq 2 || {
+            echo "expected 2 artefacts for ${{ matrix.dist }}, found $count"; ls -l dist; exit 1;
+          }
+          ls -l dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: true
