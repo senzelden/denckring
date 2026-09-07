@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-07
+
 ### Added
 
 - Core protocol: `Violation`, `Report`, `Meta` and the `LanguagePack` interface, all
@@ -1196,4 +1198,5 @@ All notable changes to this project are documented here. The format follows
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/commits/main
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/senzelden/denckring/releases/tag/v0.1.0
