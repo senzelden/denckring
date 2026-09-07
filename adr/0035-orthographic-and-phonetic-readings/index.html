@@ -1,0 +1,2319 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A library of experimental writing procedures, where the validator is the eval">
+      
+      
+      
+        <link rel="canonical" href="https://senzelden.github.io/denckring/adr/0035-orthographic-and-phonetic-readings/">
+      
+      
+        <link rel="prev" href="../0034-french-prosody/">
+      
+      
+        <link rel="next" href="../0036-the-elision-seam/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>35. A letter has two readings, and `requires` says which - denckring</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#35-a-letter-has-two-readings-and-a-rows-requires-says-which-one-it-gets" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="denckring" class="md-header__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            denckring
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              35. A letter has two readings, and `requires` says which
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="denckring" class="md-nav__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    denckring
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../showcase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Showcase
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading a report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/packs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language packs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design decisions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0001-english-api-multilingual-content/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. English API, multilingual content
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0002-check-mandatory-apply-optional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. `check` mandatory, `apply` optional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-catalogue-yaml-not-sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Catalogue in YAML, not SQLite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0004-language-packs-as-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Language packs as capability-declaring plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-continuous-score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Continuous `score`, not a boolean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0006-dual-licence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Dual licence: MIT code, CC BY catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0007-one-module-per-procedure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. One module per procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0008-catalogue-inside-package/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The catalogue lives inside the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0009-folding-is-a-parameter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Diacritic folding is a parameter, not a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0010-packs-via-entry-points/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Language packs are discovered through an entry-point group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-checkability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Checkability is a property of the procedure, not of its capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0012-syllable-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Two syllable capabilities, with the weaker one as the floor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0013-data-as-a-separate-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Linguistic data ships as separate distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0014-metre-as-satisfiability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Metre is a satisfiability question, not a comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-lexicon-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. One capability per question the lexicon is asked
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0016-one-pack-per-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. One data pack per language, and a collision is an error
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0017-devices-ship-with-their-procedures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. A device's own data ships with its procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0018-attestation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Whether the author stated the rule is its own field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0019-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Figures are alphabets read at several levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0020-corpora-are-not-shipped/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. A corpus is supplied by the reader, never by the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0021-the-transferable-part/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Implement the transferable part, not the artefact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0022-german-moves-to-a-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. German is a built-in default, not an entry point
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0023-the-german-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. The German lexicon is Wikidata Lexemes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0024-apache-two-for-the-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Apache-2.0 for the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0025-the-apply-spine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. `apply` gets the spine `check` has
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0026-the-production-surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. `_produce -> list[str]` is the primitive; `apply` returns its first result
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0027-candidates-carry-their-scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. `_produce` returns `Produced`, so a candidate can carry its score
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0028-the-graded-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. A word list graded by commonness, because a membership oracle cannot rank
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0029-the-choices-the-catalogue-promised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. Where the catalogue already offered a choice, the parameter now exists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0030-german-pronunciations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. German pronunciations come from Wiktionary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0031-devices-are-address-spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. A device is an address space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0032-the-french-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. The French lexicon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0033-the-layer-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33. The catalogue has two layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0034-french-prosody/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34. French verse is counted a line at a time
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35. A letter has two readings, and `requires` says which
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35. A letter has two readings, and `requires` says which
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-remaining-fixed-2026-09-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known remaining, FIXED 2026-09-03
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0036-the-elision-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36. A leading proclitic is not a noun
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0037-the-calculator-word/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37. The calculator word
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0038-german-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38. German frequency, and a source whose case survives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-remaining-fixed-2026-09-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known remaining, FIXED 2026-09-03
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="35-a-letter-has-two-readings-and-a-rows-requires-says-which-one-it-gets">35. A letter has two readings, and a row's <code>requires</code> says which one it gets<a class="headerlink" href="#35-a-letter-has-two-readings-and-a-rows-requires-says-which-one-it-gets" title="Permanent link">&para;</a></h1>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>The 2026-09-02 MCP language sweep's Findings 1 and 2 are one cause with two faces.</p>
+<p><code>fold_diacritics</code> defaults to <strong>true</strong>. The text side folded and the parameter side did
+not, so a parameter was compared against text it could never equal: <code>vowel="ä"</code> reported
+<code>found: "a"</code> against <code>expected: "ä"</code> in German, <code>vowels="äö"</code> the same, <code>consonant="ß"</code>
+compared a two-character <code>expected</code> against a one-character <code>got</code>, and a <code>ß</code> in an
+acrostic target was a "letter" no unit could match. Seven rows were wrong under <strong>default</strong>
+parameters — the values no golden fixture supplies, which is what the sweep found out
+about the fixtures rather than about the rows.</p>
+<p>One of the seven broke the project's thesis. <code>slenderizing._produce</code> kept a character when
+<code>fold_diacritics(ch).lower() != params.deleted</code>; <code>ß</code> folds to <code>ss</code>, which never equals one
+letter, so <code>ß</code> always survived a deletion <code>_check</code> then required. Measured: <code>apply</code> gave
+<code>Die traße war groß.</code> and its own checker scored that <strong>0.412 with seven violations</strong>,
+under defaults, in the one row the safety net could not reach — <code>slenderizing</code> is in
+<code>PARAMETER_GATED</code> <em>and</em> its golden file pins <code>lang: en</code> at file level, so it was
+unexercised twice over.</p>
+<p>The second face is not a fold at all. <code>pack.vowels()</code> was being asked several different
+questions and answering all of them with one flat <code>frozenset</code>:</p>
+<table>
+<thead>
+<tr>
+<th>pack</th>
+<th><code>vowels()</code></th>
+<th>folded</th>
+<th>folded, less <code>y</code>/<code>ÿ</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>en</td>
+<td><code>aeiou</code> (5)</td>
+<td><code>aeiou</code></td>
+<td><code>aeiou</code></td>
+</tr>
+<tr>
+<td>de</td>
+<td><code>aeiouäöü</code> (8)</td>
+<td><code>aeiou</code></td>
+<td><code>aeiou</code></td>
+</tr>
+<tr>
+<td>fr</td>
+<td><code>aeiouyàâäèéêëîïôöùûüÿ</code> (21)</td>
+<td><code>aeiouy</code></td>
+<td><code>aeiou</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>supervocalic</code> publishes <em>"each of the five vowels exactly once"</em> and read that set, so it
+demanded German's eight and French's twenty-one against folded text that could never
+contain an umlaut: <strong>unsatisfiable in both languages</strong>, permanently. English was correct
+only because its readings coincide.</p>
+<p>And the sweep filed French <code>monoconsonantal("yoyo")</code> — <code>consonants: 0</code>, satisfied — as a
+defect. It is not one, and saying why is the substance of D2. Both <code>y</code> in <code>yoyo</code> are /j/,
+but a flat set cannot express a letter whose class depends on where it stands, and every
+language here has such letters: English <code>y w u i o</code> (<code>myth</code>, <code>cwm</code>, <code>quick</code>, <code>onion</code>),
+German <code>y i</code> (<code>Physik</code>, <code>Familie</code>), French <code>y i u ou</code> (<code>stylo</code>, <code>pied</code>, <code>huit</code>, <code>oui</code>).
+<code>rhythm</code> has two syllables and no vowel letter at all.</p>
+<p>The candidate rule — <em>a vowel letter standing before another vowel letter is a consonant</em>
+— scored <strong>30 of 34</strong> on the probe cases, with three of the four misses being probe error
+and the genuine miss German <code>Quelle</code>, where <code>qu</code> is /kv/. It is a good rule. Applied to
+these rows it is measurably wrong:</p>
+<div class="highlight"><pre><span></span><code>en onion    vowel letters oio  → oo   UNIVOCALIC in o
+en quick    vowel letters ui   → i    UNIVOCALIC in i
+en million  vowel letters iio  → o    UNIVOCALIC in o
+fr oui / huit / lui / nuit     → i    UNIVOCALIC in i
+</code></pre></div>
+<p>No <em>Word Ways</em> editor accepts <code>onion</code> as an o-univocalic. <code>en.py</code> had already reached the
+same conclusion and encoded it: <code>_VOWELS = frozenset("aeiou")</code> for letter-play,
+<code>_VOWEL_GROUP = re.compile(r"[aeiouy]+")</code> for syllable counting. The two readings were
+already separate; nothing named the separation, so nothing stopped a row taking the wrong
+one.</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p><strong>D1. <code>vowels()</code> is split by the question asked, and only two of the three questions are
+answered so far.</strong> Reading its call sites finds three:</p>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>returns</th>
+<th>consumers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vowels()</code></td>
+<td>every character <em>written</em> as a vowel, accented forms included</td>
+<td><code>word_ladder._alphabet</code>, <code>univocalic</code>, <code>bivocalic</code>, <code>monoconsonantal</code>, <code>source_compare</code> (<code>homoconsonantism</code>, <code>homovocalism</code>) and <code>spoonerism._letter_onset</code> — <strong>six call sites across seven rows, two questions</strong>, see Consequences</td>
+</tr>
+<tr>
+<td><code>vowel_inventory()</code></td>
+<td>the base vowel letters the language names</td>
+<td><code>supervocalic</code> alone</td>
+</tr>
+<tr>
+<td>a contextual classifier</td>
+<td>one class per character, <strong>phonetically</strong></td>
+<td><code>spoonerism</code> alone — <strong>not built</strong>, see D5</td>
+</tr>
+</tbody>
+</table>
+<p><code>vowels()</code> keeps its name and its meaning because of the first of those call sites:
+<code>word_ladder._alphabet</code> asks no question about vowelhood at all — it wants the diacritic
+variants a ladder step may be — and renaming the method would make that site read as a
+classification it is not. The other five sites, serving six rows, do ask a classification
+question, and get the orthographic answer, which is the one D2 says they are entitled to.
+So this split takes one of the three readings out of <code>vowels()</code> and leaves two behind it;
+the Consequences say what that costs.</p>
+<p><code>vowel_inventory()</code> lives on <code>LanguagePack</code> with a <code>BasePack</code> default that folds the
+written set and removes the ambiguous letters (<code>_AMBIGUOUS = frozenset("yÿ")</code>). <strong>All
+three packs answer <code>aeiou</code> and none overrides.</strong> The fold is what does the work — not the
+order of the two steps, which was claimed to be load-bearing during implementation and
+measured false: folding <code>y</code>/<code>ÿ</code> never produces a base vowel, so reversing the steps gives
+the identical result. What matters is that the fold happens <strong>at all</strong>. Without it the
+inventory is German's eight and French's nineteen (twenty-one written vowel letters, less
+the two ambiguous ones), against a definition that says five.</p>
+<p><strong>D2. A row's <code>requires</code> list licenses which reading of a letter it may take.</strong> The split
+is by row, not by language.</p>
+<p><code>univocalic</code>, <code>bivocalic</code>, <code>monoconsonantal</code> and <code>supervocalic</code> are <code>family: letter</code>,
+sourced to Bombaugh (1867) and <em>Word Ways</em>, and declare
+<code>requires: [tokens, fold_diacritics, alphabet]</code> — <strong>no <code>phonemes</code></strong>. <code>homoconsonantism</code>
+and <code>homovocalism</code>, the two <code>source_compare</code> rows, declare the same. A glide rule in any
+of them is a row making a pronunciation judgement while advertising that it works on
+letters alone, which is the defect class ADR 0030 fixed twice in one day. The measurement
+above is what it would cost: seven ordinary words silently become univocalics.</p>
+<p><code>spoonerism</code> is the one consumer that declares <code>phonemes</code>, and its <code>_letter_onset</code> already
+calls itself "a written stand-in for the phonetic boundary it cannot reconstruct". That is
+where the contextual reading belongs, whenever it is built.</p>
+<p><em>Rejected:</em> one contextual rule in <code>BasePack</code> for all three languages. It measured correct
+linguistically and flipped zero golden cases — but zero flips is evidence, not proof, and
+correctness about phonetics is not a licence for rows defined on orthography.</p>
+<p><code>tests/test_reading_boundary.py</code> pins the boundary by name rather than by implementation:
+<code>onion</code>, <code>quick</code>, <code>million</code>, <code>oui</code>, <code>huit</code>, <code>nuit</code> and <code>lui</code> must not be univocalics, and
+the four rows must not gain <code>phonemes</code> without this decision being revisited. It holds
+whether or not the phonetic reading exists.</p>
+<p><strong>D3. The parameter side folds the way the text side folds.</strong> <code>core/text.py</code> gains
+<code>fold_letter(ch, pack, *, fold)</code>, the parameter-side twin of <code>letter_spans</code>, applied at
+<strong>the seven rows this decision covers</strong> — <code>univocalic</code>, <code>bivocalic</code>, <code>monoconsonantal</code>,
+<code>slenderizing</code>, and the acrostic family. Not at every comparison of a parameter against
+folded text in the library; the rows that still do not fold are listed under <em>Known
+remaining</em>, and this decision does not reach them. <code>fold_diacritics: false</code> stops being
+the workaround it was <strong>for these seven</strong>.</p>
+<p>A target that is a phrase rather than a single letter is <em>flattened</em>, so a <code>ß</code> claims the
+two units its two letters need: <code>acrostic</code>, <code>telestich</code> by inheritance, and
+<code>double_acrostic</code>, which kept its own copy of the expression and had to be fixed
+separately — which is why the sweep's two acrostic rows are three. The flatten itself is
+<code>fold_target(value, pack, *, fold)</code> beside <code>fold_letter</code>, and all three sites call it:
+leaving three copies of the expression while <em>Alternatives considered</em> rejects
+per-checker folding as "five checkers, five chances to differ" would have been the
+rejected alternative written in smaller print.</p>
+<p><strong>D4. A single-letter parameter that folds to several characters is refused, by name.</strong>
+<code>single_letter()</code> raises <code>InvalidParams</code> naming the field, the value, what it folded to,
+and <code>fold_diacritics: false</code> as the way to use it as one letter. These callers compare
+letter against letter, and a two-letter <code>expected</code> against a one-character <code>got</code> is not a
+comparison a violation can report honestly. This replaces <code>slenderizing</code>'s
+<code>degenerate_output</code> advising <code>allow_identity=true</code>, which named neither the cause nor a
+remedy and would have returned the untouched text as a slenderizing.</p>
+<p>Matching the folded <em>sequence</em> instead was rejected: it turns a per-letter comparison into
+a per-sequence one in four checkers and makes <code>found</code> and <code>expected</code> differ in length in
+every violation they emit.</p>
+<p><strong>D5. The contextual classifier is deferred, and this record does not describe it as
+built.</strong> The design for it stands — one class per alphabetic character of a single
+<em>unfolded</em> word, since context is orthographic and does not cross a word boundary; French
+<code>ou</code> marked consonant on both characters because a per-character return cannot say "these
+two are jointly one glide". None of it is implemented. <code>spoonerism._letter_onset</code> still
+splits on flat <code>vowels()</code> membership, so French <code>yoyo</code> still has an empty onset and
+English <code>myth</code> is still entirely onset. That is a known-wrong approximation that continues
+to ship, and D2 is the reason it is the <em>only</em> place the fix would be allowed to land.</p>
+<p><strong>D6. <code>slenderizing</code>'s <code>_produce</code> decides per source character by looking at every letter
+that character folds to.</strong> D3 applied to a generator, and stated at that precision because
+the weaker version of it was wrong. Folding <code>deleted</code> is necessary and not sufficient: the
+first fix dropped a source character whenever <em>any</em> letter it folds to was <code>deleted</code>, which
+agrees with <code>_check</code> only when a fold is uniform. <code>ß</code> → <code>ss</code> is uniform; <code>œ</code> → <code>oe</code> is not,
+and <code>apply("Le cœur et la sœur", lang="fr", deleted="e")</code> returned <code>L cur t la sur</code>, which
+its own checker scored <strong>0.167, unsatisfied</strong> — the German defect one language over, in the
+fix for it. The rule is three-way:</p>
+<table>
+<thead>
+<tr>
+<th>the character's folded letters</th>
+<th><code>_produce</code> emits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>none is <code>deleted</code></td>
+<td>the source character, untouched — case and the ligature survive</td>
+</tr>
+<tr>
+<td>all are <code>deleted</code></td>
+<td>nothing; this is what takes <code>ß</code> out with <code>s</code></td>
+</tr>
+<tr>
+<td>some are</td>
+<td>the survivors, folded, since no single character spells them</td>
+</tr>
+</tbody>
+</table>
+<p><code>œ</code> under <code>deleted="o"</code> is the sharper case: the old code raised <code>DegenerateOutput</code>, an
+honest refusal, and the first fix turned that into text failing its own checker — a
+regression, not a shortfall. Both now round-trip at 1.0 (<code>L cour t la sour</code>,
+<code>Le ceur et la seur</code>), pinned by French tests and a golden case beside the German ones.</p>
+<h2 id="known-remaining-fixed-2026-09-03">Known remaining, FIXED 2026-09-03<a class="headerlink" href="#known-remaining-fixed-2026-09-03" title="Permanent link">&para;</a></h2>
+<p><strong>Five more rows declared <code>fold_diacritics</code> and still compared an unfolded parameter
+against folded text.</strong> They were out of scope in the branch that shipped this ADR — that
+work fixed the seven the sweep filed — but an unqualified "every such comparison" would
+have been false, so they were named here and fixed the same day, once folded, using the
+same <code>single_letter</code> helper as the seven above. A sixth row not named in the original
+finding, <code>serial_lipogram</code>, was fixed alongside <code>lipogram</code> for the reason given below.
+Reproduced on this branch before the fix, at <strong>default</strong> parameters:</p>
+<table>
+<thead>
+<tr>
+<th>row</th>
+<th>call</th>
+<th>verdict before the fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lipogram</code></td>
+<td><code>("Rätsel", lang="de", forbidden="ä")</code></td>
+<td><strong><code>satisfied=True</code>, score 1.0</strong></td>
+</tr>
+<tr>
+<td><code>pangrammatic_lipogram</code></td>
+<td>a German pangram containing <code>ä</code>, <code>forbidden="ä"</code></td>
+<td><strong><code>satisfied=True</code>, score 1.0</strong></td>
+</tr>
+<tr>
+<td><code>tautogram</code></td>
+<td><code>("Ähre Ähnlich Ärmel", lang="de", initial="ä")</code></td>
+<td>three <code>wrong_initial</code>, score 0.0</td>
+</tr>
+<tr>
+<td><code>homoteleuton</code></td>
+<td><code>("café passé", lang="fr", final="é")</code></td>
+<td>two <code>wrong_final</code>, score 0.0</td>
+</tr>
+<tr>
+<td><code>abecedarian</code></td>
+<td><code>("ähnlich bald cool", lang="de", start="ä")</code></td>
+<td><code>satisfied=True</code> — and vacuous</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>lipogram</code> was the serious one</strong>, with <code>pangrammatic_lipogram</code> the same shape behind it: a
+lipogram is a claim of <em>absence</em>, so an unfolded <code>forbidden</code> inverted the verdict rather
+than refusing it. The text plainly contained the letter and the row said it did not. The
+other three failed closed — annoying, honest. <code>abecedarian</code> failed neither way: <code>"ä"</code> was
+not in <code>alphabet()</code>, <code>alphabet.index</code> was guarded, so <code>first</code> fell back to <code>0</code> and
+<code>start="ä"</code> was silently <code>start="a"</code>; both spellings returned the identical report, which
+is what made it vacuous rather than wrong. A sharper example than the table's own, found
+while fixing it: <code>start="ö"</code> folds to <code>"o"</code> (index 14, not 0), so the fallback disagreed
+with the correct answer on every line rather than agreeing by coincidence — a genuine
+wrong verdict, not merely a vacuous one.</p>
+<p><code>beau_present</code>, <code>belle_absente</code> and <code>letter_bank</code> were checked and are fine — they fold
+their parameter as <em>text</em>, through <code>letter_spans</code>, so they never had the seam.</p>
+<p><strong>The fix was not only a fold, as anticipated here.</strong> <code>lipogram</code>'s fix reaches
+<code>pangrammatic_lipogram</code> (same fold, same helper) but not <code>serial_lipogram</code>, which has its
+own comparison and its own bug: it refused <code>start="ä"</code> outright with an <code>InvalidParams</code>,
+even under default folding — stricter than the fold its own text-side comparison already
+performs. Folding <code>start</code> before the alphabet-membership check fixes it. <code>abecedarian</code>
+needed the decision this section flagged as open: what happens when a folded <code>start</code> is
+still not a letter of the row's own flat <code>alphabet()</code>, which is only reachable with
+<code>fold_diacritics=False</code> on a genuinely accented letter. The decision taken is the one
+<code>serial_lipogram</code> already modelled — refuse by name by raising <code>InvalidParams</code>, rather than
+silently defaulting to index 0 as before. Ten golden cases were added, one per fixed row
+plus a negative for four of them, all in the language the original defect was reproduced
+in (<code>tests/test_folding_seam.py</code>, <code>eval --all</code> 498 → 508).</p>
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<p><strong>German <code>supervocalic</code> is satisfiable for the first time, and its catalogue row still
+says <code>languages: ["en"]</code>.</strong> No editorial <code>languages</code> value moved here, deliberately —
+whether a row should now claim a language it can be satisfied in is an editorial decision
+and not a side effect of a bug fix. So the catalogue continues to understate what these
+rows do, and <code>runs_in</code> (ADR 0029) is the only place a caller can see it.</p>
+<p><strong>French <code>monoconsonantal("yoyo")</code> still reports <code>consonants: 0</code>, and English still
+reports 2 for the same text.</strong> Under French orthographic convention <code>y</code> is a vowel letter,
+so zero is the consistent answer for a row defined on letters — consistent, not obviously
+right. A caller who reads <code>yoyo</code> as /jojo/ will think the row is broken, will find the
+sweep filed it as a defect, and will find this record saying it is not. The en/fr
+divergence on identical input is a convention difference this decision declines to erase.
+Whether a text with zero consonants should satisfy <code>monoconsonantal</code> at all is a separate
+verdict question, still unsettled.</p>
+<p><strong>A rule that measured correct was refused, and the cost is that the packs stay wrong
+about phonetics.</strong> The glide rule was right in all three languages and broke no golden
+case. It is not here. Every consumer that would genuinely benefit — the syllable path
+already has its own reading, <code>spoonerism</code> has none — waits on D5, and until then
+<code>spoonerism</code> publishes an onset it knows is sometimes wrong. Deferring a measured
+improvement to keep a boundary clean is a real price and it is being paid on purpose.</p>
+<p><strong><code>ß</code> and <code>œ</code> cannot be single-letter parameters at all while folding is on.</strong> What used
+to be an unsatisfiable report is now a raised <code>InvalidParams</code>, which is a harder failure
+than callers previously met: a script that passed <code>consonant="ß"</code> and read <code>satisfied</code>
+now gets an exception instead of <code>false</code>. The message names the remedy, and the remedy
+works, which is the whole difference from the error it replaces.</p>
+<p><strong><code>slenderizing.apply(..., fold_diacritics=false)</code> now refuses where it used to return
+text.</strong> The old <code>_produce</code> ignored the parameter and always folded, so
+<code>apply("Bäh", lang="de", deleted="a", fold_diacritics=False)</code> returned <code>"Bh"</code> — deleting a
+letter the caller had just said not to fold <code>ä</code> into. It now raises <code>DegenerateOutput</code>,
+because with folding off <code>ä</code> is <code>ä</code>, the text contains no <code>a</code>, and the slenderizing of it
+is the text itself. That is the answer <code>_check</code> gives, so the two agree for the first time;
+it is still a behaviour change nobody asked for, arriving in a bug fix, and a caller
+reading <code>fold_diacritics: false</code> as the safe setting will meet it.</p>
+<p><strong>A mixed fold also costs case.</strong> D6's third row — some of a character's folded letters
+<code>deleted</code>, some not — emits the survivors <em>folded</em>, so a ligature that opens a word loses
+its case along with the deleted member: <code>apply("Œuvre et Sœur", lang="fr", deleted="e")</code>
+returns <code>"ouvr t Sour"</code>, the leading <code>Œ</code> becoming a lowercase <code>o</code>. The output still
+satisfies its own checker, so this is a cost to record, not a bug to fix.</p>
+<p><strong>With folding off, an accented vowel is inert in <code>supervocalic</code>.</strong> The inventory is
+always the folded <code>aeiou</code>, while <code>ä</code> stays <code>ä</code> in the text — so it neither supplies the
+<code>a</code> the row requires nor counts as a repeat of one. That is the intended reading of a
+definition that says five, and it is also a rule nobody would guess from the outside;
+<code>tests/test_vowel_inventory.py</code> measures both halves so it cannot drift silently.</p>
+<p><strong><code>vowels()</code> still answers two questions, not one.</strong> D1 split off the inventory and leaves
+<code>univocalic</code>, <code>bivocalic</code>, <code>monoconsonantal</code>, the two <code>source_compare</code> rows and
+<code>spoonerism._letter_onset</code> reading the written set to decide which letters in a text <em>are</em>
+vowels, beside <code>word_ladder._alphabet</code>, which asks something else entirely. Both readings
+are the ones those rows are entitled to under D2, so both are correct — but the method's
+name still covers two questions, and the next person to add a consumer has only this
+record to tell them which one they are getting.</p>
+<p><strong><code>denckring eval --all</code> goes from 487 to 498 passing cases and <code>denckring status</code> does
+not move</strong>, staying <code>155 · 130 · 121 · 121 · 25</code> and <code>0 instruments catalogued</code>. This
+chapter adds no catalogue row and implements no procedure; it fixes eight that were already
+counted as implemented, which is precisely the kind of change the coverage line cannot
+see.</p>
+<h2 id="alternatives-considered">Alternatives considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
+<p><strong>Folding the parameter inside each checker.</strong> Five checkers, five chances to differ, and
+the two acrostic rows had already proved the point by diverging with one copy each of the
+same expression. <code>fold_letter</code> and <code>fold_target</code> are two functions on the seam that
+already owns folding — <code>fold_target</code> because the first pass at this decision left the
+flatten copied three times, which is the rejected alternative at one third the scale.</p>
+<p><strong>Leaving <code>fold_diacritics: false</code> as the documented workaround.</strong> It is what the sweep
+found callers doing, and it is a per-call instruction to disable a default that exists
+because it is right. It also cannot fix <code>slenderizing</code>, whose generator ignored the
+parameter entirely.</p>
+<p><strong>Giving <code>supervocalic</code> a literal <code>"aeiou"</code>.</strong> It would have fixed the row and put a fact
+about which letters a language names into a procedure module, which is the placement ADR
+0030 and ADR 0034 D1 both moved away from. A fourth pack with a sixth vowel letter would
+then be wrong in a file nobody would think to look in.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "navigation.sections", "content.code.copy", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

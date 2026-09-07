@@ -1,0 +1,3174 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A library of experimental writing procedures, where the validator is the eval">
+      
+      
+      
+        <link rel="canonical" href="https://senzelden.github.io/denckring/changelog/">
+      
+      
+        <link rel="prev" href="../contributing/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Changelog - denckring</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="denckring" class="md-header__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            denckring
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="denckring" class="md-nav__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    denckring
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../showcase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Showcase
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading a report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/packs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language packs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design decisions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-english-api-multilingual-content/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. English API, multilingual content
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-check-mandatory-apply-optional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. `check` mandatory, `apply` optional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-catalogue-yaml-not-sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Catalogue in YAML, not SQLite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-language-packs-as-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Language packs as capability-declaring plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-continuous-score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Continuous `score`, not a boolean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0006-dual-licence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Dual licence: MIT code, CC BY catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0007-one-module-per-procedure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. One module per procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0008-catalogue-inside-package/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The catalogue lives inside the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0009-folding-is-a-parameter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Diacritic folding is a parameter, not a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0010-packs-via-entry-points/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Language packs are discovered through an entry-point group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0011-checkability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Checkability is a property of the procedure, not of its capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0012-syllable-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Two syllable capabilities, with the weaker one as the floor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0013-data-as-a-separate-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Linguistic data ships as separate distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0014-metre-as-satisfiability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Metre is a satisfiability question, not a comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-lexicon-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. One capability per question the lexicon is asked
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0016-one-pack-per-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. One data pack per language, and a collision is an error
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0017-devices-ship-with-their-procedures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. A device's own data ships with its procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0018-attestation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Whether the author stated the rule is its own field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0019-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Figures are alphabets read at several levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0020-corpora-are-not-shipped/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. A corpus is supplied by the reader, never by the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0021-the-transferable-part/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Implement the transferable part, not the artefact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0022-german-moves-to-a-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. German is a built-in default, not an entry point
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0023-the-german-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. The German lexicon is Wikidata Lexemes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0024-apache-two-for-the-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Apache-2.0 for the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0025-the-apply-spine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. `apply` gets the spine `check` has
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0026-the-production-surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. `_produce -> list[str]` is the primitive; `apply` returns its first result
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0027-candidates-carry-their-scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. `_produce` returns `Produced`, so a candidate can carry its score
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0028-the-graded-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. A word list graded by commonness, because a membership oracle cannot rank
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0029-the-choices-the-catalogue-promised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. Where the catalogue already offered a choice, the parameter now exists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0030-german-pronunciations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. German pronunciations come from Wiktionary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0031-devices-are-address-spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. A device is an address space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0032-the-french-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. The French lexicon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0033-the-layer-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33. The catalogue has two layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0034-french-prosody/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34. French verse is counted a line at a time
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0035-orthographic-and-phonetic-readings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35. A letter has two readings, and `requires` says which
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0036-the-elision-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36. A leading proclitic is not a noun
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0037-the-calculator-word/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37. The calculator word
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0038-german-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38. German frequency, and a source whose case survives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unreleased
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unreleased
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<p>All notable changes to this project are documented here. The format follows
+<a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and this project adheres to
+<a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="unreleased"><a href="https://github.com/senzelden/denckring/commits/main">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Core protocol: <code>Violation</code>, <code>Report</code>, <code>Meta</code> and the <code>LanguagePack</code> interface, all
+  serialising to stable JSON for non-Python callers.</li>
+<li><code>BaseProcedure</code>, a template method that validates language, capability and parameters
+  before delegating, so a procedure module cannot forget those checks.</li>
+<li>Autodiscovering registry over <code>denckring.procedures</code>, enforcing one module per
+  procedure with the module name equal to the procedure id.</li>
+<li>Catalogue of 31 sourced procedures in <code>src/denckring/data/catalogue.yaml</code>, licensed
+  CC BY 4.0, as the single source of truth for procedure metadata.</li>
+<li>English language pack, shipping in core with no data files, declaring <code>tokens</code>,
+  <code>alphabet</code>, <code>fold_diacritics</code> and <code>letter_shapes</code>.</li>
+<li>Batch 1 — twelve lexicon-free restriction procedures: <code>lipogram</code>, <code>univocalic</code>,
+  <code>tautogram</code>, <code>pangram</code>, <code>heterogram</code>, <code>palindrome</code>, <code>snowball</code>, <code>reverse_snowball</code>,
+  <code>prisoners_constraint</code>, <code>beau_present</code>, <code>acrostic</code>, <code>telestich</code>.</li>
+<li>Three-level eval harness: golden fixtures, Hypothesis strategies, and a scoreboard
+  that exits non-zero on regression.</li>
+<li>CLI: <code>check</code>, <code>apply</code>, <code>describe</code>, <code>list</code>, <code>search</code>, <code>show</code>, <code>status</code>, <code>eval</code>,
+  <code>catalogue export</code>.</li>
+<li><code>scripts/new_procedure.py</code>, which scaffolds module, test, strategy, fixture and
+  catalogue row from templates. It is a contributor tool and stays outside the package:
+  it writes into <code>src/denckring/procedures/</code> and appends to this repository's
+  <code>catalogue.yaml</code>, so as the shipped <code>denckring new</code> it put a command in every user's
+  CLI that could do nothing for them.</li>
+<li>Eight architecture decision records under <code>docs/adr/</code>.</li>
+<li>German language pack, shipping in core with no data files and discovered through the
+  <code>denckring.lang</code> entry-point group — the same path a third-party pack takes.</li>
+<li><code>fold_diacritics</code>, a per-call parameter on the nine letter-comparing procedures,
+  deciding whether <code>ä</code> counts as <code>a</code> and <code>ß</code> as <code>ss</code>. Defaults to true.</li>
+<li><code>LanguagePack.exceeds_x_height</code>, and golden cases in German for all twelve procedures.</li>
+<li>Two further ADRs, 0009 and 0010, on the fold parameter and entry-point discovery.</li>
+<li>Catalogue grown from 31 to 145 sourced entries across eight families.</li>
+<li><code>family</code>, <code>aliases</code> and <code>attribution</code> on every catalogue entry. <code>attribution</code>
+  distinguishes a traced origin (<code>primary</code>) from a form documented in a standard
+  reference (<code>reference</code>) from one with no single origin (<code>traditional</code>).</li>
+<li><code>denckring search</code> matching ids, names and aliases; <code>denckring list --family</code>.</li>
+<li><code>denckring catalogue export --format json|csv</code> emitting the dataset as a standalone
+  file, and <code>LICENSE-DATA</code> carrying the CC BY 4.0 notice.</li>
+<li>
+<p>A catalogue quality suite: every row must have a source, an English name, definition
+  and prompt hint, a family and an attribution; aliases must be unique catalogue-wide
+  and must not collide with any procedure id.</p>
+</li>
+<li>
+<p><code>checkability</code> on every catalogue entry: <code>self</code>, <code>source</code>, or <code>none</code> for forms with
+  no computable acceptance criterion. Coverage is now measured against the
+  implementable subset, so <code>denckring status</code> no longer promises a gap that cannot
+  close.</p>
+</li>
+<li>31 further procedures implemented, taking the total from 12 to 43 — letter and
+  alphabet constraints, position and repetition constraints, the end-word forms
+  (<code>sestina</code>, <code>quenina</code>, <code>pantoum</code>), and the source-relative procedures.</li>
+<li><code>SourceParams</code> and <code>denckring check --source FILE</code>, for procedures decidable only
+  against the text they were made from.</li>
+<li><code>apply()</code> on <code>cut_up</code> and <code>every_nth_word</code>, and a round-trip suite asserting that
+  <code>check(apply(text))</code> is satisfied — the seed's central property, deferred since the
+  Batch 1 spec for want of any constructive procedure.</li>
+<li><code>Constructive</code>, a runtime-checkable protocol for procedures that can generate.</li>
+<li>ADR 0011 on checkability.</li>
+<li>Syllable counting: <code>syllables.heuristic</code> in core, with <code>syllable_count</code> returning a
+  count and whether it was looked up or estimated. Every syllabic report carries
+  <code>metrics["estimated_words"]</code>.</li>
+<li><code>denckring-en-data</code>, installed by <code>pip install denckring[en]</code>, adding
+  <code>syllables.dictionary</code> from the CMU Pronouncing Dictionary (BSD-2-Clause, vendored).
+  On Bashō's frog-pond haiku, core alone estimates 13 words; with the data package,
+  none.</li>
+<li>Eight syllabic procedures: <code>haiku</code>, <code>tanka</code>, <code>senryu</code>, <code>cinquain</code>, <code>syllable_count</code>,
+  <code>monosyllabic_prose</code>, <code>hendecasyllable</code>, <code>alexandrine</code>.</li>
+<li>ADRs 0012 and 0013 on the two syllable capabilities and on data as separate
+  distributions.</li>
+<li>Rhyme and metre: <code>rhyme_key</code>, <code>rhyme_keys</code>, <code>stress_pattern</code> and <code>stress_patterns</code> on
+  the data pack, plus the <code>stress</code> capability. Twelve procedures — <code>rhyme_scheme</code>,
+  <code>iambic_pentameter</code>, <code>trochaic_tetrameter</code>, <code>blank_verse</code>, <code>heroic_couplet</code>,
+  <code>terza_rima</code>, <code>villanelle</code>, <code>triolet</code>, <code>limerick</code>, <code>shakespearean_sonnet</code>,
+  <code>petrarchan_sonnet</code>, <code>rhyme_royal</code>.</li>
+<li>Metre is checked as a satisfiability question: polysyllabic stress is fixed,
+  monosyllabic stress is free, and every listed pronunciation is searched. These are
+  the first procedures a core-only install genuinely cannot run — without
+  <code>denckring[en]</code> they raise <code>MissingCapability</code> naming the extra.</li>
+<li>ADR 0014 on metre as satisfiability, and on what strict scansion does not accept.</li>
+<li>Release machinery: GitHub Actions CI (lint, typecheck, a 3×3 test matrix, a separate
+  <code>denckring eval --all</code> gate, a core-only install job, a docs build and a distribution
+  build), tag-triggered Trusted Publishing with attestations, and Dependabot.</li>
+<li>A generated documentation gallery: one page per catalogued procedure, built from the
+  catalogue and the golden fixtures, so every worked example is one the test suite
+  enforces.</li>
+<li><code>CITATION.cff</code>, <code>SECURITY.md</code>, <code>CODE_OF_CONDUCT.md</code>, issue and pull request templates,
+  and a <code>.pre-commit-config.yaml</code> mirroring the CI lint and typecheck jobs.</li>
+<li><code>lexicon.words</code> and <code>lexicon.nouns</code> capabilities, backed by WordNet's 55,239
+  single-word noun lemmas (Princeton licence) added to <code>denckring-en-data</code>.</li>
+<li>Five procedures: <code>n_plus_7</code>, <code>s_plus_7</code>, <code>charade</code>, <code>semordnilap</code>, <code>word_square</code>.
+  N+7 reports <code>ambiguous_words</code>, because a word list cannot tell you that <em>run</em> is a
+  verb in this sentence.</li>
+<li>ADRs 0015 and 0016 on lexicon capabilities and on one data pack per language.</li>
+<li><code>apps/explorer</code>, a local FastAPI browser for the catalogue and bench for the
+  procedures. Outside the distribution: nothing published depends on it.</li>
+<li>Combinatorial devices: ordered slots of alternatives, asked either to segment a word
+  or to select one alternative per position. <code>denckring</code>, <code>cent_mille_milliards</code> and
+  <code>wechselsatz</code> implemented on it, with Harsdörffer's 1651 rings shipped in core.
+  <code>denckring</code> also generates, so spinning the rings round-trips through its own checker.</li>
+<li>Catalogue rows for <code>ars_combinatoria</code> and <code>llull_figure</code>, the tradition the Denckring
+  descends from.</li>
+<li>ADR 0017 on a device's data shipping with its procedure.</li>
+<li><code>attested</code> on every catalogue entry: <code>author-stated</code>, <code>codified</code> or <code>reconstruction</code>.
+  It records whether anyone ever set the procedure down as a rule, which <code>attribution</code>
+  — about how the source was established — does not answer.</li>
+<li><code>serial_lipogram</code>, the whole-work form attributed to Tryphiodorus and excerpted by
+  Jean Paul in 1783.</li>
+<li>ADR 0018 on attestation.</li>
+<li><code>notes</code> on catalogue entries, for contested figures, reception history and caveats —
+  so a definition can go back to being a definition.</li>
+<li>Combinatory figures: an alphabet read at several levels at once. Llull's ternary Ars
+  ships with all six of its tables, and Kircher's Ars Magna Sciendi as a preset of the
+  same mechanism. <code>llull_figure</code> checks and generates chambers; counts are computed
+  from the letters (84 ternary chambers, 36 pairs) rather than quoted.</li>
+<li>A corpus layer: <code>Corpus</code>, <code>Entry</code> and a parser reading JSON or plain text. No corpus
+  ships with the package — the loader is here, the reading is the reader's.</li>
+<li><code>ideenwuerfeln</code>, reconstructed from Jean Paul's notebook of February 1795, and
+  <code>witz_metaphor</code> catalogued as the step it stops short of. The first entries to carry
+  <code>attested: reconstruction</code>.</li>
+<li>ADR 0020 on corpora not being shipped.</li>
+<li><code>pasigraphy</code>, Kircher's universal writing: a sentence sent across a numbered
+  vocabulary, with the losses counted rather than smoothed — words with no number,
+  numbers with no entry at the far end, and words reachable from several numbers,
+  where two distinct things arrive as one. The vocabulary is supplied by the caller.</li>
+<li><code>arca_musarithmica</code>: a phrase is measured, the tablet for that length is found, and
+  the chosen pattern must be one that tablet offers. The patterns are never read, so
+  Kircher's pitch numbers and a set of stress patterns work equally well in the same
+  table. No tablet ships.</li>
+<li>ADR 0021 on implementing the transferable part of a procedure rather than the
+  artefact.</li>
+<li><code>belle_absente</code>: Perec's form, one line per letter of a dedicatee's name, each line
+  omitting exactly that letter and using every other letter of the alphabet, so the
+  missing letters read down the poem as the name itself.</li>
+<li><code>serial_lipogram</code>: the whole-work form attributed to Tryphiodorus, as many parts as
+  the alphabet has letters, the omitted letter walking one step per part. <code>paragraph_spans</code>
+  in <code>core/text.py</code> gives a part more than one line to work with, the way Tryphiodorus's
+  twenty-four books do.</li>
+<li><code>pangrammatic_window</code>: the shortest naturally occurring stretch of text holding every
+  letter of the alphabet, scored against a caller-stated <code>max_length</code> rather than a
+  hidden constant — without a bar this is <code>pangram</code> under a second name.</li>
+<li><code>paragram</code>, with a lexicon-gated generator: both halves of a one-letter word swap are
+  left in the text for <code>check</code> to find, and <code>apply</code> ranks every candidate swap by
+  pronounceability, noun membership and length instead of taking the first match.
+  Checking needs no lexicon; generating does, so <code>apply</code> carries its own capability
+  requirement rather than the catalogue row claiming one <code>check</code> never needed. The new
+  <code>NoCandidateWord</code> error is raised when the search finds nothing to swap, rather than
+  returning text with no swap in it for <code>check</code> to then reject.</li>
+<li><code>dactylic_hexameter</code>: six feet, the first four either a dactyl or a spondee, the fifth
+  a dactyl, and the sixth a spondee or trochee. This yields thirty-two readings spanning
+  13–17 syllables.</li>
+<li><code>elegiac_couplet</code>: a dactylic hexameter answered by a pentameter. The pentameter is two
+  hemiepes; only the first admits the spondee. That asymmetry is the form.</li>
+<li><code>sapphic_stanza</code>: three hendecasyllables and an adonic, 11/11/11/5.</li>
+<li><code>alcaic_stanza</code>: two hendecasyllables, an enneasyllable and a decasyllable, 11/11/9/10.</li>
+<li><code>double_dactyl</code>: two quatrains, with one line of the second being a single six-syllable
+  word. The nonsense opening, the named person and the rhyme are not checked, and the
+  docstring says so.</li>
+<li><code>renga</code>: alternating 5-7-5 and 7-7 stanzas. Its <code>links</code> parameter is a minimum, not an
+  exact count.</li>
+<li><code>haibun</code>: prose and haiku alternating.</li>
+<li>The four new metrical procedures—<code>dactylic_hexameter</code>, <code>elegiac_couplet</code>, <code>sapphic_stanza</code>,
+  <code>alcaic_stanza</code>—are checked as English accentual verse. Classical quantity is vowel length,
+  which English does not have, so stress stands in for it. This is the batch's central
+  editorial decision.</li>
+<li><code>?</code> now means "either" on the pattern side as well as the word side—the classical anceps.
+  Before, it was honoured only for a free monosyllable, so a pattern written with anceps
+  rejected every fixed-stress word at that position. Sapphics and alcaics both need it.</li>
+<li>A word not in the pronouncing dictionary no longer aborts the scan. <code>pack.stress_patterns</code>
+  raised <code>MissingCapability</code> for such a word—naming a capability the pack actually provides—so
+  one ordinary English noun killed the whole check. Longfellow's own hexameter could not be
+  checked. Unknown words now scan as free and are counted in a new <code>estimated_words</code> metric,
+  mirroring the contract the syllable path has always had. <strong>This changed previously deliberate
+  behaviour:</strong> a test named <code>test_an_unknown_word_raises_rather_than_guessing</code> was replaced.
+  Callers who want strict scanning can reject on <code>estimated_words &gt; 0</code>.</li>
+<li><code>word_stress</code>, <code>feet</code> and <code>stanza_violations</code> added to <code>core/prosody.py</code>. <code>word_stress</code>
+  handles the out-of-dictionary repair; <code>feet</code> enumerates substitutable foot readings, making
+  a metre a set of readings rather than one; <code>stanza_violations</code> applies one pattern per line,
+  since a sapphic changes shape from line to line.</li>
+<li><code>estimated_words</code> now reported by all twelve form-report callers—<code>blank_verse</code>,
+  <code>heroic_couplet</code>, <code>iambic_pentameter</code>, <code>limerick</code>, <code>petrarchan_sonnet</code>, <code>rhyme_royal</code>,
+  <code>rhyme_scheme</code>, <code>shakespearean_sonnet</code>, <code>terza_rima</code>, <code>triolet</code>, <code>trochaic_tetrameter</code>,
+  <code>villanelle</code>—where before it was computed and discarded.</li>
+<li>Catalogue rows for the five procedures that scan stress — the four metres and
+  <code>double_dactyl</code> — gained <code>stress</code> in <code>requires</code>, since scanning stress reaches
+  <code>pack.stress_patterns</code>. <code>renga</code> and <code>haibun</code> did not — they count syllables only.</li>
+<li><code>describe(id)</code> and <code>summaries()</code> in core, returning the catalogue as a machine reads
+  it: a definition, the prompt hints, whether this install can actually run the row and
+  what it lacks if not, and the parameter schema as JSON Schema. Four callers needed
+  this assembly — the CLI's <code>show</code>, the explorer, the MCP server and the skill — so it
+  lives in one place rather than being computed four times and drifting four ways.
+  <code>list_procedures()</code> is untouched: it is public and still returns <code>list[str]</code>.</li>
+<li>A stable <code>code</code> on all fourteen error classes and a <code>to_dict()</code> on the base, so a
+  failure crosses a process boundary as <code>{"code": "invalid_params", "detail": {...}}</code>
+  rather than as a traceback. A model can act on the first and cannot act on the second.
+  <code>UnknownProcedure</code> additionally carries near-match <code>suggestions</code>, so a mistyped
+  <code>lipogam</code> answers with <code>lipogram</code> instead of a dead end.</li>
+<li><code>denckring describe &lt;id&gt; --json</code> and <code>denckring list --json</code>, so the skill and any
+  other non-Python caller reach the same two functions the MCP server does. <code>--json</code>
+  refuses to combine with <code>--kind</code> or <code>--status</code>, which filter the catalogue rather than
+  the implemented set: the flag would otherwise be accepted and silently ignored.</li>
+<li>An MCP server behind <code>pip install denckring[mcp]</code>, run as <code>denckring-mcp</code>. It exposes
+  four tools — <code>list_procedures</code>, <code>describe_procedure</code>, <code>check_text</code>, <code>apply_procedure</code>
+  — taking the procedure as a parameter, rather than one tool per procedure. Eighty-six
+  tool definitions would sit in every client's context, and model performance degrades
+  sharply with tool count. No tool raises: each catches <code>DenckringError</code> and returns its
+  dictionary form.</li>
+<li>A Claude Code skill at <code>skills/denckring/SKILL.md</code>, which shells out to the CLI and so
+  needs no extra beyond the package. Both transports are deliberately thin — neither
+  computes anything, so the two cannot disagree about what a procedure is.</li>
+<li>Twenty-eight procedures implemented, taking the total from 86 to 114. Eleven fixed
+  forms: <code>sonnet</code>, <code>ottava_rima</code>, <code>spenserian_stanza</code>, <code>ballade</code>, <code>rondeau</code>, <code>ghazal</code>,
+  <code>curtal_sonnet</code>, <code>englyn</code>, <code>clerihew</code>, <code>alliterative_verse</code>, <code>assonance_constraint</code>.
+  Three clusters of source-comparison rows: letter-class (<code>homoconsonantism</code>,
+  <code>homovocalism</code>), selection (<code>diastic</code>, <code>mesostic</code>, <code>column_reading</code>, <code>haikuization</code>)
+  and rearrangement (<code>boustrophedon</code>, <code>text_folding</code>, <code>mathews_algorithm</code>). And a
+  remainder: <code>fold_in</code>, <code>univocalic_translation</code>, <code>lipogrammatic_translation</code>,
+  <code>larding</code>, <code>multiple_constraint</code>, <code>tmesis</code>, <code>spoonerism</code>, <code>word_ladder</code>.</li>
+<li><code>core/source_compare.py</code>: <code>letter_class_report</code>, <code>selection_report</code> and
+  <code>rearrangement_report</code>, the three shapes eight of this batch's rows share. Each was
+  extracted from a row already written, not designed ahead of one — <code>homoconsonantism</code>
+  was written by hand first, and writing <code>homovocalism</code> against that code showed the
+  entire body was identical but for one predicate, which is why <code>letter_class_report</code>
+  exists at all. Precedent: <code>form_report</code>, extracted from real sonnets the same way.</li>
+<li><code>lines=</code> on <code>form_report</code>, so a fixed form with a prescribed length reports
+  <code>wrong_line_count</code> and stops rather than scanning a scheme or metre against lines
+  that are already the wrong ones — matching <code>stanza_violations</code>'s existing behaviour.</li>
+<li><code>multiple_constraint</code>, Oulipo's general composite-constraint form. It replaces
+  <code>univocalic_lipogram_pair</code>, whose definition described any composite constraint
+  rather than the one pair its id named. <code>denckring search</code> finds the row under the old
+  id, under the old id written as prose, and under the row's previous published English
+  name, <em>Compound constraint</em>; all three are carried as aliases. <code>denckring show
+  univocalic_lipogram_pair</code> still raises <code>UnknownProcedure</code>, because <code>registry.get</code>
+  resolves ids and never consults aliases — but it names <code>multiple_constraint</code> as the
+  suggestion.</li>
+<li>German declared on seventeen rows, each decided on whether the procedure <em>means</em>
+  something in German rather than whether it merely runs, and each shipping a German
+  golden fixture — a declaration with no fixture behind it is an assertion, not a claim.
+  Every one also carries <code>names.de</code> and <code>definitions.de</code>, so the German a row claims
+  appears in the row a German reader reads, and a test in the catalogue quality suite
+  requires that of every declared language. <code>semordnilap</code>, which declared <code>de</code> with no
+  German name since long before this batch, is corrected with them. <code>cent_mille_milliards</code>
+  joins them from outside the batch: <code>check</code> already accepted a German poem against
+  German strips while the catalogue still declared <code>languages: [en]</code>, an assertion wrong
+  in the opposite direction from the others'. It now declares <code>languages: [en, de]</code> with
+  <code>names.de</code> and <code>definitions.de</code>, backed by a German case pair in its golden fixture —
+  a full fourteen-position poem the checker accepts, and the same poem with one line
+  swapped for an alternative from a different position, which it does not — built from
+  the real strips written for the stage scene. Rows declaring German: 38.</li>
+<li><code>tests/test_requires_honesty.py</code>, guarding <code>requires</code> in both directions. One test
+  watches through the real <code>check()</code> path whether a row's golden fixtures ever reach the
+  capabilities it declares; it caught <code>limerick</code> on its first run against every
+  implemented procedure, not just this batch's. The other runs each row's own fixtures
+  against a pack carrying exactly what the row declares and nothing more, so a row that
+  reaches further than it promised raises rather than passing quietly on the full <code>en</code>
+  pack. Their shared blind spot, documented in the module: a row that calls a
+  capability's method and discards the answer is invisible to both — the gap
+  <code>haikuization</code> fell into below.</li>
+<li><code>lexicon.glosses</code> on <code>LanguagePack</code>: every definition Open English WordNet records for
+  a word, or an empty sequence when the lexicon cannot resolve it at all. Every sense,
+  not the first — which sense a writer meant is not recoverable from the text, so a
+  reader that accepts any of them is the honest one, the same reading <code>rhyme_keys</code> and
+  <code>stress_patterns</code> already take. It costs 1.03 MB over shipping first senses only.
+  Resolution tries the word as given, then its lemma, then plain <code>s</code>/<code>es</code> stripping;
+  irregulars such as <em>went</em> stay out of reach by design and are disclosed rather than
+  guessed at.</li>
+<li><code>packages/denckring-en-data/scripts/build_lexicon.py</code>, the build the data package never
+  had. <code>nouns.txt</code> was an opaque blob extracted by hand at some point in the past with no
+  record of how; it is now generated, alongside <code>glosses.txt.gz</code> and a <code>metadata.json</code>
+  carrying source, date and row counts, by a script in the repository. A test pins the
+  shipped <code>nouns.txt</code> against what the script produces, so a hand-edit is caught rather
+  than inherited.</li>
+<li><code>kangaroo_word</code>: a word carrying a synonym of itself inside its own letters, in order
+  (<em>encourage</em> carries <em>urge</em>). It needed no thesaurus — the synonym is a <code>synonym</code>
+  parameter, the writer's claim, and what the row decides is the decidable half: that the
+  claimed synonym is a real word, hidden in order, and not the word itself.</li>
+<li><code>definitional_expansion</code>: each substantive word of the source replaced once by one of
+  its dictionary definitions. The comparison was chosen by running it against real gloss
+  text rather than at the desk — glosses carry parentheses, semicolons and colons no
+  writer retypes character for character, so a gloss counts as present when its own
+  lower-cased tokens appear as a contiguous run, punctuation and case folded away, word
+  choice and word order kept. Occurrences are counted rather than merely found: a word
+  appearing twice needs two expansions, and each match consumes the span it used.</li>
+<li><code>definitional_literature</code>: the same procedure fed back into itself, which is the form
+  Bénabou and Perec described. <code>check</code> is given the source and the finished text and
+  nothing in between, so it discovers the depth — one round, then two, then three — and
+  reports the first that accounts for every resolvable source word in an <code>iterations</code>
+  metric. Below the top level a round means "some gloss of this word has all of its own
+  substantive words present one round shallower"; word order is checked where the gloss
+  must appear as a run and not below that, because pinning the nesting positions would
+  mean parsing a text where every definition is stitched to the next with nothing between
+  them. The cap of three rounds is measured, not guessed: against a genuine three-round
+  expansion of <em>the cat sat</em> (3,679 tokens), depth 3 takes 0.15 s, depth 4 takes 18 s and
+  depth 5 takes 219 s, because the cost falls on the searches that fail and cannot stop
+  early.</li>
+<li><code>lexicon.synonyms</code> and <code>lexicon.antonyms</code> were specified, measured, and deliberately
+  not built, with the measurements recorded in the catalogue rows that wait on them
+  rather than merely omitted. WordNet synonymy is synset co-membership: of twelve
+  substitutions a writer would naturally make, five are co-members, and only four of
+  eleven content words in plain prose have any synonym at all. Antonymy is thinner still
+  — 6,633 lemmas have any antonym, and 2 of 11 content words in plain prose do. "Every
+  substantive word replaced by a synonym" is not satisfiable by ordinary text, and a
+  larger thesaurus does not change that, so <code>synonymic_substitution</code>,
+  <code>antonymic_substitution</code> and <code>antonymic_translation</code> say so in their <code>notes</code>.</li>
+<li>The code is licensed Apache-2.0 rather than MIT, decided before the first release
+  because relicensing afterwards needs every contributor's consent. What MIT does not do
+  is the reason: it asks only that a notice be retained, so a fork that keeps a line in a
+  file has met it while presenting the work as its own, and it is silent on trade marks,
+  leaving the project's name — the one thing a fork cannot take without renaming —
+  unprotected. Apache-2.0 adds a <code>NOTICE</code> every derivative distribution must carry, a
+  section reserving the name, and a patent grant. The catalogue stays CC BY 4.0, and
+  ADR 0006's data rule is untouched; ADR 0024 records the change. Per-file licence
+  headers are deliberately not used.</li>
+<li>Each distribution now declares what it actually contains rather than only what its
+  author wrote: <code>denckring</code> is <code>Apache-2.0 AND CC-BY-4.0</code> and ships <code>LICENSE-DATA</code> in the
+  wheel, so the catalogue's attribution terms reach people who install the package and
+  never see the repository; <code>denckring-en-data</code> is
+  <code>Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause</code> for Open English WordNet and the CMU
+  Pronouncing Dictionary; <code>denckring-de-data</code> is <code>Apache-2.0 AND CC0-1.0</code> for Wikidata
+  Lexemes. Both data packages gained a <code>NOTICE</code> naming which file carries which terms and
+  saying plainly that the derived lexicons are modifications of their sources.</li>
+<li>The core source distribution no longer carries the workspace members. It was 7.1 MB
+  because it bundled <code>packages/</code> and <code>apps/</code> wholesale — the CMU dictionary, the WordNet
+  glosses and the German lexicon a second time, under a licence expression that did not
+  describe them and inside a package that never reads them. Excluding both leaves 0.6 MB.
+  <code>tests/</code> and <code>docs/</code> stay, since a downstream packager building from source runs the
+  suite. <code>tests/test_packaging.py</code> builds the sdist and reads it, because a test
+  asserting that the pyproject <em>contains</em> an exclude pattern would pass while the build
+  ignored it.</li>
+<li>A stability statement in the README, naming the four surfaces treated as contracts
+  through <code>0.x</code> — procedure ids, <code>Report</code> as JSON, the catalogue export schema and the
+  <code>denckring.lang</code> entry-point group — and what is expected to move: violation <code>rule</code>
+  strings, <code>metrics</code> keys, message wording and <code>denckring.core</code>. The README already
+  promised "stable JSON for non-Python callers" and left the scope of that promise to be
+  guessed at.</li>
+<li>A naming policy in the README. Apache-2.0 section 6 reserves the name and says nothing
+  about permitted use, so the reservation is stated as something that can be complied
+  with: redistribute unmodified under the name, describe compatibility freely, rename
+  before publishing a modified version.</li>
+<li><code>denckring --version</code>. <code>__version__</code> was exported from the library and unreachable from
+  the command line.</li>
+<li><code>poesie_automat</code>, Enzensberger's Landsberger Poesieautomat: a flap-board of six lines
+  by six modules by ten alternatives, so 10^36 six-line poems. <code>check</code> cuts each line
+  into its six modules and asks whether every piece is one of that module's ten
+  alternatives; <code>apply</code> presses the button. The count is recomputed from the shipped
+  modules rather than quoted, and <code>Device.combinations</code> returns it as an integer —
+  <code>metrics["combinations"]</code> is a float and cannot hold a 37-digit number exactly.
+  Enzensberger died in 2022 and his word lists are in copyright until 2092, so all 360
+  fillers in <code>data/devices/poesieautomat_2000.yaml</code> were written for this project; the
+  mechanism is what the row catalogues, on the same footing as the substitute strips the
+  <code>cent_mille_milliards</code> fixture carries for Queneau. Three design rules make <em>every</em> one
+  of the 10^36 readings grammatical German rather than most of them: the article is
+  folded into the noun, everything after the subject is an adjunct, and every verb is
+  intransitive third person singular present. A fourth constraint is about the display
+  rather than about German: the board renders letter by letter into character cells, so
+  no filler exceeds eleven characters and no line the modules can assemble is wider than
+  71 columns — both pinned by <code>test_no_flap_is_wider_than_the_board</code>. Two further
+  constraints keep the strangeness on the right side of broken: no word reaches a line
+  from two modules, compared with German inflection folded, and each family of mutually
+  exclusive time anchors — when on the clock, since when, from when, how long ago, which
+  month — sits in one module per line, so <code>Der Frost gedeiht</code> is possible and <code>um fünf
+  ... um drei</code> is not, while roles that differ still stack.</li>
+<li>An optional <code>line</code> on <code>Slot</code>, with <code>Device.lines</code> and <code>Device.for_line</code>, so one device
+  can hold several lines. Additive: a device file that never mentions <code>line</code> — which is
+  every existing one — reads as a single line and behaves exactly as before.</li>
+<li>An optional <code>separator</code> on <code>device.segment</code>, defaulting to the empty string. The
+  Denckring's rings concatenate with nothing between them; a board whose flaps carry
+  whole words sets it to a space, and the same backtracking walk then splits a line into
+  modules rather than a second segmentation being written.</li>
+<li><code>DENCKRING_DEVICE_PATH</code>, a colon-separated list of directories <code>device.load</code> searches
+  before the packaged one — a device's word-lists no longer have to be ours. Directories
+  earlier on the path are tried first, so one can both add a new device id and shadow a
+  packaged one under an existing id, which is documented as deliberate rather than left
+  to be discovered. Unset, behaviour is unchanged: the packaged directory is still all
+  that is searched. A directory on the path that does not exist or cannot be read is
+  skipped quietly, so a stale entry does not stop a packaged device from loading. What it
+  does not add: no schema versioning beyond ordinary validation, and no record of where a
+  resolved device actually came from — a caller who needs to know whether a packaged
+  device was shadowed must control what it puts on the path, because <code>load</code> cannot say
+  so after the fact. The environment is read on every call rather than cached at import
+  time, and the on-disk read <code>load</code> used to memoise by <code>device_id</code> alone is now memoised
+  by the resolved path instead — a cache keyed on the id would have kept answering a
+  changed environment with whatever device it saw first. A device or figure id is
+  validated to a bare filename stem before it is ever joined to a directory (see Fixed,
+  below), so a cartridge lives <em>in</em> a directory on the path and cannot be addressed by
+  a path of its own; a relative directory on the path resolves against the process's
+  working directory at call time, so changing directory after setting the variable can
+  turn into silent misses under the same skip-quietly contract.</li>
+<li><code>ConstructiveProcedure</code>, the template method for <code>apply</code> that <code>check</code> has always
+  had: it resolves the pack, enforces both capability lists, validates parameters
+  and refuses output that misrepresents what ran — identical to the input, or
+  empty from input that was not — so a generator cannot forget any of it.
+  <code>parse_apply_params</code> also refuses a caller-supplied <code>source</code>: the text being
+  transformed <em>is</em> the source, so a second one names two texts for one argument,
+  and passing both now raises <code>InvalidParams</code> instead of one silently winning.
+  <code>ConstructiveProcedure.ignores_input</code> opts the three devices that never read
+  their text — <code>denckring</code>, <code>poesie_automat</code>, <code>llull_figure</code> — out of the
+  identity half alone, where the comparison is against an argument nothing read.
+  ADR 0025.</li>
+<li><code>Meta.apply_requires</code>, so a generator can declare a capability its checker does
+  not need — <code>anagram</code> generates only with a word lexicon and checks with core
+  alone, and one list could not say both.</li>
+<li><code>Description.constructive</code> and <code>Summary.constructive</code>, reporting whether <em>this
+  install</em> has a generator, distinct from <code>kind</code>, which says whether the form
+  admits one. Nine rows are honestly <code>both</code> with no generator here.</li>
+<li><code>Description.apply_params</code>, the generator's own JSON Schema beside the checker's
+  <code>params</code>, so <code>denckring describe</code> and MCP's <code>describe_procedure</code> finally show
+  <code>seed</code> and <code>allow_identity</code> — which live on <code>apply_params_model()</code> and reached no
+  non-Python surface at all. Empty for a row with no generator. The two schemas
+  stay separate because <code>source</code> is a checker parameter <code>apply</code> supplies for itself
+  and refuses from a caller.</li>
+<li><code>DegenerateOutput</code> and <code>InputTooShort</code>.</li>
+<li><code>Production</code>, <code>Report</code>'s counterpart for the generating half: <code>procedure</code>, <code>texts</code>
+  (best first, never empty), <code>truncated</code>, <code>metrics</code>. ADR 0026.</li>
+<li><code>produce()</code> on every generator, and <code>denckring.produce()</code> at the package level,
+  returning every result a generator found rather than only the first.</li>
+<li><code>denckring.apply()</code> at the package level. <code>check</code> has been exported since the
+  beginning and <code>apply</code> never was, so every Python caller reached through the
+  registry to generate anything.</li>
+<li><code>denckring apply --json</code>, emitting the <code>Production</code>, matching <code>describe --json</code>.</li>
+<li><code>max_results</code> on <code>ApplyParams</code>, defaulting to 10.</li>
+<li><code>NotConstructive</code>, replacing a dict literal the MCP server built by hand — one
+  failure mode in this package was not a <code>DenckringError</code> and could not be caught
+  with the others.</li>
+<li><code>Candidate</code> and <code>Production.candidates</code>: a result carries the metrics it was ranked
+  by, so an order a caller is asked to trust arrives with its reason attached.
+  <code>anagram</code> is the generator that needed it — its covers carry <code>words</code> and
+  <code>max_band</code>; a generator with nothing to add wraps its texts through <code>plain()</code> and
+  carries empty metrics, which is every other one so far.
+  <code>texts</code> is unchanged in meaning and value, now a computed field over <code>candidates</code>,
+  and is still what <code>apply</code> returns and what every existing consumer reads. Both are
+  named in the README's stability contract. ADR 0027.</li>
+<li><code>Produced</code>, what <code>_produce</code> hands back in place of <code>list[str]</code>: its candidates, and
+  whether it abandoned its own search budget. The spine can see that <code>max_results</code>
+  capped a result set and cannot see that a search gave up, because giving up makes
+  the set <em>smaller</em> rather than larger — <code>Production.truncated</code> is now either event.
+  ADR 0026's design spec named this case in advance; <code>anagram</code>'s node budget is it.</li>
+<li><code>lexicon.graded_words</code> on <code>LanguagePack</code>: every word with the SCOWL size band it
+  first appears at. Separate from <code>lexicon.words</code> rather than replacing it, because
+  ADR 0015's rule is one capability per question the lexicon is asked — <code>semordnilap</code>
+  and <code>charade</code> ask membership and are right to keep asking the broad oracle, and a
+  broad oracle is exactly what cannot rank. ADR 0028.</li>
+<li>
+<p><code>graded_words.txt.gz</code> in <code>denckring-en-data</code>: 77,078 words from SCOWL 2020.12.07 at
+  sizes 10 through 60, one <code>word&lt;TAB&gt;size</code> line each, 244 KB in the wheel. 60 is
+  SCOWL's own line — the largest size its documentation states it is confident holds
+  no misspellings — and nothing above it ships, so <code>anagram</code>'s <code>max_size</code> is capped at
+  60 rather than promising bands the data does not hold. <code>*-proper-names</code> and
+  <code>*-abbreviations</code> are excluded, which is the point: they are why <code>known_words()</code>
+  cannot tell <code>room</code> from <code>romito</code>. Of the 26 single letters, only <code>a</code> is kept, on
+  SCOWL's bands rather than on an intuition. <code>scripts/build_graded_words.py</code> is the
+  derivation, the whole of SCOWL's <code>Copyright</code> file ships as <code>LICENSE-SCOWL</code>, and the
+  package's licence expression gains <code>HPND-sell-variant</code>.</p>
+</li>
+<li>
+<p><code>dictionary</code> on <code>NPlus7Params</code>, the ordered list N+7 and S+7 displace within,
+  defaulting to the pack's nouns. It sits on the <strong>check</strong> model rather than the
+  apply model so both halves walk the same list; a generator displacing through a
+  list its own checker could not see is the defect class the round-trip property
+  exists to catch. The row's definition has said "the seventh noun following it in
+  <em>a chosen dictionary</em>" since it was written, and until now there was no choice.
+  Entries are validated as non-empty and single alphabetic words, which is ADR
+  0015's rule for <code>nouns()</code> for the same reason. A supplied list is matched
+  casefolded and nothing more: <code>pack.noun_index</code> lemmatises and a bare list has no
+  lemmatiser behind it. <code>SPlus7Params</code> now inherits <code>NPlus7Params</code> whole instead of
+  restating <code>offset</code>, so it gains the field with it. A dictionary does <strong>not</strong>
+  unlock either row for a language whose pack has no noun list — capabilities are
+  enforced before parameters are parsed — and ADR 0029 names conditional
+  capabilities as what would fix that.</p>
+</li>
+<li><code>ambiguous_nouns</code> on the same two rows: <code>free</code> (the default, and what shipped
+  before), <code>undecidable</code> or <code>strict</code>, deciding what an unchanged word that the
+  dictionary lists does to the score. A word list cannot tell you that <em>run</em> is a
+  verb in this sentence, so accepting the position was a policy, reported as
+  <code>ambiguous_words</code> and chosen by nobody. The three names are
+  <code>RhymeParams.unknown_rhyme</code>'s, which answers the same shape for a different
+  undecidable. <code>ambiguous_words</code> counts the position under every reading, so the
+  metric does not depend on which one was asked for. Under <code>undecidable</code>, a text
+  whose every position is undecided returns an <code>ambiguous_nouns_undecidable</code>
+  violation rather than scoring a vacuous 1.0 over nothing weighed.</li>
+<li><code>allow_subset</code> on <code>AnagramParams</code>, accepting the transposal convention — a
+  candidate built from <em>some</em> of the source's letters. Also on the check model, and
+  for the same reason. It relaxes one half only: a shortfall stops being a
+  violation, a surplus letter never does, since relaxing both leaves a check no text
+  could fail. A candidate with no letters against a source that has some fails as
+  <code>empty_transposal</code> rather than scoring 1.0 on a zero denominator. Each cover now
+  carries <code>letters_used</code> in its <code>Candidate</code> metrics beside <code>words</code> and <code>max_band</code>.
+  ADR 0029.</li>
+<li><code>FrenchPack</code>, the third built-in default beside English and German (ADR 0022's
+  shape), carrying no data files and declaring <code>tokens</code>, <code>alphabet</code>,
+  <code>fold_diacritics</code> and <code>letter_shapes</code>. <code>œ</code> and <code>æ</code> fold to <code>oe</code> and <code>ae</code>
+  explicitly, because neither has a casefold mapping or an NFKD decomposition the
+  way <code>ß</code> does. 70 of the 119 implemented rows run in French on core alone; the
+  other 49 want <code>syllables.heuristic</code> (29 rows), <code>phonemes</code> (21), <code>stress</code> (17),
+  <code>lexicon.words</code> (6), <code>lexicon.glosses</code> (2) or <code>lexicon.nouns</code> (2). There is no
+  <code>denckring[fr]</code> distribution, and this is not one.</li>
+<li><code>Description.runs_in</code>, the languages <em>this install</em> can actually check a row in,
+  computed from the packs' capabilities rather than authored. Distinct from
+  <code>languages</code>, which is the row's editorial scope — <code>wechselsatz</code> is German by
+  nature, not merely by capability — and the two visibly diverge on <code>anagram</code>,
+  which is <code>languages: [en]</code> and runs in all three. Two fields answering two
+  questions is a surface a reader can confuse; one field could not answer both.</li>
+<li>ADR 0029 on all of the above, and an amendment banner on ADR 0028, whose ranking
+  paragraph describes three keys where <code>allow_subset</code> made four.</li>
+<li>German counts syllables. <code>GermanPack</code> gains <code>syllables.heuristic</code>, which it never
+  had — it inherited the raising stub, so every syllabic form in the catalogue was
+  unreachable in German. Vowel-group counting, always reporting itself as estimated.
+  Deliberately simpler than the English heuristic rather than a port of it: a final
+  "e" is pronounced in German, so the silent-e rule and the <code>-le</code> rule that exists to
+  compensate for it are both dropped, and the diphthongs need no special case because
+  each is already a run of adjacent vowels. It undercounts a vowel sequence spanning a
+  morpheme boundary — <code>Museum</code> gives 2 where German says 3 — which a test pins rather
+  than leaves to be found later. German goes from 78 of 119 runnable rows to 89.</li>
+<li>German runs every row. <code>denckring[de-wiktionary]</code>, a fourth distribution, vendors
+  837,689 pronunciations and 179,831 glosses extracted from the German Wiktionary dump,
+  giving the German pack <code>phonemes</code>, <code>stress</code>, <code>syllables.dictionary</code> and
+  <code>lexicon.glosses</code>. <strong>German goes from 89 of 119 runnable rows to 119</strong>, and
+  <code>denckring eval --all</code> from 365 passing cases to 401. Syllable counts and stress are
+  read off the transcription rather than sourced separately, so <code>stress</code> can never be
+  present without <code>phonemes</code>. Measured 94.0% token coverage over 340,958 tokens of
+  Wieland, Goethe, Kafka and Mann; the residue is pre-1901 orthography and proper names.
+  ADR 0030.</li>
+<li><code>denckring-de-data</code> gains a <code>pack()</code> factory, and the <code>de</code> entry point resolves to it
+  rather than to a class. Core refuses two packs claiming one language and ADR 0013
+  forbids merging CC BY-SA data into a CC0 distribution; a factory satisfies both, and
+  every pack's <code>capabilities</code> stays a fixed <code>ClassVar</code> rather than becoming computed.</li>
+<li>36 German golden cases across 30 rows, including Goethe's opening hexameter from
+  <em>Hermann und Dorothea</em>, Voß's from the <em>Odüssee</em> and Heine's trochaic tetrameter,
+  which scan under the checkers unmodified.</li>
+<li><code>proteus_verse</code>, the 120th implemented procedure and the 28th generator. A line whose
+  words permute into many metrically valid variants: <code>check</code> asks that the line scans as
+  written <em>and</em> that its words admit at least <code>minimum</code> orderings that also scan,
+  scored separately because a writer can fix them separately. <code>produce</code> returns the
+  orderings. Voß's opening hexameter admits 1,728 of its 40,320.
+  No new prosody abstraction: the scansion is <code>core.prosody</code>'s, and the handover that
+  proposed a <code>Meter</code>/<code>Syllabifier</code> pair was answered by what already existed — a pack's
+  <code>stress_patterns</code> already returns every reading a word has, which is the ambiguity
+  that proposal existed to model. The factorial is guarded by counting rather than
+  enumerating: a walk over (words placed, syllables filled) is bounded by 2^n where
+  scanning each ordering is n! * 32, and lines above <code>max_words</code> are refused rather
+  than searched.</li>
+<li><code>InputTooLong</code> takes the noun it counted. It said "letters" unconditionally, which is
+  right for <code>anagram</code> and wrong for a row that rearranges words.</li>
+<li>A device is an address space. <code>Device.at</code> and <code>Device.address</code> are the two directions
+  of its index — Piṅgala's <em>naṣṭa</em> and <em>uddiṣṭa</em>, which makes the odometer reading an
+  attested procedure rather than a modern gloss — over the mixed base <code>Device.radix</code>.
+  The first slot is the most significant digit, stated as a choice because sources
+  differ. <code>Abbildung</code> is reading 52,699 of Harsdörffer's 103,680,000.</li>
+<li><code>Device.mask</code> records which readings are attested, after al-Khalīl's <em>muhmal</em> marking:
+  enumerate the space, then flag which members are real. <code>hold</code> is the default because
+  it is what the source does. <code>denckring apply</code> reads it under <code>attestation: mask</code>, and
+  refuses in both directions — a device with no mask, or a pack that cannot answer.
+  Measured: 0 of 20,000 spins of the rings is a word the German lexicon knows, while
+  4.40% of German nouns are spellable on them.</li>
+<li><code>denckring</code> spins <code>max_results</code> times rather than once, because a generator that flags
+  which of its own outputs are real needs more than one to flag.</li>
+<li><code>Device.disputed_totals</code> carries the counts the literature asserts that the inventory
+  does not support, with who asserts each. <code>combinations</code> stays computed. ADR 0031.</li>
+<li><code>hemeling</code>, the 155th catalogued row and the 121st implemented. Johann Hemeling's
+  <em>Arithmetische Letter- oder BuchstabWechslung</em> (1653) asks for an anagram of a name
+  <em>und durch Reime zu erklähren</em> — explicated beneath it in rhymed verse — and both
+  halves are mechanically checkable, which is what makes it the tightest rule in the
+  surveyed European material. The first line is judged by <code>anagram</code>'s multiset
+  comparison and the rest by <code>rhyme_scheme</code>'s scheme walk, imported rather than
+  reimplemented, so a text this row accepts is one those two accept. The halves are
+  scored separately, so a broken rhyme over a sound anagram reads 0.5 and says which.
+  The primary text has not been consulted; Kilcher, who read it, is named in the source.</li>
+<li><code>docs/expansion_ideas/</code> is excluded from the source distribution, on the argument the
+  existing exclusions already make: those are working documents — proposals, handovers
+  and research notes addressed to whoever picks the work up — not documentation of what
+  this package does. They stay in git, because the ADRs cite them.</li>
+<li>The sdist bound is raised from 1,000,000 to 1,200,000 bytes, by maintainer decision
+  after chapter 4 crossed the old one for real. A side effect worth naming: the whole
+  suite now passes on a working tree, where <code>test_the_sdist_stays_small</code> had failed
+  locally and passed in CI for as long as the bound existed — the untracked 68 KB blob
+  the local build swallows no longer pushes the archive over. The new number is a stated
+  trade: 236,778 bytes of prose headroom against roughly 13,000 bytes of margin on the
+  other side, which is what still lets the bound catch the smallest vendored data file
+  being re-included. There is no per-file bound that separates the two, because
+  <code>uv.lock</code> is larger than <code>graded_words.txt.gz</code>.</li>
+<li><code>docs/expansion_ideas/</code> is now kept out of the sdist by a name-based test as well as by
+  the size bound, since a raised bound would let a silent re-inclusion fit underneath it.</li>
+<li><code>Device.from_text</code> builds rings from a text the reader supplies, with
+  <code>scripts/rings_from_text.py</code> writing one out for the <code>DENCKRING_DEVICE_PATH</code> cartridge
+  path — so <code>denckring apply poesie_automat -p device=notes</code> runs on rings drawn from
+  <code>notes.txt</code>. Deterministic, because <code>check</code> and <code>apply</code> derive it separately: falling
+  frequency, ties broken by first appearance. Words are dealt round-robin so every ring
+  spans the frequency range rather than the first ring holding the commonest words.
+  <strong>No catalogue row</strong>: the technique has no historical precedent, and neither
+  <code>attribution</code> nor <code>attested</code> has a value meaning "contemporary, with no source".
+  Amendment to ADR 0031.</li>
+<li><code>release.yml</code> gains a TestPyPI rehearsal on <code>workflow_dispatch</code>. PyPI refuses a
+  re-upload of a version that already exists, so without one the first genuine <code>v*</code> tag
+  would also be the first time this workflow had ever run end to end.</li>
+<li><code>release.yml</code>'s <code>docs</code> job runs <em>before</em> <code>publish</code> rather than after it. As written, a
+  docs failure left the release on PyPI and undocumented, and unrecoverable — and
+  <code>mkdocs gh-deploy</code> fails outright on a private repository, so the old order guaranteed
+  the first release would publish and then go red.</li>
+<li>Three docstrings that counted the generators no longer do. The worst was the
+  <code>apply_procedure</code> MCP tool description, read by callers at call time, which said
+  twenty-seven while the twenty-eighth was landing; <code>list_procedures</code> answers it exactly
+  and cannot go stale.</li>
+<li><code>denckring-fr-data</code>, installed by <code>pip install denckring[fr]</code> — a fifth distribution
+  giving French <code>lexicon.words</code>, <code>lexicon.nouns</code>, <code>lexicon.glosses</code> and
+  <code>lexicon.graded_words</code>: 125,343 words, 44,746 nouns, six frequency bands and 510,973
+  gloss headwords. <strong>French goes from 70 to 80 of the 121 implemented rows</strong>, unblocking
+  <code>charade</code>, <code>definitional_expansion</code>, <code>definitional_literature</code>, <code>kangaroo_word</code>,
+  <code>n_plus_7</code>, <code>s_plus_7</code>, <code>semordnilap</code>, <code>tmesis</code>, <code>word_ladder</code> and <code>word_square</code>, with
+  22 golden cases across eleven rows. <code>denckring eval --all</code> goes from 417 to 439.
+  Two sources, both CC BY-SA 4.0, so one distribution rather than German's two: Lexique
+  3.82 for membership, nouns and frequency, and the <code>frwiktionary</code> dump for definitions.
+  French registers its own entry point resolving to a class, not to a <code>pack()</code> factory —
+  there is no second French distribution to choose between. ADR 0032, which records why
+  Wikidata Lexemes could not carry it: 12,768 French noun lexemes against German's
+  188,948, 6.8%, measured before anything was built.</li>
+<li>French is the second pack with <code>lexicon.graded_words</code>, so <code>apply anagram</code> now runs in
+  it. Lexique's frequencies are inverted at build time into SCOWL's direction, where
+  larger means <em>less</em> common, because that is what the capability's contract says and
+  what <code>anagram</code> sorts by; a test pins the direction. The bucketing into six bands is
+  arbitrary — Lexique gives a continuous frequency — so roughly 20,900 words share each
+  band with no ordering inside it, which is coarser than English's editorially-graded
+  bands.</li>
+<li>A <code>french-without-data</code> CI job, mirroring <code>german-without-pronunciations</code>: the
+  data-free French install is a real shape the suite never runs, and a lexical row in it
+  must refuse by naming <code>lexicon.nouns</code> rather than guessing.</li>
+<li><strong>French declares no prosody, and 41 rows stay blocked — 18 of them permanently.</strong>
+  Lexique's <code>orthosyll</code>, <code>phon</code> and <code>syll</code> columns are present and deliberately unused:
+  the 23 syllabic rows need a line-level count, because a French mute <em>e</em> counts before a
+  consonant, elides before a vowel and never counts at line end, so summing citation
+  forms undercounts systematically. The other 18 are accentual metres and French has no
+  lexical stress, so no future data source closes them. ADR 0032 D5.</li>
+<li><code>MissingCapability</code> now names <code>pip install denckring[fr]</code> as the remedy for a French
+  lexicon row, and <code>denckring.lang</code>'s docstring no longer says no such extra exists.
+  Both were true when written and were falsified by the distribution above.</li>
+<li><code>LanguagePack.line_syllables</code>, a pack answering how many syllables are in a whole
+  <strong>line</strong> and how many of its words were estimated. <code>BasePack</code> implements it as the
+  per-word sum <code>syllable_count.line_syllables</code> ran inline before, so English and German
+  are unchanged by construction and a test asserts it. French overrides it, because a
+  French final mute <em>e</em> is a syllable before a consonant, elides before a vowel or a
+  mute <em>h</em> and never counts at the end of a line — Lexique gives <code>femme</code>, <code>une</code>, <code>belle</code>
+  and <code>porte</code> all one syllable in citation form where verse frequently wants two. ADR
+  0034 D1; the seam is on the pack because "how long is this line" is a question about
+  the language.</li>
+<li><code>denckring-fr-data</code> gains <code>phonemes</code>, <code>syllables</code>, <code>syllables.dictionary</code> and
+  <code>syllables.heuristic</code> from a 125,653-row table of Lexique's <code>nbsyll</code>, SAMPA <code>phon</code> and
+  <code>orthosyll</code>, plus a 3,370-entry aspirated-<em>h</em> list Lexique cannot supply — extracted
+  from <code>{{h aspiré}}</code> in frwiktionary and expanded through Lexique's <code>lemme</code> column,
+  which adds only 85 forms but among them <code>hais</code>, the high-frequency verb forms verse
+  actually uses. <strong>French goes from 80 to 103 of the 121 implemented rows</strong>, unblocking
+  all 23 syllabic ones — <code>alexandrine</code>, <code>arca_musarithmica</code>, <code>assonance_constraint</code>,
+  <code>cinquain</code>, <code>clerihew</code>, <code>englyn</code>, <code>ghazal</code>, <code>haibun</code>, <code>haiku</code>, <code>hemeling</code>,
+  <code>hendecasyllable</code>, <code>limerick</code>, <code>monosyllabic_prose</code>, <code>renga</code>, <code>rhyme_scheme</code>,
+  <code>rondeau</code>, <code>senryu</code>, <code>spoonerism</code>, <code>syllable_count</code>, <code>tanka</code>, <code>terza_rima</code>, <code>triolet</code>
+  and <code>villanelle</code> — with 48 golden cases across them. <code>denckring eval --all</code> goes from
+  439 to 487. <strong>French is the first pack that can honestly declare <code>syllables</code></strong>: the
+  capability means a segmentation of the written word, <code>orthosyll</code> is one
+  (<code>car-ros-se</code>), and ADR 0030 removed the same capability from <code>denckring-en-data</code>,
+  which had declared it and never implemented it. ADR 0034.</li>
+<li><strong>The French line count is an estimate and always will be (<code>exact=False</code>).</strong> Diérèse
+  is etymological rather than spelling-derived, and the rule that ships is narrow: a
+  glide after any consonant, gated on the <code>-ion(s)</code> suffix or the <code>dia-</code> prefix. Its
+  measured effect is <strong>Racine's <em>Mithridate</em> 89.3% → 90.3% and Hugo's <em>Hernani</em> 79.3% →
+  80.2%</strong> of interior alexandrines scored at exactly twelve, against ceilings of 96.6%
+  and 84.8% for a perfect per-site oracle — <strong>1.0 of the 7.3 points available on Racine,
+  short of the 94% accept bar, and recorded as a STOP rather than a success.</strong> The
+  chapter plan's own proposed rule (a glide after a consonant cluster ending in a
+  liquid) measured 84.5%/74.7%, five points <em>below</em> doing nothing. ADR 0034 D5 records
+  the failed variants so the plausible ones are not proposed again.</li>
+<li><strong>French coverage stops at 103, and the remaining 18 rows are blocked on <code>stress</code>
+  alone</strong> — now measured mechanically against <code>meta.requires</code> rather than projected.
+  They are accentual metres and French has no lexical stress, so no data source closes
+  them. ADR 0034 D3, confirming ADR 0032 D5.</li>
+<li>The <code>french-without-data</code> CI job now also asserts that a syllabic row (<code>alexandrine</code>)
+  refuses by naming <code>syllables</code> and a rhyme row (<code>rhyme_scheme</code>) by naming <code>phonemes</code>.
+  The second has no other home: French gaining <code>phonemes</code> means no installed pack lacks
+  that capability any more, so <code>tests/test_prosody_robustness.py</code> moved its refusal test
+  to <code>sonnet</code>/<code>stress</code> and a core-only install is the last place a phonemes refusal
+  runs at all.</li>
+<li><strong><code>layer</code> on every catalogue row — <code>verfahren</code> or <code>instrument</code> — and a second counter
+  beside the five-part coverage line.</strong> ADR 0033 took the split with no instrument entry
+  in hand; this implements its D1 and D3 and still adds no row, so <code>denckring status</code>
+  prints the unchanged <code>155 catalogued · 130 implementable · 121 implemented · 121
+  validated · 25 not mechanically checkable</code> and then <code>0 instruments catalogued</code>. The
+  zero is printed rather than hidden, because a counter at zero is the expected state
+  after that ADR and a line that appeared from nowhere with the first instrument would
+  read as a regression. Every field of <code>Coverage</code> counts <code>verfahren</code> alone — including
+  <code>implemented</code>, which is now the registry intersected with the <code>verfahren</code> ids, so an
+  instrument shipping a checker of its own could not move the denominator that every
+  coverage figure in ADRs 0025 through 0032 was recorded against. <code>catalogue.ids()</code>
+  unnarrowed still returns both layers: <code>list</code>, <code>search</code> and <code>export</code> describe the whole
+  dataset, and only the counters read one layer at a time.</li>
+<li><strong><code>LanguagePack.vowel_inventory()</code></strong>, the base vowel letters a language names, split out
+  of <code>vowels()</code> — which answers a different question and therefore carries the accented
+  forms. All three packs inherit <code>aeiou</code> and none overrides. <code>vowels()</code> keeps its name and
+  its meaning because <code>word_ladder._alphabet</code> widens an alphabet with it and asks nothing
+  about vowelhood; the five other call sites do ask, and keep the written set, which is the
+  orthographic reading ADR 0035 D2 entitles them to. The third reading the one method was
+  conflating — a contextual, phonetic
+  classification, where <code>y</code> in <code>yoyo</code> is a consonant — is designed and deliberately <strong>not</strong>
+  built: ADR 0035 D2 licenses it for <code>spoonerism</code> alone, the one row declaring <code>phonemes</code>,
+  and D5 records that <code>_letter_onset</code> still splits on flat <code>vowels()</code> membership until then.</li>
+<li><code>calculator_word</code> — a word a seven-segment display can write, entered as digits and read
+  by turning the machine over: <code>7353</code> is <code>ESEL</code>. The 156th catalogued row and the first
+  whose constraint is a property of a machine rather than of an orthography or a lexicon.
+  Checks a text against a <code>digits</code> parameter, generates by partitioning a digit string
+  into <code>words</code> segments, and runs in all three languages with no new data. ADR 0037
+  records the three decisions a reader would otherwise take for defects: the folk <code>2 → Z</code>
+  is refused because <code>2</code> is rotationally symmetric on a seven-segment display, which costs
+  roughly half the corpus in every language; <code>fold_diacritics</code> defaults to <code>false</code> on this
+  row alone, because a calculator cannot write <code>Geheiß</code> or <code>blessé</code>; and <code>6</code> and <code>9</code> both
+  give <code>G</code>, so <code>apply</code> is not the inverse of <code>check</code> for about a third of every corpus.</li>
+<li><code>denckring-de-frequency</code>, a sixth distribution: German frequency bands from the
+  Leipzig Corpora Collection, under CC BY. 101,296 graded words, 434 KB, between
+  English's 77,078 and French's 125,343. It gives German <code>lexicon.graded_words</code>, so
+  <code>apply anagram</code> runs in German — <code>Lebensmittel</code> → <code>mitbestellen</code>. ADR 0038 records
+  the case rule it turns on: German capitalises common nouns, so a noun is counted only
+  from a corpus's capitalised rows, and a source that lowercases everything cannot tell
+  German <code>Tag</code> from English <code>tag</code> at all.</li>
+<li><code>denckring.core.calculator</code> — the display table and its two pure functions, shared by
+  the procedure and the explorer's stage scene so neither imports the other's internals.</li>
+<li>A ninth stage scene for it, drawing seven real segments per digit and rotating the whole
+  display, so the digits and the letters a viewer reads are the same marks. It carries a
+  keypad of its own — <code>7 8 9 / 4 5 6 / 1 2 3 / 0</code>, a real machine's layout — and arrives
+  showing the number rather than the word, so turning it over is the viewer's gesture and
+  not the page's opening state. Pressing a key redraws the display in the browser and
+  clears the previous verdict; every judgement still comes from the library. <code>2</code> is on
+  the keypad and worth pressing: it lights like any other digit and yields no letter,
+  which is ADR 0037 D2 made pressable rather than argued.</li>
+<li>Coverage is enforced rather than reported: CI fails below 97%, the figure the README's
+  badge states, so the badge cannot drift from the code without the build going red.
+  Measured 97.1% — 6,015 of 6,194 statements.</li>
+<li><code>Description.untranslated</code>, naming the fields served in a substitute language. Localisation
+  has always fallen back to English silently and per field — measured over 155 rows, <code>names</code>
+  de 95 / fr 98, <code>definitions</code> de 95 / fr 95, <code>prompt_hints</code> de 4 / fr 0 — so a French caller
+  received English prose in a field typed as French with nothing marking it.</li>
+<li><strong>Over MCP</strong> — an explorer page where a local model uses denckring's own MCP tools.
+  The first consumer this repository has for that server, and a real stdio client rather
+  than an in-process shortcut. Only <code>gemma4</code> of the four installed Ollama models can call
+  tools at all; the three German and European ones are listed with Ollama's own reason for
+  refusing them. <code>explorer/models.py</code> is a second model provider beside the Anthropic one.</li>
+<li>An overview recording — <code>docs/showcase/</code> — of the catalogue, all nine stage scenes and
+  two live MCP tool calls, produced by <code>apps/explorer/tests/browser/overview-gif.mjs</code> and
+  <code>scripts/build_overview_gif.py</code>. On the documentation site, out of the sdist.</li>
+<li><code>apply_procedure</code> over MCP now returns <code>candidates</code> and <code>metrics</code> alongside <code>texts</code>.
+  Without them ADR 0031's <code>attestation: "mask"</code> was a no-op over that surface, since the
+  mask's entire output is a per-word mark on <code>Candidate.metrics</code>.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>slenderizing.apply(..., fold_diacritics=false)</code> now refuses where it used to return
+  text.</strong> The old <code>_produce</code> ignored the parameter and always folded, so
+  <code>apply("Bäh", lang="de", deleted="a", fold_diacritics=False)</code> returned <code>"Bh"</code> — deleting
+  a letter through the very fold the caller had switched off. It now raises
+  <code>DegenerateOutput</code>, because with folding off <code>ä</code> is <code>ä</code>, the text holds no <code>a</code>, and the
+  slenderizing of it is the text itself — which is also the answer <code>_check</code> gives, so the
+  refusal is the two agreeing for the first time. ADR 0035, Consequences.</li>
+<li>Twenty-five fillers in <code>data/devices/poesieautomat_2000.yaml</code> — published data, CC
+  BY 4.0 — replaced, because assembled they read as camp and confinement imagery.
+  Twenty-four were of that family: <code>der Zaun</code>, <code>am Zaun</code>, <code>Die Mauer</code>, <code>Die Sperre</code>,
+  <code>auf Posten</code>, <code>die Wache</code>, <code>die Rampe</code>, <code>das Gleis</code>, <code>Das Lager</code>, <code>im Lager</code>,
+  <code>im Graben</code>, <code>im Moor</code>, <code>in Ketten</code>, <code>in Trümmern</code>, <code>in Flammen</code>, <code>unter Zwang</code>,
+  <code>aus Draht</code>, <code>mit Draht</code> and <code>Der Draht</code>, plus <code>Das Gitter</code> (<em>hinter Gittern</em>),
+  <code>in Deckung</code>, <code>die Kammer</code>, <code>die Sirene</code> and <code>brennt</code>, the last five found by
+  sweeping rather than listed. Each is innocent read alone — a loading ramp, a
+  warehouse, a railway track, a watch, a fence — and the defect was never one flap
+  but what a board of 10^36 readings eventually sets beside what. That is countable
+  exactly rather than by sampling, because a line is six modules of ten and the
+  per-module counts convolve: of the 6,000,000 lines the board can assemble,
+  1,633,120 (27.2%) carried at least one of these words and 244,620 (4.08%) carried
+  two or more, which put 22.686% of all 10^36 poems — better than one poem in five —
+  on the wrong side of it. Over the replaced file both figures are 0. Nobody can read
+  10^36 combinations, so the guard is to keep the material out of the modules rather
+  than to look for it in the output, and the device header now carries that as a
+  seventh constraint, marked as resting on judgement rather than on a test — as, it
+  also now records, the fourth rule already did, there being no test in this
+  repository for the ADV prohibition either.</li>
+<li>The twenty-fifth, <code>ohne Zeugen</code>, went on a neighbouring ground: beside <code>Die
+  Anzeige</code>, which is a notice and a display and also a criminal complaint, it read as
+  a denunciation, in 1.00% of that line's 1,000,000 readings — 10,000 of them. It is
+  now <code>ohne Strom</code>. Everything about the machine is unchanged: every module still
+  holds ten alternatives, <code>Device.combinations</code> is still exactly 10^36, no filler
+  exceeds eleven characters, no line's assembled width rose, all 360 stay distinct
+  case-folded, and the six schemas, the three grammaticality rules and the ADV rule
+  are untouched. <code>kippt</code>, which replaced <code>brennt</code>, is the only one of the thirty
+  verbs that is ambitransitive; rule 3 holds for all 10^36 readings anyway, because
+  no schema offers a verb an object, and the header records the exception. The second
+  positive golden fixture spun four of the replaced flaps and was rewritten to the
+  same seed's new reading, which leaves both properties its <code>source</code> claims —
+  disjointness from the first fixture and no repeated word stem — true and re-derived
+  on every run.</li>
+<li><strong>Breaking:</strong> <code>seed</code> is a parameter on <code>SeedParams</code> rather than a keyword in the
+  <code>Constructive.apply</code> signature, carried only by the ten procedures that draw at
+  random. A keyword named in the signature bound before <code>**params</code>, so <code>seed</code> was
+  never validated and all 27 generators accepted <code>seed="not-an-int"</code>. Passing
+  <code>seed</code> to a procedure that does not draw now raises <code>InvalidParams</code> instead of
+  being silently ignored. <code>lang</code> remains a reserved keyword on the same signature
+  for the same reason — no params field may be named <code>lang</code> either, and
+  <code>ApplyParams</code> now says so.</li>
+<li><strong>Breaking:</strong> <code>spoonerism</code> raises <code>InputTooShort</code> rather than <code>NoCandidateWord</code>
+  for a text of fewer than two words, and <code>ideenwuerfeln</code> raises it rather than
+  <code>MalformedCorpus</code> for a corpus holding fewer entries than a throw needs. Both
+  were the shape <code>recombination</code> already raised <code>InputTooShort</code> for, so the code a
+  caller retries on depended on which procedure they had called. <code>NoCandidateWord</code>
+  keeps its narrower meaning — enough units, none of them suitable — and
+  <code>MalformedCorpus</code> keeps <code>corpus.parse</code>'s: unreadable, not merely small.
+  <code>InputTooShort</code>'s message now ends on a remedy, as the other errors do, and
+  counts its units in English rather than reading "0 line".</li>
+<li><strong>Breaking:</strong> <code>ConstructiveProcedure.apply_params_model()</code> is abstract. It used
+  to synthesise the checker's model widened by <code>ApplyParams</code>; all 27 generators
+  declare their own, so the default had no caller and carried an MRO trap.</li>
+<li><code>boustrophedon</code>, <code>cent_mille_milliards</code>, <code>recombination</code> and <code>wechselsatz</code> raise
+  <code>InputTooShort</code> where they used to return their input unchanged. <code>wechselsatz</code>
+  raises it twice over: once for a frame offering no choice at all, and once for
+  a frame whose alternatives the tokenizer used to check the result cannot read
+  back as single words — a gap <code>_apply</code>'s <code>drawable</code> filter now closes by simply
+  never drawing such an alternative, which is itself a known, accepted cost
+  documented in the code and deferred to chapter 2.</li>
+<li><code>apply_procedure</code> (MCP) returns <code>texts</code> and <code>truncated</code> alongside <code>text</code>. Additive:
+  <code>text</code> keeps its meaning and value as the first of <code>texts</code>.</li>
+<li><code>paragram</code> returns every candidate it scores, best first, where it scored them all
+  and returned one. <code>apply</code>'s result is unchanged.</li>
+<li><code>apply_procedure</code> (MCP)'s <code>message</code> for a non-constructive procedure, from a
+  hand-built sentence to <code>NotConstructive</code>'s own wording, which additionally points a
+  caller at <code>constructive</code> in <code>describe_procedure</code>. <code>code</code> and <code>detail</code> are unchanged.</li>
+<li><strong>Breaking for anyone who has written a generator:</strong> <code>_produce</code> returns <code>Produced</code>
+  rather than <code>list[str]</code>. All 27 generators moved with it; <code>denckring.core</code> was
+  already outside the stability statement, and this is what that clause is for.</li>
+<li>
+<p><strong>Breaking:</strong> the identity guard compares casefolded text, so output differing from
+  its input only in capitalisation is refused. <code>word_ladder.apply("Cat",
+  target="cat")</code> now raises <code>DegenerateOutput.IDENTICAL</code> where it returned <code>"cat"</code>.
+  <code>apply("cat", target="cat")</code> already raised, so the change makes that row
+  consistent with itself rather than taking anything away.</p>
+</li>
+<li>
+<p><code>get_pack("fr")</code> returns a pack instead of raising. <strong>Breaking for anyone catching
+  <code>UnknownLanguage</code> on <code>"fr"</code>:</strong> <code>check(..., lang="fr")</code> on a row needing only core
+  capabilities now runs, and on a row needing a lexicon it raises <code>MissingCapability</code>
+  naming the capability rather than <code>UnknownLanguage</code> naming the language. <code>Lang</code> has
+  been <code>Literal["en", "de", "fr"]</code> since the first release and every catalogue row
+  carries a French name and definition, so the old error pointed at
+  <code>denckring[fr]</code> — a distribution that does not exist and was never planned. The
+  failure moves to the right layer; it does not go away.</p>
+</li>
+<li><code>MissingCapability</code>'s remedy is conditional on a data distribution existing.
+  It interpolated the language into <code>pip install denckring[{lang}]</code>, which was
+  harmless while every language reaching it had a package and became a false promise
+  the moment French did not: the 49 rows a French caller cannot run were each
+  pointing at <code>denckring[fr]</code>, which does not exist. English and German keep the
+  install hint; anything else now reads "No data distribution supplies it for 'fr'".
+  The <code>code</code> (<code>missing_capability</code>) and <code>detail</code> are unchanged, so a caller matching
+  on either is unaffected; one matching on <code>message</code> text for a language with no
+  extra is not. Untouched and older than this: naming a language's extra still
+  assumes that extra supplies the capability, and <code>denckring[de]</code> carries no <code>stress</code>.</li>
+<li><code>anagram</code> ranks covers by <code>letters_used</code> descending before ADR 0028's three keys,
+  because under <code>allow_subset</code> every single word that fits the source is a valid
+  transposal — 373 of them for <code>astronomer</code> — and word count first would bury every
+  cover worth reading. With the flag off the new key is constant across covers and
+  the order is byte-identical to ADR 0028's, held by a regression test rather than
+  by the argument. The flag costs no search: <code>astronomer</code> visits 747,769 nodes
+  either way, because a cover is recorded at nodes the walk already visits. What it
+  multiplies is results — <code>astronomer</code> 1,421 covers to 15,185, <code>dormitory</code> 48 to 742,
+  one fewer out of <code>produce</code> in each case, which drops the identity cover — which
+  makes <code>Production.truncated</code> true on nearly every subset call against the default
+  <code>max_results</code> of 10. That field has meant both "the search abandoned its budget"
+  and "<code>max_results</code> capped the list" since it existed; <code>allow_subset</code> makes the
+  second the common case, and a caller still cannot tell them apart.</li>
+<li><code>tests/test_round_trip.py</code> draws blank-line paragraphs and terminated sentences
+  by construction instead of waiting for a flat draw to offer them, and
+  <code>max_examples</code> falls from 1,000 to 600. The old budget was never measured: over
+  twelve fixed seeds the flat-only strategy reached every constructive row on 3 of
+  12, missing <code>recombination</code> on nine and <code>every_nth_word</code> on three. The new
+  composition reaches every reachable row on 60 of 60 replayed seeds at 300
+  examples, and 600 is twice that floor. The cost is a narrower flat draw —
+  <code>st.one_of</code> dedupes branches by identity and does not sample them uniformly,
+  measured at about 20% for a flat branch against 45% for the prose one — which
+  starves <code>spoonerism</code>, the row that wants flat text and the first to go missing
+  when the budget is cut.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>German <code>lexicon.graded_words</code> is no longer reported as a permanent ceiling. It was in
+  <code>_PERMANENTLY_MISSING</code> citing ADR 0028, whose own comment anticipated the removal; it
+  now names <code>denckring[de-frequency]</code>. French <code>stress</code> remains permanent (ADR 0034 D2).</li>
+<li><code>missing_capability</code> no longer names an extra that cannot supply the missing capability.
+  German is the one language with two: <code>stress</code>, <code>phonemes</code>, <code>syllables.dictionary</code> and
+  <code>lexicon.glosses</code> come only from <code>denckring[de-wiktionary]</code>, and the remedy named
+  <code>denckring[de]</code>, which the caller may already have installed.</li>
+<li>Six catalogue definitions promised what their checkers structurally cannot do, in all
+  three languages: <code>alexandrine</code>'s caesura, <code>limerick</code>'s metre and line lengths,
+  <code>alliterative_verse</code>'s caesura and stress, <code>homoteleuton</code>'s "or syllable",
+  <code>dactylic_hexameter</code>'s reading of the German spondee, and <code>blank_verse</code> withholding the
+  strict-stress caveat <code>iambic_pentameter</code> already published.</li>
+<li><code>apply_procedure</code>'s docstring sent callers to <code>constructive</code>, which does not depend on
+  <code>lang</code> and so cannot answer whether a call will run. It now names <code>apply_missing</code>.</li>
+<li>The word ladder's letter box had been sizing every tile on the board. Two unscoped
+  <code>.tile</code> rules sat in one stylesheet; the ladder's, declared later at equal specificity,
+  forced all 156 board tiles to a 38px square with their contents overflowing across their
+  neighbours. Both landed on 2026-08-20 and nothing caught it, because the explorer's
+  tests drive Starlette's <code>TestClient</code>, which renders no CSS.</li>
+<li>
+<p>The source distribution shipped <code>docs/superpowers/</code> and <code>docs/seed/</code> — 1.22 MB of specs
+  and plans that the documentation site had always refused on the same argument. The two
+  exclusion lists are now one list with two consumers.</p>
+</li>
+<li>
+<p><strong><code>s_plus_7</code>/<code>n_plus_7</code> inverted a verdict on a word carrying an elided proclitic —</strong>
+  <strong>worse than refusing.</strong> <code>noun_index</code> looked an apostrophe-bearing token like <code>l'île</code> up
+  whole and never found it, since no noun carries an internal apostrophe, so the correct
+  S+7 <code>l'îlot</code> failed as <code>changed_a_non_noun</code> while retyping the source unchanged passed,
+  hiding exactly what <code>ambiguous_nouns: "strict"</code> exists to catch. <code>d'</code>, <code>qu'</code> and the
+  typographic <code>’</code> behaved the same; both rows share the bug, since <code>s_plus_7</code> delegates
+  entirely to <code>n_plus_7</code>'s <code>displace</code>/<code>displacement_report</code>. A new <code>split_elision</code> splits
+  at the last apostrophe; the checker and generator both work on the tail and treat the
+  proclitic as a separate unit that must match exactly, under a new <code>changed_proclitic</code>
+  violation. The proclitic is reattached exactly as written rather than re-elided against
+  the displaced noun — <code>l'aïoli</code> displaced by one entry becomes <code>l'b</code>, a known, honestly
+  pinned limitation rather than a silent one; choosing <code>l'</code>/<code>le</code>/<code>la</code> correctly needs the
+  noun's gender, which the list does not carry. ADR 0036.</p>
+</li>
+<li><strong><code>identical_rhyme</code> could not tell <code>l'amour</code> from <code>amour</code>.</strong> The comparison read each
+  rhyme scheme line's final word as written, so a minimal pair differing only by a
+  leading <code>l'</code> matched by <code>does_rhyme</code> and by neither <code>identical_rhyme</code> nor
+  <code>does_not_rhyme</code>, scoring 1.0 where the bare pair correctly failed —
+  <code>hemeling</code>'s own <code>allow_identical</code> publishes "Permit a word to rhyme with itself, as
+  French rime riche does," and this was the dial bypassed by the commonest orthographic
+  fact in the language. Fixed with the same <code>split_elision</code>, moved to <code>core/text.py</code> so
+  <code>core/prosody.py</code> can share it; <code>hemeling</code>, <code>limerick</code> and <code>rhyme_scheme</code> all inherit
+  the fix through <code>scheme_violations</code>. ADR 0036.</li>
+<li><strong><code>kangaroo_word</code>'s own lookup broke on any accented French synonym under default</strong>
+  <strong>folding.</strong> <code>synonym: "école"</code> failed <code>not_a_word</code>, because <code>is_word</code> is not
+  fold-aware — French keeps its accents on purpose (ADR 0009) — and this row folded the
+  synonym before asking it, so a diacritic-folded <code>ecole</code> could never match the table's
+  <code>école</code>. Every other <code>is_word</code> caller (<code>paragram</code>, <code>word_ladder</code>, <code>semordnilap</code>)
+  already checks membership on the word as written; this row now does too, folding only
+  for its own distinctness and ordering checks. ADR 0036.</li>
+<li><strong><code>missing_capability</code> advised a remedy that could not work.</strong> The remedy was picked
+  from <code>lang in _EXTRAS</code> alone, never asking whether that extra supplies the missing
+  capability: all 18 French <code>stress</code> refusals said <code>pip install denckring[fr]</code>, where
+  French has no lexical stress at all, permanently (ADR 0034 D2); German <code>anagram</code>
+  said <code>denckring[de]</code> for <code>lexicon.graded_words</code>, which only <code>denckring-en-data</code>
+  ships (ADR 0028) — measured with <code>denckring-de-data</code> already installed, so the
+  advice was to reinstall what was already there. A hand-maintained set of <code>(lang,
+  capability)</code> pairs no extra will ever supply is checked first. The comment claiming
+  French carries no syllables or phonemes was also false since ADR 0034 and is
+  corrected in the same place.</li>
+<li>
+<p><code>quenina</code> accepted every text put to it whenever <code>n</code> was left out — which is the
+  default. The size inference asked for the first <code>n</code> whose first <code>n</code> end-words are all
+  distinct, and that is <code>1</code> for every text there is, so no stanza was ever compared
+  against the rotation, <code>total</code> came back 0, and <code>_report</code> scored that 1.0 as vacuously
+  satisfied. A whole sestina with an end-word wrong passed. The checker itself was
+  correct all along: with <code>n</code> given it always graded properly, which is why the fault
+  was in the one path nothing exercised — every golden case, every strategy and every
+  unit test passed <code>n</code> explicitly. The inference now reads the size off the longest
+  all-distinct run of end-words, and two golden cases cover the unparametrised path.</p>
+</li>
+<li>
+<p><code>assonance_constraint</code> and <code>spoonerism</code> identified a vowel phoneme by CMUdict's stress
+  digit — a convention no other source uses. Both rows declare only <code>phonemes</code>, so the
+  moment German had phonemes they ran in German and found no vowels in any German word:
+  <code>assonance_constraint</code> failed every German text and <code>spoonerism</code> read every word as
+  pure onset. <code>LanguagePack.is_vowel_phoneme</code> puts the question on the pack, where the
+  answer lives.</p>
+</li>
+<li><code>denckring-en-data</code> declared the <code>syllables</code> capability and never implemented it, so
+  <code>get_pack("en").syllables("table")</code> raised <code>MissingCapability</code> naming a capability the
+  pack declared. No row requires it, so nothing was broken; but <code>runs_in</code> computes from
+  <code>capabilities</code>, so the first row to require it would have been reported as running in
+  <code>en</code> and would then have raised. The claim is removed: a pronouncing dictionary is not
+  a hyphenation dictionary.</li>
+<li><code>device.load</code> and <code>device.load_figure</code> built a filename by interpolating the caller's
+  id directly — <code>directory / f"{item_id}.yaml"</code> — which <code>Path</code> does not make safe:
+  <code>Path.__truediv__</code> silently discards the left operand when the right is absolute, and
+  a <code>..</code> segment is never rejected. An id of <code>/etc/passwd</code> or <code>../../etc/passwd</code> read
+  that file and returned it as though it were a device. This predates
+  <code>DENCKRING_DEVICE_PATH</code> — the same interpolation was already present for both loaders
+  when they only ever read the packaged directory — but the cartridge is what turns a
+  latent gap into a routine one: it multiplies the directories an id can escape from and
+  documents "point this at your own files" as a supported feature. It is reachable from
+  outside the process, not only from Python: <code>DeviceParams.device</code> is a bare <code>str</code>, an
+  MCP client supplies it directly via <code>mcp/server.py</code>'s <code>**(params or {})</code>, and the CLI
+  reaches it through <code>--param device=...</code>. Both loaders now validate an id as a bare
+  filename stem — no separators, no <code>..</code>, never absolute — through one shared helper,
+  and independently confirm the resolved path is inside the directory it was joined to,
+  so the rule and the filesystem agree. An id that fails either check is treated exactly
+  as an id no directory offers: <code>UnknownDevice</code>/<code>UnknownFigure</code>, not a different error.</li>
+<li>A cartridge file that failed to parse as YAML, or parsed but did not fit the <code>Device</code>/
+  <code>Figure</code> schema, let the raw <code>yaml.YAMLError</code> or Pydantic <code>ValidationError</code> escape.
+  Both exceptions quote content from the file in their default message — a YAML parse
+  error echoes a snippet of the source around the failure, and a Pydantic error echoes
+  each offending value back — which is a content-disclosure path once a cartridge is by
+  design arbitrary user-authored YAML, and it broke the contract <code>mcp/server.py</code> states
+  in its own docstring: only a <code>DenckringError</code> is ever converted to data for a model to
+  act on. Both loaders now raise <code>MalformedDevice</code>/<code>MalformedFigure</code> — new
+  <code>DenckringError</code> subclasses alongside <code>MalformedTable</code> and <code>MalformedCorpus</code> — naming
+  the path and a short, content-free reason (an exception's class name, or a count of
+  validation errors) instead.</li>
+<li>Two language packs claiming one language were resolved silently by load order. They
+  now raise <code>DuplicatePack</code> naming both, since answers that depend on installation
+  order are the failure ADR 0004 exists to prevent.</li>
+<li>A report could say satisfied and still list violations, when a violation was appended
+  without being counted in the score. The invariant suite asserted
+  <code>satisfied == (score == 1.0)</code> from the start but never that a satisfied report is
+  silent; it does now, and the Arca's tone check was the case that showed the gap.</li>
+<li><code>apply</code> let Pydantic's validation error escape where <code>check</code> wrapped it in
+  <code>InvalidParams</code>, so one kind of mistake raised two kinds of failure depending on
+  which method you called. Both now go through one door.</li>
+<li>Three catalogue edits in earlier releases silently did nothing, because a string
+  replacement that matches nothing succeeds quietly. The Denckring, Wechselsatz and
+  Proteus-verse rows never received the text they were reported as having. All three
+  are now written, and catalogue edits assert that they applied.</li>
+<li>The Denckring row overstated Harsdörffer, who labels the rings but states no total,
+  and understated the case against the 97,209,600 the literature repeats. That figure
+  factors as 2^8 x 3 x 5^2 x 61 x 83, and neither 61 nor 83 divides any ring size on
+  any count — a stronger refutation than the divisibility argument it replaces. The row
+  now also records that two independent counts of the parts disagree about one boundary
+  while both coming to 264, and cites the Erquickstunden rather than the Poetischer
+  Trichter, where the device is often wrongly placed.</li>
+<li><code>denckring</code>, <code>cent_mille_milliards</code> and <code>wechselsatz</code> were filed as having no
+  computable acceptance criterion. Asking whether a word is producible by five rings is
+  a segmentation question, and asking whether a poem is one of Queneau's is a selection
+  check; both are decidable. <code>line_permutation</code>, <code>stanza_permutation</code> and
+  <code>word_permutation</code> keep their classification, because their definitions claim every
+  ordering reads as a finished text and a permutation check does not verify that.</li>
+<li>Thirteen catalogue rows declared <code>lexicon.nouns</code> when they wanted word membership,
+  synonyms, antonyms or glosses. Each now names what it actually needs.</li>
+<li>Entry-point language packs were shadowed by the built-in English default, so an
+  installed data package had no effect. Precedence is now explicit registration, then
+  entry point, then built-in default.</li>
+<li>Unknown parameters passed to <code>check</code> were silently dropped, so a mistyped
+  <code>--param frobidden=e</code> looked like a constraint being applied when it was not. They
+  now raise <code>InvalidParams</code> naming the parameters the procedure actually accepts.</li>
+<li>Four catalogue rows misdescribed what they need: <code>boustrophedon</code> is decidable only
+  against its source, and <code>semordnilap</code>, <code>kangaroo_word</code>, <code>word_square</code> and <code>charade</code>
+  cannot be decided without a lexicon.</li>
+<li><code>prisoners_constraint</code> compared folded letters, so it read <code>ß</code> as <code>ss</code> and <code>ä</code> as <code>a</code>
+  and wrongly accepted <em>groß</em>, <em>Maße</em> and <em>Mädchen</em> — and English <em>naïve</em> with them. An
+  ascender is a property of the written glyph, and folding destroys it. The checker now
+  reads raw characters. <strong>This changes existing English results:</strong> text containing
+  accented letters that previously satisfied the constraint no longer does.</li>
+<li>Six form rows published a capability contract their own code broke. <code>sonnet</code>,
+  <code>ottava_rima</code>, <code>ballade</code>, <code>curtal_sonnet</code> and <code>spenserian_stanza</code> declared
+  <code>[tokens, phonemes, syllables]</code>; run against a pack carrying exactly that, all five
+  raised <code>MissingCapability('stress')</code>. Scanning metre reaches <code>stress</code>
+  (<code>prosody.word_stress</code> → <code>pack.stress_patterns</code>) and reaches syllable counting only on
+  the out-of-dictionary fallback, which is <code>syllables.heuristic</code>; nothing in this
+  codebase calls <code>pack.syllables()</code> at all. All five now declare
+  <code>[tokens, phonemes, stress, syllables.heuristic]</code>, the shape <code>double_dactyl</code> already
+  used, and <code>englyn</code> — which is syllabic, not accentual — declares
+  <code>[tokens, syllables.heuristic, phonemes]</code>.</li>
+<li>The catalogue got more honest in both directions this batch. Rows that understated
+  what they need: <code>word_ladder</code> and <code>tmesis</code> gained <code>lexicon.words</code>. Six rows that reach
+  <code>pack.vowels()</code>, most of them through <code>letter_class_report</code>, gained <code>alphabet</code>:
+  <code>univocalic</code>, <code>bivocalic</code>, <code>monoconsonantal</code>, <code>homoconsonantism</code>, <code>homovocalism</code> and
+  <code>univocalic_translation</code>. <code>dactylic_hexameter</code> gained
+  <code>syllables.heuristic</code>, which any metre scan falls back on for a word the pronouncing
+  dictionary does not carry. Rows that declared what they never used: <code>limerick</code> dropped <code>stress</code> — it checks the rhyme scheme only, never the
+  anapestic metre or shortened couplet its definition names; <code>prisoners_constraint</code>
+  dropped <code>tokens</code> and <code>fold_diacritics</code> — it scans raw characters and asks only about
+  x-height, and folding first would destroy the ascender the check needs to see;
+  <code>spoonerism</code> dropped <code>fold_diacritics</code> — its onset comparison lives entirely in
+  phonemes, where accents do not apply — and gained <code>alphabet</code>, which its written-onset
+  guess does call. <code>haikuization</code> is the interesting one: it
+  gained <code>phonemes</code> early in the batch on the assumption that a rhyme-word reading and
+  a line-end reading could be told apart, then lost it again, because this codebase's
+  rhyme machinery always resolves a line to its final word regardless of whether it
+  pronounces as a rhyme with anything — the two readings are not constructible here, so
+  the capability did no work and only made the row refuse unusual vocabulary.</li>
+<li><code>back_translation</code>, <code>transduction</code> and <code>intralingual_translation</code> reclassified to
+  <code>checkability: none</code>, each recording in <code>notes</code> why no acceptance criterion exists
+  rather than merely asserting it: a translated-onward-and-back rendering, a chain of
+  translations whose drift is the point, and a rewording into another register have no
+  independent text to check the result against. <code>implementable</code> falls from 129 to 126
+  as a result — the fall is the point, not a regression.</li>
+<li>Four catalogue rows are blocked on a missing capability and now say so in <code>notes</code>:
+  <code>homosyntaxism</code> and <code>verbless_prose</code> need a part-of-speech capability no pack
+  provides; <code>homophonic_translation</code> needs phonemes in two languages at once;
+  <code>perverb</code> needs a proverb corpus, which ADR 0020 already rules this project does not
+  ship.</li>
+<li>The English lexicon is now derived from Open English WordNet 2024 rather than Princeton
+  WordNet 3.1, which is unmaintained. The noun list grows from 55,239 to 56,468 entries
+  and 78,865 glosses arrive with it; <code>LICENSE-WORDNET</code> is replaced with the CC BY 4.0
+  notice OEWN carries, and the data package's README stops naming the old release.
+  <strong>This changes published output:</strong> <code>n_plus_7</code> and <code>s_plus_7</code> both count forward through
+  that list, so a displacement that landed on one word can now land on another — <em>cat</em>
+  displaces to <em>catacomb</em>, where it displaced to <em>catafalque</em> before. N+7's golden
+  fixture, strategy and tests are updated to the new list; S+7's fixture words were not
+  affected, but the same shift applies to any input.</li>
+<li>Four catalogue rows named capabilities they never needed, each corrected against what
+  the row actually does: <code>kangaroo_word</code> needs a word list (<code>lexicon.words</code>), not a
+  thesaurus, since whether two words are synonyms is the writer's claim; <code>chimera</code>
+  substitutes by part of speech and is blocked on <code>pos</code> alongside <code>homosyntaxism</code> and
+  <code>verbless_prose</code>; <code>definitional_translation</code> needs glosses <em>in the target language</em>
+  (<code>lexicon.glosses.bilingual</code>), which English ones do not serve and no shipped pack
+  provides, named the way <code>homophonic_translation</code>'s <code>phonemes.bilingual</code> already is.</li>
+<li><code>glosses</code>' inflection fallback tried stripping <code>ed</code> and <code>ing</code>, which resolved <em>cared</em> to
+  <em>car</em> and <em>poled</em> to <em>pol</em> — unrelated headwords, returned with the confidence of a
+  real answer, and enough to make the definitional rows demand the wrong sense of a
+  correctly expanded word. Measured over a sample sentence, <code>s</code>/<code>es</code> stripping earns its
+  place and <code>ed</code>/<code>ing</code> bought two extra resolutions of which both were wrong, so only
+  <code>s</code>/<code>es</code> is kept. The docstring no longer claims resolution never guesses: it is
+  best-effort, and only the empty sequence is a guarantee.</li>
+<li>The three distributions are version-locked to each other. <code>denckring-en-data</code>
+  subclasses the core English pack, and <code>release.yml</code> publishes all three from one
+  workflow for exactly that reason, but each declared a bare <code>denckring</code> dependency and
+  each extra a bare data-package one — so <code>pip install denckring-en-data</code> was free to
+  pair a subclass with a core it was never built against. All four declarations now pin
+  <code>==0.1.0</code>; <code>[tool.uv.sources]</code> keeps local development on the workspace copies.</li>
+<li><code>project.urls</code> gained Documentation and Changelog entries, which are what PyPI's
+  sidebar shows.</li>
+<li><code>cent_mille_milliards</code> silently dropped a sheet line offering no alternatives,
+  drawing one fewer line than the sheet has positions — the shape its own
+  <code>missing_line</code> violation exists to catch. <code>apply('a|a\n|')</code> returned one line
+  where <code>check</code> required two. It now raises <code>InputTooShort</code> for a sheet with an
+  empty position rather than drawing from it.</li>
+<li><code>recombination</code> shuffled an unterminated trailing fragment into the draw, where
+  <code>" ".join</code> could merge it with its new neighbour and re-split into a different
+  multiset than the one shuffled — exactly what <code>check</code> compares against. It now
+  pins the tail out of the shuffle and permutes only the terminated sentences.
+  Both were made reachable by the previous chapter's wider round-trip input
+  alphabet and surfaced only intermittently, because
+  <code>tests/test_round_trip.py::test_apply_output_satisfies_check</code> is not
+  derandomized.</li>
+<li><code>apply anagram "astronomer"</code> raised <code>DegenerateOutput</code>, and <code>dormitory</code> with it.
+  The generator walked <code>pack.nouns()</code> greedily — a source word that is itself a noun
+  is the longest cover of its own letters — and emitted whatever letters it could not
+  spend as a run of single letters, which kept <code>check</code> satisfied and said nothing.
+  It now searches the graded lexicon depth-first for sets of words whose letters are
+  exactly the source's, bounded by <code>max_words</code>, <code>min_word_length</code>, <code>max_size</code> and a
+  budget of 1,000,000 nodes, and ranks what it finds by fewest words, then by the
+  SCOWL band of the cover's least common word, then alphabetically. <code>dormitory</code> gives
+  <code>dirty room</code>, one of 47 covers; <code>astronomer</code> gives <code>arrest moon</code>, one of 1,420. A
+  walk that cannot spend its remaining letters is not a cover and is abandoned rather
+  than padded. The catalogue row declares <code>lexicon.graded_words</code> under
+  <code>apply_requires</code> and not <code>requires</code>, since <code>check</code> has always run on core alone.</li>
+<li>The identity guard compared <code>produced.strip() == text.strip()</code>, so a generator whose
+  output is casefolded never compared equal to a capitalised input and slipped it:
+  <code>apply anagram "Dormitory"</code> returned <code>dormitory</code>, the reported defect still live for
+  anyone who types a word the way people write one. Fixed at the spine rather than in
+  <code>anagram</code>, because the rule is the spine's and belongs in one place. See <strong>Changed</strong>
+  for the one existing result this moves.</li>
+<li><strong>The diacritic fold applied to the text but not to the parameter compared against it</strong>,
+  so <code>vowel="ä"</code>, <code>vowels="äö"</code> and a <code>ß</code> acrostic target were unsatisfiable in German
+  under the <strong>default</strong> <code>fold_diacritics: true</code>, and the violation mixed a folded <code>found</code>
+  with an unfolded <code>expected</code>. Worse, <code>slenderizing</code>'s generated output failed its own
+  checker: <code>_produce</code> kept a character when <code>fold_diacritics(ch).lower() != deleted</code>, and
+  <code>ß</code> folds to <code>ss</code>, so <code>ß</code> always survived a deletion <code>_check</code> then required — <code>apply</code>
+  gave <code>Die traße war groß.</code> and its own check scored that <strong>0.412 with seven violations</strong>.
+  <code>core.text.fold_letter</code> is the parameter-side twin of <code>letter_spans</code> and is now applied
+  at <strong>the seven rows this decision covers</strong> — <code>univocalic</code>, <code>bivocalic</code>,
+  <code>monoconsonantal</code>, <code>slenderizing</code> and the acrostic family — not at every such comparison;
+  five more were named under <em>Known remaining</em> in ADR 0035 and were fixed the same day,
+  below.
+  A target that is a phrase is flattened by <code>core.text.fold_target</code>, so a <code>ß</code> claims the
+  two units its two letters need. The acrostic family is three rows, not two: <code>telestich</code>
+  inherits from <code>Acrostic</code>, <code>double_acrostic</code> kept its own copy of the expression and now
+  shares the one function. ADR 0035 D3 and D6.</li>
+<li><strong><code>slenderizing</code>'s generator failed its own checker in French too, and on one letter it
+  had been made worse rather than better.</strong> Folding <code>deleted</code> was necessary and not
+  sufficient: dropping a source character whenever <em>any</em> letter it folds to matched agrees
+  with <code>_check</code> only for a uniform fold, and <code>œ</code> → <code>oe</code> is not uniform.
+  <code>apply("Le cœur et la sœur", lang="fr", deleted="e")</code> returned <code>L cur t la sur</code>, scoring
+  <strong>0.167</strong>; <code>deleted="o"</code> returned <code>Le cur et la sur</code>, scoring <strong>0.214</strong>, where the code
+  before this release raised <code>DegenerateOutput</code> — an honest refusal turned into text
+  failing its own checker. The rule is now three-way: keep the source character untouched
+  when none of its letters is <code>deleted</code>, drop it when all are, emit the survivors when only
+  some are. Both round-trip at 1.0 (<code>L cour t la sour</code>, <code>Le ceur et la seur</code>), with three
+  golden cases and French unit tests. ADR 0035 D6.</li>
+<li><strong>Five more rows had the identical seam, unfiled by the sweep because it walks fixtures
+  and these needed a parameter no fixture supplies.</strong> <code>lipogram(forbidden="ä")</code> on
+  <code>"Rätsel"</code> returned <code>satisfied=True</code> — an <strong>inverted verdict</strong>, the text plainly
+  contained the letter — with <code>pangrammatic_lipogram</code> the same shape behind it.
+  <code>tautogram</code> and <code>homoteleuton</code> failed closed instead: an unfolded <code>initial</code>/<code>final</code>
+  never matched a folded word boundary. <code>abecedarian</code>'s <code>start="ä"</code> was vacuous rather
+  than wrong — <code>alphabet.index</code> fell back to <code>0</code> and agreed with the right answer only
+  because <code>ä</code> happens to fold to the alphabet's first letter; <code>start="ö"</code> (index 14)
+  showed the real defect, disagreeing with the correct answer on every line.
+  <code>serial_lipogram</code> had its own copy of the bug, the opposite way: it refused <code>start="ä"</code>
+  outright with <code>InvalidParams</code>, even under default folding, stricter than its own
+  text-side comparison. All six now fold via <code>single_letter()</code>; <code>abecedarian</code> and
+  <code>serial_lipogram</code> raise <code>InvalidParams</code> when a folded <code>start</code> still is not a letter of
+  the row's own flat alphabet, rather than silently defaulting. Ten golden cases, one per
+  row plus a negative for four of them. ADR 0035, <em>Known remaining</em>.</li>
+<li><strong>A single-letter parameter that folds to several characters is now refused by name.</strong>
+  <code>consonant="ß"</code> compared a two-character <code>expected</code> against a one-character <code>got</code> and
+  could never be satisfied; <code>single_letter()</code> raises <code>InvalidParams</code> saying what it folded
+  to and naming <code>fold_diacritics: false</code>, which genuinely works. This replaces
+  <code>slenderizing</code>'s <code>degenerate_output</code> advising <code>allow_identity=true</code>, which named neither
+  the cause nor a remedy and would have returned the untouched text as a slenderizing.
+  ADR 0035 D4.</li>
+<li><strong><code>supervocalic</code> required every accented vowel letter its pack names — eight in German,
+  twenty-one in French — against a published definition that says five.</strong> Folded text can
+  never contain an umlaut, so <code>ä ö ü</code> were permanently missing while inflating <code>a o u</code> into
+  repeats: no German or French text could satisfy the row at all. <code>vowel_inventory()</code> is
+  the reading it wanted. ADR 0035 D1.</li>
+<li><strong><code>slenderizing</code> was unexercised twice over</strong> — in <code>PARAMETER_GATED</code> in
+  <code>tests/test_round_trip.py</code> <em>and</em> pinning <code>lang: en</code> at file level in its golden file — so
+  the row that broke the project's thesis was the one row neither net could see. A
+  structural guard now holds those two facts together for every gated row that declares
+  <code>fold_diacritics</code>, and <code>tests/test_fold_symmetry.py</code> states the invariant the whole seam
+  violated once rather than per row: a verdict on folded input with folding on must agree
+  with the verdict on pre-folded input with folding off.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.top", "navigation.sections", "content.code.copy", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

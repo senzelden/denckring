@@ -1,0 +1,2165 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A library of experimental writing procedures, where the validator is the eval">
+      
+      
+      
+        <link rel="canonical" href="https://senzelden.github.io/denckring/adr/0034-french-prosody/">
+      
+      
+        <link rel="prev" href="../0033-the-layer-split/">
+      
+      
+        <link rel="next" href="../0035-orthographic-and-phonetic-readings/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>34. French verse is counted a line at a time - denckring</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#34-french-verse-is-counted-a-line-at-a-time-and-the-count-is-an-estimate" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="denckring" class="md-header__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            denckring
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              34. French verse is counted a line at a time
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="denckring" class="md-nav__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    denckring
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../showcase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Showcase
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading a report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/packs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language packs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design decisions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0001-english-api-multilingual-content/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. English API, multilingual content
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0002-check-mandatory-apply-optional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. `check` mandatory, `apply` optional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-catalogue-yaml-not-sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Catalogue in YAML, not SQLite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0004-language-packs-as-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Language packs as capability-declaring plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-continuous-score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Continuous `score`, not a boolean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0006-dual-licence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Dual licence: MIT code, CC BY catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0007-one-module-per-procedure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. One module per procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0008-catalogue-inside-package/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The catalogue lives inside the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0009-folding-is-a-parameter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Diacritic folding is a parameter, not a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0010-packs-via-entry-points/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Language packs are discovered through an entry-point group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-checkability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Checkability is a property of the procedure, not of its capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0012-syllable-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Two syllable capabilities, with the weaker one as the floor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0013-data-as-a-separate-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Linguistic data ships as separate distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0014-metre-as-satisfiability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Metre is a satisfiability question, not a comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-lexicon-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. One capability per question the lexicon is asked
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0016-one-pack-per-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. One data pack per language, and a collision is an error
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0017-devices-ship-with-their-procedures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. A device's own data ships with its procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0018-attestation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Whether the author stated the rule is its own field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0019-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Figures are alphabets read at several levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0020-corpora-are-not-shipped/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. A corpus is supplied by the reader, never by the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0021-the-transferable-part/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Implement the transferable part, not the artefact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0022-german-moves-to-a-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. German is a built-in default, not an entry point
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0023-the-german-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. The German lexicon is Wikidata Lexemes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0024-apache-two-for-the-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Apache-2.0 for the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0025-the-apply-spine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. `apply` gets the spine `check` has
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0026-the-production-surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. `_produce -> list[str]` is the primitive; `apply` returns its first result
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0027-candidates-carry-their-scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. `_produce` returns `Produced`, so a candidate can carry its score
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0028-the-graded-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. A word list graded by commonness, because a membership oracle cannot rank
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0029-the-choices-the-catalogue-promised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. Where the catalogue already offered a choice, the parameter now exists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0030-german-pronunciations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. German pronunciations come from Wiktionary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0031-devices-are-address-spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. A device is an address space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0032-the-french-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. The French lexicon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0033-the-layer-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33. The catalogue has two layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34. French verse is counted a line at a time
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34. French verse is counted a line at a time
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0035-orthographic-and-phonetic-readings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35. A letter has two readings, and `requires` says which
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0036-the-elision-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36. A leading proclitic is not a noun
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0037-the-calculator-word/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37. The calculator word
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0038-german-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38. German frequency, and a source whose case survives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="34-french-verse-is-counted-a-line-at-a-time-and-the-count-is-an-estimate">34. French verse is counted a line at a time, and the count is an estimate<a class="headerlink" href="#34-french-verse-is-counted-a-line-at-a-time-and-the-count-is-an-estimate" title="Permanent link">&para;</a></h1>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>ADR 0032 shipped the French lexicon and stopped at 80 of 121, leaving 41 rows blocked
+and dividing them: 18 want <code>stress</code>, which French does not have, and <strong>23 want a
+syllable count</strong>. Its D5 declined to reach those 23 and said why — Lexique's
+<code>orthosyll</code>, <code>phon</code> and <code>syll</code> columns were present and deliberately unused, because
+the 23 need a <em>line-level</em> count and not a per-word one, and that was "a separate
+decision, gated on a separate measurement". This record is that decision, and the
+measurement did not come out well.</p>
+<p><strong>French cannot be counted word by word.</strong> <code>denckring.procedures.syllable_count</code>
+summed <code>pack.syllable_count(word)</code> over a line, which is right for English and German
+and wrong here. A French final mute <em>e</em> is a syllable before a consonant, elides
+before a vowel or a mute <em>h</em>, and never counts at the end of a line. Lexique gives
+<code>femme</code>, <code>une</code>, <code>belle</code> and <code>porte</code> all <code>nbsyll=1</code> in citation form; in verse each is
+frequently 2. French verse is <em>entirely</em> syllable-counting, so <code>alexandrine</code> — the one
+row named after a French metre — would have been wrong about most real French even
+with a perfect dictionary.</p>
+<p><strong>The go/no-go was the alexandrine share, and it was chosen before the work started.</strong>
+The chapter spec made D3 conditional on one figure: the share of Racine's and Hugo's
+alexandrines that the line counter scores at exactly twelve. That figure is pass/fail
+per line rather than a coverage percentage, which is why it was picked; the bar was
+94%, and it was not reached. See D5.</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p><strong>D1. A pack answers for a whole line, and the default is today's per-word sum.</strong>
+<code>LanguagePack.line_syllables(line) -&gt; (total, estimated)</code> joins the protocol.
+<code>BasePack</code> implements it as the loop <code>syllable_count.line_syllables</code> used to run
+inline, so English and German are unchanged by construction — neither pack overrides it
+— and <code>tests/test_line_syllables.py</code> pins both halves of that: the default equals the
+per-word sum, and English's line counts over a fixture are what they were.
+<code>FrenchDataPack</code> overrides it with the elision rules.</p>
+<p>The seam lives on the pack rather than in the procedure because "how long is this
+line" is a question about the language, and the procedure is the wrong place to know
+that a mute <em>e</em> exists. It is the same move ADR 0030 made for <code>is_vowel_phoneme</code> after
+<code>assonance_constraint</code> answered a phonological question with CMUdict's convention and
+was wrong in German. <strong>The 23 syllabic rows then run in French without one of them
+being edited</strong>, which was the test of whether the seam sits in the right place.</p>
+<p><strong>D2. French declares <code>syllables</code>, <code>syllables.dictionary</code>, <code>syllables.heuristic</code> and
+<code>phonemes</code>, from a table of 125,653 rows.</strong> <code>syllables.txt.gz</code> carries
+<code>(nbsyll, SAMPA phon, orthosyll)</code> per spelling. <strong>French is the first pack in this
+project that can honestly declare <code>syllables</code></strong>: the capability means a segmentation
+of the written word, <code>orthosyll</code> is exactly that (<code>car-ros-se</code>), and ADR 0030 removed
+the same capability from <code>denckring-en-data</code>, which had declared it and never
+implemented it. German declines it still, because its transcriptions carry no division
+of the spelling.</p>
+<p><strong>D3. <code>stress</code> is still refused, and 103 is no longer a projection.</strong> ADR 0032 D5 and
+spec D2 both stated 103 as the honest ceiling. It is now a measurement: French runs
+<strong>103 of 121</strong>, the remaining <strong>18 rows are blocked on <code>stress</code> and on nothing else</strong>,
+verified mechanically against <code>meta.requires</code> rather than asserted. They are accentual
+metres — the sonnet family, iambic pentameter, dactylic hexameter, sapphic, alcaic,
+ottava rima, rhyme royal, spenserian, heroic couplet, trochaic tetrameter, double
+dactyl, elegiac couplet, curtal sonnet, ballade, blank verse, proteus verse — and they
+are not French forms. Declaring <code>stress</code> to reach a larger number would be the
+false-capability defect ADR 0030 fixed twice in one day.</p>
+<p><strong>D4. The French line count is <code>exact=False</code>, always.</strong> ADR 0012's flag already exists
+to say so and every syllabic report carries <code>estimated_words</code>. Diérèse and synérèse
+are not decidable from spelling — <code>extraordinaire</code> is four syllables or five depending
+on the poet — and D5 is the evidence rather than the assertion. plint, the mature tool
+in this space, calls its own handling "a liberal estimate" for the same reason.</p>
+<p><strong>D5. A diérèse rule ships, and it is a STOP, not an ACCEPT.</strong> Scored over lines
+interior to a speech block, because the first and last line of a speech may be half an
+alexandrine shared between speakers — Hugo's unfiltered run has a 266-line spike at
+exactly 6, the caesura — and excluding any line holding a word Lexique does not carry,
+which cannot test an elision rule:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>baseline</th>
+<th>shipped</th>
+<th>ceiling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Racine, <em>Mithridate</em> (n=1213)</td>
+<td>89.3%</td>
+<td><strong>90.3%</strong></td>
+<td>96.6%</td>
+</tr>
+<tr>
+<td>Hugo, <em>Hernani</em> (n=1283)</td>
+<td>79.3%</td>
+<td><strong>80.2%</strong></td>
+<td>84.8%</td>
+</tr>
+</tbody>
+</table>
+<p>The ceiling column is a perfect per-site oracle: what the counter would score if every
+diérèse decision in the text were made correctly by an editor. <strong>A mechanical rule
+captured 1.0 of the 7.3 points that oracle would take on Racine.</strong> The accept bar was
+94%. Three variants were measured and none reached it, so the chapter stops here with
+what it has rather than spending more of the budget or lowering the bar.</p>
+<p>The shipped rule is narrow: every <code>j</code> after any consonant is one extra syllable, gated
+on the word ending in the <code>-ion(s)</code> suffix or starting with <code>dia-</code>. It generalises
+further than its 90.3% suggests — it fires on 18 distinct words across both poets and
+23 of its 27 firings are correct — but it is not a solved rule and the count stays
+estimated (D4).</p>
+<p><strong>Record the rules that failed, because they are the plausible ones.</strong> The chapter
+plan's own proposed starting rule — a glide after a consonant cluster ending in a
+liquid — scored <strong>84.5% / 74.7%, roughly five points <em>below</em> the baseline of doing
+nothing.</strong> Two blanket probes were catastrophic (49.5% / 36.6% and 46.2% / 33.8%),
+because the plurality of every "glide after a consonant" site in Lexique is a verb or
+adjective ending (<code>-iez</code>, <code>-ions</code>, <code>-ier</code>, <code>-ien</code>) that is reliably <em>synérèse</em>. Anyone
+proposing the cluster rule again should read this paragraph first; it sounds right and
+it is worse than no rule at all.</p>
+<p><strong>D6. The aspirated-<em>h</em> list is vendored data, extracted from frwiktionary and
+expanded through Lexique.</strong> Lexique cannot distinguish aspirated from mute <em>h</em> —
+<code>haricot</code> is <code>aRiko</code> and <code>hôtel</code> is <code>otEl</code>, the letter simply dropped — and the
+distinction decides whether the schwa in front of it elides. <code>h_aspire.txt.gz</code> holds
+<strong>3,370 entries: 3,285 from a scan of <code>{{h aspiré}}</code> in the French section of each
+page, plus 85 from expanding those lemmas through Lexique's <code>lemme</code> column.</strong> The
+expansion looks negligible and is not: Wiktionary already marks most inflected pages
+directly, so expansion adds only what it missed, and what it missed includes <code>hais</code> —
+the high-frequency verb forms are exactly the ones that appear in verse. Only 324 of
+the 3,370 entries are known to Lexique as lemmas at all, and those expand to 740 forms.
+(<code>{{asp|fr}}</code>, which an earlier draft guessed at as an alternative template, occurs
+<strong>zero</strong> times in the dump.)</p>
+<p><strong>D7. One table row per spelling, chosen by <code>freqlivres</code>.</strong> Lexique carries several
+rows per homograph, and the pack is asked about a spelling rather than about a reading,
+so the most frequent reading wins. The cost is stated in Consequences rather than
+hidden here.</p>
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<p><strong>French runs 103 of 121, up from 80</strong>, and <code>denckring eval --all</code> goes from 439 to
+<strong>487</strong> passing cases, the 48 new ones French across the 23 unblocked rows.
+<code>denckring status</code> is unchanged at <code>155 · 130 · 121 · 121 · 25</code>: this record adds no
+catalogue row and implements no procedure. It moves one language's coverage and
+nothing else.</p>
+<p><strong><code>parent</code> the verb is counted as <code>parent</code> the noun.</strong> D7's consequence, and it is not
+a rare shape: French homographs that differ in pronunciation across parts of speech
+(<code>président</code>, <code>fils</code>, <code>est</code>, <code>parent</code>) are counted, transcribed and rhymed as whichever
+reading <code>freqlivres</code> ranks first. A caller asking for the syllable count or the rhyme
+key of the loser gets a confident wrong answer rather than a refusal, which is this
+project's least favourite failure shape. Fixing it needs a part-of-speech capability no
+pack provides — the same blocker <code>homosyntaxism</code>, <code>verbless_prose</code> and <code>chimera</code>
+already sit behind — so it is recorded, not solved.</p>
+<p><strong><code>extraordinaire</code> is a known mute-<em>e</em> miss and is inside the measured 90.3%, not
+against it.</strong> Lexique gives it <code>nbsyll</code> 5 and <code>orthosyll</code> <code>ex-traor-di-nai-re</code>, also 5,
+because <code>traor</code> covers two phonetic syllables in one orthographic segment. The mute-<em>e</em>
+test compares the segment count against <code>nbsyll</code> and so cannot see the final <em>e</em> here.
+The failure is silent: the word contributes 5 where verse frequently wants 6, and
+nothing in the report says which word was wrong. Words shaped like this are the residue
+the ceiling column of D5 measures.</p>
+<p><strong>Schwa is rendered /ø/.</strong> Lexique writes <code>le</code> as <code>l2</code>, and SAMPA <code>2</code> spells both /ø/
+and the schwa; the table maps it uniformly, so <code>phonemes("le")</code> is <code>['l', 'ø']</code> where a
+French phonology reference would say /lə/. This is faithful to a source that cannot
+distinguish the two, and it is harmless for rhyme and assonance, where they are
+near-merged — but a caller reading <code>phonemes()</code> as a phonological transcription is
+being told something slightly false, and finding that out by inspection would be worse
+than reading it here.</p>
+<p><strong><code>syllables.heuristic</code> is now satisfiable through <code>line_syllables</code> as well as through
+<code>syllable_count</code>, and the guarantee behind it is weaker than it was.</strong> Before this
+record the capability meant one method. French's override reads its own tables directly
+rather than calling <code>syllable_count</code>, so a pack can now satisfy the capability by two
+independent paths and a row that declares it has no way to say which one it will get.
+<code>tests/test_requires_honesty.py</code> tracks both names and a new test asserts the two
+hand-maintained capability tables agree — adding the method to one table alone silently
+disarmed the sufficiency check for eleven rows once already. No pack abuses the looser
+contract today; nothing prevents one.</p>
+<p><strong>No installed pack lacks <code>phonemes</code> any more, so that refusal has no in-suite
+example.</strong> <code>tests/test_prosody_robustness.py</code> covered "a pack that genuinely cannot
+answer" with French, because French had no pronunciation data; German had held the same
+role until chapter 4 gave it a dictionary. That test now uses <code>sonnet</code> and <code>stress</code>,
+which is a real refusal but a different one. The phonemes refusal path is exercised
+only by the <code>french-without-data</code> CI job on a core-only install, which is a job that
+can be deleted by someone who does not know it is load-bearing. Its comment says so.</p>
+<p><strong>Feminine/masculine rhyme alternation is not modelled, and French classical prosody
+requires it.</strong> <code>rhyme_key</code> returns the <em>rime suffisante</em> baseline — phonemes from the
+last vowel to the end of the word, since French has no lexical stress to anchor a
+stronger definition. A French classical poem that never alternates feminine and
+masculine rhymes is not a well-formed poem, and <code>rhyme_scheme</code> will pass it. This is a
+real gap and a <strong>different</strong> one: the project models the alternation in no language, so
+it is not something French is missing relative to English or German.</p>
+<p><strong>The caesura is unchecked.</strong> <code>alexandrine</code> counts twelve syllables and says nothing
+about the hemistich. plint does not check it either, for the reason it gives: the
+hemistich has to fall at a sensible grammatical position, which is not decidable from
+the data here.</p>
+<p><strong>A word outside Lexique degrades rather than refuses, and the two behaviours now sit
+side by side.</strong> <code>syllables()</code> and <code>phonemes()</code> raise <code>MissingCapability</code> for a word the
+table does not carry; <code>line_syllables</code> falls back to a vowel-run estimate and increments
+<code>estimated_words</code> instead, because one unknown word must not blank the count for a whole
+line of real verse. Both are defensible and they are not the same rule, so a caller
+comparing a per-word answer against a per-line one can see a word counted in one and
+refused in the other.</p>
+<h2 id="alternatives-considered">Alternatives considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
+<p><strong>Leaving the sum in <code>syllable_count.line_syllables</code> and special-casing French there.</strong>
+It would have put a fact about French mute <em>e</em> in a procedure module that has no other
+business knowing one, and the next language with a line-level rule would have added a
+second branch beside it. The seam on the pack costs a protocol method and one default
+implementation.</p>
+<p><strong>A diérèse parameter, letting the caller declare the poet's intent.</strong> A reasonable
+future request and not designed here. It would turn D4's estimate into an exact count
+for a caller willing to annotate, which is the honest shape for a decision that is
+editorial — but it is a parameter on 23 rows and its own decision.</p>
+<p><strong>Vendoring a G2P engine (<code>phonemizer</code>/espeak) rather than a table.</strong> A runtime
+dependency, TTS-oriented, and it answers pronunciation rather than the orthographic
+syllabation D2 rests on. It would not have improved D5, which is bounded by editorial
+intent and not by phonetic accuracy.</p>
+<p><strong>Deriving the elision rules from plint.</strong> GPLv3 against this project's Apache-2.0. Its
+<em>documented</em> rules are facts about French and were learned from; its implementation was
+not read, and none of it is here.</p>
+<p><strong>Stopping the chapter at 80.</strong> The genuine option, and the one the go/no-go existed to
+force. What was measured is a <em>diérèse</em> bar that D5 misses, on top of a mute-<em>e</em>
+baseline of 89.3% on Racine that the same harness reports. The chapter ships because
+that baseline is the bulk of what the 23 rows depend on and because <code>exact=False</code> is a
+truthful label for it — not because 90.3% cleared anything. Had the baseline itself
+been the poor number, this record would have said the chapter stopped, and no
+comparison against a naive per-word sum was measured to make the baseline look better
+than it is.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "navigation.sections", "content.code.copy", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
