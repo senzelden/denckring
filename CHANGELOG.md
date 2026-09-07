@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- A text's Unicode normalisation form no longer changes a verdict. `letter_spans` walked
+  the string character by character, so a decomposed `ä` — `a` followed by U+0308 —
+  presented its base letter, which is alphabetic, and dropped the combining mark, which
+  is not. With `fold_diacritics` off, the setting whose documented purpose is that `ä`
+  stays `ä`, the diacritic was folded anyway and only for text that arrived decomposed:
+  `check("lipogram", "Bär", forbidden="a", fold_diacritics=False)` was satisfied in NFC
+  and unsatisfied in NFD. `prisoners_constraint` carried the same defect independently,
+  where folding is never right at all — `Bär` scored 0.333 in NFC and 0.667 in NFD, and
+  the decomposed reading listed one violation where there are two. Both now read base
+  characters together with the combining marks that belong to them, at the base
+  character's offset, so a `Violation` still points into the text the caller passed.
+
+### Added
+
+- `denckring.core.text.clusters`, the base-plus-marks reading the fix above is built on.
+- `tests/test_normalisation.py`, pinning that the two forms agree, and pinning what was
+  already true of zero-width spaces, byte-order marks and non-breaking spaces — that
+  they are not letters, do not join the cluster before them, and do not shift offsets.
+
 ## [0.1.0] - 2026-09-07
 
 ### Added

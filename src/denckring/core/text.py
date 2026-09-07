@@ -2,8 +2,34 @@
 
 from __future__ import annotations
 
+import unicodedata
+
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack
+
+
+def clusters(text: str) -> list[tuple[int, str]]:
+    """Each base character with the combining marks that belong to it, at the
+    base's offset.
+
+    `ä` is one character in NFC and two in NFD, and a reader cannot tell which
+    they have — macOS filenames are NFD, most editors write NFC. Walking the
+    string character by character therefore reads the same word two different
+    ways, and the mark, which is `Mn` rather than alphabetic, is the half that
+    gets dropped.
+
+    A mark with no base before it — a text beginning with one — belongs to
+    nothing and is returned on its own, to be discarded by the `isalpha` test in
+    the caller rather than silently attached to whatever follows it.
+    """
+    clusters: list[tuple[int, str]] = []
+    for offset, ch in enumerate(text):
+        if unicodedata.combining(ch) and clusters:
+            index, base = clusters[-1]
+            clusters[-1] = (index, base + ch)
+        else:
+            clusters.append((offset, ch))
+    return clusters
 
 
 def letter_spans(text: str, pack: LanguagePack, *, fold: bool = True) -> list[tuple[int, str]]:
@@ -12,12 +38,26 @@ def letter_spans(text: str, pack: LanguagePack, *, fold: bool = True) -> list[tu
     With `fold` set, diacritics are stripped and `ß` expands to `ss`, so one
     source character can yield several letters sharing its offset. Without it,
     only case is normalised — `ä` stays `ä`.
+
+    That last promise is why this reads clusters rather than characters. A
+    decomposed `ä` is `a` followed by U+0308, and taking those one at a time
+    keeps the `a` — which is alphabetic — and drops the mark, which is not. So
+    `fold=False` folded the diacritic it exists to preserve, and only for text
+    that happened to arrive decomposed: `check("lipogram", "Bär",
+    forbidden="a", fold_diacritics=False)` was satisfied on NFC and unsatisfied
+    on NFD. Composing to NFC first is what makes a verdict a fact about the
+    word rather than about how it was typed.
+
+    The offset stays the base character's, so a `Violation` still points into
+    the text the caller passed, whose length composing does not change.
     """
     spans: list[tuple[int, str]] = []
-    for offset, ch in enumerate(text):
-        if not ch.isalpha():
+    for offset, cluster in clusters(text):
+        if not cluster[0].isalpha():
             continue
-        letters = pack.fold_diacritics(ch) if fold else ch.lower()
+        letters = (
+            pack.fold_diacritics(cluster) if fold else unicodedata.normalize("NFC", cluster).lower()
+        )
         spans.extend((offset, letter) for letter in letters if letter.isalpha())
     return spans
 

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.text import clusters
 
 
 class PrisonersConstraintParams(BaseModel):
@@ -29,7 +30,12 @@ class PrisonersConstraint(BaseProcedure[PrisonersConstraintParams]):
         return PrisonersConstraintParams
 
     def _check(self, text: str, pack: LanguagePack, params: PrisonersConstraintParams) -> Report:
-        letters = [(offset, ch) for offset, ch in enumerate(text) if ch.isalpha()]
+        # Clusters, not characters: a decomposed `ä` is `a` plus U+0308, and
+        # taking those separately keeps the `a` — which is within the x-height —
+        # and drops the mark that is not. `Bär` then scores better in NFD than in
+        # NFC, which makes the verdict a fact about how the text was typed. This
+        # is a glyph question, where folding is never right (ADR 0035).
+        letters = [(offset, cluster) for offset, cluster in clusters(text) if cluster[0].isalpha()]
         violations = [
             Violation(
                 rule="tall_or_deep_letter",
