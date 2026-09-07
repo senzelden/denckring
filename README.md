@@ -272,8 +272,7 @@ uv run python scripts/build_docs.py && uv run mkdocs serve
 ## Scope of the name
 
 The *Fünffacher Denckring der Teutschen Sprache* (Harsdörffer, 1651) is one device among
-the hundred and fifty catalogued here, not the whole subject. Werkzeug is not only about
-tools either. Searching for `oulipy` will also find this package.
+the hundred and fifty catalogued here, not the whole subject.
 
 ## Using the name
 
