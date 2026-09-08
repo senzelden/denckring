@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
 
 
-class ShakespeareanSonnetParams(RhymeParams):
+class ShakespeareanSonnetParams(RhymeParams, MetreParams):
     pass
 
 
@@ -28,6 +28,7 @@ class ShakespeareanSonnet(BaseProcedure[ShakespeareanSonnetParams]):
             pack,
             scheme="ABABCDCDEFEFGG",
             metre="01" * 5,
+            feminine_ending=params.feminine_ending,
         )
 
         return self._report(
