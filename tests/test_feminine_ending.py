@@ -39,3 +39,15 @@ def test_every_wired_row_accepts_the_parameter(procedure: str) -> None:
     from denckring.core.registry import get
 
     assert "feminine_ending" in get(procedure).params_model().model_fields
+
+
+def test_the_spenserian_alexandrine_may_also_close_feminine() -> None:
+    """The ninth line is the form; widening the other eight and not it would be
+    a bug the stanza's own shape hides."""
+    from denckring.procedures.spenserian_stanza import patterns
+
+    strict = patterns(False)
+    loose = patterns(True)
+    assert strict[0] == ["0101010101"]
+    assert loose[0] == ["0101010101", "01010101010"]
+    assert loose[8] == ["010101010101", "0101010101010"]
