@@ -92,4 +92,5 @@ cases:
     Nur dumpfe Töne brausend mir herüber.'
   params:
     feminine_ending: true
+  min_score: 0.99
   satisfied: false

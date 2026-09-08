@@ -171,11 +171,10 @@ cases:
   provenance: external
   source: 'Andreas Gryphius, "Es ist alles eitel" (Sonnete, 1637 Lissa; revised 1643/1663),
     diplomatic Baroque orthography with virgules, per the German Wikipedia text panel
-    (revised recension). Rejected: This package''s metre check does not accept the
-    low-stress prefixes ("Du sihst" = unstressed preposition + verb root) that Gryphius
-    uses structurally — the form is metrically viable in German poetry but this implementation
-    marks particular stress patterns as violations. Measured on this HEAD: 2 metrical
-    violations.'
+    (revised recension). Rejected: 2 violations — `wrong_line_length` on line 11 ("Ach!
+    was ist alles diß/ was wir vor köstlich achten/") and `wrong_stress` on "Nichtigkeit"
+    in line 12, where the checker expects stress `101` but finds `100`. Measured on
+    this HEAD: score 0.9873, 2 violations.'
   text: 'Du sihst/ wohin du sihst nur Eitelkeit auff Erden.
 
     Was dieser heute baut/ reist jener morgen ein:
@@ -206,4 +205,6 @@ cases:
   params:
     scheme: ABBAABBACCDEED
     metre: '010101010101'
+    feminine_ending: true
+  min_score: 0.98
   satisfied: false

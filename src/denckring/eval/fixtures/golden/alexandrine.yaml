@@ -76,4 +76,5 @@ cases:
     Das auch der Seelen Schatz / so vilen abgezwungen.'
   params:
     feminine_ending: true
+  min_score: 0.92
   satisfied: false

@@ -86,10 +86,10 @@ cases:
       Gerard Manley Hopkins, "Pied Beauty" (written 1877; first published in
       Poems of Gerard Manley Hopkins, ed. Robert Bridges, 1918), his own
       coinage of the form. Rejected: the poem is in sprung rhythm, which
-      curtal_sonnet's own catalogue note (added per Task 6, ADR 0040 D4) says
-      it does not read — the syllabic model expects a steady count and iambic
-      stress per line, and sprung rhythm packs variable numbers of
-      unstressed syllables around a fixed stress count instead. That
+      curtal_sonnet's catalogue note (ADR 0040 D4) says it does not read — the
+      syllabic model expects a steady count and iambic stress per line, and
+      sprung rhythm packs variable numbers of unstressed syllables around a
+      fixed stress count instead. That
       mismatch produces 7 `wrong_line_length` violations (lines running 9 to
       12 syllables, and the closing half-line "Praise him." at 2) and 4
       `wrong_stress` violations on "chestnut", "tackle", "counter/original",
