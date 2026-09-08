@@ -165,6 +165,9 @@ exclude = [
     # what noticed, which is the fourth time in this repository that a new
     # untracked directory has had to be told apart from an absent one.
     "/mutants",
+    # Untracked working notes, and untracked is not absent: `uv build` reads the
+    # working tree. The same reasoning as `/docs/superpowers` above.
+    "/docs/research",
     # Excluded on size rather than on the working-document argument above: the
     # overview GIF is 3 MB and is documentation of what this package does, so it
     # belongs on the docs site — but a source distribution is what a packager

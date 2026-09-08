@@ -65,7 +65,7 @@ TRACKED_WORKING_DOCUMENTS = ("audit/", "stage_mockups/")
 #: would have published an internal document on the next `gh-deploy` and shipped it in
 #: the next sdist — the third instance in one day of *untracked is not absent*, after
 #: `superpowers/` and `stage_mockups/`.
-LOCAL_ONLY_WORKING_DOCUMENTS = ("superpowers/", "feedback/")
+LOCAL_ONLY_WORKING_DOCUMENTS = ("superpowers/", "feedback/", "research/")
 
 #: Everything kept off the site and out of the sdist, whatever git knows about it.
 WORKING_DOCUMENTS = TRACKED_WORKING_DOCUMENTS + LOCAL_ONLY_WORKING_DOCUMENTS
