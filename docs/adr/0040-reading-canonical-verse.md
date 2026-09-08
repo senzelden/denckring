@@ -106,9 +106,20 @@ on a widening nobody asked for.
 ## Consequences
 
 **Seven rows gain surface, and a silent wrong answer with it.** A caller who omits
-`metre` gets today's verdict, which is right for English and wrong for a German
+`feminine_ending` gets today's verdict, which is right for English and wrong for a German
 alexandriner — and gets it without a warning, because omitting a parameter is not an
-error. D6 buys backward compatibility at exactly this price.
+error. D6 buys backward compatibility at exactly this price. (`alexandrine` carries no
+`metre` parameter at all; `feminine_ending` is the whole of what it gained.)
+
+**One default did move, and it is a message rather than a verdict.** `line_metre` reports
+a `wrong_line_length` against the candidate it judged closest, and that candidate's
+`expected` named only its own length — true of the candidate, false of the call, which had
+offered several. It now names every length the options allow. For a single candidate the
+text is byte-identical, so D6 holds where it matters; but two rows that were already
+scanning substitutable feet before this record existed — `dactylic_hexameter` and
+`elegiac_couplet` — now say `13, 14, 15, 16 or 17 syllables` where they used to name one.
+That is a change to published output, made without a bar and justified only by the old
+message being false, which this project counts as a defect rather than a preference.
 
 **The external corpus rises by less than 23 — correction, measured at 13.** This
 paragraph predicted an upper bound before the corpus was built; the implementation
