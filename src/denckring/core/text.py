@@ -170,6 +170,36 @@ def line_identity(line: str) -> str:
     return line.strip().rstrip(_TERMINAL_PUNCTUATION).strip().casefold()
 
 
+#: What ends a clause for the rhetorical figures. Deliberately punctuation only:
+#: a real clause boundary is a syntactic question no checker here can answer, and
+#: the figures anaphora and epistrophe are marked by the comma in every canonical
+#: example anyway.
+_CLAUSE_BREAK = ",;:"
+
+
+def clause_spans(text: str) -> list[tuple[int, str]]:
+    """Every clause as `(offset, clause)`, splitting lines on their punctuation.
+
+    The catalogue promises anaphora and epistrophe over "successive clauses or
+    lines", and both read lines only, so neither could see the figure where it is
+    most famously written: Lincoln's "of the people, by the people, for the
+    people" is three clauses inside one line, and by lines there is nothing to
+    compare at all (ADR 0029 is the standing record for a row delivering less
+    than the catalogue promised).
+    """
+    spans: list[tuple[int, str]] = []
+    for offset, line in line_spans(text):
+        start = 0
+        for index, char in enumerate(line + ","):
+            if char in _CLAUSE_BREAK or index == len(line):
+                piece = line[start:index]
+                if piece.strip():
+                    lead = len(piece) - len(piece.lstrip())
+                    spans.append((offset + start + lead, piece.strip()))
+                start = index + 1
+    return spans
+
+
 def paragraph_spans(text: str) -> list[tuple[int, str]]:
     """Every non-blank paragraph as `(offset, text)`, split on blank lines.
 

@@ -977,6 +977,12 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en, de, fr]
+    notes: >-
+      The checker asks this of every word in the text, not of one designated word, so
+      the unit to give it is the word itself — courtship — and not the riddle written
+      around it. A charade poem in the 18th-century manner ("My first displays the
+      wealth and pomp of kings") describes the parts and never prints the answer, so it
+      holds no dividing word for the checker to find.
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
