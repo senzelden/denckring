@@ -48,6 +48,29 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Fifteen texts from research batch 3 enter the golden corpus across thirteen rows, taking
+  externally sourced cases from 51 of 545 to **66 of 560 (9.4% to 11.8%)** and the rows
+  carrying any external evidence from 40 to **54 of 122**. Eight pass — Wagner's
+  alliterative verse, Gaunt's anaphora, Lincoln's epistrophe, Platen's ghazal, Leconte de
+  Lisle's pantoum, McCrae's rondeau, Ranchin's triolet, and `courtship` for the charade.
+  Seven ship `satisfied: false` with the reason read off the run rather than written from
+  memory: the chronogram's numerals sum to 4204 and not the 1603 it claims, `homoteleuton`
+  compares final letters where Peacham's figure turns on a syllable, and `spoonerism`
+  declines because neither `Kinquering` nor `Congs` is in the pronouncing dictionary.
+
+  Passerat's villanelle is the honest one. It scores 0.980 on a single `broken_refrain`,
+  line 24 reading `aprés ell` where line 3 reads `aprés elle`, and its `source` says in
+  as many words that whether this is the 1606 spelling or a transcription slip is **not
+  verified** against the print. The case ships as supplied, with the question open.
+
+  Three of the batch did not land, and none for want of a checker: `wechselsatz` was given
+  the string `Kuhlmann 1671` where the parameter wants the template of interchangeable
+  slots, `denckring` was given Harsdörffer's instructions to the bookbinder rather than
+  words built from the rings, and the `sestina` was six lines of a thirty-nine-line form.
+
+  `EXTERNAL_FLOOR` rises from 51 to 66, and the new `satisfied: false` cases carry
+  `min_score` floors — except where the floor would have been 0.0, which guards nothing.
+
 - Mutation testing, via `mutmut`, configured and deliberately outside the four-command
   gate (ADR 0039). Coverage says a line ran; this says whether a test would notice the
   line being wrong, which for a library of checkers is the question that matters. No

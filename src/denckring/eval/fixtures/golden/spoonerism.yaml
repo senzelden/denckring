@@ -41,3 +41,19 @@ cases:
       chat chose
     params: {}
     satisfied: false
+  - name: spoonerism-kinquering-congs
+    lang: en
+    provenance: external
+    source: >-
+      'Kinquering Congs their titles take' (attrib. W. A. Spooner, 1879); earliest print
+      recollection I found is Lancashire Daily Post, 1 September 1930 (Robert Seton). The
+      term 'spoonerism' is attested earlier: OED's earliest evidence 1891 (Western Morning
+      News, Plymouth, 25 May 1891); The Times used it in 1921. Rejected:
+      `unresolved_phonemes`. Neither `Kinquering` nor `Congs` is in the pronouncing
+      dictionary, so the onset exchange cannot be read; the row declines rather than
+      guessing.
+    text: |-
+      Kinquering Congs their titles take
+    params: {}
+    satisfied: false
+    min_score: 0.49

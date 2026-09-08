@@ -11,3 +11,17 @@ cases:
     text: LVX
     params: { year: 100 }
     satisfied: false
+  - name: chronogram-my-day-closed
+    lang: en
+    provenance: external
+    source: >-
+      'My Day Closed Is In Immortality' (on the death of Queen Elizabeth I, 1603); attested
+      in James Hilton, Chronograms, 5000 and More in Number (London, 1882) and in Enquire
+      Within Upon Everything (Victorian eds.). Rejected: `wrong_total`. The Roman-numeral
+      letters read in order sum to 4204, not the 1603 the chronogram claims; the line is a
+      chronogram by intent and does not compute as one under this reading.
+    text: |-
+      My Day Closed Is In Immortality
+    params: {fold_diacritics: True, year: 1603}
+    satisfied: false
+    min_score: 0.37

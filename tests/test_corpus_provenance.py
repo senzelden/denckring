@@ -50,7 +50,7 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: exactly the improvement this file exists to encourage — so it asserts the
 #: number does not fall, not that it stays. Raised from 38 to 51 when ADR 0040's
 #: canonical corpus landed.
-EXTERNAL_FLOOR = 51
+EXTERNAL_FLOOR = 66
 
 
 def test_every_case_says_where_it_came_from() -> None:

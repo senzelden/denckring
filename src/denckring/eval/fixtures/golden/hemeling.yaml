@@ -84,3 +84,22 @@ cases:
       Elle chante et danse nuit et jour
     params: { source: "Marie" }
     satisfied: false
+  - name: hemeling-leben-nebel
+    lang: de
+    provenance: external
+    source: >-
+      Johann Hemeling, Arithmetische Letter- oder BuchstabWechslung (Hannover: Grimm, 1653),
+      unpaginated (VD17 23:640896F); transcribed in Thomas Althaus, Epigrammatisches Barock
+      (Berlin: de Gruyter, 1996), p. 181. Rejected: `wrong_line_count` — 7 lines where the
+      row wants 6, the anagram and then five. The unit as excerpted carries one line more
+      than Hemeling's form.
+    text: |-
+      Leben.
+      Giebt/ rükksweiß geläsen/ wie bey unterschiedlichen zubefinden/
+      Nebel.
+      Du Mensch/ beliebet dir zu wissen/ was dein Leben/
+      Und wie es wird vergehn?
+      Du kannst es leicht ersehn;
+      Liß Leben hinterwerts/ so wird dirs antwort geben.
+    params: {unknown_rhyme: "free", fold_diacritics: True, source: "Hemeling 1653", scheme: "abccb", allow_identical: False}
+    satisfied: false

@@ -15,3 +15,14 @@ cases:
       they go away
     params: { closing: home }
     satisfied: false
+  - name: epistrophe-gettysburg
+    lang: en
+    provenance: external
+    source: >-
+      Abraham Lincoln, Gettysburg Address (19 November 1863); closing sentence (Bliss copy
+      text)
+    text: |-
+      that government of the people, by the people, for the people,
+      shall not perish from the earth.
+    params: {closing: "the people", unit: "clause", minimum: 3}
+    satisfied: true

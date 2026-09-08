@@ -22,3 +22,19 @@ cases:
     text: Iohann
     params: { source: Johann }
     satisfied: false
+  - name: buchstabwechsel-harsdoerffer
+    lang: de
+    provenance: external
+    source: >-
+      Georg Philipp Harsdörffer, Letterwechsel/Buchstabwechsel; transmitted via Deutsches
+      Textarchiv lemmatised text of Poetischer Trichter, II. Theil (Nürnberg 1648) — NOT
+      verified against Erquickstunden II (1651) pp. 513–515 scan. Rejected: the candidate
+      does not use the source's letters — 7 `missing_letter` and 4 `surplus_letter`.
+      Harsdoerffer's Wechselschluss lets the breath-sound h come and go, which this row
+      allows, but not this much divergence.
+    text: |-
+      Diener: Neider.
+      Dunst: Stunde.
+    params: {fold_diacritics: True, source: "Harsdörffer, Letterwechsel"}
+    satisfied: false
+    min_score: 0.51

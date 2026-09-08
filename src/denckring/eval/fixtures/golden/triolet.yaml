@@ -69,3 +69,21 @@ cases:
       Il ne reviendra plus jamais
     params: {}
     satisfied: false
+  - name: triolet-ranchin
+    lang: fr
+    provenance: external
+    source: >-
+      Jacques Ranchin, triolet 'Le premier jour du mois de mai' (c. 1690, 'le roi des
+      triolets'); quoted in 19th-c. French treatises on versification, text via
+      cosmovisions.com — no first-edition citation pinned
+    text: |-
+      Le premier jour du mois de mai
+      Fut le plus heureux de ma vie :
+      Le beau dessein que je formai,
+      Le premier jour du mois de mai !
+      Je vous vis et je vous aimai.
+      Si ce dessein vous plut, Sylvie,
+      Le premier jour du mois de mai
+      Fut le plus heureux de ma vie.
+    params: {unknown_rhyme: "free"}
+    satisfied: true

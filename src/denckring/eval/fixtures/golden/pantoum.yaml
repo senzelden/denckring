@@ -27,3 +27,21 @@ cases:
       f
     params: {}
     satisfied: false
+  - name: pantoum-leconte-de-lisle
+    lang: fr
+    provenance: external
+    source: >-
+      Leconte de Lisle, 'Pantoums malais' V, in Poèmes tragiques (Paris: Lemerre, 1884);
+      opening quatrains via fr-academic / superprof, not collated against the 1884 edition
+    text: |-
+      Ô mornes yeux ! Lèvre pâlie !
+      J'ai dans l'âme un chagrin amer.
+      Le vent bombe la voile emplie,
+      L'écume argente au loin la mer.
+
+      J'ai dans l'âme un chagrin amer :
+      Voici sa belle tête morte !
+      L'écume argente au loin la mer,
+      Le praho rapide m'emporte.
+    params: {}
+    satisfied: true

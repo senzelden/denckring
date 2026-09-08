@@ -16,3 +16,19 @@ cases:
       We saw
     params: { opening: I }
     satisfied: false
+  - name: anaphora-gaunt-this-royal-throne
+    lang: en
+    provenance: external
+    source: >-
+      William Shakespeare, Richard II, in Mr William Shakespeares Comedies, Histories, &
+      Tragedies (First Folio; London: Isaac Jaggard and Ed. Blount, 1623), sig. C2v
+    text: |-
+      This royal throne of kings, this sceptred isle,
+      This earth of majesty, this seat of Mars,
+      This other Eden, demi-paradise,
+      This fortress built by Nature for her self
+      Against infection and the hand of war,
+      This happy breed of men, this little world,
+      This precious stone set in a silver sea
+    params: {opening: "This", minimum: 6}
+    satisfied: true
