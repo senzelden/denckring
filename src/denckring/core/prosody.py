@@ -221,6 +221,15 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
     about one scansion rather than thirty-two. `good` is not normalised across
     candidates of differing pattern length, so this is a preference among the
     candidates tried, not a guarantee of the best possible reading.
+
+    When the losing candidate's failure is `wrong_line_length`, its `expected`
+    names only that one pattern's length — true of the candidate but not of
+    the call, which offered every length in `options`. `pattern_result` in
+    `syllable_count.py` already widens the same message for a feminine ending
+    (`extra`); this reads every option's length instead of one `extra`, so it
+    covers a substitutable metre's whole spread, not just two. A single option
+    leaves the message untouched — ADR 0040 D6 requires the unwidened text to
+    stay byte-identical.
     """
     best: MetreResult | None = None
     for pattern in options:
@@ -231,6 +240,13 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
             best = result
     if best is None:
         raise ValueError("line_metre needs at least one pattern")
+    if len(best.violations) == 1 and best.violations[0].rule == "wrong_line_length":
+        lengths = sorted({len(pattern) for pattern in options})
+        if len(lengths) > 1:
+            heads = ", ".join(str(n) for n in lengths[:-1])
+            expected = f"{heads} or {lengths[-1]} syllables"
+            widened = best.violations[0].model_copy(update={"expected": expected})
+            best = best._replace(violations=[widened])
     return best
 
 
