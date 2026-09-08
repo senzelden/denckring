@@ -59,10 +59,9 @@ cases:
   provenance: external
   source: 'Johann Wolfgang von Goethe, Iphigenie auf Tauris (final verse version,
     Göschen 1787), Act I, Scene 1, lines 1–14; text from Project Gutenberg (older
-    orthography: Heiligthum, heil''gen). Rejected: With `feminine_ending: true`, this
-    blank verse scores 0.9947 with predominantly feminine (klingende) endings as specified;
-    1 metrical violation on a word not in this package''s stress database. Measured
-    on this HEAD: 1 violation.'
+    orthography: Heiligthum, heil''gen). Rejected: `wrong_stress` on "schauderndem",
+    which the dictionary gives as `100` (unstressed-stressed-unstressed) where the
+    iambic metre wants `101`. Measured on this HEAD: score 0.9947, 1 violation.'
   text: 'Heraus in eure Schatten, rege Wipfel
 
     Des alten, heil''gen, dichtbelaubten Haines,

@@ -42,11 +42,9 @@ cases:
   provenance: external
   source: 'Andreas Gryphius, "Thränen des Vaterlandes / Anno 1636" (first printed
     1637 as "Trawrklage des verwüsteten Deutschlandes"; this title & wording from
-    the 1643 Leiden Sonnete and the 1663 Ausgabe letzter Hand). Rejected: With `feminine_ending:
-    true`, this alexandrine scores 0.9286 on a single metrical violation; the feminine
-    cadences (13-syllable lines closing feminine rhymes) are structurally sound but
-    one word''s stress pattern is not recognized by this package''s German phonetic
-    database. Measured on this HEAD: 1 violation.'
+    the 1643 Leiden Sonnete and the 1663 Ausgabe letzter Hand). Rejected: `wrong_syllable_count`
+    — one line reads 14 syllables where `feminine_ending: true` accepts 12 or 13.
+    Measured on this HEAD: score 0.9286, 1 violation.'
   text: 'Wir sind doch nunmehr gantz / ja mehr denn gantz verheeret!
 
     Der frechen Völcker Schaar / die rasende Posaun
