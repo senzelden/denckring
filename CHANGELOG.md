@@ -70,6 +70,16 @@ All notable changes to this project are documented here. The format follows
   not a property of the word (ADR 0034) and there is no per-word breakdown to report.
   Read with `getattr`, so a third-party pack written before it reports nothing rather
   than failing.
+- `tests/test_canonical_verse.py`, a conformance corpus in miniature: seven pentameter
+  lines from out-of-copyright poems, none written for this suite. **Three of the seven are
+  not read as ten syllables**, for three separate reasons — Milton's synaeresis
+  (*disobedience* is four syllables to him and five to the dictionary, exactly and with no
+  estimate), a feminine ending in Keats, and a dictionary miss on Pope's *Pierian*. The
+  second is a stated limitation of the catalogue row; the third is now visible through
+  `Report.evidence`; **the first is undocumented and has no treatment at all** — French
+  got elision in ADR 0034 and English and German never got the equivalent. The tests pin
+  what the package reads rather than judging the poetry, so a future change shows as a
+  diff here.
 - `denckring.core.text.clusters`, the base-plus-marks reading the fix above is built on.
 - Golden cases record a `provenance` — `external`, `constructed` or `self-generated` —
   and `denckring eval` reports the split on a third line: **38 externally sourced (7.1%),
