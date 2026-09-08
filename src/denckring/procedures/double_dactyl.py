@@ -74,4 +74,5 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
             total=max(total, 1),
             violations=violations,
             metrics={"lines": float(len(lines)), "estimated_words": float(result.estimated)},
+            evidence=list(result.evidence),
         )

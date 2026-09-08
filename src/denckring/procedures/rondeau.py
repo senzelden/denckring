@@ -78,7 +78,7 @@ class Rondeau(BaseProcedure[RondeauParams]):
         rhyming = "\n".join(
             line for index, line in enumerate(lines) if index not in RENTREMENT_LINES
         )
-        found, matched, checks, _estimated = scheme_violations(
+        found, matched, checks, _estimated, rhymes = scheme_violations(
             rhyming, pack, SCHEME, allow_identical=False
         )
         return self._report(
@@ -86,4 +86,5 @@ class Rondeau(BaseProcedure[RondeauParams]):
             total=total + checks,
             violations=violations + found,
             metrics={"lines": float(len(lines))},
+            evidence=list(rhymes),
         )

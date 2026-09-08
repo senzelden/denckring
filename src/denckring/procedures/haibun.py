@@ -8,7 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import paragraph_spans
-from denckring.procedures.syllable_count import line_syllables
+from denckring.procedures.syllable_count import line_syllables, syllable_evidence
 
 HAIKU = [5, 7, 5]
 
@@ -111,4 +111,5 @@ class Haibun(BaseProcedure[HaibunParams]):
             total=max(total, 1),
             violations=violations,
             metrics={"blocks": float(len(blocks)), "estimated_words": float(estimated)},
+            evidence=syllable_evidence(text, pack),
         )

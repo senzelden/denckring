@@ -39,7 +39,7 @@ class Englyn(BaseProcedure[EnglynParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: EnglynParams) -> Report:
         syllabic = pattern_result(text, pack, PATTERN)
-        found, matched, checks, _estimated = scheme_violations(
+        found, matched, checks, _estimated, rhymes = scheme_violations(
             text, pack, SCHEME, allow_identical=False
         )
         return self._report(
@@ -47,4 +47,5 @@ class Englyn(BaseProcedure[EnglynParams]):
             total=syllabic.total + checks,
             violations=syllabic.violations + found,
             metrics=syllabic.metrics,
+            evidence=syllabic.evidence + list(rhymes),
         )

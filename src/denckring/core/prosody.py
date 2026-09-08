@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from typing import Literal, NamedTuple
 
 from denckring.core.errors import MissingCapability
-from denckring.core.protocol import LanguagePack, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Violation
 from denckring.core.text import line_spans, split_elision
 from denckring.lang.base import PHONEMES, STRESS
 
@@ -37,6 +37,11 @@ class SchemeResult(NamedTuple):
     good: int
     total: int
     estimated: int
+    #: The rhyme key each line ending was read as, and whether the dictionary
+    #: carried it. The same improvement on `estimated` that `MetreResult` gained:
+    #: a writer told two lines do not rhyme can act on the keys they were read
+    #: with, and cannot act on a count.
+    evidence: tuple[Evidence, ...] = ()
 
 
 def line_stress(line: str, pack: LanguagePack) -> list[tuple[str, str]]:
@@ -99,12 +104,21 @@ def _scan(
 class MetreResult(NamedTuple):
     """A scan's outcome. Named rather than a bare tuple because it grew a
     fourth field, and `PatternResult` in `syllable_count` sets the precedent.
+
+    `evidence` is the fifth, and it is the same improvement `estimated` was: that
+    field says how many words were guessed and this one says which, with the
+    stress the scan actually read them as. A writer told a line does not scan can
+    do nothing with a count and can act on `evening (10)`.
+
+    A tuple with an empty default rather than a list, because a mutable default
+    on a `NamedTuple` is shared by every instance that omits it.
     """
 
     violations: list[Violation]
     good: int
     total: int
     estimated: int
+    evidence: tuple[Evidence, ...] = ()
 
 
 def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -> MetreResult:
@@ -115,20 +129,33 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
     only way to fail. The violation names the word rather than the syllable
     index, because the word is what a writer can act on.
     """
-    tokens = pack.tokenize(line)
+    # `word_spans` rather than `tokenize`, which is defined as this without the
+    # offsets: the evidence has to be able to point at the word it is about.
+    spans = pack.word_spans(line)
     combinations = 1
     words: list[tuple[str, list[str]]] = []
     estimated = 0
-    for word in tokens:
+    evidence: list[Evidence] = []
+    for at, word in spans:
         forms, exact = word_stress(word, pack)
         if not exact:
             estimated += 1
+        evidence.append(
+            Evidence(
+                subject=word,
+                offset=offset + at,
+                # The first reading, which is the one the violations below report
+                # against, so the account and the complaint agree.
+                value=forms[0] if forms else "",
+                basis="dictionary" if exact else "estimated",
+            )
+        )
         combinations *= max(len(forms), 1)
         words.append((word, forms if combinations <= MAX_COMBINATIONS else forms[:1]))
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
-        return MetreResult([], len(words), max(len(words), 1), estimated)
+        return MetreResult([], len(words), max(len(words), 1), estimated, tuple(evidence))
 
     violations: list[Violation] = []
     # No combination fits. Report against the first pronunciation of each word,
@@ -144,7 +171,7 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
                 expected=f"{len(pattern)} syllables",
             )
         )
-        return MetreResult(violations, 0, 1, estimated)
+        return MetreResult(violations, 0, 1, estimated, tuple(evidence))
 
     matched = 0
     position = 0
@@ -159,7 +186,7 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
                 )
             )
         position += len(stress)
-    return MetreResult(violations, matched, max(len(words), 1), estimated)
+    return MetreResult(violations, matched, max(len(words), 1), estimated, tuple(evidence))
 
 
 def feet(units: Sequence[Sequence[str]]) -> list[str]:
@@ -223,13 +250,15 @@ def stanza_violations(
     good = 0
     total = 0
     estimated = 0
+    evidence: list[Evidence] = []
     for (offset, line), options in zip(lines, patterns, strict=True):
         result = line_metre(line, pack, options, offset)
         violations += result.violations
         good += result.good
         total += result.total
         estimated += result.estimated
-    return MetreResult(violations, good, max(total, 1), estimated)
+        evidence += result.evidence
+    return MetreResult(violations, good, max(total, 1), estimated, tuple(evidence))
 
 
 def repeat_to(pattern_unit: str, feet: int) -> str:
@@ -277,6 +306,30 @@ def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[
     return keys
 
 
+def rhyme_evidence(
+    keys: Sequence[tuple[int, str, frozenset[str], bool]],
+) -> tuple[Evidence, ...]:
+    """The line endings a scheme was judged on, as evidence.
+
+    Sorted so the account is stable between runs: `rhyme_keys` are a `frozenset`
+    and its iteration order is not a fact about the word.
+    """
+    return tuple(
+        Evidence(
+            subject=word,
+            # No offset. `rhyme_keys` carries the *line's* offset, and the subject
+            # here is the word that line ends on — pairing the two would hand a
+            # reader a position that does not point at the thing it names, which
+            # is worse than declining to give one. The word is findable as the
+            # line's ending; `Violation.offset` still locates the line.
+            offset=None,
+            value="/".join(sorted(found)) if found else "no rhyme key",
+            basis="dictionary" if exact else "estimated",
+        )
+        for _, word, found, exact in keys
+    )
+
+
 def scheme_violations(
     text: str,
     pack: LanguagePack,
@@ -319,7 +372,7 @@ def scheme_violations(
                 expected=f"{len(letters)} lines",
             )
         )
-        return SchemeResult(violations, 0, 1, estimated)
+        return SchemeResult(violations, 0, 1, estimated, rhyme_evidence(keys))
 
     checks = 0
     matched = 0
@@ -391,5 +444,5 @@ def scheme_violations(
                 expected="at least one pair this install can decide",
             )
         )
-        return SchemeResult(violations, 0, 1, estimated)
-    return SchemeResult(violations, matched, max(checks, 1), estimated)
+        return SchemeResult(violations, 0, 1, estimated, rhyme_evidence(keys))
+    return SchemeResult(violations, matched, max(checks, 1), estimated, rhyme_evidence(keys))

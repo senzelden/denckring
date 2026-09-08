@@ -32,7 +32,7 @@ class Clerihew(BaseProcedure[ClerihewParams]):
         return ClerihewParams
 
     def _check(self, text: str, pack: LanguagePack, params: ClerihewParams) -> Report:
-        found, matched, checks, _estimated = scheme_violations(
+        found, matched, checks, _estimated, rhymes = scheme_violations(
             text, pack, SCHEME, allow_identical=False
         )
         return self._report(
@@ -40,4 +40,5 @@ class Clerihew(BaseProcedure[ClerihewParams]):
             total=checks,
             violations=found,
             metrics={"lines": float(len(line_spans(text)))},
+            evidence=list(rhymes),
         )

@@ -8,7 +8,7 @@ from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import UnknownRhyme, metre_violations, scheme_violations
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -22,6 +22,11 @@ class FormResult(NamedTuple):
     good: int
     total: int
     estimated: int
+    #: Gathered from whichever parts ran. A form is assembled from a scheme, a
+    #: metre, refrains and a line count, and the first two each have an account
+    #: of what they read; this is where the assembled form's account lives so
+    #: that eighteen procedures do not each have to collect it.
+    evidence: tuple[Evidence, ...] = ()
 
 
 class RhymeSchemeParams(RhymeParams):
@@ -66,6 +71,7 @@ def form_report(
     good = 0
     total = 0
     estimated = 0
+    evidence: list[Evidence] = []
     if lines is not None:
         n = len(line_spans(text))
         if n != lines:
@@ -96,6 +102,7 @@ def form_report(
         good += rhyme.good
         total += rhyme.total
         estimated += rhyme.estimated
+        evidence += rhyme.evidence
     if metre is not None:
         for offset, line in line_spans(text):
             result = metre_violations(line, pack, metre, offset)
@@ -103,6 +110,7 @@ def form_report(
             good += result.good
             total += result.total
             estimated += result.estimated
+            evidence += result.evidence
     if refrains is not None:
         stripped_lines = [line.strip().casefold() for _, line in line_spans(text)]
         for first, repeat in refrains:
@@ -124,7 +132,7 @@ def form_report(
                         else f"line {first + 1}",
                     )
                 )
-    return FormResult(violations, good, max(total, 1), estimated)
+    return FormResult(violations, good, max(total, 1), estimated, tuple(evidence))
 
 
 @register
@@ -149,6 +157,7 @@ class RhymeScheme(BaseProcedure[RhymeSchemeParams]):
             good=result.good,
             total=result.total,
             violations=result.violations,
+            evidence=list(result.evidence),
             metrics={
                 "pairs_checked": float(result.total),
                 "estimated_words": float(result.estimated),

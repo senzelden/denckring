@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import word_rhyme_keys
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, word_spans
 
@@ -68,6 +68,10 @@ class Ghazal(BaseProcedure[GhazalParams]):
         qafia_good = 0
         qafia_total = 0
         estimated = 0
+        # The qafia is the word *before* the radif, so the account has to name
+        # that word and not the line ending: reporting the radif would describe
+        # the one word every carrying line is required to share.
+        evidence: list[Evidence] = []
         # The opening couplet carries the radif on both lines; thereafter every second.
         carriers = [1, *range(3, len(lines), 2)]
         for index in carriers:
@@ -89,6 +93,13 @@ class Ghazal(BaseProcedure[GhazalParams]):
             if len(first_words) < 2 or len(words) < 2:
                 continue
             candidate, candidate_exact = word_rhyme_keys(words[-2], pack)
+            evidence.append(
+                Evidence(
+                    subject=words[-2],
+                    value="/".join(sorted(candidate)) if candidate else "no rhyme key",
+                    basis="dictionary" if candidate_exact else "estimated",
+                )
+            )
             if not (base_exact and candidate_exact):
                 # The dictionary does not carry one of the pair, so this couplet
                 # cannot be judged. What that means is the caller's decision.
@@ -128,4 +139,5 @@ class Ghazal(BaseProcedure[GhazalParams]):
                 "couplets": float(len(lines) // 2),
                 "estimated_words": float(estimated),
             },
+            evidence=evidence,
         )

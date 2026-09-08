@@ -132,4 +132,5 @@ class Hemeling(BaseProcedure[HemelingParams]):
                 "gloss_lines": float(len(lines) - 1),
                 "estimated_words": float(rhyme.estimated),
             },
+            evidence=list(rhyme.evidence),
         )

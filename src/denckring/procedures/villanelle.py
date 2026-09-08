@@ -35,6 +35,7 @@ class Villanelle(BaseProcedure[VillanelleParams]):
             good=result.good,
             total=result.total,
             violations=result.violations,
+            evidence=list(result.evidence),
             metrics={
                 "checks": float(result.total),
                 "estimated_words": float(result.estimated),

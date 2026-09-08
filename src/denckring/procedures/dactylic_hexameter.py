@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from denckring.core.base import BaseProcedure
 from denckring.core.prosody import feet, line_metre
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 
@@ -59,15 +59,18 @@ class DactylicHexameter(BaseProcedure[DactylicHexameterParams]):
         good = 0
         total = 0
         estimated = 0
+        evidence: list[Evidence] = []
         for offset, line in lines:
             result = line_metre(line, pack, PATTERNS, offset)
             violations += result.violations
             good += result.good
             total += result.total
             estimated += result.estimated
+            evidence += result.evidence
         return self._report(
             good=good,
             total=max(total, 1),
             violations=violations,
+            evidence=evidence,
             metrics={"lines": float(len(lines)), "estimated_words": float(estimated)},
         )

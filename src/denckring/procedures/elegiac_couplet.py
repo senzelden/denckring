@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from denckring.core.base import BaseProcedure
 from denckring.core.prosody import feet, line_metre
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
 from denckring.procedures.dactylic_hexameter import DACTYL
@@ -60,6 +60,7 @@ class ElegiacCouplet(BaseProcedure[ElegiacCoupletParams]):
         good = 0
         total = 0
         estimated = 0
+        evidence: list[Evidence] = []
         for index, (offset, line) in enumerate(lines):
             options = HEXAMETER_PATTERNS if index % 2 == 0 else PENTAMETER_PATTERNS
             result = line_metre(line, pack, options, offset)
@@ -67,9 +68,11 @@ class ElegiacCouplet(BaseProcedure[ElegiacCoupletParams]):
             good += result.good
             total += result.total
             estimated += result.estimated
+            evidence += result.evidence
         return self._report(
             good=good,
             total=max(total, 1) + (1 if len(lines) % 2 else 0),
             violations=violations,
             metrics={"lines": float(len(lines)), "estimated_words": float(estimated)},
+            evidence=evidence,
         )

@@ -8,6 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
+from denckring.procedures.syllable_count import syllable_evidence
 
 
 class MonosyllabicProseParams(BaseModel):
@@ -47,4 +48,5 @@ class MonosyllabicProse(BaseProcedure[MonosyllabicProseParams]):
             total=len(words),
             violations=violations,
             metrics={"words": float(len(words)), "estimated_words": float(estimated)},
+            evidence=syllable_evidence(text, pack),
         )

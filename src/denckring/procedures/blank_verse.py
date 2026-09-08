@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from denckring.core.base import BaseProcedure, RhymeParams
-from denckring.core.prosody import rhyme_keys
+from denckring.core.prosody import rhyme_evidence, rhyme_keys
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
@@ -56,4 +56,7 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
             total=total,
             violations=violations,
             metrics={"checks": float(total), "estimated_words": float(result.estimated)},
+            # The metre scan's account, plus the line endings the no-rhyme rule
+            # was decided on — both are measurements this verdict rests upon.
+            evidence=list(result.evidence) + list(rhyme_evidence(keys)),
         )

@@ -14,9 +14,12 @@ here supports.
 
 from __future__ import annotations
 
+import contextlib
+
 import pytest
 
 from denckring import check
+from denckring.core.errors import DenckringError
 from denckring.core.registry import get
 
 HAIKU_EN = "the evening rain\nis falling softly\nsplash silence again"
@@ -111,3 +114,66 @@ def test_a_pack_without_the_method_reports_nothing_rather_than_failing() -> None
         pass
 
     assert syllable_evidence("a line", Older()) == []  # type: ignore[arg-type]
+
+
+def test_metre_names_the_stress_it_read_each_word_as() -> None:
+    """A line that does not scan is unactionable as a verdict and actionable as a
+    reading: `curfew (10)` is something a writer can argue with."""
+    report = check("iambic_pentameter", "the curfew tolls the knell of parting day")
+    assert report.evidence
+    assert {e.subject for e in report.evidence} >= {"curfew", "parting"}
+    assert next(e for e in report.evidence if e.subject == "curfew").value == "10"
+
+
+def test_rhyme_names_the_keys_the_pairs_were_judged_on() -> None:
+    """Two lines fail to rhyme because their key sets do not intersect, and the
+    keys are the only thing that makes that verdict checkable by a reader."""
+    report = check(
+        "rhyme_scheme",
+        "the cat sat on the mat\na dog ran by the log\n"
+        "the rat wore just a hat\nthe hog was in a bog",
+        scheme="ABAB",
+    )
+    keys = {e.subject: e.value for e in report.evidence}
+    assert keys["mat"] == keys["hat"], "a rhyming pair should share a key"
+    assert keys["mat"] != keys["log"]
+
+
+def test_a_word_with_two_pronunciations_reports_both() -> None:
+    """`bog` is AA1 G and AO1 G. Reporting one would make the rhyme verdict look
+    like a coin toss to anyone checking it against a dictionary."""
+    report = check("rhyme_scheme", "a heavy log\na misty bog", scheme="AA")
+    assert "/" in next(e for e in report.evidence if e.subject == "bog").value
+
+
+def test_arca_reports_the_source_it_measured_not_the_music() -> None:
+    """`text` is the music — "5 3 1 3" — and the syllables the verdict rests on
+    are the source's. Evidence drawn from `text` would name digits, and the
+    offsets are dropped because they would index the other string."""
+    import yaml
+
+    from denckring.eval.harness import GOLDEN_DIR
+
+    case = yaml.safe_load((GOLDEN_DIR / "arca_musarithmica.yaml").read_text())["cases"][0]
+    report = check("arca_musarithmica", case["text"], **case["params"])
+    assert report.evidence
+    assert all(e.offset is None for e in report.evidence)
+    assert not any(e.subject.isdigit() for e in report.evidence)
+
+
+def test_the_heuristic_rows_carry_evidence_and_the_exact_ones_do_not() -> None:
+    """The split `describe().reading.determinacy` reports, checked against what
+    the reports actually contain rather than against the catalogue's word for it.
+
+    Not all 41: five rows reach their verdict by paths of their own that this
+    chapter did not thread. They are named so the gap is a record rather than a
+    surprise.
+    """
+    from denckring import describe
+    from denckring.core.registry import all_procedures
+
+    exact = [i for i in all_procedures() if describe(i).reading.determinacy == "exact"]
+    assert exact, "the exact half should not be empty"
+    for procedure in exact[:20]:
+        with contextlib.suppress(DenckringError):
+            assert get(procedure).check("one two three").evidence == []

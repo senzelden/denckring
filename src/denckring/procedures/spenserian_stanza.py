@@ -46,8 +46,9 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
                 total=metre.total,
                 violations=metre.violations,
                 metrics={"checks": float(metre.total), "estimated_words": 0.0},
+                evidence=list(metre.evidence),
             )
-        found, matched, checks, _estimated = scheme_violations(
+        found, matched, checks, _estimated, rhymes = scheme_violations(
             text, pack, SCHEME, allow_identical=False
         )
         return self._report(
@@ -58,4 +59,5 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
                 "checks": float(metre.total + checks),
                 "estimated_words": float(metre.estimated),
             },
+            evidence=list(metre.evidence) + list(rhymes),
         )

@@ -41,6 +41,7 @@ class AlcaicStanza(BaseProcedure[AlcaicStanzaParams]):
             good=result.good,
             total=result.total,
             violations=result.violations,
+            evidence=list(result.evidence),
             metrics={
                 "lines": float(len(line_spans(text))),
                 "estimated_words": float(result.estimated),

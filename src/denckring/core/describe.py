@@ -7,7 +7,7 @@ Computing it four times is how four copies drift apart.
 
 from __future__ import annotations
 
-from typing import Any, get_args
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel
 
@@ -37,6 +37,44 @@ class Summary(BaseModel):
     kind: str
     runnable: bool
     constructive: bool
+
+
+#: Capabilities whose answers a pack may have to estimate. A row requiring any of
+#: them can have its verdict rest on a guess; a row requiring none of them cannot.
+#: This is the 81/41 split of the implemented catalogue.
+_SOFT = frozenset(
+    {"syllables", "syllables.heuristic", "syllables.dictionary", "stress", "phonemes"}
+)
+
+#: What folding does, stated once. `BasePack.fold_diacritics` case-folds and strips
+#: combining marks, so `ß` becomes `ss` and the result can be longer than its input;
+#: `letter_spans` composes a base character with its marks first, so the answer does
+#: not depend on whether the text arrived in NFC or NFD.
+_FOLD_POLICY = (
+    "NFC composition of each base character with its combining marks, then NFKD "
+    "case-folding with marks stripped: 'ä' reads as 'a' and 'ß' as 'ss'. Turn it off "
+    "with fold_diacritics=false, which lowercases only."
+)
+_NO_FOLD_POLICY = "Case only. This procedure does not compare letters, so nothing folds."
+
+
+class Reading(BaseModel):
+    """How a checker turns text into the units it judges, and how firm the answer is.
+
+    The three things the developer feedback of 2026-09-07 asked a specification to
+    record that `describe` did not: what normalisation is applied, what counts as a
+    word, and whether the answer is exact or may rest on an estimate.
+
+    `determinacy` is a property of the *row*, not of a run: `heuristic` means the
+    verdict can rest on a guess, not that it did. `Report.evidence` is what says
+    whether it actually did, word by word, on a given call.
+    """
+
+    determinacy: Literal["exact", "heuristic"]
+    normalization: str
+    #: The pack's word pattern, for the language asked about. A caller comparing its
+    #: own tokenisation against a verdict needs to know what this one counted.
+    tokenization: str
 
 
 class Description(BaseModel):
@@ -84,6 +122,9 @@ class Description(BaseModel):
     #: The fallback itself is unchanged — a substitute beats a blank field — this
     #: only stops it being invisible.
     untranslated: list[str]
+    #: Normalisation, tokenisation and whether the answer can rest on an estimate.
+    #: Always present: these are properties of the row, not opt-in scholarship.
+    reading: Reading
     scholarly: Scholarly | None = None
 
 
@@ -152,6 +193,19 @@ def _fell_back(mapping: dict[Lang, str], lang: Lang) -> bool:
     return bool(mapping) and lang not in mapping
 
 
+def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
+    """Derived, never authored, for the reason `runs_in` is: a hand-written answer
+    drifts from the code it describes and nothing notices."""
+    from denckring.lang import get_pack
+
+    folds = "fold_diacritics" in procedure.params_model().model_fields
+    return Reading(
+        determinacy="heuristic" if _SOFT & set(meta.requires) else "exact",
+        normalization=_FOLD_POLICY if folds else _NO_FOLD_POLICY,
+        tokenization=get_pack(lang).word_re.pattern,
+    )
+
+
 def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -> Description:
     """One procedure, in full. Raises `UnknownProcedure` for an unknown id."""
     meta = catalogue.get(procedure_id)
@@ -184,6 +238,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
             )
             if _fell_back(mapping, lang)
         ],
+        reading=_reading(meta, procedure, lang),
         params=procedure.params_model().model_json_schema(),
         # Asked of the spine rather than the `Constructive` protocol, which
         # declares `apply` alone. The two cannot disagree: every procedure that

@@ -8,7 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import paragraph_spans
-from denckring.procedures.syllable_count import line_syllables
+from denckring.procedures.syllable_count import line_syllables, syllable_evidence
 
 HOKKU = [5, 7, 5]
 WAKIKU = [7, 7]
@@ -93,4 +93,5 @@ class Renga(BaseProcedure[RengaParams]):
             total=max(total, 1),
             violations=violations,
             metrics={"stanzas": float(len(stanzas)), "estimated_words": float(estimated)},
+            evidence=syllable_evidence(text, pack),
         )

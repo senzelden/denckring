@@ -94,9 +94,10 @@ class Ballade(BaseProcedure[BalladeParams]):
         good = result.good
         total = result.total
         estimated = result.estimated
+        evidence = list(result.evidence)
 
         if len(line_spans(text)) == LINES:
-            found, matched, checks, _estimated = scheme_violations(
+            found, matched, checks, _estimated, rhymes = scheme_violations(
                 text, pack, SCHEME, allow_identical=False
             )
             keys = rhyme_keys(text, pack)
@@ -104,6 +105,7 @@ class Ballade(BaseProcedure[BalladeParams]):
             violations += found
             good += matched + exempted
             total += checks
+            evidence += rhymes
 
         return self._report(
             good=good,
@@ -113,4 +115,5 @@ class Ballade(BaseProcedure[BalladeParams]):
                 "checks": float(total),
                 "estimated_words": float(estimated),
             },
+            evidence=evidence,
         )

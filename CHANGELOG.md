@@ -53,7 +53,17 @@ All notable changes to this project are documented here. The format follows
   closed set rather than a confidence score — the pack knows which of two ways it got an
   answer and does not know a probability, and attaching one would invent precision no
   measurement here supports. Empty on the exactly decidable rows, which have nothing to
-  explain. **Syllabic rows only so far**; metre and rhyme still report counts alone.
+  explain. Metre reports the stress each word was read as, rhyme the keys each line
+  ending was judged on — including both when a word has two pronunciations, since
+  reporting one would make the verdict look arbitrary to anyone checking it against a
+  dictionary. **36 of the 41 heuristic rows carry it**; `assonance_constraint`,
+  `proteus_verse` and `spoonerism` reach their verdicts by paths of their own that this
+  did not thread, and are named here so the gap is a record rather than a surprise.
+- `describe().reading`: the three things a specification should record that `describe`
+  did not — `normalization` (the fold policy in words), `tokenization` (the pack's word
+  pattern), and `determinacy`, `exact` or `heuristic`, which is **81 rows against 41**.
+  Derived rather than authored, for the reason `runs_in` is: a hand-written answer drifts
+  from the code it describes and nothing notices.
 - `LanguagePack.syllable_evidence`, the per-word breakdown behind `line_syllables`' two
   numbers. `FrenchDataPack` overrides it to return one `line`-scoped entry, because a
   final mute e elides or counts depending on what follows, so a word's contribution is

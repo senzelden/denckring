@@ -12,7 +12,7 @@ from denckring.core.errors import UnsettablePhrase
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
-from denckring.procedures.syllable_count import line_syllables
+from denckring.procedures.syllable_count import line_syllables, syllable_evidence
 
 
 class ArcaMusarithmicaParams(SourceParams):
@@ -125,6 +125,15 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
                 "estimated_words": float(estimated),
                 "settable_lengths": float(len(tablets.lengths(params.syntagma))),
             },
+            # The source, not `text`: `text` is the music — "5 3 1 3" — and the
+            # syllables this verdict rests on are the ones `line_syllables`
+            # measured in `params.source` above. The offsets are dropped with
+            # them, because they would index the source and a reader holding the
+            # checked text would apply them to the wrong string.
+            evidence=[
+                entry.model_copy(update={"offset": None})
+                for entry in syllable_evidence(params.source, pack)
+            ],
         )
 
     @classmethod

@@ -132,7 +132,13 @@ because a written `ß` carries an ascender.
 ## Reports and Productions
 
 `check` returns a `Report`: `satisfied`, a continuous `score` in `[0, 1]`, a list of
-`violations` with character offsets, and free-form `metrics`. The score is monotone in
+`violations` with character offsets, free-form `metrics`, and `evidence` — the
+measurements the verdict rests on, each saying whether it came from a dictionary or a
+spelling heuristic. A haiku that misses names the words it counted and what it made them;
+a line that does not scan names the stress it read each word as. It is empty on the rows
+that need no such account: a lipogram's violation already carries the offending character.
+`describe()` says in advance which kind a row is — `reading.determinacy` is `exact` for 81
+of the 122 and `heuristic` for 41. The score is monotone in
 violation count and `satisfied` is exactly `score == 1.0`, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.
 
