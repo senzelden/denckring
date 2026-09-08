@@ -108,12 +108,20 @@ on a widening nobody asked for.
 alexandriner — and gets it without a warning, because omitting a parameter is not an
 error. D6 buys backward compatibility at exactly this price.
 
-**The external corpus rises by less than 23.** Four texts ship `satisfied: false` under
+**The external corpus rises by less than 23 — correction, measured at 13.** This
+paragraph predicted an upper bound before the corpus was built; the implementation
+raised it from 38 to 51 (7.1% to 9.4%), which is a smaller rise than 23 and confirms
+the bound rather than contradicting it, so the number below is a correction in the
+sense of *filled in*, not *overwritten*. Four texts ship `satisfied: false` under
 D3 and the four French sonnet and ballade cases cannot ship at all — `sonnet` and
 `ballade` want `stress`, which French does not have, so they sit inside the 18-row
 ceiling ADR 0034's D3 recorded. A `satisfied: false` case is evidence about the
 reading, but it does not demonstrate a row accepting real verse, which is the thing
-7.1% was low on.
+7.1% was low on: of the 13, only **five** demonstrate exactly that — Crapsey, Bentley,
+Verlaine, du Bellay and Kuhlmann pass outright. The other eight, three of them German
+(Gryphius twice, Goethe once), ship `satisfied: false` with the measured reading
+recorded in `source`, which is the same shape this paragraph predicted, at the scale
+this record can now state rather than bound.
 
 **English canonical verse still fails, and this record declines to fix it.** 21.7% of
 English canonical lines are not read on metre after D1. Anyone reopening D2 should
@@ -138,6 +146,31 @@ the source is stanza-initial, but the note excerpts only each stanza's first lin
 the text it actually supplies *is* line-initial and the checker's acceptance is
 correct. Both were caught by running the texts rather than reading about them, which is
 the only reason this record's numbers are worth anything.
+
+**A defect the corpus found: lowercase `du` reads as two syllables.** `word_stress`
+returns `['10', '?']` for `du` and `['?']` for `Du` and every other German pronoun,
+though `syllable_count("du")` is correctly 1 — case-dependent, and the same family of
+defect as the `find_word` casing mismatch fixed in `device.segment`. It lives in the
+`denckring-de-data` distribution, not in this package, so this record cannot fix it.
+It makes one of the 42 German canonical lines — Gryphius, "Es ist alles eitel", l.1 —
+*report* as 14 syllables in a `wrong_stress` violation's `found` figure, where
+`line_syllables` reads the same line correctly at 13. Parked rather than fixed:
+`sonnet/gryphius-eitel-sonett`'s golden case carries a `min_score` floor rather than
+an exact score for exactly this reason, so a later fix to the pronunciation data
+raises the score instead of breaking the fixture.
+
+**A scoring artefact, parked.** `metre_violations` returns `total=1` from its
+wrong-length branch and `total=len(words)` from the branch where a line matches a
+candidate's length, so turning `feminine_ending` on changes the score's denominator as
+well as its numerator — a six-line Iphigenie excerpt goes from 20/24 to 38/39 for the
+same line-for-line reading. Pre-existing: the single-pattern
+path has always returned 0/1 for a wrong-length line, and D6 holds exactly, because
+with `feminine_ending=False` there is one candidate and the accumulation is
+byte-identical to before this record. No `satisfied` verdict is affected, since that
+turns on whether violations exist rather than on the ratio; only `score` moves.
+Documented in `line_metre`'s own docstring. Fixing it would change what `score` means
+for every metre-bearing row, and ADR 0005 makes the continuous score load-bearing, so
+it is its own decision record rather than a side effect of this one.
 
 ## Alternatives considered
 
