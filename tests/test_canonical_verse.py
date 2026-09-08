@@ -39,6 +39,7 @@ import pytest
 import yaml
 
 from denckring.lang import get_pack
+from denckring.procedures.syllable_count import syllable_evidence
 
 PACK = get_pack("en")
 
@@ -126,25 +127,23 @@ def canonical_lines() -> list[dict[str, object]]:
 ENGLISH_TRUE_DISAGREEMENTS = 3
 
 
-def test_the_english_ceiling_D2_declined_on_has_not_moved() -> None:  # noqa: N802
+def test_the_english_ceiling_has_not_moved() -> None:
     """Fails in both directions on purpose. Fewer means English elision just got
     cheaper than ADR 0040 D2 measured it and the decision should be re-read; more
     means a regression.
 
-    The `D2` in the name is ADR 0040's decision label, not a naming lapse — that
-    is why the `noqa` above is targeted rather than a blanket exemption.
+    Goes through `syllable_evidence`, the same production helper
+    `procedures/syllable_count.py` uses to report evidence, rather than reaching
+    past `LanguagePack` to the `BasePack` method it wraps.
     """
-    pack = get_pack("en")
-    # `syllable_evidence` is on `BasePack`, not the published `LanguagePack`
-    # protocol (a third-party pack need not implement it), so `getattr` reaches
-    # it the same way `procedures/syllable_count.py`'s own reader does.
-    evidence = pack.syllable_evidence  # type: ignore[attr-defined]
     disagreements = [
         row
         for row in canonical_lines()
         if row["lang"] == "en"
         and row["reads"] != row["wants"]
-        and not any(not exact for *_, exact in evidence(row["line"]))
+        and not any(
+            entry.basis == "estimated" for entry in syllable_evidence(str(row["line"]), PACK)
+        )
     ]
     assert len(disagreements) == ENGLISH_TRUE_DISAGREEMENTS, (
         f"{len(disagreements)} English canonical lines disagree with the model with "
