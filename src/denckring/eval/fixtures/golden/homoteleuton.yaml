@@ -25,3 +25,18 @@ cases:
     text: café chat
     params: { final: é }
     satisfied: false
+  - name: homoteleuton-peacham
+    lang: en
+    provenance: external
+    source: >-
+      Henry Peacham, The Garden of Eloquence (London, 1593 [1577]); example via Silva
+      Rhetoricae (rhetoric.byu.edu), not collated against the 1593 original. Rejected: 14 x
+      `wrong_final`. Peacham's figure turns on a shared final *syllable*; this row compares
+      final *letters* only, which its catalogue entry states.
+    text: |-
+      He is esteemed eloquent which can invent wittily, remember perfectly,
+      dispose orderly, figure diversly, pronounce aptly, confirme strongly,
+      and conclude directly.
+    params: {fold_diacritics: True, final: "y"}
+    satisfied: false
+    min_score: 0.32

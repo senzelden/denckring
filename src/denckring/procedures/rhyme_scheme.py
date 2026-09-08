@@ -10,7 +10,7 @@ from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import UnknownRhyme, line_metre, scheme_violations, with_feminine
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import line_spans
+from denckring.core.text import line_identity, line_spans
 
 
 class FormResult(NamedTuple):
@@ -116,7 +116,9 @@ def form_report(
             estimated += result.estimated
             evidence += result.evidence
     if refrains is not None:
-        stripped_lines = [line.strip().casefold() for _, line in line_spans(text)]
+        # `line_identity`, not a raw compare: a refrain returns with the punctuation
+        # its new syntax wants, and that is the form working rather than failing.
+        stripped_lines = [line_identity(line) for _, line in line_spans(text)]
         for first, repeat in refrains:
             total += 1
             if (

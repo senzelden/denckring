@@ -8,6 +8,25 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- A refrain is the same line returning, whatever punctuation its position wants.
+  `form_report`, `rondeau` and `pantoum` compared repeated lines after nothing more than
+  `strip().casefold()`, so a refrain that came back with a different stop was reported as
+  `broken_refrain`. That is not an edge case, it is how the fixed forms are printed:
+  Passerat's villanelle (1606) closes its refrain `Tourterelle:`, then `Tourterelle.`,
+  then `Tourterelle,` as the syntax around it changes, and Ranchin's triolet returns
+  `du mois de mai` once bare and once as `de mai !`. The three sites now compare
+  `core.text.line_identity`, which strips terminal sentence punctuation and nothing else —
+  apostrophes stay, because in French the elision is part of the word (`l'âme`, `i'oy`)
+  and folding it would compare something other than the line.
+
+  Four canonical texts went from rejected to accepted: Ranchin's triolet, Leconte de
+  Lisle's pantoum and McCrae's rondeau all reach 1.000, and Passerat's villanelle rises
+  from 0.922 to 0.980 — its one remaining `broken_refrain` is a real textual question,
+  `aprés ell` against `aprés elle`, which the fix correctly does not paper over.
+  **No existing verdict moved**: all 34 constructed cases in the refrain-bearing rows
+  repeat their refrains byte-for-byte, because the same author typed both copies, which
+  is exactly why none of them could ever have found this.
+
 - `mutants/`, which `mutmut` fills with 5.6 MB and leaves behind, is excluded from the
   source distribution and from git. Untracked, and `uv build` reads the working tree
   rather than the index, so 312 of its files landed in the archive and pushed the sdist
@@ -28,6 +47,29 @@ All notable changes to this project are documented here. The format follows
   character's offset, so a `Violation` still points into the text the caller passed.
 
 ### Added
+
+- Fifteen texts from research batch 3 enter the golden corpus across thirteen rows, taking
+  externally sourced cases from 51 of 545 to **66 of 560 (9.4% to 11.8%)** and the rows
+  carrying any external evidence from 40 to **54 of 122**. Eight pass — Wagner's
+  alliterative verse, Gaunt's anaphora, Lincoln's epistrophe, Platen's ghazal, Leconte de
+  Lisle's pantoum, McCrae's rondeau, Ranchin's triolet, and `courtship` for the charade.
+  Seven ship `satisfied: false` with the reason read off the run rather than written from
+  memory: the chronogram's numerals sum to 4204 and not the 1603 it claims, `homoteleuton`
+  compares final letters where Peacham's figure turns on a syllable, and `spoonerism`
+  declines because neither `Kinquering` nor `Congs` is in the pronouncing dictionary.
+
+  Passerat's villanelle is the honest one. It scores 0.980 on a single `broken_refrain`,
+  line 24 reading `aprés ell` where line 3 reads `aprés elle`, and its `source` says in
+  as many words that whether this is the 1606 spelling or a transcription slip is **not
+  verified** against the print. The case ships as supplied, with the question open.
+
+  Three of the batch did not land, and none for want of a checker: `wechselsatz` was given
+  the string `Kuhlmann 1671` where the parameter wants the template of interchangeable
+  slots, `denckring` was given Harsdörffer's instructions to the bookbinder rather than
+  words built from the rings, and the `sestina` was six lines of a thirty-nine-line form.
+
+  `EXTERNAL_FLOOR` rises from 51 to 66, and the new `satisfied: false` cases carry
+  `min_score` floors — except where the floor would have been 0.0, which guards nothing.
 
 - Mutation testing, via `mutmut`, configured and deliberately outside the four-command
   gate (ADR 0039). Coverage says a line ran; this says whether a test would notice the

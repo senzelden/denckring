@@ -104,3 +104,54 @@ cases:
       Dans le grand
     params: { rentrement_words: 3 }
     satisfied: false
+  - name: rondeau-mccrae-flanders
+    lang: en
+    provenance: external
+    source: >-
+      John McCrae, 'In Flanders Fields', Punch (London), 8 December 1915, p. 468 (published
+      anonymously); text as in In Flanders Fields and Other Poems (New York/Toronto, 1919)
+    text: |-
+      In Flanders fields the poppies blow
+      Between the crosses, row on row,
+        That mark our place; and in the sky
+        The larks, still bravely singing, fly
+      Scarce heard amid the guns below.
+
+      We are the Dead. Short days ago
+      We lived, felt dawn, saw sunset glow,
+        Loved and were loved, and now we lie,
+            In Flanders fields.
+
+      Take up our quarrel with the foe:
+      To you from failing hands we throw
+        The torch; be yours to hold it high.
+        If ye break faith with us who die
+      We shall not sleep, though poppies grow
+            In Flanders fields.
+    params: {unknown_rhyme: "free", rentrement_words: 3}
+    satisfied: true
+  - name: rondeau-orleans-13line
+    lang: fr
+    provenance: external
+    source: >-
+      Charles d'Orléans, 'Le temps a laissié son manteau' (rondeau); common editions, NOT
+      verified against a named pre-1929 edition. Rejected: `wrong_line_count` (12 against
+      15) and `broken_rentrement`. This is the older thirteen-line rondeau, which the row
+      cannot express — its fifteen lines are module constants, not a parameter.
+    text: |-
+      Le temps a laissié son manteau
+      De vent, de froidure et de pluye,
+      Et s'est vestu de brouderie,
+      De soleil luyant, cler et beau.
+
+      Il n'y a beste, ne oyseau,
+      Qu'en son jargon ne chante ou crie:
+      Le temps a laissié son manteau.
+
+      Riviere, fontaine et ruisseau
+      Portent, en livrée jolie,
+      Gouttes d'argent d'orfaverie;
+      Chascun s'abille de nouveau:
+      Le temps a laissié son manteau.
+    params: {unknown_rhyme: "free", rentrement_words: 6}
+    satisfied: false

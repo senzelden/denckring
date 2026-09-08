@@ -39,3 +39,16 @@ cases:
       der abend kam still herein
     params: { minimum: 3 }
     satisfied: false
+  - name: alliterative-verse-wagner-rheingold
+    lang: de
+    provenance: external
+    source: >-
+      Richard Wagner, Das Rheingold, Erste Szene (Der Ring des Nibelungen; Textbuch 1853,
+      Uraufführung 1869); zitiert nach Projekt Gutenberg-DE und Bayern-online (Bayreuth
+      Wagnerportal)
+    text: |-
+      Weia! Waga! Woge, du Welle!
+      walle zur Wiege! Wagalaweia!
+      Wallala weiala weia!
+    params: {}
+    satisfied: true

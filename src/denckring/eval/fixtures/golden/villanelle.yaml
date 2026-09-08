@@ -98,3 +98,41 @@ cases:
       Le vent emporte notre amour
     params: {}
     satisfied: false
+  - name: villanelle-passerat
+    lang: fr
+    provenance: external
+    source: >-
+      Jean Passerat, 'Villanelle' (J'ay perdu ma Tourterelle), in Recueil des œuvres
+      poétiques de Ian Passerat (Paris: Morel, 1606), pp. 344–345; original orthography per
+      the 1606 base text (long-s and ß retained as printed). Rejected: one `broken_refrain`.
+      Line 24 reads `aprés ell` where line 3 reads `aprés elle`. Whether that is Passerat's
+      1606 spelling or a transcription slip is NOT VERIFIED against the print; the case is
+      shipped as it was supplied and the question is left open rather than silently mended.
+    text: |-
+      I'ay perdu ma Tourterelle:
+      Eft-ce point celle que i'oy?
+      Ie veus aller aprés elle.
+
+      Tu regretes ta femelle,
+      Helas! außi fai-ie moy,
+      I'ay perdu ma Tourterelle.
+
+      Si ton Amour eft fidelle,
+      Außi est ferme ma foy,
+      Ie veus aller aprés elle.
+
+      Ta plainte fe renouuelle;
+      Toufiours plaindre ie me doy:
+      I'ay perdu ma Tourterelle.
+
+      En ne voyant plus la belle
+      Plus rien de beau ie ne voy:
+      Ie veus aller aprés elle.
+
+      Mort, que tant de fois i'appelle,
+      Pren ce qui fe donne à toy:
+      I'ay perdu ma Tourterelle,
+      Ie veus aller aprés ell.
+    params: {unknown_rhyme: "free"}
+    satisfied: false
+    min_score: 0.97

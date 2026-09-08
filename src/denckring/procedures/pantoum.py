@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import line_spans
+from denckring.core.text import line_identity, line_spans
 
 QUATRAIN = 4
 
@@ -27,7 +27,9 @@ class Pantoum(BaseProcedure[PantoumParams]):
         return PantoumParams
 
     def _check(self, text: str, pack: LanguagePack, params: PantoumParams) -> Report:
-        lines = [line.strip().casefold() for _, line in line_spans(text)]
+        # A repeated line is the same line whatever punctuation its new position
+        # gives it — see `line_identity`.
+        lines = [line_identity(line) for _, line in line_spans(text)]
         stanzas = [lines[i : i + QUATRAIN] for i in range(0, len(lines), QUATRAIN)]
         violations: list[Violation] = []
         checked = 0

@@ -34,3 +34,13 @@ cases:
       musique
     params: {}
     satisfied: false
+  - name: charade-elton-courtship
+    lang: en
+    provenance: external
+    source: >-
+      Jane Austen, Emma (London: John Murray, 1816), Vol. I, ch. IX (Mr Elton's charade);
+      standard etext, not collated against the 1816 first edition
+    text: |-
+      courtship
+    params: {parts: 2}
+    satisfied: true
