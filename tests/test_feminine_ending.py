@@ -51,3 +51,22 @@ def test_the_spenserian_alexandrine_may_also_close_feminine() -> None:
     assert strict[0] == ["0101010101"]
     assert loose[0] == ["0101010101", "01010101010"]
     assert loose[8] == ["010101010101", "0101010101010"]
+
+
+#: Gryphius, "Thränen des Vaterlandes" (1636), ll.1-2. German alexandriners,
+#: the first closing feminine at thirteen syllables.
+GRYPHIUS = """Wir sind doch nunmehr gantz/ ja mehr denn gantz verheeret!
+Der frechen Völcker Schaar/ die rasende Posaun"""
+
+
+def test_a_german_alexandriner_may_close_on_thirteen() -> None:
+    strict = check("alexandrine", GRYPHIUS, lang="de")
+    loose = check("alexandrine", GRYPHIUS, lang="de", feminine_ending=True)
+    assert not strict.satisfied
+    assert loose.score > strict.score
+
+
+def test_the_tolerance_is_one_syllable_and_only_at_the_close() -> None:
+    """A guard that admitted any count would pass this row on anything."""
+    fourteen = "Wir sind doch nunmehr gantz und gar und ganz und gar verheeret schon"
+    assert not check("alexandrine", fourteen, lang="de", feminine_ending=True).satisfied
