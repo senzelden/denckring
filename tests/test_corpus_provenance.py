@@ -20,14 +20,30 @@ loader, so nothing could report it and nothing could stop it falling.
 from __future__ import annotations
 
 import collections
+import re
+from pathlib import Path
 
 from conftest import load_golden_cases
+from denckring import check
+
+#: Matches a `rule="..."` or `rule='...'` literal, the shape every checker uses to
+#: construct a Violation. Scanning the source for these rather than copying them
+#: into a second list here means a rule added tomorrow is recognised tomorrow.
+_RULE_LITERAL = re.compile(r"""rule\s*=\s*["']([a-z_]+)["']""")
+
+#: A `source` field's backtick spans include things that are not rule names —
+#: Middle English words, ADR numbers, stress patterns like `101` — so a claimed
+#: rule only counts if it is one the codebase actually defines.
+_BACKTICKED = re.compile(r"`([^`]+)`")
+
+_SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 
 #: The measurement above, as a floor rather than a pin. A guard that fixes the
 #: current answer fails on the change that is correct — adding a sourced case is
 #: exactly the improvement this file exists to encourage — so it asserts the
-#: number does not fall, not that it stays.
-EXTERNAL_FLOOR = 38
+#: number does not fall, not that it stays. Raised from 38 to 51 when ADR 0040's
+#: canonical corpus landed.
+EXTERNAL_FLOOR = 51
 
 
 def test_every_case_says_where_it_came_from() -> None:
@@ -66,3 +82,41 @@ def test_a_self_generated_case_is_never_the_only_evidence() -> None:
         by_procedure[case.procedure].add(case.provenance)
     alone = sorted(p for p, kinds in by_procedure.items() if kinds == {"self-generated"})
     assert not alone, f"{alone} are evidenced only by their own output"
+
+
+def _known_rule_names() -> set[str]:
+    names: set[str] = set()
+    for path in _SRC_ROOT.rglob("*.py"):
+        names.update(_RULE_LITERAL.findall(path.read_text(encoding="utf-8")))
+    return names
+
+
+def _rules_claimed(source: str, known_rules: set[str]) -> set[str]:
+    return {token for token in _BACKTICKED.findall(source) if token in known_rules}
+
+
+def test_an_external_rejection_names_a_rule_the_checker_actually_raised() -> None:
+    """A `satisfied: false` external case earns its place by explaining what this
+    package makes of a published text — that is its whole value, since `eval --all`
+    only checks that `satisfied` matches and cannot check that the explanation is
+    true. Three cases shipped with a `source` naming a rule the checker never raised
+    for them: one blamed `wrong_stress` on a line the row does not scan stress for
+    at all, two blamed a missing dictionary entry on a word the dictionary held. Each
+    was plausible read alone and false on inspection. This runs every such case and
+    checks its claim against what the checker actually says, so a false explanation
+    fails the suite instead of sitting in the corpus looking read."""
+    known_rules = _known_rule_names()
+    unbacked = []
+    for case in load_golden_cases():
+        if case.provenance != "external" or case.satisfied:
+            continue
+        claimed = _rules_claimed(case.source or "", known_rules)
+        if not claimed:
+            continue
+        report = check(case.procedure, case.text, lang=case.lang, **case.params)
+        emitted = {v.rule for v in report.violations}
+        for rule in sorted(claimed - emitted):
+            unbacked.append(
+                f"{case}: source names `{rule}`, but the checker raised {sorted(emitted)}"
+            )
+    assert not unbacked, "\n".join(unbacked)
