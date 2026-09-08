@@ -55,6 +55,32 @@ cases:
       un grand chat noir
     params: { scheme: "AA" }
     satisfied: false
+  - name: dubellay-regrets-31-rhymescheme
+    lang: fr
+    source: >-
+      Joachim du Bellay, Les Regrets (1558, Fédéric Morel), sonnet XXXI
+      "Heureux qui, comme Ulysse" — a sonnet marotique in alexandrines, sestet
+      CCD EED per the Jolliffe/Screech critical edition (Droz, TLF). Landed
+      against rhyme_scheme rather than sonnet because sonnet requires
+      `stress`, which French does not have (ADR 0034 D3).
+    text: |-
+      Heureux qui, comme Ulysse, a fait un beau voyage,
+      Ou comme cestuy la qui conquit la toison,
+      Et puis est retourné, plein d'usage et raison,
+      Vivre entre ses parents le reste de son aage !
+      Quand reverray-je, helas, de mon petit village
+      Fumer la cheminee, et en quelle saison
+      Reverray-je le clos de ma pauvre maison,
+      Qui m'est une province, et beaucoup d'avantage ?
+      Plus me plaist le sejour qu'ont basty mes ayeux,
+      Que des palais Romains le front audacieux,
+      Plus que le marbre dur me plaist l'ardoise fine ;
+      Plus mon Loyre Gaulois, que le Tybre Latin,
+      Plus mon petit Lyré, que le mont Palatin,
+      Et plus que l'air marin la doulceur Angevine.
+    params: { scheme: "ABBAABBACCDEED" }
+    provenance: external
+    satisfied: true
   - name: identical-rhyme-across-elision
     lang: fr
     source: >-

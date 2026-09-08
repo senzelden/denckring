@@ -29,3 +29,18 @@ cases:
     text: Le vent se lève
     params: {}
     satisfied: false
+  - name: verlaine-crimen-amoris-strophe1
+    lang: fr
+    source: >-
+      Paul Verlaine, "Crimen amoris", Jadis et naguère (1884), first quatrain.
+      French has no fixed-form classical hendecasyllable — the 11-syllable
+      line is a marginal 19th-century experiment (Verlaine, Rimbaud) — so this
+      is the honest representative rather than a Renaissance one.
+    text: |-
+      Dans un palais, soie et or, dans Ecbatane,
+      De beaux démons, des satans adolescents,
+      Au son d'une musique mahométane,
+      Font litière aux Sept Péchés de leurs cinq sens.
+    params: {}
+    provenance: external
+    satisfied: true

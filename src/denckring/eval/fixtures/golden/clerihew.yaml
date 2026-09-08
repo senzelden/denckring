@@ -49,3 +49,16 @@ cases:
       Et disparut dans le froid gris
     params: {}
     satisfied: false
+  - name: bentley-humphry-davy-clerihew
+    source: >-
+      E. C. Bentley, "Sir Humphry Davy", from Biography for Beginners
+      (London, 1905) — the first clerihew ever published. Spelled "Sir
+      Humphry" (not "Humphrey"), after the chemist's own spelling.
+    text: |-
+      Sir Humphry Davy
+      Abominated gravy.
+      He lived in the odium
+      Of having discovered sodium.
+    params: {}
+    provenance: external
+    satisfied: true

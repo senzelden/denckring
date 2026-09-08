@@ -47,3 +47,25 @@ cases:
       ein Kind erwacht und ruft nach seinem Traum
     params: {}
     satisfied: true
+  - name: chaucer-troilus-rhyme-royal
+    source: >-
+      Geoffrey Chaucer, Troilus and Criseyde, Book I, lines 1-7 (c. 1385),
+      following the Riverside Chaucer / Windeatt base of Corpus Christi
+      College Cambridge MS 61 (ADR 0040 D5 — transcribed as edited, not
+      modernised). Rejected: Middle English "ye" (thee/you) does not rhyme
+      with "joie" under this package's model (`does_not_rhyme`, ADR 0040 D3),
+      and three lines carry Middle English spelling ("Priamus", "lovynge",
+      "t'endite") the pronouncing dictionary does not hold, reading 9 or 11
+      syllables instead of 10 (`wrong_line_length`). Measured on this HEAD:
+      score 0.8974, 4 violations.
+    text: |-
+      The double sorwe of Troilus to tellen,
+      That was the kyng Priamus sone of Troye,
+      In lovynge, how his aventures fellen
+      Fro wo to wele, and after out of joie,
+      My purpos is, er that I parte fro ye.
+      Thesiphone, thow help me for t'endite
+      Thise woful vers, that wepen as I write.
+    params: {}
+    provenance: external
+    satisfied: false
