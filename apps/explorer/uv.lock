@@ -317,7 +317,7 @@ wheels = [
 
 [[package]]
 name = "denckring"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "../../" }
 dependencies = [
     { name = "pydantic" },
@@ -354,6 +354,7 @@ dev = [
     { name = "hypothesis", specifier = ">=6.100" },
     { name = "mkdocs-material", specifier = ">=9.7.7" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.26" },
+    { name = "mutmut", specifier = ">=3" },
     { name = "mypy", specifier = ">=1.10" },
     { name = "pytest", specifier = ">=8" },
     { name = "pytest-cov", specifier = ">=5" },
@@ -364,7 +365,7 @@ lexicon = [{ name = "wn", specifier = ">=1.1" }]
 
 [[package]]
 name = "denckring-de-data"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "../../packages/denckring-de-data" }
 dependencies = [
     { name = "denckring" },
@@ -375,7 +376,7 @@ requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
 name = "denckring-en-data"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "../../packages/denckring-en-data" }
 dependencies = [
     { name = "denckring" },
