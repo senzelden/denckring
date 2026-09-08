@@ -1,4 +1,4 @@
-from denckring.core.text import letter_spans, line_spans, word_spans
+from denckring.core.text import letter_spans, line_identity, line_spans, word_spans
 from denckring.lang import get_pack
 
 PACK = get_pack("en")
@@ -64,3 +64,28 @@ def test_paragraph_spans_offsets_are_always_exact() -> None:
     ):
         for offset, part in paragraph_spans(text):
             assert text[offset : offset + len(part)] == part
+
+
+def test_line_identity_ignores_only_the_line_s_final_punctuation() -> None:
+    """A refrain returns with the punctuation its new syntax wants — Passerat's
+    villanelle closes it `Tourterelle:`, then `Tourterelle.`, then `Tourterelle,`
+    — so comparing raw lines reads a working refrain as broken."""
+    assert line_identity("I'ay perdu ma Tourterelle:") == line_identity(
+        "I'ay perdu ma Tourterelle."
+    )
+    assert line_identity("Le premier jour du mois de mai !") == line_identity(
+        "Le premier jour du mois de mai"
+    )
+
+
+def test_line_identity_keeps_apostrophes_and_internal_punctuation() -> None:
+    """French elision is part of the word, not decoration on the line: `l'âme`
+    and `i'oy` must survive, and only the end of the line is variable."""
+    assert line_identity("j'ai dans l'âme un chagrin amer :") == "j'ai dans l'âme un chagrin amer"
+    assert line_identity("Eft-ce point celle que i'oy?") == "eft-ce point celle que i'oy"
+
+
+def test_line_identity_still_separates_lines_differing_in_a_word() -> None:
+    """The guard against over-permissiveness: this must not turn every refrain
+    check into a formality."""
+    assert line_identity("I'ay perdu ma Tourterelle.") != line_identity("I'ay perdu ma Colombe.")

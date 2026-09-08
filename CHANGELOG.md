@@ -8,6 +8,25 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- A refrain is the same line returning, whatever punctuation its position wants.
+  `form_report`, `rondeau` and `pantoum` compared repeated lines after nothing more than
+  `strip().casefold()`, so a refrain that came back with a different stop was reported as
+  `broken_refrain`. That is not an edge case, it is how the fixed forms are printed:
+  Passerat's villanelle (1606) closes its refrain `Tourterelle:`, then `Tourterelle.`,
+  then `Tourterelle,` as the syntax around it changes, and Ranchin's triolet returns
+  `du mois de mai` once bare and once as `de mai !`. The three sites now compare
+  `core.text.line_identity`, which strips terminal sentence punctuation and nothing else —
+  apostrophes stay, because in French the elision is part of the word (`l'âme`, `i'oy`)
+  and folding it would compare something other than the line.
+
+  Four canonical texts went from rejected to accepted: Ranchin's triolet, Leconte de
+  Lisle's pantoum and McCrae's rondeau all reach 1.000, and Passerat's villanelle rises
+  from 0.922 to 0.980 — its one remaining `broken_refrain` is a real textual question,
+  `aprés ell` against `aprés elle`, which the fix correctly does not paper over.
+  **No existing verdict moved**: all 34 constructed cases in the refrain-bearing rows
+  repeat their refrains byte-for-byte, because the same author typed both copies, which
+  is exactly why none of them could ever have found this.
+
 - `mutants/`, which `mutmut` fills with 5.6 MB and leaves behind, is excluded from the
   source distribution and from git. Untracked, and `uv build` reads the working tree
   rather than the index, so 312 of its files landed in the archive and pushed the sdist

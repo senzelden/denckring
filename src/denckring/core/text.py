@@ -149,6 +149,27 @@ def line_spans(text: str) -> list[tuple[int, str]]:
     return spans
 
 
+#: Sentence punctuation a line may end on. Apostrophes and hyphens are absent by
+#: design: French elision is part of the word (`l'âme`, `i'oy`), not decoration.
+_TERMINAL_PUNCTUATION = '.,;:!?\u2026\u00b7\u00bb\u00ab"\u201c\u201d'
+
+
+def line_identity(line: str) -> str:
+    """The line as a repeated line, for asking whether two lines are the same one.
+
+    A refrain returns carrying whatever punctuation its new syntax wants, and that
+    is the form working rather than failing: Passerat's villanelle (1606) closes
+    its refrain `Tourterelle:`, then `Tourterelle.`, then `Tourterelle,`, and
+    Ranchin's triolet returns `du mois de mai` once bare and once as `de mai !`.
+    Comparing raw lines read four canonical fixed-form texts as broken refrains.
+
+    Only the end of the line is variable, so only the end is stripped. Apostrophes
+    and internal punctuation stay: in French they carry an elision that is part of
+    the word, and folding them would compare something other than the line.
+    """
+    return line.strip().rstrip(_TERMINAL_PUNCTUATION).strip().casefold()
+
+
 def paragraph_spans(text: str) -> list[tuple[int, str]]:
     """Every non-blank paragraph as `(offset, text)`, split on blank lines.
 

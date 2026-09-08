@@ -19,7 +19,7 @@ from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import line_spans
+from denckring.core.text import line_identity, line_spans
 
 #: The thirteen full lines. Indices 8 and 14 are the rentrement and carry no letter.
 SCHEME = "AABBAAABAABBA"
@@ -60,10 +60,10 @@ class Rondeau(BaseProcedure[RondeauParams]):
                 )
             )
         if lines:
-            opening = " ".join(lines[0].split()[: params.rentrement_words]).casefold()
+            opening = line_identity(" ".join(lines[0].split()[: params.rentrement_words]))
             for index in RENTREMENT_LINES:
                 total += 1
-                actual = lines[index].strip().casefold() if index < len(lines) else ""
+                actual = line_identity(lines[index]) if index < len(lines) else ""
                 if actual == opening:
                     good += 1
                 else:
