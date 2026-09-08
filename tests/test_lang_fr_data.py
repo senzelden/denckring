@@ -27,7 +27,11 @@ DATA = (
 
 
 def test_the_distribution_is_importable_and_versioned() -> None:
-    assert fr_data.__version__ == "0.1.0"
+    """Importable and carrying a version — not carrying one particular version.
+    The literal made this fail on the release bump, which is the change it should
+    never have objected to; agreement with the pyproject is
+    `test_packaging.py::test_every_distribution_reports_the_same_version`'s job."""
+    assert re.match(r"^\d+\.\d+\.\d+(?:[-+].+)?$", fr_data.__version__), fr_data.__version__
 
 
 def test_the_bands_run_the_project_s_way_and_not_the_source_s() -> None:

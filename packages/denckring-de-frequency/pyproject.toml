@@ -1,6 +1,6 @@
 [project]
 name = "denckring-de-frequency"
-version = "0.1.0"
+version = "0.1.1"
 description = "German frequency bands for denckring, from the Leipzig Corpora Collection"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,7 +23,7 @@ classifiers = [
 # rather than `denckring`, because the build's case rule needs `nouns()` and the
 # pack below subclasses `GermanDataPack` — the same direction the Wiktionary
 # distribution's dependency runs.
-dependencies = ["denckring-de-data==0.1.0"]
+dependencies = ["denckring-de-data==0.1.1"]
 
 # No [project.entry-points."denckring.lang"] section, and its absence is the
 # design — the same absence `denckring-de-wiktionary` documents.

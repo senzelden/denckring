@@ -38,7 +38,7 @@ from denckring.lang.de import GermanPack
 NOUNS_PATH = Path(str(files("denckring_de_data") / "data" / "nouns.txt.gz"))
 WORDS_PATH = Path(str(files("denckring_de_data") / "data" / "words.txt.gz"))
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def _read(path: Path) -> tuple[str, ...]:

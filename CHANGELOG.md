@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-08
+
 ### Fixed
 
 - A refrain is the same line returning, whatever punctuation its position wants.
@@ -1380,5 +1382,6 @@ All notable changes to this project are documented here. The format follows
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/senzelden/denckring/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/senzelden/denckring/releases/tag/v0.1.0

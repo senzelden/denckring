@@ -48,7 +48,7 @@ _V = TypeVar("_V", bound=Sequence[str])
 PRONUNCIATIONS_PATH = Path(str(files("denckring_de_wiktionary") / "data" / "pronunciations.txt.gz"))
 GLOSSES_PATH = Path(str(files("denckring_de_wiktionary") / "data" / "glosses.txt.gz"))
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 #: Primary stress. Precedes the onset of the syllable it marks, so the syllable
 #: it governs is the next nucleus after it, not the previous one.

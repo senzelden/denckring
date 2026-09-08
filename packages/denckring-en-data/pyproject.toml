@@ -1,6 +1,6 @@
 [project]
 name = "denckring-en-data"
-version = "0.1.0"
+version = "0.1.1"
 description = "English pronunciation data for denckring: exact syllable counts and rhyme"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,7 +21,7 @@ classifiers = [
 # Version-locked: this package subclasses the core English pack, so a core it was
 # not built against is not a supported combination. release.yml publishes all three
 # from one workflow for the same reason.
-dependencies = ["denckring==0.1.0"]
+dependencies = ["denckring==0.1.1"]
 
 [project.entry-points."denckring.lang"]
 en = "denckring_en_data:EnglishDataPack"
