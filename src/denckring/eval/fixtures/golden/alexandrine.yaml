@@ -76,3 +76,4 @@ cases:
     feminine_ending: true
   min_score: 0.92
   satisfied: false
+  requires: [syllables.dictionary]

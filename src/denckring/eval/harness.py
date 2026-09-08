@@ -12,8 +12,9 @@ from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
 from denckring.core.errors import DenckringError
-from denckring.core.protocol import Lang
+from denckring.core.protocol import Lang, LanguagePack
 from denckring.core.registry import all_procedures, get
+from denckring.lang import get_pack
 
 GOLDEN_DIR = Path(str(files("denckring") / "eval" / "fixtures" / "golden"))
 
@@ -60,6 +61,14 @@ class GoldenCase(BaseModel):
     provenance: CaseProvenance = "constructed"
     min_score: float | None = None
     max_score: float | None = None
+    #: Capabilities this *case* needs, beyond what its row declares. A row states
+    #: what its checker calls; a case may additionally depend on which answer it
+    #: gets. `alexandrine` asks only for `syllables.heuristic`, but the Gryphius
+    #: case's verdict turns on the German dictionary — with it a line reads
+    #: fourteen syllables and the case fails as recorded, without it the heuristic
+    #: reads twelve and the same text satisfies. Unmet, the case is blocked in the
+    #: same way a row-level gap is, rather than reported as a wrong answer.
+    requires: list[str] = Field(default_factory=list)
 
 
 class CaseResult(BaseModel):
@@ -137,6 +146,11 @@ class CorpusProvenance(BaseModel):
             f"{self.constructed} constructed · "
             f"{self.self_generated} self-generated"
         )
+
+
+def unmet_requirements(case: GoldenCase, pack: LanguagePack) -> list[str]:
+    """Which of the case's own capability requirements this pack cannot meet."""
+    return [name for name in case.requires if name not in pack.capabilities]
 
 
 def corpus_provenance(cases: list[GoldenCase] | None = None) -> CorpusProvenance:
@@ -227,6 +241,21 @@ def run() -> Scoreboard:
     for case in cases:
         detail: str | None = None
         code: str | None = None
+        # Checked before running, because the point is that running it would give
+        # an answer that is about the installed data rather than about the text.
+        missing = unmet_requirements(case, get_pack(case.lang))
+        if missing:
+            results.append(
+                CaseResult(
+                    case=case.name,
+                    procedure=case.procedure,
+                    lang=case.lang,
+                    passed=False,
+                    detail=f"needs {', '.join(missing)}",
+                    code="missing_capability",
+                )
+            )
+            continue
         try:
             report = get(case.procedure).check(case.text, lang=case.lang, **case.params)
             passed = report.satisfied is case.satisfied
