@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, MetreParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.syllable_count import line_syllables, pattern_result
@@ -12,7 +10,7 @@ from denckring.procedures.syllable_count import line_syllables, pattern_result
 SYLLABLES_PER_LINE = 12
 
 
-class AlexandrineParams(BaseModel):
+class AlexandrineParams(MetreParams):
     pass
 
 
@@ -28,5 +26,10 @@ class Alexandrine(BaseProcedure[AlexandrineParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: AlexandrineParams) -> Report:
         lines = len(line_syllables(text, pack))
-        result = pattern_result(text, pack, [SYLLABLES_PER_LINE] * lines)
+        result = pattern_result(
+            text,
+            pack,
+            [SYLLABLES_PER_LINE] * lines,
+            extra=1 if params.feminine_ending else 0,
+        )
         return self._report(**result._asdict())

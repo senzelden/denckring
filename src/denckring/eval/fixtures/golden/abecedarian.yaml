@@ -1,32 +1,53 @@
 procedure: abecedarian
 lang: en
 cases:
-  - name: alphabet-of-lines
-    source: constructed example; the form is ancient, see the catalogue entry
-    text: |-
-      Ash falls
-      Birds go
-      Cold comes
-      Dusk stays
-    params: { start: a }
-    satisfied: true
-  - name: out-of-order
-    source: constructed counterexample
-    text: |-
-      Ash falls
-      Cold comes
-      Birds go
-    params: { start: a }
-    satisfied: false
-  - name: umlaut-start
-    lang: de
-    source: >-
-      constructed example; start="ö" folds to "o" (index 14) — the unfixed
-      code fell back to index 0 and reported every line wrong, not vacuously
-      right (ADR 0035)
-    text: |-
-      Ozean ruht
-      Paradies wacht
-      Quelle blinkt
-    params: { start: ö }
-    satisfied: true
+- name: alphabet-of-lines
+  source: constructed example; the form is ancient, see the catalogue entry
+  text: 'Ash falls
+
+    Birds go
+
+    Cold comes
+
+    Dusk stays'
+  params:
+    start: a
+  satisfied: true
+- name: out-of-order
+  source: constructed counterexample
+  text: 'Ash falls
+
+    Cold comes
+
+    Birds go'
+  params:
+    start: a
+  satisfied: false
+- name: umlaut-start
+  lang: de
+  source: constructed example; start="ö" folds to "o" (index 14) — the unfixed code
+    fell back to index 0 and reported every line wrong, not vacuously right (ADR 0035)
+  text: 'Ozean ruht
+
+    Paradies wacht
+
+    Quelle blinkt'
+  params:
+    start: ö
+  satisfied: true
+- name: kuhlmann-guldne-sterbens-abc
+  lang: de
+  provenance: external
+  source: Quirinus Kuhlmann, "Das güldne sterbens ABC der Achtgestalt und des Erstanfanges"
+    (Der Kühlpsalter, Book 5, Amsterdam 1686; 15./75. Kühlpsalm), critical text ed.
+    Robert L. Beare, Tübingen 1971, vol. 2, pp. 76–83, via Zeno.org (Baroque orthography
+    preserved). The excerpt is stanza-openings (stanza-initial, not line-initial)
+    — successive numbered strophes open A, B, C, … and as excerpted with [...] joining
+    stanza-first lines, this text is line-initial at the textual boundaries it supplies.
+  text: 'Als Gott den Adam schuf zum Fürsten unser Welt, [...]
+
+    Beschmertzt stund Adam, Ev; beschmertzt stund di Natur: [...]
+
+    Christ sprach zum Christ sich ein, der Jesueln vor schuf; [...]'
+  params: {}
+  satisfied: true

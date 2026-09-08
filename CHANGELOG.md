@@ -94,6 +94,57 @@ All notable changes to this project are documented here. The format follows
 - `tests/test_normalisation.py`, pinning that the two forms agree, and pinning what was
   already true of zero-width spaces, byte-order marks and non-breaking spaces — that
   they are not letters, do not join the cluster before them, and do not shift offsets.
+- ADR 0040, deciding how strictly canonical verse is read, and `MetreParams.feminine_ending`,
+  the parameter that answers its first question: a klingende Kadenz — one unstressed
+  syllable past the counted length — becomes an admissible reading rather than a
+  rejected one, on the seven rows that hard-code a metre. Defaulting to `false`, it
+  reaches `blank_verse`, `shakespearean_sonnet`, `rhyme_royal`, `curtal_sonnet`, `sonnet`
+  and `spenserian_stanza` through `with_feminine`, which offers `line_metre` the pair
+  `{pattern, pattern + "0"}` rather than a fixed longer string — a single string cannot
+  span both, since Gryphius rhymes a feminine `Erden`/`Herden` (13 syllables) against a
+  masculine `ein`/`seyn` (12) in the same sonnet. `alexandrine`, which counts syllables
+  rather than scanning stress, takes the same flag as `pattern_result`'s `extra`. Measured
+  against 42 German canonical lines, against the bar ADR 0040 D1 set before the work —
+  at least 95% within their declared length or one over — the reading came in at 97.6%;
+  the full stress-and-length scan, a stricter question D1 leaves open, rises from 35.7%
+  to 83.3% over the same lines. Every default is today's reading, so the 532 pre-existing
+  golden cases are unchanged by construction (D6).
+- `curtal_sonnet` and `elegiac_couplet` gain a catalogue `notes` field declaring the verse
+  each cannot scan (ADR 0040 D4), rather than the stress model moving to fit it. Hopkins
+  wrote "Pied Beauty" in sprung rhythm, which `curtal_sonnet` reads against plain iambic
+  pentameter and so rejects — the poem that named the form does not satisfy the row named
+  after it. `elegiac_couplet` stays declared for English only, because German accentual
+  hexameter puts the ictus where word stress does not fall — Schiller's own *Hexameter*
+  scans `0100` and carries the beat regardless — and no German fixture lands for the row.
+- `tests/fixtures/canonical_lines.yaml`, 111 canonical lines — 69 English, 42 German, none
+  written for this suite — and `tests/test_canonical_verse.py` asserts both bars ADR 0040
+  measured against them: the German length floor (95%; measured 97.6%) and the English
+  ceiling on true disagreement with no dictionary guess involved (3 of 69, 4.3%).
+- 13 canonical texts enter the golden corpus — Crapsey, Bentley, Hopkins, Verlaine,
+  Chaucer, du Bellay, Shakespeare, Spenser, Dante via Sibbald's translation, Kuhlmann,
+  and Gryphius and Goethe in German — taking `denckring eval --all` from 532 to 545
+  passed and the externally sourced share, ADR 0040's opening measurement, from 38
+  (7.1%) to 51 (9.4%). Five of the thirteen pass outright; the other eight ship
+  `satisfied: false` with the measured reading recorded in `source` — Hopkins' sprung
+  rhythm, a Middle or Elizabethan English word the dictionary cannot place, a rhyme
+  (Chaucer's, Sibbald's, Shakespeare's) this package's strict model does not accept, and
+  three German cases whose feminine ending closes the length gap but leave a stress or
+  rhyme violation standing. A rejection earns its place in the
+  corpus the same way a pass does — `tests/test_corpus_provenance.py` now checks that a
+  `satisfied: false` case's `source` names only a violation rule the checker actually
+  raised for it, after three drafts of these cases were caught citing a rule that never
+  fired. `EXTERNAL_FLOOR` moves from 38 to 51 with them.
+
+### Changed
+
+- `line_metre`'s `wrong_line_length` violation names every syllable count a candidate
+  metre would accept, not only the winning candidate's. `alexandrine`'s syllable path
+  already reported "12 or 13 syllables" with `feminine_ending` on; the stress path
+  reported only "12 syllables", so a caller who had turned the parameter on was told to
+  write a line the code would in fact have accepted one longer than. Generalised to N
+  candidates rather than the two `feminine_ending` introduces, so a row with more than
+  one substitutable foot now reports the full list, e.g. "13, 14, 15, 16 or 17
+  syllables".
 
 ## [0.1.0] - 2026-09-07
 

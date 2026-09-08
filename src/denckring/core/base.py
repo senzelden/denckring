@@ -69,6 +69,25 @@ class RhymeParams(BaseModel):
     )
 
 
+class MetreParams(BaseModel):
+    """Mixed into every procedure that scans a fixed metre.
+
+    Whether a line may close on an unstressed syllable is a property of a verse
+    tradition, not of a library — German blank verse and the alexandriner take the
+    klingende Kadenz as the norm, English pentameter as the exception. Carrying it
+    as a parameter puts it in `params_schema()` and on the command line for free,
+    which is the argument `RhymeParams` makes for `unknown_rhyme` (ADR 0040 D1).
+    """
+
+    feminine_ending: bool = Field(
+        default=False,
+        description=(
+            "Whether a line may close on one extra unstressed syllable "
+            "(a feminine or klingende ending) as well as on the bare metre."
+        ),
+    )
+
+
 class SourceParams(BaseModel):
     """Mixed into procedures decidable only against the text they were made from.
 

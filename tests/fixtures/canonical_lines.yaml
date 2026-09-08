@@ -1,0 +1,470 @@
+# The English half of ADR 0040's canonical verse corpus (Task 7a). Transcribed
+# from docs/research/compass_artifact_wf-21f4bbee-45c4-5a77-bfd8-a25ef0f5ee82_text_markdown.md
+# verbatim, per ADR 0040 D5: no modernised spelling, no expanded elision, no
+# adjusted punctuation. The German half is a later task; this file holds only
+# the 69 English lines.
+
+# Shakespeare, Sonnets (1609), no. 18 — 14 lines, wants 10.
+- source: "Shakespeare, Sonnets (1609), no. 18, l.1"
+  lang: en
+  wants: 10
+  line: "Shall I compare thee to a Summers day?"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.2"
+  lang: en
+  wants: 10
+  line: "Thou art more louely and more temperate:"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.3"
+  lang: en
+  wants: 10
+  line: "Rough windes do shake the darling buds of Maie,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.4"
+  lang: en
+  wants: 10
+  line: "And Sommers lease hath all too short a date:"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.5"
+  lang: en
+  wants: 10
+  line: "Sometime too hot the eye of heauen shines,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.6"
+  lang: en
+  wants: 10
+  line: "And often is his gold complexion dimm'd,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.7"
+  lang: en
+  wants: 10
+  line: "And euery faire from faire some-time declines,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.8"
+  lang: en
+  wants: 10
+  line: "By chance, or natures changing course vntrim'd:"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.9"
+  lang: en
+  wants: 10
+  line: "But thy eternall Sommer shall not fade,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.10"
+  lang: en
+  wants: 10
+  line: "Nor loose possession of that faire thou ow'st,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.11"
+  lang: en
+  wants: 10
+  line: "Nor shall death brag thou wandr'st in his shade,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.12"
+  lang: en
+  wants: 10
+  line: "When in eternall lines to time thou grow'st,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.13"
+  lang: en
+  wants: 10
+  line: "So long as men can breathe or eyes can see,"
+- source: "Shakespeare, Sonnets (1609), no. 18, l.14"
+  lang: en
+  wants: 10
+  line: "So long liues this, and this giues life to thee."
+
+# Milton, Paradise Lost (1674 2nd ed.), Book I, lines 1-16 — 16 lines, wants 10.
+- source: "Milton, Paradise Lost (1674), I.1"
+  lang: en
+  wants: 10
+  line: "Of Mans First Disobedience, and the Fruit"
+- source: "Milton, Paradise Lost (1674), I.2"
+  lang: en
+  wants: 10
+  line: "Of that Forbidden Tree, whose mortal tast"
+- source: "Milton, Paradise Lost (1674), I.3"
+  lang: en
+  wants: 10
+  line: "Brought Death into the World, and all our woe,"
+- source: "Milton, Paradise Lost (1674), I.4"
+  lang: en
+  wants: 10
+  line: "With loss of Eden, till one greater Man"
+- source: "Milton, Paradise Lost (1674), I.5"
+  lang: en
+  wants: 10
+  line: "Restore us, and regain the blissful Seat,"
+- source: "Milton, Paradise Lost (1674), I.6"
+  lang: en
+  wants: 10
+  line: "Sing Heav'nly Muse, that on the secret top"
+- source: "Milton, Paradise Lost (1674), I.7"
+  lang: en
+  wants: 10
+  line: "Of Oreb, or of Sinai, didst inspire"
+- source: "Milton, Paradise Lost (1674), I.8"
+  lang: en
+  wants: 10
+  line: "That Shepherd, who first taught the chosen Seed,"
+- source: "Milton, Paradise Lost (1674), I.9"
+  lang: en
+  wants: 10
+  line: "In the Beginning how the Heav'ns and Earth"
+- source: "Milton, Paradise Lost (1674), I.10"
+  lang: en
+  wants: 10
+  line: "Rose out of Chaos: or if Sion Hill"
+- source: "Milton, Paradise Lost (1674), I.11"
+  lang: en
+  wants: 10
+  line: "Delight thee more, and Siloa's brook that flow'd"
+- source: "Milton, Paradise Lost (1674), I.12"
+  lang: en
+  wants: 10
+  line: "Fast by the Oracle of God; I thence"
+- source: "Milton, Paradise Lost (1674), I.13"
+  lang: en
+  wants: 10
+  line: "Invoke thy aid to my adventrous Song,"
+- source: "Milton, Paradise Lost (1674), I.14"
+  lang: en
+  wants: 10
+  line: "That with no middle flight intends to soar"
+- source: "Milton, Paradise Lost (1674), I.15"
+  lang: en
+  wants: 10
+  line: "Above th' Aonian Mount, while it pursues"
+- source: "Milton, Paradise Lost (1674), I.16"
+  lang: en
+  wants: 10
+  line: "Things unattempted yet in Prose or Rhime."
+
+# Wordsworth, "Scorn Not the Sonnet" (1827) — 14 lines, wants 10.
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.1"
+  lang: en
+  wants: 10
+  line: "Scorn not the Sonnet; Critic, you have frowned,"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.2"
+  lang: en
+  wants: 10
+  line: "Mindless of its just honours; with this key"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.3"
+  lang: en
+  wants: 10
+  line: "Shakspeare unlocked his heart; the melody"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.4"
+  lang: en
+  wants: 10
+  line: "Of this small lute gave ease to Petrarch's wound;"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.5"
+  lang: en
+  wants: 10
+  line: "A thousand times this pipe did Tasso sound;"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.6"
+  lang: en
+  wants: 10
+  line: "With it Camöens soothed an exile's grief;"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.7"
+  lang: en
+  wants: 10
+  line: "The Sonnet glittered a gay myrtle leaf"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.8"
+  lang: en
+  wants: 10
+  line: "Amid the cypress with which Dante crowned"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.9"
+  lang: en
+  wants: 10
+  line: "His visionary brow: a glow-worm lamp,"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.10"
+  lang: en
+  wants: 10
+  line: "It cheered mild Spenser, called from Faery-land"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.11"
+  lang: en
+  wants: 10
+  line: "To struggle through dark ways; and, when a damp"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.12"
+  lang: en
+  wants: 10
+  line: "Fell round the path of Milton, in his hand"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.13"
+  lang: en
+  wants: 10
+  line: "The Thing became a trumpet; whence he blew"
+- source: "Wordsworth, \"Scorn Not the Sonnet\" (1827), l.14"
+  lang: en
+  wants: 10
+  line: "Soul-animating strains—alas, too few!"
+
+# Sibbald tr., Dante, Inferno, Canto I, lines 1-9 (1884) — 9 lines, wants 10.
+# The tercets are separated by blank lines in the source; blank lines are not
+# lines and are not transcribed here.
+- source: "Sibbald tr., Dante, Inferno (1884), I.1"
+  lang: en
+  wants: 10
+  line: "In middle of the journey of our days"
+- source: "Sibbald tr., Dante, Inferno (1884), I.2"
+  lang: en
+  wants: 10
+  line: "I found that I was in a darksome wood—"
+- source: "Sibbald tr., Dante, Inferno (1884), I.3"
+  lang: en
+  wants: 10
+  line: "The right road lost and vanished in the maze."
+- source: "Sibbald tr., Dante, Inferno (1884), I.4"
+  lang: en
+  wants: 10
+  line: "Ah me! how hard to make it understood"
+- source: "Sibbald tr., Dante, Inferno (1884), I.5"
+  lang: en
+  wants: 10
+  line: "How rough that wood was, wild, and terrible:"
+- source: "Sibbald tr., Dante, Inferno (1884), I.6"
+  lang: en
+  wants: 10
+  line: "By the mere thought my terror is renewed."
+- source: "Sibbald tr., Dante, Inferno (1884), I.7"
+  lang: en
+  wants: 10
+  line: "More bitter scarce were death. But ere I tell"
+- source: "Sibbald tr., Dante, Inferno (1884), I.8"
+  lang: en
+  wants: 10
+  line: "At large of good which there by me was found,"
+- source: "Sibbald tr., Dante, Inferno (1884), I.9"
+  lang: en
+  wants: 10
+  line: "I will relate what other things befell."
+
+# Chaucer, Troilus and Criseyde, Book I, lines 1-7 (Riverside/Windeatt, MS CCCC
+# 61) — 7 lines, wants 10.
+- source: "Chaucer, Troilus and Criseyde, I.1"
+  lang: en
+  wants: 10
+  line: "The double sorwe of Troilus to tellen,"
+- source: "Chaucer, Troilus and Criseyde, I.2"
+  lang: en
+  wants: 10
+  line: "That was the kyng Priamus sone of Troye,"
+- source: "Chaucer, Troilus and Criseyde, I.3"
+  lang: en
+  wants: 10
+  line: "In lovynge, how his aventures fellen"
+- source: "Chaucer, Troilus and Criseyde, I.4"
+  lang: en
+  wants: 10
+  line: "Fro wo to wele, and after out of joie,"
+- source: "Chaucer, Troilus and Criseyde, I.5"
+  lang: en
+  wants: 10
+  line: "My purpos is, er that I parte fro ye."
+- source: "Chaucer, Troilus and Criseyde, I.6"
+  lang: en
+  wants: 10
+  line: "Thesiphone, thow help me for t'endite"
+- source: "Chaucer, Troilus and Criseyde, I.7"
+  lang: en
+  wants: 10
+  line: "Thise woful vers, that wepen as I write."
+
+# Spenser, The Faerie Queene, Book I, Canto i, stanza 1 (1590) — 9 lines,
+# wants 10 for lines 1-8 and 12 for line 9, the alexandrine.
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.1"
+  lang: en
+  wants: 10
+  line: "A Gentle Knight was pricking on the plaine,"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.2"
+  lang: en
+  wants: 10
+  line: "Y cladd in mightie armes and siluer shielde,"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.3"
+  lang: en
+  wants: 10
+  line: "Wherein old dints of deepe wounds did remaine,"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.4"
+  lang: en
+  wants: 10
+  line: "The cruell markes of many' a bloudy fielde;"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.5"
+  lang: en
+  wants: 10
+  line: "Yet armes till that time did he neuer wield:"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.6"
+  lang: en
+  wants: 10
+  line: "His angry steede did chide his foming bitt,"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.7"
+  lang: en
+  wants: 10
+  line: "As much disdayning to the curbe to yield:"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.8"
+  lang: en
+  wants: 10
+  line: "Full iolly knight he seemd, and faire did sitt,"
+- source: "Spenser, Faerie Queene (1590), I.i.1, l.9"
+  lang: en
+  wants: 12
+  line: "As one for knightly giusts and fierce encounters fitt."
+# gryphius-eitel-sonett
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.1"
+  lang: de
+  wants: 12
+  line: "Du sihst/ wohin du sihst nur Eitelkeit auff Erden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.2"
+  lang: de
+  wants: 12
+  line: "Was dieser heute baut/ reist jener morgen ein:"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.3"
+  lang: de
+  wants: 12
+  line: "Wo itzund Städte stehn/ wird eine Wiesen seyn/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.4"
+  lang: de
+  wants: 12
+  line: "Auff der ein Schäfers-Kind wird spielen mit den Herden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.5"
+  lang: de
+  wants: 12
+  line: "Was itzund prächtig blüht/ sol bald zutretten werden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.6"
+  lang: de
+  wants: 12
+  line: "Was itzt so pocht vnd trotzt ist morgen Asch vnd Bein/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.7"
+  lang: de
+  wants: 12
+  line: "Nichts ist/ das ewig sey/ kein Ertz/ kein Marmorstein."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.8"
+  lang: de
+  wants: 12
+  line: "Itzt lacht das Glück vns an/ bald donnern die Beschwerden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.9"
+  lang: de
+  wants: 12
+  line: "Der hohen Thaten Ruhm muß wie ein Traum vergehn."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.10"
+  lang: de
+  wants: 12
+  line: "Soll denn das Spiel der Zeit/ der leichte Mensch bestehn?"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.11"
+  lang: de
+  wants: 12
+  line: "Ach! was ist alles diß/ was wir vor köstlich achten/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.12"
+  lang: de
+  wants: 12
+  line: "Als schlechte Nichtigkeit/ als Schatten/ Staub vnd Wind;"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.13"
+  lang: de
+  wants: 12
+  line: "Als eine Wiesen-Blum/ die man nicht wider find't."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.14"
+  lang: de
+  wants: 12
+  line: "Noch wil was ewig ist/ kein einig Mensch betrachten!"
+
+# gryphius-traenen-alexandriner
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.1"
+  lang: de
+  wants: 12
+  line: "Wir sind doch nunmehr gantz / ja mehr denn gantz verheeret!"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.2"
+  lang: de
+  wants: 12
+  line: "Der frechen Völcker Schaar / die rasende Posaun"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.3"
+  lang: de
+  wants: 12
+  line: "Das vom Blutt fette Schwerdt / die donnernde Carthaun /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.4"
+  lang: de
+  wants: 12
+  line: "Hat aller Schweiß / und Fleiß / und Vorrath auffgezehret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.5"
+  lang: de
+  wants: 12
+  line: "Die Türme stehn in Glutt / die Kirch ist umgekehret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.6"
+  lang: de
+  wants: 12
+  line: "Das Rathauß ligt im Grauß / die Starcken sind zerhaun /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.7"
+  lang: de
+  wants: 12
+  line: "Die Jungfern sind geschänd't / und wo wir hin nur schaun"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.8"
+  lang: de
+  wants: 12
+  line: "Ist Feuer / Pest / und Tod / der Hertz und Geist durchfähret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.9"
+  lang: de
+  wants: 12
+  line: "Hir durch die Schantz und Stadt / rinnt allzeit frisches Blutt."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.10"
+  lang: de
+  wants: 12
+  line: "Dreymal sind schon sechs Jahr / als unser Ströme Flutt /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.11"
+  lang: de
+  wants: 12
+  line: "Von Leichen fast verstopfft / sich langsam fort gedrungen."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.12"
+  lang: de
+  wants: 12
+  line: "Doch schweig ich noch von dem / was ärger als der Tod /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.13"
+  lang: de
+  wants: 12
+  line: "Was grimmer denn die Pest / und Glutt und Hungersnoth /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.14"
+  lang: de
+  wants: 12
+  line: "Das auch der Seelen Schatz / so vilen abgezwungen."
+
+# goethe-iphigenie-I1-blankverse
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.1"
+  lang: de
+  wants: 10
+  line: "Heraus in eure Schatten, rege Wipfel"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.2"
+  lang: de
+  wants: 10
+  line: "Des alten, heil'gen, dichtbelaubten Haines,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.3"
+  lang: de
+  wants: 10
+  line: "Wie in der Göttin stilles Heiligthum"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.4"
+  lang: de
+  wants: 10
+  line: "Tret' ich noch jetzt mit schauderndem Gefühl,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.5"
+  lang: de
+  wants: 10
+  line: "Als wenn ich sie zum erstenmal beträte,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.6"
+  lang: de
+  wants: 10
+  line: "Und es gewöhnt sich nicht mein Geist hierher."
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.7"
+  lang: de
+  wants: 10
+  line: "So manche Jahr bewahrt mich hier verborgen"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.8"
+  lang: de
+  wants: 10
+  line: "Ein hoher Wille, dem ich mich ergebe;"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.9"
+  lang: de
+  wants: 10
+  line: "Doch immer bin ich, wie im ersten, fremd."
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.10"
+  lang: de
+  wants: 10
+  line: "Denn ach! mich trennt das Meer von den Geliebten,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.11"
+  lang: de
+  wants: 10
+  line: "Und an dem Ufer steh' ich lange Tage,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.12"
+  lang: de
+  wants: 10
+  line: "Das Land der Griechen mit der Seele suchend;"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.13"
+  lang: de
+  wants: 10
+  line: "Und gegen meine Seufzer bringt die Welle"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.14"
+  lang: de
+  wants: 10
+  line: "Nur dumpfe Töne brausend mir herüber."

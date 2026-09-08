@@ -7,7 +7,7 @@ from typing import NamedTuple
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, RhymeParams
-from denckring.core.prosody import UnknownRhyme, metre_violations, scheme_violations
+from denckring.core.prosody import UnknownRhyme, line_metre, scheme_violations, with_feminine
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -50,6 +50,7 @@ def form_report(
     *,
     scheme: str | None = None,
     metre: str | None = None,
+    feminine_ending: bool = False,
     refrains: list[tuple[int, int]] | None = None,
     allow_identical: bool = False,
     lines: int | None = None,
@@ -104,8 +105,11 @@ def form_report(
         estimated += rhyme.estimated
         evidence += rhyme.evidence
     if metre is not None:
+        # A set of readings rather than one string, so a klingende Kadenz is an
+        # extra candidate rather than a replacement (ADR 0040 D1).
+        options = with_feminine(metre, feminine_ending)
         for offset, line in line_spans(text):
-            result = metre_violations(line, pack, metre, offset)
+            result = line_metre(line, pack, options, offset)
             violations += result.violations
             good += result.good
             total += result.total

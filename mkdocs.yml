@@ -97,6 +97,7 @@ nav:
       - "37. The calculator word": adr/0037-the-calculator-word.md
       - "38. German frequency, and a source whose case survives": adr/0038-german-frequency.md
       - "39. Mutation testing is a worklist, not a gate": adr/0039-mutation-testing.md
+      - "40. Reading canonical verse": adr/0040-reading-canonical-verse.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

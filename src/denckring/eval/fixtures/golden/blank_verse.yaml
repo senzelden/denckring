@@ -1,48 +1,95 @@
 procedure: blank_verse
 lang: en
 cases:
-  - name: unrhymed-pentameter
-    source: constructed example; the form of Surrey's Aeneid (1554)
-    text: |-
-      the cat can see the moon above the tree
-      the dog will run across the field today
-      the fox will hide beneath the fallen stone
-      the moon will rise behind the hill at nine
-    params: {}
-    satisfied: true
-  - name: rhymed
-    source: constructed counterexample; blank verse admits no rhyme at all
-    text: |-
-      the cat can see the moon above the tree
-      the dog will run across the field today
-      a bird can fly around the house at three
-      the sun will set behind the hill in may
-    params: {}
-    satisfied: false
-  - name: unknown-word-mid-line
-    source: constructed example; an invented word reaches the stress fallback
-    text: |-
-      blorf cat can see the moon above the tree
-      the dog will run across the field today
-      the fox will hide beneath the fallen stone
-      the moon will rise behind the hill at nine
-    params: {}
-    satisfied: true
-  - name: vier-reimlose-zeilen
-    lang: de
-    source: "constructed example; unrhymed, which is what makes it blank"
-    text: |-
-      der Wandrer zieht durch jenes weite Land
-      der Wind bewegt die Blätter in der Nacht
-      ein Vogel singt am Morgen auf dem Baum
-      die Lampe steht und gibt uns wenig Licht
-    params: {}
-    satisfied: true
-  - name: gereimtes-paar
-    lang: de
-    source: "constructed counterexample; a rhyme is what blank verse must not have"
-    text: |-
-      der Wandrer zieht durch jenes weite Land
-      das Feuer brennt und wärmt die kalte Hand
-    params: {}
-    satisfied: false
+- name: unrhymed-pentameter
+  source: constructed example; the form of Surrey's Aeneid (1554)
+  text: 'the cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    the fox will hide beneath the fallen stone
+
+    the moon will rise behind the hill at nine'
+  params: {}
+  satisfied: true
+- name: rhymed
+  source: constructed counterexample; blank verse admits no rhyme at all
+  text: 'the cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    a bird can fly around the house at three
+
+    the sun will set behind the hill in may'
+  params: {}
+  satisfied: false
+- name: unknown-word-mid-line
+  source: constructed example; an invented word reaches the stress fallback
+  text: 'blorf cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    the fox will hide beneath the fallen stone
+
+    the moon will rise behind the hill at nine'
+  params: {}
+  satisfied: true
+- name: vier-reimlose-zeilen
+  lang: de
+  source: constructed example; unrhymed, which is what makes it blank
+  text: 'der Wandrer zieht durch jenes weite Land
+
+    der Wind bewegt die Blätter in der Nacht
+
+    ein Vogel singt am Morgen auf dem Baum
+
+    die Lampe steht und gibt uns wenig Licht'
+  params: {}
+  satisfied: true
+- name: gereimtes-paar
+  lang: de
+  source: constructed counterexample; a rhyme is what blank verse must not have
+  text: 'der Wandrer zieht durch jenes weite Land
+
+    das Feuer brennt und wärmt die kalte Hand'
+  params: {}
+  satisfied: false
+- name: goethe-iphigenie-I1-blankverse
+  lang: de
+  provenance: external
+  source: 'Johann Wolfgang von Goethe, Iphigenie auf Tauris (final verse version,
+    Göschen 1787), Act I, Scene 1, lines 1–14; text from Project Gutenberg (older
+    orthography: Heiligthum, heil''gen). Rejected: `wrong_stress` on "schauderndem",
+    which the dictionary gives as `100` (unstressed-stressed-unstressed) where the
+    iambic metre wants `101`. Measured on this HEAD: score 0.9947, 1 violation.'
+  text: 'Heraus in eure Schatten, rege Wipfel
+
+    Des alten, heil''gen, dichtbelaubten Haines,
+
+    Wie in der Göttin stilles Heiligthum
+
+    Tret'' ich noch jetzt mit schauderndem Gefühl,
+
+    Als wenn ich sie zum erstenmal beträte,
+
+    Und es gewöhnt sich nicht mein Geist hierher.
+
+    So manche Jahr bewahrt mich hier verborgen
+
+    Ein hoher Wille, dem ich mich ergebe;
+
+    Doch immer bin ich, wie im ersten, fremd.
+
+    Denn ach! mich trennt das Meer von den Geliebten,
+
+    Und an dem Ufer steh'' ich lange Tage,
+
+    Das Land der Griechen mit der Seele suchend;
+
+    Und gegen meine Seufzer bringt die Welle
+
+    Nur dumpfe Töne brausend mir herüber.'
+  params:
+    feminine_ending: true
+  min_score: 0.99
+  satisfied: false

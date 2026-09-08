@@ -2,7 +2,7 @@
 
 This is a conformance corpus in miniature, and the smallest honest one: every
 line here comes from a published poem old enough to be out of copyright, and
-none of it was written for this suite. That is the whole point. 489 of the 532
+none of it was written for this suite. That is the whole point. 494 of the 545
 golden cases were constructed by this project's author, so the suite can agree
 with the implementation about a reading both of them share — which is exactly
 what these lines are for.
@@ -33,9 +33,14 @@ this file rather than as a silent shift in what the catalogue claims to check.
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import cast
+
 import pytest
+import yaml
 
 from denckring.lang import get_pack
+from denckring.procedures.syllable_count import syllable_evidence
 
 PACK = get_pack("en")
 
@@ -101,3 +106,75 @@ def test_miltons_elision_is_not_a_dictionary_miss() -> None:
     total, estimated = PACK.line_syllables("of mans first disobedience and the fruit")
     assert (total, estimated) == (11, 0)
     assert PACK.syllable_count("disobedience") == (5, True)
+
+
+def canonical_lines() -> list[dict[str, object]]:
+    """The canonical corpus, with what each line's metre wants beside what this
+    package reads. `reads` is filled in here rather than stored, so the fixture
+    records the poetry and the suite records the package."""
+    path = Path(__file__).parent / "fixtures" / "canonical_lines.yaml"
+    rows: list[dict[str, object]] = yaml.safe_load(path.read_text(encoding="utf-8"))
+    for row in rows:
+        lang = str(row["lang"])
+        line = str(row["line"])
+        row["reads"] = get_pack(lang).line_syllables(line)[0]
+    return rows
+
+
+#: ADR 0040 D2's ceiling. 3 of 69 English canonical lines disagree with the model
+#: without any guessed word involved; the other 12 outliers are lexicon misses.
+#: Asserted as a ceiling because D2 declined synaeresis on exactly this number —
+#: if it rises, the decision is owed a re-reading.
+ENGLISH_TRUE_DISAGREEMENTS = 3
+
+
+def test_the_english_ceiling_has_not_moved() -> None:
+    """Fails in both directions on purpose. Fewer means English elision just got
+    cheaper than ADR 0040 D2 measured it and the decision should be re-read; more
+    means a regression.
+
+    Goes through `syllable_evidence`, the same production helper
+    `procedures/syllable_count.py` uses to report evidence, rather than reaching
+    past `LanguagePack` to the `BasePack` method it wraps.
+    """
+    disagreements = [
+        row
+        for row in canonical_lines()
+        if row["lang"] == "en"
+        and row["reads"] != row["wants"]
+        and not any(
+            entry.basis == "estimated" for entry in syllable_evidence(str(row["line"]), PACK)
+        )
+    ]
+    assert len(disagreements) == ENGLISH_TRUE_DISAGREEMENTS, (
+        f"{len(disagreements)} English canonical lines disagree with the model with "
+        f"no guessed word, not {ENGLISH_TRUE_DISAGREEMENTS}: "
+        f"{[r['source'] for r in disagreements]}"
+    )
+
+
+#: ADR 0040 D1's bar, restated as a floor. Measured 41 of 42 German canonical
+#: lines fall within their declared syllable count or one over — the klingende
+#: Kadenz — which is 97.6% against a bar of 95%.
+GERMAN_LENGTH_FLOOR = 0.95
+
+
+def test_the_german_length_ceiling_holds() -> None:
+    """Measured share of German canonical lines within `wants` or `wants + 1`
+    against a floor. Fails if regression occurs or if the constant drifts from
+    the measured data. Differs from the English test in scope: the English test
+    targets disagreements with no guessed word; this one targets the klingende
+    Kadenz of German verse, where a feminine ending adds exactly one syllable."""
+    german_rows = [row for row in canonical_lines() if row["lang"] == "de"]
+    passing = 0
+    for row in german_rows:
+        reads = cast(int, row["reads"])
+        wants = cast(int, row["wants"])
+        if reads == wants or reads == wants + 1:
+            passing += 1
+    share = passing / len(german_rows)
+    assert share >= GERMAN_LENGTH_FLOOR, (
+        f"{passing} of {len(german_rows)} German canonical lines fall within "
+        f"their wants or wants+1 (share: {share:.1%}), below floor of "
+        f"{GERMAN_LENGTH_FLOOR:.1%}"
+    )

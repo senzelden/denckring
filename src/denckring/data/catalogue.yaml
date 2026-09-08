@@ -2276,6 +2276,11 @@ procedures:
     languages: [en]
     requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
+    notes: >-
+      Hopkins wrote "Pied Beauty" in sprung rhythm, which this row does not read: it
+      scans the eleven lines against iambic pentameter, so the poem that defines the
+      form does not satisfy the row named after it. ADR 0040 D4 declines to widen the
+      stress model on the measurement and records the cost here instead.
     prompt_hints:
       en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
 
@@ -2358,8 +2363,11 @@ procedures:
     requires: [tokens, stress, syllables.heuristic]
     deterministic: true
     notes: >-
-      The pair forming one unit of sense is the form's point and is not
-      checked — sense is not a property this or any checker can read.
+      The pair forming one unit of sense is the form's point and is not checked — sense
+      is not a property this or any checker can read. The row is declared for English
+      only, and no German fixture lands for it: German accentual hexameter puts the ictus
+      where word stress does not fall — Schiller's own "Hexameter" is stressed 0100 and
+      carries the beat regardless — and ADR 0040 D4 declines to model that.
     prompt_hints:
       en: Pair a six-foot line with a shorter one, each pair complete in itself.
 

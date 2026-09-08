@@ -81,3 +81,32 @@ cases:
       der Fluss bewegt sich unter weißem Schaum
     params: {}
     satisfied: true
+  - name: hopkins-pied-beauty-curtal
+    source: >-
+      Gerard Manley Hopkins, "Pied Beauty" (written 1877; first published in
+      Poems of Gerard Manley Hopkins, ed. Robert Bridges, 1918), his own
+      coinage of the form. Rejected: the poem is in sprung rhythm, which
+      curtal_sonnet's catalogue note (ADR 0040 D4) says it does not read — the
+      syllabic model expects a steady count and iambic stress per line, and
+      sprung rhythm packs variable numbers of unstressed syllables around a
+      fixed stress count instead. That
+      mismatch produces 7 `wrong_line_length` violations (lines running 9 to
+      12 syllables, and the closing half-line "Praise him." at 2) and 4
+      `wrong_stress` violations on "chestnut", "tackle", "counter/original",
+      and "sour". Measured on this HEAD: score 0.8878, 11 violations.
+    text: |-
+      Glory be to God for dappled things —
+        For skies of couple-colour as a brinded cow;
+          For rose-moles all in stipple upon trout that swim;
+      Fresh-firecoal chestnut-falls; finches' wings;
+        Landscape plotted and pieced — fold, fallow, and plough;
+          And áll trádes, their gear and tackle and trim.
+      All things counter, original, spare, strange;
+        Whatever is fickle, freckled (who knows how?)
+          With swift, slow; sweet, sour; adazzle, dim;
+      He fathers-forth whose beauty is past change:
+                        Praise him.
+    params: {}
+    provenance: external
+    min_score: 0.88
+    satisfied: false

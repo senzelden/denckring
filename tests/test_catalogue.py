@@ -34,3 +34,11 @@ def test_every_entry_has_an_english_name_definition_and_source() -> None:
         assert meta.definitions.get("en")
         assert meta.source
         assert meta.prompt_hints.get("en")
+
+
+def test_the_rows_that_decline_a_stress_model_say_so() -> None:
+    """ADR 0040 D4 declines to widen the stress model and pays for that in the
+    catalogue instead. A row that quietly rejects its own canonical examples and
+    does not say why is the defect this asserts against."""
+    assert "sprung rhythm" in (catalogue.get("curtal_sonnet").notes or "")
+    assert "accentual" in (catalogue.get("elegiac_couplet").notes or "")

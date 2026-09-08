@@ -72,3 +72,29 @@ cases:
       der Nebel füllt den stillen kalten weiten Raum
     params: {}
     satisfied: true
+  - name: spenser-faerie-queene-1-1-1
+    source: >-
+      Edmund Spenser, The Faerie Queene, Book I, Canto i, stanza 1 (1590
+      edition); original spelling, i/j and u/v as in the early print (ADR
+      0040 D5 — transcribed as printed, not modernised). Rejected: two lines
+      read the wrong syllable count for this package's pentameter model —
+      "Y cladd in mightie armes and siluer shielde," (line 2) reads 9
+      syllables because the archaic "Y-" prefix is not read as adding a
+      syllable, and "The cruell markes of many' a bloudy fielde;" (line 4)
+      reads 11 because the elided "many' a" is not read as one syllable
+      (`wrong_line_length`). The ninth-line alexandrine itself scans clean.
+      Measured on this HEAD: score 0.9688, 2 violations.
+    text: |-
+      A Gentle Knight was pricking on the plaine,
+      Y cladd in mightie armes and siluer shielde,
+      Wherein old dints of deepe wounds did remaine,
+      The cruell markes of many' a bloudy fielde;
+      Yet armes till that time did he neuer wield:
+      His angry steede did chide his foming bitt,
+      As much disdayning to the curbe to yield:
+      Full iolly knight he seemd, and faire did sitt,
+      As one for knightly giusts and fierce encounters fitt.
+    params: {}
+    provenance: external
+    min_score: 0.96
+    satisfied: false

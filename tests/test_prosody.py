@@ -13,6 +13,7 @@ from denckring.core.prosody import (
     line_metre,
     metre_violations,
     stanza_violations,
+    with_feminine,
     word_stress,
 )
 from denckring.core.protocol import Lang
@@ -230,3 +231,38 @@ def test_an_empty_text_is_unsatisfied_and_says_why() -> None:
     result = stanza_violations("", pack, [["?10"]])
     assert result.violations
     assert result.good < result.total
+
+
+def test_with_feminine_off_is_the_single_pattern() -> None:
+    """ADR 0040 D6: the default must be today's reading, exactly."""
+    assert with_feminine("0101010101", False) == ["0101010101"]
+
+
+def test_with_feminine_on_adds_the_klingende_kadenz() -> None:
+    """The extra syllable is unstressed and trailing — a feminine ending is one
+    more acceptable reading, never a different one (ADR 0040 D1)."""
+    assert with_feminine("0101010101", True) == ["0101010101", "01010101010"]
+
+
+def test_a_length_mismatch_against_two_options_names_both() -> None:
+    """ADR 0040 D1: a feminine ending widens the accepted length by one. When
+    neither candidate fits, the message must say both lengths were acceptable —
+    `pattern_result`'s `extra` phrasing on the stress path too. Before this fix
+    `line_metre` reported only the "best" candidate's own length, silently
+    dropping the other reading it had just tried and rejected."""
+    pack = get_pack("en")
+    # "the cat sat" is three syllables; neither a ten- nor an eleven-syllable
+    # pattern fits, so both should be named.
+    result = line_metre("the cat sat", pack, ["1010101010", "10101010100"], 0)
+    assert [v.rule for v in result.violations] == ["wrong_line_length"]
+    assert result.violations[0].expected == "10 or 11 syllables"
+
+
+def test_a_length_mismatch_against_one_option_stays_singular() -> None:
+    """ADR 0040 D6: with a single candidate the message must stay
+    byte-identical to today's — no "or" for a row that never offered a second
+    reading. Existing tests and golden fixtures depend on exactly this text."""
+    pack = get_pack("en")
+    result = line_metre("the cat sat", pack, ["1010101010"], 0)
+    assert [v.rule for v in result.violations] == ["wrong_line_length"]
+    assert result.violations[0].expected == "10 syllables"

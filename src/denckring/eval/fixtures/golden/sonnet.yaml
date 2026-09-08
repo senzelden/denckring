@@ -1,98 +1,211 @@
 procedure: sonnet
 lang: en
 cases:
-  - name: shakespearean-scheme
-    source: constructed example
-    text: |-
-      the cat can see the moon above the tree
-      the dog will run across the field today
-      a kestrel flies around the house at three
-      the sun will set behind the hill in may
-      the fox will hide beneath the fallen stone
-      the fish will swim beneath the frozen lake
-      the owl will call across the dark alone
-      the deer will wake before the morning break
-      the moon will rise and fill the sky with light
-      the horse will stand beside the gate so still
-      the stars will burn until the end of night
-      the mouse will hide behind the open till
-      the clock will mark the passing of the time
-      the bell will ring and slowly start to chime
-    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
-    satisfied: true
-  - name: thirteen-lines
-    source: constructed counterexample
-    text: |-
-      the cat can see the moon above the tree
-      the dog will run across the field today
-      a bird can fly around the house at three
-      the sun will set behind the hill in may
-      the fox will hide beneath the fallen stone
-      the fish will swim beneath the frozen lake
-      the owl will call across the dark alone
-      the deer will wake before the morning break
-      the moon will rise and fill the sky with light
-      the horse will stand beside the gate so still
-      the stars will burn until the end of night
-      the mouse will hide behind the open till
-      the clock will mark the passing of the time
-    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
-    satisfied: false
-  - name: fourteen-lines-one-mis-rhymed
-    source: constructed counterexample; fourteen lines, one broken rhyme and nothing else
-    text: |-
-      the cat can see the moon above the tree
-      the dog will run across the field today
-      a bird can fly around the house at dawn
-      the sun will set behind the hill in may
-      the fox will hide beneath the fallen stone
-      the fish will swim beneath the frozen lake
-      the owl will call across the dark alone
-      the deer will wake before the morning break
-      the moon will rise and fill the sky with light
-      the horse will stand beside the gate so still
-      the stars will burn until the end of night
-      the mouse will hide behind the open till
-      the clock will mark the passing of the time
-      the bell will ring and slowly start to chime
-    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
-    satisfied: false
-  - name: fourteen-lines-one-unmetrical
-    source: constructed counterexample; fourteen lines, one trochee against the beat
-    text: |-
-      the cat can see the moon over the tree
-      the dog will run across the field today
-      a bird can fly around the house at three
-      the sun will set behind the hill in may
-      the fox will hide beneath the fallen stone
-      the fish will swim beneath the frozen lake
-      the owl will call across the dark alone
-      the deer will wake before the morning break
-      the moon will rise and fill the sky with light
-      the horse will stand beside the gate so still
-      the stars will burn until the end of night
-      the mouse will hide behind the open till
-      the clock will mark the passing of the time
-      the bell will ring and slowly start to chime
-    params: { scheme: ABABCDCDEFEFGG, metre: "0101010101" }
-    satisfied: false
-  - name: shakespeare-schema
-    lang: de
-    source: "constructed example"
-    text: |-
-      der Wandrer zieht durch jenes weite Land
-      der Wind bewegt die Blätter in der Nacht
-      das Feuer brennt und wärmt die kalte Hand
-      der Regen fällt und niemand hat gelacht
-      ein Vogel singt am Morgen auf dem Baum
-      die Lampe steht und gibt uns wenig Licht
-      ein Kind erwacht und ruft nach seinem Traum
-      der Bote kommt, doch bringt er Botschaft nicht
-      der Bauer geht am Abend nicht allein
-      der Mond erhebt sich über jenem Feld
-      die Sonne sinkt und lässt den Himmel rein
-      die Krone fällt und niemand ist ein Held
-      der Wandrer geht hinunter in das Tal
-      die Fenster leuchten hell im großen Saal
-    params: { scheme: "ABABCDCDEFEFGG", metre: "0101010101" }
-    satisfied: true
+- name: shakespearean-scheme
+  source: constructed example
+  text: 'the cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    a kestrel flies around the house at three
+
+    the sun will set behind the hill in may
+
+    the fox will hide beneath the fallen stone
+
+    the fish will swim beneath the frozen lake
+
+    the owl will call across the dark alone
+
+    the deer will wake before the morning break
+
+    the moon will rise and fill the sky with light
+
+    the horse will stand beside the gate so still
+
+    the stars will burn until the end of night
+
+    the mouse will hide behind the open till
+
+    the clock will mark the passing of the time
+
+    the bell will ring and slowly start to chime'
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  satisfied: true
+- name: thirteen-lines
+  source: constructed counterexample
+  text: 'the cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    a bird can fly around the house at three
+
+    the sun will set behind the hill in may
+
+    the fox will hide beneath the fallen stone
+
+    the fish will swim beneath the frozen lake
+
+    the owl will call across the dark alone
+
+    the deer will wake before the morning break
+
+    the moon will rise and fill the sky with light
+
+    the horse will stand beside the gate so still
+
+    the stars will burn until the end of night
+
+    the mouse will hide behind the open till
+
+    the clock will mark the passing of the time'
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  satisfied: false
+- name: fourteen-lines-one-mis-rhymed
+  source: constructed counterexample; fourteen lines, one broken rhyme and nothing
+    else
+  text: 'the cat can see the moon above the tree
+
+    the dog will run across the field today
+
+    a bird can fly around the house at dawn
+
+    the sun will set behind the hill in may
+
+    the fox will hide beneath the fallen stone
+
+    the fish will swim beneath the frozen lake
+
+    the owl will call across the dark alone
+
+    the deer will wake before the morning break
+
+    the moon will rise and fill the sky with light
+
+    the horse will stand beside the gate so still
+
+    the stars will burn until the end of night
+
+    the mouse will hide behind the open till
+
+    the clock will mark the passing of the time
+
+    the bell will ring and slowly start to chime'
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  satisfied: false
+- name: fourteen-lines-one-unmetrical
+  source: constructed counterexample; fourteen lines, one trochee against the beat
+  text: 'the cat can see the moon over the tree
+
+    the dog will run across the field today
+
+    a bird can fly around the house at three
+
+    the sun will set behind the hill in may
+
+    the fox will hide beneath the fallen stone
+
+    the fish will swim beneath the frozen lake
+
+    the owl will call across the dark alone
+
+    the deer will wake before the morning break
+
+    the moon will rise and fill the sky with light
+
+    the horse will stand beside the gate so still
+
+    the stars will burn until the end of night
+
+    the mouse will hide behind the open till
+
+    the clock will mark the passing of the time
+
+    the bell will ring and slowly start to chime'
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  satisfied: false
+- name: shakespeare-schema
+  lang: de
+  source: constructed example
+  text: 'der Wandrer zieht durch jenes weite Land
+
+    der Wind bewegt die Blätter in der Nacht
+
+    das Feuer brennt und wärmt die kalte Hand
+
+    der Regen fällt und niemand hat gelacht
+
+    ein Vogel singt am Morgen auf dem Baum
+
+    die Lampe steht und gibt uns wenig Licht
+
+    ein Kind erwacht und ruft nach seinem Traum
+
+    der Bote kommt, doch bringt er Botschaft nicht
+
+    der Bauer geht am Abend nicht allein
+
+    der Mond erhebt sich über jenem Feld
+
+    die Sonne sinkt und lässt den Himmel rein
+
+    die Krone fällt und niemand ist ein Held
+
+    der Wandrer geht hinunter in das Tal
+
+    die Fenster leuchten hell im großen Saal'
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  satisfied: true
+- name: gryphius-eitel-sonett
+  lang: de
+  provenance: external
+  source: 'Andreas Gryphius, "Es ist alles eitel" (Sonnete, 1637 Lissa; revised 1643/1663),
+    diplomatic Baroque orthography with virgules, per the German Wikipedia text panel
+    (revised recension). Rejected: 2 violations — `wrong_line_length` on line 1, where
+    lowercase "du" makes the checker report 14 syllables (a denckring-de-data defect,
+    ADR 0040, parked not fixed), and `wrong_stress` on "Nichtigkeit" (line 12), where
+    the checker expects stress `101` but finds `100`. Measured on this HEAD: score
+    0.9873, 2 violations.'
+  text: 'Du sihst/ wohin du sihst nur Eitelkeit auff Erden.
+
+    Was dieser heute baut/ reist jener morgen ein:
+
+    Wo itzund Städte stehn/ wird eine Wiesen seyn/
+
+    Auff der ein Schäfers-Kind wird spielen mit den Herden.
+
+    Was itzund prächtig blüht/ sol bald zutretten werden.
+
+    Was itzt so pocht vnd trotzt ist morgen Asch vnd Bein/
+
+    Nichts ist/ das ewig sey/ kein Ertz/ kein Marmorstein.
+
+    Itzt lacht das Glück vns an/ bald donnern die Beschwerden.
+
+    Der hohen Thaten Ruhm muß wie ein Traum vergehn.
+
+    Soll denn das Spiel der Zeit/ der leichte Mensch bestehn?
+
+    Ach! was ist alles diß/ was wir vor köstlich achten/
+
+    Als schlechte Nichtigkeit/ als Schatten/ Staub vnd Wind;
+
+    Als eine Wiesen-Blum/ die man nicht wider find''t.
+
+    Noch wil was ewig ist/ kein einig Mensch betrachten!'
+  params:
+    scheme: ABBAABBACCDEED
+    metre: '010101010101'
+    feminine_ending: true
+  min_score: 0.98
+  satisfied: false

@@ -70,3 +70,35 @@ cases:
       die Fenster leuchten hell im großen Saal
     params: {}
     satisfied: true
+  - name: shakespeare-sonnet-18
+    source: >-
+      William Shakespeare, Sonnets (1609), no. 18, based on Shake-speares
+      Sonnets (London: Thomas Thorpe, 1609), the 1609 Quarto; original
+      spelling, long-s normalised to s (ADR 0040 D5 — transcribed as printed,
+      not modernised). Rejected: `temperate`/`date` is an Elizabethan rhyme
+      this package's strict rhyme model does not accept (`does_not_rhyme`,
+      ADR 0040 D3), the same pairing gives `wrong_stress` on "temperate"
+      (100 vs expected 101), and three lines carrying 1609 spellings the
+      pronouncing dictionary does not hold — "heauen", "vntrim'd",
+      "wandr'st" — fall through to a fallback count that reads 9 syllables
+      instead of 10 (`wrong_line_length`). Measured on this HEAD: score
+      0.9615, 5 violations.
+    text: |-
+      Shall I compare thee to a Summers day?
+      Thou art more louely and more temperate:
+      Rough windes do shake the darling buds of Maie,
+      And Sommers lease hath all too short a date:
+      Sometime too hot the eye of heauen shines,
+      And often is his gold complexion dimm'd,
+      And euery faire from faire some-time declines,
+      By chance, or natures changing course vntrim'd:
+      But thy eternall Sommer shall not fade,
+      Nor loose possession of that faire thou ow'st,
+      Nor shall death brag thou wandr'st in his shade,
+      When in eternall lines to time thou grow'st,
+      So long as men can breathe or eyes can see,
+      So long liues this, and this giues life to thee.
+    params: {}
+    provenance: external
+    min_score: 0.96
+    satisfied: false

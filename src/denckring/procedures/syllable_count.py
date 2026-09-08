@@ -73,8 +73,15 @@ def syllable_evidence(text: str, pack: LanguagePack) -> list[Evidence]:
     return evidence
 
 
-def pattern_result(text: str, pack: LanguagePack, pattern: list[int]) -> PatternResult:
-    """Compare each line's syllables against the expected pattern."""
+def pattern_result(
+    text: str, pack: LanguagePack, pattern: list[int], *, extra: int = 0
+) -> PatternResult:
+    """Compare each line's syllables against the expected pattern.
+
+    `extra` admits a longer close — one unstressed syllable for a feminine
+    ending — as a second acceptable count rather than a different one, so a row
+    that permits it still rejects a line two syllables over (ADR 0040 D1).
+    """
     measured = line_syllables(text, pack)
     violations: list[Violation] = []
     matched = 0
@@ -87,7 +94,7 @@ def pattern_result(text: str, pack: LanguagePack, pattern: list[int]) -> Pattern
             )
             continue
         offset, total, _ = measured[index]
-        if total == expected:
+        if total == expected or (extra and total == expected + extra):
             matched += 1
         else:
             violations.append(
@@ -95,7 +102,11 @@ def pattern_result(text: str, pack: LanguagePack, pattern: list[int]) -> Pattern
                     rule="wrong_syllable_count",
                     offset=offset,
                     found=f"{total} syllables",
-                    expected=f"{expected} syllables",
+                    expected=(
+                        f"{expected} or {expected + extra} syllables"
+                        if extra
+                        else f"{expected} syllables"
+                    ),
                 )
             )
     for offset, total, _ in measured[len(pattern) :]:

@@ -54,3 +54,18 @@ cases:
       au loin
     params: {}
     satisfied: false
+  - name: crapsey-november-night-cinquain
+    source: >-
+      Adelaide Crapsey, "November Night", from Verse (Rochester, NY: The
+      Manas Press, 1915), published posthumously. The apostrophe in
+      "frost-crisp'd" elides the -e of "crisped" and is load-bearing for the
+      8-syllable fourth line (ADR 0040 D5): expand it and the count moves.
+    text: |-
+      Listen...
+      With faint dry sound,
+      Like steps of passing ghosts,
+      The leaves, frost-crisp'd, break from the trees
+      And fall.
+    params: {}
+    provenance: external
+    satisfied: true

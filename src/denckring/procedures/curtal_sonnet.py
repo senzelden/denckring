@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
 from denckring.core.prosody import repeat_to
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -13,7 +13,7 @@ SCHEME = "ABCABCDBCDC"
 LINES = 11
 
 
-class CurtalSonnetParams(RhymeParams):
+class CurtalSonnetParams(RhymeParams, MetreParams):
     pass
 
 
@@ -28,7 +28,14 @@ class CurtalSonnet(BaseProcedure[CurtalSonnetParams]):
         return CurtalSonnetParams
 
     def _check(self, text: str, pack: LanguagePack, params: CurtalSonnetParams) -> Report:
-        result = form_report(text, pack, scheme=SCHEME, metre=repeat_to("01", 5), lines=LINES)
+        result = form_report(
+            text,
+            pack,
+            scheme=SCHEME,
+            metre=repeat_to("01", 5),
+            lines=LINES,
+            feminine_ending=params.feminine_ending,
+        )
         return self._report(
             good=result.good,
             total=result.total,
