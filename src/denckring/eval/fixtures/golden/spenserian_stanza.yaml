@@ -96,4 +96,5 @@ cases:
       As one for knightly giusts and fierce encounters fitt.
     params: {}
     provenance: external
+    min_score: 0.96
     satisfied: false

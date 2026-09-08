@@ -56,7 +56,7 @@ row offers `P`. A fixed longer pattern would not do: Gryphius' sonnet rhymes fem
 single string spans both.
 
 `shakespearean_sonnet`, `rhyme_royal`, `spenserian_stanza`, `blank_verse`,
-`curtal_sonnet`, `alexandrine` and `elegiac_couplet` hard-code their metre; they gain a
+`curtal_sonnet`, `alexandrine` and `sonnet` hard-code their metre; they gain a
 parameter admitting the feminine variant, defaulting off.
 
 **Under the full metre scan — stress pattern as well as length — the same texts go from
@@ -79,8 +79,10 @@ positives.** Spenser and Gryphius are perfect. The 11 are Sibbald's slant rhymes
 Wordsworth's genuinely disputed scheme (5), `temperate`/`date` (1) and Chaucer's
 `ye`/`joie` (1). Accepting slant rhyme would trade a model that currently never fires
 spuriously for eleven cases, five of which sit in a text its own research note
-recommends replacing. The four affected texts ship `satisfied: false` with the reason
-in `source`, which is a true statement about how this package reads them.
+recommends replacing. Three of the four affected texts — Sibbald, Sonnet 18 and
+Chaucer — ship `satisfied: false` with the reason in `source`, which is a true
+statement about how this package reads them. The fourth, Wordsworth's disputed
+sonnet, is in no golden fixture; it exists only in `tests/fixtures/canonical_lines.yaml`.
 
 **D4. Stress gets no general change; two rows declare a limitation instead.** 59 canonical lines
 raise 13 `wrong_stress` violations, but they concentrate: outside `curtal_sonnet` and
@@ -112,8 +114,10 @@ error. D6 buys backward compatibility at exactly this price.
 paragraph predicted an upper bound before the corpus was built; the implementation
 raised it from 38 to 51 (7.1% to 9.4%), which is a smaller rise than 23 and confirms
 the bound rather than contradicting it, so the number below is a correction in the
-sense of *filled in*, not *overwritten*. Four texts ship `satisfied: false` under
-D3 and the four French sonnet and ballade cases cannot ship at all — `sonnet` and
+sense of *filled in*, not *overwritten*. Three texts ship `satisfied: false` under
+D3 (Wordsworth's disputed sonnet, the fourth, is in no golden fixture — only in
+`tests/fixtures/canonical_lines.yaml`), and the four French sonnet and ballade
+cases cannot ship at all — `sonnet` and
 `ballade` want `stress`, which French does not have, so they sit inside the 18-row
 ceiling ADR 0034's D3 recorded. A `satisfied: false` case is evidence about the
 reading, but it does not demonstrate a row accepting real verse, which is the thing
@@ -153,7 +157,7 @@ though `syllable_count("du")` is correctly 1 — case-dependent, and the same fa
 defect as the `find_word` casing mismatch fixed in `device.segment`. It lives in the
 `denckring-de-data` distribution, not in this package, so this record cannot fix it.
 It makes one of the 42 German canonical lines — Gryphius, "Es ist alles eitel", l.1 —
-*report* as 14 syllables in a `wrong_stress` violation's `found` figure, where
+*report* as 14 syllables in a `wrong_line_length` violation's `found` figure, where
 `line_syllables` reads the same line correctly at 13. Parked rather than fixed:
 `sonnet/gryphius-eitel-sonett`'s golden case carries a `min_score` floor rather than
 an exact score for exactly this reason, so a later fix to the pronunciation data

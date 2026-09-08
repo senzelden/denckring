@@ -100,4 +100,5 @@ cases:
       So long liues this, and this giues life to thee.
     params: {}
     provenance: external
+    min_score: 0.96
     satisfied: false

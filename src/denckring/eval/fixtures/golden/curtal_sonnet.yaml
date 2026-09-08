@@ -108,4 +108,5 @@ cases:
                         Praise him.
     params: {}
     provenance: external
+    min_score: 0.88
     satisfied: false

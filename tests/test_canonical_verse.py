@@ -2,7 +2,7 @@
 
 This is a conformance corpus in miniature, and the smallest honest one: every
 line here comes from a published poem old enough to be out of copyright, and
-none of it was written for this suite. That is the whole point. 489 of the 532
+none of it was written for this suite. That is the whole point. 494 of the 545
 golden cases were constructed by this project's author, so the suite can agree
 with the implementation about a reading both of them share — which is exactly
 what these lines are for.

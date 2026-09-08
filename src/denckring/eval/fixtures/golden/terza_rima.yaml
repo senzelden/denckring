@@ -84,4 +84,5 @@ cases:
       I will relate what other things befell.
     params: {}
     provenance: external
+    min_score: 0.88
     satisfied: false

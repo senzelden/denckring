@@ -36,6 +36,13 @@ _RULE_LITERAL = re.compile(r"""rule\s*=\s*["']([a-z_]+)["']""")
 #: rule only counts if it is one the codebase actually defines.
 _BACKTICKED = re.compile(r"`([^`]+)`")
 
+#: A `source` that states "Measured on this HEAD: score 0.9873" is making a claim
+#: that can go stale the moment a dependency's data changes underneath it (ADR
+#: 0040 records exactly that for `denckring-de-data`). Matching the phrase, not
+#: one instance of it, so a case that starts stating a score is caught whether
+#: or not it is one of today's eight.
+_STATES_A_MEASURED_SCORE = re.compile(r"score\s+\d\.\d+")
+
 _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 
 #: The measurement above, as a floor rather than a pin. A guard that fixes the
@@ -102,9 +109,11 @@ def test_an_external_rejection_names_a_rule_the_checker_actually_raised() -> Non
     true. Three cases shipped with a `source` naming a rule the checker never raised
     for them: one blamed `wrong_stress` on a line the row does not scan stress for
     at all, two blamed a missing dictionary entry on a word the dictionary held. Each
-    was plausible read alone and false on inspection. This runs every such case and
-    checks its claim against what the checker actually says, so a false explanation
-    fails the suite instead of sitting in the corpus looking read."""
+    was plausible read alone and false on inspection. This catches only the first
+    kind: a backticked token that is a recognised rule name, checked against what the
+    checker actually raised for that case. The other two above were prose ("a word
+    not in this package's phonetic database") and would pass this guard untouched —
+    prose claims and line attributions in `source` remain unguarded."""
     known_rules = _known_rule_names()
     unbacked = []
     for case in load_golden_cases():
@@ -120,3 +129,22 @@ def test_an_external_rejection_names_a_rule_the_checker_actually_raised() -> Non
                 f"{case}: source names `{rule}`, but the checker raised {sorted(emitted)}"
             )
     assert not unbacked, "\n".join(unbacked)
+
+
+def test_a_stated_score_is_backed_by_a_min_score_floor() -> None:
+    """`eval --all` only checks `satisfied`, not `score` — a `satisfied: false` case
+    passes no matter what its `params` say, which is how one shipped missing
+    `feminine_ending: true` and stayed green. A `source` that states a measured
+    score (`Measured on this HEAD: score 0.9873`) is a claim about that score, and
+    without a `min_score` floor nothing in the suite would notice if a later change
+    moved it. The rule, not today's count: any external, unsatisfied case whose
+    `source` states a measured score must carry a `min_score`."""
+    unbacked = [
+        str(case)
+        for case in load_golden_cases()
+        if case.provenance == "external"
+        and not case.satisfied
+        and _STATES_A_MEASURED_SCORE.search(case.source or "")
+        and case.min_score is None
+    ]
+    assert not unbacked, f"cases state a measured score with no min_score to guard it: {unbacked}"

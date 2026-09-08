@@ -68,4 +68,5 @@ cases:
       Thise woful vers, that wepen as I write.
     params: {}
     provenance: external
+    min_score: 0.89
     satisfied: false

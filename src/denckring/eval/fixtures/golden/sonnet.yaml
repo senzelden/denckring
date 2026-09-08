@@ -171,9 +171,11 @@ cases:
   provenance: external
   source: 'Andreas Gryphius, "Es ist alles eitel" (Sonnete, 1637 Lissa; revised 1643/1663),
     diplomatic Baroque orthography with virgules, per the German Wikipedia text panel
-    (revised recension). Rejected: 2 violations — `wrong_line_length` on line 11 and
-    `wrong_stress` on "Nichtigkeit" (line 12), where the checker expects stress `101`
-    but finds `100`. Measured on this HEAD: score 0.9873, 2 violations.'
+    (revised recension). Rejected: 2 violations — `wrong_line_length` on line 1, where
+    lowercase "du" makes the checker report 14 syllables (a denckring-de-data defect,
+    ADR 0040, parked not fixed), and `wrong_stress` on "Nichtigkeit" (line 12), where
+    the checker expects stress `101` but finds `100`. Measured on this HEAD: score
+    0.9873, 2 violations.'
   text: 'Du sihst/ wohin du sihst nur Eitelkeit auff Erden.
 
     Was dieser heute baut/ reist jener morgen ein:
