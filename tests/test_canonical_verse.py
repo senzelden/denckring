@@ -33,7 +33,10 @@ this file rather than as a silent shift in what the catalogue claims to check.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
+import yaml
 
 from denckring.lang import get_pack
 
@@ -101,3 +104,50 @@ def test_miltons_elision_is_not_a_dictionary_miss() -> None:
     total, estimated = PACK.line_syllables("of mans first disobedience and the fruit")
     assert (total, estimated) == (11, 0)
     assert PACK.syllable_count("disobedience") == (5, True)
+
+
+def canonical_lines() -> list[dict[str, object]]:
+    """The canonical corpus, with what each line's metre wants beside what this
+    package reads. `reads` is filled in here rather than stored, so the fixture
+    records the poetry and the suite records the package."""
+    path = Path(__file__).parent / "fixtures" / "canonical_lines.yaml"
+    rows: list[dict[str, object]] = yaml.safe_load(path.read_text(encoding="utf-8"))
+    for row in rows:
+        lang = str(row["lang"])
+        line = str(row["line"])
+        row["reads"] = get_pack(lang).line_syllables(line)[0]
+    return rows
+
+
+#: ADR 0040 D2's ceiling. 3 of 69 English canonical lines disagree with the model
+#: without any guessed word involved; the other 12 outliers are lexicon misses.
+#: Asserted as a ceiling because D2 declined synaeresis on exactly this number —
+#: if it rises, the decision is owed a re-reading.
+ENGLISH_TRUE_DISAGREEMENTS = 3
+
+
+def test_the_english_ceiling_D2_declined_on_has_not_moved() -> None:  # noqa: N802
+    """Fails in both directions on purpose. Fewer means English elision just got
+    cheaper than ADR 0040 D2 measured it and the decision should be re-read; more
+    means a regression.
+
+    The `D2` in the name is ADR 0040's decision label, not a naming lapse — that
+    is why the `noqa` above is targeted rather than a blanket exemption.
+    """
+    pack = get_pack("en")
+    # `syllable_evidence` is on `BasePack`, not the published `LanguagePack`
+    # protocol (a third-party pack need not implement it), so `getattr` reaches
+    # it the same way `procedures/syllable_count.py`'s own reader does.
+    evidence = pack.syllable_evidence  # type: ignore[attr-defined]
+    disagreements = [
+        row
+        for row in canonical_lines()
+        if row["lang"] == "en"
+        and row["reads"] != row["wants"]
+        and not any(not exact for *_, exact in evidence(row["line"]))
+    ]
+    assert len(disagreements) == ENGLISH_TRUE_DISAGREEMENTS, (
+        f"{len(disagreements)} English canonical lines disagree with the model with "
+        f"no guessed word, not {ENGLISH_TRUE_DISAGREEMENTS}: "
+        f"{[r['source'] for r in disagreements]}"
+    )
