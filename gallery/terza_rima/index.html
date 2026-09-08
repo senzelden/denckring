@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1845,6 +1901,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dante-inferno-canto1-sibbald" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dante-inferno-canto1-sibbald
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1960,6 +2027,21 @@ Il regardait au loin la montagne
 Puis s&#39;en alla dans le froid gris
 </code></pre></div>
 <p>Source: constructed counterexample; the B rhyme (chemin/matin) breaks on the last line</p>
+<h3 id="dante-inferno-canto1-sibbald">dante-inferno-canto1-sibbald<a class="headerlink" href="#dante-inferno-canto1-sibbald" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>In middle of the journey of our days
+I found that I was in a darksome wood—
+The right road lost and vanished in the maze.
+
+Ah me! how hard to make it understood
+How rough that wood was, wild, and terrible:
+By the mere thought my terror is renewed.
+
+More bitter scarce were death. But ere I tell
+At large of good which there by me was found,
+I will relate what other things befell.
+</code></pre></div>
+<p>Source: Dante, Inferno, Canto I, lines 1-9; English terza-rima translation by James Romanes Sibbald, The Divine Comedy of Dante Alighieri (Edinburgh: David Douglas, 1884). Rejected: Sibbald's rhyme is genuinely interlocking (ABA BCB CDC) but two of its three chains rhyme on slant or eye-rhyme rather than a rhyme this package's strict model accepts — "renewed" does not rhyme with either "wood" or "understood", and "terrible" does not rhyme with "tell" or "befell" (<code>does_not_rhyme</code>, ADR 0040 D3). Measured on this HEAD: score 0.8889, 4 violations.</p>
 
 
 

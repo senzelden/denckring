@@ -2,818 +2,826 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://senzelden.github.io/denckring/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/changelog/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/contributing/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0001-english-api-multilingual-content/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0002-check-mandatory-apply-optional/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0003-catalogue-yaml-not-sqlite/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0004-language-packs-as-capabilities/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0005-continuous-score/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0006-dual-licence/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0007-one-module-per-procedure/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0008-catalogue-inside-package/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0009-folding-is-a-parameter/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0010-packs-via-entry-points/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0011-checkability/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0012-syllable-capabilities/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0013-data-as-a-separate-distribution/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0014-metre-as-satisfiability/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0015-lexicon-capabilities/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0016-one-pack-per-language/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0017-devices-ship-with-their-procedures/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0018-attestation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0019-figures/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0020-corpora-are-not-shipped/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0021-the-transferable-part/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0022-german-moves-to-a-default/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0023-the-german-lexicon/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0024-apache-two-for-the-code/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0025-the-apply-spine/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0026-the-production-surface/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0027-candidates-carry-their-scores/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0028-the-graded-lexicon/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0029-the-choices-the-catalogue-promised/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0030-german-pronunciations/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0031-devices-are-address-spaces/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0032-the-french-lexicon/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0033-the-layer-split/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0034-french-prosody/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0035-orthographic-and-phonetic-readings/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0036-the-elision-seam/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0037-the-calculator-word/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/adr/0038-german-frequency/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://senzelden.github.io/denckring/adr/0039-mutation-testing/</loc>
+         <lastmod>2026-09-08</lastmod>
+    </url>
+    <url>
+         <loc>https://senzelden.github.io/denckring/adr/0040-reading-canonical-verse/</loc>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/api/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/api/errors/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/api/functions/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/api/packs/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/api/types/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/abecedarian/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/acrostic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/alcaic_stanza/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/alexandrine/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/alliterative_verse/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/alphabetical_sentence/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/anagram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/anaphora/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/antigram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/antonymic_substitution/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/antonymic_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/arca_musarithmica/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/ars_combinatoria/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/assonance_constraint/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/back_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/ballade/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/beau_present/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/belle_absente/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/bivocalic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/blackout_poetry/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/blank_verse/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/boustrophedon/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/buchstabwechsel/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/calculator_word/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/calligram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/canada_dry/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/cent_mille_milliards/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/cento/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/chance_operation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/charade/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/chimera/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/chronogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/cinquain/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/clerihew/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/column_reading/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/combinatorial_sonnet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/concrete_poetry/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/consonantal_lipogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/curtal_sonnet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/cut_up/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/dactylic_hexameter/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/dada_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/definitional_expansion/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/definitional_literature/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/definitional_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/denckring/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/diastic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/double_acrostic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/double_dactyl/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/elegiac_couplet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/englyn/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/eodermdrome/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/epistrophe/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/erasure/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/every_nth_word/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/fold_in/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/found_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/ghazal/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/grid_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/haibun/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/haiku/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/haikuization/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/hemeling/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/hendecasyllable/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/heroic_couplet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/heterogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/homoconsonantism/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/homophonic_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/homosyntaxism/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/homoteleuton/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/homovocalism/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/iambic_pentameter/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/ideenwuerfeln/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/intralingual_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/kangaroo_word/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/larding/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/letter_bank/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/limerick/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/line_permutation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/lipogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/lipogrammatic_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/liponym/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/llull_figure/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/mathews_algorithm/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/melting_text/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/mesostic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/monoconsonantal/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/monosyllabic_prose/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/multiple_constraint/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/n_plus_7/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/oracle_reading/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/ottava_rima/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/palimpsest/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/palindrome/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pangram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pangrammatic_lipogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pangrammatic_window/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pantoum/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/paragram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pasigraphy/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/pattern_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/perverb/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/petrarchan_sonnet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/poesie_automat/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/prisoners_constraint/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/proteus_verse/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/quenina/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/recombination/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/renga/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/reverse_snowball/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/rhyme_royal/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/rhyme_scheme/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/rondeau/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/s_plus_7/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/sapphic_stanza/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/sator_square/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/semordnilap/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/senryu/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/sentence_length_constraint/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/serial_lipogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/sestina/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/shakespearean_sonnet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/single_sentence/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/slenderizing/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/snowball/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/snowball_sentence/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/sonnet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/spatial_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/spenserian_stanza/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/spoonerism/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/stanza_permutation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/strikethrough/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/supervocalic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/syllable_count/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/synonymic_substitution/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/tanka/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/tautogram/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/tautonym/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/telestich/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/terza_rima/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/text_folding/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/tmesis/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/transduction/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/transposal/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/triolet/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/trochaic_tetrameter/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/typewriter_poem/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/univocalic/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/univocalic_translation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/verbless_prose/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/villanelle/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/wechselsatz/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/witz_metaphor/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/word_ladder/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/word_permutation/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/gallery/word_square/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
     <url>
          <loc>https://senzelden.github.io/denckring/showcase/</loc>
-         <lastmod>2026-09-07</lastmod>
+         <lastmod>2026-09-08</lastmod>
     </url>
 </urlset>

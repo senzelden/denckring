@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1845,6 +1901,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#villanelle-passerat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        villanelle-passerat
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1998,6 +2065,35 @@ Il se levait tôt le matin
 Le vent emporte notre amour
 </code></pre></div>
 <p>Source: constructed counterexample</p>
+<h3 id="villanelle-passerat">villanelle-passerat<a class="headerlink" href="#villanelle-passerat" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>I&#39;ay perdu ma Tourterelle:
+Eft-ce point celle que i&#39;oy?
+Ie veus aller aprés elle.
+
+Tu regretes ta femelle,
+Helas! außi fai-ie moy,
+I&#39;ay perdu ma Tourterelle.
+
+Si ton Amour eft fidelle,
+Außi est ferme ma foy,
+Ie veus aller aprés elle.
+
+Ta plainte fe renouuelle;
+Toufiours plaindre ie me doy:
+I&#39;ay perdu ma Tourterelle.
+
+En ne voyant plus la belle
+Plus rien de beau ie ne voy:
+Ie veus aller aprés elle.
+
+Mort, que tant de fois i&#39;appelle,
+Pren ce qui fe donne à toy:
+I&#39;ay perdu ma Tourterelle,
+Ie veus aller aprés ell.
+</code></pre></div>
+<p>Parameters: <code>unknown_rhyme='free'</code></p>
+<p>Source: Jean Passerat, 'Villanelle' (J'ay perdu ma Tourterelle), in Recueil des œuvres poétiques de Ian Passerat (Paris: Morel, 1606), pp. 344–345; original orthography per the 1606 base text (long-s and ß retained as printed). Rejected: one <code>broken_refrain</code>. Line 24 reads <code>aprés ell</code> where line 3 reads <code>aprés elle</code>. Whether that is Passerat's 1606 spelling or a transcription slip is NOT VERIFIED against the print; the case is shipped as it was supplied and the question is left open rather than silently mended.</p>
 
 
 

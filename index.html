@@ -1861,6 +1861,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2267,12 +2323,24 @@ questions never fold — <em>Masse</em> satisfies the prisoner's constraint and 
 because a written <code>ß</code> carries an ascender.</p>
 <h2 id="reports-and-productions">Reports and Productions<a class="headerlink" href="#reports-and-productions" title="Permanent link">&para;</a></h2>
 <p><code>check</code> returns a <code>Report</code>: <code>satisfied</code>, a continuous <code>score</code> in <code>[0, 1]</code>, a list of
-<code>violations</code> with character offsets, and free-form <code>metrics</code>. The score is monotone in
+<code>violations</code> with character offsets, free-form <code>metrics</code>, and <code>evidence</code> — the
+measurements the verdict rests on, each saying whether it came from a dictionary or a
+spelling heuristic. A haiku that misses names the words it counted and what it made them;
+a line that does not scan names the stress it read each word as. It is empty on the rows
+that need no such account: a lipogram's violation already carries the offending character.
+<code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 81
+of the 122 and <code>heuristic</code> for 41. The score is monotone in
 violation count and <code>satisfied</code> is exactly <code>score == 1.0</code>, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.</p>
 <p><code>produce</code> returns a <code>Production</code> — the procedure's id, its <code>texts</code> (best first, never
 empty), <code>truncated</code>, and <code>metrics</code> — and <code>apply</code> is defined as <code>produce(...).texts[0]</code>,
 the one-text surface for a caller who wants the best answer and not the search behind it.</p>
+<p>Both carry <code>provenance</code>: the package version, a schema version that moves independently
+of it, which pack answered and which data distributions it was reading, the
+<code>fold_diacritics</code> policy in force, and the <code>seed</code> a drawing generator used. German names
+three distributions there, because <code>GermanWiktionaryFrequencyPack</code> layers three. The seed
+is the field that makes a draw repeatable — it is an input parameter, so until it was
+echoed here <code>apply --seed 7 --json</code> printed an object that did not contain 7.</p>
 <p><code>texts</code> is derived from <code>candidates</code>, which is where a generator that ranks says why:
 <code>produce("anagram", "dormitory")</code> returns <code>dirty room</code> first, carrying the SCOWL size
 band of its least common word, ahead of covers built from rarer ones (ADR 0027). A caller
@@ -2295,13 +2363,16 @@ are built on them:</p>
   replaced, the old id stays findable through <code>denckring search</code> as an alias — though
   <code>get</code> resolves ids only, and raises <code>UnknownProcedure</code> naming the replacement.
   <code>multiple_constraint</code>, which replaced <code>univocalic_lipogram_pair</code>, is the precedent.</li>
-<li><strong><code>Report</code> as JSON</strong> — <code>procedure</code>, <code>satisfied</code>, <code>score</code>, <code>violations</code>, <code>metrics</code> — and
-  the <code>--json</code> output of <code>check</code>, <code>show</code> and <code>describe</code> that carries it. Fields may be
-  added; the ones already there do not change type or meaning. <code>describe</code>'s <code>Description</code>
-  carries <code>runs_in</code> under the same promise.</li>
-<li><strong><code>Production</code> as JSON</strong> — <code>procedure</code>, <code>candidates</code>, <code>texts</code>, <code>truncated</code>, <code>metrics</code> —
-  and the <code>--json</code> output of <code>apply</code>. Covered by the same promise in the same words. Both
-  <code>candidates</code> and <code>texts</code> are ordered, best first, because <code>apply</code> returns <code>texts[0]</code>.</li>
+<li><strong><code>Report</code> as JSON</strong> — <code>procedure</code>, <code>satisfied</code>, <code>score</code>, <code>violations</code>, <code>metrics</code>,
+  <code>provenance</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and <code>describe</code> that carries
+  it. Fields may be added; the ones already there do not change type or meaning.
+  <code>describe</code>'s <code>Description</code> carries <code>runs_in</code> under the same promise. <code>provenance</code>
+  carries its own <code>schema_version</code>, which moves when the <em>shape</em> of these objects does
+  and not when the package is released.</li>
+<li><strong><code>Production</code> as JSON</strong> — <code>procedure</code>, <code>candidates</code>, <code>texts</code>, <code>truncated</code>, <code>metrics</code>,
+  <code>provenance</code> — and the <code>--json</code> output of <code>apply</code>. Covered by the same promise in the
+  same words. Both <code>candidates</code> and <code>texts</code> are ordered, best first, because <code>apply</code>
+  returns <code>texts[0]</code>.</li>
 <li><strong>The catalogue export schema</strong> (<code>denckring catalogue export</code>), including the <code>licence</code>
   and <code>attribution</code> keys the CC BY terms are carried by.</li>
 <li><strong>The <code>denckring.lang</code> entry-point group</strong> and the capability names a pack declares, so

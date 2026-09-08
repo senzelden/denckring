@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1845,6 +1901,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#gryphius-eitel-sonett" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gryphius-eitel-sonett
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1900,6 +1967,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
 <tr>
 <td><code>metre</code></td>
 <td>string</td>
@@ -2015,6 +2088,25 @@ die Fenster leuchten hell im großen Saal
 </code></pre></div>
 <p>Parameters: <code>scheme='ABABCDCDEFEFGG'</code>, <code>metre='0101010101'</code></p>
 <p>Source: constructed example</p>
+<h3 id="gryphius-eitel-sonett">gryphius-eitel-sonett<a class="headerlink" href="#gryphius-eitel-sonett" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Du sihst/ wohin du sihst nur Eitelkeit auff Erden.
+Was dieser heute baut/ reist jener morgen ein:
+Wo itzund Städte stehn/ wird eine Wiesen seyn/
+Auff der ein Schäfers-Kind wird spielen mit den Herden.
+Was itzund prächtig blüht/ sol bald zutretten werden.
+Was itzt so pocht vnd trotzt ist morgen Asch vnd Bein/
+Nichts ist/ das ewig sey/ kein Ertz/ kein Marmorstein.
+Itzt lacht das Glück vns an/ bald donnern die Beschwerden.
+Der hohen Thaten Ruhm muß wie ein Traum vergehn.
+Soll denn das Spiel der Zeit/ der leichte Mensch bestehn?
+Ach! was ist alles diß/ was wir vor köstlich achten/
+Als schlechte Nichtigkeit/ als Schatten/ Staub vnd Wind;
+Als eine Wiesen-Blum/ die man nicht wider find&#39;t.
+Noch wil was ewig ist/ kein einig Mensch betrachten!
+</code></pre></div>
+<p>Parameters: <code>scheme='ABBAABBACCDEED'</code>, <code>metre='010101010101'</code>, <code>feminine_ending=True</code></p>
+<p>Source: Andreas Gryphius, "Es ist alles eitel" (Sonnete, 1637 Lissa; revised 1643/1663), diplomatic Baroque orthography with virgules, per the German Wikipedia text panel (revised recension). Rejected: 2 violations — <code>wrong_line_length</code> on line 1, where lowercase "du" makes the checker report 14 syllables (a denckring-de-data defect, ADR 0040, parked not fixed), and <code>wrong_stress</code> on "Nichtigkeit" (line 12), where the checker expects stress <code>101</code> but finds <code>100</code>. Measured on this HEAD: score 0.9873, 2 violations.</p>
 
 
 

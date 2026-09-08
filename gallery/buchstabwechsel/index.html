@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1823,6 +1879,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#buchstabwechsel-harsdoerffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        buchstabwechsel-harsdoerffer
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1908,6 +1975,13 @@
 </code></pre></div>
 <p>Parameters: <code>source='Johann'</code></p>
 <p>Source: the pinned counterexample from the brief: Iohann is the Latin-alphabet practice of writing I for consonantal J, which Rule II explicitly refuses ("das u und i die Stimmer nicht für v und j setzend"). <code>anagram</code> already rejects this pair too — its <code>fold_diacritics</code> never merged i with j — so this case is not a different verdict from <code>anagram</code>'s but Harsdörffer's own rule pinned against a future change to <code>fold_diacritics</code> that might introduce the merge: surplus i, missing j.</p>
+<h3 id="buchstabwechsel-harsdoerffer">buchstabwechsel-harsdoerffer<a class="headerlink" href="#buchstabwechsel-harsdoerffer" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Diener: Neider.
+Dunst: Stunde.
+</code></pre></div>
+<p>Parameters: <code>fold_diacritics=True</code>, <code>source='Harsdörffer, Letterwechsel'</code></p>
+<p>Source: Georg Philipp Harsdörffer, Letterwechsel/Buchstabwechsel; transmitted via Deutsches Textarchiv lemmatised text of Poetischer Trichter, II. Theil (Nürnberg 1648) — NOT verified against Erquickstunden II (1651) pp. 513–515 scan. Rejected: the candidate does not use the source's letters — 7 <code>missing_letter</code> and 4 <code>surplus_letter</code>. Harsdoerffer's Wechselschluss lets the breath-sound h come and go, which this row allows, but not this much divergence.</p>
 
 
 

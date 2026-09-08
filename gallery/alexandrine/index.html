@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1768,6 +1824,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1845,6 +1912,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#gryphius-traenen-alexandriner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gryphius-traenen-alexandriner
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1889,6 +1967,25 @@
 <blockquote>
 <p>Write twelve-syllable lines that break cleanly after the sixth syllable.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="twelve-syllables">twelve-syllables<a class="headerlink" href="#twelve-syllables" title="Permanent link">&para;</a></h3>
 <p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
@@ -1920,6 +2017,25 @@
 <div class="highlight"><pre><span></span><code>Le jour n&#39;est pas plus pur
 </code></pre></div>
 <p>Source: constructed counterexample</p>
+<h3 id="gryphius-traenen-alexandriner">gryphius-traenen-alexandriner<a class="headerlink" href="#gryphius-traenen-alexandriner" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Wir sind doch nunmehr gantz / ja mehr denn gantz verheeret!
+Der frechen Völcker Schaar / die rasende Posaun
+Das vom Blutt fette Schwerdt / die donnernde Carthaun /
+Hat aller Schweiß / und Fleiß / und Vorrath auffgezehret.
+Die Türme stehn in Glutt / die Kirch ist umgekehret.
+Das Rathauß ligt im Grauß / die Starcken sind zerhaun /
+Die Jungfern sind geschänd&#39;t / und wo wir hin nur schaun
+Ist Feuer / Pest / und Tod / der Hertz und Geist durchfähret.
+Hir durch die Schantz und Stadt / rinnt allzeit frisches Blutt.
+Dreymal sind schon sechs Jahr / als unser Ströme Flutt /
+Von Leichen fast verstopfft / sich langsam fort gedrungen.
+Doch schweig ich noch von dem / was ärger als der Tod /
+Was grimmer denn die Pest / und Glutt und Hungersnoth /
+Das auch der Seelen Schatz / so vilen abgezwungen.
+</code></pre></div>
+<p>Parameters: <code>feminine_ending=True</code></p>
+<p>Source: Andreas Gryphius, "Thränen des Vaterlandes / Anno 1636" (first printed 1637 as "Trawrklage des verwüsteten Deutschlandes"; this title &amp; wording from the 1643 Leiden Sonnete and the 1663 Ausgabe letzter Hand). Rejected: <code>wrong_syllable_count</code> — one line reads 14 syllables where <code>feminine_ending: true</code> accepts 12 or 13. Measured on this HEAD: score 0.9286, 1 violation.</p>
 
 
 

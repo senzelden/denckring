@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1834,6 +1890,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#chaucer-troilus-rhyme-royal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        chaucer-troilus-rhyme-royal
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1889,6 +1956,12 @@
 </thead>
 <tbody>
 <tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
+<tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
 <td><code>undecidable</code></td>
@@ -1938,6 +2011,17 @@ ein Vogel singt am Morgen auf dem Baum
 ein Kind erwacht und ruft nach seinem Traum
 </code></pre></div>
 <p>Source: constructed example</p>
+<h3 id="chaucer-troilus-rhyme-royal">chaucer-troilus-rhyme-royal<a class="headerlink" href="#chaucer-troilus-rhyme-royal" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The double sorwe of Troilus to tellen,
+That was the kyng Priamus sone of Troye,
+In lovynge, how his aventures fellen
+Fro wo to wele, and after out of joie,
+My purpos is, er that I parte fro ye.
+Thesiphone, thow help me for t&#39;endite
+Thise woful vers, that wepen as I write.
+</code></pre></div>
+<p>Source: Geoffrey Chaucer, Troilus and Criseyde, Book I, lines 1-7 (c. 1385), following the Riverside Chaucer / Windeatt base of Corpus Christi College Cambridge MS 61 (ADR 0040 D5 — transcribed as edited, not modernised). Rejected: Middle English "ye" (thee/you) does not rhyme with "joie" under this package's model (<code>does_not_rhyme</code>, ADR 0040 D3), and three lines carry Middle English spelling ("Priamus", "lovynge", "t'endite") the pronouncing dictionary does not hold, reading 9 or 11 syllables instead of 10 (<code>wrong_line_length</code>). Measured on this HEAD: score 0.8974, 4 violations.</p>
 
 
 

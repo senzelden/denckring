@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1834,6 +1890,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#shakespeare-sonnet-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shakespeare-sonnet-18
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1890,6 +1957,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
 <tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
@@ -1963,6 +2036,24 @@ der Wandrer geht hinunter in das Tal
 die Fenster leuchten hell im großen Saal
 </code></pre></div>
 <p>Source: constructed example</p>
+<h3 id="shakespeare-sonnet-18">shakespeare-sonnet-18<a class="headerlink" href="#shakespeare-sonnet-18" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Shall I compare thee to a Summers day?
+Thou art more louely and more temperate:
+Rough windes do shake the darling buds of Maie,
+And Sommers lease hath all too short a date:
+Sometime too hot the eye of heauen shines,
+And often is his gold complexion dimm&#39;d,
+And euery faire from faire some-time declines,
+By chance, or natures changing course vntrim&#39;d:
+But thy eternall Sommer shall not fade,
+Nor loose possession of that faire thou ow&#39;st,
+Nor shall death brag thou wandr&#39;st in his shade,
+When in eternall lines to time thou grow&#39;st,
+So long as men can breathe or eyes can see,
+So long liues this, and this giues life to thee.
+</code></pre></div>
+<p>Source: William Shakespeare, Sonnets (1609), no. 18, based on Shake-speares Sonnets (London: Thomas Thorpe, 1609), the 1609 Quarto; original spelling, long-s normalised to s (ADR 0040 D5 — transcribed as printed, not modernised). Rejected: <code>temperate</code>/<code>date</code> is an Elizabethan rhyme this package's strict rhyme model does not accept (<code>does_not_rhyme</code>, ADR 0040 D3), the same pairing gives <code>wrong_stress</code> on "temperate" (100 vs expected 101), and three lines carrying 1609 spellings the pronouncing dictionary does not hold — "heauen", "vntrim'd", "wandr'st" — fall through to a fallback count that reads 9 syllables instead of 10 (<code>wrong_line_length</code>). Measured on this HEAD: score 0.9615, 5 violations.</p>
 
 
 

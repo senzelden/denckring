@@ -1647,6 +1647,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1757,6 +1813,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prompt-hint" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1845,6 +1912,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#hopkins-pied-beauty-curtal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hopkins-pied-beauty-curtal
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1884,6 +1962,8 @@
 <li><strong>Requires:</strong> <code>tokens</code>, <code>phonemes</code>, <code>stress</code>, <code>syllables.heuristic</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 </ul>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<p>Hopkins wrote "Pied Beauty" in sprung rhythm, which this row does not read: it scans the eleven lines against iambic pentameter, so the poem that defines the form does not satisfy the row named after it. ADR 0040 D4 declines to widen the stress model on the measurement and records the cost here instead.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Write eleven lines proportioned as a shrunken sonnet, six then four and a half.</p>
@@ -1899,6 +1979,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
 <tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
@@ -1982,6 +2068,21 @@ der Bote kommt, doch bringt er Botschaft nicht
 der Fluss bewegt sich unter weißem Schaum
 </code></pre></div>
 <p>Source: constructed example; the rhyme scheme and measure of Hopkins's curtal sonnets</p>
+<h3 id="hopkins-pied-beauty-curtal">hopkins-pied-beauty-curtal<a class="headerlink" href="#hopkins-pied-beauty-curtal" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Glory be to God for dappled things —
+  For skies of couple-colour as a brinded cow;
+    For rose-moles all in stipple upon trout that swim;
+Fresh-firecoal chestnut-falls; finches&#39; wings;
+  Landscape plotted and pieced — fold, fallow, and plough;
+    And áll trádes, their gear and tackle and trim.
+All things counter, original, spare, strange;
+  Whatever is fickle, freckled (who knows how?)
+    With swift, slow; sweet, sour; adazzle, dim;
+He fathers-forth whose beauty is past change:
+                  Praise him.
+</code></pre></div>
+<p>Source: Gerard Manley Hopkins, "Pied Beauty" (written 1877; first published in Poems of Gerard Manley Hopkins, ed. Robert Bridges, 1918), his own coinage of the form. Rejected: the poem is in sprung rhythm, which curtal_sonnet's catalogue note (ADR 0040 D4) says it does not read — the syllabic model expects a steady count and iambic stress per line, and sprung rhythm packs variable numbers of unstressed syllables around a fixed stress count instead. That mismatch produces 7 <code>wrong_line_length</code> violations (lines running 9 to 12 syllables, and the closing half-line "Praise him." at 2) and 4 <code>wrong_stress</code> violations on "chestnut", "tackle", "counter/original", and "sour". Measured on this HEAD: score 0.8878, 11 violations.</p>
 
 
 
