@@ -34,6 +34,7 @@ this file rather than as a silent shift in what the catalogue claims to check.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pytest
 import yaml
@@ -149,4 +150,31 @@ def test_the_english_ceiling_has_not_moved() -> None:
         f"{len(disagreements)} English canonical lines disagree with the model with "
         f"no guessed word, not {ENGLISH_TRUE_DISAGREEMENTS}: "
         f"{[r['source'] for r in disagreements]}"
+    )
+
+
+#: ADR 0040 D1's bar, restated as a floor. Measured 41 of 42 German canonical
+#: lines fall within their declared syllable count or one over — the klingende
+#: Kadenz — which is 97.6% against a bar of 95%.
+GERMAN_LENGTH_FLOOR = 0.95
+
+
+def test_the_german_length_ceiling_holds() -> None:
+    """Measured share of German canonical lines within `wants` or `wants + 1`
+    against a floor. Fails if regression occurs or if the constant drifts from
+    the measured data. Differs from the English test in scope: the English test
+    targets disagreements with no guessed word; this one targets the klingende
+    Kadenz of German verse, where a feminine ending adds exactly one syllable."""
+    german_rows = [row for row in canonical_lines() if row["lang"] == "de"]
+    passing = 0
+    for row in german_rows:
+        reads = cast(int, row["reads"])
+        wants = cast(int, row["wants"])
+        if reads == wants or reads == wants + 1:
+            passing += 1
+    share = passing / len(german_rows)
+    assert share >= GERMAN_LENGTH_FLOOR, (
+        f"{passing} of {len(german_rows)} German canonical lines fall within "
+        f"their wants or wants+1 (share: {share:.1%}), below floor of "
+        f"{GERMAN_LENGTH_FLOOR:.1%}"
     )

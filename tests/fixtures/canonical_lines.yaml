@@ -295,3 +295,176 @@
   lang: en
   wants: 12
   line: "As one for knightly giusts and fierce encounters fitt."
+# gryphius-eitel-sonett
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.1"
+  lang: de
+  wants: 12
+  line: "Du sihst/ wohin du sihst nur Eitelkeit auff Erden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.2"
+  lang: de
+  wants: 12
+  line: "Was dieser heute baut/ reist jener morgen ein:"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.3"
+  lang: de
+  wants: 12
+  line: "Wo itzund Städte stehn/ wird eine Wiesen seyn/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.4"
+  lang: de
+  wants: 12
+  line: "Auff der ein Schäfers-Kind wird spielen mit den Herden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.5"
+  lang: de
+  wants: 12
+  line: "Was itzund prächtig blüht/ sol bald zutretten werden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.6"
+  lang: de
+  wants: 12
+  line: "Was itzt so pocht vnd trotzt ist morgen Asch vnd Bein/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.7"
+  lang: de
+  wants: 12
+  line: "Nichts ist/ das ewig sey/ kein Ertz/ kein Marmorstein."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.8"
+  lang: de
+  wants: 12
+  line: "Itzt lacht das Glück vns an/ bald donnern die Beschwerden."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.9"
+  lang: de
+  wants: 12
+  line: "Der hohen Thaten Ruhm muß wie ein Traum vergehn."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.10"
+  lang: de
+  wants: 12
+  line: "Soll denn das Spiel der Zeit/ der leichte Mensch bestehn?"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.11"
+  lang: de
+  wants: 12
+  line: "Ach! was ist alles diß/ was wir vor köstlich achten/"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.12"
+  lang: de
+  wants: 12
+  line: "Als schlechte Nichtigkeit/ als Schatten/ Staub vnd Wind;"
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.13"
+  lang: de
+  wants: 12
+  line: "Als eine Wiesen-Blum/ die man nicht wider find't."
+- source: "Gryphius, \"Es ist alles eitel\" (1643), l.14"
+  lang: de
+  wants: 12
+  line: "Noch wil was ewig ist/ kein einig Mensch betrachten!"
+
+# gryphius-traenen-alexandriner
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.1"
+  lang: de
+  wants: 12
+  line: "Wir sind doch nunmehr gantz / ja mehr denn gantz verheeret!"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.2"
+  lang: de
+  wants: 12
+  line: "Der frechen Völcker Schaar / die rasende Posaun"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.3"
+  lang: de
+  wants: 12
+  line: "Das vom Blutt fette Schwerdt / die donnernde Carthaun /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.4"
+  lang: de
+  wants: 12
+  line: "Hat aller Schweiß / und Fleiß / und Vorrath auffgezehret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.5"
+  lang: de
+  wants: 12
+  line: "Die Türme stehn in Glutt / die Kirch ist umgekehret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.6"
+  lang: de
+  wants: 12
+  line: "Das Rathauß ligt im Grauß / die Starcken sind zerhaun /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.7"
+  lang: de
+  wants: 12
+  line: "Die Jungfern sind geschänd't / und wo wir hin nur schaun"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.8"
+  lang: de
+  wants: 12
+  line: "Ist Feuer / Pest / und Tod / der Hertz und Geist durchfähret."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.9"
+  lang: de
+  wants: 12
+  line: "Hir durch die Schantz und Stadt / rinnt allzeit frisches Blutt."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.10"
+  lang: de
+  wants: 12
+  line: "Dreymal sind schon sechs Jahr / als unser Ströme Flutt /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.11"
+  lang: de
+  wants: 12
+  line: "Von Leichen fast verstopfft / sich langsam fort gedrungen."
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.12"
+  lang: de
+  wants: 12
+  line: "Doch schweig ich noch von dem / was ärger als der Tod /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.13"
+  lang: de
+  wants: 12
+  line: "Was grimmer denn die Pest / und Glutt und Hungersnoth /"
+- source: "Gryphius, \"Thränen des Vaterlandes\" (1636), l.14"
+  lang: de
+  wants: 12
+  line: "Das auch der Seelen Schatz / so vilen abgezwungen."
+
+# goethe-iphigenie-I1-blankverse
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.1"
+  lang: de
+  wants: 10
+  line: "Heraus in eure Schatten, rege Wipfel"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.2"
+  lang: de
+  wants: 10
+  line: "Des alten, heil'gen, dichtbelaubten Haines,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.3"
+  lang: de
+  wants: 10
+  line: "Wie in der Göttin stilles Heiligthum"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.4"
+  lang: de
+  wants: 10
+  line: "Tret' ich noch jetzt mit schauderndem Gefühl,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.5"
+  lang: de
+  wants: 10
+  line: "Als wenn ich sie zum erstenmal beträte,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.6"
+  lang: de
+  wants: 10
+  line: "Und es gewöhnt sich nicht mein Geist hierher."
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.7"
+  lang: de
+  wants: 10
+  line: "So manche Jahr bewahrt mich hier verborgen"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.8"
+  lang: de
+  wants: 10
+  line: "Ein hoher Wille, dem ich mich ergebe;"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.9"
+  lang: de
+  wants: 10
+  line: "Doch immer bin ich, wie im ersten, fremd."
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.10"
+  lang: de
+  wants: 10
+  line: "Denn ach! mich trennt das Meer von den Geliebten,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.11"
+  lang: de
+  wants: 10
+  line: "Und an dem Ufer steh' ich lange Tage,"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.12"
+  lang: de
+  wants: 10
+  line: "Das Land der Griechen mit der Seele suchend;"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.13"
+  lang: de
+  wants: 10
+  line: "Und gegen meine Seufzer bringt die Welle"
+- source: "Goethe, Iphigenie auf Tauris (1787), I.1, l.14"
+  lang: de
+  wants: 10
+  line: "Nur dumpfe Töne brausend mir herüber."
