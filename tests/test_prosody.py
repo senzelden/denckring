@@ -13,6 +13,7 @@ from denckring.core.prosody import (
     line_metre,
     metre_violations,
     stanza_violations,
+    with_feminine,
     word_stress,
 )
 from denckring.core.protocol import Lang
@@ -230,3 +231,14 @@ def test_an_empty_text_is_unsatisfied_and_says_why() -> None:
     result = stanza_violations("", pack, [["?10"]])
     assert result.violations
     assert result.good < result.total
+
+
+def test_with_feminine_off_is_the_single_pattern() -> None:
+    """ADR 0040 D6: the default must be today's reading, exactly."""
+    assert with_feminine("0101010101", False) == ["0101010101"]
+
+
+def test_with_feminine_on_adds_the_klingende_kadenz() -> None:
+    """The extra syllable is unstressed and trailing — a feminine ending is one
+    more acceptable reading, never a different one (ADR 0040 D1)."""
+    assert with_feminine("0101010101", True) == ["0101010101", "01010101010"]

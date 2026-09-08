@@ -199,6 +199,19 @@ def feet(units: Sequence[Sequence[str]]) -> list[str]:
     return ["".join(combination) for combination in itertools.product(*units)]
 
 
+def with_feminine(pattern: str, allowed: bool) -> list[str]:
+    """The readings a line may take, with or without a feminine ending.
+
+    A klingende Kadenz adds one unstressed syllable after the last stress, so it
+    is an extra member of the option set `line_metre` already scans — the same
+    shape `feet` produces for a substitutable dactyl, and for the same reason.
+    It cannot be a longer fixed pattern: Gryphius rhymes feminine `Erden` against
+    masculine `ein` inside one sonnet, so both readings must be live at once
+    (ADR 0040 D1).
+    """
+    return [pattern, pattern + "0"] if allowed else [pattern]
+
+
 def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: int) -> MetreResult:
     """Scan a line against several acceptable readings, reporting the closest.
 
