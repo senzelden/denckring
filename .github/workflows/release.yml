@@ -173,3 +173,49 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: true
+
+  # The release notes existed twice because somebody remembered, which is not a
+  # mechanism. 0.1.0's were written by hand 26 minutes after its tag; 0.1.1's were
+  # nearly missed entirely, and would have left a published version with no notes
+  # on GitHub at all. `CHANGELOG.md` is already stamped with the section for the
+  # version being released — `## [0.1.1] - 2026-09-08` — so the notes are a
+  # consequence of stamping rather than a separate act of memory.
+  #
+  # After `publish`, not before: notes announcing a version PyPI does not have are
+  # worse than late ones. `needs` therefore gates on the six publish legs, and
+  # `fail-fast: false` above means a partial release reaches this job with a
+  # failure recorded, so `if: success()` is what keeps the notes honest.
+  notes:
+    if: github.event_name == 'push'
+    needs: [publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Cut the section for this tag out of the changelog
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          # From this version's heading to the next one, minus both headings. awk
+          # rather than sed so an unmatched version yields nothing and fails below
+          # instead of silently publishing the whole file.
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/       { exit }
+            found                   { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md || {
+            echo "CHANGELOG.md has no '## [$version]' section — stamp it before tagging"
+            exit 1
+          }
+          echo "--- notes for $version ---"; cat notes.md
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "denckring ${GITHUB_REF_NAME#v}" \
+            --notes-file notes.md \
+            --latest \
+            --verify-tag
