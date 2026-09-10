@@ -109,3 +109,18 @@ cases:
     params: { source: diminutif nominatif, max_distance: 0.4 }
     satisfied: false
     requires: [phonemes]
+
+  - name: puttenham-prosonomasia
+    provenance: external
+    source: >-
+      George Puttenham, The Arte of English Poesie (1589), III.xix, on
+      "Prosonomasia, or the Nicknamer": the emperor Claudius Tiberius Nero was
+      called Caldius Biberius Mero for his drinking. Three whole words displaced
+      by neighbours in sound, which is exactly this row's operation — verified
+      against the figure's own text, not inferred from a handbook summary.
+      Rejected: `unresolvable_pronunciation` twice. The Latin names are in no
+      pronouncing dictionary here, which is the proper-noun limit the row's notes
+      already record, met on the figure's founding example.
+    text: Caldius Biberius Mero
+    params: { source: Claudius Tiberius Nero, max_displacements: 3 }
+    satisfied: false

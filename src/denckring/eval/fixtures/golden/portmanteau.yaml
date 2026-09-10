@@ -105,3 +105,27 @@ cases:
     params: { source: imaginaire, splice: hair }
     satisfied: false
     requires: [phonemes]
+
+  - name: carroll-slithy
+    provenance: external
+    source: >-
+      Lewis Carroll, Through the Looking-Glass (1871), Humpty Dumpty's gloss:
+      `slithy` is "lithe and slimy ... like a portmanteau — there are two
+      meanings packed up into one word". Rejected: `splice_not_present`.
+      Carroll's portmanteau is a FUSION, where neither word survives whole and
+      no host is left standing; this row checks a SPLICE, one word placed inside
+      another that stays readable behind it. The row cites him as the ancestor of
+      the family and does not claim to check his rule — see its catalogue notes.
+    text: slithy
+    params: { source: slimy, splice: lithe }
+    satisfied: false
+
+  - name: carroll-chortle
+    provenance: external
+    source: >-
+      Lewis Carroll, Through the Looking-Glass (1871). The same shape and the
+      same rejection, kept because one instance of a limit reads as an accident
+      and two read as a rule.
+    text: chortle
+    params: { source: chuckle, splice: snort }
+    satisfied: false

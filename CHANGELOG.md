@@ -94,6 +94,35 @@ All notable changes to this project are documented here. The format follows
   trade's word. Both rows join `PARAMETER_GATED`, since neither is reachable by a fuzz
   harness that supplies no trade, and both carry their own round-trip test.
 
+- **Three defects the suite could not see, found by evaluating the rows against the
+  project's own standards rather than by running them.** All three passed 589 golden
+  cases and every gate.
+
+  `paronomasia` cited Peacham's *Garden of Eloquence* (1577) for a figure that could
+  not be verified to be in it — the house rule is to record what is checked. It now
+  cites **Puttenham (1589), "Prosonomasia, or the Nicknamer"**, whose own example is
+  the row's operation exactly: `Claudius Tiberius Nero` becomes `Caldius Biberius
+  Mero`.
+
+  `portmanteau` was `primary`/`author-stated` for Carroll and **cannot check a single
+  one of Carroll's portmanteaux**: `slithy`, `mimsy` and `chortle` all fail
+  `splice_not_present`. His are *fusions*, where neither word survives and no host is
+  left standing; this row checks a *splice* into a host that stays readable. That is
+  the ADR 0015 error — a definition promising more than its checker verifies — so the
+  row is now `reference`/`codified`, says so in its notes, and carries two external
+  golden cases recording the rejection.
+
+  Two definitions promised what no checker decides: `paronomasia` said "a **known**
+  phrase" and `amphibologia` said "can be taken two ways", where the checker verifies
+  only that a trade word is present and polysemous. Both rewritten in `antigram`'s
+  house style, which states the figure and then names what is left to the writer.
+
+  Externally sourced cases rise from 66 to **69 (11.7%)**, and all three came from
+  checking the citations rather than from adding fixtures. All three are
+  `satisfied: false`: Puttenham's Latin names are in no pronouncing dictionary, and
+  Carroll's fusions are not splices — each a limit met on the figure's own founding
+  example.
+
 - `amphibologia` — the shop sign that alters nothing and still reads two ways.
   *A Cut Above* over a salon: nothing displaced, nothing spliced, and the trade alone
   supplying the second reading. Puttenham, *The Arte of English Poesie* (1589),

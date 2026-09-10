@@ -1783,19 +1783,26 @@ procedures:
     definitions:
       en: >-
         A text that displaces a word of a known phrase by one close to it in sound,
-        so that the phrase and its replacement stay audible at once.
+        so that the phrase and its replacement stay audible at once. The checker
+        verifies the displacement, its distance in sound, and how much of the
+        phrase was left standing; whether the phrase is one anybody knows is the
+        writer's claim.
       de: >-
         Ein Text, der ein Wort einer bekannten Wendung durch ein klanglich nahes
-        ersetzt, sodass beide Lesarten zugleich hörbar bleiben.
+        ersetzt, sodass beide Lesarten zugleich hörbar bleiben. Geprüft werden die
+        Ersetzung, ihr Klangabstand und wie viel stehen blieb; ob die Wendung
+        bekannt ist, behauptet die Schreibende.
       fr: >-
         Un texte remplaçant un mot d'une expression connue par un autre proche par
-        le son, de sorte que les deux lectures restent audibles.
-    source: Henry Peacham, The Garden of Eloquence (1577)
+        le son, de sorte que les deux lectures restent audibles. Le vérificateur
+        contrôle le remplacement, sa distance sonore et ce qui subsiste ; que
+        l'expression soit connue reste l'affirmation de l'auteur.
+    source: George Puttenham, The Arte of English Poesie (1589)
     family: word
     attribution: reference
     checkability: source
     attested: codified
-    aliases: [pun, agnomination, prosonomasia]
+    aliases: [pun, agnomination, prosonomasia, the nicknamer]
     kind: both
     languages: [en, de, fr]
     requires: [tokens, phonemes]
@@ -1806,6 +1813,13 @@ procedures:
         Replace one word of a known phrase with a word close to it in sound, leaving
         the rest of the phrase untouched.
     notes: >-
+      Puttenham's own name for it is `Prosonomasia, or the Nicknamer`, and his
+      example is this row's operation exactly: `Claudius Tiberius Nero` becomes
+      `Caldius Biberius Mero`, three whole words displaced by neighbours in
+      sound. Cited to Puttenham rather than to Peacham's `Garden of Eloquence`,
+      which an earlier draft named and which could not be verified to carry the
+      figure at all — the house rule is to record what is checked.
+
       Scope is bounded by what a pronouncing dictionary can answer, and the bound is
       narrower than the figure. A displacement is checkable only when the word that
       lands is itself in the dictionary — `bread` for `Brad`, `dye` for `die`,
@@ -1833,13 +1847,21 @@ procedures:
     definitions:
       en: >-
         A phrase that can be taken two ways, one reading made available by the
-        subject at hand rather than by any change to the words.
+        subject at hand rather than by any change to the words. The checker
+        verifies that a word of the declared subject is present and carries more
+        than one sense in the lexicon, so a second reading exists; whether a
+        reader would actually take it is a judgement no program makes.
       de: >-
         Eine Wendung, die sich doppelt lesen lässt, wobei die zweite Lesart nicht
-        aus einer Änderung der Wörter stammt, sondern aus dem Gegenstand.
+        aus einer Änderung der Wörter stammt, sondern aus dem Gegenstand. Geprüft
+        wird, dass ein Wort des Gegenstands vorkommt und mehr als eine Bedeutung
+        trägt; ob jemand die zweite Lesart wirklich hört, entscheidet kein
+        Programm.
       fr: >-
         Une expression à double lecture, la seconde tenant au sujet et non à une
-        modification des mots.
+        modification des mots. Le vérificateur contrôle qu'un mot du sujet est
+        présent et porte plus d'un sens ; qu'un lecteur y entende la seconde
+        lecture, aucun programme n'en juge.
     source: George Puttenham, The Arte of English Poesie (1589)
     family: word
     attribution: reference
@@ -1893,9 +1915,9 @@ procedures:
         reconnaissable.
     source: Lewis Carroll, Through the Looking-Glass (1871)
     family: word
-    attribution: primary
+    attribution: reference
     checkability: source
-    attested: author-stated
+    attested: codified
     aliases: [blend, Kofferwort]
     kind: both
     languages: [en, de, fr]
@@ -1906,6 +1928,18 @@ procedures:
         Splice one word into another so that both stay audible and the host is
         still recognisable.
     notes: >-
+      **This row checks a narrower figure than Carroll's, and is filed as
+      `reference`/`codified` rather than `primary`/`author-stated` for that
+      reason.** Carroll's own portmanteaux are *fusions* — `slithy` from `lithe`
+      and `slimy`, `chortle` from `chuckle` and `snort` — where neither word
+      survives whole and there is no host left standing. This row checks a
+      *splice*: one word placed inside another that stays readable behind it,
+      which is what the shopfront tradition actually does. Every one of Carroll's
+      examples fails here with `splice_not_present`, and a golden case records
+      it rather than leaving a reader to find out. Calling that `author-stated`
+      would be claiming Carroll stated this rule; he stated a wider one, and
+      ADR 0018 is explicit that using or naming a form is not stating it.
+
       The half of the punning shopfront `paronomasia` cannot reach — `Haarmonie`,
       `Hairitage`, `Föhnix` — and it needs no `phonemes.g2p` after all. A blend
       is never arbitrary: the host and the word spliced into it are both ordinary
