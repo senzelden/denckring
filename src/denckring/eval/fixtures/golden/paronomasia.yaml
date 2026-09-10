@@ -1,14 +1,14 @@
-# No case here carries `provenance: external`, and that is a statement rather
-# than an omission. The row's own sources are the rhetoricians the catalogue
-# already cites for `homoteleuton` and `telestich` — Peacham and Puttenham —
-# but this pass transcribes no example from either, and an example nobody has
-# read off the page is exactly the invented citation the house style refuses.
-# The attested modern corpus of the figure is the punning shop window, and it
-# is entirely post-1929: Atlas Obscura's crowdsourced list, tif.hair's several
-# thousand French salon names, the German newspaper galleries. Whether this
-# package may quote in-copyright material is a maintainer decision already
-# pending for research batch 3, and a crowdsourced list of business names sits
-# close enough to that question to wait for the same ruling.
+# Attested shop names are quoted here by the maintainer's ruling of 2026-09-10,
+# which settled the question ADR 0041 D7 had deferred. A business name is a name,
+# not a work: quoting one is nominative use, and the collections below are
+# journalism and public registers rather than anthologies. Each case names where
+# it was seen. None was collated against a shopfront; what is claimed is that the
+# name appears in the source given, which is what `provenance: external` means
+# here and everywhere in this corpus.
+#
+# The verdicts are read off the run, never written from expectation. Several are
+# `satisfied: false`, and those are the useful ones: a limit met on a real name
+# from the tradition is worth more than another example of the row working.
 procedure: paronomasia
 lang: en
 cases:
@@ -123,4 +123,42 @@ cases:
       already record, met on the figure's founding example.
     text: Caldius Biberius Mero
     params: { source: Claudius Tiberius Nero, max_displacements: 3 }
+    satisfied: false
+
+  - name: curl-up-and-dye
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are, the Punniest Salon Names in America", which
+      counts thirty American salons of this name plus a Kurl Up & Dye in Texas —
+      the most copied English shop pun there is. `die` to `dye` is an exact
+      homophone in CMUdict, so the distance is 0.000.
+    text: Curl Up and Dye
+    params: { source: Curl up and die }
+    satisfied: true
+
+  - name: grateful-head
+    provenance: external
+    source: Atlas Obscura, "Hair They Are". The band's name displaced by one word.
+    text: Grateful Head
+    params: { source: Grateful Dead }
+    satisfied: true
+
+  - name: jack-of-all-fades
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". `fade` is a haircut, so the trade word and
+      the displacement are the same move.
+    text: Jack of all Fades
+    params: { source: Jack of all trades }
+    satisfied: true
+
+  - name: i-kneaded-this
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". Rejected: `unresolvable_pronunciation`.
+      CMUdict carries `knead` and `needed` and not `kneaded`, so the pair cannot
+      be measured — a gap in the lexicon rather than in the pun, and the row
+      reports it instead of guessing.
+    text: I Kneaded This
+    params: { source: I needed this }
     satisfied: false

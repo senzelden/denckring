@@ -94,6 +94,30 @@ All notable changes to this project are documented here. The format follows
   trade's word. Both rows join `PARAMETER_GATED`, since neither is reachable by a fuzz
   harness that supplies no trade, and both carry their own round-trip test.
 
+- **The attested shop names are quotable, and eighteen of them are now evidence.**
+  The maintainer's ruling of 2026-09-10 settles the question ADR 0041 D7 deferred: a
+  business name is a name and not a work, the sources are journalism and public
+  registers rather than anthologies, and quoting one is nominative use.
+
+  Externally sourced cases rise from 66 to **84 (11.8% to 13.8%)** — the largest single
+  movement in that figure since the corpus began. `portmanteau` carries 11 across all
+  three languages, `paronomasia` 5, `amphibologia` 2. `Haarmonie`, `Kammäleon`,
+  `SaHaara`, `Imagin'hair`, `Diminu'tif`, `Atmosph'air`, `Hairport`,
+  `Hairaphernalia`, `Curl Up and Dye`, `Grateful Head`, `Jack of all Fades`,
+  `A Cut Above` — each naming where it was seen.
+
+  Five are `satisfied: false` and they are the useful ones. `Monhaarlisa` at 1.000 is
+  the class of name no phonetic rule reaches, kept as the evidence for that rather
+  than admitted by opening the band until it passes. `I Kneaded This` fails because
+  CMUdict carries `knead` and `needed` but not `kneaded` — a gap in the lexicon, not
+  in the pun. `Caldius Biberius Mero` fails on Latin proper nouns. Carroll's `slithy`
+  and `chortle` fail because a fusion is not a splice.
+
+  One correction found while measuring: `Atmosph'air` splices the **French** `air`,
+  not the English `hair` — the coinage carries `air` and the joke is what is heard
+  behind it. It checks at 0.000; an earlier attempt named the wrong splice and blamed
+  the row.
+
 - **Three defects the suite could not see, found by evaluating the rows against the
   project's own standards rather than by running them.** All three passed 589 golden
   cases and every gate.

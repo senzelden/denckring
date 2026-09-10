@@ -72,7 +72,13 @@ with no pack behind it — the state ADR 0015 calls honest, and the one
 `corpus.proverbs`. The found pun, which displaces nothing, states no relation
 between two texts and is not this row at all.
 
-**D7. No golden case claims external provenance in this pass.** The row's sources
+**D7. No golden case claims external provenance in this pass.** *(Superseded
+2026-09-10: the maintainer ruled that attested shop names may be quoted. A
+business name is a name and not a work, the collections are journalism and public
+registers rather than anthologies, and quoting one is nominative use. Eighteen
+external cases followed across the three rows, taking the corpus from 66 to 84
+externally sourced — 11.8% to 13.8%. The paragraph below is left as written,
+because an ADR records what was decided when.)* The row's sources
 are the rhetoricians the catalogue already cites elsewhere, but no example has
 been read off the page here, and an example nobody has read is the invented
 citation the house style refuses. The attested modern corpus is entirely

@@ -1,10 +1,14 @@
-# As with `paronomasia` and `portmanteau`, no case claims external provenance:
-# the attested corpus of shop signs is post-1929 and waits on the same decision.
-# Puttenham's own example of the figure — "Thomas Tayler saw William Tyler
-# dronke" — is public domain and deliberately NOT used: it is syntactic
-# ambiguity, a sentence that parses two ways, where this row checks a word that
-# means two things. Reaching for it would be citing a source for something it
-# does not show.
+# Attested shop names are quoted here by the maintainer's ruling of 2026-09-10,
+# which settled the question ADR 0041 D7 had deferred. A business name is a name,
+# not a work: quoting one is nominative use, and the collections below are
+# journalism and public registers rather than anthologies. Each case names where
+# it was seen. None was collated against a shopfront; what is claimed is that the
+# name appears in the source given, which is what `provenance: external` means
+# here and everywhere in this corpus.
+#
+# The verdicts are read off the run, never written from expectation. Several are
+# `satisfied: false`, and those are the useful ones: a limit met on a real name
+# from the tradition is worth more than another example of the row working.
 procedure: amphibologia
 lang: en
 cases:
@@ -51,3 +55,25 @@ cases:
     params: { domain: hair }
     satisfied: true
     requires: [lexicon.glosses]
+
+  - name: a-cut-above-attested
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". Nothing is displaced and nothing spliced:
+      the salon makes the second reading of `cut`, which Open English WordNet
+      gives seventy senses.
+    text: A Cut Above
+    params: { domain: hair }
+    satisfied: true
+
+  - name: curl-up-and-dye-as-found
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". The same name that appears in
+      `paronomasia.yaml` as a displacement, read the other way: taken as it
+      stands, `curl` and `dye` are both the trade's and both carry more than one
+      sense. One name, two figures, and the rows disagree about nothing — they
+      are answering different questions.
+    text: Curl Up and Dye
+    params: { domain: hair }
+    satisfied: true
