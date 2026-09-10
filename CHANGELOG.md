@@ -6,6 +6,231 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `paronomasia` — the pun, as the relation between a text and the phrase it displaces.
+  The row is `checkability: source`: the caller declares the phrase, and the check
+  decides that at least one word was displaced, that no more than
+  `max_displacements` were, and that each displacement lands inside a requested band
+  of phonetic distance. Whether the result is funny is the writer's claim, the
+  position `kangaroo_word` already takes on synonymy.
+
+  **The band has two edges on purpose.** `0.0`–`0.0` asks for a homophone and refuses
+  anything else; `0.4`–`0.7` asks for a pun that has to work for it and refuses a
+  homophone as too easy. "Make it worse" is a writing constraint the same way "avoid
+  the letter e" is, and a ceiling alone could not express it.
+
+  **What ships is narrower than the figure, and the row says so rather than
+  implying it.** A displacement is checkable only when the word that lands is itself
+  in the pronouncing dictionary — `bread` for `Brad`, French `Diminu'tif` for
+  `diminutif`. The blends that dominate real punning shop names put a *coined* word
+  there, and nothing here can pronounce a word it has never seen: `hairways`,
+  `hairitage`, `barberella`, `Haarmonie`, `Chaarisma` and `atmosphair` all raise
+  `MissingCapability`, measured rather than assumed. That family needs a
+  `phonemes.g2p` capability, named on the row with no pack behind it — the honest
+  state ADR 0015 describes, and the one `homophonic_translation` is already in for
+  `phonemes.bilingual`.
+
+  New: `core.phonetics`, an unweighted Levenshtein over phoneme symbols normalised by
+  the longer sequence. Deliberately not PanPhon's feature-weighted distance, which is
+  more perceptually faithful and would put numpy and pandas behind a package whose
+  dependencies are pydantic, pyyaml and typer. The cost is admitted in ADR 0041: this
+  measure charges the same for `/t/`→`/d/` as for `/t/`→`/m/`. ARPABET's stress digits
+  are stripped first, or `the` reads as a pun on `the`; the rule strips a trailing
+  digit, so it is a no-op for German and French IPA.
+
+  Measured while building it, and recorded because none of it was guessed: the
+  generator needs no search budget, because prefiltering on phoneme length and on a
+  shared first or last phoneme takes English's 45,884 pronounceable graded words down
+  to between 143 and 2,424 per position. Homophone density is an orthography
+  difference rather than a data gap — at distance exactly 0.0, French `air` offers 13
+  displacements and `temps` 7, English `air` offers 3, and German `Komm` and `Haar`
+  offer none.
+
+- Ten trades, up from three: `bar`, `butcher`, `coffee`, `fishmonger`, `florist`,
+  `nails` and `pets` join `bakery`, `hair` and `optician` — **366 vocabulary words and
+  48 blends** across three languages. A trade now ships a *vocabulary* and need not
+  ship phrases at all: `TradeWords.phrases` is optional, because requiring it is what
+  pushed the first three trades into carrying phrases invented for reachability. Seven
+  words were dropped as unpronounceable, including `perm`, which had been in the hair
+  vocabulary since it shipped and was therefore never usable.
+
+- **A bug in the blend's window search, and the two names that were resting on it.**
+  `_closest_window` started at `(1.0, 0, 0)` and returned it untouched when nothing
+  scored below 1.0 — reporting a *zero-length* window as its evidence,
+  `h aː ɐ̯ for  at 1.000`, which is a comparison against nothing. It read as a loose
+  match and was no match.
+
+  `Monhaarlisa` and `Pawsome` shipped on it, each with `max_distance: 1.0` and a
+  comment calling them blends you *see* rather than hear. Measured honestly they are
+  1.000 from every stretch of their hosts, so both are **removed**, and the per-blend
+  `max_distance` that existed only to carry them is removed from the model. All 48
+  remaining blends check at the row's own default band.
+
+  The class is real and no rule reaches it: `Monhaarlisa`, `Pawsome`, `Yes We Kämm`
+  are carried by the letters and by what the reader already knows, not by sound. This
+  row checks the heard relation and now says so instead of opening its band until
+  something passes.
+
+- **Both new rows generate now.** `portmanteau.apply` proposes every way of splicing
+  each trade word into the host and hands each candidate to its own `check` — the
+  project's thesis used as a search. Not knowing *where* to splice stops mattering if
+  you can afford to try everywhere, and you can: at most 859 candidates, about 0.2s.
+  `Kamera` gives `Kammera`, `airline` gives `hairline`, `curtain` gives `curltain`.
+
+  Measured against the attested corpus, the real salon name comes back **first for 10
+  of 12 hosts** and is in the first ten for 11. It ships at that number rather than
+  tuned: three ranking fixes were tried and **each made the whole result worse** — a
+  seam filter loses `Coiff'Hair`, length-delta starts preferring coinages that delete
+  host letters, replaced-length fixes `Chamäleon` and breaks `heritage`. Twelve names
+  is not enough to tune against. ADR 0043 records all three, and a test pins the
+  `Chamäleon` failure with a note to delete it if it ever starts passing.
+
+  `amphibologia.apply` **selects** rather than invents, which is what that figure is:
+  it is noticed in something people say, not built from parts. The reader supplies the
+  phrases, one per line (ADR 0020), and the row returns the ones that read two ways for
+  the trade. Given fourteen ordinary phrases and a salon: `A Cut Above`, `Head over
+  heels`, `Curl up with a book` — and not `Sheer Delight`, because `sheer` is not the
+  trade's word. Both rows join `PARAMETER_GATED`, since neither is reachable by a fuzz
+  harness that supplies no trade, and both carry their own round-trip test.
+
+- `amphibologia` — the shop sign that alters nothing and still reads two ways.
+  *A Cut Above* over a salon: nothing displaced, nothing spliced, and the trade alone
+  supplying the second reading. Puttenham, *The Arte of English Poesie* (1589),
+  speaking "doubtfully, and the sense may be taken two ways" — filed by him among the
+  **vices** of style, which is left as it is rather than quietly promoted, because a
+  shop sign wants the doubtful reading caught.
+
+  What is decided is narrower than the figure: that a word of the declared trade is
+  present and is *polysemous*, so a second reading exists to activate. `cut` carries
+  seventy senses and `xylophone` one, which is the case showing the test is not
+  vacuous. Whether anybody says the phrase, and whether the second reading is funny,
+  are the writer's. `kind: restrictive` with no `apply`: generating one means choosing
+  from a corpus of things people say, and ADR 0020 gives the corpus to the reader.
+
+- **English and IPA are now commensurable, and it was notation all along.** CMUdict
+  answers in ARPABET and the German and French packs in IPA, so `hair` was `HH EH R`
+  against French `ɛ ʁ` and no distance between them meant anything. A 39-entry
+  `ARPABET_TO_IPA` table fixes it — a lookup a reader can check line by line, which is
+  what makes it admissible where ADR 0042 refused a learned model. Rhotics fold across
+  languages and only across languages (`{ɹ, ʁ, r, ɐ̯, ɐ, ɚ}`), so `hair` sits 0.333
+  from French `air` instead of being incomparable.
+
+  This matters more than it sounds. **The commonest real French salon name was one
+  this project could not check**: tif.hair counts ~150 called `Imagin'hair`, and the
+  whole `-hair` family is English inside French. Roughly half the attested German
+  names are the same shape the other way. `portmanteau` takes `splice_lang` to reach
+  them; no new capability is declared, because what it needs is `phonemes` on two
+  packs and that is what it already required. **`homophonic_translation` stays
+  blocked** — the notation half of its problem is solved and the larger half is not.
+
+  Also in `portmanteau`: a host may be more than one word (`Mona Lisa`, `Hart am
+  Limit`), pronounced word-by-word and all-or-nothing; and the default band opens to
+  0.7, because attested names sit above the old ceiling. A blend may name its own
+  `max_distance`, which `Monhaarlisa` uses — a blend you **see** rather than hear,
+  `Haar` covering the `a` of `Mona` and sounding nothing like it.
+
+- `portmanteau` — the coinage that carries one word inside another, and the half of
+  the punning shopfront `paronomasia` could not reach: `Haarmonie`, `Hairitage`,
+  `Föhnix`. ADR 0041 named `phonemes.g2p` as what this family was blocked on. **It was
+  wrong, and measuring is what showed it.** A blend is never an arbitrary string — the
+  host word and the word spliced into it are both ordinary dictionary entries — so the
+  coinage is verified as a *derived form* and nothing unknown is ever sounded out. No
+  new dependency, no espeak-ng, no learned model, no GPL.
+
+  What actually blocked German was the distance metric, not the missing pronunciation.
+  German vocalises a syllable-final /r/, so `Haar` is `h aː ɐ̯` where `Harmonie` opens
+  `h a ʁ` — the same segment spelled two ways, which unweighted Levenshtein charges a
+  full substitution for. `core.phonetics.EQUIVALENT` now records, per language, the
+  symbols that are one segment: German gets `{ʁ, ɐ̯, ɐ, r}` and `Haarmonie` moves from
+  0.667 to **0.333**. **Vowel length is deliberately not folded** — `aː` and `a` are
+  contrastive, `Staat` against `Stadt`, so collapsing them would buy a distance of
+  0.000 by discarding a distinction German makes. English and French get no entries at
+  all, because ARPABET has no vocalised-r symbol and Lexique's SAMPA maps to a single
+  `ʁ`; a table for them would be a guess dressed as data.
+
+  Verified additive before it shipped: all nine German pairs the existing fixtures and
+  domain phrases turn on score identically with and without the fold, and a test pins
+  that. The prefilter had to learn the same fold and briefly did not — a prefilter
+  stricter than the measure behind it hides candidates the band would have accepted,
+  silently.
+
+  A blend whose coinage *is* its host is refused as `identical_to_host`. `Crustacean`
+  really does contain `crust` and `Breadwinner` contains `bread`, and both passed an
+  earlier draft at a spelling distance of 0.000 — because nothing had been spliced.
+  That is the *found* pun, which states no relation between two texts because it is
+  one text, and `paronomasia`'s notes already exclude it for the same reason. Found
+  while authoring the shipped blends, not by reasoning about the code.
+
+  Still out of reach, and neither is g2p's fault: a host the lexicon does not carry
+  (`Barbarella` is absent from CMUdict, which is most celebrity blends) and the
+  cross-lingual blend (`Atmosph'air`), which needs `phonemes.bilingual`. `apply` is not
+  shipped though `kind` says `both` — generating a blend is choosing where to splice,
+  which is Deri and Knight's multitape-FST problem; the docstring says so where a
+  caller will meet it.
+
+- A pun needs to know what the shop sells, so `paronomasia`'s generator takes a
+  `domain`. Three trades ship in core — `bakery`, `hair`, `optician` — each carrying,
+  per language, a vocabulary and a set of phrases worth punning on. Every word and
+  phrase was written for this project, so there is no third-party licence and nothing
+  to quarantine under ADR 0013; `core/domain.py` is the loader, and `domain_words`
+  takes a vocabulary of your own for a shop nobody catalogued.
+
+  **The ranking was wrong and is fixed.** Candidates were ordered by SCOWL band
+  first, so `bread` (band 20) came **74th** behind `brand`, `bad`, `it` and `put`
+  (all band 10) whatever their distance — the row that catalogues the figure could
+  not generate its own canonical example. The order is now trade, then distance,
+  then commonness, and `Bread Pitt` is first. Measured across the three trades,
+  all 37 shipped phrases now displace onto their own trade, each pinned by its own
+  test.
+
+  The phrase lists were **audited against the attested collections** on 2026-09-10
+  and expanded from 37 phrases to 56, with 33 blends. The audit found six entries
+  that passed every mechanical check and should not have shipped: `Klar gewinnt`,
+  `Weit gesehen` and `brosse à part` were invented and are not phrases anyone says,
+  and `Life of Pie` and `Site for Sore Eyes` were hosts that were *already the pun*,
+  so the displacement restored the original instead of departing from it. Whether a
+  phrase is one a reader knows is the single property here that no test can reach —
+  each is real words in real grammar landing real trade vocabulary — so it is
+  audited by hand and the standard is written into each file.
+
+  What replaced them is attested: `Curl up and die` (Atlas Obscura counts thirty
+  American salons called Curl Up & Dye), `Grateful Dead`, `Jack of all trades`,
+  `Kopf oder Zahl`, and the German blends `SaHaara`, `Kammäleon`, `Kammbodscha`,
+  `Kammpus`, `Philhaarmonie` and `Scheitelkeiten` from a list of 300+ that gives
+  each pun's host. `Curl up and die` had been dropped by an earlier note arguing
+  that a phrase containing a trade word is "the joke already made" — wrong, because
+  `curl` being present does not stop `die` becoming `dye`.
+
+  **The commonest real French salon name is one this project cannot check.** The
+  `-hair` family — `Imagin'hair` at ~150 salons, `Atmosph'air`, `Caract'hair` — is
+  English inside French, refused as `splice_not_a_word` because `hair` is not a
+  French word. That needs `phonemes.bilingual`, not `phonemes.g2p`. Roughly half of
+  the attested German names fall to the same boundary or to a proper-noun host.
+  Recorded in `docs/research/` rather than inferred from the ones that worked.
+
+  Two things decide output quality that no rule in the checker can express, both
+  found by measuring rather than reasoning: displacing a **function word** produces
+  nonsense — French `la` is 0.333 from `laque`, which offers `laque vie en rose` for
+  half the language — and a phrase that already contains its own trade word has
+  nothing left to displace (`Curl up and die`, `Das Brot`). A third applies to German
+  alone: **every German frame is article-free**, because a German article agrees with
+  its noun's gender and nothing here knows a noun's gender, so displacing the noun out
+  of `Der Wille` or `Zum Wohl` left the article stranded and produced `Der Welle` and
+  `Zum Welle`, which are not German. `Komm rein`, `Kopf hoch` and `Locker bleiben`
+  cannot break that way whatever lands in them — a constraint on the phrase instead of
+  a gender table nobody has. The shipped phrases are chosen against all three. German nouns get their capital from the trade file, because
+  German's graded words are an entirely lower-case frequency corpus and a
+  displacement spelled as that list spells it reads `Alles haar`.
+
+  The catalogue goes to **157 rows and 123 implemented**, the golden corpus from 560
+  cases to **572**. The externally sourced share falls from 11.8% to **11.5%**, which
+  is arithmetic and not a regression: no case here claims external provenance,
+  because no example has been read off a page in this pass and an example nobody has
+  read is the invented citation the house style refuses. The attested modern corpus
+  of the figure is entirely post-1929, so it waits on the same decision about quoting
+  in-copyright material that research batch 3 already has pending.
+
 ## [0.1.1] - 2026-09-08
 
 ### Fixed

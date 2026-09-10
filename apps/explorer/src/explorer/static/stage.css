@@ -51,6 +51,31 @@
      — so the pair could drift, and a scene that changed its accent kept the
      old wash. A scene now sets `--accent` alone and this follows it. */
   --accent-wash: color-mix(in srgb, var(--accent) 22%, transparent);
+
+  /* The street. Six materials, and one rule holding them together: a fascia is
+     the only place type sits on paint, so `--shop-sign` is the only one of these
+     that has to clear a contrast bar — `test_palette.py` holds it against
+     `--shop-fascia`, the way it already holds the Denckring's hub labels against
+     the hub. The rest are surfaces behind nothing. */
+  --street-sky: #2a2f33;
+  --street-road: #24262a;
+  --street-kerb: #3c4046;
+  --shop-wall: #d7d3c6;
+  --shop-wall-alt: #c8c9bd;
+  --shop-roof: #4a4139;
+  --shop-door: #6b5a4a;
+  --shop-glass: #8fa6a8;
+  --shop-fascia: #1f2a24;
+  --shop-sign: #f2efe2;
+  --shop-awning: #b8452f;
+  /* The five sign treatments. Only `--shop-sign` and `--sign-neon` carry type,
+     so only those two answer to a contrast bar; the rest are surfaces. */
+  --sign-neon: #ff5fa2;
+  --sign-neon-dim: #47203a;
+  --sign-enamel: #f4f1e6;
+  --sign-enamel-edge: #1c3f6e;
+  --sign-board: #6b4a2f;
+  --sign-bracket: #2e2a26;
 }
 
 /* Minium — the vermilion of a rubricated manuscript, which is what Llull's
@@ -3389,4 +3414,271 @@
   color: var(--lead);
   margin: 0;
   text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Scene ten: the street of bad puns.
+
+   The houses are one SVG per shopfront rather than one SVG for the street, so a
+   band change can swap the row's innards through htmx without the surrounding
+   picture being rebuilt — and so a house is a focusable, captioned unit rather
+   than a region of a drawing. Sizing is in the SVG's own viewBox; only the
+   shared chrome is styled here.
+   --------------------------------------------------------------------------- */
+
+/* Shop-awning green — the paint a small high-street trader has always been able
+   to buy, and the one colour on this stage that is meant to look applied rather
+   than printed. Declared here with the scene's sizing rather than up beside the
+   other accents: `test_no_bare_class_selector_is_declared_twice_where_one_rule_sizes_it`
+   refuses a class that is declared twice unscoped, and it is right to. */
+.street-stage {
+  --accent: #1c5b3f;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.9rem;
+  height: 100%;
+  padding: 1.1rem 1.4rem 1.3rem;
+  background: linear-gradient(var(--street-sky), var(--case-deep));
+}
+
+.street-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+}
+
+.street-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font: 0.72rem/1.1 var(--mono);
+  color: var(--lead);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.street-controls select,
+.street-controls input[type="range"] {
+  font: 0.9rem var(--body);
+  accent-color: var(--accent);
+}
+
+.street-band-value {
+  font: 0.9rem var(--mono);
+  color: var(--lead-bright);
+}
+
+/* The row. `align-items: end` is what makes the pavement a line rather than a
+   coincidence: houses differ in height and all of them stand on the ground. */
+.street-row {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid var(--street-kerb);
+}
+
+.street-house {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 0;
+  max-width: 232px;
+  min-width: 0;
+}
+
+.street-house svg {
+  width: 100%;
+  height: auto;
+}
+
+/* The fascia's type. Set in the SVG, but the size lives here so one rule
+   governs every sign and a long phrase cannot silently outgrow a short one. */
+.street-sign-text {
+  font-family: var(--display);
+  font-weight: 700;
+  fill: var(--shop-sign);
+}
+
+.street-caption {
+  font: 0.68rem/1.35 var(--mono);
+  color: var(--lead);
+  text-align: center;
+}
+
+.street-caption b {
+  color: var(--lead-bright);
+  font-weight: 400;
+}
+
+.street-caption s {
+  color: var(--lead-dim);
+}
+
+.street-distance {
+  display: inline-block;
+  margin-top: 0.15rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  color: var(--lead-bright);
+}
+
+.street-empty {
+  align-self: center;
+  max-width: 46ch;
+  font: 0.95rem/1.5 var(--body);
+  color: var(--lead);
+  text-align: center;
+}
+
+.street-blocked {
+  align-self: center;
+  max-width: 52ch;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--warn-edge);
+  background: var(--warn-well);
+  color: var(--warn-ink);
+  font: 0.9rem/1.5 var(--body);
+}
+
+.street-note {
+  font: 0.72rem/1.4 var(--mono);
+  color: var(--lead-dim);
+  text-align: center;
+}
+
+.street-roll {
+  align-self: end;
+  padding: 0.32rem 0.8rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--lead-bright);
+  font: 0.8rem var(--body);
+  cursor: pointer;
+}
+
+.street-roll:hover,
+.street-roll:focus-visible {
+  background: var(--accent-wash);
+}
+
+/* One shop, five ways of painting its sign. The style changes the paint and
+   never the words: the drawing below is the same shopfront whichever is drawn,
+   and `stage.shop` picks the style separately from the sign for exactly that
+   reason. */
+
+/* The single shop's container, and NOT `.street-row`, which was built for five
+   houses standing on a pavement: it sets `align-items: end` and a kerb rule
+   underneath, both of which are about a row. Reusing it left the sign sitting on
+   a line it no longer had any reason to touch. */
+.shop-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 0;
+}
+
+.shop-figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+
+/* Sized by WIDTH, with height following the viewBox. `height: 100%` inside a
+   flex column with no definite height collapses the drawing to nothing, which
+   is exactly what it did: the caption rendered and the shop did not. */
+.shop-figure svg {
+  width: min(100%, 620px);
+  height: auto;
+  /* Bounded on BOTH axes. The stage is a fixed 1280x720 that clips what it
+     cannot fit, so a drawing sized only by width overflowed it: the roof was cut
+     off at the top and the caption sat across the door. Width alone is not a
+     size when the height that follows from it has nowhere to go. */
+  max-height: 372px;
+}
+
+.shop-sign-text {
+  font-family: var(--display);
+  font-weight: 700;
+  fill: var(--shop-sign);
+}
+
+/* Painted on the glass: the letters sit on the window, so they take the ink
+   that reads on glass rather than the one that reads on a dark board. */
+.shop-sign-text.is-painted {
+  fill: var(--shop-fascia);
+}
+
+.shop-sign-text.is-enamel {
+  fill: var(--sign-enamel-edge);
+}
+
+/* Neon is the one style that glows, and the glow is a filter on the type rather
+   than a second copy of it — a duplicated text node would be read twice by a
+   screen reader for a purely decorative halo. */
+.shop-sign-text.is-neon {
+  fill: var(--sign-neon);
+  filter: drop-shadow(0 0 6px var(--sign-neon));
+}
+
+.shop-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem 1.4rem;
+  font: 0.82rem/1.4 var(--mono);
+  color: var(--lead);
+  text-align: center;
+}
+
+.shop-caption b {
+  color: var(--lead-bright);
+  font-weight: 400;
+}
+
+.shop-caption s {
+  color: var(--lead-dim);
+}
+
+/* Which row checked this sign. Two figures share the scene and a reader is told
+   which one they are looking at. */
+.shop-figure-name {
+  padding: 0.08rem 0.45rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  color: var(--lead-bright);
+  font-size: 0.76rem;
+}
+
+.shop-band {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop-band-track {
+  position: relative;
+  width: 190px;
+  height: 6px;
+  background: var(--case-lip);
+  border-radius: 3px;
+}
+
+.shop-band-mark {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  background: var(--accent);
 }

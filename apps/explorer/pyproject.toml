@@ -9,7 +9,12 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-    "denckring[en,de]",
+    # The street scene needs both halves of `paronomasia`: `phonemes` to check
+    # a sign and `lexicon.graded_words` to generate one. German takes two
+    # distributions for that (`de-wiktionary` and `de-frequency`, kept apart
+    # by ADR 0013 because their licences differ) and French takes one.
+    # Without them the German and French streets do not render at all.
+    "denckring[en,de,de-wiktionary,de-frequency,fr]",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     "jinja2>=3.1",

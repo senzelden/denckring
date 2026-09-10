@@ -1778,6 +1778,149 @@ procedures:
       folded form. The onset comparison already lives entirely in phonemes,
       where accents do not apply.
 
+  - id: paronomasia
+    names: { en: Paronomasia, de: Paronomasie, fr: Paronomase }
+    definitions:
+      en: >-
+        A text that displaces a word of a known phrase by one close to it in sound,
+        so that the phrase and its replacement stay audible at once.
+      de: >-
+        Ein Text, der ein Wort einer bekannten Wendung durch ein klanglich nahes
+        ersetzt, sodass beide Lesarten zugleich hörbar bleiben.
+      fr: >-
+        Un texte remplaçant un mot d'une expression connue par un autre proche par
+        le son, de sorte que les deux lectures restent audibles.
+    source: Henry Peacham, The Garden of Eloquence (1577)
+    family: word
+    attribution: reference
+    checkability: source
+    attested: codified
+    aliases: [pun, agnomination, prosonomasia]
+    kind: both
+    languages: [en, de, fr]
+    requires: [tokens, phonemes]
+    apply_requires: [lexicon.graded_words]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Replace one word of a known phrase with a word close to it in sound, leaving
+        the rest of the phrase untouched.
+    notes: >-
+      Scope is bounded by what a pronouncing dictionary can answer, and the bound is
+      narrower than the figure. A displacement is checkable only when the word that
+      lands is itself in the dictionary — `bread` for `Brad`, `dye` for `die`,
+      French `Diminu'tif` for `diminutif`. The blends and compound splices that
+      dominate real punning shop names — `Hairitage`, `Haarmonie`, `Hairways` — put a
+      coined word in that position, and no pack here can pronounce a word it has
+      never seen: all six of those raise `MissingCapability`, measured. That family is
+      `portmanteau`, a row of its own — and it turned out to need no `phonemes.g2p`
+      after all, because a blend splices two words the dictionary already has, so
+      the coinage is checked as a derived form rather than pronounced. ADR 0042
+      records the measurement that overturned the note this row used to carry.
+      The found pun, which
+      displaces nothing, states no relation between two texts and so is not this
+      row at all.
+
+      The generator takes a `domain` — a trade whose vocabulary should win, from
+      `core/domain.py` — because which displacement is any good depends almost
+      entirely on whether the word that lands belongs to the shop the sign is
+      going on. `Bread Pitt` is a bakery; `Brand Pitt` is nothing. The trades ship
+      in core rather than in a data distribution for ADR 0017's reason: these
+      lists describe the procedure being run, not the language it is run in.
+
+  - id: amphibologia
+    names: { en: Amphibologia, de: Amphibolie, fr: Amphibologie }
+    definitions:
+      en: >-
+        A phrase that can be taken two ways, one reading made available by the
+        subject at hand rather than by any change to the words.
+      de: >-
+        Eine Wendung, die sich doppelt lesen lässt, wobei die zweite Lesart nicht
+        aus einer Änderung der Wörter stammt, sondern aus dem Gegenstand.
+      fr: >-
+        Une expression à double lecture, la seconde tenant au sujet et non à une
+        modification des mots.
+    source: George Puttenham, The Arte of English Poesie (1589)
+    family: word
+    attribution: reference
+    checkability: self
+    attested: codified
+    aliases: [the ambiguous, double meaning]
+    kind: both
+    languages: [en, de, fr]
+    requires: [tokens, lexicon.glosses]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Write a phrase that reads one way ordinarily and another way to someone
+        who knows the trade, without altering a word.
+    notes: >-
+      The third shape of the punning shopfront, after `paronomasia` displaces a
+      word and `portmanteau` splices one: here nothing is altered at all, and
+      the trade supplies the second reading. `A Cut Above` over a salon.
+      `paronomasia`'s notes exclude this as the found pun, correctly — it states
+      no relation between two texts, but between a text and a trade, which is
+      why it is a row rather than a mode.
+
+      Puttenham files Amphibologia among the *vices* of style, beside Pleonasmus
+      and Bomphiologia. That is left as it is rather than quietly promoted: a
+      shop sign wants the doubtful reading caught, so the vice is the point.
+
+      What is decided is narrower than the figure: that a word of the declared
+      trade is present and is polysemous, so a second reading exists to be
+      activated. Whether anybody says the phrase, and whether the second reading
+      is funny, are the writer's — as synonymy is in `kangaroo_word`. Ambiguity
+      is read off `lexicon.glosses`, whose sense counts are an editor's decision
+      and not a fact about the language; the row asks only for *more than one*
+      rather than scoring them.
+
+      `apply` selects rather than invents, which is what the figure is: an
+      amphibologia is noticed in something people already say, not built from
+      parts. The reader supplies the phrases one per line — ADR 0020 — and the
+      row hands back the ones that read two ways for the trade.
+
+  - id: portmanteau
+    names: { en: Portmanteau, de: Kofferwort, fr: Mot-valise }
+    definitions:
+      en: >-
+        A coinage that carries one word inside another, so that the host stays
+        recognisable while a second word shows through it.
+      de: >-
+        Ein Kunstwort, das ein Wort in einem anderen sichtbar macht, sodass das
+        Wirtswort erkennbar bleibt und ein zweites hindurchscheint.
+      fr: >-
+        Un mot-valise laissant paraître un mot dans un autre, l'hôte restant
+        reconnaissable.
+    source: Lewis Carroll, Through the Looking-Glass (1871)
+    family: word
+    attribution: primary
+    checkability: source
+    attested: author-stated
+    aliases: [blend, Kofferwort]
+    kind: both
+    languages: [en, de, fr]
+    requires: [tokens, phonemes, lexicon.words]
+    deterministic: true
+    prompt_hints:
+      en: >-
+        Splice one word into another so that both stay audible and the host is
+        still recognisable.
+    notes: >-
+      The half of the punning shopfront `paronomasia` cannot reach — `Haarmonie`,
+      `Hairitage`, `Föhnix` — and it needs no `phonemes.g2p` after all. A blend
+      is never arbitrary: the host and the word spliced into it are both ordinary
+      dictionary words, so the *coinage* is verified as a derived form rather
+      than pronounced directly, and nothing unknown has to be sounded out. What
+      the row cannot reach is a host the lexicon does not carry, which for these
+      names is usually a proper noun — `Barbarella` is absent from CMUdict — and
+      the cross-lingual blend, which needs `phonemes.bilingual` exactly as
+      `homophonic_translation` does.
+
+      `apply` is deliberately not shipped though `kind` says `both`. Generating a
+      blend is choosing where to splice, which is Deri and Knight's multitape-FST
+      problem and its own piece of work; `describe_procedure` will still report
+      `both`, and the module docstring says so.
+
   - id: multiple_constraint
     names: { en: Multiple constraint, de: Mehrfachbeschränkung, fr: Contrainte multiple }
     definitions:

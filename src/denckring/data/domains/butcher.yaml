@@ -1,0 +1,18 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: butcher
+names: { en: Butcher, de: Metzgerei, fr: Boucherie }
+source: >-
+  Written for this project, 2026-09-10. The trade of "Meat the Butcher" and the
+  German "Best Wurst".
+languages:
+  en:
+    words: [meat, chop, steak, rib, cut, joint, mince, grill, rump, loin, hock,
+            shank, brine, cure, block, cleaver, roast, bone, flank, sausage]
+  de:
+    words: [Wurst, Fleisch, Braten, Rippe, Schnitzel, Speck, Hack, Keule, Kotelett, Beil]
+  fr:
+    words: [viande, côte, steak, rôti, jarret, hachis, gigot, échine, os, billot]

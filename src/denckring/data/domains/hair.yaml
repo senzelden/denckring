@@ -1,0 +1,132 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Every word and phrase here
+# was written for this project — nothing is transcribed from the salon-name
+# collections that document the tradition, all of which are post-1929.
+id: hair
+names:
+  en: Hair salon
+  de: Friseursalon
+  fr: Salon de coiffure
+source: >-
+  Written for this project, 2026-09-10. The punning hairdresser is the best-attested
+  habitat of paronomasia in living use, catalogued in German by newspaper galleries
+  and in French by the INSEE trade register; none of that material is reproduced here.
+languages:
+  # German first because this is where the trade's wordplay is densest. Note what
+  # the row cannot reach: the famous names — Haarmonie, Chaarisma, CreHaartiv — are
+  # compound splices onto coined words, and no pack can pronounce those. What works
+  # here is whole-word displacement, which is a narrower and quieter joke.
+  de:
+    words:
+      [Haar, Kamm, Locke, Schnitt, Strähne, Zopf, Föhn, Schere, Welle, Bürste,
+       Spitze, Mähne, Scheitel, Glanz, Farbe, Kur]
+    phrases:
+      # Every frame here is ARTICLE-FREE, and that is the rule rather than a
+      # coincidence. German articles agree with their noun's gender, and nothing
+      # in this project knows a noun's gender — so displacing the noun out of
+      # `Der Wille` or `Zum Wohl` left the article behind and produced `Der
+      # Welle` and `Zum Welle`, which are not German. The first draft shipped
+      # both. An article-free frame cannot be broken that way, whatever lands in
+      # it, so the constraint is on the phrase and not on a gender table nobody
+      # has.
+      # `Kopf oder Zahl` and `Komm zurück` follow the attested shapes `Zopf oder
+      # Kahl` and `Kamm Back`; `Der letzte Schliff` is an everyday idiom that
+      # reaches `Schnitt`.
+      ["Komm rein", "Kopf hoch", "Ganz weit oben", "Schön hier",
+       "Locker bleiben", "Bitte schön", "Alles klar", "Nur Mut",
+       "Kopf oder Zahl", "Komm zurück", "Der letzte Schliff"]
+    blends:
+      # The names the tradition is actually recognised by. `paronomasia` cannot
+      # reach these — the surface is a coinage — and `portmanteau` can, because
+      # both words behind it are ordinary dictionary entries.
+      - { coinage: Haarmonie,    host: Harmonie,  splice: Haar }
+      - { coinage: Föhnix,       host: Phönix,    splice: Föhn }
+      - { coinage: Chaarisma,    host: Charisma,  splice: Haar }
+      - { coinage: Haarlekin,    host: Harlekin,  splice: Haar }
+      - { coinage: Kammille,     host: Kamille,   splice: Kamm }
+      - { coinage: Locke'motive, host: Lokomotive, splice: Locke }
+      # Attested, from the bedeutungonline list of 300+ (see docs/research):
+      - { coinage: Philhaarmonie,  host: Philharmonie, splice: Haar }
+      - { coinage: SaHaara,        host: Sahara,       splice: Haar }
+      - { coinage: Kammäleon,      host: Chamäleon,    splice: Kamm }
+      - { coinage: Kammbodscha,    host: Kambodscha,   splice: Kamm }
+      - { coinage: Kammpus,        host: Campus,       splice: Kamm }
+      - { coinage: Haareszeiten,   host: Jahreszeiten, splice: Haar }
+      - { coinage: Scheitelkeiten, host: Eitelkeiten,  splice: Scheitel }
+      - { coinage: Haarwaii,       host: Hawaii,       splice: Haar }
+      - { coinage: Haar-a-kiri,    host: Harakiri,     splice: Haar }
+      - { coinage: Haarbracadabra, host: Abrakadabra,  splice: Haar }
+      - { coinage: Elementhaar,    host: elementar,    splice: Haar }
+      - { coinage: Haart am Limit, host: Hart am Limit, splice: Haar }
+      # `Monhaarlisa` is NOT here, and the reason is worth keeping. `Haar` is
+      # plainly visible in it, and it sounds like nothing whatever in `Mona
+      # Lisa` — measured at 1.000 against every window. It is a blend you SEE,
+      # and this row checks the one you HEAR. It shipped briefly with
+      # `max_distance: 1.0`, which looked like a principled allowance for a
+      # visual pun and was in fact resting on a bug: `_closest_window` reported
+      # a zero-length window when nothing scored below 1.0, so the sound test
+      # was comparing against nothing at all.
+  fr:
+    words:
+      [tif, mèche, coupe, frange, boucle, peigne, cheveu, brosse, tresse,
+       chignon, natte, raie, crêpe, teinte, ciseaux, reflet]
+    phrases:
+      # `la` is 0.333 from `laque`, so any phrase opening on the article invites
+      # `laque vie en rose` and nothing better. These open elsewhere on purpose,
+      # and `laque` is left out of the vocabulary above for the same reason.
+      # `brosse à part` was invented (the idiom is `classe à part`) and
+      # `une belle allure` only reached `une boucle allure`, which is two nouns
+      # in a row. `sans coup férir`, `avoir la frite` and `monter en graine` are
+      # all idioms a French reader has met.
+      ["coup de foudre", "tel père tel fils", "la reine des neiges",
+       "coupe du monde", "sans coup férir", "avoir la frite", "monter en graine"]
+    blends:
+      # The apostrophe re-segmentation the French register is built on, and the
+      # shape `paronomasia` explicitly cannot reach: it displaces whole words,
+      # and this splits one. Every `-tif` here checks at sound distance 0.000.
+      - { coinage: "Diminu'tif",  host: diminutif,  splice: tif }
+      - { coinage: "Infini'tif",  host: infinitif,  splice: tif }
+      - { coinage: "Créa'tif",    host: créatif,    splice: tif }
+      - { coinage: "Superla'tif", host: superlatif, splice: tif }
+      # tif.hair's own most-repeated names, after the `-hair` family that this
+      # project cannot reach at all (see docs/research):
+      - { coinage: "Evolu'tif",   host: évolutif,   splice: tif }
+      - { coinage: "Imagina'tif", host: imaginatif, splice: tif }
+      - { coinage: "Instinc'tif", host: instinctif, splice: tif }
+      - { coinage: "A-Tif-Fé",    host: attifé,     splice: tif }
+      # The `-hair` family: English inside French, and the commonest shape in
+      # the whole French register — tif.hair counts ~150 `Imagin'hair` alone.
+      # Unreachable until the ARPABET-to-IPA bridge of ADR 0043.
+      - { coinage: "Imagin'hair",       host: imaginaire,        splice: hair, splice_lang: en }
+      - { coinage: "L'Hair du Temps",   host: "L'Air du Temps",  splice: hair, splice_lang: en }
+      - { coinage: "Coiff'Hair",        host: coiffure,          splice: hair, splice_lang: en }
+      - { coinage: "Changement d'Hair", host: "changement d'air", splice: hair, splice_lang: en }
+  en:
+    words:
+      [hair, curl, comb, cut, shear, trim, mane, tress, braid, wave, crop, style,
+       dye, bob, lock, fringe, head, fade, weave]
+    phrases:
+      # `Curl up and die` is back, and the note that dropped it was wrong. It
+      # reasoned that a phrase containing a trade word is "the joke already
+      # made" — but `curl` being present does not stop `die` becoming `dye`,
+      # which is the joke, and Atlas Obscura counts thirty American salons
+      # called Curl Up & Dye. The real rule is narrower: a phrase must have
+      # something LEFT to displace.
+      #
+      # `Grateful Dead` and `Jack of all trades` are attested too (Grateful
+      # Head; Jack of all Fades), which is why `head`, `fade` and `weave` join
+      # the vocabulary above.
+      ["Curl up and die", "Grateful Dead", "Jack of all trades",
+       "The Main Event", "Sheer Delight", "Head over Heels", "Best Laid Plans"]
+    blends:
+      # Hairport and Hairaphernalia are attested (International Hairport;
+      # Hairaphernalia, St. Louis Park MN) — see docs/research.
+      - { coinage: Hairitage,      host: heritage,      splice: hair }
+      - { coinage: Hairport,       host: airport,       splice: hair }
+      - { coinage: Hairaphernalia, host: paraphernalia, splice: hair }
+      - { coinage: Combfort,       host: comfort,       splice: comb }
+      - { coinage: Hairloom,       host: heirloom,      splice: hair }
+      # Attested in German salons, but the pun itself is English inside English:
+      # the host is a loan phrase, so this is the English trade that checks it.
+      - { coinage: Hairforce One,  host: Airforce One,  splice: hair }
+      - { coinage: Open Hair,      host: Open Air,      splice: hair }
+      - { coinage: Bel Hair,       host: Bel Air,       splice: hair }

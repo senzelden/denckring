@@ -1,0 +1,18 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: florist
+names: { en: Florist, de: Blumenladen, fr: Fleuriste }
+source: >-
+  Written for this project, 2026-09-10. The trade of "Back to the Fuchsia" and
+  "Floral & Hardy".
+languages:
+  en:
+    words: [bloom, petal, stem, rose, bud, leaf, vase, fern, thorn, bunch,
+            lily, iris, bay, moss, seed, root, bough]
+  de:
+    words: [Blume, Blüte, Strauß, Rose, Knospe, Blatt, Vase, Farn, Dorn, Zweig]
+  fr:
+    words: [fleur, pétale, tige, rose, bouton, feuille, vase, fougère, épine, bouquet]

@@ -1,0 +1,95 @@
+{# One shopfront. Swapped whole on every change, and rendered identically on
+   first paint, so a reader with no JavaScript sees what a button would give. #}
+{% if blocked %}
+  <p class="street-blocked">
+    This shop needs a pronouncing dictionary and a frequency list for
+    <b>{{ blocked.lang }}</b>, and this install has neither. {{ blocked.remedy }}
+  </p>
+{% elif not shop %}
+  <p class="street-empty">
+    Nothing this trade can put on a sign at <b>{{ '%.2f' | format(ceiling) }}</b>.
+    Every phrase it knows needs a word further away than that to reach its own
+    vocabulary &mdash; open the band and the shop comes back.
+  </p>
+{% else %}
+  <div class="shop-figure">
+    {# 720x520. One drawing, five sign treatments: the wall, roof, window and door
+       are identical whichever style is drawn, and only the sign area changes. #}
+    <svg viewBox="0 0 720 520" role="img"
+         aria-label="{{ shop.sign }} — a {{ shop.style }} shop sign, {{ shop.figure }} at phonetic distance {{ '%.3f' | format(shop.distance) }}">
+      <path d="M20 150 L360 40 L700 150 Z" fill="var(--shop-roof)"/>
+      <rect x="48" y="150" width="624" height="350" fill="var(--shop-wall)"/>
+      <rect x="96" y="176" width="150" height="68" fill="var(--shop-glass)"/>
+      <rect x="474" y="176" width="150" height="68" fill="var(--shop-glass)"/>
+
+      {% if shop.style == 'hanging' %}
+        <rect x="96" y="300" width="380" height="200" fill="var(--shop-glass)"/>
+        <rect x="512" y="300" width="112" height="200" fill="var(--shop-door)"/>
+        <circle cx="528" cy="404" r="6" fill="var(--shop-sign)"/>
+        {# A board on a bracket, hung off the wall rather than fixed flat to it. #}
+        <rect x="120" y="266" width="300" height="10" fill="var(--sign-bracket)"/>
+        <rect x="118" y="266" width="10" height="34" fill="var(--sign-bracket)"/>
+        <rect x="150" y="276" width="240" height="96" rx="4" fill="var(--sign-board)"/>
+        <rect x="158" y="284" width="224" height="80" rx="2" fill="var(--shop-fascia)"/>
+        <text class="shop-sign-text" x="270" y="336" text-anchor="middle"
+              font-size="{{ (shop.font_size * 0.62) | round(1) }}">{{ shop.sign }}</text>
+      {% elif shop.style == 'painted' %}
+        {# Lettering painted straight onto the window glass. #}
+        <rect x="96" y="276" width="420" height="224" fill="var(--shop-glass)"/>
+        <rect x="548" y="276" width="76" height="224" fill="var(--shop-door)"/>
+        <circle cx="562" cy="392" r="6" fill="var(--shop-sign)"/>
+        <text class="shop-sign-text is-painted" x="306" y="400" text-anchor="middle"
+              font-size="{{ (shop.font_size * 0.72) | round(1) }}">{{ shop.sign }}</text>
+      {% elif shop.style == 'neon' %}
+        <rect x="60" y="256" width="600" height="96" fill="var(--sign-neon-dim)"/>
+        <text class="shop-sign-text is-neon" x="360" y="322" text-anchor="middle"
+              font-size="{{ shop.font_size }}">{{ shop.sign }}</text>
+        <rect x="96" y="376" width="380" height="124" fill="var(--shop-glass)"/>
+        <rect x="512" y="376" width="112" height="124" fill="var(--shop-door)"/>
+        <circle cx="528" cy="440" r="6" fill="var(--shop-sign)"/>
+      {% elif shop.style == 'enamel' %}
+        <rect x="96" y="360" width="380" height="140" fill="var(--shop-glass)"/>
+        <rect x="512" y="360" width="112" height="140" fill="var(--shop-door)"/>
+        <circle cx="528" cy="430" r="6" fill="var(--shop-sign)"/>
+        {# A vitreous-enamel plaque: pale ground, heavy rule inside the edge. #}
+        <rect x="90" y="252" width="540" height="96" rx="6" fill="var(--sign-enamel)"/>
+        <rect x="102" y="264" width="516" height="72" rx="3" fill="none"
+              stroke="var(--sign-enamel-edge)" stroke-width="3"/>
+        <text class="shop-sign-text is-enamel" x="360" y="312" text-anchor="middle"
+              font-size="{{ (shop.font_size * 0.86) | round(1) }}">{{ shop.sign }}</text>
+      {% else %}
+        {# fascia: the flat board above the window, the commonest of the five. #}
+        <rect x="48" y="256" width="624" height="96" fill="var(--shop-fascia)"/>
+        <text class="shop-sign-text" x="360" y="320" text-anchor="middle"
+              font-size="{{ shop.font_size }}">{{ shop.sign }}</text>
+        <path d="M48 352 L672 352 L636 400 L84 400 Z" fill="var(--shop-awning)"/>
+        <rect x="96" y="410" width="380" height="90" fill="var(--shop-glass)"/>
+        <rect x="512" y="410" width="112" height="90" fill="var(--shop-door)"/>
+        <circle cx="528" cy="456" r="6" fill="var(--shop-sign)"/>
+      {% endif %}
+    </svg>
+  </div>
+
+  <p class="shop-caption">
+    <span><s>{{ shop.displaced }}</s> &rarr; <b>{{ shop.landed }}</b>
+      {% if shop.is_blend %}spliced into{% else %}in{% endif %}
+      <b>{{ shop.source }}</b></span>
+    <span class="shop-figure-name">checked by {{ shop.figure }}</span>
+    {% if shop.invented %}
+      {# The one sign on this stage that nobody wrote down. Said plainly, because
+         a drawn shopfront gives no clue which of its names came from a list and
+         which the machine made a moment ago. #}
+      <span class="shop-figure-name">made just now, not from the list</span>
+    {% endif %}
+    <span class="shop-band">
+      {# The band, as a dial. The parade made distance spatial by putting five
+         shops in a row; one sign gives that up, so the number gets a scale to
+         sit on rather than standing alone. #}
+      0.0
+      <span class="shop-band-track">
+        <span class="shop-band-mark" style="left: {{ (shop.distance * 100) | round(1) }}%"></span>
+      </span>
+      1.0 &mdash; this one at <b>{{ '%.3f' | format(shop.distance) }}</b>
+    </span>
+  </p>
+{% endif %}

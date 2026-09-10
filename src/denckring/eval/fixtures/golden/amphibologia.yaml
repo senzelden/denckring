@@ -1,0 +1,53 @@
+# As with `paronomasia` and `portmanteau`, no case claims external provenance:
+# the attested corpus of shop signs is post-1929 and waits on the same decision.
+# Puttenham's own example of the figure — "Thomas Tayler saw William Tyler
+# dronke" — is public domain and deliberately NOT used: it is syntactic
+# ambiguity, a sentence that parses two ways, where this row checks a word that
+# means two things. Reaching for it would be citing a source for something it
+# does not show.
+procedure: amphibologia
+lang: en
+cases:
+  - name: a-cut-above
+    source: >-
+      constructed example; `cut` carries seventy senses in Open English WordNet,
+      so the salon's reading is one of many available
+    text: A Cut Above
+    params: { domain: hair }
+    satisfied: true
+
+  - name: shear-delight
+    source: constructed example
+    text: Shear Delight
+    params: { domain: hair }
+    satisfied: true
+
+  - name: nothing-of-the-trade
+    source: constructed counterexample; `no_trade_word`
+    text: Nothing relevant here
+    params: { domain: hair }
+    satisfied: false
+
+  - name: a-word-with-one-sense
+    source: >-
+      constructed counterexample; `unambiguous`. The test the row rests on — a
+      trade word that means only one thing offers no second reading
+    text: A xylophone above
+    params: { domain_words: [xylophone] }
+    satisfied: false
+
+  - name: der-letzte-schnitt
+    lang: de
+    source: constructed example; `Schnitt` carries ten senses in German Wiktionary
+    text: Der letzte Schnitt
+    params: { domain: hair }
+    satisfied: true
+    requires: [lexicon.glosses]
+
+  - name: la-coupe-est-pleine
+    lang: fr
+    source: constructed example; `coupe` carries twenty-four senses in Wiktionnaire
+    text: la coupe est pleine
+    params: { domain: hair }
+    satisfied: true
+    requires: [lexicon.glosses]

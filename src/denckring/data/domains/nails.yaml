@@ -1,0 +1,15 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: nails
+names: { en: Nail salon, de: Nagelstudio, fr: Onglerie }
+source: >-
+  Written for this project, 2026-09-10. English only: the trade's punning names
+  are an Anglophone habit, and inventing a German or French vocabulary to fill
+  the table would be the padding this file's siblings warn against.
+languages:
+  en:
+    words: [nail, polish, file, gloss, tip, buff, varnish, coat, cuticle, shine,
+            lacquer, hand, tint, gel, sheen]

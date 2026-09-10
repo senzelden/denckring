@@ -35,9 +35,10 @@ def test_summaries_carry_it_too() -> None:
     assert rows["homoconsonantism"].constructive is False
 
 
-def test_the_count_of_generators_is_twenty_nine() -> None:
+def test_the_count_of_generators_is_thirty_two() -> None:
     """`apply_procedure`'s docstring claimed sixteen. Pin the real number so the
     prose cannot drift from it again. Twenty-seven until `proteus_verse` landed,
-    twenty-eight until `calculator_word`."""
+    twenty-eight until `calculator_word`, twenty-nine until `paronomasia`, and
+    thirty until `portmanteau` and `amphibologia` grew generators of their own."""
     generators = [p for p in all_procedures().values() if isinstance(p, Constructive)]
-    assert len(generators) == 29
+    assert len(generators) == 32

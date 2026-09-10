@@ -1,0 +1,56 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# THE WEAK TRADE, AND IT SHIPS SAYING SO.
+#
+# Enriched 2026-09-10 after it rendered three shops in a five-shop street and
+# simply looked broken. Looking empty is a interface failure, not an honesty
+# win, so it now carries three languages and six English phrases. The weakness
+# below is unchanged and still the reason this trade is here. Measured across the four domains here,
+# the optician's vocabulary is the one that does not sound like anything else in
+# the language. Its best displacements are inflections of a word already in the
+# phrase — `frame` to `frames`, `lens` to `lenses`, `glass` to `glasses`, `eye`
+# to `eyes` — which is morphology wearing a pun's clothes, and the checker cannot
+# tell the difference because a plural genuinely is a different word at a small
+# phonetic distance. The phrases below are the ones that survive that filter by
+# hand. Kept because a set of four trades where all four flatter the procedure
+# would be evidence about the choosing, not about the procedure.
+id: optician
+names:
+  en: Optician
+  de: Optiker
+  fr: Opticien
+source: >-
+  Written for this project, 2026-09-10. Included as the trade that shows the
+  procedure's ceiling rather than its range.
+languages:
+  en:
+    words:
+      [eye, lens, specs, frame, sight, iris, focus, vision, shade, glass,
+       view, gaze, blink, stare, optic, pupil, rim, peer, squint, lash]
+    phrases:
+      # `Site for Sore Eyes` and `Eyes on the Prize` are gone: the first was the
+      # idiom already misspelled, so the pun restored it, and the second only
+      # ever reached `Eye on the Prize`, which is a plural becoming a singular
+      # and not a joke.
+      ["Shady Business", "A Room with a View", "Made to Measure",
+       "The Long Game", "Peer Review", "Bright Ideas"]
+    blends:
+      - { coinage: Eyeconic,     host: iconic,      splice: eye }
+      - { coinage: Lensational,  host: sensational, splice: lens }
+      - { coinage: Specstacular, host: spectacular, splice: specs }
+  de:
+    words: [Brille, Glas, Linse, Rahmen, Blick, Auge, Sicht, Fassung, Schliff, Sehen, Bügel]
+    phrases:
+      # Article-free, for the reason `hair.yaml` gives at length: a German
+      # article agrees with a gender nothing here knows.
+      # `Klar gewinnt` and `Weit gesehen` are gone — both were invented and
+      # neither is German anybody says. `Klar zum Wenden` is a sailing command
+      # and `Alles im Griff` an everyday idiom; both are heard.
+      ["Ganz klar", "Alles im Griff", "Klar zum Wenden", "Alles im Rahmen",
+       "Bitte recht freundlich"]
+  fr:
+    words: [lunettes, verre, monture, regard, vue, lentille, branche, loupe, miroir, cadre]
+    phrases:
+      # Each checked for agreement by hand: `monture` and `vue` are feminine and
+      # take the feminine frames, `verre` is masculine and takes `un`.
+      ["haute couture", "un air de rien", "la vie en rose", "vu et approuvé"]

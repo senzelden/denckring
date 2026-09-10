@@ -1,0 +1,19 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: pets
+names: { en: Pet grooming, de: Tierpflege, fr: Toilettage }
+source: >-
+  Written for this project, 2026-09-10. The trade of "Hairy Pawter" and "Lice
+  Knowing You", both on Atlas Obscura's list.
+languages:
+  en:
+    words: [paw, tail, fur, claw, whisker, purr, bark, leash, groom, coat, pup,
+            kitten, mutt, fetch, collar, muzzle, snout, fleece, litter, hound]
+    # `Pawsome` is a real and much-copied name and is NOT here: `paw` measures
+    # 1.000 from every stretch of `awesome`, so it is not a blend this row can
+    # see. Same reason as `Monhaarlisa` in `hair.yaml`.
+  de:
+    words: [Pfote, Fell, Kralle, Leine, Napf, Schnauze, Rute, Welpe, Halsband, Bürste]

@@ -1,5 +1,13 @@
 {% extends "stage.html" %}
 {% block title %}The stage — denckring{% endblock %}
+{# The index is a contents page, not a recording, so it does not wear the
+   fixed 1280x720 frame the scenes are captured in. Without this it inherits
+   `.stage`'s `overflow: hidden` and silently CROPS the list: at ten scenes
+   only seven were reachable, while the caption below counted all ten, so the
+   page disagreed with itself about how many procedures it was offering. The
+   modifier already existed for `board.html`, which is the same shape of page
+   for the same reason. #}
+{% block main_class %} stage-tall{% endblock %}
 {% block main %}
 <h1>The stage</h1>
 <ol class="scene-list">

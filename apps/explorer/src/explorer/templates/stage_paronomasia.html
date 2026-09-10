@@ -1,0 +1,79 @@
+{% extends "stage.html" %}
+{% block main %}
+<div class="street-stage">
+  <form class="street-controls"
+        hx-post="/stage/paronomasia/act" hx-target="#street" hx-trigger="change, input delay:120ms">
+    <label>
+      Trade
+      <select name="trade">
+        {% for option in trades %}
+          <option value="{{ option.id }}" {{ 'selected' if option.id == trade else '' }}>{{ option.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Language
+      <select name="lang">
+        {% for option in langs %}
+          <option value="{{ option }}" {{ 'selected' if option == lang else '' }}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Worst pun allowed
+      {# The band's ceiling. Its floor stays at 0.0 here: a reader closing the
+         street from the top watches shops disappear, which is the demonstration.
+         Exposing the floor as well would let them empty it from both ends at
+         once and learn less. #}
+      <input type="range" name="ceiling" min="0.05" max="1" step="0.05"
+             value="{{ ceiling }}" aria-describedby="street-band-value">
+    </label>
+    <output class="street-band-value" id="street-band-value">{{ '%.2f' | format(ceiling) }}</output>
+    {# `name="roll"` is what the route reads to decide whether to draw, so the
+       button carries the difference rather than a second endpoint. #}
+    <button class="street-roll" type="submit" name="roll" value="1"
+            hx-post="/stage/paronomasia/act" hx-target="#street">
+      Anderer Laden
+    </button>
+  </form>
+
+  <div class="shop-row" id="street">
+    {% include "_stage_shop.html" %}
+  </div>
+
+  <p class="street-note">
+    <b>Anderer Laden</b> draws another of this trade&#39;s shops and repaints it: the
+    style is drawn separately from the sign, so it is paint and never content. Every
+    sign is checked live &mdash; by <code>paronomasia</code> when a whole word was
+    displaced, by <code>portmanteau</code> when one word was spliced inside another
+    &mdash; and every shop sells what the word that landed belongs to.
+    <i>Haarmonie</i> and <i>Diminu&#39;tif</i> are the second kind, and the half the
+    tradition is recognised by. The grammar is not checked: the rows decide that two
+    texts stand in a relation of sound, and leave whether the result is good German
+    to the writer.
+  </p>
+</div>
+
+<script>
+  // The readout mirrors the slider locally rather than waiting for the swap.
+  //
+  // It has to be done here because the `<output>` sits OUTSIDE `#street`, which
+  // is what htmx replaces — so without this the shop changed while the number
+  // beside it still read 1.00, which is the scene contradicting itself in the
+  // one place a reader is looking. Keeping the output inside the swap would fix
+  // it too, at the cost of the number flickering on every drag frame while the
+  // request is in flight.
+  //
+  // No-JS is unaffected: the value is server-rendered on first paint and the
+  // form still posts, so the number is simply always correct there.
+  (function () {
+    const band = document.querySelector('input[name="ceiling"]');
+    const readout = document.getElementById('street-band-value');
+    if (!band || !readout) return;
+    const show = () => { readout.textContent = Number(band.value).toFixed(2); };
+    band.addEventListener('input', show);
+    show();
+  })();
+</script>
+{% endblock %}
+{% block caption %}{{ scene.caption }}{% endblock %}

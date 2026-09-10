@@ -1,0 +1,107 @@
+# No case here is `provenance: external`, for the reason `paronomasia.yaml`
+# gives: the attested corpus of the punning shopfront is entirely post-1929 and
+# waits on the same decision. Carroll's own coinages — `slithy`, `mimsy` — are
+# public domain and would qualify, but they blend two words neither of which is
+# recoverable as a *host*, which is a different shape from the one this row
+# checks. Recording that rather than stretching the row to reach them.
+procedure: portmanteau
+lang: en
+cases:
+  - name: hairitage
+    source: >-
+      constructed example; `hair` is `HH EH R` and `heritage` opens on the same
+      three phonemes, so the splice is a homophone of the stretch it covers
+    text: Hairitage
+    params: { source: heritage, splice: hair }
+    satisfied: true
+
+  - name: no-word-showing-through
+    source: constructed counterexample; `splice_not_present`
+    text: Heritage
+    params: { source: heritage, splice: hair }
+    satisfied: false
+
+  - name: splice-is-not-a-word
+    source: >-
+      constructed counterexample; `splice_not_a_word`. Without this any run of
+      letters could be declared the joke after the fact
+    text: Hairitage
+    params: { source: heritage, splice: airit }
+    satisfied: false
+
+  - name: host-not-recoverable
+    source: constructed counterexample; `host_unrecoverable`
+    text: Hairitage
+    params: { source: bicycle, splice: hair }
+    satisfied: false
+
+  - name: proper-noun-host-is-undecidable
+    source: >-
+      constructed counterexample, and the measured limit of the whole approach:
+      `Barbarella` is not in CMUdict, so the pair cannot be judged and is
+      reported rather than guessed at
+    text: Barberella
+    params: { source: Barbarella, splice: barber }
+    satisfied: false
+
+  - name: haarmonie
+    lang: de
+    source: >-
+      constructed example, and the case the equivalence table exists for. `Haar`
+      is `h aː ɐ̯` and `Harmonie` opens `h a ʁ`: German vocalises a coda r, so
+      the same segment is spelled two ways. Unfolded the distance is 0.667 and
+      out of band; folded it is 0.333
+    text: Haarmonie
+    params: { source: Harmonie, splice: Haar }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: foehnix
+    lang: de
+    source: constructed example; `Föhn` and the opening of `Phönix` are one pronunciation
+    text: Föhnix
+    params: { source: Phönix, splice: Föhn }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: haarmonie-outside-a-narrow-band
+    lang: de
+    source: constructed counterexample; the same pair with the ceiling below 0.333
+    text: Haarmonie
+    params: { source: Harmonie, splice: Haar, max_distance: 0.3 }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: diminutif
+    lang: fr
+    source: >-
+      constructed example; the French salon window's own convention. An
+      apostrophe re-segments a real word so a trade fragment surfaces, and
+      `-tif` is the family the register is full of. `paronomasia` cannot reach
+      this at all — it displaces whole words — so it is this row that catches
+      the most productive French shape in the tradition
+    text: Diminu'tif
+    params: { source: diminutif, splice: tif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: infinitif
+    lang: fr
+    source: constructed example; the same family, a second host
+    text: Infini'tif
+    params: { source: infinitif, splice: tif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: cross-lingual-splice-is-not-a-french-word
+    lang: fr
+    source: >-
+      constructed counterexample, and the limit that is not g2p's fault.
+      `Imagin'hair` is a real and much-copied salon name, but `hair` is English
+      inside French: the splice is not a word this lexicon knows, and judging it
+      would need `phonemes.bilingual` — the capability `homophonic_translation`
+      is blocked on and no pack provides
+    text: Imagin'hair
+    params: { source: imaginaire, splice: hair }
+    satisfied: false
+    requires: [phonemes]

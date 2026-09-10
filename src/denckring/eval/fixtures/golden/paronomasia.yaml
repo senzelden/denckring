@@ -1,0 +1,111 @@
+# No case here carries `provenance: external`, and that is a statement rather
+# than an omission. The row's own sources are the rhetoricians the catalogue
+# already cites for `homoteleuton` and `telestich` — Peacham and Puttenham —
+# but this pass transcribes no example from either, and an example nobody has
+# read off the page is exactly the invented citation the house style refuses.
+# The attested modern corpus of the figure is the punning shop window, and it
+# is entirely post-1929: Atlas Obscura's crowdsourced list, tif.hair's several
+# thousand French salon names, the German newspaper galleries. Whether this
+# package may quote in-copyright material is a maintainer decision already
+# pending for research batch 3, and a crowdsourced list of business names sits
+# close enough to that question to wait for the same ruling.
+procedure: paronomasia
+lang: en
+cases:
+  - name: bread-pitt
+    source: constructed example; `bread` for `Brad` is one vowel, at distance 0.250
+    text: Bread Pitt
+    params: { source: Brad Pitt }
+    satisfied: true
+
+  - name: homophone-inside-the-default-band
+    source: >-
+      constructed example; `knead` and `need` are one pronunciation in CMUdict, so
+      the distance is 0.0 and the default band's floor admits it
+    text: Knead to Know
+    params: { source: Need to Know }
+    satisfied: true
+
+  - name: unchanged-phrase-states-no-pun
+    source: constructed counterexample; `no_displacement`
+    text: Brad Pitt
+    params: { source: Brad Pitt }
+    satisfied: false
+
+  - name: displacement-past-the-ceiling
+    source: >-
+      constructed counterexample; `distance_out_of_band`. `Pitt` for `Brad` shares
+      no phoneme at all, so the distance is 1.000
+    text: Pitt Pitt
+    params: { source: Brad Pitt, max_distance: 0.25 }
+    satisfied: false
+
+  - name: homophone-below-the-floor
+    source: >-
+      constructed counterexample; the band has two edges, and a caller asking for a
+      forced pun refuses one that costs nothing
+    text: Knead to Know
+    params: { source: Need to Know, min_distance: 0.2 }
+    satisfied: false
+
+  - name: two-words-displaced
+    source: >-
+      constructed counterexample; `unrecoverable`. `pit` and `pitt` are one
+      pronunciation, so this displaces two words rather than one
+    text: Bread Pit
+    params: { source: Brad Pitt }
+    satisfied: false
+
+  - name: coined-surface-is-unresolvable
+    source: >-
+      constructed counterexample; the measured bound on this row. `Hairways` is in
+      no pronouncing dictionary, so the displacement cannot be measured and is
+      reported rather than guessed at. This is the whole blend family — `Hairitage`,
+      `Haarmonie`, `Barberella` — and it needs `phonemes.g2p`
+    text: British Hairways
+    params: { source: British Airways }
+    satisfied: false
+
+  - name: coined-surface-taken-on-trust
+    source: >-
+      constructed example; the same text under `unknown_word: free`, which accepts
+      what it cannot check rather than reporting it
+    text: British Hairways
+    params: { source: British Airways, unknown_word: free }
+    satisfied: true
+
+  - name: komm-rein
+    lang: de
+    source: >-
+      constructed example; the German salon window's `Kamm`/`komm` family, at
+      distance 0.333 on the Wiktionary pronunciations
+    text: Kamm rein
+    params: { source: Komm rein }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: kamm-outside-a-narrow-band
+    lang: de
+    source: constructed counterexample; the same pair with the ceiling below 0.333
+    text: Kamm rein
+    params: { source: Komm rein, max_distance: 0.25 }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: normatif
+    lang: fr
+    source: >-
+      constructed example; the `-tif` family the French salon window is built on,
+      at distance 0.444 on Lexique's phonemes
+    text: diminutif normatif
+    params: { source: diminutif nominatif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: normatif-outside-a-narrow-band
+    lang: fr
+    source: constructed counterexample; the same pair with the ceiling below 0.444
+    text: diminutif normatif
+    params: { source: diminutif nominatif, max_distance: 0.4 }
+    satisfied: false
+    requires: [phonemes]

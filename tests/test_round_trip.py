@@ -9,7 +9,7 @@ Every call below is `apply(text, lang=lang, **_apply_args(...))`: no parameter
 beyond `source` and, where the procedure takes one, `seed` is ever supplied, so a
 generator whose `params_model` requires another field is skipped on every single
 call via the `except DenckringError`, not exercised by it.
-That is the five rows in `PARAMETER_GATED` below, and
+That is the seven rows in `PARAMETER_GATED` below, and
 `test_the_named_coverage_gap_is_the_whole_coverage_gap` re-derives the set from
 what `apply` actually produces rather than trusting this paragraph. `diastic` and
 `mesostic` also take an extra parameter (`seed_phrase`, `spine`) but escape the gap
@@ -20,7 +20,9 @@ the gated rows relies on its own row-level round-trip test (e.g.
 `test_word_ladder.py::test_apply_finds_a_ladder_its_own_check_accepts`, and
 `test_calculator_word.py::test_what_the_generator_makes_satisfies_its_own_checker`,
 which does it in all three languages) as the substitute for what this property
-cannot reach.
+cannot reach. `portmanteau` and `amphibologia` joined the set when they grew
+generators: both need a trade, which is a parameter this harness does not supply,
+and both carry their own round-trip test for the same reason the others do.
 
 The seed is drawn, not pinned. Every property here used to pass `0`, so the ten
 rows that draw were exercised at one draw per input and the rest of the seed space
@@ -173,7 +175,15 @@ SEED = st.integers(min_value=0, max_value=2**16 - 1)
 #: Asserted below against what `apply` really produces, so the list cannot rot into
 #: prose the way it already did once.
 PARAMETER_GATED = frozenset(
-    {"arca_musarithmica", "calculator_word", "pasigraphy", "slenderizing", "word_ladder"}
+    {
+        "amphibologia",
+        "arca_musarithmica",
+        "calculator_word",
+        "pasigraphy",
+        "portmanteau",
+        "slenderizing",
+        "word_ladder",
+    }
 )
 
 

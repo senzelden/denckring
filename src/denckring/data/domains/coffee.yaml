@@ -1,0 +1,20 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: coffee
+names: { en: Coffee house, de: Kaffeehaus, fr: Café }
+source: >-
+  Written for this project, 2026-09-10. One of the trades Atlas Obscura's
+  crowdsourced list spans alongside hair and bakeries.
+languages:
+  en:
+    words: [bean, brew, roast, grind, cup, mug, froth, press, blend, java, mocha,
+            latte, steam, drip, pour, cafe, bar, shot, sip]
+    blends:
+      - { coinage: Brewtiful, host: beautiful, splice: brew }
+  de:
+    words: [Bohne, Tasse, Kanne, Milch, Schaum, Mühle, Löffel, Zucker, Sud]
+  fr:
+    words: [grain, tasse, moka, mouture, crème, sucre, filtre, arôme, torréfaction, comptoir]

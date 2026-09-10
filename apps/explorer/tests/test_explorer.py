@@ -91,30 +91,30 @@ def test_a_satisfied_check_says_so() -> None:
 def test_a_library_error_is_shown_not_raised() -> None:
     """A `DenckringError` reaches the page as a message, rather than escaping as a 500.
 
-    The row was `lipogram` with `lang="fr"` until French became a built-in language
-    pack in core (ADR 0029): `check("lipogram", ..., lang="fr")` now succeeds, so that
-    request produced a report and this test had no error left to surface. `n_plus_7`
-    is the replacement because it needs `lexicon.nouns`, which the built-in
-    `FrenchPack` does not carry — and **this app's environment installs only
-    `denckring[en,de]`**, so the built-in pack is what `lang="fr"` resolves to here.
-    ADR 0032 shipped `denckring-fr-data`, which does supply `lexicon.nouns`; adding
-    `fr` to this app's dependencies would therefore make this request succeed and cost
-    the suite its only library-error row. The explorer stays on `en,de` deliberately:
-    it is a local bench, and a third lexicon is weight it does not need. Capabilities
-    are enforced before parameters are parsed, which is why no `source` is posted here
-    even though the row is `checkability: source`.
+    The row has moved twice, and both moves were the same mistake: it was pinned
+    to a capability the *install* happened to lack, so improving the install cost
+    the suite its only library-error row. It was `lipogram` in French until ADR
+    0029 made French built-in; then `n_plus_7`, whose docstring here argued the
+    app should stay on `denckring[en,de]` precisely to keep this test alive. The
+    street scene then needed `phonemes` and `lexicon.graded_words` in German and
+    French, the app installed all six distributions, and `n_plus_7` in French
+    started succeeding.
 
-    The assertion is on the capability name and not on the install hint: the hint text
-    depends on `lang`, not on which capability is missing. It has changed twice —
-    commit 39b70c1 stopped promising `denckring[fr]` for a language that had no data
-    distribution, and ADR 0032 gave `fr` one, so the hint recommends the extra again.
-    Either way the message is the same no matter which capability triggered it, so
-    asserting on the hint would be no evidence about which failure occurred —
-    `lexicon.nouns` is.
+    So it is now pinned to a capability **no install can supply**: French has no
+    lexical stress and never will (ADR 0034 D2, and `_PERMANENTLY_MISSING` in
+    `errors.py` says so). `iambic_pentameter` requires `stress`, so this request
+    raises `MissingCapability` on every possible install, and no future extra can
+    take the row away again.
+
+    The assertion is on the capability name rather than on the install hint,
+    which is the older lesson and still holds: the hint depends on `lang`, not on
+    which capability is missing, so it would be no evidence about which failure
+    occurred. Capabilities are enforced before parameters are parsed, which is
+    why no other field is posted.
     """
-    response = client.post("/p/n_plus_7/check", data={"text": "a cat", "lang": "fr"})
+    response = client.post("/p/iambic_pentameter/check", data={"text": "un vers", "lang": "fr"})
     assert response.status_code == 200
-    assert "lexicon.nouns" in response.text
+    assert "stress" in response.text
 
 
 def test_a_constructive_procedure_generates() -> None:
