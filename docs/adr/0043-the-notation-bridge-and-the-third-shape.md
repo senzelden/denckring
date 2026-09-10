@@ -67,7 +67,23 @@ A blend may also name its own `max_distance`, which one shipped name uses:
 of `Mona` and sounding nothing like it, and it asks for 1.0 rather than being
 dropped for failing a test of the wrong sense.
 
-**D6. `amphibologia` is a row of its own.** Puttenham, *The Arte of English
+**D6. `amphibologia` is a row of its own.** *(Withdrawn 2026-09-10, the day it
+was decided. The row was built, evaluated and cut in one session, and the reason
+is worth more than the row was: **its checker is a proxy.** Polysemy is not a
+phrase reading two ways — `A Cut Above` and `A Room with a View` both carry a
+word of the trade with more than one sense, and only one of them is a pun. The
+sense counts it leaned on are an editor's decision besides: Open English WordNet
+gives `cut` seventy senses and another dictionary would give another number.
+A row whose definition says "can be taken two ways" while its checker asks "is
+this word polysemous" is the ADR 0015 error in a subtler dress than the two this
+session already caught, and the honest response to finding it a third time is to
+delete rather than to reword.
+
+Puttenham's `Amphibologia, or the Ambiguous` is real and was verified — he files
+it among the vices of style, beside Pleonasmus and Bomphiologia — and the figure
+may well deserve a row one day. It does not deserve one whose checker cannot see
+it. The paragraph below is left as written, because an ADR records what was
+decided when.)* Puttenham, *The Arte of English
 Poesie* (1589): speaking "doubtfully, and the sense may be taken two ways". A
 phrase carrying a word of the trade, where that word is polysemous, so a second
 reading exists for the trade to activate. `requires: [tokens, lexicon.glosses]`,

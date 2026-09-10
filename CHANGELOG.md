@@ -147,19 +147,22 @@ All notable changes to this project are documented here. The format follows
   Carroll's fusions are not splices — each a limit met on the figure's own founding
   example.
 
-- `amphibologia` — the shop sign that alters nothing and still reads two ways.
-  *A Cut Above* over a salon: nothing displaced, nothing spliced, and the trade alone
-  supplying the second reading. Puttenham, *The Arte of English Poesie* (1589),
-  speaking "doubtfully, and the sense may be taken two ways" — filed by him among the
-  **vices** of style, which is left as it is rather than quietly promoted, because a
-  shop sign wants the doubtful reading caught.
+- **`amphibologia` was built, evaluated and cut in the same session, and the reason
+  is worth more than the row was.** A phrase that reads two ways because of what the
+  shop sells — `A Cut Above` over a salon — sourced to Puttenham's `Amphibologia, or
+  the Ambiguous` (1589), which he files among the *vices* of style.
 
-  What is decided is narrower than the figure: that a word of the declared trade is
-  present and is *polysemous*, so a second reading exists to activate. `cut` carries
-  seventy senses and `xylophone` one, which is the case showing the test is not
-  vacuous. Whether anybody says the phrase, and whether the second reading is funny,
-  are the writer's. `kind: restrictive` with no `apply`: generating one means choosing
-  from a corpus of things people say, and ADR 0020 gives the corpus to the reader.
+  It is gone because **its checker was a proxy**. Polysemy is not a phrase reading two
+  ways: `A Cut Above` and `A Room with a View` both carry a trade word with more than
+  one sense, and only one is a pun. The sense counts it leaned on are an editor's
+  decision besides — Open English WordNet gives `cut` seventy senses and another
+  dictionary would give another number. A row whose definition says "can be taken two
+  ways" while its checker asks "is this word polysemous" is the ADR 0015 error in a
+  subtler dress than the two already caught this session, and the honest response to
+  finding it a third time is to delete rather than to reword.
+
+  The catalogue holds at **158 rows, 124 implemented**; generators go back to 31.
+  ADR 0043's D6 is marked withdrawn and left as written.
 
 - **English and IPA are now commensurable, and it was notation all along.** CMUdict
   answers in ARPABET and the German and French packs in IPA, so `hair` was `HH EH R`

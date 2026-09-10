@@ -37,7 +37,7 @@ produce("cut_up", "one two three four five six", seed=7).texts  # the generating
 $ denckring check lipogram gedicht.txt --lang de   # exits 1 when unsatisfied
 $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
-159 catalogued · 134 implementable · 125 implemented · 125 validated · 25 not mechanically checkable
+158 catalogued · 133 implementable · 124 implemented · 124 validated · 25 not mechanically checkable
 0 instruments catalogued
 ```
 
@@ -65,7 +65,7 @@ shells out to the CLI instead, and needs no extra beyond the package itself.
 
 ## What's here
 
-A hundred and twenty-five of the 159 catalogued procedures are implemented, and every one
+A hundred and twenty-four of the 158 catalogued procedures are implemented, and every one
 of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see [What can be checked](#what-can-be-checked) —
 and the remaining 9 are sourced and awaiting implementation.
@@ -104,7 +104,7 @@ Wieland, Goethe, Kafka and Mann.
 German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 125 implemented rows run in French.
+On core alone, 70 of the 124 implemented rows run in French.
 
 Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
@@ -138,7 +138,7 @@ spelling heuristic. A haiku that misses names the words it counted and what it m
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
 `describe()` says in advance which kind a row is — `reading.determinacy` is `exact` for 81
-of the 125 and `heuristic` for 43. The score is monotone in
+of the 124 and `heuristic` for 43. The score is monotone in
 violation count and `satisfied` is exactly `score == 1.0`, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.
 
@@ -200,7 +200,7 @@ reason it gives for a failure is not one yet.
 
 ## The catalogue as data
 
-The catalogue is 159 sourced procedures and is a contribution in its own right — useful
+The catalogue is 158 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.
 
 ```console
