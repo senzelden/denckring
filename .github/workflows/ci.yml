@@ -1,8 +1,22 @@
 name: CI
 
+# Every branch, not just main. With `branches: [main, master]` a pushed branch that
+# never became a pull request ran nowhere, so its first CI run was the one after it
+# merged. That is how `puns-shopfront` reached main on 2026-09-11 with two errors
+# only the `explorer` job checks — no local command covers `apps/explorer`.
+#
+# Two branches are excluded because this file would be wrong about them, not to
+# save minutes. `gh-pages` is built HTML that `mkdocs gh-deploy` force-pushes on
+# every release; it has no pyproject, so every job would fail at `uv sync` and each
+# release would paint main's history red. `dependabot/**` always opens a pull
+# request, which `pull_request` already runs.
+#
+# The cost: a same-repo branch with an open pull request runs twice, once per
+# event, since the two refs land in different concurrency groups. On a public
+# repository that is queue time rather than billed minutes.
 on:
   push:
-    branches: [main, master]
+    branches-ignore: [gh-pages, "dependabot/**"]
   pull_request:
 
 concurrency:
