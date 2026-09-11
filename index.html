@@ -1917,6 +1917,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0041-the-pun-as-a-relation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    41. A pun is a relation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0042-the-blend-needs-no-g2p/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    42. The blend needs no g2p
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0043-the-notation-bridge-and-the-third-shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    43. The notation bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2213,7 +2297,7 @@ is staged — the verdicts are the library's own.</em></p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>denckring<span class="w"> </span>check<span class="w"> </span>lipogram<span class="w"> </span>gedicht.txt<span class="w"> </span>--lang<span class="w"> </span>de<span class="w">   </span><span class="c1"># exits 1 when unsatisfied</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>apply<span class="w"> </span>cut_up<span class="w"> </span>text.txt<span class="w"> </span>--json<span class="w">           </span><span class="c1"># emits a Production</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>status
-<span class="go">156 catalogued · 131 implementable · 122 implemented · 122 validated · 25 not mechanically checkable</span>
+<span class="go">158 catalogued · 133 implementable · 124 implemented · 124 validated · 25 not mechanically checkable</span>
 <span class="go">0 instruments catalogued</span>
 </code></pre></div>
 <p>Three interfaces over the same core functions, so they cannot disagree about what a
@@ -2232,7 +2316,7 @@ tools, because model performance degrades with tool count. Errors come back as d
 <a href="https://github.com/senzelden/denckring/blob/main/skills/denckring/SKILL.md"><code>skills/denckring/SKILL.md</code></a>
 shells out to the CLI instead, and needs no extra beyond the package itself.</p>
 <h2 id="whats-here">What's here<a class="headerlink" href="#whats-here" title="Permanent link">&para;</a></h2>
-<p>A hundred and twenty-two of the 156 catalogued procedures are implemented, and every one
+<p>A hundred and twenty-four of the 158 catalogued procedures are implemented, and every one
 of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see <a href="#what-can-be-checked">What can be checked</a> —
 and the remaining 9 are sourced and awaiting implementation.</p>
@@ -2301,7 +2385,7 @@ Wieland, Goethe, Kafka and Mann.</p>
 <p>German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 122 implemented rows run in French.</p>
+On core alone, 70 of the 124 implemented rows run in French.</p>
 <p>Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
 not meet, raises <code>MissingCapability</code> naming what is missing rather than quietly returning
@@ -2329,7 +2413,7 @@ spelling heuristic. A haiku that misses names the words it counted and what it m
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
 <code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 81
-of the 122 and <code>heuristic</code> for 41. The score is monotone in
+of the 124 and <code>heuristic</code> for 43. The score is monotone in
 violation count and <code>satisfied</code> is exactly <code>score == 1.0</code>, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.</p>
 <p><code>produce</code> returns a <code>Production</code> — the procedure's id, its <code>texts</code> (best first, never
@@ -2382,7 +2466,7 @@ are built on them:</p>
 wording, and everything under <code>denckring.core</code>. A check's <em>verdict</em> is a contract; the
 reason it gives for a failure is not one yet.</p>
 <h2 id="the-catalogue-as-data">The catalogue as data<a class="headerlink" href="#the-catalogue-as-data" title="Permanent link">&para;</a></h2>
-<p>The catalogue is 156 sourced procedures and is a contribution in its own right — useful
+<p>The catalogue is 158 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.</p>
 <div class="highlight"><pre><span></span><code><span class="go">denckring search rhopalic            # finds snowball by its alias</span>
 <span class="go">denckring list --family form         # the prosodic and stanzaic entries</span>

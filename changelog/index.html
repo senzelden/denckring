@@ -1705,6 +1705,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0041-the-pun-as-a-relation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    41. A pun is a relation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0042-the-blend-needs-no-g2p/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    42. The blend needs no g2p
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0043-the-notation-bridge-and-the-third-shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    43. The notation bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1817,6 +1901,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#020-2026-09-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.2.0 - 2026-09-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.2.0 - 2026-09-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#011-2026-09-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1840,7 +1952,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1879,7 +1991,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1962,6 +2074,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#020-2026-09-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.2.0 - 2026-09-11
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.2.0 - 2026-09-11">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#011-2026-09-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1985,7 +2125,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2024,7 +2164,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2082,7 +2222,271 @@
 <p>All notable changes to this project are documented here. The format follows
 <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and this project adheres to
 <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="unreleased"><a href="https://github.com/senzelden/denckring/compare/v0.1.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="unreleased"><a href="https://github.com/senzelden/denckring/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="020-2026-09-11"><a href="https://github.com/senzelden/denckring/compare/v0.1.1...v0.2.0">0.2.0</a> - 2026-09-11<a class="headerlink" href="#020-2026-09-11" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>paronomasia</code> — the pun, as the relation between a text and the phrase it displaces.
+  The row is <code>checkability: source</code>: the caller declares the phrase, and the check
+  decides that at least one word was displaced, that no more than
+  <code>max_displacements</code> were, and that each displacement lands inside a requested band
+  of phonetic distance. Whether the result is funny is the writer's claim, the
+  position <code>kangaroo_word</code> already takes on synonymy.</li>
+</ul>
+<p><strong>The band has two edges on purpose.</strong> <code>0.0</code>–<code>0.0</code> asks for a homophone and refuses
+  anything else; <code>0.4</code>–<code>0.7</code> asks for a pun that has to work for it and refuses a
+  homophone as too easy. "Make it worse" is a writing constraint the same way "avoid
+  the letter e" is, and a ceiling alone could not express it.</p>
+<p><strong>What ships is narrower than the figure, and the row says so rather than
+  implying it.</strong> A displacement is checkable only when the word that lands is itself
+  in the pronouncing dictionary — <code>bread</code> for <code>Brad</code>, French <code>Diminu'tif</code> for
+  <code>diminutif</code>. The blends that dominate real punning shop names put a <em>coined</em> word
+  there, and nothing here can pronounce a word it has never seen: <code>hairways</code>,
+  <code>hairitage</code>, <code>barberella</code>, <code>Haarmonie</code>, <code>Chaarisma</code> and <code>atmosphair</code> all raise
+  <code>MissingCapability</code>, measured rather than assumed. That family needs a
+  <code>phonemes.g2p</code> capability, named on the row with no pack behind it — the honest
+  state ADR 0015 describes, and the one <code>homophonic_translation</code> is already in for
+  <code>phonemes.bilingual</code>.</p>
+<p>New: <code>core.phonetics</code>, an unweighted Levenshtein over phoneme symbols normalised by
+  the longer sequence. Deliberately not PanPhon's feature-weighted distance, which is
+  more perceptually faithful and would put numpy and pandas behind a package whose
+  dependencies are pydantic, pyyaml and typer. The cost is admitted in ADR 0041: this
+  measure charges the same for <code>/t/</code>→<code>/d/</code> as for <code>/t/</code>→<code>/m/</code>. ARPABET's stress digits
+  are stripped first, or <code>the</code> reads as a pun on <code>the</code>; the rule strips a trailing
+  digit, so it is a no-op for German and French IPA.</p>
+<p>Measured while building it, and recorded because none of it was guessed: the
+  generator needs no search budget, because prefiltering on phoneme length and on a
+  shared first or last phoneme takes English's 45,884 pronounceable graded words down
+  to between 143 and 2,424 per position. Homophone density is an orthography
+  difference rather than a data gap — at distance exactly 0.0, French <code>air</code> offers 13
+  displacements and <code>temps</code> 7, English <code>air</code> offers 3, and German <code>Komm</code> and <code>Haar</code>
+  offer none.</p>
+<ul>
+<li>
+<p>Ten trades, up from three: <code>bar</code>, <code>butcher</code>, <code>coffee</code>, <code>fishmonger</code>, <code>florist</code>,
+  <code>nails</code> and <code>pets</code> join <code>bakery</code>, <code>hair</code> and <code>optician</code> — <strong>366 vocabulary words and
+  48 blends</strong> across three languages. A trade now ships a <em>vocabulary</em> and need not
+  ship phrases at all: <code>TradeWords.phrases</code> is optional, because requiring it is what
+  pushed the first three trades into carrying phrases invented for reachability. Seven
+  words were dropped as unpronounceable, including <code>perm</code>, which had been in the hair
+  vocabulary since it shipped and was therefore never usable.</p>
+</li>
+<li>
+<p><strong>A bug in the blend's window search, and the two names that were resting on it.</strong>
+  <code>_closest_window</code> started at <code>(1.0, 0, 0)</code> and returned it untouched when nothing
+  scored below 1.0 — reporting a <em>zero-length</em> window as its evidence,
+  <code>h aː ɐ̯ for  at 1.000</code>, which is a comparison against nothing. It read as a loose
+  match and was no match.</p>
+</li>
+</ul>
+<p><code>Monhaarlisa</code> and <code>Pawsome</code> shipped on it, each with <code>max_distance: 1.0</code> and a
+  comment calling them blends you <em>see</em> rather than hear. Measured honestly they are
+  1.000 from every stretch of their hosts, so both are <strong>removed</strong>, and the per-blend
+  <code>max_distance</code> that existed only to carry them is removed from the model. All 48
+  remaining blends check at the row's own default band.</p>
+<p>The class is real and no rule reaches it: <code>Monhaarlisa</code>, <code>Pawsome</code>, <code>Yes We Kämm</code>
+  are carried by the letters and by what the reader already knows, not by sound. This
+  row checks the heard relation and now says so instead of opening its band until
+  something passes.</p>
+<ul>
+<li><strong>Both new rows generate now.</strong> <code>portmanteau.apply</code> proposes every way of splicing
+  each trade word into the host and hands each candidate to its own <code>check</code> — the
+  project's thesis used as a search. Not knowing <em>where</em> to splice stops mattering if
+  you can afford to try everywhere, and you can: at most 859 candidates, about 0.2s.
+  <code>Kamera</code> gives <code>Kammera</code>, <code>airline</code> gives <code>hairline</code>, <code>curtain</code> gives <code>curltain</code>.</li>
+</ul>
+<p>Measured against the attested corpus, the real salon name comes back <strong>first for 10
+  of 12 hosts</strong> and is in the first ten for 11. It ships at that number rather than
+  tuned: three ranking fixes were tried and <strong>each made the whole result worse</strong> — a
+  seam filter loses <code>Coiff'Hair</code>, length-delta starts preferring coinages that delete
+  host letters, replaced-length fixes <code>Chamäleon</code> and breaks <code>heritage</code>. Twelve names
+  is not enough to tune against. ADR 0043 records all three, and a test pins the
+  <code>Chamäleon</code> failure with a note to delete it if it ever starts passing.</p>
+<p><code>amphibologia.apply</code> <strong>selects</strong> rather than invents, which is what that figure is:
+  it is noticed in something people say, not built from parts. The reader supplies the
+  phrases, one per line (ADR 0020), and the row returns the ones that read two ways for
+  the trade. Given fourteen ordinary phrases and a salon: <code>A Cut Above</code>, <code>Head over
+  heels</code>, <code>Curl up with a book</code> — and not <code>Sheer Delight</code>, because <code>sheer</code> is not the
+  trade's word. Both rows join <code>PARAMETER_GATED</code>, since neither is reachable by a fuzz
+  harness that supplies no trade, and both carry their own round-trip test.</p>
+<ul>
+<li><strong>The attested shop names are quotable, and eighteen of them are now evidence.</strong>
+  The maintainer's ruling of 2026-09-10 settles the question ADR 0041 D7 deferred: a
+  business name is a name and not a work, the sources are journalism and public
+  registers rather than anthologies, and quoting one is nominative use.</li>
+</ul>
+<p>Externally sourced cases rise from 66 to <strong>84 (11.8% to 13.8%)</strong> — the largest single
+  movement in that figure since the corpus began. <code>portmanteau</code> carries 11 across all
+  three languages, <code>paronomasia</code> 5, <code>amphibologia</code> 2. <code>Haarmonie</code>, <code>Kammäleon</code>,
+  <code>SaHaara</code>, <code>Imagin'hair</code>, <code>Diminu'tif</code>, <code>Atmosph'air</code>, <code>Hairport</code>,
+  <code>Hairaphernalia</code>, <code>Curl Up and Dye</code>, <code>Grateful Head</code>, <code>Jack of all Fades</code>,
+  <code>A Cut Above</code> — each naming where it was seen.</p>
+<p>Five are <code>satisfied: false</code> and they are the useful ones. <code>Monhaarlisa</code> at 1.000 is
+  the class of name no phonetic rule reaches, kept as the evidence for that rather
+  than admitted by opening the band until it passes. <code>I Kneaded This</code> fails because
+  CMUdict carries <code>knead</code> and <code>needed</code> but not <code>kneaded</code> — a gap in the lexicon, not
+  in the pun. <code>Caldius Biberius Mero</code> fails on Latin proper nouns. Carroll's <code>slithy</code>
+  and <code>chortle</code> fail because a fusion is not a splice.</p>
+<p>One correction found while measuring: <code>Atmosph'air</code> splices the <strong>French</strong> <code>air</code>,
+  not the English <code>hair</code> — the coinage carries <code>air</code> and the joke is what is heard
+  behind it. It checks at 0.000; an earlier attempt named the wrong splice and blamed
+  the row.</p>
+<ul>
+<li><strong>Three defects the suite could not see, found by evaluating the rows against the
+  project's own standards rather than by running them.</strong> All three passed 589 golden
+  cases and every gate.</li>
+</ul>
+<p><code>paronomasia</code> cited Peacham's <em>Garden of Eloquence</em> (1577) for a figure that could
+  not be verified to be in it — the house rule is to record what is checked. It now
+  cites <strong>Puttenham (1589), "Prosonomasia, or the Nicknamer"</strong>, whose own example is
+  the row's operation exactly: <code>Claudius Tiberius Nero</code> becomes <code>Caldius Biberius
+  Mero</code>.</p>
+<p><code>portmanteau</code> was <code>primary</code>/<code>author-stated</code> for Carroll and <strong>cannot check a single
+  one of Carroll's portmanteaux</strong>: <code>slithy</code>, <code>mimsy</code> and <code>chortle</code> all fail
+  <code>splice_not_present</code>. His are <em>fusions</em>, where neither word survives and no host is
+  left standing; this row checks a <em>splice</em> into a host that stays readable. That is
+  the ADR 0015 error — a definition promising more than its checker verifies — so the
+  row is now <code>reference</code>/<code>codified</code>, says so in its notes, and carries two external
+  golden cases recording the rejection.</p>
+<p>Two definitions promised what no checker decides: <code>paronomasia</code> said "a <strong>known</strong>
+  phrase" and <code>amphibologia</code> said "can be taken two ways", where the checker verifies
+  only that a trade word is present and polysemous. Both rewritten in <code>antigram</code>'s
+  house style, which states the figure and then names what is left to the writer.</p>
+<p>Externally sourced cases rise from 66 to <strong>69 (11.7%)</strong>, and all three came from
+  checking the citations rather than from adding fixtures. All three are
+  <code>satisfied: false</code>: Puttenham's Latin names are in no pronouncing dictionary, and
+  Carroll's fusions are not splices — each a limit met on the figure's own founding
+  example.</p>
+<ul>
+<li><strong><code>amphibologia</code> was built, evaluated and cut in the same session, and the reason
+  is worth more than the row was.</strong> A phrase that reads two ways because of what the
+  shop sells — <code>A Cut Above</code> over a salon — sourced to Puttenham's <code>Amphibologia, or
+  the Ambiguous</code> (1589), which he files among the <em>vices</em> of style.</li>
+</ul>
+<p>It is gone because <strong>its checker was a proxy</strong>. Polysemy is not a phrase reading two
+  ways: <code>A Cut Above</code> and <code>A Room with a View</code> both carry a trade word with more than
+  one sense, and only one is a pun. The sense counts it leaned on are an editor's
+  decision besides — Open English WordNet gives <code>cut</code> seventy senses and another
+  dictionary would give another number. A row whose definition says "can be taken two
+  ways" while its checker asks "is this word polysemous" is the ADR 0015 error in a
+  subtler dress than the two already caught this session, and the honest response to
+  finding it a third time is to delete rather than to reword.</p>
+<p>The catalogue holds at <strong>158 rows, 124 implemented</strong>; generators go back to 31.
+  ADR 0043's D6 is marked withdrawn and left as written.</p>
+<ul>
+<li><strong>English and IPA are now commensurable, and it was notation all along.</strong> CMUdict
+  answers in ARPABET and the German and French packs in IPA, so <code>hair</code> was <code>HH EH R</code>
+  against French <code>ɛ ʁ</code> and no distance between them meant anything. A 39-entry
+  <code>ARPABET_TO_IPA</code> table fixes it — a lookup a reader can check line by line, which is
+  what makes it admissible where ADR 0042 refused a learned model. Rhotics fold across
+  languages and only across languages (<code>{ɹ, ʁ, r, ɐ̯, ɐ, ɚ}</code>), so <code>hair</code> sits 0.333
+  from French <code>air</code> instead of being incomparable.</li>
+</ul>
+<p>This matters more than it sounds. <strong>The commonest real French salon name was one
+  this project could not check</strong>: tif.hair counts ~150 called <code>Imagin'hair</code>, and the
+  whole <code>-hair</code> family is English inside French. Roughly half the attested German
+  names are the same shape the other way. <code>portmanteau</code> takes <code>splice_lang</code> to reach
+  them; no new capability is declared, because what it needs is <code>phonemes</code> on two
+  packs and that is what it already required. <strong><code>homophonic_translation</code> stays
+  blocked</strong> — the notation half of its problem is solved and the larger half is not.</p>
+<p>Also in <code>portmanteau</code>: a host may be more than one word (<code>Mona Lisa</code>, <code>Hart am
+  Limit</code>), pronounced word-by-word and all-or-nothing; and the default band opens to
+  0.7, because attested names sit above the old ceiling. A blend may name its own
+  <code>max_distance</code>, which <code>Monhaarlisa</code> uses — a blend you <strong>see</strong> rather than hear,
+  <code>Haar</code> covering the <code>a</code> of <code>Mona</code> and sounding nothing like it.</p>
+<ul>
+<li><code>portmanteau</code> — the coinage that carries one word inside another, and the half of
+  the punning shopfront <code>paronomasia</code> could not reach: <code>Haarmonie</code>, <code>Hairitage</code>,
+  <code>Föhnix</code>. ADR 0041 named <code>phonemes.g2p</code> as what this family was blocked on. <strong>It was
+  wrong, and measuring is what showed it.</strong> A blend is never an arbitrary string — the
+  host word and the word spliced into it are both ordinary dictionary entries — so the
+  coinage is verified as a <em>derived form</em> and nothing unknown is ever sounded out. No
+  new dependency, no espeak-ng, no learned model, no GPL.</li>
+</ul>
+<p>What actually blocked German was the distance metric, not the missing pronunciation.
+  German vocalises a syllable-final /r/, so <code>Haar</code> is <code>h aː ɐ̯</code> where <code>Harmonie</code> opens
+  <code>h a ʁ</code> — the same segment spelled two ways, which unweighted Levenshtein charges a
+  full substitution for. <code>core.phonetics.EQUIVALENT</code> now records, per language, the
+  symbols that are one segment: German gets <code>{ʁ, ɐ̯, ɐ, r}</code> and <code>Haarmonie</code> moves from
+  0.667 to <strong>0.333</strong>. <strong>Vowel length is deliberately not folded</strong> — <code>aː</code> and <code>a</code> are
+  contrastive, <code>Staat</code> against <code>Stadt</code>, so collapsing them would buy a distance of
+  0.000 by discarding a distinction German makes. English and French get no entries at
+  all, because ARPABET has no vocalised-r symbol and Lexique's SAMPA maps to a single
+  <code>ʁ</code>; a table for them would be a guess dressed as data.</p>
+<p>Verified additive before it shipped: all nine German pairs the existing fixtures and
+  domain phrases turn on score identically with and without the fold, and a test pins
+  that. The prefilter had to learn the same fold and briefly did not — a prefilter
+  stricter than the measure behind it hides candidates the band would have accepted,
+  silently.</p>
+<p>A blend whose coinage <em>is</em> its host is refused as <code>identical_to_host</code>. <code>Crustacean</code>
+  really does contain <code>crust</code> and <code>Breadwinner</code> contains <code>bread</code>, and both passed an
+  earlier draft at a spelling distance of 0.000 — because nothing had been spliced.
+  That is the <em>found</em> pun, which states no relation between two texts because it is
+  one text, and <code>paronomasia</code>'s notes already exclude it for the same reason. Found
+  while authoring the shipped blends, not by reasoning about the code.</p>
+<p>Still out of reach, and neither is g2p's fault: a host the lexicon does not carry
+  (<code>Barbarella</code> is absent from CMUdict, which is most celebrity blends) and the
+  cross-lingual blend (<code>Atmosph'air</code>), which needs <code>phonemes.bilingual</code>. <code>apply</code> is not
+  shipped though <code>kind</code> says <code>both</code> — generating a blend is choosing where to splice,
+  which is Deri and Knight's multitape-FST problem; the docstring says so where a
+  caller will meet it.</p>
+<ul>
+<li>A pun needs to know what the shop sells, so <code>paronomasia</code>'s generator takes a
+  <code>domain</code>. Three trades ship in core — <code>bakery</code>, <code>hair</code>, <code>optician</code> — each carrying,
+  per language, a vocabulary and a set of phrases worth punning on. Every word and
+  phrase was written for this project, so there is no third-party licence and nothing
+  to quarantine under ADR 0013; <code>core/domain.py</code> is the loader, and <code>domain_words</code>
+  takes a vocabulary of your own for a shop nobody catalogued.</li>
+</ul>
+<p><strong>The ranking was wrong and is fixed.</strong> Candidates were ordered by SCOWL band
+  first, so <code>bread</code> (band 20) came <strong>74th</strong> behind <code>brand</code>, <code>bad</code>, <code>it</code> and <code>put</code>
+  (all band 10) whatever their distance — the row that catalogues the figure could
+  not generate its own canonical example. The order is now trade, then distance,
+  then commonness, and <code>Bread Pitt</code> is first. Measured across the three trades,
+  all 37 shipped phrases now displace onto their own trade, each pinned by its own
+  test.</p>
+<p>The phrase lists were <strong>audited against the attested collections</strong> on 2026-09-10
+  and expanded from 37 phrases to 56, with 33 blends. The audit found six entries
+  that passed every mechanical check and should not have shipped: <code>Klar gewinnt</code>,
+  <code>Weit gesehen</code> and <code>brosse à part</code> were invented and are not phrases anyone says,
+  and <code>Life of Pie</code> and <code>Site for Sore Eyes</code> were hosts that were <em>already the pun</em>,
+  so the displacement restored the original instead of departing from it. Whether a
+  phrase is one a reader knows is the single property here that no test can reach —
+  each is real words in real grammar landing real trade vocabulary — so it is
+  audited by hand and the standard is written into each file.</p>
+<p>What replaced them is attested: <code>Curl up and die</code> (Atlas Obscura counts thirty
+  American salons called Curl Up &amp; Dye), <code>Grateful Dead</code>, <code>Jack of all trades</code>,
+  <code>Kopf oder Zahl</code>, and the German blends <code>SaHaara</code>, <code>Kammäleon</code>, <code>Kammbodscha</code>,
+  <code>Kammpus</code>, <code>Philhaarmonie</code> and <code>Scheitelkeiten</code> from a list of 300+ that gives
+  each pun's host. <code>Curl up and die</code> had been dropped by an earlier note arguing
+  that a phrase containing a trade word is "the joke already made" — wrong, because
+  <code>curl</code> being present does not stop <code>die</code> becoming <code>dye</code>.</p>
+<p><strong>The commonest real French salon name is one this project cannot check.</strong> The
+  <code>-hair</code> family — <code>Imagin'hair</code> at ~150 salons, <code>Atmosph'air</code>, <code>Caract'hair</code> — is
+  English inside French, refused as <code>splice_not_a_word</code> because <code>hair</code> is not a
+  French word. That needs <code>phonemes.bilingual</code>, not <code>phonemes.g2p</code>. Roughly half of
+  the attested German names fall to the same boundary or to a proper-noun host.
+  Recorded in <code>docs/research/</code> rather than inferred from the ones that worked.</p>
+<p>Two things decide output quality that no rule in the checker can express, both
+  found by measuring rather than reasoning: displacing a <strong>function word</strong> produces
+  nonsense — French <code>la</code> is 0.333 from <code>laque</code>, which offers <code>laque vie en rose</code> for
+  half the language — and a phrase that already contains its own trade word has
+  nothing left to displace (<code>Curl up and die</code>, <code>Das Brot</code>). A third applies to German
+  alone: <strong>every German frame is article-free</strong>, because a German article agrees with
+  its noun's gender and nothing here knows a noun's gender, so displacing the noun out
+  of <code>Der Wille</code> or <code>Zum Wohl</code> left the article stranded and produced <code>Der Welle</code> and
+  <code>Zum Welle</code>, which are not German. <code>Komm rein</code>, <code>Kopf hoch</code> and <code>Locker bleiben</code>
+  cannot break that way whatever lands in them — a constraint on the phrase instead of
+  a gender table nobody has. The shipped phrases are chosen against all three. German nouns get their capital from the trade file, because
+  German's graded words are an entirely lower-case frequency corpus and a
+  displacement spelled as that list spells it reads <code>Alles haar</code>.</p>
+<p>The catalogue goes to <strong>157 rows and 123 implemented</strong>, the golden corpus from 560
+  cases to <strong>572</strong>. The externally sourced share falls from 11.8% to <strong>11.5%</strong>, which
+  is arithmetic and not a regression: no case here claims external provenance,
+  because no example has been read off a page in this pass and an example nobody has
+  read is the invented citation the house style refuses. The attested modern corpus
+  of the figure is entirely post-1929, so it waits on the same decision about quoting
+  in-copyright material that research batch 3 already has pending.</p>
 <h2 id="011-2026-09-08"><a href="https://github.com/senzelden/denckring/compare/v0.1.0...v0.1.1">0.1.1</a> - 2026-09-08<a class="headerlink" href="#011-2026-09-08" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2124,7 +2528,7 @@
   characters together with the combining marks that belong to them, at the base
   character's offset, so a <code>Violation</code> still points into the text the caller passed.</li>
 </ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fifteen texts from research batch 3 enter the golden corpus across thirteen rows, taking
   externally sourced cases from 51 of 545 to <strong>66 of 560 (9.4% to 11.8%)</strong> and the rows
@@ -2265,7 +2669,7 @@
   syllables".</li>
 </ul>
 <h2 id="010-2026-09-07"><a href="https://github.com/senzelden/denckring/releases/tag/v0.1.0">0.1.0</a> - 2026-09-07<a class="headerlink" href="#010-2026-09-07" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Core protocol: <code>Violation</code>, <code>Report</code>, <code>Meta</code> and the <code>LanguagePack</code> interface, all
   serialising to stable JSON for non-Python callers.</li>
