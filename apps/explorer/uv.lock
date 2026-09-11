@@ -317,7 +317,7 @@ wheels = [
 
 [[package]]
 name = "denckring"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../" }
 dependencies = [
     { name = "pydantic" },
@@ -376,7 +376,7 @@ lexicon = [{ name = "wn", specifier = ">=1.1" }]
 
 [[package]]
 name = "denckring-de-data"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../packages/denckring-de-data" }
 dependencies = [
     { name = "denckring" },
@@ -387,7 +387,7 @@ requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
 name = "denckring-de-frequency"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../packages/denckring-de-frequency" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -398,7 +398,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckr
 
 [[package]]
 name = "denckring-de-wiktionary"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../packages/denckring-de-wiktionary" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -409,7 +409,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckr
 
 [[package]]
 name = "denckring-en-data"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../packages/denckring-en-data" }
 dependencies = [
     { name = "denckring" },
@@ -463,7 +463,7 @@ dev = [
 
 [[package]]
 name = "denckring-fr-data"
-version = "0.1.1"
+version = "0.2.0"
 source = { editable = "../../packages/denckring-fr-data" }
 dependencies = [
     { name = "denckring" },

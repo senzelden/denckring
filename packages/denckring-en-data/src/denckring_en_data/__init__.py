@@ -37,7 +37,7 @@ NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 
 @lru_cache(maxsize=1)

@@ -1,6 +1,6 @@
 [project]
 name = "denckring"
-version = "0.1.1"
+version = "0.2.0"
 description = "A library of experimental writing procedures, where the validator is the eval"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -25,22 +25,22 @@ dependencies = ["pydantic>=2.7", "pyyaml>=6.0", "typer>=0.12"]
 
 [project.optional-dependencies]
 # Exact syllable counts and rhyme, from the CMU Pronouncing Dictionary.
-en = ["denckring-en-data==0.1.1"]
+en = ["denckring-en-data==0.2.0"]
 # Word membership and a noun list for German, from Wikidata Lexemes.
-de = ["denckring-de-data==0.1.1"]
+de = ["denckring-de-data==0.2.0"]
 # Everything `de` gives, plus pronunciation, stress and glosses from German
 # Wiktionary. A separate extra because its data is CC BY-SA where `de` is CC0,
 # and ADR 0013 quarantines a data licence in its own distribution.
-de-wiktionary = ["denckring-de-data==0.1.1", "denckring-de-wiktionary==0.1.1"]
+de-wiktionary = ["denckring-de-data==0.2.0", "denckring-de-wiktionary==0.2.0"]
 # Word membership, an ordered noun list, frequency bands and glosses for French,
 # from Lexique 3.82 and French Wiktionary. Both CC BY-SA, so one distribution.
-fr = ["denckring-fr-data==0.1.1"]
+fr = ["denckring-fr-data==0.2.0"]
 # Frequency bands for German, from the Leipzig Corpora Collection. A separate
 # extra because its data is CC BY where `de`'s is CC0, and ADR 0013 quarantines a
 # data licence in its own distribution. Light — 434 KB — and deliberately
 # independent of `de-wiktionary`, so German `anagram` does not drag in 6.5 MB of
 # pronunciations it never reads.
-de-frequency = ["denckring-de-data==0.1.1", "denckring-de-frequency==0.1.1"]
+de-frequency = ["denckring-de-data==0.2.0", "denckring-de-frequency==0.2.0"]
 # An MCP server, so a model can check its own constrained writing.
 mcp = ["mcp[cli]>=2"]
 

@@ -57,7 +57,7 @@ GLOSSES_PATH = Path(str(files("denckring_fr_data") / "data" / "glosses.txt.gz"))
 SYLLABLES_PATH = Path(str(files("denckring_fr_data") / "data" / "syllables.txt.gz"))
 H_ASPIRE_PATH = Path(str(files("denckring_fr_data") / "data" / "h_aspire.txt.gz"))
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 
 def _read(path: Path) -> tuple[str, ...]:

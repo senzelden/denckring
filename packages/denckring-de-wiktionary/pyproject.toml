@@ -1,6 +1,6 @@
 [project]
 name = "denckring-de-wiktionary"
-version = "0.1.1"
+version = "0.2.0"
 description = "German pronunciation and gloss data for denckring, from German Wiktionary"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,7 +16,7 @@ classifiers = [
 # Version-locked, for the reason denckring-en-data records. `denckring-de-data`
 # and not `denckring` alone: this distribution registers no language pack of its
 # own (ADR 0030), and is read by the one `denckring-de-data` registers.
-dependencies = ["denckring-de-data==0.1.1"]
+dependencies = ["denckring-de-data==0.2.0"]
 
 # No [project.entry-points."denckring.lang"] section, and its absence is the
 # design. `denckring/lang/__init__.py` refuses two entry points claiming one

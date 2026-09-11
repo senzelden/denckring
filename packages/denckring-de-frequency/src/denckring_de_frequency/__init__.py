@@ -104,7 +104,7 @@ else:
 #: distributions do. This one shipped without it (ADR 0038) and was the second
 #: thing about the sixth distribution to be half-integrated — the release plan
 #: had also counted five distributions, not six.
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 __all__ = [
     "GRADED_WORDS_PATH",
