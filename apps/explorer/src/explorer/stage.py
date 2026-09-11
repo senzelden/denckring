@@ -2593,7 +2593,7 @@ def street_lang(trade_id: str, raw: str | None) -> Lang:
         if trade.speaks(candidate):
             return candidate
     for candidate in ("de", "en", "fr"):
-        typed: Lang = candidate  # type: ignore[assignment]
+        typed: Lang = candidate
         if trade.speaks(typed):
             return typed
     raise KeyError(trade_id)
@@ -2602,7 +2602,7 @@ def street_lang(trade_id: str, raw: str | None) -> Lang:
 def street_langs(trade_id: str) -> tuple[Lang, ...]:
     """Which languages this trade can be shown in, for the picker."""
     trade = domain.load(trade_id)
-    return tuple(lang for lang in ("de", "en", "fr") if trade.speaks(lang))  # type: ignore[misc]
+    return tuple(lang for lang in ("de", "en", "fr") if trade.speaks(lang))
 
 
 def _displacement(sign: str, source: str, lang: Lang) -> tuple[str, str]:
