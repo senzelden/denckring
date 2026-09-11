@@ -7,15 +7,19 @@ scene claims can be tested without a browser.
 
 from __future__ import annotations
 
+import os
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from functools import lru_cache
 from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
-from denckring.core import device
+from denckring import check as denckring_check
+from denckring import produce
+from denckring.core import device, domain
 from denckring.core.calculator import FROM_DIGIT, from_digits
-from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.errors import DenckringError, InvalidParams, NoCandidateWord
 from denckring.core.protocol import Constructive, Lang, LanguagePack
 from denckring.core.registry import get
 from denckring.core.text import line_spans, word_spans
@@ -188,6 +192,16 @@ SCENES: list[Scene] = [
             "over: 7353 is ESEL."
         ),
         procedure_id="calculator_word",
+    ),
+    Scene(
+        slug="paronomasia",
+        title="Die Straße der schlechten Wortspiele",
+        procedure_id="paronomasia",
+        caption=(
+            "The punning shopfront. A word of a known phrase displaced by one that "
+            "sounds like it, or spliced inside it \u2014 and every sign checked where "
+            "it hangs."
+        ),
     ),
 ]
 
@@ -2444,3 +2458,475 @@ def calculator_word(digits: str, lang: Lang = "de") -> CalculatorReading:
             cleaned, word, "not_a_word", f"The display reads {word.upper()}, which is not a word."
         )
     return CalculatorReading(cleaned, word, "", "")
+
+
+# ---------------------------------------------------------------------------
+# scene ten: the street of bad puns
+# ---------------------------------------------------------------------------
+
+#: Trades the street can be dressed as, in the order the picker offers them.
+#: Read from the library rather than typed, so a domain added to the package
+#: appears here without this file changing — the mistake `stage_index` made
+#: once by announcing three scenes while rendering six.
+STREET_TRADES: tuple[str, ...] = domain.ids()
+
+#: The band the street sweeps, left to right. Not the procedure's default
+#: (0.0-0.5): the street's whole argument is that distance is a *dial*, so it
+#: opens on the full range and lets the reader close it.
+STREET_BAND = (0.0, 1.0)
+
+#: How many houses fit. Five at 1280px leaves each shopfront 232px of fascia,
+#: which is the narrowest a sign can be and still set a seven-word phrase at a
+#: readable size. Measured against `Site for Sore Eyes`, the longest phrase any
+#: shipped trade offers.
+STREET_HOUSES = 5
+
+
+#: The sign styles the shopfront can be painted in. Each is a *look*, not a
+#: layout — the drawing is one shopfront either way — so a style can never
+#: change what the sign says or whether it checks. That separation is the point:
+#: the picture varies, the claim underneath it does not.
+SIGN_STYLES: tuple[str, ...] = ("fascia", "hanging", "painted", "neon", "enamel")
+
+
+@dataclass(frozen=True)
+class Shopfront:
+    """One shop, and the claim its sign makes."""
+
+    #: What the sign reads.
+    sign: str
+    #: The phrase or word it was made from, so the joke can be explained below.
+    source: str
+    #: The word that landed, and the word it pushed out. For a blend the second
+    #: is the host, because nothing was pushed out — the host is still there.
+    landed: str
+    displaced: str
+    #: 0.0 is a homophone; 1.0 shares nothing.
+    distance: float
+    #: Whether the word that landed belongs to the trade whose sign it is.
+    in_trade: bool
+    #: The checker's verdict, from the row named below. Every sign on this stage
+    #: is checked, never assumed: a drawn shopfront is persuasive and the verdict
+    #: is not visible in it.
+    satisfied: bool
+    #: Which row decided it — `paronomasia` for a displacement, `portmanteau`
+    #: for a blend. Shown on the scene, because they are different figures and a
+    #: reader should be told which one they are looking at.
+    figure: str
+    #: Which of `SIGN_STYLES` to paint it in.
+    style: str
+    #: Whether the generator made this sign, rather than it coming from the
+    #: shipped data. A separate field and not a suffix on `figure`, which names
+    #: the row that checked it: an earlier draft wrote `"portmanteau (invented)"`
+    #: and two tests asking whether the figure was a real row went red for a
+    #: reason that had nothing to do with them.
+    invented: bool = False
+
+    @property
+    def is_blend(self) -> bool:
+        return self.figure == "portmanteau"
+
+    @property
+    def font_size(self) -> float:
+        """Type size for the sign, in the shopfront's own viewBox units.
+
+        The board is 560 units wide with room either side for the paint, and the
+        display face sets at roughly 0.6 em per character. Capped at 92 so
+        `Do or Dye` does not fill the board, floored at 22 so the longest phrase
+        any trade ships is legible rather than merely present.
+        """
+        return max(22.0, min(92.0, 520.0 / (0.6 * max(len(self.sign), 1))))
+
+
+def street_trade(raw: str | None) -> str:
+    """A trade id the street can be dressed as, defaulting to the salon.
+
+    The salon, not the bakery, and the bakery was wrong twice over. This scene
+    is titled in German and the punning *Friseursalon* is the best-attested
+    habitat the figure has; opening on an English bakery made the title a
+    non-sequitur. Worse, `bakery` ships no German — so `de` was not even in the
+    language picker until the reader thought to change trade first, which is a
+    poor way to hide the one language the scene is named in.
+    """
+    if raw in STREET_TRADES:
+        return str(raw)
+    return "hair"
+
+
+def street_ceiling(raw: str) -> float:
+    """The band's upper edge, from a form field, clamped to what the slider offers.
+
+    Narrowed here rather than trusted, for the reason every control on this
+    stage is narrowed here: a posted value is a string from outside, and
+    `paronomasia` would raise `InvalidParams` on anything above 1.0 — which is
+    the right behaviour for the library and the wrong one for a drag that
+    overshot. Anything unreadable falls back to the open band, so a broken post
+    shows the whole street rather than none of it.
+    """
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return STREET_BAND[1]
+    return min(max(value, 0.05), STREET_BAND[1])
+
+
+#: How deep into the ranking a roll may reach. Three, not "any in-trade
+#: candidate": the ranking is good and the tail is not. Measured on the shipped
+#: phrases, the in-trade lists run from 1 to 12 long, and past about third place
+#: they start displacing articles — `Haar Wille` for `Der Wille`, `le pâte bain`
+#: for `le petit bain` — which is the function-word problem the phrase lists were
+#: chosen to avoid arriving by a different door. Three keeps every roll a pun
+#: while still giving a phrase up to three different shopfronts.
+STREET_ROLL_DEPTH = 3
+
+
+def street_lang(trade_id: str, raw: str | None) -> Lang:
+    """A language the trade actually speaks.
+
+    A trade is not padded into a language it has nothing for — `optician` ships
+    English only — so asking for `optician` in German must fall back rather than
+    render an empty street.
+    """
+    trade = domain.load(trade_id)
+    if raw in ("en", "de", "fr"):
+        candidate: Lang = raw  # type: ignore[assignment]
+        if trade.speaks(candidate):
+            return candidate
+    for candidate in ("de", "en", "fr"):
+        typed: Lang = candidate  # type: ignore[assignment]
+        if trade.speaks(typed):
+            return typed
+    raise KeyError(trade_id)
+
+
+def street_langs(trade_id: str) -> tuple[Lang, ...]:
+    """Which languages this trade can be shown in, for the picker."""
+    trade = domain.load(trade_id)
+    return tuple(lang for lang in ("de", "en", "fr") if trade.speaks(lang))  # type: ignore[misc]
+
+
+def _displacement(sign: str, source: str, lang: Lang) -> tuple[str, str]:
+    """The word that landed and the word it pushed out.
+
+    Read off the two texts by position rather than recomputed, because the
+    generator already decided it and a second derivation is a second chance to
+    disagree. Falls back to empty strings rather than raising: a caption is not
+    worth an exception.
+    """
+    here = [word for _, word in word_spans(sign, get_pack(lang))]
+    there = [word for _, word in word_spans(source, get_pack(lang))]
+    # `strict=False`: the two texts can differ in word count when a caption is
+    # built for a pair `check` would reject with `length_mismatch`, and a
+    # caption is not worth an exception.
+    for landed, displaced in zip(here, there, strict=False):
+        if landed.casefold() != displaced.casefold():
+            return landed, displaced
+    return "", ""
+
+
+@lru_cache(maxsize=512)
+def _street_candidates(
+    phrase: str, lang: Lang, trade_id: str, ceiling: float, wanted: int
+) -> tuple[tuple[str, float, float], ...]:
+    """One phrase's displacements, cached on exactly what decides them.
+
+    Cached *here* rather than in the library, and that is the point. Scanning a
+    lexicon honestly costs real time — 69,090 edit-distance comparisons for a
+    two-word German phrase, measured — because the prefilter in front of it is
+    now sound where it used to be fast and wrong. The right answer to that is
+    not to make the library guess again; it is for the one caller that asks the
+    same eight questions on every page load to stop asking them twice.
+
+    Keyed on the parameters that change the answer and nothing else, so a roll
+    (which changes only which of the returned candidates is chosen) is free
+    after the first draw of that band.
+    """
+    try:
+        production = produce(
+            "paronomasia",
+            phrase,
+            lang=lang,
+            domain=trade_id,
+            # Only the trade's own words. The street hangs nothing else — a sign
+            # outside the trade is dropped a few lines below — so searching the
+            # rest of the lexicon was work whose every result was discarded. The
+            # winner is identical either way, verified in `test_stage.py`.
+            domain_only=True,
+            max_distance=ceiling,
+            max_results=wanted,
+        )
+    except NoCandidateWord:
+        return ()
+    return tuple(
+        (candidate.text, candidate.metrics["distance"], candidate.metrics["in_trade"])
+        for candidate in production.candidates
+    )
+
+
+def _blend_shopfronts(trade_id: str, lang: Lang, ceiling: float) -> list[Shopfront]:
+    """The trade's coinages, each checked by `portmanteau`.
+
+    A blend's distance is between the spliced word and the stretch of host it
+    covers, which is a different measurement from a displacement's — but it is
+    the same scale, so the dial governs both. An earlier draft exempted blends,
+    on the reasoning that they are the other figure; the effect was that closing
+    the band to 0.05 still hung `Haarmonie` at 0.333, and a reader who has just
+    asked for homophones only has been told no. One dial, everything it shows.
+    """
+    trade = domain.load(trade_id)
+    out: list[Shopfront] = []
+    for blend in trade.blends(lang):
+        if not fit_for_stage(blend.coinage):
+            continue
+        # A blend may name its own splice language, for the `-hair` family that
+        # is English inside French. It may no longer name its own ceiling: that
+        # existed for two "visual" blends which turned out to be resting on a
+        # phantom window in `_closest_window`, and both are gone.
+        report = denckring_check(
+            "portmanteau",
+            blend.coinage,
+            lang=lang,
+            source=blend.host,
+            splice=blend.splice,
+            splice_lang=blend.splice_lang,
+            max_distance=ceiling,
+        )
+        if not report.satisfied:
+            continue
+        out.append(
+            Shopfront(
+                sign=blend.coinage,
+                source=blend.host,
+                landed=blend.splice,
+                # Nothing was pushed out of a blend — the host is still there,
+                # which is what makes it a blend rather than a displacement.
+                displaced=blend.host,
+                distance=report.metrics.get("distance", 0.0),
+                in_trade=True,
+                satisfied=report.satisfied,
+                figure="portmanteau",
+                style="",
+            )
+        )
+    return out
+
+
+#: Hosts the blend generator is pointed at, per trade and language. Ordinary
+#: words, not names — the generator splices the trade into them and the checker
+#: throws out what is not a blend, so what comes back is a coinage nobody wrote
+#: down. Kept here rather than in the domain files because these are not data
+#: about the trade; they are a handful of words to aim at, and the shipped
+#: `blends` remain the attested ones.
+#: Curated, and the curation is honest work rather than cheating: the generator's
+#: rank-1 answer is good for most hosts and a seam stutter for some
+#: (`Wellensittich` gives `WWellensittich`), which is the weakness ADR 0043
+#: records. A stage is not the place to demonstrate a known failure mode on
+#: every fourth press, so the hosts here are ones whose best answer was checked
+#: by eye. No host that already has an attested blend in the domain files, so
+#: what comes back is a coinage nobody wrote down: `Kamera` gives `Kammera`,
+#: `airline` gives `hairline`, `curtain` gives `curltain`.
+INVENTED_HOSTS: dict[tuple[str, str], tuple[str, ...]] = {
+    ("hair", "de"): ("Kamera", "Harfe", "Kaminfeuer", "Kamin", "Harmlos", "Kabarett", "Karneval"),
+    ("hair", "en"): ("airline", "curtain", "comparison"),
+    ("bakery", "en"): ("granite", "royalty"),
+    ("optician", "en"): ("spectacle",),
+}
+
+
+def invented(trade_id: str, lang: Lang, ceiling: float, rng: random.Random) -> Shopfront | None:
+    """A blend the generator made, rather than one anybody recorded.
+
+    This is the scene's strongest claim and the reason it is worth wiring the
+    generator in at all: everything else on the stage is a name from the shipped
+    data, checked live. This one did not exist until the button was pressed, and
+    it is checked by exactly the same call.
+
+    Returns `None` rather than raising when a host yields nothing inside the
+    band, which a tight dial does routinely.
+    """
+    hosts = INVENTED_HOSTS.get((trade_id, lang), ())
+    if not hosts:
+        return None
+    host = rng.choice(hosts)
+    try:
+        production = produce(
+            "portmanteau",
+            host,
+            lang=lang,
+            domain=trade_id,
+            max_distance=ceiling,
+            max_results=1,
+        )
+    except DenckringError:
+        return None
+    # Rank one only. The generator's first answer is the measured-good one — the
+    # attested name for ten hosts in twelve — and everything behind it is where
+    # the stutters live.
+    candidate = production.candidates[0]
+    report = denckring_check(
+        "portmanteau",
+        candidate.text,
+        lang=lang,
+        source=host,
+        splice=_splice_of(candidate.text, host, trade_id, lang),
+        max_distance=ceiling,
+    )
+    if not fit_for_stage(candidate.text) or not report.satisfied:
+        return None
+    return Shopfront(
+        sign=candidate.text,
+        source=host,
+        landed=_splice_of(candidate.text, host, trade_id, lang),
+        displaced=host,
+        distance=candidate.metrics["distance"],
+        in_trade=True,
+        satisfied=True,
+        figure="portmanteau",
+        style="",
+        invented=True,
+    )
+
+
+def _splice_of(coinage: str, host: str, trade_id: str, lang: Lang) -> str:
+    """Which trade word the generator put in. Recovered by looking, not guessed.
+
+    `produce` does not say which word it spliced — `Candidate` carries metrics
+    and text — so the shortest trade word present in the coinage and absent from
+    the host is the answer. Shortest because a longer one containing it would
+    also be present.
+    """
+    folded = coinage.casefold()
+    present = [
+        word
+        for word in domain.load(trade_id).words(lang)
+        if word.casefold() in folded and word.casefold() not in host.casefold()
+    ]
+    return min(present, key=len) if present else ""
+
+
+#: Where the shopfront scene looks for phrases. Overridable, because a corpus
+#: belongs to whoever assembled it (ADR 0020) and a reader with better phrases
+#: than these should be able to say so:
+#:
+#:     DENCKRING_PHRASES_PATH=~/my-phrases uv run explorer
+#:
+#: A directory of `<trade>_<lang>.txt`, one phrase per line. Read fresh on every
+#: call rather than cached at import, so pointing the variable somewhere else
+#: between two calls actually changes the answer — the same rule `device.load`
+#: follows for `DENCKRING_DEVICE_PATH`.
+PHRASES_ENV = "DENCKRING_PHRASES_PATH"
+SHIPPED_PHRASES = Path(__file__).resolve().parent / "data" / "phrases"
+
+
+def phrase_corpus(trade_id: str, lang: Lang) -> tuple[str, ...]:
+    """Phrases for this trade, from the corpus if there is one.
+
+    Falls back to the trade's own `phrases` list, which is small and was written
+    by hand. The corpus is preferred because the hand-written list was chosen for
+    *reachability* — does a trade word land inside the band? — and that produced
+    phrases like `Alles klar`, which are real German and not things anybody would
+    put over a shop. The corpus is film titles people know.
+
+    A missing or unreadable directory falls back quietly rather than raising: a
+    stale environment variable should not stop the scene rendering.
+    """
+    for directory in (os.environ.get(PHRASES_ENV), SHIPPED_PHRASES):
+        if not directory:
+            continue
+        path = Path(directory) / f"{trade_id}_{lang}.txt"
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        phrases = tuple(line.strip() for line in lines if line.strip())
+        if phrases:
+            return phrases
+    return domain.load(trade_id).phrases(lang)
+
+
+def shop_options(trade_id: str, lang: Lang, ceiling: float = STREET_BAND[1]) -> list[Shopfront]:
+    """Every sign this trade can hang inside the band, closest first.
+
+    Separate from `shop` so the *offering* can be tested apart from the draw.
+    Monotonicity — that closing the band only ever removes signs — is a property
+    of this list; it is not a property of what a seeded draw returns, because a
+    shorter list makes the same seed choose a different element. An earlier test
+    asserted it of the draw and failed for that reason, which is the test being
+    wrong rather than the scene.
+    """
+    offered: list[Shopfront] = []
+    for phrase in phrase_corpus(trade_id, lang):
+        found = _street_candidates(phrase, lang, trade_id, ceiling, STREET_ROLL_DEPTH * 4)
+        in_trade = [item for item in found if item[2]]
+        if not in_trade:
+            continue
+        # Each phrase offers its BEST displacement and no other. With five houses
+        # a weaker second choice was variety; with one sign it is just a worse
+        # sign, and there is no better one beside it to make the point. Variety
+        # comes from which of the trade's shops is drawn — fourteen for the
+        # German salon, across two figures — and from the paint.
+        text, distance, _ = in_trade[0]
+        if not fit_for_stage(text):
+            continue
+        landed, displaced = _displacement(text, phrase, lang)
+        offered.append(
+            Shopfront(
+                sign=text,
+                source=phrase,
+                landed=landed,
+                displaced=displaced,
+                distance=distance,
+                in_trade=True,
+                satisfied=denckring_check(
+                    "paronomasia", text, lang=lang, source=phrase, max_distance=ceiling
+                ).satisfied,
+                figure="paronomasia",
+                style="",
+            )
+        )
+    offered.extend(_blend_shopfronts(trade_id, lang, ceiling))
+    offered.sort(key=lambda house: (house.distance, house.sign))
+    return offered
+
+
+def shop(
+    trade_id: str,
+    lang: Lang,
+    ceiling: float = STREET_BAND[1],
+    rng: random.Random | None = None,
+) -> Shopfront | None:
+    """One shop, drawn from everything this trade can put on a sign.
+
+    The scene was five small houses in a row, and that row's argument was that
+    distance became *spatial* — shops vanished left to right as the band closed.
+    One sign gives that up and buys the whole stage for the pun, which is what a
+    shopfront is for. The band keeps its meaning twice over: as the number on the
+    sign, and as which signs remain drawable at all.
+
+    Both figures are eligible, and the scene says which it is showing. A
+    displacement (`paronomasia`, `Kamm rein`) and a blend (`portmanteau`,
+    `Haarmonie`) are different operations checked by different rows; blurring
+    them would be the drift the catalogue's own rules exist to prevent, and
+    leaving blends out was leaving out the half of the tradition a reader
+    actually recognises.
+
+    Returns `None` when the trade has nothing inside the band — which a closed
+    band is supposed to produce, and the template says so.
+    """
+    draw = rng or random.Random(0)
+    offered = shop_options(trade_id, lang, ceiling)
+    if not offered:
+        return None
+    # One draw in four is a coinage the generator made rather than one anybody
+    # wrote down. Only on a roll: first paint and every recording stay
+    # deterministic, and an invented sign that failed to appear would otherwise
+    # make the scene look broken rather than empty.
+    if rng is not None and draw.random() < 0.25:
+        made = invented(trade_id, lang, ceiling, draw)
+        if made is not None:
+            return replace(made, style=draw.choice(SIGN_STYLES))
+    chosen = draw.choice(offered) if rng is not None else offered[0]
+    # The style is drawn separately from the sign, so pressing the button on a
+    # trade with one shop still changes something. It is paint and never
+    # content: a test pins that the verdict is identical whichever style is used.
+    return replace(chosen, style=draw.choice(SIGN_STYLES))

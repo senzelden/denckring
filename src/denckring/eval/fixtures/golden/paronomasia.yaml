@@ -1,0 +1,164 @@
+# Attested shop names are quoted here by the maintainer's ruling of 2026-09-10,
+# which settled the question ADR 0041 D7 had deferred. A business name is a name,
+# not a work: quoting one is nominative use, and the collections below are
+# journalism and public registers rather than anthologies. Each case names where
+# it was seen. None was collated against a shopfront; what is claimed is that the
+# name appears in the source given, which is what `provenance: external` means
+# here and everywhere in this corpus.
+#
+# The verdicts are read off the run, never written from expectation. Several are
+# `satisfied: false`, and those are the useful ones: a limit met on a real name
+# from the tradition is worth more than another example of the row working.
+procedure: paronomasia
+lang: en
+cases:
+  - name: bread-pitt
+    source: constructed example; `bread` for `Brad` is one vowel, at distance 0.250
+    text: Bread Pitt
+    params: { source: Brad Pitt }
+    satisfied: true
+
+  - name: homophone-inside-the-default-band
+    source: >-
+      constructed example; `knead` and `need` are one pronunciation in CMUdict, so
+      the distance is 0.0 and the default band's floor admits it
+    text: Knead to Know
+    params: { source: Need to Know }
+    satisfied: true
+
+  - name: unchanged-phrase-states-no-pun
+    source: constructed counterexample; `no_displacement`
+    text: Brad Pitt
+    params: { source: Brad Pitt }
+    satisfied: false
+
+  - name: displacement-past-the-ceiling
+    source: >-
+      constructed counterexample; `distance_out_of_band`. `Pitt` for `Brad` shares
+      no phoneme at all, so the distance is 1.000
+    text: Pitt Pitt
+    params: { source: Brad Pitt, max_distance: 0.25 }
+    satisfied: false
+
+  - name: homophone-below-the-floor
+    source: >-
+      constructed counterexample; the band has two edges, and a caller asking for a
+      forced pun refuses one that costs nothing
+    text: Knead to Know
+    params: { source: Need to Know, min_distance: 0.2 }
+    satisfied: false
+
+  - name: two-words-displaced
+    source: >-
+      constructed counterexample; `unrecoverable`. `pit` and `pitt` are one
+      pronunciation, so this displaces two words rather than one
+    text: Bread Pit
+    params: { source: Brad Pitt }
+    satisfied: false
+
+  - name: coined-surface-is-unresolvable
+    source: >-
+      constructed counterexample; the measured bound on this row. `Hairways` is in
+      no pronouncing dictionary, so the displacement cannot be measured and is
+      reported rather than guessed at. This is the whole blend family — `Hairitage`,
+      `Haarmonie`, `Barberella` — and it needs `phonemes.g2p`
+    text: British Hairways
+    params: { source: British Airways }
+    satisfied: false
+
+  - name: coined-surface-taken-on-trust
+    source: >-
+      constructed example; the same text under `unknown_word: free`, which accepts
+      what it cannot check rather than reporting it
+    text: British Hairways
+    params: { source: British Airways, unknown_word: free }
+    satisfied: true
+
+  - name: komm-rein
+    lang: de
+    source: >-
+      constructed example; the German salon window's `Kamm`/`komm` family, at
+      distance 0.333 on the Wiktionary pronunciations
+    text: Kamm rein
+    params: { source: Komm rein }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: kamm-outside-a-narrow-band
+    lang: de
+    source: constructed counterexample; the same pair with the ceiling below 0.333
+    text: Kamm rein
+    params: { source: Komm rein, max_distance: 0.25 }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: normatif
+    lang: fr
+    source: >-
+      constructed example; the `-tif` family the French salon window is built on,
+      at distance 0.444 on Lexique's phonemes
+    text: diminutif normatif
+    params: { source: diminutif nominatif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: normatif-outside-a-narrow-band
+    lang: fr
+    source: constructed counterexample; the same pair with the ceiling below 0.444
+    text: diminutif normatif
+    params: { source: diminutif nominatif, max_distance: 0.4 }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: puttenham-prosonomasia
+    provenance: external
+    source: >-
+      George Puttenham, The Arte of English Poesie (1589), III.xix, on
+      "Prosonomasia, or the Nicknamer": the emperor Claudius Tiberius Nero was
+      called Caldius Biberius Mero for his drinking. Three whole words displaced
+      by neighbours in sound, which is exactly this row's operation — verified
+      against the figure's own text, not inferred from a handbook summary.
+      Rejected: `unresolvable_pronunciation` twice. The Latin names are in no
+      pronouncing dictionary here, which is the proper-noun limit the row's notes
+      already record, met on the figure's founding example.
+    text: Caldius Biberius Mero
+    params: { source: Claudius Tiberius Nero, max_displacements: 3 }
+    satisfied: false
+
+  - name: curl-up-and-dye
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are, the Punniest Salon Names in America", which
+      counts thirty American salons of this name plus a Kurl Up & Dye in Texas —
+      the most copied English shop pun there is. `die` to `dye` is an exact
+      homophone in CMUdict, so the distance is 0.000.
+    text: Curl Up and Dye
+    params: { source: Curl up and die }
+    satisfied: true
+
+  - name: grateful-head
+    provenance: external
+    source: Atlas Obscura, "Hair They Are". The band's name displaced by one word.
+    text: Grateful Head
+    params: { source: Grateful Dead }
+    satisfied: true
+
+  - name: jack-of-all-fades
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". `fade` is a haircut, so the trade word and
+      the displacement are the same move.
+    text: Jack of all Fades
+    params: { source: Jack of all trades }
+    satisfied: true
+
+  - name: i-kneaded-this
+    provenance: external
+    source: >-
+      Atlas Obscura, "Hair They Are". Rejected: `unresolvable_pronunciation`.
+      CMUdict carries `knead` and `needed` and not `kneaded`, so the pair cannot
+      be measured — a gap in the lexicon rather than in the pun, and the row
+      reports it instead of guessing.
+    text: I Kneaded This
+    params: { source: I needed this }
+    satisfied: false

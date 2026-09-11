@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+
+import pytest
 from explorer import board
 from explorer.app import app
 from fastapi.testclient import TestClient
@@ -62,32 +65,78 @@ def test_the_board_prints_no_empty_caption() -> None:
     assert "run just now" in response.text
 
 
-def test_a_capability_gap_is_blocked_rather_than_red() -> None:
+@pytest.fixture
+def partial_install() -> Iterator[None]:
+    """A `denckring[en,de]` install, simulated, for the tests about capability gaps.
+
+    The explorer used to *be* such an install, and these tests read their subject
+    straight off it. Then the street scene arrived, which needs `phonemes` and
+    `lexicon.graded_words` in German and French, so the app now installs
+    `de-wiktionary`, `de-frequency` and `fr` — and every tile went green,
+    leaving the two tests below asserting things about a state the app no longer
+    has. That is the same defect the project has hit three times: a guard whose
+    real answer is "this machine".
+
+    So the gap is built rather than found. `denckring.lang` is asked for a pack
+    first, which is what forces entry-point discovery to run — popping `_PACKS`
+    before that happens simply lets discovery put the real packs back, and an
+    earlier draft of this fixture measured a confidently wrong zero that way.
+    """
+    import denckring.lang as lang_registry
+    from denckring.lang.de import GermanPack
+    from denckring.lang.fr import FrenchPack
+
+    lang_registry.get_pack("en")
+    packs = dict(lang_registry._PACKS)
+    defaults = dict(lang_registry._DEFAULTS)
+    lang_registry._PACKS.pop("de", None)
+    lang_registry._PACKS.pop("fr", None)
+    lang_registry._DEFAULTS["de"] = GermanPack()
+    lang_registry._DEFAULTS["fr"] = FrenchPack()
+    assert "phonemes" not in lang_registry.get_pack("fr").capabilities, (
+        "the simulation did not take, so anything below it would be measuring "
+        "the real install and passing for the wrong reason"
+    )
+    try:
+        yield
+    finally:
+        lang_registry._PACKS.clear()
+        lang_registry._PACKS.update(packs)
+        lang_registry._DEFAULTS.clear()
+        lang_registry._DEFAULTS.update(defaults)
+
+
+def test_a_capability_gap_is_blocked_rather_than_red(partial_install: None) -> None:
     """A row whose only failures are missing capabilities is not broken.
 
-    On a `denckring[en,de]` install that is 52 of the 156 tiles, and every one
+    On a `denckring[en,de]` install that is 54 of the 158 tiles, and every one
     was `red` until 2026-09-04 — while `denckring eval --all` reported 0 failed
     on a full install at the same moment. The board was the only surface calling
     them failures.
+
+    The install is simulated (see `partial_install`) rather than inherited from
+    the app, which now installs every data distribution for the street scene.
     """
     from explorer import board
 
     tiles = {tile.id: tile for tile in board.tiles()}
     # `alexandrine` needs `syllables.heuristic` in French, which `denckring[fr]`
-    # supplies and this app does not install.
+    # supplies and the simulated install does not have.
     blocked = tiles["alexandrine"]
     assert blocked.state == "blocked"
     assert blocked.detail == "requires denckring[fr]"
 
 
-def test_the_remedy_is_named_from_the_error_code_not_from_its_prose() -> None:
+def test_the_remedy_is_named_from_the_error_code_not_from_its_prose(
+    partial_install: None,
+) -> None:
     """`CaseResult.code` carries `missing_capability`; the message is English
     that has already changed twice this week. A tile built by matching prose
     would have followed it."""
     from denckring.eval import harness
 
     failures = [r for r in harness.run().results if not r.passed]
-    assert failures, "this install is expected to lack some data"
+    assert failures, "the simulated install is expected to lack some data"
     assert all(r.code == "missing_capability" for r in failures)
 
 

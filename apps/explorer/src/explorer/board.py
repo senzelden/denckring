@@ -29,7 +29,7 @@ class Tile:
     #: but not implemented, which is a gap and not a failure either.
     #:
     #: `blocked` was `red` until 2026-09-04, and on a `denckring[en,de]` install
-    #: that is 52 of the 156 tiles — every one of them a row whose data is simply
+    #: that is 54 of the 158 tiles — every one of them a row whose data is simply
     #: not here. `denckring eval --all` reports 0 failed on a full install at the
     #: same moment, so the board was the only surface calling them failures.
     state: str

@@ -19,6 +19,7 @@ from explorer.app import app
 from fastapi.testclient import TestClient
 
 from denckring import check as denckring_check
+from denckring.core import domain as domains
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, LanguagePack
 from denckring.core.registry import get as registry_get
@@ -2154,28 +2155,66 @@ def test_no_deal_can_rhyme_a_word_with_itself() -> None:
         assert not (words_a & words_b), (line_a, line_b, sorted(words_a & words_b))
 
 
-def test_the_german_pack_ships_no_phonemes_so_rhyme_keys_cannot_run() -> None:
-    """The honest limit the brief itself names: "the German pack ships no
-    phonemes". Not taken on faith here — checked. `rhyme_keys` is the exact
-    call the three English tests above use; run against the German pack it
-    raises `MissingCapability` rather than returning a weaker answer, because
-    `word_rhyme_keys` re-raises when the *pack itself* lacks the capability
-    (as opposed to a single word the dictionary happens not to carry, which
-    it catches and reports as unknown instead).
+#: The two German alternatives whose rhyme `rhyme_keys` cannot confirm, and why.
+#:
+#: A rhyme key is the phonemes from the last PRIMARY-STRESSED vowel to the end of
+#: the word. German puts primary stress on the first element of a compound and on
+#: the separable prefix of a verb, so `Grundstein` keys `ʊntʃtaɪ̯n` and
+#: `zurückgestellt` keys `ʏkɡəʃtɛlt`, where `Stein` offers `aɪ̯n` and `Welt`
+#: offers `ɛlt`. Each pair genuinely rhymes, in spelling and by ear; the keys
+#: cannot intersect because one is a suffix of a span the other never had.
+#:
+#: `umstellt` is the counter-example that shows where the difficulty actually
+#: lives: Wiktionary records both stressings, so it carries `ɛlt` *and*
+#: `ʊmʃtɛlt`, and the rhyme is confirmed. The limit is the data recording one
+#: stressing, not the algorithm — which is worth knowing before anyone
+#: "fixes" `rhyme_key`.
+#:
+#: Named as words rather than allowed as a tolerance: a percentage would keep
+#: passing if a third word broke tomorrow.
+GERMAN_RHYME_EXCEPTIONS = frozenset({"Grundstein", "zurückgestellt"})
 
-    Pinned here, rather than left as a comment only, so that if a German
-    phonemes pack is ever added, this assertion is the one that fails —
-    telling whoever changes it that the weaker, orthographic tests below
-    have stopped being the ceiling of what can be verified and should be
-    replaced with a real `rhyme_keys` test, the same one English already
-    gets, rather than left in place proving less than the pack now allows.
+
+def test_the_german_rhyme_pairing_now_holds_by_the_pronouncing_dictionary() -> None:
+    """The real check, which the explorer could not run until it installed the
+    German pronunciations.
+
+    This replaces `test_the_german_pack_ships_no_phonemes_so_rhyme_keys_cannot_run`,
+    whose own docstring asked for exactly this: it existed to fail the day a
+    German phonemes pack arrived and to say that the weaker orthographic test
+    below had stopped being the ceiling of what could be verified. The pack
+    arrived with the street scene, which needs `phonemes` to check a shop sign,
+    so the ceiling moved and this is the stronger check taking its place.
+
+    Measured over all 1,500 alternative pairings: every failure to intersect
+    involves one of the two words above, and both of those are confirmed by the
+    spelling test that follows. Between them the two checks cover the set.
     """
-    from denckring.core import prosody
-    from denckring.core.errors import MissingCapability
-
     pack = stage.pack("de")
-    with pytest.raises(MissingCapability):
-        prosody.rhyme_keys("ein Wort geht", pack)
+    assert "phonemes" in pack.capabilities, (
+        "the explorer installs denckring[de-wiktionary]; without it this scene's "
+        "German street cannot render either"
+    )
+    offered = stage.queneau_offered("de")
+    unconfirmed: set[str] = set()
+    for line_a, line_b in _RHYME_PAIRS:
+        for option_a in offered[line_a - 1]:
+            for option_b in offered[line_b - 1]:
+                if _lines_rhyme(option_a, option_b, pack):
+                    continue
+                words = {_line_rhyme(option_a, pack)[0], _line_rhyme(option_b, pack)[0]}
+                named = words & GERMAN_RHYME_EXCEPTIONS
+                assert named, (
+                    f"{sorted(words)} do not rhyme, and neither is a "
+                    f"documented exception — a third stress-anchored key "
+                    f"has appeared"
+                )
+                unconfirmed |= named
+    assert unconfirmed == GERMAN_RHYME_EXCEPTIONS, (
+        f"the documented exceptions are {sorted(GERMAN_RHYME_EXCEPTIONS)} but "
+        f"{sorted(unconfirmed)} actually fired; delete what no longer happens "
+        f"rather than leave a note about a problem that has gone away"
+    )
 
 
 def _german_rhyme_suffix(line: str, length: int = 3) -> str:
@@ -2206,10 +2245,17 @@ def _german_rhyme_suffix(line: str, length: int = 3) -> str:
     return devoiced[-length:]
 
 
-def test_the_german_rhyme_pairing_holds_by_the_only_check_available() -> None:
-    """Not a phonetic rhyme test — `rhyme_keys` cannot run on this pack at
-    all (see the test above). This checks the weaker, orthographic property
-    the strips were actually verified by, across every one of the ten
+def test_the_german_rhyme_pairing_holds_by_spelling_as_well() -> None:
+    """Kept beside the phoneme test above rather than replaced by it.
+
+    It is the weaker property, but it is weaker in a different direction: it
+    confirms `zurückgestellt` — the one pairing the pronouncing dictionary
+    cannot — because devoicing and collapsing a doubled consonant reaches a
+    rhyme that a stress-anchored key steps over. Two partial checks that fail
+    on different words are worth more than the stronger one alone.
+
+    This checks the weaker, orthographic property the strips were actually
+    verified by, across every one of the ten
     alternatives at each end of every pair the scheme names — the same
     exhaustiveness `test_the_rhyme_pairing_holds_for_every_combination_...`
     gives English, over a weaker property than that test checks."""
@@ -2679,6 +2725,7 @@ def test_cut_up_is_the_sixth_scene_in_place() -> None:
         "llull_figure",
         "poesie_automat",
         "calculator_word",
+        "paronomasia",
     }
 
 
@@ -6358,3 +6405,289 @@ def test_every_rotating_svg_group_states_its_own_origin() -> None:
         body = block[1].split("}", 1)[0]
         assert "transform-box" in body, f"{selector} does not state transform-box"
         assert "transform-origin" in body, f"{selector} does not state transform-origin"
+
+
+# ---------------------------------------------------------------------------
+# scene ten: the street of bad puns
+# ---------------------------------------------------------------------------
+
+
+def test_the_shop_hangs_a_sign_its_own_checker_accepts() -> None:
+    """Both figures, checked by whichever row decided them."""
+    for trade in stage.STREET_TRADES:
+        for lang in stage.street_langs(trade):
+            for seed in range(6):
+                house = stage.shop(trade, lang, rng=random.Random(seed))
+                assert house is not None
+                assert house.satisfied, f"{house.sign!r} fails {house.figure}"
+                assert house.in_trade
+                assert house.figure in {"paronomasia", "portmanteau"}
+                assert stage.fit_for_stage(house.sign)
+
+
+def test_the_shop_shows_both_figures_over_a_run_of_draws() -> None:
+    """A scene that only ever drew displacements would leave the blends — the half
+    the tradition is recognised by — permanently invisible."""
+    figures = {
+        stage.shop("hair", "de", rng=random.Random(seed)).figure  # type: ignore[union-attr]
+        for seed in range(30)
+    }
+    assert figures == {"paronomasia", "portmanteau"}
+
+
+def test_the_style_is_paint_and_never_content() -> None:
+    """The style is drawn separately from the sign, so it must not be able to
+    change what the sign says or whether it checks."""
+    seen: dict[str, set[str]] = {}
+    for seed in range(60):
+        house = stage.shop("hair", "de", rng=random.Random(seed))
+        assert house is not None
+        assert house.style in stage.SIGN_STYLES
+        seen.setdefault(house.sign, set()).add(house.style)
+        assert house.satisfied
+    assert any(len(styles) > 1 for styles in seen.values()), (
+        "no sign was ever drawn in two styles, so the claim is untested"
+    )
+
+
+def test_a_closed_band_leaves_no_shop_rather_than_a_bad_one() -> None:
+    tight = stage.shop("bakery", "fr", 0.05)
+    assert tight is None or tight.in_trade
+
+
+def test_the_undrawn_shop_is_the_best_the_trade_can_do() -> None:
+    """Without an `rng` the scene is deterministic and shows the closest sign the
+    trade has — which is what first paint and a recording want."""
+    house = stage.shop("bakery", "en")
+    assert house is not None
+    every = [stage.shop("bakery", "en", rng=random.Random(seed)) for seed in range(30)]
+    assert house.distance <= min(other.distance for other in every if other)
+
+
+def test_the_band_control_is_narrowed_before_it_reaches_the_library() -> None:
+    """`paronomasia` refuses a ceiling above 1.0 with `InvalidParams`, which is
+    right for the library and wrong for a drag that overshot."""
+    assert stage.street_ceiling("0.4") == pytest.approx(0.4)
+    assert stage.street_ceiling("9") == 1.0
+    assert stage.street_ceiling("-3") == 0.05
+    assert stage.street_ceiling("not-a-number") == stage.STREET_BAND[1]
+
+
+def test_the_trade_picker_offers_only_trades_that_ship() -> None:
+    assert set(stage.STREET_TRADES) == set(domains.ids())
+
+
+def test_closing_the_band_can_only_ever_remove_signs() -> None:
+    """Monotonicity, which is the rule; "it empties" is an answer and a wrong one.
+
+    An earlier version of this test asserted that a tight band left no shop, and
+    it failed against `bakery/fr` — where `Co'pain` is a blend at distance 0.000
+    and correctly survives every ceiling. A band that admits homophones must
+    admit that one. What must hold is that narrowing never *adds* anything.
+    """
+    for trade, lang in (("bakery", "fr"), ("hair", "de"), ("optician", "en")):
+        typed: Lang = lang  # type: ignore[assignment]
+        wide = {house.sign for house in stage.shop_options(trade, typed, 1.0)}
+        narrow = {house.sign for house in stage.shop_options(trade, typed, 0.3)}
+        assert narrow <= wide, f"{trade}/{lang} gained {narrow - wide} as the band closed"
+
+
+def test_an_empty_band_says_why_it_is_empty_over_http() -> None:
+    """`optician` in German has no blend to fall back on, so it can be emptied."""
+    response = client.post(
+        "/stage/paronomasia/act", data={"trade": "optician", "lang": "de", "ceiling": "0.05"}
+    )
+    assert response.status_code == 200
+    assert "shop-figure" not in response.text, "a closed band still drew a shop"
+    assert "open the band" in response.text, "and did not say why it was empty"
+
+
+def test_the_german_shop_is_the_one_the_trade_was_written_for() -> None:
+    response = client.post(
+        "/stage/paronomasia/act", data={"trade": "hair", "lang": "de", "ceiling": "1"}
+    )
+    assert response.status_code == 200
+    assert "checked by" in response.text
+    signs = re.findall(r"shop-sign-text[^>]*>([^<]+)<", response.text)
+    assert signs, "no sign was drawn"
+
+
+def test_only_the_roll_button_draws() -> None:
+    """Moving the band must show the band's effect, not a reshuffle on top of it.
+
+    Two things changing at once would make neither legible, so trade, language
+    and ceiling all re-render the deterministic best shop.
+    """
+    plain = client.post(
+        "/stage/paronomasia/act", data={"trade": "hair", "lang": "de", "ceiling": "1"}
+    )
+    again = client.post(
+        "/stage/paronomasia/act", data={"trade": "hair", "lang": "de", "ceiling": "1"}
+    )
+    assert plain.text == again.text
+
+
+def test_the_scene_says_what_it_cannot_do() -> None:
+    """The blend family is the famous half of this tradition and not what this
+    street does. A scene that drew shopfronts without saying so would oversell
+    the procedure to exactly the reader most likely to believe it.
+
+    Asserted as *names the family and says where it lives*, not as a phrase. The
+    earlier version pinned the words "coined word", which were the true reason
+    while `phonemes.g2p` was thought to be the blocker; ADR 0042 found the family
+    reachable after all and gave it the `portmanteau` row, so the caption changed
+    and a phrase-matching guard failed for a change that was correct — which is
+    the defect class `guards-must-encode-rules-not-answers` names.
+    """
+    text = client.get("/stage/paronomasia").text
+    assert "Haarmonie" in text, "the scene does not name the family it is not doing"
+    assert "portmanteau" in text, "the scene names the family but not where it lives"
+
+
+def test_the_index_is_not_cropped_by_the_recording_frame() -> None:
+    """Every scene on the contents page must actually be reachable from it.
+
+    `.stage` is the 1280x720 capture frame and sets `overflow: hidden`, which is
+    right for a scene being recorded and wrong for a list that grows by one every
+    time a scene is added. The index inherited it, so at ten scenes the last three
+    — `poesie_automat`, `calculator_word`, `paronomasia` — were clipped out of the
+    document's visible area while `{{ scenes | length }}` underneath went on
+    counting all ten. The page contradicted itself, and the only symptom was a
+    reader saying they could not see a scene that was demonstrably in the HTML.
+
+    Asserted as the rule rather than the symptom: the index must not be inside the
+    fixed frame. Pinning "ten links are present" would have passed throughout,
+    because the links always were.
+    """
+    markup = client.get("/stage").text
+    stage_tag = markup[markup.index('<main class="stage') :]
+    stage_tag = stage_tag[: stage_tag.index(">") + 1]
+    assert "stage-tall" in stage_tag, (
+        f"the stage index renders inside the fixed capture frame and will crop its "
+        f"own list: {stage_tag}"
+    )
+
+
+def test_the_street_opens_on_the_trade_the_scene_is_named_for() -> None:
+    """The scene's title is German and the punning Friseursalon is the tradition
+    it depicts. It opened on an English bakery, which made the title a
+    non-sequitur — and because `bakery` ships no German, `de` was not even in the
+    language picker until the reader thought to change trade first."""
+    trade = stage.street_trade(None)
+    assert trade == "hair"
+    assert stage.street_lang(trade, None) == "de"
+    assert "de" in stage.street_langs(trade)
+
+
+def test_the_roll_button_reaches_the_route_that_draws() -> None:
+    rolled = {
+        client.post(
+            "/stage/paronomasia/act",
+            data={"trade": "hair", "lang": "de", "ceiling": "1", "roll": "1"},
+        ).text
+        for _ in range(12)
+    }
+    assert len(rolled) > 1, "the roll button renders the same shop every time"
+
+
+def test_the_scene_sometimes_shows_a_sign_nobody_wrote() -> None:
+    """The strongest claim the stage makes, and the reason the generators are
+    wired in: everything else on it is a name from the shipped data, checked
+    live. An invented sign did not exist until the button was pressed."""
+    made = {
+        house.sign
+        for seed in range(80)
+        if (house := stage.shop("hair", "de", rng=random.Random(seed))) and house.invented
+    }
+    assert made, "no draw in eighty produced an invented sign"
+    attested = {blend.coinage.casefold() for blend in domains.load("hair").blends("de")}
+    assert not {sign.casefold() for sign in made} & attested, (
+        "the 'invented' signs are names the data already carried, which proves nothing"
+    )
+
+
+def test_an_invented_sign_is_checked_like_any_other() -> None:
+    for trade, lang in (("hair", "de"), ("hair", "en"), ("optician", "en")):
+        typed: Lang = lang  # type: ignore[assignment]
+        for seed in range(60):
+            house = stage.shop(trade, typed, rng=random.Random(seed))
+            if house is None or not house.invented:
+                continue
+            assert house.satisfied
+            assert stage.fit_for_stage(house.sign)
+
+
+def test_first_paint_never_invents() -> None:
+    """Without an `rng` the scene is deterministic, so a recording shows the same
+    shop every time — and an invented sign that failed to appear would make the
+    scene look broken rather than empty."""
+    for trade in stage.STREET_TRADES:
+        for lang in stage.street_langs(trade):
+            house = stage.shop(trade, lang)
+            assert house is not None
+            assert not house.invented
+
+
+def test_every_curated_host_yields_a_sign_worth_showing() -> None:
+    """The host list is curated by eye because the generator's rank-1 answer is a
+    seam stutter for some hosts — `Wellensittich` gives `WWellensittich`, the
+    weakness ADR 0043 records. This holds the list to its own standard: every
+    host must produce something, and nothing doubled at the seam."""
+    import re
+
+    for (trade, lang), hosts in stage.INVENTED_HOSTS.items():
+        typed: Lang = lang  # type: ignore[assignment]
+        # One draw per host, by seeding the choice at that host's index.
+        for index, host in enumerate(hosts):
+            made = stage.invented(trade, typed, 1.0, random.Random(index))
+            assert made is not None, f"{trade}/{lang} produced nothing for {host!r}"
+            assert not re.search(r"(.)\1\1", made.sign), f"{made.sign} triples a letter"
+
+
+def test_the_scene_draws_its_phrases_from_the_corpus() -> None:
+    """The hand-written trade phrases were chosen for *reachability* — does a
+    trade word land inside the band? — which produced `Alles klar` and `Ganz
+    klar`: real German, and not phrases anybody would put over a shop. The
+    corpus is film titles people know, and the scene prefers it."""
+    corpus = stage.phrase_corpus("hair", "de")
+    written_by_hand = set(domains.load("hair").phrases("de"))
+    assert len(corpus) > len(written_by_hand)
+    assert not set(corpus) & written_by_hand, "the corpus is the hand-written list again"
+
+
+def test_a_reader_can_supply_their_own_phrases(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """ADR 0020: a corpus belongs to whoever assembled it. The shipped one is a
+    convenience, not a fixture of the scene."""
+    (tmp_path / "hair_de.txt").write_text("Komm rein\nKopf hoch\n", encoding="utf-8")
+    monkeypatch.setenv(stage.PHRASES_ENV, str(tmp_path))
+    assert stage.phrase_corpus("hair", "de") == ("Komm rein", "Kopf hoch")
+
+
+def test_a_stale_phrases_path_does_not_stop_the_scene(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A directory that has gone away should fall back, not raise: the scene
+    still has to render."""
+    monkeypatch.setenv(stage.PHRASES_ENV, "/nonexistent/phrases")
+    assert stage.phrase_corpus("hair", "de"), "the shipped corpus should answer"
+    assert stage.shop("hair", "de") is not None
+
+
+def test_every_shipped_corpus_phrase_still_puns_for_its_trade() -> None:
+    """The harvest filtered for this, so it is a claim about the shipped files
+    rather than about the search: if a file is edited by hand and a phrase that
+    does not pun is added, the scene would drop it silently and look thinner for
+    no visible reason."""
+    for trade in stage.STREET_TRADES:
+        for lang in stage.street_langs(trade):
+            phrases = stage.phrase_corpus(trade, lang)
+            landed = sum(
+                1
+                for phrase in phrases
+                if any(house.source == phrase for house in stage.shop_options(trade, lang, 1.0))
+            )
+            assert landed >= len(phrases) * 0.9, (
+                f"{trade}/{lang}: only {landed} of {len(phrases)} corpus phrases reached the trade"
+            )

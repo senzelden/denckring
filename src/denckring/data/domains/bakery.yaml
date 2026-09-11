@@ -1,0 +1,55 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.#
+# THE ONE PROPERTY HERE THAT NO TEST CAN CHECK is whether a phrase is one a
+# reader already knows. A pun lands on a familiar phrase or it does not land;
+# `test_domains.py` can prove that a phrase displaces onto its own trade, and
+# nothing can prove that anybody has heard of it. So it is audited by hand, and
+# the audit of 2026-09-10 found six failures worth naming, in two kinds:
+#
+#   - phrases that were simply invented — `Klar gewinnt`, `Weit gesehen`,
+#     `brosse à part` read like set phrases and are not any;
+#   - hosts that were ALREADY the pun — `Life of Pie` for the film `Life of Pi`,
+#     and `Site for Sore Eyes` for the idiom `a sight for sore eyes`, which made
+#     the "displacement" restore the original rather than depart from it.
+#
+# Both kinds passed every mechanical check, because both are real words in real
+# grammar landing real trade vocabulary. Only reading them catches it.
+id: bakery
+names:
+  en: Bakery
+  de: Bäckerei
+  fr: Boulangerie
+source: >-
+  Written for this project, 2026-09-10. The trade that gives the figure its most
+  quoted English example, and the one where the French idiom bends most willingly.
+languages:
+  # The strongest trade in the set. `knead`/`need` is an exact homophone in
+  # CMUdict, so this domain is the only one that can demonstrate the band's floor
+  # — a pun at distance 0.000 — as well as its ceiling.
+  en:
+    words:
+      [bread, dough, crust, loaf, crumb, yeast, bun, roll, flour, toast,
+       scone, tart, cake, pie, rye, grain, knead, batch, oven, baker]
+    phrases:
+      ["Brad Pitt", "Need to Know", "Great Expectations", "Rise and Shine",
+       "Bat out of Hell", "Life of Pi", "Rolling Stones", "Best of Both",
+       "I needed this"]
+    blends:
+      - { coinage: Breadquarters, host: headquarters, splice: bread }
+      - { coinage: Doughnation,   host: donation,     splice: dough }
+  fr:
+    words:
+      [pain, mie, croûte, levain, farine, blé, four, pâte, miche, brioche,
+       crème, tarte, beurre, sucre, grain, flan]
+    phrases:
+      ["la vie est belle", "le petit bain", "le grand bain", "comme un rien",
+       "du pain sur la planche", "la fine fleur", "mille et une nuits"]
+    blends:
+      - { coinage: "Pain'ture", host: peinture, splice: pain }
+      - { coinage: "Co'pain",   host: copain,   splice: pain }
+      - { coinage: "Mie'lleux", host: mielleux, splice: mie }
+  # No German. The four phrases a first draft offered here all displaced onto
+  # something outside the trade — `Der Ofen isst aus`, `Dass Brot` — because each
+  # already contained the bakery word it was supposed to reach for. German has a
+  # baking vocabulary but not, so far as this file can show, a punning-shopfront
+  # tradition built on it the way the salon window is. Writing one to fill the
+  # table would be inventing evidence about a tradition nobody here checked.

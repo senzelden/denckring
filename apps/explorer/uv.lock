@@ -329,8 +329,19 @@ dependencies = [
 de = [
     { name = "denckring-de-data" },
 ]
+de-frequency = [
+    { name = "denckring-de-data" },
+    { name = "denckring-de-frequency" },
+]
+de-wiktionary = [
+    { name = "denckring-de-data" },
+    { name = "denckring-de-wiktionary" },
+]
 en = [
     { name = "denckring-en-data" },
+]
+fr = [
+    { name = "denckring-fr-data" },
 ]
 
 [package.metadata]
@@ -375,6 +386,28 @@ dependencies = [
 requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
+name = "denckring-de-frequency"
+version = "0.1.1"
+source = { editable = "../../packages/denckring-de-frequency" }
+dependencies = [
+    { name = "denckring-de-data" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckring-de-data" }]
+
+[[package]]
+name = "denckring-de-wiktionary"
+version = "0.1.1"
+source = { editable = "../../packages/denckring-de-wiktionary" }
+dependencies = [
+    { name = "denckring-de-data" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckring-de-data" }]
+
+[[package]]
 name = "denckring-en-data"
 version = "0.1.1"
 source = { editable = "../../packages/denckring-en-data" }
@@ -391,7 +424,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
-    { name = "denckring", extra = ["de", "en"] },
+    { name = "denckring", extra = ["de", "de-frequency", "de-wiktionary", "en", "fr"] },
     { name = "fastapi" },
     { name = "jinja2" },
     { name = "mcp", extra = ["cli"] },
@@ -411,7 +444,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.69" },
-    { name = "denckring", extras = ["en", "de"], editable = "../../" },
+    { name = "denckring", extras = ["en", "de", "de-wiktionary", "de-frequency", "fr"], editable = "../../" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "mcp", extras = ["cli"], specifier = ">=2" },
@@ -427,6 +460,17 @@ dev = [
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = ">=0.5" },
 ]
+
+[[package]]
+name = "denckring-fr-data"
+version = "0.1.1"
+source = { editable = "../../packages/denckring-fr-data" }
+dependencies = [
+    { name = "denckring" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
 name = "distro"

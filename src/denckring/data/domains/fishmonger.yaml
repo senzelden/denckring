@@ -1,0 +1,20 @@
+# Licence: CC BY 4.0, with the rest of the catalogue. Written for this project.
+#
+# A vocabulary and no phrase list: a trade is defined by what it sells, and what
+# to pun on comes from a corpus the reader supplies (ADR 0020). The explorer
+# harvests one; `scripts/build_phrases.py` there says how.
+id: fishmonger
+names: { en: Fishmonger, de: Fischhändler, fr: Poissonnerie }
+source: >-
+  Written for this project, 2026-09-10. The trade of "The Codfather", the most
+  copied English shop pun outside the salon.
+languages:
+  en:
+    words: [fish, cod, sole, scale, fin, catch, net, chip, batter, shell,
+            prawn, bass, hake, trout, roe, brine, tide, reel]
+    blends:
+      - { coinage: Codfather, host: godfather, splice: cod }
+  de:
+    words: [Fisch, Hering, Lachs, Schuppe, Flosse, Netz, Reuse, Krabbe, Muschel, Sud]
+  fr:
+    words: [poisson, morue, sole, écaille, filet, marée, crevette, moule, thon, nasse]

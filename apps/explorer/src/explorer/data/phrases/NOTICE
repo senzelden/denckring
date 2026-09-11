@@ -1,0 +1,18 @@
+Phrase corpus for the shopfront scene
+=====================================
+
+Film titles harvested from Wikidata by `scripts/build_phrases.py`, filtered to
+those that yield a pun for the trade named in each filename.
+
+Source: Wikidata (https://www.wikidata.org), released under CC0 1.0 Universal.
+CC0 requires no attribution; it is recorded here anyway, because a file of
+material taken from somewhere should say where.
+
+Only films whose ORIGINAL language is the file's language are included, so the
+titles are ones a speaker of that language would recognise rather than
+translations of English releases.
+
+These files live in the explorer, which is marked `Private :: Do Not Upload` and
+is never published. The `denckring` package itself ships no corpus: ADR 0020
+holds that a corpus is supplied by the reader, and `apply` still takes one
+phrase from its caller.

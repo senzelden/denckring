@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import random
 from pathlib import Path
 from typing import Any
 
@@ -13,8 +14,8 @@ from fastapi.templating import Jinja2Templates
 
 from denckring import __version__
 from denckring import check as denckring_check
-from denckring.core import catalogue
-from denckring.core.errors import UnknownProcedure
+from denckring.core import catalogue, domain
+from denckring.core.errors import MissingCapability, UnknownProcedure, extra_for
 from denckring.core.protocol import Constructive, Lang
 from denckring.core.registry import all_procedures, get
 from denckring.procedures.n_plus_7 import displace, resolve_dictionary
@@ -773,6 +774,87 @@ async def stage_word_ladder_act(request: Request) -> HTMLResponse:
 #: N+7's and the word ladder's own, this scene carries no language toggle at
 #: all. Widening it is not this task's to do (see the brief's own ruling).
 CUT_UP_LANG: Lang = "en"
+
+
+def _street_context(
+    trade: str, lang: str, ceiling: float, rng: random.Random | None = None
+) -> dict[str, Any]:
+    """Everything both street routes need, gathered once.
+
+    First paint and the htmx swap render the *same* partial from the *same*
+    context, so a reader with JavaScript off sees what a drag would have given
+    them — the rule every other scene here follows.
+
+    `MissingCapability` is caught and turned into something the page can say,
+    rather than a 500. The street is the one scene whose data is gated on two
+    separate data distributions per language (German needs `de-wiktionary` for
+    `phonemes` and `de-frequency` for `lexicon.graded_words`), so an install
+    that can show the English street and not the German one is an ordinary
+    state, not a broken one — the board already calls that `blocked` and this
+    says the same thing in the same words, with the extra that would fix it.
+    """
+    blocked = None
+    shop: stage.Shopfront | None = None
+    try:
+        shop = stage.shop(trade, lang, ceiling, rng)  # type: ignore[arg-type]
+    except MissingCapability as exc:
+        remedy = extra_for(lang, exc.capability)
+        blocked = {
+            "lang": lang,
+            "remedy": (
+                f"Install it with `pip install denckring[{remedy}]`."
+                if remedy
+                else "No extra supplies it."
+            ),
+        }
+    trades = [
+        {"id": trade_id, "name": domain.load(trade_id).names.get(lang, trade_id)}
+        for trade_id in stage.STREET_TRADES
+    ]
+    return {
+        "shop": shop,
+        "blocked": blocked,
+        "trade": trade,
+        "trades": trades,
+        "lang": lang,
+        "langs": stage.street_langs(trade),
+        "ceiling": ceiling,
+    }
+
+
+@app.get("/stage/paronomasia", response_class=HTMLResponse)
+def stage_paronomasia(request: Request, chrome: str = "on") -> HTMLResponse:
+    trade = stage.street_trade(None)
+    lang = stage.street_lang(trade, None)
+    return page(
+        request,
+        "stage_paronomasia.html",
+        scene=stage.scene("paronomasia"),
+        chrome_off=chrome == "off",
+        **_street_context(trade, lang, stage.STREET_BAND[1]),
+    )
+
+
+@app.post("/stage/paronomasia/act", response_class=HTMLResponse)
+async def stage_paronomasia_act(request: Request) -> HTMLResponse:
+    """Re-dress the street: a different trade, a different language, or a
+    tighter band.
+
+    The trade is resolved before the language on purpose. A trade need not speak
+    every language — `optician` ships English only — so switching to it while
+    the German street is up must fall back to a language it has, rather than
+    render an empty street that looks like a band set too tight.
+    """
+    form = await request.form()
+    trade = stage.street_trade(str(form.get("trade", "")) or None)
+    lang = stage.street_lang(trade, str(form.get("lang", "")) or None)
+    ceiling = stage.street_ceiling(str(form.get("ceiling", "")))
+    # Only the roll button draws. Changing trade, language or band re-renders the
+    # deterministic best street, so a reader adjusting the dial sees the dial's
+    # effect and not a reshuffle on top of it — two things moving at once would
+    # make neither legible.
+    rng = random.Random() if form.get("roll") else None
+    return page(request, "_stage_shop.html", **_street_context(trade, lang, ceiling, rng))
 
 
 @app.get("/stage/calculator_word", response_class=HTMLResponse)

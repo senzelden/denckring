@@ -1,0 +1,231 @@
+# Attested shop names are quoted here by the maintainer's ruling of 2026-09-10,
+# which settled the question ADR 0041 D7 had deferred. A business name is a name,
+# not a work: quoting one is nominative use, and the collections below are
+# journalism and public registers rather than anthologies. Each case names where
+# it was seen. None was collated against a shopfront; what is claimed is that the
+# name appears in the source given, which is what `provenance: external` means
+# here and everywhere in this corpus.
+#
+# The verdicts are read off the run, never written from expectation. Several are
+# `satisfied: false`, and those are the useful ones: a limit met on a real name
+# from the tradition is worth more than another example of the row working.
+procedure: portmanteau
+lang: en
+cases:
+  - name: hairitage
+    source: >-
+      constructed example; `hair` is `HH EH R` and `heritage` opens on the same
+      three phonemes, so the splice is a homophone of the stretch it covers
+    text: Hairitage
+    params: { source: heritage, splice: hair }
+    satisfied: true
+
+  - name: no-word-showing-through
+    source: constructed counterexample; `splice_not_present`
+    text: Heritage
+    params: { source: heritage, splice: hair }
+    satisfied: false
+
+  - name: splice-is-not-a-word
+    source: >-
+      constructed counterexample; `splice_not_a_word`. Without this any run of
+      letters could be declared the joke after the fact
+    text: Hairitage
+    params: { source: heritage, splice: airit }
+    satisfied: false
+
+  - name: host-not-recoverable
+    source: constructed counterexample; `host_unrecoverable`
+    text: Hairitage
+    params: { source: bicycle, splice: hair }
+    satisfied: false
+
+  - name: proper-noun-host-is-undecidable
+    source: >-
+      constructed counterexample, and the measured limit of the whole approach:
+      `Barbarella` is not in CMUdict, so the pair cannot be judged and is
+      reported rather than guessed at
+    text: Barberella
+    params: { source: Barbarella, splice: barber }
+    satisfied: false
+
+  - name: haarmonie
+    lang: de
+    source: >-
+      constructed example, and the case the equivalence table exists for. `Haar`
+      is `h aː ɐ̯` and `Harmonie` opens `h a ʁ`: German vocalises a coda r, so
+      the same segment is spelled two ways. Unfolded the distance is 0.667 and
+      out of band; folded it is 0.333
+    text: Haarmonie
+    params: { source: Harmonie, splice: Haar }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: foehnix
+    lang: de
+    source: constructed example; `Föhn` and the opening of `Phönix` are one pronunciation
+    text: Föhnix
+    params: { source: Phönix, splice: Föhn }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: haarmonie-outside-a-narrow-band
+    lang: de
+    source: constructed counterexample; the same pair with the ceiling below 0.333
+    text: Haarmonie
+    params: { source: Harmonie, splice: Haar, max_distance: 0.3 }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: diminutif
+    lang: fr
+    source: >-
+      constructed example; the French salon window's own convention. An
+      apostrophe re-segments a real word so a trade fragment surfaces, and
+      `-tif` is the family the register is full of. `paronomasia` cannot reach
+      this at all — it displaces whole words — so it is this row that catches
+      the most productive French shape in the tradition
+    text: Diminu'tif
+    params: { source: diminutif, splice: tif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: infinitif
+    lang: fr
+    source: constructed example; the same family, a second host
+    text: Infini'tif
+    params: { source: infinitif, splice: tif }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: cross-lingual-splice-is-not-a-french-word
+    lang: fr
+    source: >-
+      constructed counterexample, and the limit that is not g2p's fault.
+      `Imagin'hair` is a real and much-copied salon name, but `hair` is English
+      inside French: the splice is not a word this lexicon knows, and judging it
+      would need `phonemes.bilingual` — the capability `homophonic_translation`
+      is blocked on and no pack provides
+    text: Imagin'hair
+    params: { source: imaginaire, splice: hair }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: carroll-slithy
+    provenance: external
+    source: >-
+      Lewis Carroll, Through the Looking-Glass (1871), Humpty Dumpty's gloss:
+      `slithy` is "lithe and slimy ... like a portmanteau — there are two
+      meanings packed up into one word". Rejected: `splice_not_present`.
+      Carroll's portmanteau is a FUSION, where neither word survives whole and
+      no host is left standing; this row checks a SPLICE, one word placed inside
+      another that stays readable behind it. The row cites him as the ancestor of
+      the family and does not claim to check his rule — see its catalogue notes.
+    text: slithy
+    params: { source: slimy, splice: lithe }
+    satisfied: false
+
+  - name: carroll-chortle
+    provenance: external
+    source: >-
+      Lewis Carroll, Through the Looking-Glass (1871). The same shape and the
+      same rejection, kept because one instance of a limit reads as an accident
+      and two read as a rule.
+    text: chortle
+    params: { source: chuckle, splice: snort }
+    satisfied: false
+
+  - name: haarmonie
+    lang: de
+    provenance: external
+    source: >-
+      bedeutungonline.de, "Lustige und kreative Friseurnamen", a list of 300+
+      German salon names that gives each pun's host in brackets. The best known
+      of them, and the case the German equivalence table exists for.
+    text: Haarmonie
+    params: { source: Harmonie, splice: Haar }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: kammaeleon
+    lang: de
+    provenance: external
+    source: bedeutungonline.de, "Lustige und kreative Friseurnamen" — listed as "Kammäleon (Chamäleon)".
+    text: Kammäleon
+    params: { source: Chamäleon, splice: Kamm }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: sahaara
+    lang: de
+    provenance: external
+    source: bedeutungonline.de — listed as "SaHaara (Sahara)". A homophone splice, 0.000.
+    text: SaHaara
+    params: { source: Sahara, splice: Haar }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: monhaarlisa
+    lang: de
+    provenance: external
+    source: >-
+      bedeutungonline.de — listed as "Monhaarlisa (Mona Lisa)". Rejected:
+      `sound_out_of_band` at 1.000. `Haar` covers the `a` of `Mona` and sounds
+      like nothing in it; the joke is carried by the letters and by knowing the
+      painting. This row checks the heard relation, and this is the class of name
+      no phonetic rule reaches — kept as the evidence for that rather than
+      admitted by opening the band until it passes.
+    text: Monhaarlisa
+    params: { source: Mona Lisa, splice: Haar }
+    satisfied: false
+    requires: [phonemes]
+
+  - name: international-hairport
+    provenance: external
+    source: Atlas Obscura, "Hair They Are" — International Hairport.
+    text: Hairport
+    params: { source: airport, splice: hair }
+    satisfied: true
+
+  - name: hairaphernalia
+    provenance: external
+    source: Atlas Obscura, "Hair They Are" — Hairaphernalia, St. Louis Park, Minnesota.
+    text: Hairaphernalia
+    params: { source: paraphernalia, splice: hair }
+    satisfied: true
+
+  - name: imaginhair
+    lang: fr
+    provenance: external
+    source: >-
+      tif.hair, the INSEE-derived register of punning French salons, which counts
+      roughly 150 salons of this name — the commonest in the whole French
+      register. English inside French, reachable only through the ARPABET-to-IPA
+      bridge of ADR 0043.
+    text: Imagin'hair
+    params: { source: imaginaire, splice: hair, splice_lang: en }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: atmosphair
+    lang: fr
+    provenance: external
+    source: >-
+      tif.hair. The splice here is the FRENCH `air`, not the English `hair`: the
+      coinage carries `air` and the joke is that `hair` is heard behind it. 0.000.
+    text: Atmosph'air
+    params: { source: atmosphère, splice: air }
+    satisfied: true
+    requires: [phonemes]
+
+  - name: diminutif
+    lang: fr
+    provenance: external
+    source: >-
+      tif.hair, which counts 147 salons in the `-tif` family. The apostrophe
+      re-segmentation the French register is built on, and a shape `paronomasia`
+      cannot reach at all.
+    text: Diminu'tif
+    params: { source: diminutif, splice: tif }
+    satisfied: true
+    requires: [phonemes]
