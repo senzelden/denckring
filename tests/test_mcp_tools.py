@@ -2,18 +2,38 @@
 
 import asyncio
 import re
+import warnings
 
 import pytest
 
 pytest.importorskip("mcp", reason="needs denckring[mcp]")
 
 from denckring.mcp.server import (
+    _DEFAULT_MAX_TEXT_CHARS,
+    _max_text_chars_from_env,
     apply_procedure_tool,
     check_text_tool,
     describe_procedure_tool,
     list_procedures_tool,
     server,
 )
+
+
+def test_malformed_max_chars_env_falls_back_with_a_named_warning() -> None:
+    with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _max_text_chars_from_env("lots") == _DEFAULT_MAX_TEXT_CHARS
+
+
+def test_non_positive_max_chars_env_falls_back_with_a_named_warning() -> None:
+    with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _max_text_chars_from_env("0") == _DEFAULT_MAX_TEXT_CHARS
+
+
+def test_valid_max_chars_env_is_used_without_warning() -> None:
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        assert _max_text_chars_from_env("123") == 123
+    assert not caught
 
 
 def test_list_returns_summaries() -> None:
