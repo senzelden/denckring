@@ -1,6 +1,7 @@
 """The four tools, called directly. No client, no transport."""
 
 import asyncio
+import importlib
 import re
 
 import pytest
@@ -8,6 +9,8 @@ import pytest
 pytest.importorskip("mcp", reason="needs denckring[mcp]")
 
 from denckring.mcp.server import (
+    DEFAULT_MAX_TEXT_CHARS,
+    _parse_max_chars,
     apply_procedure_tool,
     check_text_tool,
     describe_procedure_tool,
@@ -205,3 +208,44 @@ def test_the_apply_docstring_sends_callers_to_the_language_aware_field() -> None
 
     doc = apply_procedure_tool.__doc__ or ""
     assert "apply_missing" in doc
+
+
+def test_parse_max_chars_valid() -> None:
+    assert _parse_max_chars("100000") == 100_000
+    assert _parse_max_chars(" 25000 ") == 25_000
+    assert _parse_max_chars(None) == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_parse_max_chars_malformed_falls_back_with_warning() -> None:
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _parse_max_chars("lots") == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_parse_max_chars_non_positive_falls_back_with_warning() -> None:
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _parse_max_chars("0") == DEFAULT_MAX_TEXT_CHARS
+
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _parse_max_chars("-500") == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_parse_max_chars_empty_falls_back_with_warning() -> None:
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _parse_max_chars("") == DEFAULT_MAX_TEXT_CHARS
+
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        assert _parse_max_chars("   ") == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_mcp_server_import_with_malformed_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    from denckring.mcp import server as mcp_server
+
+    monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "lots")
+    with pytest.warns(UserWarning, match="DENCKRING_MCP_MAX_CHARS"):
+        importlib.reload(mcp_server)
+    assert mcp_server.MAX_TEXT_CHARS == DEFAULT_MAX_TEXT_CHARS
+
+    # Clean up reload without the env var
+    monkeypatch.delenv("DENCKRING_MCP_MAX_CHARS", raising=False)
+    importlib.reload(mcp_server)
+
