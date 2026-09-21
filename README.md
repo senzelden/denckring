@@ -94,7 +94,7 @@ distribution exists per licence rather than per language (ADR 0013).
 | `denckring[de]` | word lexicon and noun list, from Wikidata Lexemes (CC0) | `charade`, `semordnilap`, `word_square`, `n_plus_7`, `s_plus_7` in German |
 | `denckring[de-wiktionary]` | pronunciations, stress, glosses (CC BY-SA) | **every implemented row in German** |
 | `denckring[de-frequency]` | frequency bands, from the Leipzig Corpora Collection (CC BY) | German `apply anagram` |
-| `denckring[fr]` | word list, nouns, frequency bands, glosses, syllables, phonemes (Lexique 3.82, fr.Wiktionary) | French from 70 rows to **103** |
+| `denckring[fr]` | word list, nouns, frequency bands, glosses, syllables, phonemes (Lexique 3.82, fr.Wiktionary) | French from 70 rows to **106** |
 | `denckring[mcp]` | the MCP server | `denckring-mcp` |
 
 Without `[en]`, syllables are estimated from spelling and every report says how many
@@ -118,8 +118,13 @@ an approximate answer.
 
 `describe` answers both halves of "can I run this in French": `languages` is the row's
 authored editorial scope — `wechselsatz` is German by nature, not merely by capability —
-and `runs_in` is computed from the installed packs. `belle_absente` is `languages: [en]`
-and `runs_in` all three.
+and `runs_in` is computed from the installed packs. `clerihew` is `languages: [en]`, the
+form being English by nature, and `runs_in` all three.
+
+The two move independently, and the editorial half is the one that lags: 174 (row,
+language) pairs ran unclaimed when it was last measured. ADR 0047 closed the thirty
+French rows whose own `source:` field is the evidence — `lipogram` is Perec's *La
+Disparition* — and records why the rest stay open rather than being swept.
 
 **18 French rows will never close.** They are accentual metres, French has no lexical
 stress, and they are not French forms; declaring the capability to reach a bigger number

@@ -53,6 +53,24 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Thirty French-sourced rows now declare French** (ADR 0047). `meta.languages` is
+  authored editorial scope and `runs_in` is computed from capabilities; measured on
+  2026-09-21, 174 (row, language) pairs ran without being editorially claimed, of
+  which 92 were French. This closes the thirty whose own `source:` field is the
+  evidence — `lipogram` is Perec's *La Disparition* and declared `[en, de]` — and
+  leaves the other 144 open rather than sweeping them. Eleven French names and
+  twelve French definitions were written for the rows that had none, and 24 French
+  golden cases, because a declared language must be one the row has actually been
+  run in. French editorial scope goes from 14 rows to 44; `runs_in` does not move.
+  **The same test over German-sourced rows returns zero**: every row sourced to a
+  German original already declared `de`. Measuring for this found the README's
+  `denckring[fr]` count stale at 103 against a measured 106, and its illustration of
+  the distinction resting on `belle_absente` — a row whose `languages` was wrong,
+  which is how it could illustrate anything. `clerihew` replaces it.
+- **`tests/test_declared_language_strings.py`**, asserting through `describe` that
+  no declared language is ever answered in a substitute. `tests/test_catalogue_quality.py`
+  already held the rule against the YAML; this holds it at the surface a caller
+  sees, where the per-field fallback to English is what does the damage.
 - **`pos`, a part-of-speech capability, and the two rows it unblocks** (ADR 0045,
   issue #22). `LanguagePack.pos_tags()` reads a whole sentence and returns one
   `PosTag(upos, verb_form, known)` per token. `verbless_prose` bars finite verbs;
