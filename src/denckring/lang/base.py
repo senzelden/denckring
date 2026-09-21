@@ -8,7 +8,7 @@ from collections.abc import Mapping, Sequence
 from typing import ClassVar
 
 from denckring.core.errors import MissingCapability
-from denckring.core.protocol import Lang
+from denckring.core.protocol import Lang, PosTag
 
 TOKENS = "tokens"
 ALPHABET = "alphabet"
@@ -25,6 +25,11 @@ GLOSSES = "lexicon.glosses"
 GRADED_WORDS = "lexicon.graded_words"
 PHONEMES = "phonemes"
 STRESS = "stress"
+#: A part-of-speech reading of a token in its sentence. One capability and not a
+#: `pos.heuristic`/`pos.dictionary` pair like syllables: a tagger is a model, so
+#: there is no exact tier for a heuristic one to be contrasted with, and
+#: `PosTag.known` carries the per-token honesty instead. ADR 0045.
+POS = "pos"
 
 # Both apostrophes are intentional: real text uses the typographic one.
 WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)  # noqa: RUF001
@@ -215,6 +220,18 @@ class BasePack:
     def is_word(self, word: str) -> bool:
         """Whether the lexicon knows this word at all."""
         raise MissingCapability(DIRECT_CALL, self.lang, WORDS)
+
+    def pos_tags(self, words: Sequence[str]) -> list[PosTag]:
+        """One reading per token, tagged in the context of the others.
+
+        A whole sentence and not a word at a time, because that is what makes
+        the answer worth having: `walks` is a noun in *the evening walks were
+        long* and a finite verb in *she walks home*, and no per-word lookup
+        decides between them.
+        Callers pass one sentence; passing a whole text degrades the tagging
+        rather than failing, so the splitting is the caller's job.
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, POS)
 
     def glosses(self, word: str) -> Sequence[str]:
         """Every definition the lexicon carries for this word.

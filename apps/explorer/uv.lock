@@ -317,7 +317,7 @@ wheels = [
 
 [[package]]
 name = "denckring"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../" }
 dependencies = [
     { name = "pydantic" },
@@ -343,6 +343,10 @@ en = [
 fr = [
     { name = "denckring-fr-data" },
 ]
+pos = [
+    { name = "denckring-en-data" },
+    { name = "denckring-en-pos" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -352,13 +356,15 @@ requires-dist = [
     { name = "denckring-de-frequency", marker = "extra == 'de-frequency'", editable = "../../packages/denckring-de-frequency" },
     { name = "denckring-de-wiktionary", marker = "extra == 'de-wiktionary'", editable = "../../packages/denckring-de-wiktionary" },
     { name = "denckring-en-data", marker = "extra == 'en'", editable = "../../packages/denckring-en-data" },
+    { name = "denckring-en-data", marker = "extra == 'pos'", editable = "../../packages/denckring-en-data" },
+    { name = "denckring-en-pos", marker = "extra == 'pos'", editable = "../../packages/denckring-en-pos" },
     { name = "denckring-fr-data", marker = "extra == 'fr'", editable = "../../packages/denckring-fr-data" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'mcp'", specifier = ">=2" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
-provides-extras = ["en", "de", "de-wiktionary", "fr", "de-frequency", "mcp"]
+provides-extras = ["en", "de", "de-wiktionary", "fr", "de-frequency", "pos", "mcp"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -376,7 +382,7 @@ lexicon = [{ name = "wn", specifier = ">=1.1" }]
 
 [[package]]
 name = "denckring-de-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../packages/denckring-de-data" }
 dependencies = [
     { name = "denckring" },
@@ -387,7 +393,7 @@ requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
 name = "denckring-de-frequency"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../packages/denckring-de-frequency" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -398,7 +404,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckr
 
 [[package]]
 name = "denckring-de-wiktionary"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../packages/denckring-de-wiktionary" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -409,7 +415,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "../../packages/denckr
 
 [[package]]
 name = "denckring-en-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../packages/denckring-en-data" }
 dependencies = [
     { name = "denckring" },
@@ -419,12 +425,23 @@ dependencies = [
 requires-dist = [{ name = "denckring", editable = "../../" }]
 
 [[package]]
+name = "denckring-en-pos"
+version = "0.3.0"
+source = { editable = "../../packages/denckring-en-pos" }
+dependencies = [
+    { name = "denckring-en-data" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring-en-data", editable = "../../packages/denckring-en-data" }]
+
+[[package]]
 name = "denckring-explorer"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
-    { name = "denckring", extra = ["de", "de-frequency", "de-wiktionary", "en", "fr"] },
+    { name = "denckring", extra = ["de", "de-frequency", "de-wiktionary", "en", "fr", "pos"] },
     { name = "fastapi" },
     { name = "jinja2" },
     { name = "mcp", extra = ["cli"] },
@@ -444,7 +461,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.69" },
-    { name = "denckring", extras = ["en", "de", "de-wiktionary", "de-frequency", "fr"], editable = "../../" },
+    { name = "denckring", extras = ["en", "de", "de-wiktionary", "de-frequency", "fr", "pos"], editable = "../../" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "mcp", extras = ["cli"], specifier = ">=2" },
@@ -463,7 +480,7 @@ dev = [
 
 [[package]]
 name = "denckring-fr-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../packages/denckring-fr-data" }
 dependencies = [
     { name = "denckring" },

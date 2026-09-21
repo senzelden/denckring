@@ -4,7 +4,7 @@ needs is a defect in it, and these are the seven this batch corrects.
 
 import pytest
 
-from denckring.core import catalogue
+from denckring.core import catalogue, registry
 from denckring.core.errors import UnknownProcedure
 
 UNDERSTATED = {
@@ -14,10 +14,21 @@ UNDERSTATED = {
 }
 
 BLOCKED = {
-    "homosyntaxism": "pos",
-    "verbless_prose": "pos",
     "homophonic_translation": "phonemes.bilingual",
     "perverb": "corpus.proverbs",
+}
+
+#: Rows that were in `BLOCKED` until ADR 0045 built the capability. They still
+#: declare `pos` — what changed is that something answers it.
+#:
+#: Moved rather than deleted, and this is the point of the pair of tests below.
+#: `test_blocked_rows_name_what_they_need` only ever asserted `"pos" in requires`,
+#: which is still true, so leaving these here would have stayed green while its
+#: docstring — "a capability nothing provides" — became false. A test that passes
+#: for a reason that has stopped holding is the defect this repo treats as real.
+UNBLOCKED = {
+    "homosyntaxism": "pos",
+    "verbless_prose": "pos",
 }
 
 UNDECIDABLE = ["back_translation", "transduction", "intralingual_translation"]
@@ -36,8 +47,42 @@ def test_understated_requires_are_corrected(pid: str, capability: str) -> None:
 
 @pytest.mark.parametrize("pid,capability", sorted(BLOCKED.items()))
 def test_blocked_rows_name_what_they_need(pid: str, capability: str) -> None:
-    """A row blocked on a capability nothing provides must still say which one."""
-    assert capability in catalogue.get(pid).requires
+    """A row blocked on a capability nothing provides must still say which one.
+
+    Both halves are asserted now. Naming the capability was always the point, but
+    the row also has to still be *blocked* — otherwise this test keeps passing
+    about a row that shipped, which is exactly what happened to `verbless_prose`
+    and `homosyntaxism` before they were moved to `UNBLOCKED`.
+    """
+    meta = catalogue.get(pid)
+    assert capability in meta.requires
+    assert pid not in set(registry.all_procedures()), (
+        f"{pid} is registered, so it is not blocked any more — move it to UNBLOCKED"
+    )
+
+
+@pytest.mark.parametrize("pid,capability", sorted(UNBLOCKED.items()))
+def test_the_rows_the_pos_capability_unblocked_are_built(pid: str, capability: str) -> None:
+    """ADR 0045. The capability is still declared — a row does not stop needing
+    what it needs — and something now answers it, which is the whole change.
+
+    `chimera` is deliberately absent: it declares `pos` too and is still unbuilt,
+    for a reason that is not a missing capability (three source texts). Its
+    `notes:` says so, and `test_the_unbuilt_pos_row_says_why` below holds it.
+    """
+    meta = catalogue.get(pid)
+    assert capability in meta.requires
+    assert pid in set(registry.all_procedures())
+
+
+def test_the_unbuilt_pos_row_says_why_it_is_still_unbuilt() -> None:
+    """`chimera` was blocked on `pos` and no longer is. A row that stays unbuilt
+    after its stated reason evaporates must give the new one, or the catalogue is
+    carrying a stale excuse."""
+    meta = catalogue.get("chimera")
+    assert "pos" in meta.requires
+    assert "chimera" not in set(registry.all_procedures())
+    assert meta.notes and "three" in meta.notes.lower()
 
 
 @pytest.mark.parametrize("pid", UNDECIDABLE)

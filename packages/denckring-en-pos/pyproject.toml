@@ -1,0 +1,38 @@
+[project]
+name = "denckring-en-pos"
+version = "0.3.0"
+description = "An English part-of-speech tagger for denckring, trained on UD English-EWT"
+readme = "README.md"
+requires-python = ">=3.11"
+# CC BY-SA 4.0, established from the treebank's own LICENSE.txt, whose first line
+# reads "Attribution-ShareAlike 4.0 International" — vendored verbatim as
+# LICENSE-UD rather than retyped. Share-alike reaches the shipped weights: they
+# are derived from the annotations, not merely built with them, which is why this
+# is its own distribution instead of another table inside `denckring-en-data`
+# (ADR 0013, ADR 0045).
+license = "Apache-2.0 AND CC-BY-SA-4.0"
+license-files = ["LICENSE", "NOTICE", "LICENSE-UD"]
+authors = [{ name = "Dennis Senzel", email = "dennis.senzel@posteo.com" }]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+# Version-locked, for the reason denckring-en-data records. `denckring-en-data`
+# rather than `denckring`, because the `en` entry point belongs to that
+# distribution and its `pack()` factory composes this one in when it is
+# importable — the same direction denckring-de-frequency's dependency runs.
+dependencies = ["denckring-en-data==0.3.0"]
+
+# No [project.entry-points."denckring.lang"] section, and its absence is the
+# design — the same absence `denckring-de-frequency` documents.
+# `denckring/lang/__init__.py` refuses two entry points claiming one language,
+# so `en` stays with `denckring-en-data` (ADR 0013, ADR 0045).
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denckring_en_pos"]

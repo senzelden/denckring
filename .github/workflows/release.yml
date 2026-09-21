@@ -96,13 +96,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       # Every leg is independent and each says something different: stopping the
-      # others on the first failure would hide which of the six are misconfigured,
+      # others on the first failure would hide which of the seven are misconfigured,
       # which is the whole question a rehearsal answers.
       fail-fast: false
       matrix:
         include:
           - {dist: denckring, files: "denckring-", environment: testpypi}
           - {dist: denckring-en-data, files: "denckring_en_data-", environment: testpypi-en-data}
+          - {dist: denckring-en-pos, files: "denckring_en_pos-", environment: testpypi-en-pos}
           - {dist: denckring-de-data, files: "denckring_de_data-", environment: testpypi-de-data}
           - {dist: denckring-de-wiktionary, files: "denckring_de_wiktionary-", environment: testpypi-de-wiktionary}
           - {dist: denckring-de-frequency, files: "denckring_de_frequency-", environment: testpypi-de-frequency}
@@ -173,6 +174,7 @@ jobs:
         include:
           - {dist: denckring, files: "denckring-", environment: pypi}
           - {dist: denckring-en-data, files: "denckring_en_data-", environment: pypi-en-data}
+          - {dist: denckring-en-pos, files: "denckring_en_pos-", environment: pypi-en-pos}
           - {dist: denckring-de-data, files: "denckring_de_data-", environment: pypi-de-data}
           - {dist: denckring-de-wiktionary, files: "denckring_de_wiktionary-", environment: pypi-de-wiktionary}
           - {dist: denckring-de-frequency, files: "denckring_de_frequency-", environment: pypi-de-frequency}

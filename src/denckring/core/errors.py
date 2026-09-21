@@ -117,6 +117,19 @@ _PERMANENTLY_MISSING = frozenset(
     }
 )
 
+#: `(lang, capability)` pairs nothing supplies *today*, which is a different claim
+#: from `_PERMANENTLY_MISSING` and kept in its own set so neither one drifts into the
+#: other's meaning. `pos` arrives English-only (ADR 0045): the tagger is trained from
+#: one treebank, and German and French would each need their own distribution rather
+#: than a larger English one. Falling through to `_SPECIALIST_EXTRAS` would answer a
+#: German `pos` refusal with `pip install denckring[de]`, which is the remedy-nobody-
+#: can-follow defect recorded below. Removing an entry here is what shipping that
+#: language's tagger looks like.
+#: String literals and not `lang.base.POS`: `lang.base` imports this module, so
+#: naming the constant here would close the import cycle. Every set above spells
+#: its capabilities out for the same reason.
+_UNSUPPLIED_TODAY = frozenset({("de", "pos"), ("fr", "pos")})
+
 #: `(lang, capability)` pairs supplied by an extra that is *not* named after the
 #: language. Only German has two, and the split is a licence boundary rather than
 #: a packaging convenience: `denckring[de]` is CC0 Wikidata, while pronunciation,
@@ -138,6 +151,9 @@ _SPECIALIST_EXTRAS = {
     ("de", "phonemes"): "de-wiktionary",
     ("de", "syllables.dictionary"): "de-wiktionary",
     ("de", "lexicon.glosses"): "de-wiktionary",
+    # ADR 0045: UD English-EWT is CC BY-SA, so ADR 0013 quarantines it away from
+    # `denckring-en-data`'s own mix rather than growing that distribution.
+    ("en", "pos"): "pos",
 }
 
 
@@ -150,7 +166,7 @@ def extra_for(lang: str, capability: str) -> str | None:
     recover a fact the raiser already knew is the failure mode
     `stage.word_ladder` names: it breaks the moment either wording changes.
     """
-    if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING:
+    if lang not in _EXTRAS or (lang, capability) in _PERMANENTLY_MISSING | _UNSUPPLIED_TODAY:
         return None
     return _SPECIALIST_EXTRAS.get((lang, capability), lang)
 

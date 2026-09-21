@@ -17,6 +17,7 @@ members = [
     "denckring-de-frequency",
     "denckring-de-wiktionary",
     "denckring-en-data",
+    "denckring-en-pos",
     "denckring-fr-data",
 ]
 
@@ -525,7 +526,7 @@ wheels = [
 
 [[package]]
 name = "denckring"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
@@ -554,6 +555,10 @@ fr = [
 mcp = [
     { name = "mcp", extra = ["cli"] },
 ]
+pos = [
+    { name = "denckring-en-data" },
+    { name = "denckring-en-pos" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -579,13 +584,15 @@ requires-dist = [
     { name = "denckring-de-frequency", marker = "extra == 'de-frequency'", editable = "packages/denckring-de-frequency" },
     { name = "denckring-de-wiktionary", marker = "extra == 'de-wiktionary'", editable = "packages/denckring-de-wiktionary" },
     { name = "denckring-en-data", marker = "extra == 'en'", editable = "packages/denckring-en-data" },
+    { name = "denckring-en-data", marker = "extra == 'pos'", editable = "packages/denckring-en-data" },
+    { name = "denckring-en-pos", marker = "extra == 'pos'", editable = "packages/denckring-en-pos" },
     { name = "denckring-fr-data", marker = "extra == 'fr'", editable = "packages/denckring-fr-data" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'mcp'", specifier = ">=2" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
-provides-extras = ["en", "de", "de-wiktionary", "fr", "de-frequency", "mcp"]
+provides-extras = ["en", "de", "de-wiktionary", "fr", "de-frequency", "pos", "mcp"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -603,7 +610,7 @@ lexicon = [{ name = "wn", specifier = ">=1.1" }]
 
 [[package]]
 name = "denckring-de-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/denckring-de-data" }
 dependencies = [
     { name = "denckring" },
@@ -614,7 +621,7 @@ requires-dist = [{ name = "denckring", editable = "." }]
 
 [[package]]
 name = "denckring-de-frequency"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/denckring-de-frequency" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -625,7 +632,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "packages/denckring-de
 
 [[package]]
 name = "denckring-de-wiktionary"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/denckring-de-wiktionary" }
 dependencies = [
     { name = "denckring-de-data" },
@@ -636,7 +643,7 @@ requires-dist = [{ name = "denckring-de-data", editable = "packages/denckring-de
 
 [[package]]
 name = "denckring-en-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/denckring-en-data" }
 dependencies = [
     { name = "denckring" },
@@ -646,8 +653,19 @@ dependencies = [
 requires-dist = [{ name = "denckring", editable = "." }]
 
 [[package]]
+name = "denckring-en-pos"
+version = "0.3.0"
+source = { editable = "packages/denckring-en-pos" }
+dependencies = [
+    { name = "denckring-en-data" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "denckring-en-data", editable = "packages/denckring-en-data" }]
+
+[[package]]
 name = "denckring-fr-data"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/denckring-fr-data" }
 dependencies = [
     { name = "denckring" },

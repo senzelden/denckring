@@ -5,11 +5,12 @@ is not reproducible from repository state alone, and a network attacker (the
 plain-HTTP Lexique fetch was one concrete case) or an upstream mirror swap can
 silently change shipped linguistic behavior (review finding P2-05).
 
-Duplicated across denckring-fr-data, denckring-en-data, denckring-de-frequency
-and denckring-de-wiktionary rather than imported from one of them: these are
+Duplicated across the five distributions that download anything — denckring-fr-data,
+denckring-en-data, denckring-de-frequency, denckring-de-wiktionary and
+denckring-en-pos — rather than imported from one of them: these are
 independent workspace packages that depend on each other only as installed
-distributions declared in `pyproject.toml` (e.g. denckring-de-frequency's
-`dependencies = ["denckring-de-data==0.2.0"]`), never on one another's
+distributions declared in `pyproject.toml` (e.g. denckring-de-frequency pins
+`denckring-de-data` by exact version), never on one another's
 `scripts/` directories — no build script in this workspace imports across a
 package boundary that way — and this ~15-line function is not worth adding a
 new inter-package, build-time-only dependency to establish that pattern.

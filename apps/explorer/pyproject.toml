@@ -14,7 +14,11 @@ dependencies = [
     # distributions for that (`de-wiktionary` and `de-frequency`, kept apart
     # by ADR 0013 because their licences differ) and French takes one.
     # Without them the German and French streets do not render at all.
-    "denckring[en,de,de-wiktionary,de-frequency,fr]",
+    # `pos` joins them for the same reason (ADR 0045): without the tagger,
+    # `verbless_prose` and `homosyntaxism` render as blocked tiles on a board
+    # whose whole claim is that it installs everything, and the two rows a
+    # visitor would most want to try are the two they cannot.
+    "denckring[en,de,de-wiktionary,de-frequency,fr,pos]",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     "jinja2>=3.1",
@@ -31,6 +35,7 @@ explorer = "explorer.__main__:main"
 denckring = { path = "../..", editable = true }
 denckring-en-data = { path = "../../packages/denckring-en-data", editable = true }
 denckring-de-data = { path = "../../packages/denckring-de-data", editable = true }
+denckring-en-pos = { path = "../../packages/denckring-en-pos", editable = true }
 
 [build-system]
 requires = ["hatchling"]

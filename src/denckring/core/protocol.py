@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
-from typing import Any, ClassVar, Literal, Protocol, get_args, runtime_checkable
+from typing import Any, ClassVar, Literal, NamedTuple, Protocol, get_args, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
@@ -294,6 +294,30 @@ class Constructive(Protocol):
     def produce(self, text: str, *, lang: Lang = "en", **params: Any) -> Production: ...
 
 
+#: UD's `VerbForm` feature, which is the one distinction `verbless_prose` turns
+#: on: a finite verb is barred where a participle is the material the form is
+#: written out of. `None` for everything that is not a verb or auxiliary.
+VerbForm = Literal["Fin", "Part", "Inf", "Ger", "Sup", "Conv"]
+
+
+class PosTag(NamedTuple):
+    """One token's reading in its sentence.
+
+    `known` is the honesty field and the reason this is a triple rather than a
+    pair. A tagger answers for every token, including one it has never seen, by
+    falling back on suffix and shape features — so unlike `syllable_count`'s
+    `exact` there is no tier at which the answer is looked up rather than
+    modelled. What can be said is whether the form was in the training data at
+    all, and a row that reports a violation on a token where it was not must say
+    so. ADR 0045.
+    """
+
+    #: UD universal POS: VERB, AUX, NOUN, ADJ, ADV, PRON, DET, ADP, ...
+    upos: str
+    verb_form: VerbForm | None
+    known: bool
+
+
 @runtime_checkable
 class LanguagePack(Protocol):
     """Per-language behaviour.
@@ -354,3 +378,5 @@ class LanguagePack(Protocol):
     def noun_index(self, word: str) -> int | None: ...
 
     def graded_words(self) -> Mapping[str, int]: ...
+
+    def pos_tags(self, words: Sequence[str]) -> list[PosTag]: ...

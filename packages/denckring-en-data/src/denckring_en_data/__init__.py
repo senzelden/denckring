@@ -37,7 +37,7 @@ NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 @lru_cache(maxsize=1)
@@ -292,6 +292,33 @@ def _rhyme_of(phones: list[str]) -> str:
     return " ".join(phones[primary[-1] :])
 
 
+def pack() -> EnglishDataPack:
+    """The best English pack this install can supply. The `en` entry point.
+
+    A factory rather than the class itself, for the reason `denckring_de_data.pack`
+    records: two distributions now carry English data under two licences and only
+    one of them may register the language. `denckring/lang/__init__.py` raises
+    `DuplicatePack` for a second `en` entry point, and ADR 0013 forbids merging
+    a CC BY-SA treebank into this distribution's own mix — so `denckring-en-pos`
+    ships without an entry point and is composed in here (ADR 0045).
+
+    `entry.load()()` is what the registry calls, so replacing a class with a
+    function changes nothing core can observe. German made this same move under
+    ADR 0030; this is the second time, and the branch count is two.
+
+    Imported inside the function because the dependency runs the other way:
+    `denckring-en-pos` depends on this distribution, not this one on it.
+    """
+    try:
+        from denckring_en_pos import EnglishPosPack
+    except ImportError:
+        # No tagger. `verbless_prose` and `homosyntaxism` raise `MissingCapability`
+        # naming `pos`, which is the honest failure rather than a guessed reading
+        # of which words are verbs.
+        return EnglishDataPack()
+    return EnglishPosPack()
+
+
 __all__ = [
     "DICTIONARY_PATH",
     "GLOSSES_PATH",
@@ -302,6 +329,7 @@ __all__ = [
     "graded_words",
     "known_words",
     "noun_list",
+    "pack",
     "pronunciations",
     "variants",
 ]
