@@ -27,6 +27,7 @@ BLOCKED = {
 #: docstring — "a capability nothing provides" — became false. A test that passes
 #: for a reason that has stopped holding is the defect this repo treats as real.
 UNBLOCKED = {
+    "chimera": "pos",
     "homosyntaxism": "pos",
     "verbless_prose": "pos",
 }
@@ -66,23 +67,33 @@ def test_the_rows_the_pos_capability_unblocked_are_built(pid: str, capability: s
     """ADR 0045. The capability is still declared — a row does not stop needing
     what it needs — and something now answers it, which is the whole change.
 
-    `chimera` is deliberately absent: it declares `pos` too and is still unbuilt,
-    for a reason that is not a missing capability (three source texts). Its
-    `notes:` says so, and `test_the_unbuilt_pos_row_says_why` below holds it.
+    `chimera` joined them when it was built: it declares `pos` too, and the
+    reason it stayed unbuilt after the capability landed — said to be three
+    source texts against `SourceParams`' one — turned out not to be a reason at
+    all. The frame *is* the source; the three donors are not sources. Its
+    `notes:` records the shape that came of that, and the test below holds it.
     """
     meta = catalogue.get(pid)
     assert capability in meta.requires
     assert pid in set(registry.all_procedures())
 
 
-def test_the_unbuilt_pos_row_says_why_it_is_still_unbuilt() -> None:
-    """`chimera` was blocked on `pos` and no longer is. A row that stays unbuilt
-    after its stated reason evaporates must give the new one, or the catalogue is
-    carrying a stale excuse."""
+def test_the_last_pos_row_records_the_shape_it_took() -> None:
+    """`chimera` was blocked on `pos`, then said to be blocked on a parameter
+    shape. Both reasons are now spent, and the catalogue has to say what the row
+    actually does instead of carrying either excuse — a stale `notes:` is the
+    defect this pair of tests exists for.
+
+    Asserted as the rule and not as today's wording: the note must name each of
+    the three role-keyed fields the decision produced. A note that still claimed
+    the row *waits* on anything would not carry all three.
+    """
     meta = catalogue.get("chimera")
     assert "pos" in meta.requires
-    assert "chimera" not in set(registry.all_procedures())
-    assert meta.notes and "three" in meta.notes.lower()
+    assert "chimera" in set(registry.all_procedures())
+    assert meta.notes
+    for field in ("nouns_from", "verbs_from", "adjectives_from"):
+        assert field in meta.notes, f"chimera's notes do not name {field}"
 
 
 @pytest.mark.parametrize("pid", UNDECIDABLE)

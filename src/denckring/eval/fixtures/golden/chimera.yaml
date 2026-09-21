@@ -1,0 +1,128 @@
+procedure: chimera
+lang: en
+#: Every negative here carries a score bound as well as `satisfied: false`,
+#: because a fixture asserting only the boolean accepts a case that failed for
+#: the wrong rule — `.claude/rules/procedures.md` records the French
+#: `kangaroo_word` case that did. Each of these four is named for one defect at
+#: one position, so the bounds say "exactly one of the six positions failed":
+#: any second failure drops the score below the floor, and the intended one
+#: keeps it under the ceiling.
+cases:
+  - name: refilled-from-three
+    source: >-
+      constructed example; the frame's determiners stand, its adjective comes
+      from `adjectives_from`, both nouns from `nouns_from` and the verb from
+      `verbs_from`
+    text: The small wind watched the letter.
+    params:
+      source: The quick boy opened the door.
+      nouns_from: The cold wind carried the letter.
+      verbs_from: The warm girl watched the river.
+      adjectives_from: The small child painted the table.
+    satisfied: true
+    min_score: 1.0
+  - name: the-frame-must-survive
+    source: >-
+      constructed counterexample; every content word is drawn correctly and a
+      determiner is not the frame's, which is the half of the definition a
+      donor-membership-only checker would miss
+    text: A small wind watched the letter.
+    params:
+      source: The quick boy opened the door.
+      nouns_from: The cold wind carried the letter.
+      verbs_from: The warm girl watched the river.
+      adjectives_from: The small child painted the table.
+    satisfied: false
+    min_score: 0.8
+    max_score: 0.9
+  - name: a-noun-from-nowhere
+    source: >-
+      constructed counterexample; `mountain` is a noun and is in none of the
+      three donors
+    text: The small mountain watched the letter.
+    params:
+      source: The quick boy opened the door.
+      nouns_from: The cold wind carried the letter.
+      verbs_from: The warm girl watched the river.
+      adjectives_from: The small child painted the table.
+    satisfied: false
+    min_score: 0.8
+    max_score: 0.9
+  - name: the-wrong-class
+    source: >-
+      constructed counterexample; the subject position carries a verb, so the
+      frame's word classes are not kept at all
+    text: The small watched watched the letter.
+    params:
+      source: The quick boy opened the door.
+      nouns_from: The cold wind carried the letter.
+      verbs_from: The warm girl watched the river.
+      adjectives_from: The small child painted the table.
+    satisfied: false
+    min_score: 0.8
+    max_score: 0.9
+  - name: an-empty-donor-is-unsatisfiable-not-an-error
+    source: >-
+      constructed counterexample for ruling 1 in the module docstring:
+      `adjectives_from` carries no adjective, so the frame's adjective position
+      cannot be filled from it. `check` returns a verdict rather than refusing —
+      `apply` is the half that raises.
+    text: The small wind watched the letter.
+    params:
+      source: The quick boy opened the door.
+      nouns_from: The cold wind carried the letter.
+      verbs_from: The warm girl watched the river.
+      adjectives_from: Dogs run and birds fly.
+    satisfied: false
+    min_score: 0.8
+    max_score: 0.9
+  - name: two-sentences-refilled
+    source: >-
+      the row's own `apply` at seed 0 over the audit's frame and donors
+      (docs/audit/chimera.md), recorded because every other case here is one
+      six-token sentence: this one has a sentence boundary, seventeen positions
+      and an inherited sentence-initial capital (`Coffee`), which is the only
+      place the fixtures exercise ruling 3 or the per-sentence tagging
+    text: >-
+      The green crates carried a bright market. Coffee carried the green crates
+      and laughed every green market.
+    params:
+      source: >-
+        The old lighthouse kept a steady light. Sailors watched the dark water
+        and counted every slow turn.
+      nouns_from: >-
+        A grocer weighed the apples. The market held bread, salt and coffee in
+        wooden crates.
+      verbs_from: >-
+        She hurried, stumbled and laughed. They carried the ladder, painted the
+        shutters and left.
+      adjectives_from: >-
+        The morning was bright and cold. A thin mist hung over the green fields,
+        quiet and wide.
+    provenance: self-generated
+    satisfied: true
+    min_score: 1.0
+  - name: two-sentences-and-a-frame-word-lost
+    source: >-
+      the case above with one determiner of the *second* sentence changed; a
+      checker that compared only the first sentence, or that rebased offsets per
+      sentence, would still call this satisfied
+    text: >-
+      The green crates carried a bright market. Coffee carried a green crates
+      and laughed every green market.
+    params:
+      source: >-
+        The old lighthouse kept a steady light. Sailors watched the dark water
+        and counted every slow turn.
+      nouns_from: >-
+        A grocer weighed the apples. The market held bread, salt and coffee in
+        wooden crates.
+      verbs_from: >-
+        She hurried, stumbled and laughed. They carried the ladder, painted the
+        shutters and left.
+      adjectives_from: >-
+        The morning was bright and cold. A thin mist hung over the green fields,
+        quiet and wide.
+    satisfied: false
+    min_score: 0.9
+    max_score: 0.97

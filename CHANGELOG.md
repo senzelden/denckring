@@ -53,6 +53,34 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **`chimera`, the third `pos` row and the first that generates it** (issue #22).
+  A text's nouns, verbs and adjectives stripped out and refilled from three
+  different donors. The parameter shape it was said to be blocked on is three
+  role-keyed fields — `nouns_from`, `verbs_from`, `adjectives_from` — beside the
+  inherited `source`, and **no change to `core/base.py` was needed**: the premise
+  that `SourceParams` "carries one source and chimera needs three" was wrong, since
+  the source is the *frame*, the text this one was made from, and the donors are
+  lexical stock rather than sources. An ordered `sources: list[str]` was rejected
+  for hiding the role in a position `params_schema()` cannot describe.
+
+  Auditing it found the row's one real defect before it shipped: the generator
+  produced text its own checker rejects, because a drawn word's class is a fact
+  about where it lands — `salt` is a NOUN in the donor and PROPN at the head of a
+  sentence. `_produce` now re-tags its own output and redraws the positions whose
+  class did not survive. Four questions the definition leaves open — an empty
+  donor, repetition, capitalisation, and how the frame's surviving words are
+  compared — are ruled on in the module docstring, each with a test that has to
+  change if the ruling does. ADR 0046 records the parameter-shape decision ADR
+  0045 declined to make.
+
+  Two limits are measured and stated rather than papered over. `apply`'s redraw
+  loop is **greedy and incomplete**: a refusal is that search failing, not a
+  proof that the frame cannot be filled, and a sweep of 400 random cases found
+  21 refusals of which at least 8 were false. The message says so. And a donor
+  pool is the tagger's reading of the donor, which can be far smaller than the
+  donor text looks — so each candidate carries `forced_positions` beside
+  `target_positions`, counting the positions where exactly one donor word
+  survives and `seed` therefore changes nothing.
 - **`pos`, a part-of-speech capability, and the two rows it unblocks** (ADR 0045,
   issue #22). `LanguagePack.pos_tags()` reads a whole sentence and returns one
   `PosTag(upos, verb_form, known)` per token. `verbless_prose` bars finite verbs;

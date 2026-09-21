@@ -1414,9 +1414,22 @@ procedures:
     names: { en: Chimera, fr: Chimère }
     definitions:
       en: >-
-        A text whose nouns, verbs and adjectives are stripped out and replaced by
-        those of three different source texts.
-      fr: Un texte dont les substantifs, verbes et adjectifs viennent de trois sources différentes.
+        A text keeping one text's frame — its word order, its function words and
+        its punctuation — while every noun, verb and adjective is one of a text
+        supplied for that class: nouns from one, verbs from another, adjectives
+        from a third. A drawn word may be the one it replaced, and the three
+        supplying texts need not differ. The checker reads word classes from a
+        model, so its verdict is an estimate; the generator can refuse a frame
+        it cannot fill.
+      fr: >-
+        Un texte qui garde la charpente d'un autre — l'ordre des mots, les mots
+        outils, la ponctuation — tandis que chaque substantif, verbe et adjectif
+        provient d'un texte fourni pour cette classe : les substantifs de l'un,
+        les verbes d'un autre, les adjectifs d'un troisième. Un mot tiré peut
+        être celui qu'il remplace, et les trois textes fournisseurs ne sont pas
+        tenus d'être différents. Les classes de mots sont lues par un modèle :
+        le verdict est une estimation, et le générateur peut refuser une
+        charpente qu'il ne sait pas remplir.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -1429,15 +1442,37 @@ procedures:
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
     notes: >-
-      No longer blocked on `pos` — `denckring-en-pos` supplies it (ADR 0045), and
-      `homosyntaxism` and `verbless_prose` were built on it. This row waits for a
-      different reason: it is constructive over *three* source texts, and
-      `SourceParams` carries one. That parameter shape is a decision of its own
-      and ADR 0045 declines to make it in passing.
+      Built on the `pos` capability of ADR 0045, beside `homosyntaxism` and
+      `verbless_prose`. The parameter shape it was said to be waiting for is
+      three role-keyed fields — `nouns_from`, `verbs_from`, `adjectives_from` —
+      beside the inherited `source`, and it needed no change to `core/base.py`.
+      The premise that it did was wrong: `SourceParams` means the text this one
+      was made from, which here is the *frame* — the text emptied of its nouns,
+      verbs and adjectives — and the three donors are not sources in that sense
+      but lexical stock. Role keys rather than an ordered list because position
+      cannot say which donor fills which word class in `params_schema()`.
 
       This row empties a text of its nouns, verbs and adjectives and refills each
       class from a different source, which is a part-of-speech operation; it was
       previously filed under `lexicon.synonyms`, which it never needed.
+
+      What the checker verifies is that each content word is *of* the right
+      donor, not that it was taken from it, and the tags come from a model, so
+      the verdict is an estimate. Four rulings the definition does not settle —
+      an empty donor, repetition, capitalisation, and how the frame's own words
+      are compared — are recorded in the module docstring.
+
+      Three things a caller meets in practice. A donor pool is the tagger's
+      reading of the donor, not its word list: a paragraph of English can yield
+      two usable verbs, and a word that reads as its class in the donor may not
+      read as that class in the position it is drawn into — each candidate
+      carries `forced_positions` for how many positions had only one word that
+      survives, which is where `seed` stops mattering. `apply` may refuse: it
+      searches greedily and a `NoCandidateWord` is that search failing, not a
+      proof that the frame cannot be filled (`docs/audit/chimera.md` measures a
+      refusal on a satisfiable case). And nothing requires the three donors to
+      differ from each other or from the frame; where they do not, `apply` can
+      only hand back the frame, which the spine then refuses as degenerate.
 
   - id: canada_dry
     names: { en: Canada Dry }
