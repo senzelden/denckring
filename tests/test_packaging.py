@@ -80,7 +80,31 @@ ROOT = Path(__file__).resolve().parent.parent
 #: should check those three before assuming a data file crept in — and should know that
 #: lowering the bound to restore margin spends the half of the trade that makes it
 #: decorative, exactly as the 2026-09-06 note above explains.
-MAX_SDIST_BYTES = 950_000
+#:
+#: **Raised to 1,050,000 on 2026-09-22, by decision, and it is the direction the note
+#: above says is safe.** The 35,963 bytes of headroom predicted at 0.3.0 were spent by
+#: one branch — `chimera` with its tests and fixtures, two ADRs, and 48 French golden
+#: cases — and the prose that ate it is exactly what that note said would eat it. No
+#: data file crept in; the additions were checked one by one.
+#:
+#: Re-measured from `git archive HEAD`, the only build this test has read since #14:
+#:
+#:   - clean build from `HEAD`:                                                953,687
+#:   - the smallest file the bound exists to catch, `denckring-en-data`'s
+#:     `graded_words.txt.gz`:                                                  249,917
+#:   - so the failure this guards against now lands at:                      1,203,604
+#:
+#: The safe window is `(953,687, 1,203,604)`. **1,050,000** sits in it with 96,313 of
+#: headroom for the next chapters of prose and 153,604 of margin under the figure a
+#: re-included data file would reach — so the guard still bites, which is the whole
+#: question the 2026-09-06 lowering was about. The `mutants/` accident (~300,000) and
+#: either German or French `graded_words.txt.gz` (433,830 and 413,181) are caught far
+#: more easily still.
+#:
+#: Raising it is safe *here* only because the archive grew with it: both numbers moved
+#: up together. Shrinking the archive later without lowering this in the same commit is
+#: what would make it decorative again.
+MAX_SDIST_BYTES = 1_050_000
 
 
 def _export_head(tmp_path_factory: pytest.TempPathFactory) -> Path | None:
