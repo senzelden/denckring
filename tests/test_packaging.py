@@ -63,17 +63,96 @@ ROOT = Path(__file__).resolve().parent.parent
 #: separates them: the largest legitimate member, `uv.lock`, is 382,109 bytes, larger than
 #: the smallest data file. Whoever sets this next should set it knowing which half they
 #: are spending, and should re-measure rather than trust the numbers above.
+#:
+#: **Every figure above this line was measured against a working-tree build, and as of
+#: 2026-09-21 that is no longer what this test measures (#14).** The `sdist` fixture now
+#: builds from `git archive HEAD`, so a developer machine and CI measure the same bytes
+#: and the window's lower bound is no longer "above a working-tree build so a local run
+#: stays green" — there is nothing left for local scratch to inflate. Re-measured at
+#: 0.3.0 on that basis:
+#:
+#:   - clean build from `HEAD`:                                                914,037
+#:   - headroom under the bound:                                                35,963
+#:
+#: **That headroom is thin and it is prose, not data, that is eating it.** `uv.lock`
+#: (428,745), the catalogue (151,155) and `CHANGELOG.md` (130,759) are 78% of the
+#: archive between them, and all three only grow. The next person to find this red
+#: should check those three before assuming a data file crept in — and should know that
+#: lowering the bound to restore margin spends the half of the trade that makes it
+#: decorative, exactly as the 2026-09-06 note above explains.
 MAX_SDIST_BYTES = 950_000
+
+
+def _export_head(tmp_path_factory: pytest.TempPathFactory) -> Path | None:
+    """`HEAD`'s tracked content, extracted to a temporary directory.
+
+    `None` when there is no git repository to read, which is not a failure: the
+    sdist ships `tests/`, so a downstream packager runs this suite from an
+    unpacked tarball that has no `.git`. The fixture skips rather than measuring
+    something it cannot vouch for.
+    """
+    if shutil.which("git") is None:
+        return None
+    inside = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"], cwd=ROOT, capture_output=True, text=True
+    )
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        return None
+
+    export = tmp_path_factory.mktemp("head")
+    tarball = export / "head.tar"
+    subprocess.run(
+        ["git", "archive", "--format=tar", "-o", str(tarball), "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    tree = export / "tree"
+    with tarfile.open(tarball) as archive:
+        try:
+            archive.extractall(tree, filter="data")
+        except TypeError:  # `filter` arrives in 3.12, backported to 3.11.4
+            # Unfiltered only on a Python too old for the argument, and the
+            # archive is this repository's own commit rather than a hostile one.
+            archive.extractall(tree)
+    tarball.unlink()
+    return tree
 
 
 @pytest.fixture(scope="module")
 def sdist(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """The core source distribution, built into a temporary directory."""
+    """The core source distribution, built from the **commit** rather than the checkout.
+
+    `uv build` reads the working tree, not the index, so anything sitting in a
+    developer's checkout is a candidate for the archive no matter what git
+    thinks of it. That cost this project four separate `exclude` entries —
+    `/docs/superpowers`, `/mutants` and two more — each added after an untracked
+    directory turned up inside a release artefact, and each one only ever naming
+    the directory that had already caused the problem.
+
+    It also made `test_the_sdist_stays_small` fail on developer machines for
+    reasons that had nothing to do with the bound: a local `site/` of `mkdocs`
+    output takes the archive to 9.5 MB against a 950,000 cap. Every implementer
+    who hit it flagged it as pre-existing and worked around it, which is a guard
+    training its readers to ignore it (#14).
+
+    Building from `git archive HEAD` measures what CI measures and what a user
+    who installs from PyPI actually receives. The trade, stated because it is
+    real: a file that is new and not yet committed is not measured, so adding a
+    large data file under `src/` is caught on commit rather than on save.
+
+    The `exclude` entries in `pyproject.toml` are deliberately left alone. They
+    no longer matter to this test, but they still protect a maintainer who runs
+    `uv build` by hand in a dirty checkout.
+    """
     if shutil.which("uv") is None:
         pytest.skip("uv is what builds the distributions")
+    tree = _export_head(tmp_path_factory)
+    if tree is None:
+        pytest.skip("no git repository to export; this suite is running outside a checkout")
     out = tmp_path_factory.mktemp("sdist")
     subprocess.run(
-        ["uv", "build", "--sdist", "-o", str(out)], cwd=ROOT, check=True, capture_output=True
+        ["uv", "build", "--sdist", "-o", str(out)], cwd=tree, check=True, capture_output=True
     )
     built = list(out.glob("denckring-*.tar.gz"))
     assert len(built) == 1, f"expected one sdist, got {built}"
@@ -139,6 +218,27 @@ def test_the_sdist_stays_small(sdist: Path) -> None:
     a data file added under `src/`, say, rather than under an excluded directory."""
     size = sdist.stat().st_size
     assert size < MAX_SDIST_BYTES, f"sdist is {size / 1_000_000:.1f} MB"
+
+
+def test_the_export_declines_rather_than_fails_outside_a_checkout(
+    tmp_path_factory: pytest.TempPathFactory,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The sdist ships `tests/`, so this file runs where there is no `.git`.
+
+    `test_the_sdist_keeps_what_a_packager_needs` asserts that on purpose — a
+    downstream packager building from source runs this suite from an unpacked
+    tarball. `_export_head` has to answer "no repository here" rather than raise,
+    or the fix for #14 would turn a passing packager build into a red one.
+
+    Asserted by pointing `ROOT` at a directory that is not a checkout, which is
+    the condition itself rather than a stand-in for it.
+    """
+    import test_packaging
+
+    monkeypatch.setattr(test_packaging, "ROOT", tmp_path)
+    assert test_packaging._export_head(tmp_path_factory) is None
 
 
 #: Every distribution in this workspace, as (import name, pyproject path). The seven

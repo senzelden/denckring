@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- **`test_the_sdist_stays_small` measures the commit rather than the checkout**
+  (#14). `uv build` reads the working tree, so a gitignored `site/` of `mkdocs`
+  output took the archive to 9.5 MB against a 950,000 cap and the guard failed on
+  developer machines for reasons unrelated to the bound. Every implementer who hit
+  it flagged it as pre-existing and worked around it — a guard training its readers
+  to ignore it. The fixture now builds from `git archive HEAD`, so a local run and
+  CI measure the same bytes. It skips where there is no repository, because the
+  sdist ships `tests/` and a downstream packager runs this suite from an unpacked
+  tarball. The `exclude` entries in `pyproject.toml` are left in place: they no
+  longer matter to the test but still protect a hand-run `uv build` in a dirty
+  checkout.
+
 ## [0.3.0] - 2026-09-21
 
 ### Added
