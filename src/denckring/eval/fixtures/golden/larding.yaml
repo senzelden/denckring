@@ -23,3 +23,15 @@ cases:
     text: "Die Katze schlief. Der Hund lief. Es regnete stark."
     params: { source: "Die Katze schlief. Der Hund lief. Es regnete stark." }
     satisfied: false
+  - name: les-phrases-alternent-avec-les-lardons
+    lang: fr
+    source: constructed example; only the checkable half (the alternation) is scored
+    text: "Le chat dormait. Phrase nouvelle une. Le chien courait. Phrase nouvelle deux. La pluie tombait."
+    params: { source: "Le chat dormait. Le chien courait. La pluie tombait." }
+    satisfied: true
+  - name: aucun-lardon-insere
+    lang: fr
+    source: constructed counterexample
+    text: "Le chat dormait. Le chien courait. La pluie tombait."
+    params: { source: "Le chat dormait. Le chien courait. La pluie tombait." }
+    satisfied: false

@@ -11,3 +11,15 @@ cases:
     text: a bad one
     params: { forbidden: bcd }
     satisfied: false
+  - name: evite-le-groupe
+    lang: fr
+    source: constructed example
+    text: la lune se leva
+    params: { forbidden: bcd }
+    satisfied: true
+  - name: emploie-le-groupe
+    lang: fr
+    source: constructed counterexample
+    text: la bande se leva
+    params: { forbidden: bcd }
+    satisfied: false

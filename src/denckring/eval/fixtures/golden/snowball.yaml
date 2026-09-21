@@ -24,3 +24,15 @@ cases:
     text: Die Wörter wachsen hier nicht
     params: {}
     satisfied: false
+  - name: mots-qui-croissent
+    lang: fr
+    source: constructed example
+    text: a et ami aime amour malade
+    params: {}
+    satisfied: true
+  - name: prose-ordinaire
+    lang: fr
+    source: constructed counterexample
+    text: les mots ne poussent pas ici
+    params: {}
+    satisfied: false

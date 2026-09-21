@@ -11,3 +11,15 @@ cases:
     text: A.
     params: { source: "A. B." }
     satisfied: false
+  - name: phrases-remises-dans-un-autre-ordre
+    lang: fr
+    source: constructed example; the procedure is Oulipian
+    text: "Le chat dort. Il pleut."
+    params: { source: "Il pleut. Le chat dort." }
+    satisfied: true
+  - name: une-phrase-perdue
+    lang: fr
+    source: constructed counterexample
+    text: "Il pleut."
+    params: { source: "Il pleut. Le chat dort." }
+    satisfied: false

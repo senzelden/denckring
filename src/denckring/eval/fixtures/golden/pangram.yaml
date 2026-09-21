@@ -31,3 +31,16 @@ cases:
     text: Der Wind weht über den Deich.
     params: {}
     satisfied: false
+  - name: portez-ce-vieux-whisky
+    provenance: external
+    lang: fr
+    source: Traditional French font-test sentence
+    text: Portez ce vieux whisky au juge blond qui fume
+    params: {}
+    satisfied: true
+  - name: pas-un-pangramme
+    lang: fr
+    source: constructed counterexample
+    text: Le vent souffle sur la plaine.
+    params: {}
+    satisfied: false

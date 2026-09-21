@@ -32,3 +32,23 @@ cases:
     text: Dieser Satz spiegelt sich nicht
     params: {}
     satisfied: false
+  - name: esope-reste-ici
+    provenance: external
+    lang: fr
+    source: Traditional French palindrome
+    text: Ésope reste ici et se repose
+    params: {}
+    satisfied: true
+  - name: engage-le-jeu
+    provenance: external
+    lang: fr
+    source: Traditional French palindrome
+    text: Engage le jeu que je le gagne
+    params: {}
+    satisfied: true
+  - name: pas-un-palindrome
+    lang: fr
+    source: constructed counterexample
+    text: Cette phrase ne se lit pas à l'envers
+    params: {}
+    satisfied: false

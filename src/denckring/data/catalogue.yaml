@@ -13,7 +13,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -71,7 +71,7 @@ procedures:
     attested: codified
     aliases: [holalphabetic sentence]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -110,7 +110,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -129,7 +129,7 @@ procedures:
     attested: codified
     aliases: [rhopalic]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -148,7 +148,7 @@ procedures:
     attested: codified
     aliases: [melting snowball]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -169,7 +169,7 @@ procedures:
     checkability: self
     attested: author-stated
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [letter_shapes]
     deterministic: true
     prompt_hints:
@@ -196,7 +196,7 @@ procedures:
     attested: author-stated
     aliases: [beautiful present]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -377,7 +377,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: false
     prompt_hints:
@@ -513,7 +513,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
@@ -723,7 +723,7 @@ procedures:
     attested: author-stated
     aliases: [beautiful absent]
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -944,36 +944,38 @@ procedures:
       en: Write a passage in which the only consonant that appears is "n".
 
   - id: consonantal_lipogram
-    names: { en: Consonantal lipogram }
+    names: { en: Consonantal lipogram, fr: Lipogramme consonantique }
     definitions:
       en: >-
         A lipogram whose forbidden set is a group of consonants rather than a
         single letter.
+      fr: Un lipogramme dont l'ensemble interdit est un groupe de consonnes plutôt qu'une seule lettre.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
       en: Write a passage avoiding every one of a named group of consonants.
 
   - id: liponym
-    names: { en: Liponym }
+    names: { en: Liponym, fr: Liponyme }
     definitions:
       en: >-
         A text that omits a chosen word entirely, especially one the subject makes
         almost unavoidable.
+      fr: Un texte qui omet entièrement un mot choisi, surtout celui que son sujet rend presque inévitable.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1321,7 +1323,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
@@ -1343,7 +1345,7 @@ procedures:
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
@@ -1409,19 +1411,20 @@ procedures:
       provides.
 
   - id: mathews_algorithm
-    names: { en: Mathews's algorithm, de: Mathews-Algorithmus }
+    names: { en: Mathews's algorithm, de: Mathews-Algorithmus, fr: Algorithme de Mathews }
     definitions:
       en: >-
         A permutation in which elements of several texts are arranged in a table
         and each column is rotated by a different amount before being read across.
       de: Elemente mehrerer Texte stehen in einer Tabelle, jede Spalte wird unterschiedlich weit gedreht und dann zeilenweise gelesen.
+      fr: Une permutation où les éléments de plusieurs textes sont disposés en tableau, chaque colonne étant décalée d'un rang différent avant une lecture en lignes.
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1510,11 +1513,12 @@ procedures:
       en: Write something that reads as though a strict rule governs it, while following none.
 
   - id: slenderizing
-    names: { en: Slenderizing }
+    names: { en: Slenderizing, fr: Maigrissement }
     definitions:
       en: >-
         A rewriting in which every instance of one letter is deleted, the
         surviving letters closing up into new words.
+      fr: Une réécriture où chaque occurrence d'une lettre est supprimée, les lettres restantes se refermant en mots nouveaux.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -1522,7 +1526,7 @@ procedures:
     attested: author-stated
     aliases: [elementary morphological deletion]
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1542,7 +1546,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     notes: >-
@@ -1816,18 +1820,19 @@ procedures:
       no pack provides, the same one `homosyntaxism` is blocked on.
 
   - id: melting_text
-    names: { en: Melting text }
+    names: { en: Melting text, fr: Texte fondant }
     definitions:
       en: >-
         A text that loses one word, letter or line at each repetition until nothing
         of it is left.
+      fr: Un texte qui perd un mot, une lettre ou une ligne à chaque reprise jusqu'à disparaître.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1985,6 +1990,7 @@ procedures:
         A text satisfying two or more named constraints at once, the difficulty
         rising far faster than the count of rules.
       de: Ein Text, der zwei oder mehr benannte Beschränkungen zugleich erfüllt, wobei die Schwierigkeit weit schneller wächst als die Zahl der Regeln.
+      fr: Un texte qui satisfait à la fois deux contraintes nommées ou plus, la difficulté croissant bien plus vite que le nombre de règles.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -1992,7 +1998,7 @@ procedures:
     attested: codified
     aliases: [univocalic_lipogram_pair, univocalic lipogram pair, Compound constraint]
     kind: restrictive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -2086,7 +2092,7 @@ procedures:
     attested: author-stated
     aliases: [n-ine]
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -2107,7 +2113,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -2147,7 +2153,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
@@ -2167,7 +2173,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
@@ -2701,18 +2707,19 @@ procedures:
       is written to hold under both readings rather than relying on the gap.
 
   - id: assonance_constraint
-    names: { en: Assonance constraint }
+    names: { en: Assonance constraint, fr: Contrainte d'assonance }
     definitions:
       en: >-
         A text bound by repeated vowel sounds rather than by full rhyme, the
         agreement falling inside words as well as at line ends.
+      fr: Un texte tenu par la répétition de sons vocaliques plutôt que par la rime pleine, l'accord tombant à l'intérieur des mots comme en fin de vers.
     source: Traditional; the binding device of Old French and Spanish epic
     family: form
     attribution: traditional
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
@@ -2765,7 +2772,7 @@ procedures:
     checkability: source
     attested: author-stated
     kind: constructive
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -2961,37 +2968,39 @@ procedures:
       en: Let a random source decide each choice, and record the result without editing.
 
   - id: every_nth_word
-    names: { en: Every nth word }
+    names: { en: Every nth word, fr: Un mot sur n }
     definitions:
       en: >-
         A text produced by keeping only every nth word of a source and discarding
         the rest.
+      fr: Un texte obtenu en ne gardant qu'un mot sur n d'une source et en écartant les autres.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
     checkability: source
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
       en: Keep every seventh word of the source and read what results.
 
   - id: column_reading
-    names: { en: Column reading, de: Spaltenlesung }
+    names: { en: Column reading, de: Spaltenlesung, fr: Lecture en colonnes }
     definitions:
       en: >-
         A reading that takes a printed page vertically rather than horizontally,
         so the column rather than the line becomes the unit.
       de: Eine Lesart, die eine gedruckte Seite senkrecht statt waagerecht liest, sodass die Spalte an die Stelle der Zeile tritt.
+      fr: Une lecture qui parcourt une page imprimée verticalement plutôt qu'horizontalement, la colonne prenant la place de la ligne.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -3018,18 +3027,19 @@ procedures:
       en: Write over the source so that both texts remain partly readable at once.
 
   - id: recombination
-    names: { en: Recombination }
+    names: { en: Recombination, fr: Recombinaison }
     definitions:
       en: >-
         A text built by redistributing the sentences of one or more sources into a
         new order without altering their wording.
+      fr: Un texte construit en redistribuant les phrases d'une ou plusieurs sources dans un ordre nouveau, sans en modifier la formulation.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: procedural
     attribution: reference
     checkability: source
     attested: codified
     kind: constructive
-    languages: [en]
+    languages: [en, fr]
     requires: [tokens]
     deterministic: false
     prompt_hints:
@@ -3167,36 +3177,38 @@ procedures:
       `phonemes.bilingual` for the same reason.
 
   - id: lipogrammatic_translation
-    names: { en: Lipogrammatic translation, de: Lipogrammatische Übersetzung }
+    names: { en: Lipogrammatic translation, de: Lipogrammatische Übersetzung, fr: Traduction lipogrammatique }
     definitions:
       en: >-
         A translation that observes a lipogram absent from the original, or
         preserves one the original imposed.
       de: Eine Übersetzung, die ein im Original nicht vorhandenes Lipogramm einhält oder ein vorhandenes bewahrt.
+      fr: Une traduction qui s'impose un lipogramme absent de l'original, ou qui conserve celui que l'original imposait.
     source: Gilbert Adair's A Void (1994), translating Perec's La Disparition
     family: translation
     attribution: primary
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
       en: Translate the passage while never using the forbidden letter.
 
   - id: univocalic_translation
-    names: { en: Univocalic translation, de: Univokalische Übersetzung }
+    names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }
     definitions:
       en: A translation restricted throughout to a single vowel in the target language.
       de: Eine Übersetzung, die in der Zielsprache durchgehend auf einen einzigen Vokal beschränkt ist.
+      fr: Une traduction restreinte d'un bout à l'autre à une seule voyelle dans la langue d'arrivée.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
     checkability: source
     attested: codified
     kind: both
-    languages: [en, de]
+    languages: [en, de, fr]
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:

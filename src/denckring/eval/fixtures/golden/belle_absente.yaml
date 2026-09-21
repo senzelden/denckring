@@ -17,3 +17,23 @@ cases:
       banana
     params: { name: ab }
     satisfied: false
+  - name: dedicace-a-deux-lettres
+    lang: fr
+    source: >-
+      constructed example; the form is Perec's, in Oulipo, Atlas de littérature
+      potentielle (1981). Letter-level, so the lines are the alphabet itself:
+      what the French case exercises is the French pack's alphabet and
+      tokenisation, not French wording.
+    text: |-
+      b c d e f g h i j k l m n o p q r s t u v w x y z
+      a c d e f g h i j k l m n o p q r s t u v w x y z
+    params: { name: ab }
+    satisfied: true
+  - name: une-ligne-garde-sa-lettre
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      banane
+      banane
+    params: { name: ab }
+    satisfied: false

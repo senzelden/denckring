@@ -11,3 +11,15 @@ cases:
     text: c a
     params: { source: a b c }
     satisfied: false
+  - name: des-mots-tombent
+    lang: fr
+    source: constructed example; the procedure is Oulipian
+    text: un trois
+    params: { source: un deux trois }
+    satisfied: true
+  - name: remis-dans-un-autre-ordre
+    lang: fr
+    source: constructed counterexample
+    text: trois un
+    params: { source: un deux trois }
+    satisfied: false

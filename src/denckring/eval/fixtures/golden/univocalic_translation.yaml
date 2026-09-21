@@ -23,3 +23,17 @@ cases:
     text: Der Wind trug die Blumen fort.
     params: { source: x, vowel: e }
     satisfied: false
+  - name: une-seule-voyelle
+    lang: fr
+    source: >-
+      constructed example; only the checkable half (the vowel constraint) is
+      scored
+    text: les lettres tendres se perdent
+    params: { source: x, vowel: e }
+    satisfied: true
+  - name: une-seconde-voyelle-presente
+    lang: fr
+    source: constructed counterexample
+    text: le chat dort
+    params: { source: x, vowel: e }
+    satisfied: false

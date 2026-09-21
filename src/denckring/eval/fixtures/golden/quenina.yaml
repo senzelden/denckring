@@ -58,3 +58,30 @@ cases:
       x c
     params: {}
     satisfied: false
+  - name: quenine-a-trois-mots
+    lang: fr
+    source: constructed example; the generalisation is Queneau and Roubaud's
+    text: |-
+      il part mer
+      il part nuit
+      il part vent
+      il part vent
+      il part mer
+      il part nuit
+      il part nuit
+      il part vent
+      il part mer
+    params: { n: 3 }
+    satisfied: true
+  - name: aucune-rotation
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      il part mer
+      il part nuit
+      il part vent
+      il part mer
+      il part nuit
+      il part vent
+    params: { n: 3 }
+    satisfied: false

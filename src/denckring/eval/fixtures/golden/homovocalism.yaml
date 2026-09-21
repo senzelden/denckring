@@ -23,3 +23,15 @@ cases:
     text: won ihn ist mir
     params: { source: mein Bild ist }
     satisfied: false
+  - name: memes-voyelles-mots-nouveaux
+    lang: fr
+    source: constructed example; the vowel sequence o-a-i held by different words
+    text: sot marin
+    params: { source: mon ami }
+    satisfied: true
+  - name: une-voyelle-changee
+    lang: fr
+    source: constructed counterexample
+    text: sot mérite
+    params: { source: mon ami }
+    satisfied: false

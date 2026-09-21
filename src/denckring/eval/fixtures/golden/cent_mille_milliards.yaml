@@ -101,3 +101,21 @@ cases:
         Fünf Ringe tragen jeden deutschen Reim. | In jeder Silbe liegt ein ganzer Keim. | Man trägt die ganze Sprache mit nach heim.
         Und was sie sagen, bleibt zuletzt geheim. | Fünf Scheiben halten sich mit etwas Leim. | So bleibt die ganze Sprache hier daheim.
     satisfied: false
+  - name: un-poeme-que-les-bandes-offrent
+    lang: fr
+    source: constructed example; the machine is Queneau's, the strips are not
+    text: |-
+      La nuit
+      se lève
+      sans bruit
+    params: { source: "Le jour | La nuit\nse lève | descend\nsur nous | sans bruit" }
+    satisfied: true
+  - name: une-ligne-hors-des-bandes
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      La nuit
+      s'endort
+      sans bruit
+    params: { source: "Le jour | La nuit\nse lève | descend\nsur nous | sans bruit" }
+    satisfied: false
