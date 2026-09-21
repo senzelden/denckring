@@ -8,6 +8,35 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **Four guards that could not fail, and the state they leaked** (#17). A catalogue
+  test named for mutation never mutated anything and was true whether or not `Meta`
+  was frozen; an MCP assertion was a disjunction almost any dict satisfied; a
+  preflight test was named for the changelog branch it never reached. The two
+  concurrency tests asserted that a thread *had not finished yet* — a claim about the
+  scheduler, not the lock — and restored module globals with trailing statements, so
+  a mid-test failure left `_REGISTRY`/`_PACKS` empty for everything after. They now
+  wait on an instrumented lock probe and restore in a fixture finalizer.
+  `test_version_fallback.py` restores in `finally`, so a raising reload no longer
+  leaves `__version__` at `"0+unknown"` for the rest of the session.
+- **Dead code, an unexplained re-export, a test-only default and an unchecked
+  duplicate** (#18). `differ_by_one` moved out of `paragram.py` into the test that is
+  its only caller; `import importlib as importlib` says why it is written that way;
+  `_install`'s `sources` is required, removing a branch only a test reached and with
+  it a write into the real `_SOURCES` global. `_download_integrity.py` exists as five
+  byte-identical copies of which one was checked — a new test derives the set from
+  the filesystem and asserts they hash alike.
+- **The release gate depended on the runner's ambient Python** (#16). `preflight` ran
+  a bare `python3` with no toolchain step while every adjacent job set one up
+  explicitly; the script needs 3.11+ for `tomllib`, so the job that exists to gate a
+  release was the one that would break, during a release. It now sets up `uv` and
+  runs `uv run python`, which provisions a Python satisfying `requires-python`
+  regardless of the image.
+- **The audit guard checked one direction only** (#19). It caught a registered
+  procedure with no audit file, but not a stale file for a removed one, and not that
+  `docs/audit/README.md` lists what is on disk. Strengthening it found real drift:
+  `homosyntaxism` and `verbless_prose` were named in the README's intro and filed
+  under no classification section.
+
 - **`test_the_sdist_stays_small` measures the commit rather than the checkout**
   (#14). `uv build` reads the working tree, so a gitignored `site/` of `mkdocs`
   output took the archive to 9.5 MB against a 950,000 cap and the guard failed on

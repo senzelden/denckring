@@ -86,8 +86,16 @@ def test_check_text_tool_refuses_an_oversized_source_param() -> None:
 
 
 def test_check_text_tool_still_runs_an_ordinary_text() -> None:
+    """The previous assertion — `"code" not in result or result.get("satisfied")
+    is not None` — is a disjunction almost any dict satisfies, including an
+    error payload that happens to carry a `satisfied` key; it could not tell
+    an ordinary report from a refusal. `"the quick brown fox"` contains an
+    'e' (in "the"), which is `lipogram`'s default forbidden letter, so the
+    correct report is an unsatisfied one, not merely "some report or other" —
+    verified by running it directly before writing this assertion."""
     result = check_text_tool("lipogram", "the quick brown fox")
-    assert "code" not in result or result.get("satisfied") is not None
+    assert "code" not in result
+    assert result["satisfied"] is False
 
 
 def test_apply_procedure_tool_refuses_an_oversized_text() -> None:

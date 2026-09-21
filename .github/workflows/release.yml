@@ -19,6 +19,24 @@ on:
         default: testpypi
         options: [testpypi, none]
 
+# Every `uses:` line below is a commit SHA, not a mutable tag, with the tag it
+# was resolved from kept as a trailing `# vN` comment (P1-04). `publish` carries
+# `id-token: write` and `attestations: write` — a compromised or retargeted
+# action tag in a file with that permission is part of the Trusted Publishing
+# trust boundary, not just a build-reproducibility nicety. Twine is pinned to
+# an exact version the same way and for the same reason (P3-03): `uvx
+# twine@7.0.0` rather than `uvx twine`, so `check dist/*` runs against a Twine
+# this file names, not whatever happens to be current the day a tag is pushed.
+#
+# `.github/dependabot.yml`'s `github-actions` group is what keeps these from
+# going stale silently: it bumps a SHA pin's `# vN` comment the same way it
+# would bump a bare tag, monthly, in one grouped PR. To refresh one by hand —
+# a bump Dependabot hasn't gotten to yet, or a check between its runs — resolve
+# the new tag's commit with `git ls-remote --tags <repo> <tag>` (or `--heads`
+# for `pypa/gh-action-pypi-publish@release/v1`, which tracks a branch, not a
+# tag) and replace both the SHA and the trailing comment together; a SHA with a
+# comment that no longer names it is worse than an unpinned tag, because it
+# reads as verified when it is not.
 jobs:
   # P1-03: a pushed tag must match every workspace version and a stamped
   # changelog section before this workflow is allowed to build or publish —
@@ -34,15 +52,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
       - name: Verify tag, version and changelog agree (skipped outside a tag push)
         # $GITHUB_EVENT_NAME/$GITHUB_REF_NAME (GitHub's own default env vars,
         # already used the same way by the `notes` job below) rather than
         # ${{ github.ref_name }} inline: a tag name can legally contain shell
         # metacharacters, and an env var doesn't get shell-expanded the way an
         # `${{ }}` substitution does.
+        #
+        # `uv run python`, not a bare `python3`: the script imports `tomllib`
+        # (3.11+, pyproject.toml's own `requires-python`). Without `setup-uv`
+        # above, this job had no toolchain step at all and relied on whatever
+        # `python3` `ubuntu-latest` happens to ship — true today, but an
+        # undeclared dependency on the runner image's default, unlike every
+        # other job in this file, which is exactly the kind of thing that
+        # breaks a gate silently and only during a release.
         run: |
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-            python3 scripts/release_preflight.py "$GITHUB_REF_NAME"
+            uv run python scripts/release_preflight.py "$GITHUB_REF_NAME"
           else
             echo "not a tag push — preflight has nothing to check"
           fi

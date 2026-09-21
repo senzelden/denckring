@@ -59,6 +59,19 @@ def test_reassigning_a_catalogue_entry_field_is_refused() -> None:
 
 
 def test_mutating_one_call_result_does_not_affect_another() -> None:
+    """`catalogue.get()` hands every caller the *same* cached `Meta` object
+    (P2-01, see `load()`'s `lru_cache`) — so object separation cannot be what
+    protects one caller's view from another's mutation, because there is no
+    separation. The freeze is the only thing standing between them. Fetching
+    the entry twice and comparing for equality (the previous body of this
+    test) stays true whether or not `Meta` is frozen, because nothing ever
+    attempts a mutation — it cannot fail for the reason it exists. This
+    attempts one, through `first`, and checks that `second` — a second
+    caller's view of the identical object — never saw it take effect."""
     first = catalogue.get("lipogram")
     second = catalogue.get("lipogram")
-    assert first.requires == second.requires
+    assert first is second, "P2-01 promises the same cached object, not merely an equal one"
+    original = first.requires
+    with pytest.raises(ValidationError):
+        first.requires = ("sentinel.capability",)
+    assert second.requires == original

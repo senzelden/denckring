@@ -7,8 +7,14 @@ after `publish`, which is worse than late: it is irreversible-late.
 
 DISTRIBUTIONS below is deliberately the same seven (import_name, pyproject_path)
 pairs as tests/test_packaging.py's DISTRIBUTIONS — that list exists because a
-sixth distribution went uncounted twice before (see packaging.md). Keep them
-in sync; a new distribution needs both.
+sixth distribution went uncounted twice before. Keep them in sync; a new
+distribution needs both.
+
+That sentence read "(see packaging.md)" until 2026-09-21. No such file exists,
+and none ever has in the surviving history — it was one of the working documents
+erased when this repository's history was rewritten. The pointer is dropped
+rather than repaired: a citation to nothing is worse than the plain statement it
+decorated, and the statement stands on its own.
 
 "Keep them in sync" was a request to the reader until 2026-09-21, and the reader
 did not: `denckring-en-pos` was added to the test's list and not to this one, so

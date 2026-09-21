@@ -61,7 +61,18 @@ def test_a_mismatched_tag_is_refused() -> None:
     assert "9.9.9" in result.stderr
 
 
-def test_a_tag_with_no_changelog_section_is_refused(tmp_path: Path, monkeypatch: object) -> None:
+def test_an_unrecognised_tag_is_refused() -> None:
+    """Was `test_a_tag_with_no_changelog_section_is_refused`: the name claimed
+    this exercised the changelog check, but `v0.0.0-nonexistent` never gets
+    that far — `tag_version` ("0.0.0-nonexistent") disagrees with the
+    workspace version before `_changelog_has_section` is ever called, so this
+    is really just another mismatched-tag case (verified by reading `main`:
+    the version check runs, and returns, before the changelog check). The
+    changelog branch is what `test_a_matching_tag_with_no_changelog_section_
+    is_refused_by_that_check` below actually reaches and asserts on. Also
+    dropped the unused `tmp_path` fixture and the `monkeypatch: object`
+    parameter, which was never the real `pytest.MonkeyPatch` type and was
+    never used either."""
     result = _run("v0.0.0-nonexistent")
     assert result.returncode != 0
 

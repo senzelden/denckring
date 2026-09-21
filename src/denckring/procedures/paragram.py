@@ -46,13 +46,6 @@ class ParagramApplyParams(ParagramParams, ApplyParams):
     pass
 
 
-def differ_by_one(left: str, right: str) -> bool:
-    """Equal length, differing at exactly one position."""
-    if len(left) != len(right) or left == right:
-        return False
-    return sum(a != b for a, b in zip(left, right, strict=True)) == 1
-
-
 # A fixed base under a 61-bit Mersenne prime modulus: fixed and non-randomised,
 # so `deterministic: true` still means the same input always yields the same
 # output, reproducible across machines and CI runs — not a per-run salt. The

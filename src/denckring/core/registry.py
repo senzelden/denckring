@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import importlib as importlib
+import importlib as importlib  # re-export: reaches `registry.importlib` (--no-implicit-reexport)
 import pkgutil
 import sys
 import threading
@@ -67,6 +67,17 @@ def _discover() -> None:
     even though `_DISCOVERED` eventually goes True and the retry reports no
     error: `import_module` would keep returning its stale cached copy from
     before the rollback instead of re-running it.
+
+    The eviction loop above also assumes every name `pkgutil` lists under
+    `denckring.procedures` is a registering module — true today by ADR 0007,
+    but unenforced here: a future shared helper module in this package would
+    get evicted and re-imported on every retry, producing two module objects
+    and breaking `isinstance` against any class it defines. It would not be
+    registered, so it stays invisible to `all_procedures()` and to anything
+    built on it (`docs/audit/`'s guard included) — the actual tripwire is
+    `tests/test_registry.py::test_every_procedures_submodule_registers_a_procedure`,
+    which walks `pkgutil.iter_modules` directly rather than going through the
+    registry.
     """
     global _DISCOVERED
     if _is_discovered():

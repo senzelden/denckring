@@ -6,7 +6,7 @@ from denckring import check
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import Constructive
 from denckring.core.registry import get
-from denckring.procedures.paragram import Paragram, _count_pairs, differ_by_one
+from denckring.procedures.paragram import Paragram, _count_pairs
 
 
 def test_a_one_letter_swap_is_found() -> None:
@@ -215,12 +215,29 @@ def test_a_word_the_table_does_not_know_ranks_mid_not_best() -> None:
         assert swapped.index("bat") < swapped.index("dat")
 
 
+def _differ_by_one(left: str, right: str) -> bool:
+    """Equal length, differing at exactly one position.
+
+    Used to be `paragram.differ_by_one` — public, undocumented-as-such
+    production code (no leading underscore, a docstring that read as API).
+    The O(U*L) rewrite (`_count_pairs`) removed its only production caller;
+    it has survived since only as this file's equivalence oracle. Moved
+    here rather than left behind with a "kept as reference implementation"
+    docstring, because nothing outside this test exercises it, imports it,
+    or benefits from it being importable — a test helper that only a test
+    uses belongs in the test (issue #18 item 1: checked first that nothing
+    else imports it)."""
+    if len(left) != len(right) or left == right:
+        return False
+    return sum(a != b for a, b in zip(left, right, strict=True)) == 1
+
+
 def _reference_pair_count(words: list[str]) -> int:
     """The old O(U^2 * L) algorithm, kept here only as an equivalence oracle."""
     from itertools import combinations
 
     return sum(
-        1 for left, right in combinations(sorted(set(words)), 2) if differ_by_one(left, right)
+        1 for left, right in combinations(sorted(set(words)), 2) if _differ_by_one(left, right)
     )
 
 

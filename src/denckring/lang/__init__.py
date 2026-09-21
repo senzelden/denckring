@@ -68,14 +68,20 @@ def _install(
     pack: LanguagePack,
     *,
     source: str,
-    sources: dict[str, str] | None = None,
+    sources: dict[str, str],
 ) -> None:
-    """Install a pack, refusing to choose between two claiming one language."""
-    target_sources = _SOURCES if sources is None else sources
+    """Install a pack, refusing to choose between two claiming one language.
+
+    `sources` is required, not defaulted to the real module-global
+    `_SOURCES`: `_discover` is the one production caller and always passes
+    its own `local_sources` dict, so the `sources=None` branch that fell
+    back to `_SOURCES` was reachable only from a test — and reaching it
+    wrote into the real global as a side effect (issue #18 item 3).
+    """
     if lang in packs:
-        raise DuplicatePack(lang, target_sources.get(lang, "an installed pack"), source)
+        raise DuplicatePack(lang, sources.get(lang, "an installed pack"), source)
     packs[lang] = pack
-    target_sources[lang] = source
+    sources[lang] = source
 
 
 def _discover() -> None:
@@ -115,7 +121,14 @@ def _discover() -> None:
 
 
 def get_pack(lang: str) -> LanguagePack:
-    """Return the installed pack for a language, or raise `UnknownLanguage`."""
+    """Return the installed pack for a language, or raise `UnknownLanguage`.
+
+    Takes a bare `str`, not `Lang`, deliberately (ADR 0044): `Lang` stays a
+    closed three-member `Literal`, so this loads a pack registered under any
+    id — `"es"`, say — without error. Such a pack is loadable but functionally
+    invisible everywhere a typed catalogue surface (`Meta.names`,
+    `Meta.definitions`, `Description.runs_in`) is built against `Lang` instead.
+    """
     _discover()
     pack = _PACKS.get(lang) or _DEFAULTS.get(lang)
     if pack is None:
