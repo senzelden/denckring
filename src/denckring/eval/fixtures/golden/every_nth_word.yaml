@@ -11,3 +11,15 @@ cases:
     text: one three five seven
     params: { source: one two three four five six seven eight, n: 2 }
     satisfied: false
+  - name: un-mot-sur-deux
+    lang: fr
+    source: constructed example; the procedure is Oulipian
+    text: deux quatre six huit
+    params: { source: un deux trois quatre cinq six sept huit, n: 2 }
+    satisfied: true
+  - name: les-autres-mots
+    lang: fr
+    source: constructed counterexample
+    text: un trois cinq sept
+    params: { source: un deux trois quatre cinq six sept huit, n: 2 }
+    satisfied: false

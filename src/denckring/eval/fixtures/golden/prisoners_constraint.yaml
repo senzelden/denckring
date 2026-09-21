@@ -29,3 +29,15 @@ cases:
     text: Mädchen
     params: {}
     satisfied: false
+  - name: dans-la-hauteur-d-x
+    lang: fr
+    source: constructed example; the constraint is Perec's, in Oulipo, Atlas (1981)
+    text: on s'ennuie sur nos murs
+    params: {}
+    satisfied: true
+  - name: prose-ordinaire
+    lang: fr
+    source: constructed counterexample
+    text: la tour penche
+    params: {}
+    satisfied: false

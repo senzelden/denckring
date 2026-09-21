@@ -39,3 +39,23 @@ cases:
         ein hund lief schnell
         ein vogel flog hoch
     satisfied: false
+  - name: les-fins-de-vers-font-le-poeme
+    lang: fr
+    source: constructed example; the procedure is Oulipo's
+    text: bien vite haut
+    params:
+      source: |-
+        le chat dormait bien
+        un chien courait vite
+        un oiseau volait haut
+    satisfied: true
+  - name: un-mot-qui-ne-finit-pas-le-vers
+    lang: fr
+    source: constructed counterexample
+    text: chat vite haut
+    params:
+      source: |-
+        le chat dormait bien
+        un chien courait vite
+        un oiseau volait haut
+    satisfied: false

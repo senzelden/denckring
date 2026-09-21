@@ -11,3 +11,15 @@ cases:
     text: a dog sat on the mat
     params: { forbidden: dog }
     satisfied: false
+  - name: evite-le-mot
+    lang: fr
+    source: constructed example
+    text: un chat dormait sur le tapis
+    params: { forbidden: chien }
+    satisfied: true
+  - name: emploie-le-mot
+    lang: fr
+    source: constructed counterexample
+    text: un chien dormait sur le tapis
+    params: { forbidden: chien }
+    satisfied: false

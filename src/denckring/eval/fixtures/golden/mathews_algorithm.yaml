@@ -59,3 +59,33 @@ cases:
 
         elf zwoelf dreizehn vierzehn fuenfzehn
     satisfied: false
+  - name: chaque-ligne-decalee-de-son-rang
+    lang: fr
+    source: constructed example; the procedure is Harry Mathews's algorithm
+    text: |-
+      un deux trois quatre cinq
+      sept huit neuf dix six
+      treize quatorze quinze onze douze
+    params:
+      source: |-
+        un deux trois quatre cinq
+
+        six sept huit neuf dix
+
+        onze douze treize quatorze quinze
+    satisfied: true
+  - name: tableau-non-decale
+    lang: fr
+    source: constructed counterexample
+    text: |-
+      un deux trois quatre cinq
+      six sept huit neuf dix
+      onze douze treize quatorze quinze
+    params:
+      source: |-
+        un deux trois quatre cinq
+
+        six sept huit neuf dix
+
+        onze douze treize quatorze quinze
+    satisfied: false

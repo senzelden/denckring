@@ -31,3 +31,19 @@ cases:
       constraints: [univocalic, lipogram]
       constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
     satisfied: false
+  - name: univocalisme-et-lipogramme-tiennent-ensemble
+    lang: fr
+    source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
+    text: les lettres tendres se perdent
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+    satisfied: true
+  - name: une-des-deux-contraintes-echoue
+    lang: fr
+    source: constructed counterexample; the vowel constraint is broken, the letter one is not
+    text: le chat dort
+    params:
+      constraints: [univocalic, lipogram]
+      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+    satisfied: false
