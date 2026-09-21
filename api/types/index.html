@@ -558,6 +558,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#denckring.core.protocol.Report.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#denckring.core.protocol.Report.procedure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -827,6 +838,17 @@
     <span class="md-ellipsis">
       
         layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denckring.core.protocol.Meta.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
       
     </span>
   </a>
@@ -2635,6 +2657,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0044-language-packs-are-upgrade-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44. Third-party language packs are upgrade-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0045-the-part-of-speech-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2761,6 +2839,17 @@
     <span class="md-ellipsis">
       
         metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denckring.core.protocol.Report.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
       
     </span>
   </a>
@@ -3037,6 +3126,17 @@
     <span class="md-ellipsis">
       
         layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#denckring.core.protocol.Meta.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
       
     </span>
   </a>
@@ -3556,7 +3656,8 @@
 
 
 
-        <p>The result of checking a text. <code>satisfied</code> is always <code>score == 1.0</code>.</p>
+        <p>The result of checking a text. <code>satisfied</code> is always <code>score == 1.0</code>,
+enforced below rather than left as a constructor convention (P2-02).</p>
 
 
 
@@ -3614,6 +3715,29 @@
 
 <a href="#denckring.core.protocol.Report.metrics" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="doc-signature highlight"><pre><span></span><code><span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="denckring.core.protocol.Report.model_config" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">model_config</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#denckring.core.protocol.Report.model_config" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">validate_assignment</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3924,6 +4048,13 @@
 
 
         <p>A catalogue entry. The single source of truth for a procedure's description.</p>
+<p>Frozen, with its list-shaped fields as tuples: catalogue.get() returns the
+same cached object to every caller (P2-01), so a mutable Meta let one
+caller's introspection silently change what a registered procedure
+requires for every future check() call. <code>names</code>, <code>definitions</code> and
+<code>prompt_hints</code> stay plain dicts — no demonstrated mutation path reached
+them, and freezing a dict field needs a different mechanism than a tuple
+swap; that residual is deliberate, not overlooked.</p>
 
 
 
@@ -3957,7 +4088,7 @@
   </span>
 
 <a href="#denckring.core.protocol.Meta.aliases" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">aliases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">aliases</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3980,7 +4111,9 @@
   </span>
 
 <a href="#denckring.core.protocol.Meta.apply_requires" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">apply_requires</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">apply_requires</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span>
+<span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4180,7 +4313,7 @@
   </span>
 
 <a href="#denckring.core.protocol.Meta.languages" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">languages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Lang</span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">languages</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Lang</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4204,6 +4337,29 @@
 
 <a href="#denckring.core.protocol.Meta.layer" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="doc-signature highlight"><pre><span></span><code><span class="n">layer</span><span class="p">:</span> <span class="n">Layer</span> <span class="o">=</span> <span class="s1">&#39;verfahren&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="denckring.core.protocol.Meta.model_config" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">model_config</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#denckring.core.protocol.Meta.model_config" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4294,7 +4450,7 @@
   </span>
 
 <a href="#denckring.core.protocol.Meta.requires" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">requires</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">requires</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">

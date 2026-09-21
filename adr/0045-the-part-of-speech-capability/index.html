@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://senzelden.github.io/denckring/adr/0041-the-pun-as-a-relation/">
+        <link rel="canonical" href="https://senzelden.github.io/denckring/adr/0045-the-part-of-speech-capability/">
       
       
-        <link rel="prev" href="../0040-reading-canonical-verse/">
+        <link rel="prev" href="../0044-language-packs-are-upgrade-only/">
       
       
-        <link rel="next" href="../0042-the-blend-needs-no-g2p/">
+        <link rel="next" href="../../contributing/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>41. A pun is a relation - denckring</title>
+        <title>45. The part-of-speech capability - denckring</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#41-a-pun-is-a-relation-between-two-texts-and-only-part-of-it-is-checkable" class="md-skip">
+        <a href="#45-the-part-of-speech-capability-and-a-model-instead-of-a-lexicon" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              41. A pun is a relation
+              45. The part-of-speech capability
             
           </span>
         </div>
@@ -1713,37 +1713,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    41. A pun is a relation
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../0041-the-pun-as-a-relation/" class="md-nav__link">
         
   
   
@@ -1759,59 +1732,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1905,10 +1825,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../0045-the-part-of-speech-capability/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1924,6 +1871,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2066,147 +2066,173 @@
 
 
 
-<h1 id="41-a-pun-is-a-relation-between-two-texts-and-only-part-of-it-is-checkable">41. A pun is a relation between two texts, and only part of it is checkable<a class="headerlink" href="#41-a-pun-is-a-relation-between-two-texts-and-only-part-of-it-is-checkable" title="Permanent link">&para;</a></h1>
+<h1 id="45-the-part-of-speech-capability-and-a-model-instead-of-a-lexicon">45. The part-of-speech capability, and a model instead of a lexicon<a class="headerlink" href="#45-the-part-of-speech-capability-and-a-model-instead-of-a-lexicon" title="Permanent link">&para;</a></h1>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
-<p><code>paronomasia</code> is the first row whose popular form — the punning shop window,
-<em>Curl Up &amp; Dye</em>, <em>Diminu'tif</em>, <em>Haarmonie</em> — is better attested than its
-scholarly one, and the first where the obvious reading of the procedure is a
-judgement no program makes. "Is this a good pun" is not decidable here, and
-neither is "is this a pun". A row that promised either would be the catalogue
-definition promising more than its checker verifies, which ADR 0015 names as the
-error it exists to prevent.</p>
-<p>Two further things were true before any code was written, and both narrow the
-row rather than the ambition behind it.</p>
-<p><strong>The phonetic half was already built.</strong> The research this row came from
-proposes ingesting CMUdict, Lexique and WikiPron and adding PanPhon for a
-feature-weighted distance. <code>pack.phonemes()</code> has answered in all three languages
-since ADR 0030 and ADR 0032, and twenty-three rows already read it. Nothing new
-had to be acquired.</p>
-<p><strong>The orthographic half cannot be built from what is here.</strong> A pun's surface is
-usually a coined word, and no pack can pronounce a word it has never seen.
-Measured: <code>hairways</code>, <code>hairitage</code>, <code>barberella</code>, <code>Haarmonie</code>, <code>Chaarisma</code> and
-<code>atmosphair</code> all raise <code>MissingCapability</code>, while <code>bread</code>, <code>Kamm</code>, <code>tif</code> and
-<code>diminutif</code> resolve. That is not a gap in one language's data — it is the
-difference between a dictionary and a grapheme-to-phoneme model, and this
-project has the first and not the second.</p>
+<p>Nine catalogued rows were implementable but unbuilt (issue #22). Three of them —
+<code>verbless_prose</code>, <code>homosyntaxism</code> and <code>chimera</code> — declared a <code>pos</code> capability
+that nothing provided, and each carried a <code>notes:</code> field saying so.</p>
+<p>The issue framed <code>verbless_prose</code> as the cheap one: <code>checkability: self</code>,
+restrictive, decidable from the text alone, no source, no new parameter shape.
+All of that is true and none of it was the obstacle. The row's own note said the
+obstacle plainly — "telling a finite verb from a participle needs a <code>pos</code>
+capability no pack provides" — and a row that bars finite verbs while living on
+participles cannot be checked by any reading of a word on its own. <code>walks</code> is a
+noun in <em>the evening walks were long</em> and a finite verb in <em>she walks home</em>.</p>
+<p>The clause matters and the shorter version of this example was wrong. Given
+the bare fragment <em>the evening walks</em> the tagger answers <code>VERB|Fin</code>, and it is
+not obviously mistaken — that fragment is itself a well-formed clause. Nine
+such pairs are measured and pinned in <code>tests/test_pos_capability.py</code>.</p>
+<p>Two further findings from the same reading, recorded because they contradict the
+issue's plan rather than confirm it:</p>
+<ul>
+<li><strong>The other six source rows are not gated on a parameter contract.</strong> Issue #22
+  proposed settling <code>apply_params.source</code> once and then building the eight
+  <code>checkability: source</code> rows as a group. But <code>SourceParams</code> has existed since
+  <code>homoconsonantism</code> and is what a source row already takes. Each of the six is
+  gated on a <em>capability</em>: <code>lexicon.antonyms</code>, <code>lexicon.synonyms</code>,
+  <code>lexicon.glosses.bilingual</code>, <code>phonemes.bilingual</code>, <code>corpus.proverbs</code>. Four of
+  them carry measured notes saying the obvious fix will not work — of Open
+  English WordNet's lemmas, 6,633 have any antonym at all.</li>
+<li><strong>So the <code>pos</code> decision unblocks three rows, and no decision unblocks the
+  rest.</strong> That is the shape of the remainder, and it is not the shape the issue
+  describes.</li>
+</ul>
+<p>The question was therefore what may back <code>pos</code>, given ADR 0015's rule: naming a
+capability before a checker can honestly use it is the error that ADR exists to
+prevent.</p>
+<p>Four backings were costed.</p>
+<p><strong>A closed-class heuristic in core, with no data.</strong> Flag the unambiguous finite
+forms — <em>am/is/are/was/were</em>, <em>has/have/had</em>, <em>do/does/did</em>, the modals — and
+inflection where it is not ambiguous. Zero data, high precision, and the shape of
+<code>syllables.heuristic</code>. Rejected because recall is the number that matters for a
+<em>restrictive</em> row: a low-recall detector returns <code>satisfied</code> for a text full of
+verbs, which is the inverted-verdict defect <code>s_plus_7</code> already cost this project
+once.</p>
+<p><strong>A verb-lemma list from WordNet</strong>, alongside the noun list <code>denckring-en-data</code>
+already ships. Rejected: bare lemmas collide with nouns wholesale — <em>the walk</em>,
+<em>a run</em>, <em>the rise</em> — so it trades misses for false violations, which on a
+restrictive row is the worse trade.</p>
+<p><strong>A real tagger as a heavy optional dependency</strong> (spaCy, NLTK). Best accuracy
+out of the box. Rejected on distribution rather than quality: the model is not
+installable as ordinary package metadata in either case — spaCy's models are not
+PyPI dependencies and NLTK's tagger data downloads at runtime — so <code>pip install</code>
+would not be enough, and both put this project's data outside the versioned,
+digest-pinned, licence-quarantined form every other dataset here takes. spaCy
+would also be the first C extension in the dependency graph, which would
+falsify the comment in <code>ci.yml</code> standing behind the free-threading claim.</p>
+<p><strong>A tagger trained here and shipped as a table.</strong> Chosen.</p>
 <h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
-<p><strong>D1. The row checks a declared relation, not a quality.</strong> <code>checkability: source</code>.
-The caller declares the phrase (<code>source</code>), and the check decides three things
-about the text against it: that at least one word has been displaced, that no
-more than <code>max_displacements</code> have been, and that each displacement lands inside
-a requested band of phonetic distance. Whether the result is funny, or is a pun
-at all, is the writer's claim — the position <code>kangaroo_word</code> takes on synonymy
-and <code>antigram</code> on oppositeness.</p>
-<p><strong>D2. The knob is a band with two edges, not a ceiling.</strong> <code>min_distance</code> and
-<code>max_distance</code> both bind, so <code>0.0</code>–<code>0.0</code> asks for a homophone and refuses
-anything else, and <code>0.4</code>–<code>0.7</code> asks for a pun that has to work for it and
-refuses a homophone as too easy. A ceiling alone would make "make it worse" —
-the thing the whole idea is about — inexpressible, and would turn the row from a
-constraint into a scorer.</p>
-<p><strong>D3. Distance is unweighted Levenshtein over the pack's own phoneme symbols,
-normalised by the longer sequence.</strong> Not PanPhon's feature-weighted PFER, which
-is the more perceptually faithful measure. Two reasons, in order of weight: it
-would put numpy and pandas behind a package whose dependencies are pydantic,
-pyyaml and typer and which claims free-threading support; and it needs a feature
-table per notation, where this needs none. Because a pun is made inside one
-language, both sides of any comparison come from the same pack and are already
-commensurable — the three notations (ARPABET, IPA, IPA-from-SAMPA) never meet.</p>
-<p><strong>D4. ARPABET stress digits are stripped before comparing.</strong> CMUdict marks stress
-on the vowel, so <code>DH AH0</code> and <code>DH AH1</code> are one word spelled two ways; left in,
-<code>the</code> would read as a pun on <code>the</code>. The rule strips a <em>trailing digit</em>, so it is
-a no-op for German and French, which mark stress with separate IPA symbols.</p>
-<p><strong>D5. A word the dictionary lacks is reported, never guessed at.</strong>
-<code>unknown_word</code> carries the same three readings as <code>n_plus_7.ambiguous_nouns</code> and
-<code>RhymeParams.unknown_rhyme</code>, defaulting to <code>undecidable</code>. It is scored as a
-violation rather than dropped, on <code>spoonerism</code>'s ruling R14: a displaced pair has
-nothing to fall back on, so dropping it would let a text of nothing but coinages
-score 1.0 vacuously.</p>
-<p><strong>D6. The blend family is out of scope and is named, not implied.</strong> Displacements
-onto coined words need a <code>phonemes.g2p</code> capability, named in the row's <code>notes</code>
-with no pack behind it — the state ADR 0015 calls honest, and the one
-<code>homophonic_translation</code> is in for <code>phonemes.bilingual</code> and <code>perverb</code> for
-<code>corpus.proverbs</code>. The found pun, which displaces nothing, states no relation
-between two texts and is not this row at all.</p>
-<p><strong>D7. No golden case claims external provenance in this pass.</strong> <em>(Superseded
-2026-09-10: the maintainer ruled that attested shop names may be quoted. A
-business name is a name and not a work, the collections are journalism and public
-registers rather than anthologies, and quoting one is nominative use. Eighteen
-external cases followed across the three rows, taking the corpus from 66 to 84
-externally sourced — 11.8% to 13.8%. The paragraph below is left as written,
-because an ADR records what was decided when.)</em> The row's sources
-are the rhetoricians the catalogue already cites elsewhere, but no example has
-been read off the page here, and an example nobody has read is the invented
-citation the house style refuses. The attested modern corpus is entirely
-post-1929, and whether this package may quote it is a maintainer decision already
-pending for research batch 3.</p>
-<p><strong>D8. The trade is a parameter, and it ranks before sound.</strong> <code>domain</code> names a
-shipped vocabulary; <code>domain_words</code> supplies one. A candidate belonging to the
-trade is offered before one that does not, and only then does distance decide.
-Without a trade every candidate ranks equal there and the key falls through to
-sound alone, which is the general behaviour.</p>
-<p>The first ordering shipped in this ADR was wrong and is recorded rather than
-quietly replaced: it ranked by SCOWL band first, so <code>bread</code> (band 20) came 74th
-behind <code>brand</code>, <code>bad</code>, <code>it</code> and <code>put</code> (all band 10) <em>whatever</em> their distance,
-and the canonical example of the figure could not be generated by the row that
-catalogues it. Band 10 and band 20 are both words every reader knows, so
-commonness was not buying what its comment claimed. It now breaks ties only.</p>
-<p><strong>D9. The trade files are authored, and they carry the phrases too.</strong> Each ships
-per language a vocabulary <em>and</em> a set of target phrases, because two things that
-no rule in the checker can express turned out to decide whether output is any
-good, both measured: displacing a function word produces nonsense (French <code>la</code>
-is 0.333 from <code>laque</code>, which offers <code>laque vie en rose</code> for half the language),
-and a phrase that already contains its own trade word has nothing left to
-displace (<code>Curl up and die</code>, <code>Das Brot</code>). Every word and phrase was written for
-this project, so there is no third-party licence and nothing to quarantine under
-ADR 0013 — the Poesieautomat's 360 authored fillers are the precedent.</p>
+<p><code>pos</code> is one capability, supplied by a new distribution <code>denckring-en-pos</code>: an
+averaged perceptron trained on UD English-EWT v2.18, shipped as pruned weights in
+<code>data/tagger.json.gz</code>, pure Python at inference time.</p>
+<p>It is <strong>one</strong> capability and not a <code>pos.heuristic</code>/<code>pos.dictionary</code> pair like
+syllables. That pair exists because a pronouncing dictionary genuinely looks an
+answer up where the spelling heuristic guesses. Nothing looks a part of speech
+up: a tagger is a model whatever it was trained on, so there is no exact tier for
+a heuristic one to be contrasted with, and inventing the distinction would
+promise a second tier nobody can build.</p>
+<p>The honesty lives per token instead. <code>PosTag</code> is a triple:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PosTag</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">upos</span><span class="p">:</span> <span class="nb">str</span>              <span class="c1"># UD universal POS</span>
+    <span class="n">verb_form</span><span class="p">:</span> <span class="n">VerbForm</span> <span class="o">|</span> <span class="kc">None</span>   <span class="c1"># UD VerbForm: Fin, Part, Inf, Ger, Sup, Conv</span>
+    <span class="n">known</span><span class="p">:</span> <span class="nb">bool</span>            <span class="c1"># the form appeared in the training data at all</span>
+</code></pre></div>
+<p><code>known</code> is what <code>syllable_count</code>'s <code>exact</code> is for: a row reporting a violation on
+a token whose form the tagger never saw must say so in the violation, and reports
+carry an <code>undecided_words</code> metric beside it.</p>
+<p>The label is <strong>joint</strong> — <code>"UPOS|VerbForm"</code> — rather than two models. <code>VerbForm</code>
+is only ever asked of a verb, and two independently-argmaxed models can return a
+nominal tag carrying a finite verb form, a reading no annotation has.</p>
+<p><code>pos</code> arrives <strong>English-only</strong>, and <code>_UNSUPPLIED_TODAY</code> in <code>core/errors.py</code> says
+so for German and French rather than answering a German <code>pos</code> refusal with
+<code>pip install denckring[de]</code>. That set is deliberately separate from
+<code>_PERMANENTLY_MISSING</code>: this is not a ceiling, it is a treebank nobody has
+packaged yet, and removing an entry is what shipping one looks like.</p>
+<p><code>denckring-en-data</code>'s <code>en</code> entry point becomes a factory, <code>pack()</code>, the way <code>de</code>
+became one under ADR 0030. Two distributions now carry English data under two
+licences and only one may register the language.</p>
+<p>Scope of this decision is <code>verbless_prose</code> and <code>homosyntaxism</code>. <code>chimera</code> is the
+third <code>pos</code> row and is <strong>not</strong> built here: it is <code>kind: constructive</code> over <em>three</em>
+source texts, which is a genuinely new parameter shape and deserves its own
+record rather than being carried in on the back of this one.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
-<p><strong>The knob's meaning depends on word length, and the ADR would rather say so than
-hide it.</strong> Distance is normalised by the longer sequence, so a fixed band is
-proportionally stricter on long words. Measured over the pronounceable graded
-lexicon, inside the default band <code>0.0</code>–<code>0.5</code>: English <code>air</code> (2 phonemes) has 49
-displacements available, <code>brad</code> (4) has 240, <code>heritage</code> (7) has 35. A caller who
-tunes a band on short words and applies it to long ones will find it tighter than
-they left it.</p>
-<p><strong>The measure cannot tell a near-miss consonant from a distant one.</strong> That is the
-admitted cost of D3: <code>/t/</code>→<code>/d/</code> and <code>/t/</code>→<code>/m/</code> both cost one edit, where a
-feature-weighted measure would charge much less for the first. A band tuned on
-vowel swaps will not behave the same way on consonants.</p>
-<p><strong>Homophone density differs sharply by language, and this is the orthography
-showing through.</strong> At distance exactly 0.0, French <code>air</code> has 13 displacements and
-<code>temps</code> has 7, English <code>air</code> has 3, and German <code>Komm</code> and <code>Haar</code> have none.
-French spelling is many-to-one on sound and German is close to phonemic, so the
-same band buys a French writer a family the German writer does not have. It is
-not a defect in the German data: 72,734 of German's 101,296 graded words carry a
-pronunciation, against 45,884 of English's 77,078.</p>
-<p><strong>Coverage moves and the externally-sourced share falls.</strong> 122 implemented rows
-become 123 and the catalogue 156 becomes 157; twelve constructed cases take the
-corpus from 560 to 572 and the external share from 11.8% to 11.5%. The fall is
-arithmetic, not a regression — D7 is why, and reversing it is a one-file change
-once the ruling lands.</p>
-<p><strong>The row reads as <code>heuristic</code>, not <code>exact</code>, and that is correct rather than a
-misfiling.</strong> <code>Reading.determinacy</code> is derived from whether a row's <code>requires</code>
-names a soft capability, and <code>phonemes</code> is one: a pronouncing dictionary records
-one committed reading of a word, several words carry more than one, and the
-distance between two of them inherits that. A caller who reads <code>exact</code> off
-<code>spoonerism</code> and expects the same here would be reading the wrong thing into
-both.</p>
-<p><strong>A trade is not padded into a language it has nothing for, and one trade ships
-weak on purpose.</strong> <code>optician</code> has English only; <code>bakery</code> dropped German after
-all four of its first-draft phrases displaced outside the trade. And the
-optician's vocabulary is the weakest of the three measured: its near neighbours
-are mostly inflections of a word already in the phrase — <code>frame</code>/<code>frames</code>,
-<code>lens</code>/<code>lenses</code> — which is morphology wearing a pun's clothes, and the checker
-cannot tell the difference because a plural genuinely is a different word at a
-small distance. It ships anyway, saying so in its own file, because three trades
-that all flatter the procedure would be evidence about the choosing rather than
-about the procedure.</p>
-<p><strong>No search budget was needed, which is unusual for a generative row.</strong>
-Prefiltering candidates on phoneme length and on sharing a first or last phoneme
-takes English's 45,884 pronounceable words down to between 143 and 2,424 per
-position, and the scan then runs in under a hundredth of a second — so unlike
-<code>anagram</code> and <code>word_ladder</code> this row has no node ceiling to tune. The built
-lexicon is cached per pack because building it is the expensive part: 0.3s for
-English, 1.2s for German.</p>
+<p><strong>The rows are checked by a model, and are wrong at a measurable rate.</strong> Measured
+on the treebank's held-out test split, hyperparameters having been chosen on
+<code>dev</code> and the test split read once: joint accuracy 0.9269, UPOS accuracy 0.9342,
+and for finite verbs precision 0.9482, recall 0.9498, F1 0.9490 over 21,885
+tokens. So roughly one finite verb in twenty escapes <code>verbless_prose</code>, and
+roughly one flagged token in twenty was not a finite verb. That is the cost of
+the row existing at all, and it is recorded in the row's <code>notes:</code> — <strong>not</strong> in its
+<code>definitions.en</code>, which says nothing about a tagger.</p>
+<p>That split is deliberate and it is a compromise worth naming. A definition in
+this catalogue states the figure, and "without any finite verb" is the figure
+whoever wrote <em>Bleak House</em>'s opening was obeying — it does not become a
+different form because the checker reading it is statistical. But it does mean a
+reader who takes the definition alone will not learn that the verdict is a
+model's. <code>notes:</code> carries that, and every report carries <code>undecided_words</code>.</p>
+<p><strong>The row fails its own source in places, and that is in the golden file rather
+than avoided.</strong> Dickens's opening is the canonical English verbless passage; the
+checker rejects several of its paragraphs, reading the sentence-initial <code>Smoke</code>
+of <em>Smoke lowering down from chimney-pots</em> as finite, and the participle
+<code>splashed</code> likewise. Both are recorded as <code>satisfied: false</code> cases labelled as
+the row's limit. A fixture set showing only the row working would hide exactly
+the thing a reader needs to know.</p>
+<p><strong>But not every flag in that chapter is a false positive, and the first reading
+of this said otherwise.</strong> Bleak House suspends the finite verb in its <em>main</em>
+clauses and uses it freely in subordinate ones — <em>as if the waters </em><em>had</em><em> but
+newly retired</em>, <em>where it </em><em>flows</em><em> among green aits</em>, <em>where it </em><em>rolls</em><em>
+defiled</em>. The checker catches those correctly. Of eight flags across seven
+paragraphs, three are the row working. "The row fails its own source" is too
+strong, and the specific failures are worth more than the slogan.</p>
+<p><strong>Hyphenated compounds are a structural false-positive source, and this one is
+not the tagger's fault.</strong> <code>word_spans</code> yields letters and internal apostrophes,
+so <code>foot-hold</code> arrives as <code>foot</code> and <code>hold</code>, and <code>hold</code> with no compound around
+it reads as a finite verb; as one token, <code>foothold</code> reads <code>NOUN</code>. So any
+hyphenated compound whose second element is also a verb form can be flagged.
+This is the tokenisation contract every row here shares, met by the first row
+whose judgement is syntactic rather than orthographic. Not fixed here: changing
+what a token is would reach all 126 procedures, and ADR 0035's rule is that a
+row's <code>requires</code> licenses its reading, not that the reading is renegotiated for
+one caller.</p>
+<p><strong>Those figures are lower than the published ones for this feature set, on
+purpose.</strong> The model is trained and scored on a punctuation-free token stream,
+because <code>word_spans</code> yields letters and internal apostrophes and never a comma.
+Training on a richer stream would fit the model to context inference never
+supplies, and scoring on one — where about one token in eight is a punctuation
+mark that cannot be got wrong — would report a number the shipped tagger does not
+earn.</p>
+<p><strong>Share-alike reaches the weights, on the stricter of two readings.</strong> Whether a
+trained model is an adaptation of its training data is not settled by the licence
+and reasonable readings differ. <code>NOTICE</code> records the reading taken and that it is
+a choice. The practical cost is one more distribution and one more licence file;
+the alternative was a quieter claim about somebody else's rights.</p>
+<p><strong>The tagger needs sentences, and denckring had no sentence splitter — the first
+draft of this ADR wrongly said it did.</strong> <code>_TERMINAL_PUNCTUATION</code>'s comment calls
+it "sentence punctuation", but it carries <code>,;:</code>: it is the set a <em>line</em> may end
+on, used for stripping a refrain's tail, and splitting on it yields clause
+fragments. So <code>core/text.py</code> gains a third constant, <code>_SENTENCE_END</code>, and a
+<code>sentence_spans</code> helper beside <code>clause_spans</code> and <code>line_spans</code>.</p>
+<p>The cost of getting this wrong was measured over ten comma-heavy texts: three
+get a different verdict and clause-splitting is wrong in all three, reporting a
+finite verb in <em>The lamps, unlit, above the empty road</em> and in <em>She walks home,
+tired</em>. Apposition set off by commas is the characteristic shape of verbless
+prose, so the splitting that breaks it breaks the row's own subject matter — the
+reuse that looked economical was the more expensive option.</p>
+<p><code>sentence_spans</code> is punctuation-only and not abbreviation-aware: <em>Mr.</em> ends a
+sentence here. That costs a short extra fragment rather than a wrong reading of
+one, and telling the two apart needs a lexicon <code>core/text.py</code> does not have —
+the same honesty <code>clause_spans</code> already states about real clause boundaries.</p>
+<p>Rows using <code>pos</code> tag each sentence separately, so a caller passing a whole paragraph gets a worse
+reading rather than an error. <code>clause_spans</code>' comment still stands — a real
+clause boundary is a syntactic question — and nothing here changes it.</p>
+<p><strong>A megabyte of weights ships to anyone who installs <code>denckring[pos]</code></strong>, and is
+read once per process behind an <code>lru_cache</code>. It does not touch the core sdist,
+which excludes workspace members and whose bound is unchanged.</p>
+<p><strong>The <code>en</code> entry-point change is observable to anyone who imported
+<code>denckring_en_data:EnglishDataPack</code> as the pack directly.</strong> The class is still
+exported and still works; what moved is which object the entry point names. ADR
+0044 makes packs upgrade-only and this is an upgrade, but it is a change to a
+published distribution and is recorded as one.</p>
 
 
 

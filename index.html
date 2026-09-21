@@ -2001,6 +2001,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0044-language-packs-are-upgrade-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44. Third-party language packs are upgrade-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0045-the-part-of-speech-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2297,7 +2353,7 @@ is staged — the verdicts are the library's own.</em></p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>denckring<span class="w"> </span>check<span class="w"> </span>lipogram<span class="w"> </span>gedicht.txt<span class="w"> </span>--lang<span class="w"> </span>de<span class="w">   </span><span class="c1"># exits 1 when unsatisfied</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>apply<span class="w"> </span>cut_up<span class="w"> </span>text.txt<span class="w"> </span>--json<span class="w">           </span><span class="c1"># emits a Production</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>status
-<span class="go">158 catalogued · 133 implementable · 124 implemented · 124 validated · 25 not mechanically checkable</span>
+<span class="go">158 catalogued · 133 implementable · 126 implemented · 126 validated · 25 not mechanically checkable</span>
 <span class="go">0 instruments catalogued</span>
 </code></pre></div>
 <p>Three interfaces over the same core functions, so they cannot disagree about what a
@@ -2312,14 +2368,18 @@ difference between a haiku it believes is a haiku and one that is.</p>
 <code>apply_procedure</code> — with the procedure as a parameter rather than eighty-six separate
 tools, because model performance degrades with tool count. Errors come back as data
 (<code>{"code": "invalid_params", ...}</code>), never as a traceback a model cannot act on.</p>
+<p><code>check_text</code> and <code>apply_procedure</code> refuse a text over <code>DENCKRING_MCP_MAX_CHARS</code> characters
+(default 50000, counting <code>text</code> plus any string parameters such as <code>source</code>) with a
+<code>text_too_long</code> error, rather than running against an arbitrarily large remote input. Set
+<code>DENCKRING_MCP_MAX_CHARS</code> to raise or lower that cap for a known workload.</p>
 <p>For Claude Code, the skill at
 <a href="https://github.com/senzelden/denckring/blob/main/skills/denckring/SKILL.md"><code>skills/denckring/SKILL.md</code></a>
 shells out to the CLI instead, and needs no extra beyond the package itself.</p>
 <h2 id="whats-here">What's here<a class="headerlink" href="#whats-here" title="Permanent link">&para;</a></h2>
-<p>A hundred and twenty-four of the 158 catalogued procedures are implemented, and every one
+<p>A hundred and twenty-six of the 158 catalogued procedures are implemented, and every one
 of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see <a href="#what-can-be-checked">What can be checked</a> —
-and the remaining 9 are sourced and awaiting implementation.</p>
+and the remaining 7 are sourced and awaiting implementation.</p>
 <p>The <a href="https://senzelden.github.io/denckring/gallery/"><strong>gallery</strong></a> has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
 worked example on it is one the test suite enforces and none of it can drift. Locally,
@@ -2385,7 +2445,7 @@ Wieland, Goethe, Kafka and Mann.</p>
 <p>German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 124 implemented rows run in French.</p>
+On core alone, 70 of the 126 implemented rows run in French.</p>
 <p>Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
 not meet, raises <code>MissingCapability</code> naming what is missing rather than quietly returning
@@ -2413,7 +2473,7 @@ spelling heuristic. A haiku that misses names the words it counted and what it m
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
 <code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 81
-of the 124 and <code>heuristic</code> for 43. The score is monotone in
+of the 126 and <code>heuristic</code> for 45. The score is monotone in
 violation count and <code>satisfied</code> is exactly <code>score == 1.0</code>, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.</p>
 <p><code>produce</code> returns a <code>Production</code> — the procedure's id, its <code>texts</code> (best first, never
@@ -2459,8 +2519,11 @@ are built on them:</p>
   returns <code>texts[0]</code>.</li>
 <li><strong>The catalogue export schema</strong> (<code>denckring catalogue export</code>), including the <code>licence</code>
   and <code>attribution</code> keys the CC BY terms are carried by.</li>
-<li><strong>The <code>denckring.lang</code> entry-point group</strong> and the capability names a pack declares, so
-  an installed third-party pack keeps working.</li>
+<li><strong>The <code>denckring.lang</code> entry-point group</strong> and the capability names a pack
+  declares, so an installed third-party pack keeps working. This covers
+  replacing or extending the data behind English, German or French (ADR
+  0044) — <code>Lang</code> itself is a closed three-member type, so a pack cannot
+  register a new language through this mechanism.</li>
 </ul>
 <p>Not stable, and expected to move: violation <code>rule</code> strings, <code>metrics</code> keys, message
 wording, and everything under <code>denckring.core</code>. A check's <em>verdict</em> is a contract; the

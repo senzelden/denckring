@@ -1787,6 +1787,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0044-language-packs-are-upgrade-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44. Third-party language packs are upgrade-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0045-the-part-of-speech-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1918,6 +1974,89 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parallel-sentences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parallel-sentences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-function-words-stand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        the-function-words-stand
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structure-not-kept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        structure-not-kept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-open-class-word-kept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        an-open-class-word-kept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-shorter-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        a-shorter-text
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1936,7 +2075,7 @@
 
 
 <h1 id="homosyntaxism">Homosyntaxism<a class="headerlink" href="#homosyntaxism" title="Permanent link">&para;</a></h1>
-<p><code>homosyntaxism</code> · syntax · <strong>catalogued</strong></p>
+<p><code>homosyntaxism</code> · syntax · <strong>validated</strong></p>
 <p>A rewriting that keeps the grammatical structure of the source intact, substituting new words of the same part of speech throughout.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1954,11 +2093,62 @@
 <li><strong>In other languages:</strong> Homosyntaxisme (<em>fr</em>)</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked: substituting words of the same part of speech needs a <code>pos</code> capability no pack provides. <code>verbless_prose</code> needs the same one.</p>
+<p>"New words" is checked at the six UD open classes (ADJ, ADV, INTJ, NOUN, PROPN, VERB) only; a determiner or preposition may stand, because English closed classes are small enough that the frame usually fixes the member and requiring a different one would make the form near-unsatisfiable. That split is a ruling of this project, not a reading of the Atlas. The checker compares a tag sequence, which is a coarser thing than a parse, and the tags come from a model measured at 0.9342 UPOS accuracy on UD English-EWT v2.18, so a verdict on a word the tagger never saw is marked undecided rather than silently trusted.
+Two clauses of the definition nothing here decides, stated plainly because a green suite cannot see either. "A rewriting" is not tested at all: no derivation, sense or idiomaticity is checked, so word salad carrying the right tags in the right order is satisfied. "Keeps the grammatical structure intact" is verified as a positional tag sequence and nothing more — sentence boundaries do not enter the comparison, so one ten-word sentence satisfies a two-sentence source with the same ten tags. What the row decides is real and narrower than the definition reads.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Keep the sentence structure exactly and replace each word with another of the same class.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="parallel-sentences">parallel-sentences<a class="headerlink" href="#parallel-sentences" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The girl read the book. A woman closed a window.
+</code></pre></div>
+<p>Parameters: <code>source='The boy ate the bread. A man opened a door.'</code></p>
+<p>Source: constructed example; DET NOUN VERB DET NOUN twice over, with every open-class word replaced and the determiners left standing</p>
+<h3 id="the-function-words-stand">the-function-words-stand<a class="headerlink" href="#the-function-words-stand" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The girl ran to the window.
+</code></pre></div>
+<p>Parameters: <code>source='The boy walked to the door.'</code></p>
+<p>Source: constructed example for the ruling in the module docstring: the preposition and both determiners are the source's own, and the row is satisfied because "new words" is required at the open classes only</p>
+<h3 id="structure-not-kept">structure-not-kept<a class="headerlink" href="#structure-not-kept" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Bread was eaten quickly by a very hungry boy.
+</code></pre></div>
+<p>Parameters: <code>source='The boy ate the bread. A man opened a door.'</code></p>
+<p>Source: constructed counterexample; a passive rewriting of the same content</p>
+<h3 id="an-open-class-word-kept">an-open-class-word-kept<a class="headerlink" href="#an-open-class-word-kept" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The girl ate the book.
+</code></pre></div>
+<p>Parameters: <code>source='The boy ate the bread.'</code></p>
+<p>Source: constructed counterexample; the tag sequence is right and the verb is the source's own, which is the half of the definition a POS-only checker would miss</p>
+<h3 id="a-shorter-text">a-shorter-text<a class="headerlink" href="#a-shorter-text" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The girl read.
+</code></pre></div>
+<p>Parameters: <code>source='The boy ate the bread.'</code></p>
+<p>Source: constructed counterexample; two positions of the source go unanswered</p>
 
 
 

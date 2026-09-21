@@ -1787,6 +1787,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0044-language-packs-are-upgrade-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44. Third-party language packs are upgrade-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0045-the-part-of-speech-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1918,6 +1974,89 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bleak-house-opening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bleak-house-opening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordinary-prose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ordinary-prose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sentence-initial-noun-read-as-a-verb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sentence-initial-noun-read-as-a-verb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unseen-participle-read-as-a-verb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unseen-participle-read-as-a-verb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hyphenated-compound-split-into-a-verb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hyphenated-compound-split-into-a-verb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        empty-text
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1936,7 +2075,7 @@
 
 
 <h1 id="verbless-prose">Verbless prose<a class="headerlink" href="#verbless-prose" title="Permanent link">&para;</a></h1>
-<p><code>verbless_prose</code> · syntax · <strong>catalogued</strong></p>
+<p><code>verbless_prose</code> · syntax · <strong>validated</strong></p>
 <p>A text written without any finite verb, so that everything must be carried by nouns, participles and apposition.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1953,11 +2092,42 @@
 <li><strong>Deterministic:</strong> yes</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked: telling a finite verb from a participle needs a <code>pos</code> capability no pack provides. <code>homosyntaxism</code> needs the same one.</p>
+<p>The checker flags every token the <code>pos</code> tagger reads as a finite verb, tagging sentence by sentence; participles, infinitives and gerunds are left alone, which is the distinction the row turns on. It does not check that the sense is carried by "nouns, participles and apposition" — that clause of the definition describes what is left to a writer who obeys the bar, and nothing here verifies it. The verdict is a tagger's and not a fact: ADR 0045 measures finite-verb precision 0.9482 and recall 0.9498, so roughly one finite verb in twenty passes and roughly one flagged token in twenty was never one. Reports carry <code>undecided_words</code>, and a violation on a form the tagger never saw carries a note saying so.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Describe the scene without using a single finite verb.</p>
 </blockquote>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="bleak-house-opening">bleak-house-opening<a class="headerlink" href="#bleak-house-opening" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>London. Michaelmas term lately over, and the Lord Chancellor sitting in Lincoln&#39;s Inn Hall. Implacable November weather.
+</code></pre></div>
+<p>Source: Charles Dickens, Bleak House (1853), chapter 1, first three sentences</p>
+<h3 id="ordinary-prose">ordinary-prose<a class="headerlink" href="#ordinary-prose" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>She walked home through the rain and did not look back.
+</code></pre></div>
+<p>Source: constructed counterexample</p>
+<h3 id="sentence-initial-noun-read-as-a-verb">sentence-initial-noun-read-as-a-verb<a class="headerlink" href="#sentence-initial-noun-read-as-a-verb" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Smoke lowering down from chimney-pots, making a soft black drizzle, with flakes of soot in it as big as full-grown snow-flakes.
+</code></pre></div>
+<p>Source: Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a known false positive: the tagger reads the sentence-initial <code>Smoke</code> as a finite verb. <code>The smoke lowering down ...</code> is satisfied.</p>
+<h3 id="unseen-participle-read-as-a-verb">unseen-participle-read-as-a-verb<a class="headerlink" href="#unseen-participle-read-as-a-verb" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Dogs, undistinguishable in mire. Horses, scarcely better; splashed to their very blinkers.
+</code></pre></div>
+<p>Source: Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a known false positive on <code>splashed</code>, a form absent from the tagger's training data, and the violation carries the note that says so.</p>
+<h3 id="hyphenated-compound-split-into-a-verb">hyphenated-compound-split-into-a-verb<a class="headerlink" href="#hyphenated-compound-split-into-a-verb" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Foot passengers, jostling one another&#39;s umbrellas in a general infection of ill-temper, and losing their foot-hold at street-corners.
+</code></pre></div>
+<p>Source: Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a known false positive caused by tokenisation, not by the tagger: <code>foot-hold</code> is split and its second half is tagged alone. See ADR 0045.</p>
+<h3 id="empty-text">empty-text<a class="headerlink" href="#empty-text" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
+<p>Source: constructed example; vacuously satisfied, as <code>_report</code> defines it</p>
 
 
 
