@@ -200,6 +200,63 @@ def clause_spans(text: str) -> list[tuple[int, str]]:
     return spans
 
 
+#: What ends a *sentence*, as against `_CLAUSE_BREAK` and the wider
+#: `_TERMINAL_PUNCTUATION`. A third constant rather than a reuse, because the
+#: existing two both answer different questions: `_TERMINAL_PUNCTUATION` is
+#: everything a *line* may end on — its comment says "sentence punctuation" but
+#: it carries `,;:` and is used for stripping a refrain's tail, not for
+#: splitting — and `_CLAUSE_BREAK` is the comma-level unit the rhetorical
+#: figures are marked by.
+_SENTENCE_END = ".!?…"
+
+
+def sentence_spans(text: str) -> list[tuple[int, str]]:
+    """Every sentence as `(offset, sentence)`, split on sentence-final punctuation.
+
+    Exists for the `pos` rows and is measured, not assumed (ADR 0045). A tagger
+    is trained on whole sentences, so the unit it is handed decides how well it
+    reads: split at commas instead and it sees fragments.
+
+    The cost was measured over ten comma-heavy texts before this was written.
+    Three of the ten get a different verdict, and clause-splitting is wrong in
+    **all three** — it reports a finite verb in *The lamps, unlit, above the
+    empty road* and in *She walks home, tired*, both of which have none. That is
+    not an incidental loss: apposition set off by commas is the characteristic
+    shape of verbless prose, so the splitting that breaks it breaks the row's own
+    subject matter.
+
+    Deliberately punctuation only, and deliberately not abbreviation-aware: *Mr.*
+    and *etc.* end a sentence here. Telling an abbreviation from a full stop
+    needs a lexicon this module does not have, and the failure is a short extra
+    fragment rather than a wrong reading of one — the same honesty
+    `clause_spans` states about real clause boundaries.
+
+    The same mechanism splits a decimal or a version: *v2.18* becomes *v2.* and
+    *18*, and that string appears in this project's own prose. Named here rather
+    than left to be rediscovered, because the tempting fix — requiring whitespace
+    after the stop — is wrong in the other direction: it silently joins two
+    sentences wherever a typist omitted the space, which is commoner in real
+    prose than a version number is.
+    """
+    spans: list[tuple[int, str]] = []
+    start = 0
+
+    def emit(piece: str, at: int) -> None:
+        # A span with no letter or digit is not a sentence, it is the rest of a
+        # boundary written emphatically: `...` and `!?` are one stop, not three,
+        # and `piece.strip()` alone calls each trailing mark a sentence of its own.
+        if any(ch.isalnum() for ch in piece):
+            lead = len(piece) - len(piece.lstrip())
+            spans.append((at + lead, piece.strip()))
+
+    for index, char in enumerate(text):
+        if char in _SENTENCE_END:
+            emit(text[start : index + 1], start)
+            start = index + 1
+    emit(text[start:], start)
+    return spans
+
+
 def paragraph_spans(text: str) -> list[tuple[int, str]]:
     """Every non-blank paragraph as `(offset, text)`, split on blank lines.
 

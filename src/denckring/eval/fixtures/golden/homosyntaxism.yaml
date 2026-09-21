@@ -1,0 +1,37 @@
+procedure: homosyntaxism
+lang: en
+cases:
+  - name: parallel-sentences
+    source: >-
+      constructed example; DET NOUN VERB DET NOUN twice over, with every
+      open-class word replaced and the determiners left standing
+    text: The girl read the book. A woman closed a window.
+    params: { source: The boy ate the bread. A man opened a door. }
+    satisfied: true
+  - name: the-function-words-stand
+    source: >-
+      constructed example for the ruling in the module docstring: the
+      preposition and both determiners are the source's own, and the row is
+      satisfied because "new words" is required at the open classes only
+    text: The girl ran to the window.
+    params: { source: The boy walked to the door. }
+    satisfied: true
+  - name: structure-not-kept
+    source: constructed counterexample; a passive rewriting of the same content
+    text: Bread was eaten quickly by a very hungry boy.
+    params: { source: The boy ate the bread. A man opened a door. }
+    satisfied: false
+    max_score: 0.5
+  - name: an-open-class-word-kept
+    source: >-
+      constructed counterexample; the tag sequence is right and the verb is the
+      source's own, which is the half of the definition a POS-only checker
+      would miss
+    text: The girl ate the book.
+    params: { source: The boy ate the bread. }
+    satisfied: false
+  - name: a-shorter-text
+    source: constructed counterexample; two positions of the source go unanswered
+    text: The girl read.
+    params: { source: The boy ate the bread. }
+    satisfied: false

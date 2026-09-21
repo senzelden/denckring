@@ -1,0 +1,33 @@
+{
+  "accuracy": {
+    "dev": {
+      "finite_f1": 0.9498,
+      "finite_precision": 0.9569,
+      "finite_recall": 0.9428,
+      "joint_accuracy": 0.9262,
+      "tokens": 21992,
+      "upos_accuracy": 0.9348
+    },
+    "test": {
+      "finite_f1": 0.949,
+      "finite_precision": 0.9482,
+      "finite_recall": 0.9498,
+      "joint_accuracy": 0.9269,
+      "tokens": 21885,
+      "upos_accuracy": 0.9342
+    }
+  },
+  "counts": {
+    "tagdict": 480,
+    "tagger.json.gz": 66441,
+    "vocabulary": 16494
+  },
+  "generated": "2026-09-20",
+  "source": "UD English-EWT v2.18 (2026-05-15), https://creativecommons.org/licenses/by-sa/4.0 - see LICENSE-UD and scripts/build_tagger.py",
+  "training": {
+    "iterations": 12,
+    "prune_below": 0.5,
+    "punctuation": "dropped, to match denckring's word_spans stream",
+    "seed": 7
+  }
+}

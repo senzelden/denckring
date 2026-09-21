@@ -5,10 +5,16 @@ not take a version back, so this has to fail *before* any of those jobs, not
 after (review finding P1-03). `notes` already checks the changelog, but only
 after `publish`, which is worse than late: it is irreversible-late.
 
-DISTRIBUTIONS below is deliberately the same six (import_name, pyproject_path)
+DISTRIBUTIONS below is deliberately the same seven (import_name, pyproject_path)
 pairs as tests/test_packaging.py's DISTRIBUTIONS — that list exists because a
 sixth distribution went uncounted twice before (see packaging.md). Keep them
 in sync; a new distribution needs both.
+
+"Keep them in sync" was a request to the reader until 2026-09-21, and the reader
+did not: `denckring-en-pos` was added to the test's list and not to this one, so
+this guard would have passed a release whose seventh distribution carried the
+wrong version. `test_release_preflight.py` now asserts the two lists are equal,
+which is what the sentence above should have been all along.
 """
 
 from __future__ import annotations
@@ -27,6 +33,7 @@ DISTRIBUTIONS = (
     ("denckring_de_wiktionary", "packages/denckring-de-wiktionary/pyproject.toml"),
     ("denckring_de_frequency", "packages/denckring-de-frequency/pyproject.toml"),
     ("denckring_fr_data", "packages/denckring-fr-data/pyproject.toml"),
+    ("denckring_en_pos", "packages/denckring-en-pos/pyproject.toml"),
 )
 
 

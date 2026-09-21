@@ -62,5 +62,6 @@ def test_apply_requires_names_only_real_capabilities(pid: str) -> None:
         "lexicon.graded_words",
         "lexicon.nouns",
         "lexicon.glosses",
+        "pos",
     }
     assert set(catalogue.get(pid).apply_requires) <= known

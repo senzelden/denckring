@@ -1,0 +1,34 @@
+denckring-en-pos
+Copyright 2026 senzelden
+
+This product includes software developed as part of the denckring project,
+licensed under the Apache License, Version 2.0.
+
+It also includes a part-of-speech tagging model trained on the Universal
+Dependencies English Web Treebank, licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International licence. See LICENSE-UD for the terms
+as the treebank itself distributes them.
+
+ATTRIBUTION
+-----------
+Universal Dependencies English Web Treebank (UD English-EWT) v2.18, released
+2026-05-15, https://github.com/UniversalDependencies/UD_English-EWT — built over
+the source material of the English Web Treebank, LDC2012T13.
+
+ON SHARE-ALIKE AND THE SHIPPED WEIGHTS
+--------------------------------------
+The file `src/denckring_en_pos/data/tagger.json.gz` is a model trained on the
+treebank's annotations. It is treated here as an adapted work under CC BY-SA 4.0
+rather than as an independent one: the weights are derived from the annotations,
+not merely produced with the help of software that read them, and the whole value
+of the table is the annotation it encodes.
+
+Whether a trained model is an adaptation of its training data is a question the
+licence does not settle and on which reasonable readings differ. This
+distribution takes the reading that imposes the stricter obligation on itself,
+which is why the model ships here under share-alike terms in a distribution of
+its own rather than inside `denckring-en-data`, whose data carries different
+terms. ADR 0013 is the rule being followed; ADR 0045 records this decision.
+
+Recorded rather than assumed, because a licence claim in package metadata is a
+claim about somebody else's rights.

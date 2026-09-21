@@ -9,6 +9,8 @@ from explorer import board
 from explorer.app import app
 from fastapi.testclient import TestClient
 
+from denckring.core.registry import all_procedures
+
 client = TestClient(app)
 
 
@@ -26,11 +28,23 @@ def test_an_implemented_procedure_with_passing_cases_is_green() -> None:
 
 
 def test_a_catalogued_but_unimplemented_procedure_is_grey() -> None:
-    """`homosyntaxism` is blocked on a `pos` capability no pack provides. It is not a
-    failure, and a board that showed it red would cry wolf 35 times."""
+    """A catalogued row with no code behind it is a gap, not a failure, and a
+    board that showed it red would cry wolf.
+
+    This named `homosyntaxism` until 2026-09-20, when ADR 0045 built it and the
+    test went red in the explorer's own job — which the library's four-command
+    gate does not run. The subject is not any one row, so the row is now found
+    rather than named: whichever rows are unimplemented, their tiles are grey.
+    Naming one is how this test came to assert something that had stopped being
+    true about it.
+    """
     tiles = {tile.id: tile for tile in board.tiles()}
-    assert tiles["homosyntaxism"].state == "grey"
-    assert tiles["homosyntaxism"].cases == 0
+    implemented = set(all_procedures())
+    unimplemented = [tile for tile in tiles.values() if tile.id not in implemented]
+    assert unimplemented, "the catalogue has no unimplemented rows left — retire this test"
+    for tile in unimplemented:
+        assert tile.state == "grey", f"{tile.id} is unimplemented but {tile.state}"
+        assert tile.cases == 0, tile.id
 
 
 def test_the_board_renders_with_the_scoreboard_line() -> None:

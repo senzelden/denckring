@@ -20,6 +20,14 @@ and [`portmanteau.md`](portmanteau.md). `tests/test_procedure_audit.py` now
 ties the audited set to the live registry so a fourth row cannot go missing
 silently the same way.
 
+**Two more were added on 2026-09-20** with the `pos` capability (ADR 0045):
+[`verbless_prose`](verbless_prose.md) and [`homosyntaxism`](homosyntaxism.md),
+bringing the registry to 126. That test did its job — both were caught by it
+rather than by anybody remembering. Each is audited on its own freshly chosen
+text and says so. `homosyntaxism`'s identity probe is the interesting one: it
+is the first `checkability: source` row that does **not** accept a text as its
+own source, and the file says why.
+
 ## What it found
 
 - **No procedure crashed.** Every failure was a `DenckringError` naming its

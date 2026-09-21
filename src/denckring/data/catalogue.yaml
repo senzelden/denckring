@@ -1351,8 +1351,24 @@ procedures:
     prompt_hints:
       en: Keep the sentence structure exactly and replace each word with another of the same class.
     notes: >-
-      Blocked: substituting words of the same part of speech needs a `pos`
-      capability no pack provides. `verbless_prose` needs the same one.
+      "New words" is checked at the six UD open classes (ADJ, ADV, INTJ, NOUN,
+      PROPN, VERB) only; a determiner or preposition may stand, because English
+      closed classes are small enough that the frame usually fixes the member
+      and requiring a different one would make the form near-unsatisfiable.
+      That split is a ruling of this project, not a reading of the Atlas. The
+      checker compares a tag sequence, which is a coarser thing than a parse,
+      and the tags come from a model measured at 0.9342 UPOS accuracy on UD
+      English-EWT v2.18, so a verdict on a word the tagger never saw is marked
+      undecided rather than silently trusted.
+
+      Two clauses of the definition nothing here decides, stated plainly because
+      a green suite cannot see either. "A rewriting" is not tested at all: no
+      derivation, sense or idiomaticity is checked, so word salad carrying the
+      right tags in the right order is satisfied. "Keeps the grammatical
+      structure intact" is verified as a positional tag sequence and nothing
+      more — sentence boundaries do not enter the comparison, so one ten-word
+      sentence satisfies a two-sentence source with the same ten tags. What the
+      row decides is real and narrower than the definition reads.
 
   - id: perverb
     names: { en: Perverb }
@@ -1413,7 +1429,12 @@ procedures:
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
     notes: >-
-      Blocked on the same `pos` capability as `homosyntaxism` and `verbless_prose`.
+      No longer blocked on `pos` — `denckring-en-pos` supplies it (ADR 0045), and
+      `homosyntaxism` and `verbless_prose` were built on it. This row waits for a
+      different reason: it is constructive over *three* source texts, and
+      `SourceParams` carries one. That parameter shape is a decision of its own
+      and ADR 0045 declines to make it in passing.
+
       This row empties a text of its nouns, verbs and adjectives and refills each
       class from a different source, which is a part-of-speech operation; it was
       previously filed under `lexicon.synonyms`, which it never needed.
@@ -1577,8 +1598,16 @@ procedures:
     prompt_hints:
       en: Describe the scene without using a single finite verb.
     notes: >-
-      Blocked: telling a finite verb from a participle needs a `pos`
-      capability no pack provides. `homosyntaxism` needs the same one.
+      The checker flags every token the `pos` tagger reads as a finite verb,
+      tagging sentence by sentence; participles, infinitives and gerunds are
+      left alone, which is the distinction the row turns on. It does not check
+      that the sense is carried by "nouns, participles and apposition" — that
+      clause of the definition describes what is left to a writer who obeys the
+      bar, and nothing here verifies it. The verdict is a tagger's and not a
+      fact: ADR 0045 measures finite-verb precision 0.9482 and recall 0.9498, so
+      roughly one finite verb in twenty passes and roughly one flagged token in
+      twenty was never one. Reports carry `undecided_words`, and a violation on
+      a form the tagger never saw carries a note saying so.
 
   - id: single_sentence
     names: { en: Single sentence }

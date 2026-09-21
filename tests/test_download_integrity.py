@@ -5,8 +5,8 @@ shipped linguistic data. `verify_or_record` is the one helper all four
 scripts' download points now call.
 
 Tested against the denckring-en-data copy specifically, not through a package
-import: the four packages depend on each other only as installed
-distributions (see e.g. denckring-de-frequency's `denckring-de-data==0.2.0`),
+import: these packages depend on each other only as installed
+distributions (denckring-de-frequency pins `denckring-de-data` by exact version),
 never on one another's `scripts/` directories, so the helper is duplicated
 rather than shared — see `packages/denckring-en-data/scripts/
 _download_integrity.py`'s own docstring. `sys.path.insert` matches this

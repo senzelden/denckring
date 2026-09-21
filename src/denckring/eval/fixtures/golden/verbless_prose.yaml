@@ -1,0 +1,64 @@
+procedure: verbless_prose
+lang: en
+cases:
+  - name: bleak-house-opening
+    source: Charles Dickens, Bleak House (1853), chapter 1, first three sentences
+    text: >-
+      London. Michaelmas term lately over, and the Lord Chancellor sitting in
+      Lincoln's Inn Hall. Implacable November weather.
+    params: {}
+    satisfied: true
+
+  - name: ordinary-prose
+    source: constructed counterexample
+    text: She walked home through the rain and did not look back.
+    params: {}
+    satisfied: false
+
+  # The two cases below are the row's limit, not the row working. Both texts are
+  # genuinely verbless and both come back unsatisfied, so they are recorded as
+  # the tagger's false positives rather than as negative examples of the
+  # constraint. ADR 0045 puts finite-verb precision at 0.9482; this is what that
+  # number looks like in a text somebody actually wrote.
+  - name: sentence-initial-noun-read-as-a-verb
+    source: >-
+      Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a
+      known false positive: the tagger reads the sentence-initial `Smoke` as a
+      finite verb. `The smoke lowering down ...` is satisfied.
+    text: >-
+      Smoke lowering down from chimney-pots, making a soft black drizzle, with
+      flakes of soot in it as big as full-grown snow-flakes.
+    params: {}
+    satisfied: false
+
+  - name: unseen-participle-read-as-a-verb
+    source: >-
+      Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a
+      known false positive on `splashed`, a form absent from the tagger's
+      training data, and the violation carries the note that says so.
+    text: >-
+      Dogs, undistinguishable in mire. Horses, scarcely better; splashed to
+      their very blinkers.
+    params: {}
+    satisfied: false
+
+  # A third limit, and the one that is not the tagger's fault. `word_spans` yields
+  # letters and internal apostrophes, so `foot-hold` arrives as two tokens and
+  # `hold`, with no compound around it, reads as a finite verb — `foothold` written
+  # solid reads NOUN. Structural, reachable, and recorded rather than avoided.
+  - name: hyphenated-compound-split-into-a-verb
+    source: >-
+      Charles Dickens, Bleak House (1853), chapter 1. Genuinely verbless — a known
+      false positive caused by tokenisation, not by the tagger: `foot-hold` is
+      split and its second half is tagged alone. See ADR 0045.
+    text: >-
+      Foot passengers, jostling one another's umbrellas in a general infection of
+      ill-temper, and losing their foot-hold at street-corners.
+    params: {}
+    satisfied: false
+
+  - name: empty-text
+    source: constructed example; vacuously satisfied, as `_report` defines it
+    text: ""
+    params: {}
+    satisfied: true

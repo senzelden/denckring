@@ -42,9 +42,17 @@ class Summary(BaseModel):
 
 #: Capabilities whose answers a pack may have to estimate. A row requiring any of
 #: them can have its verdict rest on a guess; a row requiring none of them cannot.
-#: This is the 81/41 split of the implemented catalogue.
+#:
+#: `pos` belongs here for a stronger reason than the rest (ADR 0045). The others
+#: *may* estimate — `syllables.dictionary` looks a word up and falls back only
+#: when the dictionary misses. A tagger never looks anything up: every answer it
+#: gives is a model's, including for a word it has seen a thousand times. So a
+#: `pos` row can no more be `exact` than a syllabic one, and calling it exact
+#: would be the overclaim this field exists to prevent — `describe()` would tell
+#: a caller that `verbless_prose`'s verdict is certain when its own ADR puts
+#: finite-verb recall at 0.9498.
 _SOFT = frozenset(
-    {"syllables", "syllables.heuristic", "syllables.dictionary", "stress", "phonemes"}
+    {"syllables", "syllables.heuristic", "syllables.dictionary", "stress", "phonemes", "pos"}
 )
 
 #: What folding does, stated once. `BasePack.fold_diacritics` case-folds and strips

@@ -141,14 +141,15 @@ def test_the_sdist_stays_small(sdist: Path) -> None:
     assert size < MAX_SDIST_BYTES, f"sdist is {size / 1_000_000:.1f} MB"
 
 
-#: Every distribution in this workspace, as (import name, pyproject path). The six
+#: Every distribution in this workspace, as (import name, pyproject path). The seven
 #: publish from one workflow and must stay version-locked — `denckring-en-data`
 #: subclasses the core English pack, `denckring-de-frequency` adds a capability to
-#: the German one — so a version that drifts is a release that installs a pack
-#: against a core it was not built for.
+#: the German one, `denckring-en-pos` adds one to the English one — so a version
+#: that drifts is a release that installs a pack against a core it was not built for.
 DISTRIBUTIONS = (
     ("denckring", "pyproject.toml"),
     ("denckring_en_data", "packages/denckring-en-data/pyproject.toml"),
+    ("denckring_en_pos", "packages/denckring-en-pos/pyproject.toml"),
     ("denckring_de_data", "packages/denckring-de-data/pyproject.toml"),
     ("denckring_de_wiktionary", "packages/denckring-de-wiktionary/pyproject.toml"),
     ("denckring_de_frequency", "packages/denckring-de-frequency/pyproject.toml"),

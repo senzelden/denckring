@@ -28,10 +28,31 @@ def _run(tag: str) -> subprocess.CompletedProcess[str]:
 
 def test_the_current_tag_and_version_agree() -> None:
     """A live guard: this fails the moment `pyproject.toml` and the changelog
-    disagree with `v0.2.0`, which is what the CI job compares against the real
+    disagree with `v0.3.0`, which is what the CI job compares against the real
     pushed tag — this test compares against the workspace's own current state."""
-    result = _run("v0.2.0")
+    result = _run("v0.3.0")
     assert result.returncode == 0, result.stderr
+
+
+def test_preflight_checks_every_distribution_the_packaging_suite_knows_about() -> None:
+    """The two lists must be equal, not merely both present.
+
+    `release_preflight.py` asked the reader to keep them in sync. On 2026-09-21
+    the reader had not: `denckring_en_pos` was in the packaging list and missing
+    here, so preflight would have cleared a release in which the seventh
+    distribution carried a stale version — and preflight exists precisely because
+    PyPI will not take a version back.
+
+    Asserting equality rather than a count, so a distribution that is renamed or
+    moved fails here too, and so the number never needs editing.
+    """
+    from test_packaging import DISTRIBUTIONS as PACKAGED
+
+    assert set(DISTRIBUTIONS) == set(PACKAGED), (
+        "release_preflight.DISTRIBUTIONS and test_packaging.DISTRIBUTIONS disagree; "
+        f"only in preflight: {set(DISTRIBUTIONS) - set(PACKAGED)}; "
+        f"only in packaging: {set(PACKAGED) - set(DISTRIBUTIONS)}"
+    )
 
 
 def test_a_mismatched_tag_is_refused() -> None:

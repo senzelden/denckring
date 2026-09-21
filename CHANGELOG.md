@@ -6,8 +6,34 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-21
+
 ### Added
 
+- **`pos`, a part-of-speech capability, and the two rows it unblocks** (ADR 0045,
+  issue #22). `LanguagePack.pos_tags()` reads a whole sentence and returns one
+  `PosTag(upos, verb_form, known)` per token. `verbless_prose` bars finite verbs;
+  `homosyntaxism` checks that a text keeps its source's word classes position by
+  position while replacing its open-class words.
+- **`denckring-en-pos`, a seventh distribution**, supplying `pos` for English:
+  an averaged perceptron trained on UD English-EWT v2.18, shipped as a weights
+  table, pure Python at inference time and with no model download. Its own
+  distribution because the treebank is CC BY-SA where `denckring-en-data`'s data
+  is not, and ADR 0013 quarantines a data licence. `pip install denckring[pos]`.
+
+  **It is a model, so its verdicts are estimates, and they are not hidden.**
+  Measured on the treebank's held-out test split: joint accuracy 0.9269, UPOS
+  0.9342, and for finite verbs precision 0.9482, recall 0.9498, F1 0.9490. So
+  about one finite verb in twenty escapes `verbless_prose`. `PosTag.known`
+  carries this per token, every report carries an `undecided_words` metric, and
+  `describe()` reports `reading.determinacy` as `heuristic` for both rows.
+  `verbless_prose`'s golden fixtures include three `satisfied: false` cases that
+  are **false positives on genuinely verbless Dickens**, recorded rather than
+  avoided.
+- `core.text.sentence_spans()`, splitting on a new `_SENTENCE_END` constant.
+  Neither existing splitter was right for this: `_TERMINAL_PUNCTUATION`'s comment
+  says "sentence punctuation" while the constant carries `,;:`, and clause-level
+  splitting measurably breaks the appositive prose `verbless_prose` exists for.
 - `check_text` and `apply_procedure` on the MCP server now refuse a text over
   `DENCKRING_MCP_MAX_CHARS` characters (default 50000) with a new `text_too_long`
   error code, rather than running an algorithm sized for an interactive call
@@ -28,6 +54,15 @@ All notable changes to this project are documented here. The format follows
   `UnknownLanguage` instead of swallowing all of `Exception`, so a bug in a
   procedure's own code is no longer indistinguishable from that procedure
   legitimately not running in a given language.
+- **`denckring-en-data`'s `en` entry point is now the factory `denckring_en_data:pack`
+  rather than the class `EnglishDataPack`**, so the tagger distribution can be
+  composed in without claiming the language itself — the move German made under
+  ADR 0030. The class is still exported and still works; what changed is which
+  object the entry point names.
+- `describe._SOFT` now contains `pos`, so the two new rows report
+  `reading.determinacy` as `heuristic`. A tagger never looks anything up, so a
+  `pos` row can no more be `exact` than a syllabic one; without this, `describe()`
+  told callers a statistical verdict was certain.
 
 ## [0.2.0] - 2026-09-11
 
@@ -1688,7 +1723,8 @@ All notable changes to this project are documented here. The format follows
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/senzelden/denckring/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/senzelden/denckring/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/senzelden/denckring/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/senzelden/denckring/releases/tag/v0.1.0

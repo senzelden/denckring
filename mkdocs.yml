@@ -102,6 +102,7 @@ nav:
       - "42. The blend needs no g2p": adr/0042-the-blend-needs-no-g2p.md
       - "43. The notation bridge": adr/0043-the-notation-bridge-and-the-third-shape.md
       - "44. Third-party language packs are upgrade-only": adr/0044-language-packs-are-upgrade-only.md
+      - "45. The part-of-speech capability": adr/0045-the-part-of-speech-capability.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 
