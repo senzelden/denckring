@@ -12,6 +12,7 @@ Nothing here computes anything. The tools call `describe`, `summaries` and
 from __future__ import annotations
 
 import os
+import warnings
 from typing import Any
 
 from mcp.server import MCPServer
@@ -22,13 +23,41 @@ from denckring.core.protocol import Lang
 
 server = MCPServer("denckring")
 
+DEFAULT_MAX_TEXT_CHARS: int = 50000
+
+
+def _parse_max_text_chars() -> int:
+    raw = os.environ.get("DENCKRING_MCP_MAX_CHARS")
+    if raw is None:
+        return DEFAULT_MAX_TEXT_CHARS
+    try:
+        val = int(raw)
+        if val <= 0:
+            warnings.warn(
+                f"Invalid DENCKRING_MCP_MAX_CHARS={raw!r} (must be a positive integer); "
+                f"falling back to default {DEFAULT_MAX_TEXT_CHARS}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return DEFAULT_MAX_TEXT_CHARS
+        return val
+    except ValueError:
+        warnings.warn(
+            f"Invalid DENCKRING_MCP_MAX_CHARS={raw!r} (must be an integer); "
+            f"falling back to default {DEFAULT_MAX_TEXT_CHARS}",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return DEFAULT_MAX_TEXT_CHARS
+
+
 #: A coarse backstop at the one surface this project calls "a remotely
 #: invokable resource boundary" (review P2-06) — not a precision-tuned
 #: figure, a defense-in-depth cap alongside each procedure's own algorithmic
 #: fix (see paragram's O(U*L) rewrite, P1-02). Configurable because an
 #: operator running this server for a known, larger workload should not have
 #: to patch the package to raise it.
-MAX_TEXT_CHARS = int(os.environ.get("DENCKRING_MCP_MAX_CHARS", "50000"))
+MAX_TEXT_CHARS = _parse_max_text_chars()
 
 
 def _total_length(text: str, params: dict[str, Any] | None) -> int:

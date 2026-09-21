@@ -205,3 +205,32 @@ def test_the_apply_docstring_sends_callers_to_the_language_aware_field() -> None
 
     doc = apply_procedure_tool.__doc__ or ""
     assert "apply_missing" in doc
+
+
+def test_parse_max_text_chars_handles_valid_and_malformed_inputs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Issue #15: DENCKRING_MCP_MAX_CHARS should parse defensively and warn on bad inputs."""
+    from denckring.mcp.server import DEFAULT_MAX_TEXT_CHARS, _parse_max_text_chars
+
+    # Default when unset
+    monkeypatch.delenv("DENCKRING_MCP_MAX_CHARS", raising=False)
+    assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
+
+    # Valid positive integer
+    monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "100000")
+    assert _parse_max_text_chars() == 100000
+
+    # Malformed non-integer string -> fallback with warning
+    monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "lots")
+    with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS.*lots"):
+        assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
+
+    # Non-positive integer (0 or negative) -> fallback with warning
+    monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "0")
+    with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS.*0"):
+        assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
+
+    monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "-50")
+    with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS.*-50"):
+        assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
