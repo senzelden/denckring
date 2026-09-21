@@ -1920,10 +1920,10 @@ procedures:
       the cross-lingual blend, which needs `phonemes.bilingual` exactly as
       `homophonic_translation` does.
 
-      `apply` is deliberately not shipped though `kind` says `both`. Generating a
-      blend is choosing where to splice, which is Deri and Knight's multitape-FST
-      problem and its own piece of work; `describe_procedure` will still report
-      `both`, and the module docstring says so.
+      `apply` generates by proposing splices and letting `check` dispose: every
+      way of putting each domain word into the host is proposed, and what
+      survives is ranked closest-sounding first.
+
 
   - id: multiple_constraint
     names: { en: Multiple constraint, de: Mehrfachbeschränkung, fr: Contrainte multiple }
