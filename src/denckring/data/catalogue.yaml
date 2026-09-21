@@ -1922,8 +1922,9 @@ procedures:
 
       `apply` generates by proposing splices and letting `check` dispose: every
       way of putting each domain word into the host is proposed, and what
-      survives is ranked closest-sounding first.
-
+      survives is ranked closest-sounding first. It needs a vocabulary to splice
+      from — `domain` names a trade, `domain_words` supplies the list — and
+      raises `InvalidParams` naming both rather than inventing one.
 
   - id: multiple_constraint
     names: { en: Multiple constraint, de: Mehrfachbeschränkung, fr: Contrainte multiple }

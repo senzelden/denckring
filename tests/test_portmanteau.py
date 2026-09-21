@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import pytest
 
+from denckring import apply as _apply
 from denckring import check as _check
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import Lang, Report
@@ -105,6 +106,28 @@ def test_an_inverted_band_is_refused() -> None:
 def test_an_unknown_parameter_is_refused() -> None:
     with pytest.raises(InvalidParams):
         check("Hairitage", source="heritage", splice="hair", blend=True)
+
+
+def test_apply_refuses_without_a_vocabulary_and_names_both_ways_to_give_one() -> None:
+    """The row's catalogue note promises exactly this, so it is asserted here.
+
+    `notes` says `apply` "needs a vocabulary to splice from — `domain` names a
+    trade, `domain_words` supplies the list — and raises `InvalidParams` naming
+    both rather than inventing one". `denckring show portmanteau` and
+    `describe_procedure` over MCP both surface that text, so it is a promise to
+    every caller and not a comment. Issue #13 was this row's note being wrong in
+    the other direction, which is why the claim is pinned rather than trusted.
+
+    The assertion is on the message naming both parameters, not on its wording:
+    a caller who is told "pass something" and not *what* is no better off than
+    one who got a bare traceback.
+    """
+    with pytest.raises(InvalidParams) as caught:
+        _apply("portmanteau", "heritage", lang="en")
+
+    message = str(caught.value)
+    assert "domain" in message, message
+    assert "domain_words" in message, message
 
 
 # --- metrics and evidence ------------------------------------------------------
