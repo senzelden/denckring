@@ -262,6 +262,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Replace each noun with the seventh noun after it in the dictionary, keeping everything else.
+    notes: >-
+      `s_plus_7` is the same displacement under a second name, and runs this row's
+      implementation rather than one of its own. See that row's note for what the
+      two share and why both are catalogued.
 
   - id: s_plus_7
     names: { en: S+7, de: S+7, fr: S+7 }
@@ -280,6 +284,19 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Displace every word of the chosen part of speech by a fixed number of dictionary entries.
+    notes: >-
+      This row and `n_plus_7` are two named forms of one displacement, and they run
+      one implementation: `SPlus7Params` adds no field to `NPlus7Params`, and both
+      `_check` and `_produce` delegate to the same `displacement_report` and
+      `displace`. That is deliberate rather than an oversight — this catalogue
+      records forms as the literature names them, and the literature names both —
+      but it is said here because a reader comparing the two entries could otherwise
+      only discover it by diffing two modules. The generalisation is reached through
+      parameters both rows already carry: `dictionary` supplies the word list for the
+      chosen part of speech, `offset` the step. A generalisation that displaced verbs
+      *as verbs* would need `pos`, which `denckring-en-pos` supplies for English
+      alone while this row declares `[en, de, fr]`; that is why it is not built on
+      it (issue #23).
 
   - id: anagram
     names: { en: Anagram, de: Anagramm, fr: Anagramme }
