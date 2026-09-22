@@ -1,9 +1,25 @@
 {
   "counts": {
+    "antonyms.json.gz": 6039,
     "glosses.txt.gz": 78866,
     "graded_words.txt.gz": 77078,
-    "nouns.txt": 56468
+    "nouns.txt": 56468,
+    "synonyms.json.gz": 44948
   },
   "generated": "2026-08-19",
+  "relations": {
+    "antonyms": {
+      "builder": "wn-1.1.1-relations-v1",
+      "lexicon": "oewn:2024",
+      "rule": "direct sense antonym",
+      "sha256": "b43b948f14a2e19b8f5422116f634ade30c88c84d4c1f0e2707b2b8fd31556e4"
+    },
+    "synonyms": {
+      "builder": "wn-1.1.1-relations-v1",
+      "lexicon": "oewn:2024",
+      "rule": "synset co-membership",
+      "sha256": "486a48799f2e3017f37a2374902bae6ccd0f5cde8fec2916b315ba7ca2f45eb3"
+    }
+  },
   "source": "Open English Wordnet 2024 (oewn:2024), https://creativecommons.org/licenses/by/4.0 - see LICENSE-WORDNET and scripts/build_lexicon.py; SCOWL 2020.12.07 (sizes 10 20 35 40 50 55 60 70 80 95, vendored up to 60), generated 2026-08-29 - see LICENSE-SCOWL and scripts/build_graded_words.py"
 }

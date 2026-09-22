@@ -386,3 +386,11 @@ class ProverbCorpus(Protocol):
     """Optional corpus capability; does not widen the stable LanguagePack contract."""
 
     def proverbs(self) -> Sequence[tuple[str, str]]: ...
+
+
+class LexicalRelations(Protocol):
+    """Optional exact dictionary relations, not a contextual semantic oracle."""
+
+    def synonyms(self, word: str) -> Sequence[str]: ...
+
+    def antonyms(self, word: str) -> Sequence[str]: ...

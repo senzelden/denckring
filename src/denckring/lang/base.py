@@ -19,6 +19,8 @@ SYLLABLES = "syllables"
 SYLLABLES_HEURISTIC = "syllables.heuristic"
 #: Exact counts from a pronouncing dictionary.
 SYLLABLES_DICTIONARY = "syllables.dictionary"
+SYNONYMS = "lexicon.synonyms"
+ANTONYMS = "lexicon.antonyms"
 PROVERBS = "corpus.proverbs"
 NOUNS = "lexicon.nouns"
 WORDS = "lexicon.words"
@@ -80,6 +82,12 @@ class BasePack:
         """
         decomposed = unicodedata.normalize("NFKD", ch.casefold())
         return "".join(c for c in decomposed if not unicodedata.combining(c))
+
+    def synonyms(self, word: str) -> Sequence[str]:
+        raise MissingCapability(DIRECT_CALL, self.lang, SYNONYMS)
+
+    def antonyms(self, word: str) -> Sequence[str]:
+        raise MissingCapability(DIRECT_CALL, self.lang, ANTONYMS)
 
     def proverbs(self) -> Sequence[tuple[str, str]]:
         """Attested sayings as editorially selected prefix/suffix pairs."""

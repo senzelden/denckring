@@ -1,0 +1,28 @@
+{
+  "procedure": "homophonic_translation",
+  "lang": "en",
+  "cases": [
+    {
+      "name": "supplied-data-match",
+      "source": "constructed structural example; data is not independently verified",
+      "text": "chat",
+      "params": {
+        "source": "cat",
+        "data": "{\"version\": \"supplied-bilingual-v1\", \"source_language\": \"en\", \"target_language\": \"fr\", \"provenance\": \"constructed test data; not a verified bilingual dictionary\", \"alphabet\": [\"a\", \"b\", \"c\"], \"source_pronunciations\": {\"cat\": [\"a\", \"b\"]}, \"target_pronunciations\": {\"chat\": [\"a\", \"b\"], \"mot\": [\"a\", \"c\"]}}",
+        "max_distance": 0
+      },
+      "satisfied": true
+    },
+    {
+      "name": "supplied-data-mismatch",
+      "source": "constructed structural counterexample",
+      "text": "mot",
+      "params": {
+        "source": "cat",
+        "data": "{\"version\": \"supplied-bilingual-v1\", \"source_language\": \"en\", \"target_language\": \"fr\", \"provenance\": \"constructed test data; not a verified bilingual dictionary\", \"alphabet\": [\"a\", \"b\", \"c\"], \"source_pronunciations\": {\"cat\": [\"a\", \"b\"]}, \"target_pronunciations\": {\"chat\": [\"a\", \"b\"], \"mot\": [\"a\", \"c\"]}}",
+        "max_distance": 0
+      },
+      "satisfied": false
+    }
+  ]
+}

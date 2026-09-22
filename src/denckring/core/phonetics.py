@@ -16,11 +16,10 @@ table per notation, where this needs none. The cost is real and is admitted:
 this measure cannot tell a near-miss consonant from a distant one, so a band
 tuned on vowels will not behave the same way on consonants.
 
-Nothing here converts between notations, and nothing needs to. The three packs
-answer in three alphabets — English ARPABET, German IPA, French IPA via
-SAMPA — but a pun is made inside one language, so both sides of any comparison
-come from the same pack and are already commensurable. Comparing across
-languages is `phonemes.bilingual`, which no pack provides.
+Within-language comparisons use the pack's notation. `across_languages` adds
+ADR 0043's explicit ARPABET-to-IPA bridge for dictionary pronunciations.
+ADR 0049's homophonic-translation checker instead compares caller-supplied
+shared symbols; it does not infer pronunciations through this bridge.
 """
 
 from __future__ import annotations
@@ -239,10 +238,9 @@ def across_languages(a: list[str], a_lang: str, b: list[str], b_lang: str) -> fl
     """How far apart two pronunciations are when they come from different packs.
 
     Both sides are put into IPA and then folded by `CROSS_LINGUAL`, which is the
-    only place rhotics from different languages are treated as one sound. This
-    is what `homophonic_translation` has been blocked on as `phonemes.bilingual`
-    since it was catalogued — the notation half of it, at least; that row needs a
-    good deal more than a comparison.
+    only place rhotics from different languages are treated as one sound.
+    This dictionary bridge is separate from ADR 0049's explicitly supplied
+    homophonic-translation streams, which are compared without such folding.
     """
     left = fold_equivalents(to_ipa(a, a_lang), None)
     right = fold_equivalents(to_ipa(b, b_lang), None)

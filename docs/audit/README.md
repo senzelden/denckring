@@ -52,6 +52,12 @@ checker rejects, because a drawn word's class depends on where it lands.
 
 ## Rows with a note
 
+- [`synonymic_substitution`](synonymic_substitution.md) — bounded contract and explicit unknown handling (ADR 0049).
+- [`antonymic_substitution`](antonymic_substitution.md) — bounded contract and explicit unknown handling (ADR 0049).
+- [`antonymic_translation`](antonymic_translation.md) — bounded contract and explicit unknown handling (ADR 0049).
+- [`definitional_translation`](definitional_translation.md) — bounded contract and explicit unknown handling (ADR 0049).
+- [`homophonic_translation`](homophonic_translation.md) — bounded contract and explicit unknown handling (ADR 0049).
+
 - [`perverb`](perverb.md) — six corpus pairings checked exhaustively; unknown sayings remain unresolved (2026-09-22).
 
 - [`anagram`](anagram.md) — Accepts a text as an anagram of itself, which is the identity case.

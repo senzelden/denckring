@@ -96,7 +96,7 @@ def test_runnable_only_shrinks_under_a_core_only_pack(monkeypatch: pytest.Monkey
     every = summaries()
     only = summaries(runnable_only=True)
     assert {row.id for row in every} == set(list_procedures())
-    assert len(only) == 81
+    assert len(only) == 83
     assert len(only) < len(every)
     kept = {row.id for row in only}
     excluded = {row.id: row for row in every if row.id not in kept}

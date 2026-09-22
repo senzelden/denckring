@@ -9,6 +9,7 @@ metric on every syllabic report shows how much was still guessed.
 from __future__ import annotations
 
 import gzip
+import json
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from importlib.resources import files
@@ -18,6 +19,7 @@ from typing import ClassVar
 
 from denckring.lang.base import (
     ALPHABET,
+    ANTONYMS,
     FOLD_DIACRITICS,
     GLOSSES,
     GRADED_WORDS,
@@ -28,6 +30,7 @@ from denckring.lang.base import (
     STRESS,
     SYLLABLES_DICTIONARY,
     SYLLABLES_HEURISTIC,
+    SYNONYMS,
     TOKENS,
     WORDS,
 )
@@ -134,8 +137,22 @@ def known_words() -> frozenset[str]:
     return frozenset(noun_list()) | frozenset(pronunciations())
 
 
+@lru_cache(maxsize=2)
+def relations(kind: str) -> Mapping[str, tuple[str, ...]]:
+    """Immutable relations from a reproducible OEWN extraction (ADR 0049)."""
+    path = files("denckring_en_data") / "data" / f"{kind}.json.gz"
+    table: dict[str, list[str]] = json.loads(gzip.decompress(path.read_bytes()))
+    return MappingProxyType({word: tuple(targets) for word, targets in table.items()})
+
+
 class EnglishDataPack(EnglishPack):
     """English with a pronouncing dictionary behind it."""
+
+    def synonyms(self, word: str) -> tuple[str, ...]:
+        return relations("synonyms").get(word.casefold(), ())
+
+    def antonyms(self, word: str) -> tuple[str, ...]:
+        return relations("antonyms").get(word.casefold(), ())
 
     def proverbs(self) -> Sequence[tuple[str, str]]:
         # Immutable, bounded corpus; provenance and editorial seams in ADR 0048.
@@ -150,6 +167,8 @@ class EnglishDataPack(EnglishPack):
     capabilities: ClassVar[frozenset[str]] = frozenset(
         {
             TOKENS,
+            ANTONYMS,
+            SYNONYMS,
             ALPHABET,
             FOLD_DIACRITICS,
             LETTER_SHAPES,

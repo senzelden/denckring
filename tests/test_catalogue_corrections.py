@@ -13,9 +13,7 @@ UNDERSTATED = {
     "spoonerism": "phonemes",
 }
 
-BLOCKED = {
-    "homophonic_translation": "phonemes.bilingual",
-}
+BLOCKED: dict[str, str] = {}
 
 #: Rows that were in `BLOCKED` until ADR 0045 built the capability. They still
 #: declare `pos` — what changed is that something answers it.

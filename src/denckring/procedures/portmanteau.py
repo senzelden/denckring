@@ -23,13 +23,13 @@ It is not weaker in a way that lets nonsense through — the word must still be
 present in the coinage, be a real word, and leave the host recoverable — and it
 is the strongest reading available without an aligner.
 
-**What the row still cannot reach**, both measured rather than assumed:
+**What the row still cannot reach:**
 
 - a host the lexicon does not carry, which for shop names is usually a proper
   noun — `Barbarella` is absent from CMUdict, so `Barberella` is undecidable;
-- the cross-lingual blend — French `Atmosph'air`, German `British Hairways` —
-  which needs `phonemes.bilingual`, the same capability `homophonic_translation`
-  is blocked on and which no pack provides.
+
+Cross-lingual blends use `splice_lang` and ADR 0043's dictionary notation bridge.
+ADR 0049's homophonic translation instead checks explicitly supplied symbols.
 
 **`apply` generates by proposing splices and letting `check` dispose**, which is
 this project's own thesis turned into a search. Knowing *where* to splice would

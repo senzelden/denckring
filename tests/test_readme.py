@@ -82,7 +82,11 @@ def test_readme_prose_counts_match_the_scoreboard() -> None:
     for claim in (
         f"the {coverage.catalogued} catalogued procedures",
         f"{coverage.unreachable} have no mechanical acceptance criterion",
-        f"the remaining {unimplemented} are sourced",
+        (
+            f"the remaining {unimplemented} are sourced"
+            if unimplemented
+            else f"all {coverage.implementable} implementable procedures are implemented"
+        ),
         # Two more that went stale unnoticed while the three above were pinned:
         # "the catalogue is 154 sourced procedures" survived two rows being
         # added, and "70 of the 121 implemented" survived one. A count in prose

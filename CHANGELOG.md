@@ -8,6 +8,14 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
+  synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.
+  Unknown tokens fail, occurrence order is preserved, and bilingual schemas reject
+  ambiguous or malformed inputs. The English package carries reproducible relation
+  tables. These five rows provide checking only; their catalogue definitions state
+  the dictionary and caller-data limits. Together with perverb, all 133 mechanically
+  implementable catalogue rows are now registered and fixtured.
+
 - `perverb` generates and checks two-fragment grafts from a bounded English proverb
   corpus (part of #22). Explicit source and donor, six pairings, deterministic
   output and unresolved verdicts for unknown sayings. ADR 0048 records sources,
