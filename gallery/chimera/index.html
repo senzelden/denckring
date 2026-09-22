@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1974,6 +2030,111 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refilled-from-three" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        refilled-from-three
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-frame-must-survive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        the-frame-must-survive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-noun-from-nowhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        a-noun-from-nowhere
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-wrong-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        the-wrong-class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-empty-donor-is-unsatisfiable-not-an-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        an-empty-donor-is-unsatisfiable-not-an-error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-sentences-refilled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        two-sentences-refilled
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-sentences-and-a-frame-word-lost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        two-sentences-and-a-frame-word-lost
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1992,8 +2153,8 @@
 
 
 <h1 id="chimera">Chimera<a class="headerlink" href="#chimera" title="Permanent link">&para;</a></h1>
-<p><code>chimera</code> · word · <strong>catalogued</strong></p>
-<p>A text whose nouns, verbs and adjectives are stripped out and replaced by those of three different source texts.</p>
+<p><code>chimera</code> · word · <strong>validated</strong></p>
+<p>A text keeping one text's frame — its word order, its function words and its punctuation — while every noun, verb and adjective is one of a text supplied for that class: nouns from one, verbs from another, adjectives from a third. A drawn word may be the one it replaced, and the three supplying texts need not differ. The checker reads word classes from a model, so its verdict is an estimate; the generator can refuse a frame it cannot fill.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source:</strong> Oulipo, Atlas de littérature potentielle (1981)</li>
@@ -2010,12 +2171,94 @@
 <li><strong>In other languages:</strong> Chimère (<em>fr</em>)</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>No longer blocked on <code>pos</code> — <code>denckring-en-pos</code> supplies it (ADR 0045), and <code>homosyntaxism</code> and <code>verbless_prose</code> were built on it. This row waits for a different reason: it is constructive over <em>three</em> source texts, and <code>SourceParams</code> carries one. That parameter shape is a decision of its own and ADR 0045 declines to make it in passing.
-This row empties a text of its nouns, verbs and adjectives and refills each class from a different source, which is a part-of-speech operation; it was previously filed under <code>lexicon.synonyms</code>, which it never needed.</p>
+<p>Built on the <code>pos</code> capability of ADR 0045, beside <code>homosyntaxism</code> and <code>verbless_prose</code>. The parameter shape it was said to be waiting for is three role-keyed fields — <code>nouns_from</code>, <code>verbs_from</code>, <code>adjectives_from</code> — beside the inherited <code>source</code>, and it needed no change to <code>core/base.py</code>. The premise that it did was wrong: <code>SourceParams</code> means the text this one was made from, which here is the <em>frame</em> — the text emptied of its nouns, verbs and adjectives — and the three donors are not sources in that sense but lexical stock. Role keys rather than an ordered list because position cannot say which donor fills which word class in <code>params_schema()</code>.
+This row empties a text of its nouns, verbs and adjectives and refills each class from a different source, which is a part-of-speech operation; it was previously filed under <code>lexicon.synonyms</code>, which it never needed.
+What the checker verifies is that each content word is <em>of</em> the right donor, not that it was taken from it, and the tags come from a model, so the verdict is an estimate. Four rulings the definition does not settle — an empty donor, repetition, capitalisation, and how the frame's own words are compared — are recorded in the module docstring.
+Three things a caller meets in practice. A donor pool is the tagger's reading of the donor, not its word list: a paragraph of English can yield two usable verbs, and a word that reads as its class in the donor may not read as that class in the position it is drawn into — each candidate carries <code>forced_positions</code> for how many positions had only one word that survives, which is where <code>seed</code> stops mattering. <code>apply</code> may refuse: it searches greedily and a <code>NoCandidateWord</code> is that search failing, not a proof that the frame cannot be filled (<code>docs/audit/chimera.md</code> measures a refusal on a satisfiable case). And nothing requires the three donors to differ from each other or from the frame; where they do not, <code>apply</code> can only hand back the frame, which the spine then refuses as degenerate.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Empty the text of its nouns, verbs and adjectives and refill each class from a different source.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adjectives_from</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text the adjectives are taken from.</td>
+</tr>
+<tr>
+<td><code>nouns_from</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text the nouns are taken from.</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+<tr>
+<td><code>verbs_from</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text the verbs are taken from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="refilled-from-three">refilled-from-three<a class="headerlink" href="#refilled-from-three" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The small wind watched the letter.
+</code></pre></div>
+<p>Parameters: <code>source='The quick boy opened the door.'</code>, <code>nouns_from='The cold wind carried the letter.'</code>, <code>verbs_from='The warm girl watched the river.'</code>, <code>adjectives_from='The small child painted the table.'</code></p>
+<p>Source: constructed example; the frame's determiners stand, its adjective comes from <code>adjectives_from</code>, both nouns from <code>nouns_from</code> and the verb from <code>verbs_from</code></p>
+<h3 id="the-frame-must-survive">the-frame-must-survive<a class="headerlink" href="#the-frame-must-survive" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>A small wind watched the letter.
+</code></pre></div>
+<p>Parameters: <code>source='The quick boy opened the door.'</code>, <code>nouns_from='The cold wind carried the letter.'</code>, <code>verbs_from='The warm girl watched the river.'</code>, <code>adjectives_from='The small child painted the table.'</code></p>
+<p>Source: constructed counterexample; every content word is drawn correctly and a determiner is not the frame's, which is the half of the definition a donor-membership-only checker would miss</p>
+<h3 id="a-noun-from-nowhere">a-noun-from-nowhere<a class="headerlink" href="#a-noun-from-nowhere" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The small mountain watched the letter.
+</code></pre></div>
+<p>Parameters: <code>source='The quick boy opened the door.'</code>, <code>nouns_from='The cold wind carried the letter.'</code>, <code>verbs_from='The warm girl watched the river.'</code>, <code>adjectives_from='The small child painted the table.'</code></p>
+<p>Source: constructed counterexample; <code>mountain</code> is a noun and is in none of the three donors</p>
+<h3 id="the-wrong-class">the-wrong-class<a class="headerlink" href="#the-wrong-class" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The small watched watched the letter.
+</code></pre></div>
+<p>Parameters: <code>source='The quick boy opened the door.'</code>, <code>nouns_from='The cold wind carried the letter.'</code>, <code>verbs_from='The warm girl watched the river.'</code>, <code>adjectives_from='The small child painted the table.'</code></p>
+<p>Source: constructed counterexample; the subject position carries a verb, so the frame's word classes are not kept at all</p>
+<h3 id="an-empty-donor-is-unsatisfiable-not-an-error">an-empty-donor-is-unsatisfiable-not-an-error<a class="headerlink" href="#an-empty-donor-is-unsatisfiable-not-an-error" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The small wind watched the letter.
+</code></pre></div>
+<p>Parameters: <code>source='The quick boy opened the door.'</code>, <code>nouns_from='The cold wind carried the letter.'</code>, <code>verbs_from='The warm girl watched the river.'</code>, <code>adjectives_from='Dogs run and birds fly.'</code></p>
+<p>Source: constructed counterexample for ruling 1 in the module docstring: <code>adjectives_from</code> carries no adjective, so the frame's adjective position cannot be filled from it. <code>check</code> returns a verdict rather than refusing — <code>apply</code> is the half that raises.</p>
+<h3 id="two-sentences-refilled">two-sentences-refilled<a class="headerlink" href="#two-sentences-refilled" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The green crates carried a bright market. Coffee carried the green crates and laughed every green market.
+</code></pre></div>
+<p>Parameters: <code>source='The old lighthouse kept a steady light. Sailors watched the dark water and counted every slow turn.'</code>, <code>nouns_from='A grocer weighed the apples. The market held bread, salt and coffee in wooden crates.'</code>, <code>verbs_from='She hurried, stumbled and laughed. They carried the ladder, painted the shutters and left.'</code>, <code>adjectives_from='The morning was bright and cold. A thin mist hung over the green fields, quiet and wide.'</code></p>
+<p>Source: the row's own <code>apply</code> at seed 0 over the audit's frame and donors (docs/audit/chimera.md), recorded because every other case here is one six-token sentence: this one has a sentence boundary, seventeen positions and an inherited sentence-initial capital (<code>Coffee</code>), which is the only place the fixtures exercise ruling 3 or the per-sentence tagging</p>
+<h3 id="two-sentences-and-a-frame-word-lost">two-sentences-and-a-frame-word-lost<a class="headerlink" href="#two-sentences-and-a-frame-word-lost" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>The green crates carried a bright market. Coffee carried a green crates and laughed every green market.
+</code></pre></div>
+<p>Parameters: <code>source='The old lighthouse kept a steady light. Sailors watched the dark water and counted every slow turn.'</code>, <code>nouns_from='A grocer weighed the apples. The market held bread, salt and coffee in wooden crates.'</code>, <code>verbs_from='She hurried, stumbled and laughed. They carried the ladder, painted the shutters and left.'</code>, <code>adjectives_from='The morning was bright and cold. A thin mist hung over the green fields, quiet and wide.'</code></p>
+<p>Source: the case above with one determiner of the <em>second</em> sentence changed; a checker that compared only the first sentence, or that rebased offsets per sentence, would still call this satisfied</p>
 
 
 

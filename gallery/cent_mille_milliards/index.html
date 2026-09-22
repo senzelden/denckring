@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2086,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#un-poeme-que-les-bandes-offrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        un-poeme-que-les-bandes-offrent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#une-ligne-hors-des-bandes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        une-ligne-hors-des-bandes
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2065,7 +2143,7 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> constructive</li>
-<li><strong>Languages:</strong> en, de</li>
+<li><strong>Languages:</strong> en, de, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 <li><strong>In other languages:</strong> Hunderttausend Milliarden Gedichte (<em>de</em>), Cent mille milliards de poèmes (<em>fr</em>)</li>
@@ -2148,6 +2226,22 @@ Und was sie sagen, bleibt zuletzt geheim.
 </code></pre></div>
 <p>Parameters: <code>source='Fünf Scheiben aus Papier, und etwas Zeit. | Der Denckring liegt geheftet, drehbereit. | Ein Blättlein hält die Sprache, schmal und weit.\nEin jeder Ring dreht sich in deiner Hand. | Die Silben stehen sauber Rand an Rand. | Ein Wort entsteht ganz ohne Verstand.\nWas hier entsteht, ist selten schon gescheit. | Der Zufall kennt kein Maß und auch kein Leid. | Die Ringe schweigen, führen keinen Streit.\nEin blindes Wort kommt her aus keinem Land. | Die Scheiben hält ein dünnes, festes Band. | Die Lettern stehen dicht wie eine Wand.\nHier wird aus Silben Sprache, still gemacht. | Man dreht die Ringe einmal, eine Nacht. | Ein Wort hat über nichts und niemand Macht.\nMan kann die ganze Sprache darin sehen. | Und jeder Ring will für sich selber drehen. | Fünf Scheiben, die nun übereinander stehen.\nNicht jedes Drehen hat ein Wort gebracht. | Der Meister hat das Blättlein wohl bedacht. | Die Sprache liegt hier ohne alle Pracht.\nMan läßt die Ringe ihren Weg so gehen. | Es kann in einem Dreh ein Wort geschehen. | Und keiner muß das blinde Wort verstehen.\nAm Ende steht ein einzig klares Wort. | Und niemand weiß, von welchem stillen Ort. | Was blind war, wird auf einmal lesbar dort.\nDie Scheiben drehen weiter, ganz allein. | Ein Wort kann groß und dennoch nichtig sein. | Der Ring ist alt, das Blättlein ist nur klein.\nMan dreht es immer weiter, immer fort. | Die Sprache liegt im Blättlein wie ein Hort. | Ein totes Wort ist stumm und bald verdorrt.\nEin Wort ist manchmal nichts als leerer Schein. | Der Reim fällt selten glatt und selten rein. | Die Lettern sind gestochen scharf und fein.\nFünf Ringe tragen jeden deutschen Reim. | In jeder Silbe liegt ein ganzer Keim. | Man trägt die ganze Sprache mit nach heim.\nUnd was sie sagen, bleibt zuletzt geheim. | Fünf Scheiben halten sich mit etwas Leim. | So bleibt die ganze Sprache hier daheim.'</code></p>
 <p>Source: constructed counterexample; same fourteen strips as the case above, with position 3 (0-indexed 2) replaced by an alternative offered for position 1 instead — real German text, but not one this position offers.</p>
+<h3 id="un-poeme-que-les-bandes-offrent">un-poeme-que-les-bandes-offrent<a class="headerlink" href="#un-poeme-que-les-bandes-offrent" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>La nuit
+se lève
+sans bruit
+</code></pre></div>
+<p>Parameters: <code>source='Le jour | La nuit\nse lève | descend\nsur nous | sans bruit'</code></p>
+<p>Source: constructed example; the machine is Queneau's, the strips are not</p>
+<h3 id="une-ligne-hors-des-bandes">une-ligne-hors-des-bandes<a class="headerlink" href="#une-ligne-hors-des-bandes" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>La nuit
+s&#39;endort
+sans bruit
+</code></pre></div>
+<p>Parameters: <code>source='Le jour | La nuit\nse lève | descend\nsur nous | sans bruit'</code></p>
+<p>Source: constructed counterexample</p>
 
 
 

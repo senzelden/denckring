@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2283,7 +2339,7 @@
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <p><strong>This row checks a narrower figure than Carroll's, and is filed as <code>reference</code>/<code>codified</code> rather than <code>primary</code>/<code>author-stated</code> for that reason.</strong> Carroll's own portmanteaux are <em>fusions</em> — <code>slithy</code> from <code>lithe</code> and <code>slimy</code>, <code>chortle</code> from <code>chuckle</code> and <code>snort</code> — where neither word survives whole and there is no host left standing. This row checks a <em>splice</em>: one word placed inside another that stays readable behind it, which is what the shopfront tradition actually does. Every one of Carroll's examples fails here with <code>splice_not_present</code>, and a golden case records it rather than leaving a reader to find out. Calling that <code>author-stated</code> would be claiming Carroll stated this rule; he stated a wider one, and ADR 0018 is explicit that using or naming a form is not stating it.
 The half of the punning shopfront <code>paronomasia</code> cannot reach — <code>Haarmonie</code>, <code>Hairitage</code>, <code>Föhnix</code> — and it needs no <code>phonemes.g2p</code> after all. A blend is never arbitrary: the host and the word spliced into it are both ordinary dictionary words, so the <em>coinage</em> is verified as a derived form rather than pronounced directly, and nothing unknown has to be sounded out. What the row cannot reach is a host the lexicon does not carry, which for these names is usually a proper noun — <code>Barbarella</code> is absent from CMUdict — and the cross-lingual blend, which needs <code>phonemes.bilingual</code> exactly as <code>homophonic_translation</code> does.
-<code>apply</code> is deliberately not shipped though <code>kind</code> says <code>both</code>. Generating a blend is choosing where to splice, which is Deri and Knight's multitape-FST problem and its own piece of work; <code>describe_procedure</code> will still report <code>both</code>, and the module docstring says so.</p>
+<code>apply</code> generates by proposing splices and letting <code>check</code> dispose: every way of putting each domain word into the host is proposed, and what survives is ranked closest-sounding first. It needs a vocabulary to splice from — <code>domain</code> names a trade, <code>domain_words</code> supplies the list — and raises <code>InvalidParams</code> naming both rather than inventing one.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Splice one word into another so that both stay audible and the host is still recognisable.</p>

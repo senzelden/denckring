@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2052,6 +2108,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sans-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sans-e
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prose-ordinaire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prose-ordinaire
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2087,7 +2165,7 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> restrictive</li>
-<li><strong>Languages:</strong> en, de</li>
+<li><strong>Languages:</strong> en, de, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>fold_diacritics</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 <li><strong>In other languages:</strong> Lipogramm (<em>de</em>), Lipogramme (<em>fr</em>)</li>
@@ -2158,6 +2236,18 @@
 </code></pre></div>
 <p>Parameters: <code>forbidden='ä'</code></p>
 <p>Source: constructed counterexample; contains "ä", which folds to the forbidden "a" — the inverted verdict ADR 0035's Known remaining names</p>
+<h3 id="sans-e">sans-e<a class="headerlink" href="#sans-e" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Un fils qui court dans un champ, loin du bruit.
+</code></pre></div>
+<p>Parameters: <code>forbidden='e'</code></p>
+<p>Source: constructed example; the form is Perec's, in La Disparition (1969)</p>
+<h3 id="prose-ordinaire">prose-ordinaire<a class="headerlink" href="#prose-ordinaire" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Le vent revient et le monde se tait.
+</code></pre></div>
+<p>Parameters: <code>forbidden='e'</code></p>
+<p>Source: constructed counterexample</p>
 
 
 

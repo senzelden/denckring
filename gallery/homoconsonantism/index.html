@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2086,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#meme-squelette-mots-nouveaux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        meme-squelette-mots-nouveaux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#une-consonne-changee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        une-consonne-changee
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2065,7 +2143,7 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> both</li>
-<li><strong>Languages:</strong> en, de</li>
+<li><strong>Languages:</strong> en, de, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>fold_diacritics</code>, <code>alphabet</code></li>
 <li><strong>Deterministic:</strong> no</li>
 <li><strong>In other languages:</strong> Homokonsonantismus (<em>de</em>), Homoconsonantisme (<em>fr</em>)</li>
@@ -2123,6 +2201,18 @@
 <div class="highlight"><pre><span></span><code>man wald sät
 </code></pre></div>
 <p>Parameters: <code>source='mein Bild ist'</code></p>
+<p>Source: constructed counterexample</p>
+<h3 id="meme-squelette-mots-nouveaux">meme-squelette-mots-nouveaux<a class="headerlink" href="#meme-squelette-mots-nouveaux" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>moine ému
+</code></pre></div>
+<p>Parameters: <code>source='mon ami'</code></p>
+<p>Source: constructed example; the consonant skeleton m-n-m held by different words</p>
+<h3 id="une-consonne-changee">une-consonne-changee<a class="headerlink" href="#une-consonne-changee" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>moine élu
+</code></pre></div>
+<p>Parameters: <code>source='mon ami'</code></p>
 <p>Source: constructed counterexample</p>
 
 

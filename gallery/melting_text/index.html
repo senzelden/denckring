@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2008,6 +2064,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#des-mots-tombent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        des-mots-tombent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remis-dans-un-autre-ordre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remis-dans-un-autre-ordre
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2043,9 +2121,10 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> both</li>
-<li><strong>Languages:</strong> en</li>
+<li><strong>Languages:</strong> en, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code></li>
 <li><strong>Deterministic:</strong> yes</li>
+<li><strong>In other languages:</strong> Texte fondant (<em>fr</em>)</li>
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
@@ -2082,6 +2161,18 @@
 <div class="highlight"><pre><span></span><code>c a
 </code></pre></div>
 <p>Parameters: <code>source='a b c'</code></p>
+<p>Source: constructed counterexample</p>
+<h3 id="des-mots-tombent">des-mots-tombent<a class="headerlink" href="#des-mots-tombent" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>un trois
+</code></pre></div>
+<p>Parameters: <code>source='un deux trois'</code></p>
+<p>Source: constructed example; the procedure is Oulipian</p>
+<h3 id="remis-dans-un-autre-ordre">remis-dans-un-autre-ordre<a class="headerlink" href="#remis-dans-un-autre-ordre" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>trois un
+</code></pre></div>
+<p>Parameters: <code>source='un deux trois'</code></p>
 <p>Source: constructed counterexample</p>
 
 

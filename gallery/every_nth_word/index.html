@@ -1843,6 +1843,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2008,6 +2064,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#un-mot-sur-deux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        un-mot-sur-deux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#les-autres-mots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        les-autres-mots
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2043,9 +2121,10 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> both</li>
-<li><strong>Languages:</strong> en</li>
+<li><strong>Languages:</strong> en, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code></li>
 <li><strong>Deterministic:</strong> yes</li>
+<li><strong>In other languages:</strong> Un mot sur n (<em>fr</em>)</li>
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
@@ -2088,6 +2167,18 @@
 <div class="highlight"><pre><span></span><code>one three five seven
 </code></pre></div>
 <p>Parameters: <code>source='one two three four five six seven eight'</code>, <code>n=2</code></p>
+<p>Source: constructed counterexample</p>
+<h3 id="un-mot-sur-deux">un-mot-sur-deux<a class="headerlink" href="#un-mot-sur-deux" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>deux quatre six huit
+</code></pre></div>
+<p>Parameters: <code>source='un deux trois quatre cinq six sept huit'</code>, <code>n=2</code></p>
+<p>Source: constructed example; the procedure is Oulipian</p>
+<h3 id="les-autres-mots">les-autres-mots<a class="headerlink" href="#les-autres-mots" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>un trois cinq sept
+</code></pre></div>
+<p>Parameters: <code>source='un deux trois quatre cinq six sept huit'</code>, <code>n=2</code></p>
 <p>Source: constructed counterexample</p>
 
 
