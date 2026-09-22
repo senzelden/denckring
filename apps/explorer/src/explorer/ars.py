@@ -195,7 +195,10 @@ def interrogate(question: str, *, alphabet: str, letters: list[str], arity: int 
         response = client.messages.create(
             model=model(),
             max_tokens=16000,
-            system=SYSTEM,
+            system=cast(
+                Any,
+                [{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+            ),
             # `cast` because the SDK is imported lazily, the way `witz.py`
             # imports it: its own `ToolParam` types are not in scope at module
             # level, where `TOOL` has to live so that the schema is readable
