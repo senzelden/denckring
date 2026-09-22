@@ -37,7 +37,7 @@ produce("cut_up", "one two three four five six", seed=7).texts  # the generating
 $ denckring check lipogram gedicht.txt --lang de   # exits 1 when unsatisfied
 $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
-158 catalogued · 133 implementable · 127 implemented · 127 validated · 25 not mechanically checkable
+158 catalogued · 133 implementable · 128 implemented · 128 validated · 25 not mechanically checkable
 0 instruments catalogued
 ```
 
@@ -73,7 +73,7 @@ shells out to the CLI instead, and needs no extra beyond the package itself.
 A hundred and twenty-seven of the 158 catalogued procedures are implemented, and every
 one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see [What can be checked](#what-can-be-checked) —
-and the remaining 6 are sourced and awaiting implementation.
+and the remaining 5 are sourced and awaiting implementation.
 
 The [**gallery**](https://senzelden.github.io/denckring/gallery/) has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
@@ -109,7 +109,7 @@ Wieland, Goethe, Kafka and Mann.
 German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 127 implemented rows run in French.
+On core alone, 70 of the 128 implemented rows run in French.
 
 Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
@@ -147,8 +147,8 @@ measurements the verdict rests on, each saying whether it came from a dictionary
 spelling heuristic. A haiku that misses names the words it counted and what it made them;
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
-`describe()` says in advance which kind a row is — `reading.determinacy` is `exact` for 81
-of the 127 and `heuristic` for 46. The score is monotone in
+`describe()` says in advance which kind a row is — `reading.determinacy` is `exact` for 82
+of the 128 and `heuristic` for 46. The score is monotone in
 violation count and `satisfied` is exactly `score == 1.0`, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.
 

@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `perverb` generates and checks two-fragment grafts from a bounded English proverb
+  corpus (part of #22). Explicit source and donor, six pairings, deterministic
+  output and unresolved verdicts for unknown sayings. ADR 0048 records sources,
+  editorial seams and limits; requires `denckring[en]`.
+
 ### Fixed
 
 - Correct S+7's English, German and French definitions to the noun-displacement

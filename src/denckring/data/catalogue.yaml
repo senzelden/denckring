@@ -1392,8 +1392,9 @@ procedures:
     names: { en: Perverb }
     definitions:
       en: >-
-        A proverb formed by grafting the first half of one saying onto the second
-        half of another, and the writing that follows from it.
+        A hybrid saying formed from the opening of one proverb and the ending
+        of another. This implementation checks only the graft, within a small
+        attested corpus; it does not judge writing inspired by the result.
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
@@ -1402,12 +1403,17 @@ procedures:
     kind: both
     languages: [en]
     requires: [tokens, corpus.proverbs]
-    deterministic: false
+    deterministic: true
     prompt_hints:
-      en: Cross two proverbs at the midpoint and write the passage the hybrid implies.
+      en: Join the source proverb’s opening to the donor proverb’s ending.
     notes: >-
-      Blocked: forming a perverb needs a `corpus.proverbs` capability no pack
-      provides.
+      Requires denckring[en]. `source` and `donor` must name distinct sayings in
+      the pack's corpus. The corpus supplies editorial fragment boundaries, not
+      arithmetic midpoints. Matching ignores case, punctuation and whitespace;
+      the generator emits the canonical corpus spelling. Unknown sayings produce
+      an unresolved verdict, not a claim that the saying is not a proverb.
+      Only the two-fragment graft is checked; poems and semantic quality are
+      outside this contract. See ADR 0048 and https://www.oulipo.net/fr/contraintes/perverbe.
 
   - id: mathews_algorithm
     names: { en: Mathews's algorithm, de: Mathews-Algorithmus, fr: Algorithme de Mathews }

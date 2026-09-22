@@ -15,7 +15,6 @@ UNDERSTATED = {
 
 BLOCKED = {
     "homophonic_translation": "phonemes.bilingual",
-    "perverb": "corpus.proverbs",
 }
 
 #: Rows that were in `BLOCKED` until ADR 0045 built the capability. They still
@@ -27,6 +26,7 @@ BLOCKED = {
 #: docstring — "a capability nothing provides" — became false. A test that passes
 #: for a reason that has stopped holding is the defect this repo treats as real.
 UNBLOCKED = {
+    "perverb": "corpus.proverbs",
     "chimera": "pos",
     "homosyntaxism": "pos",
     "verbless_prose": "pos",

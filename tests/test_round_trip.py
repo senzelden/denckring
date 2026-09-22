@@ -182,11 +182,13 @@ SEED = st.integers(min_value=0, max_value=2**16 - 1)
 #: per-row text strategy would.
 #: Asserted below against what `apply` really produces, so the list cannot rot into
 #: prose the way it already did once.
+# Perverb requires an explicit donor; exhaustive corpus round trips live in test_perverb.py.
 PARAMETER_GATED = frozenset(
     {
         "arca_musarithmica",
         "calculator_word",
         "chimera",
+        "perverb",
         "pasigraphy",
         "portmanteau",
         "slenderizing",

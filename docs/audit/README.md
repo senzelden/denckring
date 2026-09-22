@@ -52,6 +52,8 @@ checker rejects, because a drawn word's class depends on where it lands.
 
 ## Rows with a note
 
+- [`perverb`](perverb.md) — six corpus pairings checked exhaustively; unknown sayings remain unresolved (2026-09-22).
+
 - [`anagram`](anagram.md) — Accepts a text as an anagram of itself, which is the identity case.
 - [`cent_mille_milliards`](cent_mille_milliards.md) — Vacuous on a degenerate frame.
 - [`mathews_algorithm`](mathews_algorithm.md) — Vacuous on a single row: the algorithm rotates rows against each other.

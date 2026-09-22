@@ -380,3 +380,9 @@ class LanguagePack(Protocol):
     def graded_words(self) -> Mapping[str, int]: ...
 
     def pos_tags(self, words: Sequence[str]) -> list[PosTag]: ...
+
+
+class ProverbCorpus(Protocol):
+    """Optional corpus capability; does not widen the stable LanguagePack contract."""
+
+    def proverbs(self) -> Sequence[tuple[str, str]]: ...

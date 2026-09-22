@@ -9,7 +9,7 @@ metric on every syllabic report shows how much was still guessed.
 from __future__ import annotations
 
 import gzip
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
@@ -24,6 +24,7 @@ from denckring.lang.base import (
     LETTER_SHAPES,
     NOUNS,
     PHONEMES,
+    PROVERBS,
     STRESS,
     SYLLABLES_DICTIONARY,
     SYLLABLES_HEURISTIC,
@@ -136,6 +137,14 @@ def known_words() -> frozenset[str]:
 class EnglishDataPack(EnglishPack):
     """English with a pronouncing dictionary behind it."""
 
+    def proverbs(self) -> Sequence[tuple[str, str]]:
+        # Immutable, bounded corpus; provenance and editorial seams in ADR 0048.
+        return (
+            ("A stitch in time", "saves nine"),
+            ("Birds of a feather", "flock together"),
+            ("A rolling stone", "gathers no moss"),
+        )
+
     lang: ClassVar[str] = "en"  # type: ignore[assignment]
     data_distributions: ClassVar[tuple[str, ...]] = ("denckring-en-data",)
     capabilities: ClassVar[frozenset[str]] = frozenset(
@@ -157,6 +166,7 @@ class EnglishDataPack(EnglishPack):
             # the first row to require it would have been reported as running in
             # `en` and would then have raised. ADR 0030.
             PHONEMES,
+            PROVERBS,
             STRESS,
             NOUNS,
             WORDS,

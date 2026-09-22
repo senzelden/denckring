@@ -1,0 +1,18 @@
+procedure: perverb
+lang: en
+cases:
+  - name: graft
+    source: constructed from Preston proverb entries 1532 and 123; ADR 0048
+    text: A stitch in time flock together
+    params: {source: A stitch in time saves nine, donor: Birds of a feather flock together}
+    satisfied: true
+  - name: wrong-donor
+    source: constructed counterexample using the suffix of entry 1367
+    text: A stitch in time gathers no moss
+    params: {source: A stitch in time saves nine, donor: Birds of a feather flock together}
+    satisfied: false
+  - name: unknown-source
+    source: constructed unknown saying
+    text: Invented words flock together
+    params: {source: Invented words go here, donor: Birds of a feather flock together}
+    satisfied: false

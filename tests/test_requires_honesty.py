@@ -145,6 +145,7 @@ from denckring.lang.base import (
 #: is not simply "absent from the bare pack"; `letter_shapes` and `fold_diacritics` are
 #: on the bare pack too and are watched anyway.
 CAPABILITY_METHODS: dict[str, tuple[str, ...]] = {
+    "corpus.proverbs": ("proverbs",),
     "letter_shapes": ("ascenders", "descenders", "exceeds_x_height"),
     "fold_diacritics": ("fold_diacritics",),
     "lexicon.words": ("is_word",),
@@ -173,6 +174,7 @@ _TRACKED_METHODS = frozenset(m for methods in CAPABILITY_METHODS.values() for m 
 #: than off `CAPABILITY_METHODS`: the spy above watches a deliberately narrow subset,
 #: while sufficiency has to model every gate a row could walk into.
 METHOD_CAPABILITY: dict[str, str] = {
+    "proverbs": "corpus.proverbs",
     "tokenize": TOKENS,
     "word_spans": TOKENS,
     "fold_diacritics": FOLD_DIACRITICS,
