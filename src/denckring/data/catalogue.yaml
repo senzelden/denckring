@@ -1770,7 +1770,7 @@ procedures:
       are waived. Matching ignores case and punctuation but preserves order and
       multiplicity. Only single-word lemmas are included; no morphology or
       sense disambiguation is inferred. Empty sources fail. The three relation
-      rows provide checking only. Repeated synonym rewriting requires checking
+      rows provide checking only. Repeated antonym rewriting requires checking
       each step separately; unrecognisability is not judged.
 
   - id: synonymic_substitution
@@ -3175,7 +3175,7 @@ procedures:
       are waived. Matching ignores case and punctuation but preserves order and
       multiplicity. Only single-word lemmas are included; no morphology or
       sense disambiguation is inferred. Empty sources fail. The three relation
-      rows provide checking only. Repeated synonym rewriting requires checking
+      rows provide checking only. Repeated antonym rewriting requires checking
       each step separately; unrecognisability is not judged.
 
   - id: definitional_translation

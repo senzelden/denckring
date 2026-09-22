@@ -6,13 +6,13 @@ hybrid saying, not the literary merit of writing inspired by it.
 
 from __future__ import annotations
 
-from typing import cast
+import unicodedata
 
 from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
-from denckring.core.errors import NoCandidateWord
-from denckring.core.protocol import LanguagePack, Produced, ProverbCorpus, Report, Violation
+from denckring.core.errors import MissingCapability, NoCandidateWord
+from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 
 
@@ -25,14 +25,32 @@ class PerverbApplyParams(PerverbParams, ApplyParams):
 
 
 def _words(text: str, pack: LanguagePack) -> tuple[str, ...]:
-    return tuple(word.casefold() for word in pack.tokenize(text))
+    # NFC first, matching core/bilingual.words(): an NFD-typed saying (a
+    # combining-mark input) must casefold the same as its NFC form, or it can
+    # fail to match a corpus entry it should match.
+    return tuple(word.casefold() for word in pack.tokenize(unicodedata.normalize("NFC", text)))
 
 
 def _hybrid(source: str, donor: str, pack: LanguagePack) -> str | None:
-    corpus = {
-        _words(f"{left} {right}", pack): (left, right)
-        for left, right in cast(ProverbCorpus, pack).proverbs()
-    }
+    # `ProverbCorpus` is optional and not part of the stable `LanguagePack`
+    # contract, so a pack can declare `corpus.proverbs` without implementing
+    # the method. A three-arg `getattr` turns that mismatch into the same
+    # `MissingCapability` a caller gets from a pack that never claimed the
+    # capability, instead of a bare `AttributeError` (core/errors.py: no error
+    # is silent).
+    #
+    # Deliberately not cached across calls: an earlier attempt keyed a module-
+    # level cache on `pack.lang`, which broke
+    # `test_requires_honesty.py::test_every_declared_capability_is_reached_by_its_fixtures`
+    # — that guard wraps a fresh pack instance per fixture and spies on
+    # `pack.proverbs()`, and a cache hit from an *different*, earlier-called
+    # instance means the spied instance never sees the call it declares.
+    # Today's 3-entry corpus makes the recompute free; a real cache would need
+    # to key on pack identity, not `pack.lang`, to keep that guard honest.
+    proverbs = getattr(pack, "proverbs", None)
+    if proverbs is None:
+        raise MissingCapability("perverb", pack.lang, "corpus.proverbs")
+    corpus = {_words(f"{left} {right}", pack): (left, right) for left, right in proverbs()}
     first, second = _words(source, pack), _words(donor, pack)
     if first == second or first not in corpus or second not in corpus:
         return None
