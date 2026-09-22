@@ -270,10 +270,10 @@ procedures:
   - id: s_plus_7
     names: { en: S+7, de: S+7, fr: S+7 }
     definitions:
-      en: N+7 generalised to any part of speech, displacing each by a fixed offset.
-      de: N+7, verallgemeinert auf beliebige Wortarten.
-      fr: S+7 généralisé à toute catégorie grammaticale.
-    source: Oulipo, La Littérature potentielle (1973)
+      en: Replace every noun with the seventh noun following it in a chosen dictionary.
+      de: Jedes Substantiv wird durch das siebte folgende Substantiv im Wörterbuch ersetzt.
+      fr: Remplacer chaque substantif par le septième qui le suit dans le dictionnaire.
+    source: "Oulipo, S+7 (Jean Lescure, 1961), https://oulipo.net/contraintes/s7"
     family: word
     attribution: reference
     checkability: source
@@ -283,20 +283,19 @@ procedures:
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
-      en: Displace every word of the chosen part of speech by a fixed number of dictionary entries.
+      en: Replace each noun with the seventh noun after it in the dictionary, keeping everything else.
     notes: >-
-      This row and `n_plus_7` are two named forms of one displacement, and they run
-      one implementation: `SPlus7Params` adds no field to `NPlus7Params`, and both
-      `_check` and `_produce` delegate to the same `displacement_report` and
-      `displace`. That is deliberate rather than an oversight — this catalogue
-      records forms as the literature names them, and the literature names both —
-      but it is said here because a reader comparing the two entries could otherwise
-      only discover it by diffing two modules. The generalisation is reached through
-      parameters both rows already carry: `dictionary` supplies the word list for the
-      chosen part of speech, `offset` the step. A generalisation that displaced verbs
-      *as verbs* would need `pos`, which `denckring-en-pos` supplies for English
-      alone while this row declares `[en, de, fr]`; that is why it is not built on
-      it (issue #23).
+      S+7 is the French name of the noun displacement also catalogued here as
+      `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns
+      and seven places; it separately describes Queneau's extensions to other
+      parts of speech in La Littérature potentielle (1973). Both public IDs are
+      retained for compatibility and share one implementation. `SPlus7Params`
+      inherits `offset`, `dictionary` and `ambiguous_nouns` from `NPlus7Params`.
+      These parameters support variations on both rows: a supplied word list
+      controls membership, not grammatical role in context. The default list
+      contains nouns, and neither row uses part-of-speech tagging. Consequently
+      a supplied verb list can also displace a homograph used as a noun. The
+      language support remains English, German and French (issue #23).
 
   - id: anagram
     names: { en: Anagram, de: Anagramm, fr: Anagramme }

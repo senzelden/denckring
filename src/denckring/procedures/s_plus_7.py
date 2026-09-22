@@ -1,13 +1,10 @@
-"""S+7 — N+7 generalised to any part of speech, displaced by a fixed offset.
+"""S+7 — replace each noun with the seventh following noun in a dictionary.
 
-Two named forms, one implementation: everything here delegates to `n_plus_7`,
-which is deliberate and is recorded in both rows' catalogue `notes`. The
-generalisation is reached through parameters that row already carries —
-`dictionary` supplies the word list for the chosen part of speech, `offset` the
-step — so what distinguishes the two entries is catalogue metadata, not code.
-The module docstring used to say "any displacement" while the catalogue said
-"any part of speech"; only one of them can be the row's point, and issue #23
-settled it on the catalogue's side.
+The French name of the procedure also catalogued as N+7. Both public IDs share
+an implementation. Oulipo distinguishes this base procedure from extensions to
+other parts of speech: https://oulipo.net/contraintes/s7.
+Both rows expose configurable offsets and word lists; list membership does not
+identify a word's grammatical role in context. See the catalogue notes.
 """
 
 from __future__ import annotations

@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Correct S+7's English, German and French definitions to the noun-displacement
+  procedure documented by Oulipo (#23). Cite its public account and distinguish
+  the base form from configurable word-list and offset extensions in the notes.
+  Both IDs and their shared behavior remain unchanged. Remove the wording guard
+  that required the earlier, inaccurate generalisation.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added
