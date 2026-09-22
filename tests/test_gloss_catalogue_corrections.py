@@ -29,7 +29,8 @@ def test_chimera_substitutes_by_part_of_speech_not_by_meaning() -> None:
 def test_definitional_translation_needs_glosses_in_the_target_language() -> None:
     requires = catalogue.get("definitional_translation").requires
     assert "lexicon.glosses.bilingual" not in requires
-    assert registry.get("definitional_translation").params_model().model_fields["data"].is_required()
+    model = registry.get("definitional_translation").params_model()
+    assert model.model_fields["data"].is_required()
     with pytest.raises(InvalidParams):
         check("definitional_translation", "animal", source="cat")
 
