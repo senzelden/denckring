@@ -1,6 +1,6 @@
 [project]
 name = "denckring-en-pos"
-version = "0.3.0"
+version = "0.3.1"
 description = "An English part-of-speech tagger for denckring, trained on UD English-EWT"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,7 +23,7 @@ classifiers = [
 # rather than `denckring`, because the `en` entry point belongs to that
 # distribution and its `pack()` factory composes this one in when it is
 # importable — the same direction denckring-de-frequency's dependency runs.
-dependencies = ["denckring-en-data==0.3.0"]
+dependencies = ["denckring-en-data==0.3.1"]
 
 # No [project.entry-points."denckring.lang"] section, and its absence is the
 # design — the same absence `denckring-de-frequency` documents.

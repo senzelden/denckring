@@ -28,9 +28,9 @@ def _run(tag: str) -> subprocess.CompletedProcess[str]:
 
 def test_the_current_tag_and_version_agree() -> None:
     """A live guard: this fails the moment `pyproject.toml` and the changelog
-    disagree with `v0.3.0`, which is what the CI job compares against the real
+    disagree with `v0.3.1`, which is what the CI job compares against the real
     pushed tag — this test compares against the workspace's own current state."""
-    result = _run("v0.3.0")
+    result = _run("v0.3.1")
     assert result.returncode == 0, result.stderr
 
 

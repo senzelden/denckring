@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-22
+
 ### Added
 
 - **`chimera`, the third `pos` row and the first that generates it** (issue #22).
@@ -54,6 +56,19 @@ All notable changes to this project are documented here. The format follows
   no declared language is ever answered in a substitute. `tests/test_catalogue_quality.py`
   already held the rule against the YAML; this holds it at the surface a caller
   sees, where the per-field fallback to English is what does the damage.
+- **`s_plus_7` and `n_plus_7`'s two descriptions of `s_plus_7` now agree** (#23,
+  documentation half). `catalogue.yaml` called the row "N+7 generalised to any part
+  of speech"; the module docstring called it "N+7 generalised to any displacement",
+  the step "left to the writer" — only one can be the row's point. Settled on the
+  catalogue's side, since a definition here arrives with a source and the docstring's
+  phrasing described an implementation instead. Neither description was ever built as
+  a *difference*: `n_plus_7` already accepts `offset` and `dictionary`, `SPlus7Params`
+  adds no field, and `_check`/`_produce` both delegate — both rows' `notes` now say so,
+  in both directions, because `denckring show` and `describe_procedure` over MCP
+  surface `notes` to every caller. Still open on #23, not decided here: whether the
+  row's definition itself, sourced to Oulipo's *La Littérature potentielle* (1973),
+  should change — the honest reading of the code is a description of an
+  implementation, not of a form.
 
 ### Fixed
 
@@ -97,6 +112,14 @@ All notable changes to this project are documented here. The format follows
   tarball. The `exclude` entries in `pyproject.toml` are left in place: they no
   longer matter to the test but still protect a hand-run `uv build` in a dirty
   checkout.
+- The sdist bound is raised from 950,000 to 1,050,000 bytes, by maintainer decision,
+  after merging this release's three branches crossed the old one for real: the
+  35,963 bytes of headroom recorded at 0.3.0 were spent by legitimately shipped prose
+  and fixtures, not by a data file creeping in. Re-measured from `git archive HEAD`,
+  the safe window is `(953,687, 1,203,604)` — the clean build up to that build plus
+  the smallest data file the guard exists to catch (`graded_words.txt.gz`, 249,917
+  bytes) — and 1,050,000 leaves 96,313 bytes of headroom while still catching that
+  file or the roughly 300,000-byte `mutants/` class of accident.
 
 ## [0.3.0] - 2026-09-21
 
@@ -1815,7 +1838,8 @@ All notable changes to this project are documented here. The format follows
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/senzelden/denckring/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/senzelden/denckring/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/senzelden/denckring/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/senzelden/denckring/compare/v0.1.0...v0.1.1

@@ -31,7 +31,7 @@ from denckring_en_pos.perceptron import Tagger
 
 TAGGER_PATH = Path(str(files("denckring_en_pos") / "data" / "tagger.json.gz"))
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 #: UD's `VerbForm` values as they appear in the trained labels. A table and not a
 #: `cast` on whatever string the model emits: the labels come from a shipped file,
