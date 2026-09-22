@@ -6,6 +6,55 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`chimera`, the third `pos` row and the first that generates it** (issue #22).
+  A text's nouns, verbs and adjectives stripped out and refilled from three
+  different donors. The parameter shape it was said to be blocked on is three
+  role-keyed fields — `nouns_from`, `verbs_from`, `adjectives_from` — beside the
+  inherited `source`, and **no change to `core/base.py` was needed**: the premise
+  that `SourceParams` "carries one source and chimera needs three" was wrong, since
+  the source is the *frame*, the text this one was made from, and the donors are
+  lexical stock rather than sources. An ordered `sources: list[str]` was rejected
+  for hiding the role in a position `params_schema()` cannot describe.
+
+  Auditing it found the row's one real defect before it shipped: the generator
+  produced text its own checker rejects, because a drawn word's class is a fact
+  about where it lands — `salt` is a NOUN in the donor and PROPN at the head of a
+  sentence. `_produce` now re-tags its own output and redraws the positions whose
+  class did not survive. Four questions the definition leaves open — an empty
+  donor, repetition, capitalisation, and how the frame's surviving words are
+  compared — are ruled on in the module docstring, each with a test that has to
+  change if the ruling does. ADR 0046 records the parameter-shape decision ADR
+  0045 declined to make.
+
+  Two limits are measured and stated rather than papered over. `apply`'s redraw
+  loop is **greedy and incomplete**: a refusal is that search failing, not a
+  proof that the frame cannot be filled, and a sweep of 400 random cases found
+  21 refusals of which at least 8 were false. The message says so. And a donor
+  pool is the tagger's reading of the donor, which can be far smaller than the
+  donor text looks — so each candidate carries `forced_positions` beside
+  `target_positions`, counting the positions where exactly one donor word
+  survives and `seed` therefore changes nothing.
+- **Thirty French-sourced rows now declare French** (ADR 0047). `meta.languages` is
+  authored editorial scope and `runs_in` is computed from capabilities; measured on
+  2026-09-21, 174 (row, language) pairs ran without being editorially claimed, of
+  which 92 were French. This closes the thirty whose own `source:` field is the
+  evidence — `lipogram` is Perec's *La Disparition* and declared `[en, de]` — and
+  leaves the other 144 open rather than sweeping them. Eleven French names and
+  twelve French definitions were written for the rows that had none, and 24 French
+  golden cases, because a declared language must be one the row has actually been
+  run in. French editorial scope goes from 14 rows to 44; `runs_in` does not move.
+  **The same test over German-sourced rows returns zero**: every row sourced to a
+  German original already declared `de`. Measuring for this found the README's
+  `denckring[fr]` count stale at 103 against a measured 106, and its illustration of
+  the distinction resting on `belle_absente` — a row whose `languages` was wrong,
+  which is how it could illustrate anything. `clerihew` replaces it.
+- **`tests/test_declared_language_strings.py`**, asserting through `describe` that
+  no declared language is ever answered in a substitute. `tests/test_catalogue_quality.py`
+  already held the rule against the YAML; this holds it at the surface a caller
+  sees, where the per-field fallback to English is what does the damage.
+
 ### Fixed
 
 - **Four guards that could not fail, and the state they leaked** (#17). A catalogue

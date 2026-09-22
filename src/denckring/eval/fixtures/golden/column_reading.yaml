@@ -43,3 +43,25 @@ cases:
         ein vogel flog hoch
       column: 1
     satisfied: false
+  - name: deuxieme-mot-de-chaque-ligne
+    lang: fr
+    source: constructed example; the procedure is from Oulipo's Atlas de littérature potentielle
+    text: chat chien oiseau
+    params:
+      source: |-
+        le chat dormait bien
+        un chien courait vite
+        un oiseau volait haut
+      column: 2
+    satisfied: true
+  - name: la-premiere-colonne-est-la-mauvaise
+    lang: fr
+    source: constructed counterexample
+    text: chat chien oiseau
+    params:
+      source: |-
+        le chat dormait bien
+        un chien courait vite
+        un oiseau volait haut
+      column: 1
+    satisfied: false

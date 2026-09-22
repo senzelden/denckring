@@ -24,3 +24,15 @@ cases:
     text: O du der Herr
     params: {}
     satisfied: false
+  - name: mots-qui-retrecissent
+    lang: fr
+    source: constructed example
+    text: malade amour aime ami et a
+    params: {}
+    satisfied: true
+  - name: ils-croissent-au-contraire
+    lang: fr
+    source: constructed counterexample
+    text: a et ami aime amour malade
+    params: {}
+    satisfied: false

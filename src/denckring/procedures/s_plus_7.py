@@ -1,4 +1,14 @@
-"""S+7 — N+7 generalised to any displacement."""
+"""S+7 — N+7 generalised to any part of speech, displaced by a fixed offset.
+
+Two named forms, one implementation: everything here delegates to `n_plus_7`,
+which is deliberate and is recorded in both rows' catalogue `notes`. The
+generalisation is reached through parameters that row already carries —
+`dictionary` supplies the word list for the chosen part of speech, `offset` the
+step — so what distinguishes the two entries is catalogue metadata, not code.
+The module docstring used to say "any displacement" while the catalogue said
+"any part of speech"; only one of them can be the row's point, and issue #23
+settled it on the catalogue's side.
+"""
 
 from __future__ import annotations
 
@@ -14,7 +24,7 @@ from denckring.procedures.n_plus_7 import (
 
 
 class SPlus7Params(NPlus7Params):
-    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns` — with the step left to the writer.
+    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns` — and no field of its own.
 
     Inherits rather than duplicates: a second `offset` field here, kept in sync
     by hand, is exactly how `dictionary` would have stayed n_plus_7-only despite
@@ -28,7 +38,7 @@ class SPlus7ApplyParams(SPlus7Params, ApplyParams):
 
 @register
 class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
-    """The same walk as N+7, with the step left to the writer."""
+    """The same walk as N+7, over the word list and step the caller supplies."""
 
     id = "s_plus_7"
 
@@ -46,6 +56,6 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
         return SPlus7ApplyParams
 
     def _produce(self, text: str, pack: LanguagePack, params: SPlus7ApplyParams) -> Produced:
-        """The same walk, with the step the caller asked for."""
+        """The same walk, over the word list and step the caller asked for."""
         nouns, noun_index = resolve_dictionary(pack, params.dictionary)
         return plain([displace(text, pack, nouns, noun_index, params.offset)])

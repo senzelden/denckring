@@ -23,3 +23,15 @@ cases:
     text: Manns Herz
     params: { name: Anselm }
     satisfied: false
+  - name: seules-les-lettres-du-nom
+    lang: fr
+    source: constructed example; the form is Perec's, in Oulipo, Atlas (1981)
+    text: calme mer, larme, merle
+    params: { name: Marcel }
+    satisfied: true
+  - name: hors-du-nom
+    lang: fr
+    source: constructed counterexample
+    text: calme mer, orage
+    params: { name: Marcel }
+    satisfied: false

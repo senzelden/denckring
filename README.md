@@ -37,7 +37,7 @@ produce("cut_up", "one two three four five six", seed=7).texts  # the generating
 $ denckring check lipogram gedicht.txt --lang de   # exits 1 when unsatisfied
 $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
-158 catalogued · 133 implementable · 126 implemented · 126 validated · 25 not mechanically checkable
+158 catalogued · 133 implementable · 127 implemented · 127 validated · 25 not mechanically checkable
 0 instruments catalogued
 ```
 
@@ -70,10 +70,10 @@ shells out to the CLI instead, and needs no extra beyond the package itself.
 
 ## What's here
 
-A hundred and twenty-six of the 158 catalogued procedures are implemented, and every one
-of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
+A hundred and twenty-seven of the 158 catalogued procedures are implemented, and every
+one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see [What can be checked](#what-can-be-checked) —
-and the remaining 7 are sourced and awaiting implementation.
+and the remaining 6 are sourced and awaiting implementation.
 
 The [**gallery**](https://senzelden.github.io/denckring/gallery/) has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
@@ -94,7 +94,7 @@ distribution exists per licence rather than per language (ADR 0013).
 | `denckring[de]` | word lexicon and noun list, from Wikidata Lexemes (CC0) | `charade`, `semordnilap`, `word_square`, `n_plus_7`, `s_plus_7` in German |
 | `denckring[de-wiktionary]` | pronunciations, stress, glosses (CC BY-SA) | **every implemented row in German** |
 | `denckring[de-frequency]` | frequency bands, from the Leipzig Corpora Collection (CC BY) | German `apply anagram` |
-| `denckring[fr]` | word list, nouns, frequency bands, glosses, syllables, phonemes (Lexique 3.82, fr.Wiktionary) | French from 70 rows to **103** |
+| `denckring[fr]` | word list, nouns, frequency bands, glosses, syllables, phonemes (Lexique 3.82, fr.Wiktionary) | French from 70 rows to **106** |
 | `denckring[mcp]` | the MCP server | `denckring-mcp` |
 
 Without `[en]`, syllables are estimated from spelling and every report says how many
@@ -109,7 +109,7 @@ Wieland, Goethe, Kafka and Mann.
 German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 126 implemented rows run in French.
+On core alone, 70 of the 127 implemented rows run in French.
 
 Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
@@ -118,8 +118,13 @@ an approximate answer.
 
 `describe` answers both halves of "can I run this in French": `languages` is the row's
 authored editorial scope — `wechselsatz` is German by nature, not merely by capability —
-and `runs_in` is computed from the installed packs. `belle_absente` is `languages: [en]`
-and `runs_in` all three.
+and `runs_in` is computed from the installed packs. `clerihew` is `languages: [en]`, the
+form being English by nature, and `runs_in` all three.
+
+The two move independently, and the editorial half is the one that lags: 174 (row,
+language) pairs ran unclaimed when it was last measured. ADR 0047 closed the thirty
+French rows whose own `source:` field is the evidence — `lipogram` is Perec's *La
+Disparition* — and records why the rest stay open rather than being swept.
 
 **18 French rows will never close.** They are accentual metres, French has no lexical
 stress, and they are not French forms; declaring the capability to reach a bigger number
@@ -143,7 +148,7 @@ spelling heuristic. A haiku that misses names the words it counted and what it m
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
 `describe()` says in advance which kind a row is — `reading.determinacy` is `exact` for 81
-of the 126 and `heuristic` for 45. The score is monotone in
+of the 127 and `heuristic` for 46. The score is monotone in
 violation count and `satisfied` is exactly `score == 1.0`, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.
 

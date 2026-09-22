@@ -23,3 +23,17 @@ cases:
     text: Der Wind weht heute wieder gegen jedes Fenster.
     params: { source: x, forbidden: e }
     satisfied: false
+  - name: aucune-lettre-interdite
+    lang: fr
+    source: >-
+      constructed example; only the checkable half (the lipogram) is scored —
+      reuses lipogram's own fr fixture
+    text: Un fils qui court dans un champ, loin du bruit.
+    params: { source: x, forbidden: e }
+    satisfied: true
+  - name: lettre-interdite-presente
+    lang: fr
+    source: constructed counterexample — reuses lipogram's own fr fixture
+    text: Le vent revient et le monde se tait.
+    params: { source: x, forbidden: e }
+    satisfied: false

@@ -23,3 +23,15 @@ cases:
     text: man wald sät
     params: { source: mein Bild ist }
     satisfied: false
+  - name: meme-squelette-mots-nouveaux
+    lang: fr
+    source: constructed example; the consonant skeleton m-n-m held by different words
+    text: moine ému
+    params: { source: mon ami }
+    satisfied: true
+  - name: une-consonne-changee
+    lang: fr
+    source: constructed counterexample
+    text: moine élu
+    params: { source: mon ami }
+    satisfied: false

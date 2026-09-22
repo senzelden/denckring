@@ -28,6 +28,14 @@ text and says so. `homosyntaxism`'s identity probe is the interesting one: it
 is the first `checkability: source` row that does **not** accept a text as its
 own source, and the file says why.
 
+**One more was added on 2026-09-21**, [`chimera`](chimera.md), bringing the
+registry to 127 — the third `pos` row and the first that generates. Its probe
+had to be run by hand, because the row needs three donor texts no harness can
+invent, so it is filed under "Rows not exercised" below even though it *was*
+exercised; the file says with what. That pass found a real defect, in the half
+the harness would not have reached either: the generator produced text its own
+checker rejects, because a drawn word's class depends on where it lands.
+
 ## What it found
 
 - **No procedure crashed.** Every failure was a `DenckringError` naming its
@@ -69,6 +77,7 @@ own source, and the file says why.
 - [`arca_musarithmica`](arca_musarithmica.md) — needs ['pinakes', 'source']
 - [`beau_present`](beau_present.md) — needs ['name']
 - [`belle_absente`](belle_absente.md) — needs ['name']
+- [`chimera`](chimera.md) — needs ['adjectives_from', 'nouns_from', 'source', 'verbs_from'] (2026-09-21 pass; probed by hand with donors, and the only row in this section whose file carries a result — see it)
 - [`chronogram`](chronogram.md) — needs ['year']
 - [`double_acrostic`](double_acrostic.md) — needs ['first', 'last']
 - [`kangaroo_word`](kangaroo_word.md) — needs ['synonym']

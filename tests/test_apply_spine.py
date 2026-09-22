@@ -133,6 +133,7 @@ def test_a_procedure_that_does_not_draw_refuses_a_seed(pid: str) -> None:
 DRAWS = [
     "arca_musarithmica",
     "cent_mille_milliards",
+    "chimera",
     "cut_up",
     "denckring",
     "ideenwuerfeln",

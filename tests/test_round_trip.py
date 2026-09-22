@@ -9,7 +9,7 @@ Every call below is `apply(text, lang=lang, **_apply_args(...))`: no parameter
 beyond `source` and, where the procedure takes one, `seed` is ever supplied, so a
 generator whose `params_model` requires another field is skipped on every single
 call via the `except DenckringError`, not exercised by it.
-That is the six rows in `PARAMETER_GATED` below, and
+That is the seven rows in `PARAMETER_GATED` below, and
 `test_the_named_coverage_gap_is_the_whole_coverage_gap` re-derives the set from
 what `apply` actually produces rather than trusting this paragraph. `diastic` and
 `mesostic` also take an extra parameter (`seed_phrase`, `spine`) but escape the gap
@@ -162,9 +162,17 @@ TEXT = st.one_of(FLAT, FLAT_AGAIN, PARAGRAPHS, PROSE)
 SEED = st.integers(min_value=0, max_value=2**16 - 1)
 
 #: Rows this property cannot reach, because `apply` here is only ever called with
-#: `seed` and (where the model has it) `source`. Four need a further parameter with no
+#: `seed` and (where the model has it) `source`. Five need a further parameter with no
 #: usable default: `word_ladder` (`target`), `arca_musarithmica` (`pinakes`),
-#: `pasigraphy` (`table`/`from_language`/`to_language`), `slenderizing` (`deleted`).
+#: `pasigraphy` (`table`/`from_language`/`to_language`), `slenderizing` (`deleted`),
+#: and `chimera`, on which see below.
+#:
+#: `chimera` needs three more: `nouns_from`, `verbs_from` and `adjectives_from`, the
+#: donors it refills each word class from. They have no defaults and could not have
+#: one — a default donor would be a lexicon this library shipped and called the
+#: caller's text. Its own round-trip test is
+#: `test_chimera.py::test_what_the_generator_makes_satisfies_its_own_checker`, run over
+#: a range of seeds for the reason this file draws one.
 #:
 #: `calculator_word` is here for a different reason, and the distinction matters to
 #: whoever extends this harness. Its parameters all have usable defaults; what it
@@ -178,6 +186,7 @@ PARAMETER_GATED = frozenset(
     {
         "arca_musarithmica",
         "calculator_word",
+        "chimera",
         "pasigraphy",
         "portmanteau",
         "slenderizing",

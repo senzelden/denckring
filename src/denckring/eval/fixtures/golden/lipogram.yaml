@@ -43,3 +43,15 @@ cases:
     text: Wolken ziehen über den Fluss und Wälder
     params: { forbidden: ä }
     satisfied: false
+  - name: sans-e
+    lang: fr
+    source: constructed example; the form is Perec's, in La Disparition (1969)
+    text: Un fils qui court dans un champ, loin du bruit.
+    params: { forbidden: e }
+    satisfied: true
+  - name: prose-ordinaire
+    lang: fr
+    source: constructed counterexample
+    text: Le vent revient et le monde se tait.
+    params: { forbidden: e }
+    satisfied: false
