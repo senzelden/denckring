@@ -1,0 +1,33 @@
+{
+  "procedure": "antonymic_translation",
+  "lang": "en",
+  "cases": [
+    {
+      "name": "dictionary-relations",
+      "source": "constructed using OEWN 2024 direct relations; ADR 0049",
+      "text": "cold small",
+      "params": {
+        "source": "hot big"
+      },
+      "satisfied": true
+    },
+    {
+      "name": "unchanged-is-not-a-substitution",
+      "source": "constructed counterexample",
+      "text": "hot big",
+      "params": {
+        "source": "hot big"
+      },
+      "satisfied": false
+    },
+    {
+      "name": "unknown-is-not-waived",
+      "source": "constructed counterexample",
+      "text": "cold small qzxq",
+      "params": {
+        "source": "hot big qzxq"
+      },
+      "satisfied": false
+    }
+  ]
+}

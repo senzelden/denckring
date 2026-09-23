@@ -105,6 +105,8 @@ nav:
       - "45. The part-of-speech capability": adr/0045-the-part-of-speech-capability.md
       - "46. The chimera's three donors": adr/0046-the-chimeras-three-donors.md
       - "47. Editorial language scope": adr/0047-editorial-language-scope.md
+      - "48. A bounded proverb corpus": adr/0048-a-bounded-proverb-corpus.md
+      - "49. Strict relations and supplied bilingual data": adr/0049-strict-relations-and-supplied-bilingual-data.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

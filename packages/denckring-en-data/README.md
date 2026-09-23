@@ -24,6 +24,10 @@ installation nor use touches the network:
   `glosses.txt.gz` (78,866 lemmas, 134,298 glosses across every part of speech) are
   both derived from it. `metadata.json` beside the data records the exact version and
   generation date; `scripts/build_lexicon.py` regenerates both files from OEWN alone.
+  `synonyms.json.gz` and `antonyms.json.gz` add strict single-word relations
+  (44,948 and 6,039 source lemmas). `scripts/build_relations.py` reproduces them
+  with wn 1.1.1 and OEWN 2024; metadata records rules, counts and SHA-256 hashes.
+  Dictionary relations do not resolve word sense in context.
 - SCOWL 2020.12.07, under the terms in `LICENSE-SCOWL`. `graded_words.txt.gz` holds
   77,078 words, each with the SCOWL size band it first appears at, built from the
   `english-words` and `american-words` lists at sizes 10 through 60 — 60 being the
@@ -34,3 +38,11 @@ installation nor use touches the network:
 
 The code in this package is Apache-2.0, like denckring itself. The data is not — see
 `NOTICE` for which file carries which terms.
+
+## Proverb starter corpus
+
+`proverbs()` exposes three sayings with editorial prefix/suffix boundaries for
+perverb. Their attestation is Thomas Preston's *A Dictionary of English Proverbs
+and Proverbial Phrases*, entries 123, 1367 and 1532, available in public-domain text
+at https://www.gutenberg.org/files/39281/39281-h/39281-h.htm. ADR 0048 in the core
+repository records the selected boundaries and limited six-pairing scope.

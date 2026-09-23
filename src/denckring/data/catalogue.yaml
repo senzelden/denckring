@@ -1392,8 +1392,9 @@ procedures:
     names: { en: Perverb }
     definitions:
       en: >-
-        A proverb formed by grafting the first half of one saying onto the second
-        half of another, and the writing that follows from it.
+        A hybrid saying formed from the opening of one proverb and the ending
+        of another. This implementation checks only the graft, within a small
+        attested corpus; it does not judge writing inspired by the result.
     source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: primary
@@ -1402,12 +1403,17 @@ procedures:
     kind: both
     languages: [en]
     requires: [tokens, corpus.proverbs]
-    deterministic: false
+    deterministic: true
     prompt_hints:
-      en: Cross two proverbs at the midpoint and write the passage the hybrid implies.
+      en: Join the source proverb’s opening to the donor proverb’s ending.
     notes: >-
-      Blocked: forming a perverb needs a `corpus.proverbs` capability no pack
-      provides.
+      Requires denckring[en]. `source` and `donor` must name distinct sayings in
+      the pack's corpus. The corpus supplies editorial fragment boundaries, not
+      arithmetic midpoints. Matching ignores case, punctuation and whitespace;
+      the generator emits the canonical corpus spelling. Unknown sayings produce
+      an unresolved verdict, not a claim that the saying is not a proverb.
+      Only the two-fragment graft is checked; poems and semantic quality are
+      outside this contract. See ADR 0048 and https://www.oulipo.net/fr/contraintes/perverbe.
 
   - id: mathews_algorithm
     names: { en: Mathews's algorithm, de: Mathews-Algorithmus, fr: Algorithme de Mathews }
@@ -1744,8 +1750,8 @@ procedures:
     names: { en: Antonymic substitution }
     definitions:
       en: >-
-        A rewriting in which every substantive word is replaced by its opposite,
-        turning the text inside out while keeping its shape.
+        Check one replacement step: every source token must become a different
+        dictionary-backed antonym in the same position. Unknown relations fail.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -1756,19 +1762,23 @@ procedures:
     requires: [tokens, lexicon.antonyms]
     deterministic: false
     prompt_hints:
-      en: Replace every meaningful word with its opposite and keep the grammar unchanged.
+      en: Replace every source token with a supported dictionary relation, in order.
     notes: >-
-      Blocked, and a larger thesaurus will not unblock it. Of Open English
-      WordNet's lemmas, 6,633 have any antonym at all, and only 2 of 11 content
-      words in plain prose have one. "Every substantive word replaced by its
-      opposite" is not satisfiable by ordinary text.
+      ADR 0049 implements a strict, single-step dictionary reading, not semantic
+      judgment in context. Requires denckring[en] with OEWN 2024 relations. Every
+      token, including function words, needs a supported antonym; no unknowns
+      are waived. Matching ignores case and punctuation but preserves order and
+      multiplicity. Only single-word lemmas are included; no morphology or
+      sense disambiguation is inferred. Empty sources fail. The three relation
+      rows provide checking only. Repeated antonym rewriting requires checking
+      each step separately; unrecognisability is not judged.
 
   - id: synonymic_substitution
     names: { en: Synonymic substitution }
     definitions:
       en: >-
-        A rewriting in which every substantive word is replaced by a synonym,
-        repeated until the source is unrecognisable.
+        Check one replacement step: every source token must become a different
+        dictionary-backed synonym in the same position. Unknown relations fail.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: word
     attribution: reference
@@ -1779,13 +1789,16 @@ procedures:
     requires: [tokens, lexicon.synonyms]
     deterministic: false
     prompt_hints:
-      en: Replace each meaningful word with a synonym, then do it again to the result.
+      en: Replace every source token with a supported dictionary relation, in order.
     notes: >-
-      Blocked, and a larger thesaurus will not unblock it. WordNet synonymy is
-      synset co-membership: of twelve substitutions a writer would naturally
-      make, five are co-members, and only four of eleven content words in plain
-      prose have any synonym at all. "Every substantive word replaced by a
-      synonym" is not satisfiable by ordinary text.
+      ADR 0049 implements a strict, single-step dictionary reading, not semantic
+      judgment in context. Requires denckring[en] with OEWN 2024 relations. Every
+      token, including function words, needs a supported synonym; no unknowns
+      are waived. Matching ignores case and punctuation but preserves order and
+      multiplicity. Only single-word lemmas are included; no morphology or
+      sense disambiguation is inferred. Empty sources fail. The three relation
+      rows provide checking only. Repeated synonym rewriting requires checking
+      each step separately; unrecognisability is not judged.
 
   - id: tmesis
     names: { en: Tmesis, de: Tmesis, fr: Tmèse }
@@ -1972,9 +1985,9 @@ procedures:
       dictionary words, so the *coinage* is verified as a derived form rather
       than pronounced directly, and nothing unknown has to be sounded out. What
       the row cannot reach is a host the lexicon does not carry, which for these
-      names is usually a proper noun — `Barbarella` is absent from CMUdict — and
-      the cross-lingual blend, which needs `phonemes.bilingual` exactly as
-      `homophonic_translation` does.
+      names is usually a proper noun — `Barbarella` is absent from CMUdict.
+      Cross-lingual blends use `splice_lang` and ADR 0043's notation bridge;
+      ADR 0049's homophonic translation checks caller-supplied symbols instead.
 
       `apply` generates by proposing splices and letting `check` dispose: every
       way of putting each domain word into the host is proposed, and what
@@ -3108,8 +3121,9 @@ procedures:
     names: { en: Homophonic translation, de: Homophone Übersetzung, fr: Traduction homophonique }
     definitions:
       en: >-
-        A rendering that follows the sound of the source across a language barrier
-        rather than its sense, producing meaning from mishearing.
+        Compare complete source and target symbol streams from supplied
+        pronunciation data against an explicit normalized edit-distance limit.
+        This checks declared symbols, not pronunciation accuracy or literary quality.
       de: Eine Übertragung, die dem Klang des Originals folgt statt dem Sinn.
       fr: Une traduction suivant le son de l'original plutôt que son sens.
     source: Louis Zukofsky and Celia Zukofsky, Catullus (1969)
@@ -3120,21 +3134,29 @@ procedures:
     aliases: [sound translation]
     kind: both
     languages: [en]
-    requires: [tokens, phonemes, phonemes.bilingual]
+    requires: [tokens]
     deterministic: false
     prompt_hints:
-      en: Render the source by its sound rather than its meaning, in the target language.
+      en: Supply versioned bilingual JSON data and a source; unknown entries fail.
     notes: >-
-      Blocked: judging that the target sounds like the source across languages
-      needs a `phonemes.bilingual` capability no pack provides.
+      ADR 0049: `data` is versioned JSON with distinct language labels, provenance,
+      a shared symbol alphabet and per-word source and target pronunciations.
+      `lang` must match the source label. Every word must resolve; an unknown
+      word or an empty stream fails even with max_distance=1. Comparison is
+      Levenshtein distance divided by the longer stream length, without
+      automatic stress removal or phonetic equivalence rules. `max_distance`
+      is required in [0,1]. Symbol streams are limited to 4096 units each.
+      Word boundaries are ignored after lookup. No pack claims a bilingual
+      phoneme capability; the supplied data is not independently verified.
+      This row provides checking only, not target-text search.
 
   - id: antonymic_translation
     names: { en: Antonymic translation, fr: Traduction antonymique }
     definitions:
       en: >-
-        A rendering in which each element of the source is replaced by its
-        opposite, the result standing as a translation of a kind.
-      fr: Une traduction remplaçant chaque élément par son contraire.
+        Check one replacement step: every source token must become a different
+        dictionary-backed antonym in the same position. Unknown relations fail.
+      fr: Vérifier que chaque mot source est remplacé, dans l’ordre, par un antonyme attesté dans le dictionnaire anglais ; tout mot inconnu échoue.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: translation
     attribution: reference
@@ -3145,19 +3167,23 @@ procedures:
     requires: [tokens, lexicon.antonyms]
     deterministic: false
     prompt_hints:
-      en: Translate the passage into its opposite, term by term.
+      en: Replace every source token with a supported dictionary relation, in order.
     notes: >-
-      Blocked, and a larger thesaurus will not unblock it. Of Open English
-      WordNet's lemmas, 6,633 have any antonym at all, and only 2 of 11 content
-      words in plain prose have one. "Each element replaced by its opposite" is
-      not satisfiable by ordinary text.
+      ADR 0049 implements a strict, single-step dictionary reading, not semantic
+      judgment in context. Requires denckring[en] with OEWN 2024 relations. Every
+      token, including function words, needs a supported antonym; no unknowns
+      are waived. Matching ignores case and punctuation but preserves order and
+      multiplicity. Only single-word lemmas are included; no morphology or
+      sense disambiguation is inferred. Empty sources fail. The three relation
+      rows provide checking only. Repeated antonym rewriting requires checking
+      each step separately; unrecognisability is not judged.
 
   - id: definitional_translation
     names: { en: Definitional translation }
     definitions:
       en: >-
-        A rendering in which each word of the source is replaced by its dictionary
-        definition in the target language.
+        Check an ordered expansion of every source token into one supplied
+        target-language gloss. This verifies the supplied mapping, not its semantic accuracy.
     source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)
     family: translation
     attribution: primary
@@ -3165,15 +3191,19 @@ procedures:
     attested: author-stated
     kind: both
     languages: [en]
-    requires: [tokens, lexicon.glosses.bilingual]
+    requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Replace each word of the source with its definition in the target language.
+      en: Supply versioned bilingual JSON data and a source; unknown entries fail.
     notes: >-
-      Blocked: replacing each word by its definition *in the target language*
-      needs glosses in two languages. English glosses do not serve it, and no
-      pack ships non-English ones. Named alongside `homophonic_translation`'s
-      `phonemes.bilingual` for the same reason.
+      ADR 0049: `data` is versioned JSON with distinct source/target language
+      labels, provenance and gloss alternatives. `lang` must match the source
+      label. Case, punctuation and whitespace are ignored; word order and
+      occurrence counts are preserved. Unknown source tokens, empty sources,
+      omissions and extra candidate words fail. The target language label and
+      definitions are caller declarations, not independently verified facts.
+      This supplies a structural checker without claiming a bilingual lexicon
+      capability on any pack. At most 4096 tokens per text; checking only.
 
   - id: lipogrammatic_translation
     names: { en: Lipogrammatic translation, de: Lipogrammatische Übersetzung, fr: Traduction lipogrammatique }

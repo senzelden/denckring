@@ -103,9 +103,9 @@ cases:
     source: >-
       constructed counterexample, and the limit that is not g2p's fault.
       `Imagin'hair` is a real and much-copied salon name, but `hair` is English
-      inside French: the splice is not a word this lexicon knows, and judging it
-      would need `phonemes.bilingual` — the capability `homophonic_translation`
-      is blocked on and no pack provides
+      inside French: without an explicit splice_lang, the splice is looked up
+      in the French lexicon and is not found. ADR 0043 provides the explicit
+      cross-language path; this case intentionally omits that parameter
     text: Imagin'hair
     params: { source: imaginaire, splice: hair }
     satisfied: false

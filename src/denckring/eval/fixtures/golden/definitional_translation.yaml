@@ -1,0 +1,26 @@
+{
+  "procedure": "definitional_translation",
+  "lang": "en",
+  "cases": [
+    {
+      "name": "supplied-data-match",
+      "source": "constructed structural example; data is not independently verified",
+      "text": "petit animal animal fidèle",
+      "params": {
+        "source": "cat dog",
+        "data": "{\"version\": \"supplied-bilingual-v1\", \"source_language\": \"en\", \"target_language\": \"fr\", \"provenance\": \"constructed test data; not a verified bilingual dictionary\", \"glosses\": {\"cat\": [\"petit animal\"], \"dog\": [\"animal fidèle\"]}}"
+      },
+      "satisfied": true
+    },
+    {
+      "name": "supplied-data-mismatch",
+      "source": "constructed structural counterexample",
+      "text": "animal fidèle petit animal",
+      "params": {
+        "source": "cat dog",
+        "data": "{\"version\": \"supplied-bilingual-v1\", \"source_language\": \"en\", \"target_language\": \"fr\", \"provenance\": \"constructed test data; not a verified bilingual dictionary\", \"glosses\": {\"cat\": [\"petit animal\"], \"dog\": [\"animal fidèle\"]}}"
+      },
+      "satisfied": false
+    }
+  ]
+}

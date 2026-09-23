@@ -13,10 +13,7 @@ UNDERSTATED = {
     "spoonerism": "phonemes",
 }
 
-BLOCKED = {
-    "homophonic_translation": "phonemes.bilingual",
-    "perverb": "corpus.proverbs",
-}
+BLOCKED: dict[str, str] = {}
 
 #: Rows that were in `BLOCKED` until ADR 0045 built the capability. They still
 #: declare `pos` — what changed is that something answers it.
@@ -27,6 +24,7 @@ BLOCKED = {
 #: docstring — "a capability nothing provides" — became false. A test that passes
 #: for a reason that has stopped holding is the defect this repo treats as real.
 UNBLOCKED = {
+    "perverb": "corpus.proverbs",
     "chimera": "pos",
     "homosyntaxism": "pos",
     "verbless_prose": "pos",

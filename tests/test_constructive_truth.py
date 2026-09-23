@@ -1,6 +1,6 @@
 """`kind` is a claim about the form; `constructive` is a claim about the install.
 
-Ten rows say `kind: both` and have no generator behind them. Rewriting `kind`
+Fifteen rows say `kind: both` and have no generator behind them. Rewriting `kind`
 would trade a true statement about the form for a true statement about the
 install and lose the first, so both are reported.
 
@@ -16,6 +16,11 @@ from denckring.core.protocol import Constructive
 from denckring.core.registry import all_procedures
 
 WITHOUT_GENERATORS = {
+    "synonymic_substitution",
+    "antonymic_substitution",
+    "antonymic_translation",
+    "definitional_translation",
+    "homophonic_translation",
     "buchstabwechsel",
     "definitional_expansion",
     "definitional_literature",
@@ -29,7 +34,7 @@ WITHOUT_GENERATORS = {
 }
 
 
-def test_the_ten_say_both_things_at_once() -> None:
+def test_the_rows_say_both_things_at_once() -> None:
     for procedure_id in sorted(WITHOUT_GENERATORS):
         described = describe(procedure_id)
         assert described.kind in {"constructive", "both"}, procedure_id
@@ -59,11 +64,12 @@ def test_summaries_carry_it_too() -> None:
     assert rows["homoconsonantism"].constructive is False
 
 
-def test_the_count_of_generators_is_thirty_two() -> None:
+def test_the_count_of_generators_is_thirty_three() -> None:
     """`apply_procedure`'s docstring claimed sixteen. Pin the real number so the
     prose cannot drift from it again. Twenty-seven until `proteus_verse` landed,
     twenty-eight until `calculator_word`, twenty-nine until `paronomasia`, and
     thirty until `portmanteau` grew one, thirty-one until `chimera` landed.
-    `amphibologia` briefly made it thirty-two and was cut; see ADR 0043."""
+    `amphibologia` briefly made it thirty-two and was cut; see ADR 0043.
+    Perverb adds a deterministic corpus graft (ADR 0048)."""
     generators = [p for p in all_procedures().values() if isinstance(p, Constructive)]
-    assert len(generators) == 32
+    assert len(generators) == 33

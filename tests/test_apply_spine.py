@@ -105,6 +105,7 @@ DOES_NOT_DRAW = [
     "paronomasia",
     "pasigraphy",
     "portmanteau",
+    "perverb",
     "proteus_verse",
     "s_plus_7",
     "slenderizing",

@@ -1,0 +1,33 @@
+{
+  "procedure": "synonymic_substitution",
+  "lang": "en",
+  "cases": [
+    {
+      "name": "dictionary-relations",
+      "source": "constructed using OEWN 2024 direct relations; ADR 0049",
+      "text": "large little",
+      "params": {
+        "source": "big small"
+      },
+      "satisfied": true
+    },
+    {
+      "name": "unchanged-is-not-a-substitution",
+      "source": "constructed counterexample",
+      "text": "big small",
+      "params": {
+        "source": "big small"
+      },
+      "satisfied": false
+    },
+    {
+      "name": "unknown-is-not-waived",
+      "source": "constructed counterexample",
+      "text": "large little qzxq",
+      "params": {
+        "source": "big small qzxq"
+      },
+      "satisfied": false
+    }
+  ]
+}
