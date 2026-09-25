@@ -12,11 +12,10 @@ Every procedure pairs a generator with a validator, and the acceptance criterion
 intrinsic: a lipogram either contains the forbidden letter or it does not. Nothing has to
 be invented to test it, and nothing has to be believed. That is the whole design.
 
-![The catalogue, the stage, and a local model checking and generating over MCP](docs/showcase/denckring-overview.gif)
+https://github.com/user-attachments/assets/97dd9198-790c-4f82-a9ca-f5f35b155fc2
 
-*The board, nine machines on the stage, and `gemma4` running on the same laptop calling
-`check_text` and `apply_procedure` through this package's own MCP server. Nothing in it
-is staged — the verdicts are the library's own.*
+*A model is asked to write without `e`, says it has, and `check("lipogram", ...)` says
+otherwise. The same check then passes the corrected draft: the validator is the eval.*
 
 ## Quickstart
 
