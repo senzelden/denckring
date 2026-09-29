@@ -91,8 +91,15 @@ has judged.
 
 **Switches are not stated.** A boolean such as `pangram.perfect` would render as
 `True`. So a switch the hint cannot phrase is declared omitted, and the hint states
-one of its states: the default, or the stricter state, which satisfies both. A caller
-who flips `perfect` gets a prompt that does not say "exactly once". Tolerances such as
+one of its states: the default, or the stricter state, which satisfies both. Six
+switches tighten a task this way. Three hints state the looser default:
+`pangram.perfect`, `pasigraphy.require_complete` and `beau_present.require_all`. A
+caller who flips one gets a prompt that does not say "exactly once", "every word" or
+"every letter of the name", and the checker grades a stricter task than the prompt
+states. The other three hints state the stricter state, so either value is honest:
+`calculator_word.require_words` (on by default; "word(s)"),
+`denckring.require_all_rings` ("a prefix, an initial, a medial, a final and a
+suffix") and `ideenwuerfeln.distinct_domains` ("unrelated fields"). Tolerances such as
 `paronomasia.max_distance` are omitted for a related reason: a threshold on a
 normalised sound distance is not something a writer can aim at, and the hint states
 it in words ("close in sound").
