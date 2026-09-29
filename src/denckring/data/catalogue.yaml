@@ -242,7 +242,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a poem whose {unit}s begin with the letters of "{target}", in order.
+        Write a poem of exactly one {unit} per letter of "{target}", whose {unit}s begin
+        with those letters, in order.
 
   - id: telestich
     names: { en: Telestich, de: Telestichon, fr: Télestiche }
@@ -262,7 +263,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a poem whose {unit}s end with the letters of "{target}", in order.
+        Write a poem of exactly one {unit} per letter of "{target}", whose {unit}s end
+        with those letters, in order.
 
   # ---------------------------------------------------------------------------
   # Catalogued only: sourced, described, not yet implemented. These are what
@@ -1078,7 +1080,7 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Describe the subject at length without ever using the word "{forbidden}".
+        Write a passage that never uses the word "{forbidden}".
 
   - id: charade
     names: { en: Charade, de: Scharade, fr: Charade }
@@ -1173,8 +1175,9 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Change one letter of a word to make another, at least {minimum} time(s), and
-        build the sentence on the swaps, keeping both words of each pair in it.
+        Change one letter of a word to make another, at least {minimum} time(s) with a
+        different pair each time, and build the sentence on the swaps, keeping both words
+        of each pair in it.
     notes: >-
       The checker needs no dictionary: both halves of the swap are in the text,
       so two words of a length differing in one place is the whole property. The
@@ -1376,8 +1379,9 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a single word whose letter pairs trace a closed walk: it ends on the letter
-        it begins with and never repeats a pair of adjacent letters, in either order.
+        Write a word or phrase, and nothing else, whose letters, read as one run, trace a
+        closed walk: the run ends on the letter it begins with and never repeats a pair of
+        adjacent letters, in either order.
 
   - id: homoteleuton
     names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
