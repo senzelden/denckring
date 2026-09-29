@@ -57,9 +57,9 @@
         {% if ex.source %}<span class="cite">{{ ex.source }}</span>{% endif %}
       </button>
       {% endfor %}
-      {% if meta.prompt_hints.get('en') %}
+      {% if hint %}
       <h3>Prompt hint</h3>
-      <p class="hint">{{ meta.prompt_hints['en'] }}</p>
+      <p class="hint">{{ hint }}</p>
       {% endif %}
     </section>
   </aside>
@@ -80,9 +80,9 @@
   <p>Everything it needs is available. The checker is simply unwritten.</p>
   {% endif %}
   {% endif %}
-  {% if meta.prompt_hints.get('en') %}
+  {% if hint %}
   <h3>Prompt hint</h3>
-  <p>{{ meta.prompt_hints['en'] }}</p>
+  <p>{{ hint }}</p>
   {% endif %}
 </section>
 {% endif %}

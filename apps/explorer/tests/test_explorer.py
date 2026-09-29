@@ -61,6 +61,15 @@ def test_a_procedure_page_renders_its_form_from_the_schema() -> None:
     assert 'name="forbidden"' in response.text
 
 
+def test_a_procedure_page_shows_its_hint_rendered_not_its_template() -> None:
+    """Hints are `str.format` templates (ADR 0050); the page shows what
+    `describe` shows, so a reader sees `letter by letter`, not `{unit} by {unit}`.
+    """
+    response = client.get("/p/palindrome")
+    assert "letter by letter" in response.text
+    assert "{unit}" not in response.text
+
+
 def test_an_unimplemented_procedure_says_what_it_waits_on() -> None:
     response = client.get("/p/chimera")
     assert "lexicon.synonyms" in response.text

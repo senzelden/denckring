@@ -20,6 +20,7 @@ import shutil
 from collections import defaultdict
 from pathlib import Path
 
+from denckring import describe
 from denckring.core import catalogue
 from denckring.core.protocol import FAMILIES, Meta
 from denckring.core.registry import all_procedures
@@ -140,7 +141,15 @@ def render_procedure(meta: Meta, implemented: set[str], validated: set[str]) -> 
     if meta.notes:
         lines += ["", "## Notes", "", meta.notes]
 
-    if hint := meta.prompt_hints.get("en"):
+    # Through `describe` for a registered row: a hint is a `str.format` template,
+    # rendered from the defaults where they fill every slot (ADR 0050). An
+    # unregistered row has no parameters, so its hint holds no placeholder.
+    hint = (
+        describe(meta.id).prompt_hints
+        if meta.id in all_procedures()
+        else meta.prompt_hints.get("en")
+    )
+    if hint:
         lines += ["", "## Prompt hint", "", f"> {hint}"]
 
     if meta.id in implemented:
