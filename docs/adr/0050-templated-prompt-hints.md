@@ -70,8 +70,9 @@ raises until an initial is given. This applies to 17 placeholders in 17 rows. Se
 other `None`-default parameters are declared omitted instead:
 
 - `anaphora.minimum` and `epistrophe.minimum` are leniencies.
-- `arca_musarithmica.tonus` and the two `*_plus_7.dictionary` parameters name data the
-  prompt carries anyway.
+- The two `*_plus_7.dictionary` parameters name data the prompt carries anyway.
+- `arca_musarithmica.tonus` names a mode the supplied table must list. The checker
+  only checks membership, so the writer's task does not change.
 - `portmanteau.splice_lang` names a pronouncing dictionary.
 - `word_ladder.target` is read by `apply` alone.
 
@@ -103,6 +104,24 @@ worth a template language. Rendered from the defaults, most hints read as before
 Some differ where the old text never stated the value: `calculator_word` used to ask
 for a word and its digits, and now gives the digits, which is the task its checker
 judges.
+
+**A composite's prompt is several hints.** `multiple_constraint.constraint_params`
+changes the task: `{"lipogram": {"forbidden": "q"}}` is a different passage from the
+default. No placeholder in the composite's own hint can state it. So `prompt_hint`
+follows that hint with one line per named constraint, in `constraints` order. Each
+line is `- ` followed by the constraint's own hint, rendered by the same function
+from its `constraint_params` entry. A procedure opts in by overriding
+`BaseProcedure.hint_delegates`, which returns an empty list on every other row.
+
+A sub-hint validates and refuses as it would if asked for directly, and the error
+names the sub-constraint: `InvalidParams` for `lipogram`, `UnsetHintParameter` for
+`univocalic.vowel`, or `NoPromptHint` for a constraint with no hint in `lang`. The
+costs are these:
+
+- The returned string is several lines, not one sentence.
+- A composite can be refused for a reason that belongs to one of its parts.
+- `describe` shows only the composite's own template, since `constraints` has no
+  default.
 
 **Two error classes join the inventory**, 20 to 22, and `test_error_codes.py` pins
 the count.

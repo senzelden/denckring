@@ -104,6 +104,14 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     def params_model(cls) -> type[MultipleConstraintParams]:
         return MultipleConstraintParams
 
+    def hint_delegates(self, params: MultipleConstraintParams) -> list[tuple[str, dict[str, Any]]]:
+        """Each named constraint with its own parameters, in `constraints` order.
+
+        `constraint_params` changes the task, and only the constraints' own hints
+        can state what it says (ADR 0050).
+        """
+        return [(cid, params.constraint_params.get(cid, {})) for cid in params.constraints]
+
     def _check(self, text: str, pack: LanguagePack, params: MultipleConstraintParams) -> Report:
         violations: list[Violation] = []
         metrics: dict[str, float] = {"constraints": float(len(params.constraints))}

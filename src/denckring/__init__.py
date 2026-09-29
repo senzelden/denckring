@@ -58,13 +58,24 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     English, which `describe` does and discloses in `untranslated`, but a bare
     string cannot — and `UnsetHintParameter` when the hint states a parameter
     whose value is `None` ("inferred" to a checker, nothing to a sentence).
+
+    A composite (`multiple_constraint`) is followed by one line per named
+    constraint, `- ` and that constraint's own hint rendered from its
+    `constraint_params` entry by this same function, in `constraints` order. So
+    each sub-hint validates and refuses as it would if asked for directly, and
+    the error names the sub-constraint.
     """
     procedure = get(procedure_id)
     template = procedure.meta.prompt_hints.get(lang)
     if template is None:
         raise NoPromptHint(procedure_id, lang)
     parsed = procedure.parse_params(params)
-    return render(procedure_id, template, dict(parsed))
+    lines = [render(procedure_id, template, dict(parsed))]
+    lines += [
+        f"- {prompt_hint(delegate, lang=lang, **delegate_params)}"
+        for delegate, delegate_params in procedure.hint_delegates(parsed)
+    ]
+    return "\n".join(lines)
 
 
 def list_procedures() -> list[str]:

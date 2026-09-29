@@ -17,7 +17,9 @@ All notable changes to this project are documented here. The format follows
   or per row in the catalogue's new `hint_omits`, and a guard test holds the rule.
   `describe`, and the CLI, MCP, docs gallery and explorer through it, render hints
   from the defaults where they fill every slot. For the other 36 rows they show the
-  template.
+  template. For `multiple_constraint`, `prompt_hint` also appends one `- ` line per
+  named constraint, giving that constraint's own hint rendered from its
+  `constraint_params`.
 
 - Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
   synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.

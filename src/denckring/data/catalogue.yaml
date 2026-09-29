@@ -2179,7 +2179,8 @@ procedures:
         {constraints}.
     hint_omits:
       constraint_params: >-
-        per-constraint parameters, which each named constraint's own hint states
+        stated by prompt_hint, which follows this hint with each named constraint's
+        own hint rendered from its entry here
     notes: >-
       German declared: this row's own logic needs only `tokens`, which is
       what `languages` records. It says nothing about whether a *particular*
@@ -3954,8 +3955,8 @@ procedures:
         a data document supplied beside the prompt; quoting it would stop the hint
         being a hint
       tonus: >-
-        filters patterns inside the supplied pinakes data, which the prompt carries
-        anyway
+        names a mode the supplied table must list; the checker only checks
+        membership, and the writer's task does not change
     notes: >-
       Kircher advertises that an amusos — someone with no musical training — can produce
       correct four-part settings in any language, which is the claim that makes the box
