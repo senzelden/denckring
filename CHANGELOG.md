@@ -38,14 +38,16 @@ All notable changes to this project are documented here. The format follows
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
   anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
-  colon and line break), and a guard holds that for any row with a clause unit.
+  colon and line break), and a guard holds that for
+  every English hint of a row with a clause unit.
   Six hints that named a search (`eodermdrome`, `semordnilap`, `supervocalic`,
   `charade`, `tautonym`, `word_ladder`) now state that the whole text is the answer.
   Seven state a rule their checker applies: `tmesis` hyphens, `paragram` pairs,
   `chronogram` case, `belle_absente` alphabet, `serial_lipogram` wrap-around,
   `sestina` rotation and `reverse_snowball`'s end. `acrostic` and `telestich` state
   the unit count, and `liponym` no longer points at a subject the prompt never gives.
-  No hint offers an example that passes its checker alone, and a guard holds that.
+  No hint offers an example that passes its checker alone, and a guard holds that
+  for English hints.
   Checkers and fixtures are unchanged.
 
 - Correct S+7's English, German and French definitions to the noun-displacement
