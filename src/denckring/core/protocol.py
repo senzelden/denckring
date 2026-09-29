@@ -232,7 +232,7 @@ class Meta(BaseModel):
     same cached object to every caller (P2-01), so a mutable Meta let one
     caller's introspection silently change what a registered procedure
     requires for every future check() call. `names`, `definitions` and
-    `prompt_hints` stay plain dicts — no demonstrated mutation path reached
+    `prompt_hints` (and `hint_omits`) stay plain dicts — no demonstrated mutation path reached
     them, and freezing a dict field needs a different mechanism than a tuple
     swap; that residual is deliberate, not overlooked.
     """
@@ -263,7 +263,14 @@ class Meta(BaseModel):
     #: honest about its own cost.
     apply_requires: tuple[str, ...] = Field(default_factory=tuple)
     deterministic: bool = True
+    #: `str.format` templates over the row's parameters (ADR 0050). Read them
+    #: through `denckring.prompt_hint`, or `describe`, never raw: a raw hint may
+    #: still hold a `{placeholder}`.
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
+    #: Parameters this row's hints deliberately do not state, each with its
+    #: reason. Beside `core.hints.UNSTATED_PARAMS`, which holds the house-wide ones;
+    #: anything in neither must appear in every hint (ADR 0050).
+    hint_omits: dict[str, str] = Field(default_factory=dict)
     #: Contested figures, reception history and caveats — anything true about the
     #: entry that is not part of what the procedure *is*. Keeping it out of
     #: `definitions` is what lets a definition stay a definition.

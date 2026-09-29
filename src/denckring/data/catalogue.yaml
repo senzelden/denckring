@@ -17,7 +17,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a passage that never uses the letter "e", in any case or accented form.
+      en: >-
+        Write a passage that never uses the letter "{forbidden}", in any case or
+        accented form.
 
   - id: univocalic
     names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
@@ -36,7 +38,8 @@ procedures:
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
-      en: Write a passage in which "e" is the only vowel that appears.
+      en: >-
+        Write a passage in which "{vowel}" is the only vowel that appears.
 
   - id: tautogram
     names: { en: Tautogram, de: Tautogramm, fr: Tautogramme }
@@ -54,7 +57,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a passage in which every single word begins with the letter "p".
+      en: >-
+        Write a passage in which every single word begins with the letter "{initial}".
 
   - id: pangram
     names: { en: Pangram, de: Pangramm, fr: Pangramme }
@@ -76,6 +80,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write one sentence that uses every letter of the alphabet at least once.
+    hint_omits:
+      perfect: >-
+        a switch that tightens the task; str.format cannot phrase both of its
+        states, so the hint states the default one
 
   - id: heterogram
     names: { en: Heterogram, de: Heterogramm, fr: Hétérogramme }
@@ -95,6 +103,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write a phrase in which no letter of the alphabet appears more than once.
+    hint_omits:
+      scope: >-
+        a leniency: word scope is the looser one, and a phrase with no letter
+        repeated anywhere satisfies both
 
   - id: palindrome
     names: { en: Palindrome, de: Palindrom, fr: Palindrome }
@@ -114,7 +126,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a sentence that reads the same backwards as forwards, letter by letter.
+      en: >-
+        Write a sentence that reads the same backwards as forwards, {unit} by {unit}.
 
   - id: snowball
     names: { en: Snowball, de: Schneeball, fr: Boule de neige }
@@ -133,7 +146,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Write a sentence whose first word has one letter, the next two, the next three, and so on.
+      en: >-
+        Write a sentence whose first word has {start} letter(s) and each later word
+        {step} letter(s) more than the one before.
 
   - id: reverse_snowball
     names: { en: Reverse snowball, de: Umgekehrter Schneeball, fr: Boule de neige fondante }
@@ -152,7 +167,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Write a sentence whose words shrink by exactly one letter each, ending in a single letter.
+      en: >-
+        Write a sentence whose first word has {start} letters and whose words then
+        change length by {step} each, ending in a single letter.
 
   - id: prisoners_constraint
     names:
@@ -200,7 +217,12 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a dedication using only the letters that appear in the dedicatee's name.
+      en: >-
+        Write a dedication to "{name}" using only the letters that appear in that name.
+    hint_omits:
+      require_all: >-
+        a switch that tightens the task; str.format cannot phrase both of its
+        states, so the hint states the default one
 
   - id: acrostic
     names: { en: Acrostic, de: Akrostichon, fr: Acrostiche }
@@ -218,7 +240,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a poem whose lines begin with the letters of the target word, in order.
+      en: >-
+        Write a poem whose {unit}s begin with the letters of "{target}", in order.
 
   - id: telestich
     names: { en: Telestich, de: Telestichon, fr: Télestiche }
@@ -237,7 +260,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a poem whose lines end with the letters of the target word, in order.
+      en: >-
+        Write a poem whose {unit}s end with the letters of "{target}", in order.
 
   # ---------------------------------------------------------------------------
   # Catalogued only: sourced, described, not yet implemented. These are what
@@ -261,7 +285,12 @@ procedures:
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
-      en: Replace each noun with the seventh noun after it in the dictionary, keeping everything else.
+      en: >-
+        Replace each noun with the noun {offset} places after it in the dictionary,
+        keeping everything else.
+    hint_omits:
+      dictionary: >-
+        an ordered word list supplied as data; the hint's 'the dictionary' names it
     notes: >-
       `s_plus_7` is the same displacement under a second name, and runs this row's
       implementation rather than one of its own. See that row's note for what the
@@ -283,7 +312,12 @@ procedures:
     requires: [tokens, lexicon.nouns]
     deterministic: true
     prompt_hints:
-      en: Replace each noun with the seventh noun after it in the dictionary, keeping everything else.
+      en: >-
+        Replace each noun with the noun {offset} places after it in the dictionary,
+        keeping everything else.
+    hint_omits:
+      dictionary: >-
+        an ordered word list supplied as data; the hint's 'the dictionary' names it
     notes: >-
       S+7 is the French name of the noun displacement also catalogued here as
       `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns
@@ -316,6 +350,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
+    hint_omits:
+      allow_subset: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: hemeling
     names:
@@ -347,11 +385,15 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Rearrange the letters of a name into a new phrase, then explain the
-        phrase in rhyming lines beneath it.
+        Rearrange the letters of a name into a new phrase, then explain the phrase
+        beneath it in lines rhyming {scheme}.
       de: >-
-        Stelle die Buchstaben eines Namens zu einer neuen Wendung um und erkläre
-        sie darunter in Reimen.
+        Stelle die Buchstaben eines Namens zu einer neuen Wendung um und erkläre sie
+        darunter in Reimen nach dem Schema {scheme}.
+    hint_omits:
+      allow_identical: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
     notes: >-
       The tightest rule in the surveyed European material, because both halves are
       mechanically checkable where most combinatorial procedures have one half that
@@ -455,7 +497,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Walk the source text picking words whose nth letter matches the nth letter of the seed.
+      en: >-
+        Walk the source text picking words whose nth letter matches the nth letter of
+        "{seed_phrase}".
 
   - id: mesostic
     names: { en: Mesostic, de: Mesostichon, fr: Mésostiche }
@@ -474,7 +518,8 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Arrange the lines so that the target word reads vertically down their middles.
+      en: >-
+        Arrange the lines so that "{spine}" reads vertically down their middles.
 
   - id: syllable_count
     names: { en: Syllable count, de: Silbenzahl, fr: Compte syllabique }
@@ -492,7 +537,8 @@ procedures:
     requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
-      en: Write lines of exactly the given number of syllables each.
+      en: >-
+        Write lines whose syllable counts are {pattern}, in that order.
 
   - id: alexandrine
     names: { en: Alexandrine, de: Alexandriner, fr: Alexandrin }
@@ -517,6 +563,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write twelve-syllable lines that break cleanly after the sixth syllable.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: blank_verse
     names: { en: Blank verse, de: Blankvers, fr: Vers blanc }
@@ -546,6 +596,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write unrhymed lines of five iambic feet each.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: rhyme_scheme
     names: { en: Rhyme scheme, de: Reimschema, fr: Schéma de rimes }
@@ -563,7 +617,12 @@ procedures:
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
-      en: Write lines whose endings rhyme in the given pattern, for example ABAB.
+      en: >-
+        Write lines whose endings rhyme in the pattern {scheme}.
+    hint_omits:
+      allow_identical: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: sonnet
     names: { en: Sonnet, de: Sonett, fr: Sonnet }
@@ -581,7 +640,13 @@ procedures:
     requires: [tokens, phonemes, stress, syllables.heuristic]
     deterministic: true
     prompt_hints:
-      en: Write fourteen lines in the given rhyme scheme and metre.
+      en: >-
+        Write fourteen lines rhyming {scheme}, each in the stress pattern {metre} (0
+        unstressed, 1 stressed).
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: haiku
     names: { en: Haiku, de: Haiku, fr: Haïku }
@@ -641,7 +706,13 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Combine a prefix, an initial, a medial, a final and a suffix into a candidate word.
+      en: >-
+        Combine a prefix, an initial, a medial, a final and a suffix from the {device}
+        device into a candidate word.
+    hint_omits:
+      require_all_rings: >-
+        a switch; the hint already names all five rings, the stricter state, which
+        satisfies either setting
     notes: >-
       Harsdörffer labels the rings 48, 50, 12, 120 and 24 but states no total. Two
       independent counts of the parts disagree about where the boundary between the
@@ -671,7 +742,13 @@ procedures:
     requires: [tokens, syllables.heuristic, stress]
     deterministic: true
     prompt_hints:
-      en: Write a line whose words can be reordered freely while the metre still holds.
+      en: >-
+        Write a line of {metre} whose words can be reordered in at least {minimum} ways,
+        itself included, while the metre still holds.
+    hint_omits:
+      max_words: >-
+        a search budget: a longer line is refused with input_too_long rather than
+        judged
     notes: >-
       Harsdörffer states 39,916,800 permutations for an eleven-word line, which is 11!
       exactly, and Leibniz takes the figure up in De Arte Combinatoria (1666). It is one
@@ -726,7 +803,9 @@ procedures:
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write one line per letter of the name; each line omits that letter and uses all the others.
+      en: >-
+        Write one line per letter of "{name}"; each line omits that letter and uses all
+        the others.
 
   - id: abecedarian
     names: { en: Abecedarian, de: Abecedarium, fr: Abécédaire }
@@ -747,7 +826,9 @@ procedures:
     requires: [tokens, alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write lines beginning with A, then B, then C, and so on to Z.
+      en: >-
+        Write {unit}s beginning with "{start}", then the next letter of the alphabet,
+        then the next, and so on.
 
   - id: double_acrostic
     names: { en: Double acrostic }
@@ -766,7 +847,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write lines whose initials spell one word and whose final letters spell another.
+      en: >-
+        Write lines whose initials spell "{first}" and whose final letters spell
+        "{last}".
 
   - id: calculator_word
     names: { en: Calculator word, de: Taschenrechnerwort, fr: Mot de calculatrice }
@@ -800,14 +883,19 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a word using only the letters B, E, G, H, I, L, O and S, then give
-        the digits that spell it upside down on a calculator.
+        Turn the calculator display {digits} upside down and write what it spells as
+        {words} word(s), using only the letters B, E, G, H, I, L, O and S.
       de: >-
-        Schreibe ein Wort nur aus den Buchstaben B, E, G, H, I, L, O und S und
-        gib die Ziffern an, die es auf dem Kopf ergeben.
+        Drehe die Taschenrechneranzeige {digits} auf den Kopf und schreibe, was sie
+        ergibt, als {words} Wort/Wörter, nur aus den Buchstaben B, E, G, H, I, L, O und
+        S.
       fr: >-
-        Écris un mot n'utilisant que les lettres B, E, G, H, I, L, O et S, puis
-        donne les chiffres qui l'affichent à l'envers.
+        Retourne l'affichage {digits} de la calculatrice et écris ce qu'il donne en
+        {words} mot(s), avec les seules lettres B, E, G, H, I, L, O et S.
+    hint_omits:
+      require_words: >-
+        a switch that tightens the task; str.format cannot phrase both of its
+        states, so the hint states the default one
     notes: >-
       The digit table is a module constant in `core/calculator.py`, not a pack
       capability: seven-segment geometry does not vary by orthography the way the
@@ -840,7 +928,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a phrase whose Roman-numeral letters add up to the target year.
+      en: >-
+        Write a phrase whose Roman-numeral letters add up to {year}.
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
@@ -904,7 +993,9 @@ procedures:
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Find the shortest run of ordinary prose containing all twenty-six letters.
+      en: >-
+        Find a run of ordinary prose no longer than {max_length} letters that contains
+        every letter of the alphabet.
 
   - id: supervocalic
     names: { en: Supervocalic }
@@ -940,7 +1031,8 @@ procedures:
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
-      en: Write a passage in which the only consonant that appears is "n".
+      en: >-
+        Write a passage in which the only consonant that appears is "{consonant}".
 
   - id: consonantal_lipogram
     names: { en: Consonantal lipogram, fr: Lipogramme consonantique }
@@ -959,7 +1051,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a passage avoiding every one of a named group of consonants.
+      en: >-
+        Write a passage avoiding every one of the consonants in "{forbidden}".
 
   - id: liponym
     names: { en: Liponym, fr: Liponyme }
@@ -978,7 +1071,8 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Describe the subject at length without ever using its most obvious word.
+      en: >-
+        Describe the subject at length without ever using the word "{forbidden}".
 
   - id: charade
     names: { en: Charade, de: Scharade, fr: Charade }
@@ -1004,7 +1098,9 @@ procedures:
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
-      en: Choose words that split cleanly into smaller words and build the line around them.
+      en: >-
+        Choose words that split cleanly into {parts} smaller words each and build the
+        line around them.
 
   - id: kangaroo_word
     names: { en: Kangaroo word, fr: Mot kangourou }
@@ -1026,7 +1122,9 @@ procedures:
     requires: [tokens, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
-      en: Find words that carry a synonym of themselves inside their own letters, in order.
+      en: >-
+        Find a word that carries its synonym "{synonym}" inside its own letters, in
+        order.
 
   - id: tautonym
     names: { en: Tautonym }
@@ -1066,7 +1164,9 @@ procedures:
       - lexicon.words
     deterministic: true
     prompt_hints:
-      en: Change one letter of a word to make another, and build the sentence on the swap.
+      en: >-
+        Change one letter of a word to make another, at least {minimum} time(s), and
+        build the sentence on the swaps.
     notes: >-
       The checker needs no dictionary: both halves of the swap are in the text,
       so two words of a length differing in one place is the whole property. The
@@ -1090,7 +1190,9 @@ procedures:
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a sentence using all twenty-five letters other than the one you have banned.
+      en: >-
+        Write a sentence using every letter of the alphabet except "{forbidden}", which
+        must not appear at all.
 
   - id: bivocalic
     names: { en: Bivocalic }
@@ -1106,7 +1208,8 @@ procedures:
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
-      en: Write a passage using only the vowels "a" and "e".
+      en: >-
+        Write a passage using no vowels but the two in "{vowels}".
 
   - id: antigram
     names: { en: Antigram }
@@ -1127,6 +1230,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Rearrange the phrase into one that means its opposite, using every letter once.
+    hint_omits:
+      allow_subset: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: buchstabwechsel
     names:
@@ -1222,7 +1329,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write using only the letters of the source word, using every one of them at least once.
+      en: >-
+        Write using only the letters of "{bank}", using every one of them at least once.
 
   - id: transposal
     names: { en: Transposal }
@@ -1284,7 +1392,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write a passage in which every word ends with the same letter.
+      en: >-
+        Write a passage in which every word ends with the letter "{final}".
 
   - id: alphabetical_sentence
     names: { en: Alphabetical sentence }
@@ -1405,7 +1514,8 @@ procedures:
     requires: [tokens, corpus.proverbs]
     deterministic: true
     prompt_hints:
-      en: Join the source proverb’s opening to the donor proverb’s ending.
+      en: >-
+        Join the source proverb’s opening to the ending of “{donor}”.
     notes: >-
       Requires denckring[en]. `source` and `donor` must name distinct sayings in
       the pack's corpus. The corpus supplies editorial fragment boundaries, not
@@ -1466,6 +1576,13 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
+    hint_omits:
+      nouns_from: >-
+        a source text supplied beside the prompt as material, as `source` is
+      verbs_from: >-
+        a source text supplied beside the prompt as material, as `source` is
+      adjectives_from: >-
+        a source text supplied beside the prompt as material, as `source` is
     notes: >-
       Built on the `pos` capability of ADR 0045, beside `homosyntaxism` and
       `verbless_prose`. The parameter shape it was said to be waiting for is
@@ -1535,7 +1652,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Delete every "r" from the passage and read what the remaining letters now say.
+      en: >-
+        Delete every "{deleted}" from the passage and read what the remaining letters
+        now say.
 
   - id: haikuization
     names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
@@ -1595,6 +1714,9 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Move from the first word to the last, changing one letter at a time, each step a real word.
+    hint_omits:
+      target: >-
+        read only by apply; check judges any ladder, whatever its last word
     notes: >-
       German and French are declared, and the checker takes a `fold_diacritics`
       parameter so both declarations hold. Folded — the house default — `schon`
@@ -1622,7 +1744,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Write sentences of one word, then two, then three, and so on.
+      en: >-
+        Write sentences of {start} word(s), then each one {step} word(s) longer than the
+        one before.
 
   - id: monosyllabic_prose
     names: { en: Monosyllabic prose, de: Einsilbige Prosa }
@@ -1704,7 +1828,12 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Write so that every sentence contains exactly the given number of words.
+      en: >-
+        Write so that every sentence contains exactly {words} words.
+    hint_omits:
+      tolerance: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: anaphora
     names: { en: Anaphora, de: Anapher, fr: Anaphore }
@@ -1724,7 +1853,12 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Begin every clause with the same word or phrase.
+      en: >-
+        Begin every {unit} with "{opening}".
+    hint_omits:
+      minimum: >-
+        a leniency: unset means every unit, which the hint asks for; a number only
+        lowers the bar
 
   - id: epistrophe
     names: { en: Epistrophe, de: Epipher, fr: Épiphore }
@@ -1744,7 +1878,12 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: End every clause with the same word or phrase.
+      en: >-
+        End every {unit} with "{closing}".
+    hint_omits:
+      minimum: >-
+        a leniency: unset means every unit, which the hint asks for; a number only
+        lowers the bar
 
   - id: antonymic_substitution
     names: { en: Antonymic substitution }
@@ -1818,7 +1957,8 @@ procedures:
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
-      en: Split words apart and wedge other words inside them.
+      en: >-
+        Split words apart and wedge other words inside them, at least {minimum} time(s).
     notes: >-
       German declared on what the checker actually tests: a hyphen-joined run
       whose outer parts rejoin as a lexicon word. German compounding gives
@@ -1908,8 +2048,15 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Replace one word of a known phrase with a word close to it in sound, leaving
-        the rest of the phrase untouched.
+        Replace up to {max_displacements} word(s) of a known phrase with words close to
+        them in sound, leaving the rest of the phrase untouched.
+    hint_omits:
+      min_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
+      max_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
     notes: >-
       Puttenham's own name for it is `Prosonomasia, or the Nicknamer`, and his
       example is this row's operation exactly: `Claudius Tiberius Nero` becomes
@@ -1964,8 +2111,21 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Splice one word into another so that both stay audible and the host is
+        Splice "{splice}" into another word so that both stay audible and the host is
         still recognisable.
+    hint_omits:
+      min_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
+      max_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
+      max_host_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
+      splice_lang: >-
+        names the pronouncing dictionary the spliced word is read with; the word
+        itself is stated
     notes: >-
       **This row checks a narrower figure than Carroll's, and is filed as
       `reference`/`codified` rather than `primary`/`author-stated` for that
@@ -2014,7 +2174,12 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Satisfy both named constraints in the same passage, without relaxing either.
+      en: >-
+        Satisfy all of these constraints in the same passage, without relaxing any:
+        {constraints}.
+    hint_omits:
+      constraint_params: >-
+        per-constraint parameters, which each named constraint's own hint states
     notes: >-
       German declared: this row's own logic needs only `tokens`, which is
       what `languages` records. It says nothing about whether a *particular*
@@ -2108,7 +2273,8 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Choose a workable number of end-words and rotate them until every position is used.
+      en: >-
+        Choose {n} end-words and rotate them until every position is used.
 
   - id: pantoum
     names: { en: Pantoum, de: Pantun, fr: Pantoum }
@@ -2169,7 +2335,9 @@ procedures:
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
-      en: Write fifteen lines on two rhymes, returning the opening words as a refrain twice.
+      en: >-
+        Write fifteen lines on two rhymes, returning the opening {rentrement_words}
+        words as a refrain twice.
 
   - id: triolet
     names: { en: Triolet, de: Triolett, fr: Triolet }
@@ -2342,7 +2510,9 @@ procedures:
     requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
-      en: Alternate three-line and two-line stanzas, each linking only to the one before.
+      en: >-
+        Alternate three-line and two-line stanzas, at least {links} in all, each linking
+        only to the one before.
     notes: >-
       Only the 5-7-5 / 7-7 alternation is checked. That a renga is composed
       collaboratively, and that each link joins only to its neighbour rather
@@ -2424,6 +2594,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: spenserian_stanza
     names: { en: Spenserian stanza }
@@ -2442,6 +2616,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write nine lines rhyming ABABBCBCC, closing with a six-foot line.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: petrarchan_sonnet
     names: { en: Petrarchan sonnet, de: Italienisches Sonett, fr: Sonnet italien }
@@ -2484,6 +2662,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write three quatrains and a closing couplet in iambic pentameter.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: curtal_sonnet
     names: { en: Curtal sonnet }
@@ -2507,6 +2689,10 @@ procedures:
       stress model on the measurement and records the cost here instead.
     prompt_hints:
       en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
+    hint_omits:
+      feminine_ending: >-
+        a leniency: the hint asks for the strict form, which satisfies either
+        setting
 
   - id: heroic_couplet
     names: { en: Heroic couplet }
@@ -2708,7 +2894,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Break each line at a caesura and alliterate the stressed syllables across the break.
+      en: >-
+        Break each line at a caesura and alliterate the stressed syllables across the
+        break, so that at least {minimum} words in every line share an initial.
     notes: >-
       The checker compares bare first letters (see the module docstring's own
       admission that this reads "knight" and "king" as alliterating, which Old
@@ -2735,7 +2923,9 @@ procedures:
     requires: [tokens, phonemes]
     deterministic: true
     prompt_hints:
-      en: Bind the lines by repeating vowel sounds rather than by rhyming.
+      en: >-
+        Bind the lines by repeating vowel sounds rather than by rhyming, so that at
+        least {minimum} words in every line share a vowel.
 
   - id: englyn
     names: { en: Englyn }
@@ -2996,7 +3186,8 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Keep every seventh word of the source and read what results.
+      en: >-
+        Keep one word in every {n} of the source and read what results.
 
   - id: column_reading
     names: { en: Column reading, de: Spaltenlesung, fr: Lecture en colonnes }
@@ -3016,7 +3207,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Read the page down its columns instead of across its lines.
+      en: >-
+        Read the page down its columns instead of across its lines, taking word {column}
+        of each line.
 
   - id: palimpsest
     names: { en: Palimpsest, de: Palimpsest, fr: Palimpseste }
@@ -3074,7 +3267,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Fold the page so distant passages touch, and read across the fold.
+      en: >-
+        Fold the page after its first {fold_at} line(s), so distant passages touch, and
+        read across the fold.
 
   - id: oracle_reading
     names: { en: Oracle reading }
@@ -3138,6 +3333,13 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Supply versioned bilingual JSON data and a source; unknown entries fail.
+    hint_omits:
+      data: >-
+        a data document supplied beside the prompt; quoting it would stop the hint
+        being a hint
+      max_distance: >-
+        a measured tolerance; the hint states it qualitatively, and a threshold on a
+        normalised distance is not something a writer can aim at
     notes: >-
       ADR 0049: `data` is versioned JSON with distinct language labels, provenance,
       a shared symbol alphabet and per-word source and target pronunciations.
@@ -3195,6 +3397,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Supply versioned bilingual JSON data and a source; unknown entries fail.
+    hint_omits:
+      data: >-
+        a data document supplied beside the prompt; quoting it would stop the hint
+        being a hint
     notes: >-
       ADR 0049: `data` is versioned JSON with distinct source/target language
       labels, provenance and gloss alternatives. `lang` must match the source
@@ -3223,7 +3429,8 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
-      en: Translate the passage while never using the forbidden letter.
+      en: >-
+        Translate the passage while never using the letter "{forbidden}".
 
   - id: univocalic_translation
     names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }
@@ -3241,7 +3448,8 @@ procedures:
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: false
     prompt_hints:
-      en: Translate the passage using only one vowel throughout.
+      en: >-
+        Translate the passage using only the vowel "{vowel}" throughout.
 
   - id: transduction
     names: { en: Transduction, fr: Transduction }
@@ -3535,7 +3743,9 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Take the nine dignities and write out each pairing the wheels bring together.
+      en: >-
+        Take the nine dignities of the {figure} figure and write out each chamber of
+        {arity} principles that the wheels bring together, read at the {level} level.
     notes: >-
       The ternary Ars is implemented; the earlier quaternary phase carries sixteen
       dignities rather than nine. Counts here are computed from the letters — 84
@@ -3577,7 +3787,9 @@ procedures:
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Write one section per letter of the alphabet, each omitting the letter it is assigned.
+      en: >-
+        Write one {unit} per letter of the alphabet, starting from "{start}", each
+        omitting the letter it is assigned.
 
   # ---------------------------------------------------------------------------
   # Jean Paul — reconstructed from the notebooks, and marked as such
@@ -3617,8 +3829,16 @@ procedures:
     requires: [tokens]
     deterministic: false
     prompt_hints:
-      en: Put three excerpts from unrelated fields under one word and find what they share.
-      de: Drei Exzerpte aus entlegenen Fächern unter ein Stichwort stellen und die Ähnlichkeit finden.
+      en: >-
+        Put {slots} excerpts from unrelated fields under the word "{headword}" and find
+        what they share.
+      de: >-
+        {slots} Exzerpte aus entlegenen Fächern unter das Stichwort „{headword}“ stellen
+        und die Ähnlichkeit finden.
+    hint_omits:
+      distinct_domains: >-
+        a switch; the hint already asks for unrelated fields, the stricter state,
+        which satisfies either setting
     notes: >-
       Jean Paul named the notebook but never wrote the rule down: unlike Harsdörffer,
       Llull and Kircher, who set out their own procedures, everything here is inferred
@@ -3687,7 +3907,16 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Number a small vocabulary in two languages, then send a sentence across it.
+      en: >-
+        Number a small vocabulary in two languages, then send a sentence in
+        {from_language} across it into {to_language}.
+    hint_omits:
+      table: >-
+        a data document supplied beside the prompt; quoting it would stop the hint
+        being a hint
+      require_complete: >-
+        a switch that tightens the task; str.format cannot phrase both of its
+        states, so the hint states the default one
     notes: >-
       No vocabulary travels with this package. Kircher's own has not been transcribed
       into anything machine-readable this project could verify, and a checker measuring
@@ -3717,7 +3946,16 @@ procedures:
     requires: [tokens, syllables.heuristic]
     deterministic: true
     prompt_hints:
-      en: Count the syllables of the phrase, then take a pattern from the table indexed by that count.
+      en: >-
+        Count the syllables of the phrase, then take a pattern from syntagma {syntagma}
+        of the table, indexed by that count.
+    hint_omits:
+      pinakes: >-
+        a data document supplied beside the prompt; quoting it would stop the hint
+        being a hint
+      tonus: >-
+        filters patterns inside the supplied pinakes data, which the prompt carries
+        anyway
     notes: >-
       Kircher advertises that an amusos — someone with no musical training — can produce
       correct four-part settings in any language, which is the claim that makes the box
@@ -3765,12 +4003,13 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write six lines of six blocks each; after the subject everything is an
-        adjunct, and every verb is intransitive third person singular present.
+        Write six lines of six blocks each from the {device} device; after the subject
+        everything is an adjunct, and every verb is intransitive third person singular
+        present.
       de: >-
-        Schreibe sechs Zeilen aus je sechs Bausteinen; nach dem Subjekt folgen nur
-        noch Angaben, und jedes Verb steht intransitiv in der dritten Person
-        Singular.
+        Schreibe mit dem Gerät {device} sechs Zeilen aus je sechs Bausteinen; nach dem
+        Subjekt folgen nur noch Angaben, und jedes Verb steht intransitiv in der dritten
+        Person Singular.
     notes: >-
       Six lines, six modules, ten alternatives: 10^36, and all four numbers are
       stated by the German Wikipedia article on the Landsberger Poesieautomat. The

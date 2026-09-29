@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from denckring.core import catalogue
 from denckring.core.base import ConstructiveProcedure
 from denckring.core.errors import UnknownLanguage
+from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 
@@ -229,7 +230,14 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         id=meta.id,
         name=_text(meta.names, lang),
         definition=_text(meta.definitions, lang),
-        prompt_hints=_text(meta.prompt_hints, lang) or None,
+        # Rendered from defaults where they fill every placeholder, so this and
+        # every surface reading it show a hint a model can act on (ADR 0050).
+        prompt_hints=(
+            rendered_with_defaults(
+                meta.id, _text(meta.prompt_hints, lang), procedure.params_model()
+            )
+            or None
+        ),
         family=meta.family,
         kind=meta.kind,
         constructive=is_constructive,
