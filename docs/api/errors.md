@@ -33,3 +33,7 @@ would rather not parse English out of the message.
 ::: denckring.core.errors.UnknownLevel
 
 ::: denckring.core.errors.DuplicatePack
+
+::: denckring.core.errors.NoPromptHint
+
+::: denckring.core.errors.UnsetHintParameter

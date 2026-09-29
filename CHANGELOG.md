@@ -8,6 +8,17 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters
+  as `str.format` placeholders (`{forbidden}`, not `"e"`), and
+  `denckring.prompt_hint(procedure_id, lang=..., **params)` renders it after
+  validating the params as `check` does. A row with no hint in the language raises
+  `NoPromptHint`, and a stated parameter left `None` raises `UnsetHintParameter`.
+  A parameter a hint leaves out is declared, house-wide in `core.hints.UNSTATED_PARAMS`
+  or per row in the catalogue's new `hint_omits`, and a guard test holds the rule.
+  `describe`, and the CLI, MCP, docs gallery and explorer through it, render hints
+  from the defaults where they fill every slot. For the other 36 rows they show the
+  template.
+
 - Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
   synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.
   Unknown tokens fail, occurrence order is preserved, and bilingual schemas reject
