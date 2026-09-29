@@ -954,7 +954,9 @@ procedures:
     requires: [tokens, lexicon.words]
     deterministic: true
     prompt_hints:
-      en: Find words that read as a different word backwards, such as stressed and desserts.
+      en: >-
+        Write a list of words and nothing else, every one of them spelling a different
+        word backwards, as stressed spells desserts.
 
   - id: word_square
     names: { en: Word square, de: Wortquadrat, fr: Carré de mots }
@@ -1013,7 +1015,9 @@ procedures:
     requires: [tokens, alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Use words containing a, e, i, o and u exactly once each.
+      en: >-
+        Write a word or phrase in which each of a, e, i, o and u appears exactly once
+        in the whole text.
 
   - id: monoconsonantal
     names: { en: Monoconsonantal }
@@ -1099,8 +1103,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Choose words that split cleanly into {parts} smaller words each and build the
-        line around them.
+        Write a line in which every word, however short, splits cleanly into exactly
+        {parts} smaller words.
 
   - id: kangaroo_word
     names: { en: Kangaroo word, fr: Mot kangourou }
@@ -1142,7 +1146,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Use words built from one syllable-string written twice over.
+      en: >-
+        Write only words built from one syllable-string written twice over, such as
+        couscous or murmur, each spelled as one unhyphenated word.
 
   - id: paragram
     names: { en: Paragram, de: Paragramm, fr: Paragramme }
@@ -1367,7 +1373,9 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: Find words whose letter pairs trace a closed graph without repeating an edge.
+      en: >-
+        Write a single word whose letter pairs trace a closed walk: it ends on the letter
+        it begins with and never repeats a pair of adjacent letters, in either order.
 
   - id: homoteleuton
     names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
@@ -1713,7 +1721,9 @@ procedures:
     requires: [tokens, alphabet, fold_diacritics, lexicon.words]
     deterministic: true
     prompt_hints:
-      en: Move from the first word to the last, changing one letter at a time, each step a real word.
+      en: >-
+        Write a chain of real words and nothing else, each the same length as the one
+        before it and differing from it in exactly one letter.
     hint_omits:
       target: >-
         read only by apply; check judges any ladder, whatever its last word
