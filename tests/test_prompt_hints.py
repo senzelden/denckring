@@ -311,24 +311,41 @@ def test_a_clause_unit_hint_names_every_mark_that_ends_a_clause(pid: str) -> Non
     assert not unnamed, f"{pid}: the hint never says a clause ends at {unnamed}"
 
 
-#: A quoted literal, in straight or curly double quotes. One holding a placeholder
-#: quotes the caller's value ("{forbidden}"), not an example, and is skipped.
-QUOTED = re.compile(r"\"([^\"]*)\"|\u201c([^\u201d]*)\u201d")
+#: A quoted literal: straight or curly, double or single. A straight single quote
+#: opens only where no letter precedes it and closes only where none follows, so
+#: the apostrophes of "don't" and "one's" are not quotes. A curly closing quote
+#: doubles as the typographic apostrophe, so it closes only before a non-letter.
+#: One holding a placeholder quotes the caller's value ("{forbidden}") and is skipped.
+QUOTED = re.compile(
+    r"\"([^\"]*)\""
+    r"|\u201c([^\u201d]*)\u201d"
+    r"|(?<!\w)'([^'\s](?:[^']*\S)?)'(?!\w)"
+    r"|\u2018(.+?)\u2019(?!\w)"
+)
 #: The phrase an example marker introduces, up to the next clause punctuation.
-EXAMPLE_PHRASE = re.compile(r"\b(?:such as|as in|e\.g\.)\s+([^;:.()]+?)(?=[,;:.()]|$)")
+EXAMPLE_PHRASE = re.compile(
+    r"\b(?:such as|as in|e\.g\.|for example|for instance|like),?\s+([^;:.()]+?)(?=[,;:.()]|$)",
+    re.IGNORECASE,
+)
+#: "as stressed spells desserts": an example given as a worked transformation.
+WORKED_EXAMPLE = re.compile(r"\bas (\w+) (?:spells|becomes|reads|turns into) (\w+)", re.IGNORECASE)
+_QUOTE_MARKS = "\"'\u201c\u2018"
 
 
 def hint_examples(hint: str) -> list[str]:
-    """Every example a hint offers: its quoted literals and the items after "such as"."""
+    """Every example a hint offers: quoted literals, listed items and worked examples."""
     found = [
         literal
         for match in QUOTED.finditer(hint)
-        if (literal := match.group(1) or match.group(2) or "") and "{" not in literal
+        if (literal := next((group for group in match.groups() if group), ""))
+        and "{" not in literal
     ]
     for match in EXAMPLE_PHRASE.finditer(hint):
         phrase = match.group(1)
-        if '"' not in phrase and "\u201c" not in phrase:
+        if not any(mark in phrase for mark in _QUOTE_MARKS):
             found += [item.strip() for item in re.split(r",| or | and ", phrase) if item.strip()]
+    for match in WORKED_EXAMPLE.finditer(hint):
+        found += [match.group(1), match.group(2)]
     return found
 
 
@@ -345,9 +362,33 @@ def _judged_params(pid: str, lang: Lang) -> list[dict[str, Any]]:
     ]
 
 
-def test_hint_examples_finds_quoted_literals_and_listed_examples() -> None:
-    hint = 'Omit "{forbidden}" and write "abso-bloody-lutely", such as tartar or couscous.'
-    assert hint_examples(hint) == ["abso-bloody-lutely", "tartar", "couscous"]
+@pytest.mark.parametrize(
+    ("hint", "expected"),
+    [
+        ('Omit "{forbidden}" and write "abso-bloody-lutely".', ["abso-bloody-lutely"]),
+        ("Write \u201ctartar\u201d.", ["tartar"]),
+        ("Write 'tartar' twice.", ["tartar"]),
+        ("Write \u2018tartar\u2019 twice.", ["tartar"]),
+        ("Use doubled words, such as tartar or couscous.", ["tartar", "couscous"]),
+        ("Split words, as in abso bloody lutely.", ["abso bloody lutely"]),
+        ("Use doubled words, e.g. couscous.", ["couscous"]),
+        ("Use doubled words, for example couscous.", ["couscous"]),
+        ("Use doubled words, for instance couscous.", ["couscous"]),
+        ("Use doubled words like couscous.", ["couscous"]),
+        # The 88d8b49 semordnilap hint: the leak the guard exists for.
+        (
+            "Write a list of words and nothing else, every one of them spelling a different"
+            " word backwards, as stressed spells desserts.",
+            ["stressed", "desserts"],
+        ),
+        ("Change a letter, as cat becomes cut.", ["cat", "cut"]),
+        # Apostrophes inside or after a word are not quotes.
+        ("Don't repeat one's words or the writers' lines.", []),
+        ("Don\u2019t repeat one\u2019s words.", []),
+    ],
+)
+def test_hint_examples_finds_every_kind_of_example(hint: str, expected: list[str]) -> None:
+    assert hint_examples(hint) == expected
 
 
 EXAMPLE_HINTS = [(pid, lang) for pid, lang in IMPLEMENTED_HINTS if lang == "en"]
