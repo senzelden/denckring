@@ -958,7 +958,7 @@ procedures:
     prompt_hints:
       en: >-
         Write a list of words and nothing else, every one of them spelling a different
-        word backwards, as stressed spells desserts.
+        word backwards.
 
   - id: word_square
     names: { en: Word square, de: Wortquadrat, fr: Carré de mots }
@@ -1149,8 +1149,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write only words built from one syllable-string written twice over, such as
-        couscous or murmur, each spelled as one unhyphenated word.
+        Write only words built from one letter-string written twice over, each spelled as
+        one unhyphenated word.
 
   - id: paragram
     names: { en: Paragram, de: Paragramm, fr: Paragramme }
@@ -1972,9 +1972,9 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Split words apart and wedge other words inside them, joining the pieces with
-        hyphens as in "abso-bloody-lutely", at least {minimum} time(s); use no other
-        hyphens.
+        Split words apart and wedge other words inside them, at least {minimum} time(s),
+        writing each split as one hyphen-joined run: the word's first piece, the inserted
+        word(s), then its last piece. Use no other hyphens.
     notes: >-
       German declared on what the checker actually tests: a hyphen-joined run
       whose outer parts rejoin as a lexicon word. German compounding gives

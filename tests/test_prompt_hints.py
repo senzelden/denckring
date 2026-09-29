@@ -10,11 +10,12 @@ parameters.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
 
-from denckring import describe, prompt_hint
+from denckring import check, describe, prompt_hint
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, NoPromptHint, UnsetHintParameter
 from denckring.core.hints import (
@@ -53,7 +54,13 @@ UNFIXTURED_SLOTS: dict[tuple[str, Lang], dict[str, Any]] = {
 
 
 #: How an English hint names each mark `clause_spans` splits on.
-CLAUSE_MARK_NAMES: dict[str, str] = {",": "comma", ";": "semicolon", ":": "colon"}
+#: `clause_spans` also cuts at every line break, through `line_spans`.
+CLAUSE_MARK_NAMES: dict[str, str] = {
+    ",": "comma",
+    ";": "semicolon",
+    ":": "colon",
+    "\n": "line break",
+}
 
 
 def _properties(pid: str) -> dict[str, Any]:
@@ -299,5 +306,62 @@ def test_a_clause_unit_hint_names_every_mark_that_ends_a_clause(pid: str) -> Non
     in "mill". The hint is the only place a writer can learn where the cuts fall.
     """
     hint = ROWS[pid].prompt_hints["en"]
-    unnamed = [mark for mark in _CLAUSE_BREAK if CLAUSE_MARK_NAMES[mark] not in hint]
+    marks = [*_CLAUSE_BREAK, "\n"]
+    unnamed = [mark for mark in marks if CLAUSE_MARK_NAMES[mark] not in hint]
     assert not unnamed, f"{pid}: the hint never says a clause ends at {unnamed}"
+
+
+#: A quoted literal, in straight or curly double quotes. One holding a placeholder
+#: quotes the caller's value ("{forbidden}"), not an example, and is skipped.
+QUOTED = re.compile(r"\"([^\"]*)\"|\u201c([^\u201d]*)\u201d")
+#: The phrase an example marker introduces, up to the next clause punctuation.
+EXAMPLE_PHRASE = re.compile(r"\b(?:such as|as in|e\.g\.)\s+([^;:.()]+?)(?=[,;:.()]|$)")
+
+
+def hint_examples(hint: str) -> list[str]:
+    """Every example a hint offers: its quoted literals and the items after "such as"."""
+    found = [
+        literal
+        for match in QUOTED.finditer(hint)
+        if (literal := match.group(1) or match.group(2) or "") and "{" not in literal
+    ]
+    for match in EXAMPLE_PHRASE.finditer(hint):
+        phrase = match.group(1)
+        if '"' not in phrase and "\u201c" not in phrase:
+            found += [item.strip() for item in re.split(r",| or | and ", phrase) if item.strip()]
+    return found
+
+
+def _judged_params(pid: str, lang: Lang) -> list[dict[str, Any]]:
+    """The params `test_every_hint_renders` renders with: defaults, else each fixture's."""
+    procedure = PROCEDURES[pid]
+    template = ROWS[pid].prompt_hints[lang]
+    unfilled = set(placeholders(template)) - set(default_values(procedure.params_model()))
+    if not unfilled and not procedure.params_schema().get("required"):
+        return [{}]
+    cases = [case for case in golden_cases() if case.procedure == pid and case.lang == lang]
+    return [dict(case.params) for case in cases if unfilled <= set(case.params)] or [
+        {**UNFIXTURED_SLOTS.get((pid, lang), {}), **case.params} for case in cases
+    ]
+
+
+def test_hint_examples_finds_quoted_literals_and_listed_examples() -> None:
+    hint = 'Omit "{forbidden}" and write "abso-bloody-lutely", such as tartar or couscous.'
+    assert hint_examples(hint) == ["abso-bloody-lutely", "tartar", "couscous"]
+
+
+EXAMPLE_HINTS = [(pid, lang) for pid, lang in IMPLEMENTED_HINTS if lang == "en"]
+
+
+@pytest.mark.parametrize("pid", [pid for pid, _ in EXAMPLE_HINTS])
+def test_no_example_in_a_hint_is_itself_a_passing_answer(pid: str) -> None:
+    """A hint states the task; it never hands over an answer.
+
+    The prompt a benchmark sends is the hint and nothing else, so an example that
+    satisfies the checker on its own turns the row into a copying test: "such as
+    couscous" in the tautonym hint made "couscous" a perfect score.
+    """
+    for example in hint_examples(ROWS[pid].prompt_hints["en"]):
+        for params in _judged_params(pid, "en"):
+            report = check(pid, example, lang="en", **params)
+            assert not report.satisfied, f"{pid}: the hint's example {example!r} passes {params}"
