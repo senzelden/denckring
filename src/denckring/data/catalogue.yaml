@@ -169,7 +169,8 @@ procedures:
     prompt_hints:
       en: >-
         Write a sentence whose first word has {start} letters and whose words then
-        change length by {step} each, ending in a single letter.
+        change length by {step} each, stopping before a word would need fewer than one
+        letter.
 
   - id: prisoners_constraint
     names:
@@ -804,8 +805,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write one line per letter of "{name}"; each line omits that letter and uses all
-        the others.
+        Write one line per letter of "{name}"; each line omits that letter and uses
+        every other letter of the alphabet.
 
   - id: abecedarian
     names: { en: Abecedarian, de: Abecedarium, fr: Abécédaire }
@@ -929,7 +930,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a phrase whose Roman-numeral letters add up to {year}.
+        Write a phrase whose Roman-numeral letters add up to {year}, counting every i,
+        v, x, l, c, d and m in either case.
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
@@ -1172,7 +1174,7 @@ procedures:
     prompt_hints:
       en: >-
         Change one letter of a word to make another, at least {minimum} time(s), and
-        build the sentence on the swaps.
+        build the sentence on the swaps, keeping both words of each pair in it.
     notes: >-
       The checker needs no dictionary: both halves of the swap are in the text,
       so two words of a length differing in one place is the whole property. The
@@ -1970,7 +1972,9 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Split words apart and wedge other words inside them, at least {minimum} time(s).
+        Split words apart and wedge other words inside them, joining the pieces with
+        hyphens as in "abso-bloody-lutely", at least {minimum} time(s); use no other
+        hyphens.
     notes: >-
       German declared on what the checker actually tests: a hyphen-joined run
       whose outer parts rejoin as a lexicon word. German compounding gives
@@ -2265,7 +2269,10 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: Use the same six end-words in every stanza, rotating them in the fixed order.
+      en: >-
+        Write six six-line stanzas on the same six end-words, each stanza taking the
+        previous one's end-words in the order 6, 1, 5, 2, 4, 3; a closing tercet may
+        follow.
 
   - id: quenina
     names: { en: Quenina, fr: Quenine }
@@ -3801,8 +3808,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write one {unit} per letter of the alphabet, starting from "{start}", each
-        omitting the letter it is assigned.
+        Write one {unit} per letter of the alphabet, 26 in all, starting from "{start}"
+        and wrapping from z back to a, each omitting the letter it is assigned.
 
   # ---------------------------------------------------------------------------
   # Jean Paul — reconstructed from the notebooks, and marked as such
