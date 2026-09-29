@@ -25,6 +25,7 @@ from denckring.core.hints import (
 )
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures
+from denckring.core.text import _CLAUSE_BREAK
 from denckring.eval.harness import golden_cases
 
 PROCEDURES = all_procedures()
@@ -49,6 +50,10 @@ UNFIXTURED_SLOTS: dict[tuple[str, Lang], dict[str, Any]] = {
     ("snowball", "en"): {"start": 1},
     ("snowball_sentence", "en"): {"start": 1},
 }
+
+
+#: How an English hint names each mark `clause_spans` splits on.
+CLAUSE_MARK_NAMES: dict[str, str] = {",": "comma", ";": "semicolon", ":": "colon"}
 
 
 def _properties(pid: str) -> dict[str, Any]:
@@ -271,3 +276,28 @@ def test_a_sub_constraint_without_a_hint_in_the_language_is_refused_by_name(
     with pytest.raises(NoPromptHint) as raised:
         prompt_hint("multiple_constraint", lang="de", **COMPOSITE)
     assert raised.value.detail() == {"procedure_id": "lipogram", "lang": "de"}
+
+
+def _clause_unit_hints() -> list[str]:
+    return [
+        pid
+        for pid, lang in IMPLEMENTED_HINTS
+        if lang == "en" and "clause" in _properties(pid).get("unit", {}).get("enum", [])
+    ]
+
+
+def test_every_clause_break_mark_has_an_english_name() -> None:
+    assert set(_CLAUSE_BREAK) <= set(CLAUSE_MARK_NAMES), "name the new mark for the hints"
+
+
+@pytest.mark.parametrize("pid", _clause_unit_hints())
+def test_a_clause_unit_hint_names_every_mark_that_ends_a_clause(pid: str) -> None:
+    """A clause is whatever `clause_spans` cuts at, not a grammatical clause.
+
+    A writer who ends a clause with the closing word and then puts a comma inside the
+    next one ("the old mill, moving, while ...") has, for the checker, a clause ending
+    in "mill". The hint is the only place a writer can learn where the cuts fall.
+    """
+    hint = ROWS[pid].prompt_hints["en"]
+    unnamed = [mark for mark in _CLAUSE_BREAK if CLAUSE_MARK_NAMES[mark] not in hint]
+    assert not unnamed, f"{pid}: the hint never says a clause ends at {unnamed}"

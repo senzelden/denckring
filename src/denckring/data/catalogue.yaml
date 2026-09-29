@@ -1854,7 +1854,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Begin every {unit} with "{opening}".
+        Begin every {unit} with "{opening}". A line starts only after a line break; a
+        clause starts after every comma, semicolon, colon or line break.
     hint_omits:
       minimum: >-
         a leniency: unset means every unit, which the hint asks for; a number only
@@ -1879,7 +1880,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        End every {unit} with "{closing}".
+        End every {unit} with "{closing}". A line ends only at a line break; a clause
+        ends at every comma, semicolon, colon or line break.
     hint_omits:
       minimum: >-
         a leniency: unset means every unit, which the hint asks for; a number only
