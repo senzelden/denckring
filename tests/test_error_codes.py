@@ -41,7 +41,7 @@ def test_codes_are_unique() -> None:
     assert not duplicates, f"duplicate codes: {duplicates}"
 
 
-def test_there_are_twenty_subclasses() -> None:
+def test_there_are_twenty_two_subclasses() -> None:
     """Pins the inventory. If this fails, a class was added or removed and the
     codes table in the spec needs the same edit.
 
@@ -51,8 +51,10 @@ def test_there_are_twenty_subclasses() -> None:
     dict the MCP tool built by hand for a procedure with no generator.
     Nineteen until `TextTooLong` gave the MCP service boundary its own error
     for a text past the configured size limit (review finding P2-06).
+    Twenty until `prompt_hint` (ADR 0050) needed `NoPromptHint` for a row with no
+    hint in the language and `UnsetHintParameter` for a stated value left `None`.
     """
-    assert len(subclasses()) == 20
+    assert len(subclasses()) == 22
 
 
 def test_to_dict_carries_code_and_message() -> None:

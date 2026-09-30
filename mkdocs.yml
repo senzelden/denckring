@@ -107,6 +107,7 @@ nav:
       - "47. Editorial language scope": adr/0047-editorial-language-scope.md
       - "48. A bounded proverb corpus": adr/0048-a-bounded-proverb-corpus.md
       - "49. Strict relations and supplied bilingual data": adr/0049-strict-relations-and-supplied-bilingual-data.md
+      - "50. Prompt hints are templates": adr/0050-templated-prompt-hints.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

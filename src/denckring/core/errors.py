@@ -555,3 +555,46 @@ class NotConstructive(DenckringError):
 
     def detail(self) -> dict[str, Any]:
         return {"procedure_id": self.procedure_id}
+
+
+class NoPromptHint(DenckringError):
+    """A prompt hint was asked for in a language the row has none in.
+
+    `describe` falls back to English and names the substitution in
+    `untranslated`. `prompt_hint` returns a bare string with no channel to say
+    so, and a prompt in the wrong language is a different prompt, so it refuses
+    rather than falling back (ADR 0050).
+    """
+
+    code = "no_prompt_hint"
+
+    def __init__(self, procedure_id: str, lang: str) -> None:
+        self.procedure_id = procedure_id
+        self.lang = lang
+        super().__init__(f"Procedure {procedure_id!r} has no prompt hint in {lang!r}.")
+
+    def detail(self) -> dict[str, Any]:
+        return {"procedure_id": self.procedure_id, "lang": self.lang}
+
+
+class UnsetHintParameter(DenckringError):
+    """A hint names a parameter whose value, after validation, is `None`.
+
+    `None` is a real value to a checker — "inferred from the text" — and is
+    valid there, so this is not `InvalidParams`. It is only a sentence that
+    cannot be written: the hint states the value, and there is none to state
+    (ADR 0050).
+    """
+
+    code = "unset_hint_parameter"
+
+    def __init__(self, procedure_id: str, param: str) -> None:
+        self.procedure_id = procedure_id
+        self.param = param
+        super().__init__(
+            f"The prompt hint for {procedure_id!r} states {param!r}, which is unset. "
+            f"Pass {param}=... to render it."
+        )
+
+    def detail(self) -> dict[str, Any]:
+        return {"procedure_id": self.procedure_id, "param": self.param}

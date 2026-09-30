@@ -185,6 +185,17 @@ class BaseProcedure(ABC, Generic[P]):
         """JSON Schema for the parameters, for non-Python callers."""
         return self.params_model().model_json_schema()
 
+    def hint_delegates(self, params: P) -> list[tuple[str, dict[str, Any]]]:
+        """Procedures whose own hints this row's prompt must also state, with their params.
+
+        Empty for every row but a composite. `multiple_constraint` names its
+        constraints and passes each its own parameters, and a prompt stating only
+        the ids would drop those parameters — the defect ADR 0050 exists to close.
+        `prompt_hint` renders each delegate with the same renderer, so validation
+        and refusals apply to it exactly as to a hint asked for directly.
+        """
+        return []
+
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""
         from denckring.lang import get_pack

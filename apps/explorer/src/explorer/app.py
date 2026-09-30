@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from denckring import __version__
+from denckring import __version__, describe
 from denckring import check as denckring_check
 from denckring.core import catalogue, domain
 from denckring.core.errors import MissingCapability, UnknownProcedure, extra_for
@@ -1198,6 +1198,10 @@ def procedure(request: Request, procedure_id: str) -> HTMLResponse:
         request,
         "procedure.html",
         meta=meta,
+        # Through `describe`, never `meta.prompt_hints` raw: a hint is a template
+        # and `describe` renders it from the defaults where they fill every slot
+        # (ADR 0050). An unimplemented row has no parameters to template.
+        hint=describe(procedure_id).prompt_hints if implemented else meta.prompt_hints.get("en"),
         implemented=implemented,
         fields=bench.fields_for(procedure_id) if implemented else [],
         apply_fields=bench.apply_fields_for(procedure_id) if implemented else [],

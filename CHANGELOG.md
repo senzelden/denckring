@@ -8,6 +8,19 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters
+  as `str.format` placeholders (`{forbidden}`, not `"e"`), and
+  `denckring.prompt_hint(procedure_id, lang=..., **params)` renders it after
+  validating the params as `check` does. A row with no hint in the language raises
+  `NoPromptHint`, and a stated parameter left `None` raises `UnsetHintParameter`.
+  A parameter a hint leaves out is declared, house-wide in `core.hints.UNSTATED_PARAMS`
+  or per row in the catalogue's new `hint_omits`, and a guard test holds the rule.
+  `describe`, and the CLI, MCP, docs gallery and explorer through it, render hints
+  from the defaults where they fill every slot. For the other 36 rows they show the
+  template. For `multiple_constraint`, `prompt_hint` also appends one `- ` line per
+  named constraint, giving that constraint's own hint rendered from its
+  `constraint_params`.
+
 - Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
   synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.
   Unknown tokens fail, occurrence order is preserved, and bilingual schemas reject
@@ -22,6 +35,20 @@ All notable changes to this project are documented here. The format follows
   editorial seams and limits; requires `denckring[en]`.
 
 ### Fixed
+
+- Reword 18 English prompt hints whose literal reading fails their own checker. The
+  anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
+  colon and line break), and a guard holds that for
+  every English hint of a row with a clause unit.
+  Six hints that named a search (`eodermdrome`, `semordnilap`, `supervocalic`,
+  `charade`, `tautonym`, `word_ladder`) now state that the whole text is the answer.
+  Seven state a rule their checker applies: `tmesis` hyphens, `paragram` pairs,
+  `chronogram` case, `belle_absente` alphabet, `serial_lipogram` wrap-around,
+  `sestina` rotation and `reverse_snowball`'s end. `acrostic` and `telestich` state
+  the unit count, and `liponym` no longer points at a subject the prompt never gives.
+  No hint offers an example that passes its checker alone, and a guard holds that
+  for English hints.
+  Checkers and fixtures are unchanged.
 
 - Correct S+7's English, German and French definitions to the noun-displacement
   procedure documented by Oulipo (#23). Cite its public account and distinguish

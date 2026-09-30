@@ -218,3 +218,20 @@ def test_every_adr_is_in_the_nav() -> None:
     nav = MKDOCS.read_text(encoding="utf-8")
     for adr in sorted((ROOT / "docs" / "adr").glob("[0-9]*.md")):
         assert f"adr/{adr.name}" in nav, f"{adr.name} is not in the nav"
+
+
+def test_a_gallery_page_shows_its_hint_rendered_not_its_template() -> None:
+    """Hints are `str.format` templates (ADR 0050). The gallery shows what
+    `describe` shows, so a reader sees `letter by letter`, not `{unit} by {unit}`.
+    """
+    import importlib.util
+
+    from denckring.core import catalogue
+
+    spec = importlib.util.spec_from_file_location("build_docs", ROOT / "scripts" / "build_docs.py")
+    assert spec is not None and spec.loader is not None
+    build_docs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_docs)
+    page = build_docs.render_procedure(catalogue.get("palindrome"), {"palindrome"}, set())
+    assert "letter by letter" in page
+    assert "{unit}" not in page
