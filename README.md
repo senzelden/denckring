@@ -189,8 +189,10 @@ are built on them:
   `get` resolves ids only, and raises `UnknownProcedure` naming the replacement.
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
-  `provenance` — and the `--json` output of `check`, `show` and `describe` that carries
-  it. Fields may be added; the ones already there do not change type or meaning.
+  `provenance`, `estimated` — and the `--json` output of `check`, `show` and `describe`
+  that carries it. Fields may be added; the ones already there do not change type or
+  meaning. `estimated` says whether the verdict rests on anything estimated or left
+  unjudged, and is what to read in place of `metrics["estimated_words"]`.
   `describe`'s `Description` carries `runs_in` under the same promise. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
   and not when the package is released.

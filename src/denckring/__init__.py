@@ -32,6 +32,7 @@ from denckring.core.errors import (
 from denckring.core.hints import placeholders, render, show_kinds
 from denckring.core.protocol import (
     Constructive,
+    Evidence,
     Lang,
     LanguagePack,
     Meta,
@@ -211,6 +212,7 @@ __all__ = [
     "Description",
     "DuplicatePack",
     "DuplicateProcedure",
+    "Evidence",
     "GoldenCase",
     "InputTooLong",
     "InputTooShort",

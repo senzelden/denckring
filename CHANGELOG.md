@@ -95,6 +95,15 @@ All notable changes to this project are documented here. The format follows
   break, a sentence at `.`, `!`, `?` or `…`. A guard holds each entry to its splitter
   over every character in the Basic Multilingual Plane.
 
+- `Report.estimated`: whether the verdict rests on anything estimated or left unjudged,
+  computed from `evidence` and the row's own count, and under the README's stability
+  promise. A caller deciding to leave a verdict unscored reads this rather than
+  `metrics["estimated_words"]`, which is not promised and which, row by row, misses
+  what `evidence` records (rhyme endings) or records what `evidence` does not (words
+  read from spelling in `proteus_verse` and `spoonerism`, unresolved glosses). Added
+  beside the other fields; none of them changes. `Evidence` is importable from
+  `denckring`.
+
 ### Changed
 
 - A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`

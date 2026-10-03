@@ -1,0 +1,80 @@
+"""`Report.estimated`: whether a verdict rests on anything estimated (audit B8).
+
+denckring-bench leaves a verdict unscored when it rests on a guess, and read
+`metrics["estimated_words"]` to decide, a key outside the stability promise. The
+metric and `evidence` each record cases the other misses, so the signal has to read
+both; these tests hold it to one case of each kind, and to the rule that a row whose
+reading is exact reports one only for words its data left unjudged.
+"""
+
+from __future__ import annotations
+
+import denckring
+from denckring import check
+from denckring.core.protocol import Report
+
+VOSS = "Sage mir, Muse, die Taten des vielgewanderten Mannes"
+DAVY = "Sir Humphry Davy\nAbominated gravy.\nHe lived in the odium\nOf having discovered sodium."
+
+
+def test_a_word_counted_from_spelling_without_evidence_is_estimated() -> None:
+    """`proteus_verse` discloses its guesses only in the metric."""
+    report = check("proteus_verse", VOSS, lang="de")
+    assert report.metrics["estimated_words"] > 0
+    assert not report.evidence
+    assert report.estimated
+
+
+def test_a_rhyme_ending_the_dictionary_lacks_is_estimated() -> None:
+    """`clerihew` reports no metric, only the rhyme evidence."""
+    report = check("clerihew", DAVY)
+    assert "estimated_words" not in report.metrics
+    assert any(item.basis == "estimated" for item in report.evidence)
+    assert report.estimated
+
+
+#: Exact rows that still report words they could not judge: a source word no gloss
+#: resolves (`the`, `went`) is counted in `estimated_words` and left out of the score,
+#: so the verdict covers less of the text than it reads as covering.
+UNJUDGED_WORDS = {"definitional_expansion", "definitional_literature"}
+
+
+def test_an_exact_row_rests_on_an_estimate_only_where_it_left_words_unjudged() -> None:
+    for case in denckring.golden_cases():
+        if denckring.describe(case.procedure).reading.determinacy != "exact":
+            continue
+        try:
+            report = check(case.procedure, case.text, lang=case.lang, **case.params)
+        except denckring.DenckringError:
+            continue
+        if report.estimated:
+            assert case.procedure in UNJUDGED_WORDS, (case.procedure, case.name)
+            assert not report.evidence
+
+
+def test_a_word_no_gloss_resolves_is_estimated() -> None:
+    report = check("definitional_expansion", "the cat", source="the cat")
+    assert report.metrics["estimated_words"] > 0
+    assert report.estimated
+
+
+def test_a_dictionary_read_is_not_estimated() -> None:
+    report = check("haiku", "the evening rain\nis falling softly now\nsplash silence again")
+    assert report.evidence
+    assert all(item.basis == "dictionary" for item in report.evidence)
+    assert not report.estimated
+
+
+def test_it_reaches_json_and_is_added_beside_the_fields_already_promised() -> None:
+    """A non-Python caller reads it from the JSON; no existing field changed for it."""
+    report = check("proteus_verse", VOSS, lang="de")
+    assert report.model_dump(mode="json")["estimated"] is True
+    assert set(Report.model_fields) == {
+        "procedure",
+        "satisfied",
+        "score",
+        "violations",
+        "metrics",
+        "evidence",
+        "provenance",
+    }

@@ -134,6 +134,32 @@ class Report(BaseModel):
     #: hundred and twenty-two places a report is constructed.
     provenance: Provenance | None = None
 
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def estimated(self) -> bool:
+        """Whether the verdict rests on anything this install estimated or left unjudged.
+
+        The one signal a caller deciding to leave a verdict unscored should read (audit
+        B8). Until 0.3.2 it had two places to look and neither was enough alone:
+        `metrics["estimated_words"]` is not under the stability promise, and on some
+        rows counts what no `Evidence` records (`proteus_verse` and `spoonerism` count
+        words read from spelling, `definitional_expansion` words no gloss resolved);
+        `evidence` records what the metric does not (the rhyme endings of `clerihew`
+        and `rondeau`, which report no such metric). True when either says so. A word
+        left unjudged counts: `definitional_expansion` scores only the words its
+        glosses resolve, so its verdict covers less of the text than it reads as
+        covering, though `describe` calls its reading exact.
+
+        Computed, not stored, so it cannot disagree with the report it describes,
+        and added beside the other fields rather than changing any of them. It reads
+        a metrics key the library owns; a caller reads this instead. N+7's
+        `ambiguous_words` is not an estimate: it counts words a reading policy
+        (`ambiguous_nouns`) decides, and the verdict states that policy.
+        """
+        return any(item.basis == "estimated" for item in self.evidence) or (
+            self.metrics.get("estimated_words", 0.0) > 0
+        )
+
     @model_validator(mode="after")
     def _satisfied_matches_score(self) -> Report:
         if self.satisfied != (self.score == 1.0):

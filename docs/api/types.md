@@ -8,6 +8,8 @@ The models `check` and `describe` return.
 
 ::: denckring.core.protocol.Violation
 
+::: denckring.core.protocol.Evidence
+
 ::: denckring.core.protocol.Meta
 
 ## Describing
