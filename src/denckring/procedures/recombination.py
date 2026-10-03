@@ -6,15 +6,23 @@ import random
 import re
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SeedParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import InputTooShort, counted
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
-class RecombinationParams(SourceParams):
+class RecombinationParams(SourceParams, IdentityParams):
     pass
 
 
@@ -22,7 +30,7 @@ def sentences(text: str) -> list[str]:
     return [s.strip().casefold() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
 
 
-class RecombinationApplyParams(RecombinationParams, SeedParams, ApplyParams):
+class RecombinationApplyParams(ApplyParams, RecombinationParams, SeedParams):
     pass
 
 
@@ -62,10 +70,11 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 )
         shared = sum((candidate & source).values())
         total = max(sum(candidate.values()), sum(source.values()))
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
         return self._report(
             good=shared,
-            total=total,
-            violations=violations,
+            total=total + len(copy),
+            violations=violations + copy,
             metrics={"sentences": float(sum(candidate.values()))},
         )
 

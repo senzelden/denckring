@@ -11,11 +11,13 @@ from denckring.core.base import (
     ApplyParams,
     BaseProcedure,
     ConstructiveProcedure,
+    IdentityParams,
     SourceParams,
     plain,
 )
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import split_elision, word_spans
 
 
@@ -78,7 +80,7 @@ def displace(
     return "".join(pieces)
 
 
-class NPlus7Params(SourceParams):
+class NPlus7Params(SourceParams, IdentityParams):
     offset: int = Field(default=7, description="How many nouns to count forward.")
     dictionary: list[str] | None = Field(
         default=None,
@@ -107,6 +109,17 @@ class NPlus7Params(SourceParams):
             "(strict)."
         ),
     )
+    # Opt-in, so 0.3.2 moves no verdict. Under `free` or `undecidable` a text in
+    # which every listed word was left alone passes, each one plausibly another
+    # part of speech; taken together that is not an N+7 however each word reads.
+    # The rule name is `paronomasia`'s, for the same failure.
+    require_displacement: bool = Field(
+        default=False,
+        description=(
+            "Fail a text in which no word the dictionary lists was displaced, as "
+            "`no_displacement`, whatever `ambiguous_nouns` makes of each one."
+        ),
+    )
 
     @field_validator("dictionary")
     @classmethod
@@ -124,7 +137,7 @@ class NPlus7Params(SourceParams):
         return value
 
 
-class NPlus7ApplyParams(NPlus7Params, ApplyParams):
+class NPlus7ApplyParams(ApplyParams, NPlus7Params):
     pass
 
 
@@ -167,6 +180,7 @@ def displacement_report(
 
     ambiguous = 0
     undecided = 0
+    displaced = 0
     good = 0
     for (offset, produced), (_, original) in zip(candidate, source, strict=True):
         # A leading proclitic glued on by elision (`l'`, `d'`, `qu'`) is
@@ -220,6 +234,7 @@ def displacement_report(
                 )
             )
             continue
+        displaced += 1
         expected_tail = nouns[(index + params.offset) % len(nouns)]
         # The noun list preserves each language's own capitalisation — German
         # nouns are capitalised, English ones are not — so `expected` must be
@@ -239,6 +254,17 @@ def displacement_report(
             )
     decided = len(candidate) - undecided
     metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
+    # Each refusal is one more unit, failed, on top of whatever was weighed.
+    refused = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+    if params.require_displacement and displaced == 0:
+        refused.append(
+            Violation(
+                rule="no_displacement",
+                offset=None,
+                found="no listed word displaced",
+                expected=f"at least one listed word moved {params.offset} places on",
+            )
+        )
     if decided == 0 and undecided > 0:
         # `_report` scores total == 0 as 1.0 — right for the wordless case the
         # comment below still guards, wrong here: this text has words, every
@@ -250,14 +276,15 @@ def displacement_report(
         # is not.
         return procedure._report(
             good=0,
-            total=1,
+            total=1 + len(refused),
             violations=[
                 Violation(
                     rule="ambiguous_nouns_undecidable",
                     offset=None,
                     found=f"{undecided} word(s) the reading left undecided",
                     expected="at least one position this reading can decide",
-                )
+                ),
+                *refused,
             ],
             metrics=metrics,
         )
@@ -272,8 +299,8 @@ def displacement_report(
         # `total`: under `ambiguous_nouns="undecidable"` they were never
         # weighed, and counting them would silently discount the score
         # instead of leaving it computed over what was actually judged.
-        total=decided,
-        violations=violations,
+        total=decided + len(refused),
+        violations=violations + refused,
         metrics=metrics,
     )
 

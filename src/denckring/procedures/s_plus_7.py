@@ -29,7 +29,7 @@ class SPlus7Params(NPlus7Params):
     """
 
 
-class SPlus7ApplyParams(SPlus7Params, ApplyParams):
+class SPlus7ApplyParams(ApplyParams, SPlus7Params):
     pass
 
 

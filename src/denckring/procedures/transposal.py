@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from collections import Counter
 
-from denckring.core.base import BaseProcedure, DiacriticParams, SourceParams
+from denckring.core.base import BaseProcedure, DiacriticParams, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import letter_spans, word_spans
 
 
-class TransposalParams(SourceParams, DiacriticParams):
+class TransposalParams(SourceParams, DiacriticParams, IdentityParams):
     pass
 
 
@@ -54,9 +55,10 @@ class Transposal(BaseProcedure[TransposalParams]):
                 Violation(rule="missing_word", offset=None, found="", expected=missing)
             )
         total = max(len(candidate), len(source))
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=fold)
         return self._report(
             good=matched,
-            total=total,
-            violations=violations,
+            total=total + len(copy),
+            violations=violations + copy,
             metrics={"words": float(len(candidate)), "matched": float(matched)},
         )

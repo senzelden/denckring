@@ -40,6 +40,10 @@ UNSTATED_PARAMS: dict[str, str] = {
     "ambiguous_nouns": (
         "reading policy: decides what an unchanged word the dictionary lists means to the checker"
     ),
+    "allow_identity": (
+        "a strictness: no hint asks for the source back unchanged, so a text a hint "
+        "describes satisfies either setting"
+    ),
     "source": (
         "material, not instruction: the text being transformed is given beside the "
         "prompt, and a hint quoting it whole would stop being a hint"

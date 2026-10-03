@@ -14,15 +14,21 @@ from denckring.core.base import (
     ApplyParams,
     ConstructiveProcedure,
     DiacriticParams,
+    IdentityParams,
     SourceParams,
 )
 from denckring.core.errors import InputTooLong
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import letter_spans
 
 
-class AnagramParams(SourceParams, DiacriticParams):
+class LetterRearrangementParams(SourceParams, DiacriticParams):
+    """What `anagram` and `antigram` share. `antigram` stops here: it refuses its
+    source unconditionally, so `allow_identity` there would be a switch that
+    does nothing."""
+
     # On the check model rather than the apply model so both halves see it: the
     # convention it names is what counts as a valid anagram, and a generator
     # working to one rule while the checker judged by another is exactly the
@@ -36,7 +42,11 @@ class AnagramParams(SourceParams, DiacriticParams):
     )
 
 
-class AnagramApplyParams(AnagramParams, ApplyParams):
+class AnagramParams(LetterRearrangementParams, IdentityParams):
+    pass
+
+
+class AnagramApplyParams(ApplyParams, AnagramParams):
     max_words: int = Field(
         default=3,
         ge=1,
@@ -180,7 +190,10 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         # Not guarded when the source is letterless too: two texts with no
         # letters agree vacuously, the same carve-out `displacement_report`
         # makes for a candidate and a source that are both wordless.
-        return self._report(good=shared, total=total, violations=violations, metrics=metrics)
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=fold)
+        return self._report(
+            good=shared, total=total + len(copy), violations=violations + copy, metrics=metrics
+        )
 
     #: The letter count past which the cover search is not worth starting. The
     #: candidate pool grows with the number of lexicon words that fit inside the

@@ -31,6 +31,37 @@ from denckring.core.text import letter_spans, word_spans
 LetterClass = Literal["consonants", "vowels"]
 
 
+def unchanged(
+    text: str, source: str, pack: LanguagePack, *, allow: bool, fold: bool = True
+) -> list[Violation]:
+    """`[unchanged]` when `allow` is false and `text` is `source` itself, else `[]`.
+
+    A copy is the source's letters in the source's order, so case, spacing and
+    punctuation do not make a text new — the comparison `antigram` makes. Its
+    rule name is kept, and its wording but for "rearrangement", which is
+    antigram's alone. A list, so a caller adds its length to the
+    total and the copy costs one unit of score: `_report` reads a score of 1.0 as
+    satisfied, and a violation must never sit beside one.
+
+    `fold` is the row's own `fold_diacritics` where it has one. A row without it
+    compares words casefolded only, and passes `fold=False` to match.
+    """
+    if allow:
+        return []
+    if [ch for _, ch in letter_spans(text, pack, fold=fold)] != [
+        ch for _, ch in letter_spans(source, pack, fold=fold)
+    ]:
+        return []
+    return [
+        Violation(
+            rule="unchanged",
+            offset=None,
+            found=text.strip(),
+            expected="a change to the source, not the source itself",
+        )
+    ]
+
+
 class ClassResult(NamedTuple):
     violations: list[Violation]
     good: int

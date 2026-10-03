@@ -48,6 +48,26 @@ class DiacriticParams(BaseModel):
     )
 
 
+class IdentityParams(BaseModel):
+    """Mixed into every source row whose checker passes its source, unchanged.
+
+    Measured, not assumed: on these rows `check(pid, source, source=source)` is
+    satisfied, though the copy is not what the row asks for (an anagram of
+    `listen` that is `listen`). `antigram` has always refused it; this lets the
+    others do the same. Opt-in, so no verdict moves in 0.3.2. Rows on which the
+    copy is the one right answer for some source (a one-line `boustrophedon`) do
+    not carry it; `tests/test_allow_identity.py` names them and why.
+    """
+
+    allow_identity: bool = Field(
+        default=True,
+        description=(
+            "Accept the source itself, unchanged, as an answer. Set false to fail a "
+            "text whose letters are the source's, in the same order, as `unchanged`."
+        ),
+    )
+
+
 class RhymeParams(BaseModel):
     """Mixed into every procedure that checks a rhyme.
 
@@ -124,6 +144,12 @@ class ApplyParams(BaseModel):
     run the procedure in any way a caller can act on. Refusing both is the
     default; `allow_identity` is the one escape for the caller who genuinely
     wants the degenerate case, under either of its two shapes.
+
+    `IdentityParams` asks `check` the same question under the same name, with
+    the opposite default in 0.3.2. An apply model that mixes in both lists this
+    one first, because a field on an earlier base wins: listed after the check
+    model, `ApplyParams` would hand the generator `check`'s `true`. `tests/test_allow_identity.py`
+    holds that for every generator.
 
     No field here, or on any model this mixes into, may be named `lang`:
     `ConstructiveProcedure.produce` and `apply` both take `lang` as an explicit

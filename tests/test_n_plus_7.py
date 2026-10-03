@@ -159,3 +159,45 @@ def test_an_empty_dictionary_is_refused() -> None:
     """`(index + offset) % len(nouns)` divides by it."""
     with pytest.raises(InvalidParams):
         NPlus7().apply("aster", lang="en", dictionary=[])
+
+
+@pytest.mark.parametrize("pid", ["n_plus_7", "s_plus_7"])
+@pytest.mark.parametrize("reading", ["free", "undecidable"])
+def test_requiring_a_displacement_fails_a_text_that_displaces_nothing(
+    pid: str, reading: str
+) -> None:
+    """Every listed word left alone is readable, one by one, as another part of
+    speech; all of them together is not an N+7. Opt-in: the default still passes."""
+    assert check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading).satisfied
+    report = check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading, require_displacement=True)
+    assert not report.satisfied
+    assert report.score < 1.0
+    assert [v.rule for v in report.violations] == ["no_displacement"]
+
+
+def test_one_displacement_is_enough_to_require() -> None:
+    partial = "the catacomb sat on the table"
+    assert check("n_plus_7", partial, source=SOURCE, require_displacement=True).satisfied
+
+
+def test_a_wrong_displacement_still_counts_as_displacing() -> None:
+    wrong = "the zebra sat on the table"
+    report = check("n_plus_7", wrong, source=SOURCE, require_displacement=True)
+    assert [v.rule for v in report.violations] == ["wrong_displacement"]
+
+
+def test_a_wholly_undecidable_copy_reports_both_failures() -> None:
+    report = check(
+        "n_plus_7",
+        "cat",
+        source="cat",
+        ambiguous_nouns="undecidable",
+        require_displacement=True,
+        allow_identity=False,
+    )
+    assert [v.rule for v in report.violations] == [
+        "ambiguous_nouns_undecidable",
+        "unchanged",
+        "no_displacement",
+    ]
+    assert report.score == 0.0

@@ -12,15 +12,21 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report
+from denckring.core.source_compare import selection_report, unchanged
 from denckring.core.text import word_spans
 
 
-class DiasticParams(SourceParams):
+class DiasticParams(SourceParams, IdentityParams):
     # Named `seed_phrase`, not `seed`: `seed` used to be a keyword `apply()`
     # named explicitly on every procedure, reserved for an RNG draw, and Python
     # binds a keyword matching an explicit parameter name to that parameter
@@ -39,7 +45,7 @@ class DiasticParams(SourceParams):
     )
 
 
-class DiasticApplyParams(DiasticParams, ApplyParams):
+class DiasticApplyParams(ApplyParams, DiasticParams):
     pass
 
 
@@ -81,10 +87,11 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
                         note=f"position {index + 1} of {word!r}",
                     )
                 )
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
         return self._report(
             good=good,
-            total=max(total, 1),
-            violations=violations,
+            total=max(total, 1) + len(copy),
+            violations=violations + copy,
             metrics={"selected": float(len(chosen))},
         )
 

@@ -294,6 +294,9 @@ procedures:
     hint_omits:
       dictionary: >-
         an ordered word list supplied as data; the hint's 'the dictionary' names it
+      require_displacement: >-
+        a strictness: the hint asks for every noun displaced, which satisfies either
+        setting
     notes: >-
       `s_plus_7` is the same displacement under a second name, and runs this row's
       implementation rather than one of its own. See that row's note for what the
@@ -321,13 +324,17 @@ procedures:
     hint_omits:
       dictionary: >-
         an ordered word list supplied as data; the hint's 'the dictionary' names it
+      require_displacement: >-
+        a strictness: the hint asks for every noun displaced, which satisfies either
+        setting
     notes: >-
       S+7 is the French name of the noun displacement also catalogued here as
       `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns
       and seven places; it separately describes Queneau's extensions to other
       parts of speech in La Littérature potentielle (1973). Both public IDs are
       retained for compatibility and share one implementation. `SPlus7Params`
-      inherits `offset`, `dictionary` and `ambiguous_nouns` from `NPlus7Params`.
+      inherits `offset`, `dictionary`, `ambiguous_nouns`, `allow_identity` and
+      `require_displacement` from `NPlus7Params`.
       These parameters support variations on both rows: a supplied word list
       controls membership, not grammatical role in context. The default list
       contains nouns, and neither row uses part-of-speech tagging. Consequently

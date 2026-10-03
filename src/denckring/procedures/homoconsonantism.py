@@ -15,13 +15,13 @@ nothing here for a generator to do that would not just be writing.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, DiacriticParams, SourceParams
+from denckring.core.base import BaseProcedure, DiacriticParams, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
-from denckring.core.source_compare import letter_class_report
+from denckring.core.source_compare import letter_class_report, unchanged
 
 
-class HomoconsonantismParams(SourceParams, DiacriticParams):
+class HomoconsonantismParams(SourceParams, DiacriticParams, IdentityParams):
     pass
 
 
@@ -39,9 +39,12 @@ class Homoconsonantism(BaseProcedure[HomoconsonantismParams]):
         result = letter_class_report(
             text, params.source, pack, keep="consonants", fold=params.fold_diacritics
         )
+        copy = unchanged(
+            text, params.source, pack, allow=params.allow_identity, fold=params.fold_diacritics
+        )
         return self._report(
             good=result.good,
-            total=result.total,
-            violations=result.violations,
+            total=result.total + len(copy),
+            violations=result.violations + copy,
             metrics={"kept": float(result.total)},
         )

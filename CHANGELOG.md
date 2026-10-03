@@ -34,6 +34,21 @@ All notable changes to this project are documented here. The format follows
   output and unresolved verdicts for unknown sayings. ADR 0048 records sources,
   editorial seams and limits; requires `denckring[en]`.
 
+- `allow_identity` (default `true`, so no verdict moves) on the 14 source rows whose
+  checker passed an unchanged copy of the source, measured with each row's golden
+  parameters: `anagram`, `buchstabwechsel`, `cut_up`, `diastic`, `homoconsonantism`,
+  `homovocalism`, `lipogrammatic_translation`, `melting_text`, `mesostic`, `n_plus_7`,
+  `recombination`, `s_plus_7`, `transposal` and `univocalic_translation`. Set to `false`,
+  a text whose letters are the source's in the same order fails as `unchanged`, the
+  rule `antigram` has always applied. Rows that pass a copy only on a source the rule
+  leaves alone (one line, one sentence, no alternatives) do not take it, since the copy
+  is the right answer there; `tests/test_allow_identity.py` names them and holds the
+  rule for new rows.
+
+- `require_displacement` on `n_plus_7` and `s_plus_7` (default `false`). Set, a text in
+  which no listed word was displaced fails as `no_displacement`, whatever
+  `ambiguous_nouns` makes of each unchanged word.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

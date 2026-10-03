@@ -4,17 +4,25 @@ from __future__ import annotations
 
 import random
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SeedParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import word_spans
 
 
-class MeltingTextParams(SourceParams):
+class MeltingTextParams(SourceParams, IdentityParams):
     pass
 
 
-class MeltingTextApplyParams(MeltingTextParams, SeedParams, ApplyParams):
+class MeltingTextApplyParams(ApplyParams, MeltingTextParams, SeedParams):
     """What the melt accepts. `seed` is a field here because as a signature
     keyword it bound before `**params` and pydantic never saw it."""
 
@@ -50,10 +58,11 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
                 )
             else:
                 matched += 1
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
         return self._report(
             good=matched,
-            total=len(candidate),
-            violations=violations,
+            total=len(candidate) + len(copy),
+            violations=violations + copy,
             metrics={"kept": float(matched), "source_words": float(len(source))},
         )
 

@@ -13,15 +13,21 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report
+from denckring.core.source_compare import selection_report, unchanged
 from denckring.core.text import line_spans, word_spans
 
 
-class MesosticParams(SourceParams):
+class MesosticParams(SourceParams, IdentityParams):
     # Defaulted like `every_nth_word.n`, so `apply()` is usable with no extra
     # keyword — unlike `diastic.seed_phrase`, `spine` was never forced into a
     # rename by a reserved-keyword collision, so there was no forced reason
@@ -29,7 +35,7 @@ class MesosticParams(SourceParams):
     spine: str = Field(default="the", description="The spine word read down the lines.")
 
 
-class MesosticApplyParams(MesosticParams, ApplyParams):
+class MesosticApplyParams(ApplyParams, MesosticParams):
     pass
 
 
@@ -73,10 +79,11 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
                         note=f"line {index + 1} must carry {letter!r}",
                     )
                 )
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
         return self._report(
             good=good,
-            total=max(total, 1),
-            violations=violations,
+            total=max(total, 1) + len(copy),
+            violations=violations + copy,
             metrics={"lines": float(len(lines))},
         )
 

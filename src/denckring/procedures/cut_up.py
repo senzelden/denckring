@@ -5,17 +5,25 @@ from __future__ import annotations
 import random
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SeedParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import word_spans
 
 
-class CutUpParams(SourceParams):
+class CutUpParams(SourceParams, IdentityParams):
     pass
 
 
-class CutUpApplyParams(CutUpParams, SeedParams, ApplyParams):
+class CutUpApplyParams(ApplyParams, CutUpParams, SeedParams):
     """What the scissors accept. `CutUpParams` alone could not carry `seed`,
     because `seed` was a signature keyword no params model ever saw."""
 
@@ -52,10 +60,11 @@ class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
                         expected=f"at most {available[folded]} of {folded!r}",
                     )
                 )
+        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
         return self._report(
             good=len(candidate) - len(violations),
-            total=len(candidate),
-            violations=violations,
+            total=len(candidate) + len(copy),
+            violations=violations + copy,
             metrics={
                 "words": float(len(candidate)),
                 "source_words": float(sum(available.values())),
