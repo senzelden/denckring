@@ -70,7 +70,15 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 )
         shared = sum((candidate & source).values())
         total = max(sum(candidate.values()), sum(source.values()))
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Another order needs two different sentences.
+            alternative=lambda: len(source) >= 2,
+            fold=False,
+        )
         return self._report(
             good=shared,
             total=total + len(copy),

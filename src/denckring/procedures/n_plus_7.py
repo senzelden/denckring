@@ -137,6 +137,19 @@ class NPlus7Params(SourceParams, IdentityParams):
         return value
 
 
+def _moves(
+    word: str,
+    nouns: Sequence[str],
+    noun_index: Callable[[str], int | None],
+    offset: int,
+) -> bool:
+    """Whether displacing `word` changes it: it is listed, and the walk does not
+    come back round to it (an offset that is a multiple of the list's length)."""
+    _, tail = split_elision(word)
+    index = noun_index(tail)
+    return index is not None and nouns[(index + offset) % len(nouns)].casefold() != tail.casefold()
+
+
 class NPlus7ApplyParams(ApplyParams, NPlus7Params):
     pass
 
@@ -255,7 +268,16 @@ def displacement_report(
     decided = len(candidate) - undecided
     metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
     # Each refusal is one more unit, failed, on top of whatever was weighed.
-    refused = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+    refused = unchanged(
+        text,
+        params.source,
+        pack,
+        allow=params.allow_identity,
+        alternative=lambda: any(
+            _moves(original, nouns, noun_index, params.offset) for _, original in source
+        ),
+        fold=False,
+    )
     if params.require_displacement and displaced == 0:
         refused.append(
             Violation(

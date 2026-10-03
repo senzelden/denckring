@@ -23,7 +23,7 @@ from denckring.core.base import (
 from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report, unchanged
+from denckring.core.source_compare import selection_report, several_words, unchanged
 from denckring.core.text import line_spans, word_spans
 
 
@@ -79,7 +79,14 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
                         note=f"line {index + 1} must carry {letter!r}",
                     )
                 )
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: several_words(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=good,
             total=max(total, 1) + len(copy),

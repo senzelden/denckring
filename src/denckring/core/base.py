@@ -54,9 +54,19 @@ class IdentityParams(BaseModel):
     Measured, not assumed: on these rows `check(pid, source, source=source)` is
     satisfied, though the copy is not what the row asks for (an anagram of
     `listen` that is `listen`). `antigram` has always refused it; this lets the
-    others do the same. Opt-in, so no verdict moves in 0.3.2. Rows on which the
-    copy is the one right answer for some source (a one-line `boustrophedon`) do
-    not carry it; `tests/test_allow_identity.py` names them and why.
+    others do the same. Opt-in, so no verdict moves in 0.3.2.
+
+    Off, it refuses a copy only where the source admits a different correct
+    answer (ruling R-U2a): each row states that predicate as the `alternative`
+    it passes to `source_compare.unchanged`. A one-sentence `recombination`, a
+    one-word `cut_up`, a one-letter `anagram` or an N+7 source with no listed
+    noun has no answer but the copy, so the copy stands, and flipping the
+    default later leaves every instance satisfiable. The cost is that a copy of
+    such a source passes under either setting.
+
+    A row that passes a copy *only* on such sources (a one-line
+    `boustrophedon`) does not carry the field at all, since it could never
+    refuse anything; `tests/test_allow_identity.py` names those rows and why.
     """
 
     allow_identity: bool = Field(

@@ -21,7 +21,8 @@ from denckring.procedures.n_plus_7 import (
 
 
 class SPlus7Params(NPlus7Params):
-    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns` — and no field of its own.
+    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns`, `allow_identity`,
+    `require_displacement` — and no field of its own.
 
     Inherits rather than duplicates: a second `offset` field here, kept in sync
     by hand, is exactly how `dictionary` would have stayed n_plus_7-only despite

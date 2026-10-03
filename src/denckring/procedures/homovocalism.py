@@ -37,7 +37,14 @@ class Homovocalism(BaseProcedure[HomovocalismParams]):
             text, params.source, pack, keep="vowels", fold=params.fold_diacritics
         )
         copy = unchanged(
-            text, params.source, pack, allow=params.allow_identity, fold=params.fold_diacritics
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Only vowels are compared, so the copy with one more consonant is
+            # always another answer.
+            alternative=lambda: True,
+            fold=params.fold_diacritics,
         )
         return self._report(
             good=result.good,

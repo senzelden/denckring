@@ -41,8 +41,9 @@ UNSTATED_PARAMS: dict[str, str] = {
         "reading policy: decides what an unchanged word the dictionary lists means to the checker"
     ),
     "allow_identity": (
-        "a strictness: no hint asks for the source back unchanged, so a text a hint "
-        "describes satisfies either setting"
+        "a strictness: no hint asks for the source back unchanged, and the setting "
+        "refuses a copy only where another answer exists, so on a source that "
+        "already meets the hint the copy may fail where another text passes"
     ),
     "source": (
         "material, not instruction: the text being transformed is given beside the "

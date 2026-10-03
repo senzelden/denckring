@@ -55,7 +55,17 @@ class Transposal(BaseProcedure[TransposalParams]):
                 Violation(rule="missing_word", offset=None, found="", expected=missing)
             )
         total = max(len(candidate), len(source))
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=fold)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Word for word, so some word needs two different letters to reorder.
+            alternative=lambda: any(
+                len({ch for _, ch in letter_spans(word, pack, fold=fold)}) >= 2 for word in source
+            ),
+            fold=fold,
+        )
         return self._report(
             good=matched,
             total=total + len(copy),

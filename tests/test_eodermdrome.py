@@ -39,5 +39,5 @@ def test_the_default_minimum_reads_as_it_always_has() -> None:
 
 
 def test_a_minimum_below_two_is_refused() -> None:
-    with pytest.raises(InvalidParams):
+    with pytest.raises(InvalidParams, match="greater than or equal to 2"):
         check("eodermdrome", "a", min_letters=1)

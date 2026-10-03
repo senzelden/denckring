@@ -54,7 +54,14 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
         total = int(delegate.metrics["vowel_count"])
         good = total - int(delegate.metrics["foreign"])
         copy = unchanged(
-            text, params.source, pack, allow=params.allow_identity, fold=params.fold_diacritics
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # The check never reads the source, and consonants are free: the copy
+            # with one more consonant is always another answer.
+            alternative=lambda: True,
+            fold=params.fold_diacritics,
         )
         return self._report(
             good=good,

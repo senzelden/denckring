@@ -18,6 +18,7 @@ import pytest
 
 from denckring import check
 from denckring.core.base import ConstructiveProcedure
+from denckring.core.errors import DenckringError
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures, get
 from denckring.eval.harness import GoldenCase, golden_cases
@@ -85,7 +86,7 @@ def _string_source_cases(pid: str) -> list[GoldenCase]:
 def _copy_passes(pid: str, lang: Lang, params: dict[str, Any], source: str) -> bool:
     try:
         return check(pid, source, lang=lang, **{**params, "source": source}).satisfied
-    except Exception:  # a source this row refuses outright is not a copy it accepts
+    except DenckringError:  # a source this row refuses outright is not a copy it accepts
         return False
 
 
@@ -158,12 +159,21 @@ def _accepts_a_copy(pid: str) -> bool:
     return False
 
 
-def test_every_source_row_that_accepts_a_copy_can_refuse_it_or_says_why_not() -> None:
-    offering = {
+def _offering() -> set[str]:
+    return {
         pid for pid in _source_rows() if "allow_identity" in get(pid).params_model().model_fields
     }
+
+
+def test_the_parametrised_tests_cover_every_row_that_offers_the_parameter() -> None:
+    """Not the rule, which is below: this keeps `ROWS`, and so the per-row tests
+    above, in step with the rows that carry the field."""
+    assert _offering() == set(ROWS)
+
+
+def test_every_source_row_that_accepts_a_copy_can_refuse_it_or_says_why_not() -> None:
+    offering = _offering()
     accepting = {pid for pid in _source_rows() if _accepts_a_copy(pid)}
-    assert offering == set(ROWS)
     unexplained = accepting - offering - set(COPY_IS_THE_ANSWER)
     assert not unexplained, f"rows that pass a copy with no way to refuse it: {sorted(unexplained)}"
     stale = set(COPY_IS_THE_ANSWER) - accepting
@@ -179,3 +189,69 @@ def test_every_generator_still_refuses_its_own_input_by_default() -> None:
         if isinstance(procedure, ConstructiveProcedure):
             field = procedure.apply_params_model().model_fields["allow_identity"]
             assert field.default is False, pid
+
+
+#: Ruling R-U2a: `allow_identity=False` refuses a copy only where the source admits
+#: a different correct answer. Per row: (lang, params, a source whose only answer is
+#: the copy, or None where every source leaves another, a source that leaves
+#: another, and that other answer).
+GARDEN = ["aster", "bramble", "crocus", "dahlia", "elder", "fennel", "gorse", "hazel"]
+EDGES: dict[str, tuple[Lang, dict[str, Any], str | None, str, str]] = {
+    "anagram": ("en", {}, "aa", "ab", "ba"),
+    "transposal": ("en", {}, "aa bb", "ab", "ba"),
+    "buchstabwechsel": ("de", {}, None, "a", "ha"),
+    "cut_up": ("en", {}, "cat", "cat sat", "sat"),
+    "melting_text": ("en", {}, "cat", "cat sat", "cat"),
+    "diastic": ("en", {"seed_phrase": "t"}, "the", "the cat", "the"),
+    "mesostic": ("en", {"spine": "t"}, "cat", "a cat", "cat"),
+    "homovocalism": ("en", {}, None, "a", "ba"),
+    "homoconsonantism": ("en", {}, None, "b", "ab"),
+    "lipogrammatic_translation": ("en", {"forbidden": "e"}, None, "a", "ab"),
+    "univocalic_translation": ("en", {"vowel": "a"}, None, "a", "ab"),
+    "recombination": (
+        "en",
+        {},
+        "It rains. It rains.",
+        "It rains. It snows.",
+        "It snows. It rains.",
+    ),
+    "n_plus_7": ("en", {"dictionary": GARDEN}, "the cat", "the aster", "the hazel"),
+    "s_plus_7": ("en", {"dictionary": GARDEN}, "the cat", "the aster", "the hazel"),
+}
+
+
+def test_every_carrying_row_states_its_edge() -> None:
+    assert set(EDGES) == set(ROWS)
+
+
+@pytest.mark.parametrize("pid", ROWS)
+def test_a_copy_is_refused_only_where_another_answer_exists(pid: str) -> None:
+    lang, params, only_copy, source, other = EDGES[pid]
+    strict = {**params, "allow_identity": False}
+    # The side that refuses: the copy fails, and the other answer it leaves passes.
+    refused = check(pid, source, lang=lang, source=source, **strict)
+    assert [v.rule for v in refused.violations] == ["unchanged"], refused.violations
+    assert check(pid, other, lang=lang, source=source, **strict).satisfied
+    # The side that does not: where the copy is the only answer, it stands.
+    if only_copy is not None:
+        assert check(pid, only_copy, lang=lang, source=only_copy, **strict).satisfied
+
+
+def test_a_transposal_under_allow_subset_may_leave_a_letter_out() -> None:
+    strict: dict[str, Any] = {"allow_identity": False, "allow_subset": True}
+    assert check("anagram", "a", source="a", **strict).satisfied
+    assert not check("anagram", "aa", source="aa", **strict).satisfied
+    assert check("anagram", "a", source="aa", **strict).satisfied
+
+
+def test_a_displacement_that_walks_back_to_its_word_leaves_only_the_copy() -> None:
+    """Eight nouns, eight places on: every listed word displaces to itself."""
+    report = check(
+        "n_plus_7",
+        "the aster",
+        source="the aster",
+        dictionary=GARDEN,
+        offset=8,
+        allow_identity=False,
+    )
+    assert report.satisfied

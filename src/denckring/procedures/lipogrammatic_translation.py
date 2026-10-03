@@ -25,6 +25,7 @@ from denckring.core.base import BaseProcedure, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import get, register
 from denckring.core.source_compare import unchanged
+from denckring.core.text import letter_spans
 from denckring.procedures.lipogram import LipogramParams
 
 
@@ -57,7 +58,20 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
         total = int(delegate.metrics["letters"])
         good = total - int(delegate.metrics["hits"])
         copy = unchanged(
-            text, params.source, pack, allow=params.allow_identity, fold=params.fold_diacritics
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # The check never reads the source: the copy with one more allowed
+            # letter is another answer, whenever the alphabet has one left.
+            alternative=lambda: bool(
+                set(pack.alphabet())
+                - {
+                    ch
+                    for _, ch in letter_spans(params.forbidden, pack, fold=params.fold_diacritics)
+                }
+            ),
+            fold=params.fold_diacritics,
         )
         return self._report(
             good=good,

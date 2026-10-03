@@ -15,7 +15,7 @@ from denckring.core.base import (
 )
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import unchanged
+from denckring.core.source_compare import several_words, unchanged
 from denckring.core.text import word_spans
 
 
@@ -60,7 +60,14 @@ class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
                         expected=f"at most {available[folded]} of {folded!r}",
                     )
                 )
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: several_words(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=len(candidate) - len(violations),
             total=len(candidate) + len(copy),

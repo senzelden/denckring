@@ -110,9 +110,12 @@ def describe_procedure_tool(
 
     `params` is JSON Schema — pass parameters matching it to `check_text`.
     `apply_params` is the separate schema `apply_procedure` takes, empty for a
-    row with no generator; it is where `seed` and `allow_identity` are declared,
-    which `params` does not carry. Set `scholarly` for the form's source,
-    attribution and history.
+    row with no generator; it is where `seed` is declared, which `params` does
+    not carry. Both may carry `allow_identity`, with different meanings: in
+    `apply_params`, permit output identical to the input or empty (default
+    false); in `params`, on the source rows that have it, accept the source back
+    unchanged as an answer (default true for now). Set `scholarly` for the
+    form's source, attribution and history.
     """
     try:
         return describe(procedure, lang=lang, scholarly=scholarly).model_dump()

@@ -190,7 +190,18 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         # Not guarded when the source is letterless too: two texts with no
         # letters agree vacuously, the same carve-out `displacement_report`
         # makes for a candidate and a source that are both wordless.
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=fold)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Another order needs two different letters; a transposal may also
+            # leave one out, which needs two letters of any kind.
+            alternative=lambda: (
+                sum(source.values()) >= 2 if params.allow_subset else len(source) >= 2
+            ),
+            fold=fold,
+        )
         return self._report(
             good=shared, total=total + len(copy), violations=violations + copy, metrics=metrics
         )

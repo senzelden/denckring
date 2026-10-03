@@ -296,7 +296,8 @@ procedures:
         an ordered word list supplied as data; the hint's 'the dictionary' names it
       require_displacement: >-
         a strictness: the hint asks for every noun displaced, which satisfies either
-        setting
+        setting on a source with a listed noun; on one with none, the copy meets the
+        hint and fails the setting
     notes: >-
       `s_plus_7` is the same displacement under a second name, and runs this row's
       implementation rather than one of its own. See that row's note for what the
@@ -326,7 +327,8 @@ procedures:
         an ordered word list supplied as data; the hint's 'the dictionary' names it
       require_displacement: >-
         a strictness: the hint asks for every noun displaced, which satisfies either
-        setting
+        setting on a source with a listed noun; on one with none, the copy meets the
+        hint and fails the setting
     notes: >-
       S+7 is the French name of the noun displacement also catalogued here as
       `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns

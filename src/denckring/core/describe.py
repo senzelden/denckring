@@ -116,12 +116,15 @@ class Description(BaseModel):
     params: dict[str, Any]
     #: JSON Schema for the parameters `apply` accepts, empty for a row with no
     #: generator to pass any to. Distinct from `params`, which is the checker's
-    #: model and does not carry `seed` or `allow_identity` — so a caller that
-    #: never touches Python could see neither, and the developer feedback that
+    #: model and does not carry `seed` — so a caller that never touches Python
+    #: could not see it, and the developer feedback that
     #: started this chapter was largely that the MCP surface does not say
     #: things. `params` is not merely a subset of this one: `source` is supplied
     #: by `apply` from the text it transforms, and passing it as a parameter is
-    #: refused.
+    #: refused. Both may carry `allow_identity`, under one name with two
+    #: meanings: here, permit output identical to the input or empty (default
+    #: false); in `params`, on the source rows that declare it, accept the source
+    #: back unchanged as an answer (default true until that default flips).
     apply_params: dict[str, Any]
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to

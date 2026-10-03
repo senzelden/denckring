@@ -43,7 +43,11 @@ All notable changes to this project are documented here. The format follows
   rule `antigram` has always applied. Rows that pass a copy only on a source the rule
   leaves alone (one line, one sentence, no alternatives) do not take it, since the copy
   is the right answer there; `tests/test_allow_identity.py` names them and holds the
-  rule for new rows.
+  rule for new rows. On a row that carries it, `false` still lets a copy stand where
+  the source admits no other answer (a one-sentence `recombination`, a one-word
+  `cut_up`). Generators already had an `allow_identity` (permit output identical to
+  the input or empty, default `false`); the check-side field shares the name with
+  the opposite default until that default flips.
 
 - `require_displacement` on `n_plus_7` and `s_plus_7` (default `false`). Set, a text in
   which no listed word was displaced fails as `no_displacement`, whatever

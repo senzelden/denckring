@@ -114,7 +114,16 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
         if WORDS in pack.capabilities:
             tokens = pack.tokenize(text)
             metrics["known_words"] = float(sum(1 for token in tokens if pack.is_word(token)))
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=fold)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Rule II lets an `h` in or out anywhere, so the copy with one more
+            # `h` is always another answer.
+            alternative=lambda: True,
+            fold=fold,
+        )
         return self._report(
             good=shared,
             total=total + len(copy),

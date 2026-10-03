@@ -22,7 +22,7 @@ from denckring.core.base import (
 from denckring.core.errors import NoCandidateWord
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report, unchanged
+from denckring.core.source_compare import selection_report, several_words, unchanged
 from denckring.core.text import word_spans
 
 
@@ -87,7 +87,14 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
                         note=f"position {index + 1} of {word!r}",
                     )
                 )
-        copy = unchanged(text, params.source, pack, allow=params.allow_identity, fold=False)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: several_words(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=good,
             total=max(total, 1) + len(copy),

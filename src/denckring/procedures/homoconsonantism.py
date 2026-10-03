@@ -40,7 +40,14 @@ class Homoconsonantism(BaseProcedure[HomoconsonantismParams]):
             text, params.source, pack, keep="consonants", fold=params.fold_diacritics
         )
         copy = unchanged(
-            text, params.source, pack, allow=params.allow_identity, fold=params.fold_diacritics
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Only consonants are compared, so the copy with one more vowel is
+            # always another answer.
+            alternative=lambda: True,
+            fold=params.fold_diacritics,
         )
         return self._report(
             good=result.good,

@@ -123,7 +123,7 @@ def test_one_word_is_a_ladder_by_default_and_not_under_min_steps() -> None:
 
 
 def test_a_negative_min_steps_is_refused() -> None:
-    with pytest.raises(InvalidParams):
+    with pytest.raises(InvalidParams, match="greater than or equal to 0"):
         check("word_ladder", "cold", min_steps=-1)
 
 
@@ -142,7 +142,7 @@ def test_check_reads_target_only_when_asked_to() -> None:
 
 
 def test_ending_at_target_needs_a_target() -> None:
-    with pytest.raises(InvalidParams, match="target"):
+    with pytest.raises(InvalidParams, match="needs a target"):
         check("word_ladder", "cold cord", end_at_target=True)
 
 

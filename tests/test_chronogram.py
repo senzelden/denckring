@@ -45,5 +45,5 @@ def test_a_short_wrong_total_reports_both() -> None:
 
 
 def test_a_negative_minimum_is_refused() -> None:
-    with pytest.raises(InvalidParams):
+    with pytest.raises(InvalidParams, match="greater than or equal to 0"):
         check("chronogram", "LVX", year=65, min_letters=-1)
