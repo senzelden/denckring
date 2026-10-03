@@ -104,6 +104,11 @@ All notable changes to this project are documented here. The format follows
   beside the other fields; none of them changes. `Evidence` is importable from
   `denckring`.
 
+- `denckring.pack_provenance(lang)` returns which pack answers for a language and the
+  data distributions it reads, with their versions: the record `Report.provenance.pack`
+  carries, without checking a text first. `PackProvenance` is importable from
+  `denckring`.
+
 ### Changed
 
 - A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`

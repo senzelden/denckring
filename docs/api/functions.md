@@ -16,6 +16,8 @@ The top-level entry points. Everything here is importable directly from `denckri
 
 ::: denckring.golden_cases
 
+::: denckring.pack_provenance
+
 ::: denckring.summaries
 
 ::: denckring.list_procedures

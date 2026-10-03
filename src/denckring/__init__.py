@@ -41,6 +41,8 @@ from denckring.core.protocol import (
     Report,
     Violation,
 )
+from denckring.core.provenance import PackProvenance
+from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
@@ -141,6 +143,18 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     return render(procedure_id, template, dict(parsed), show_kinds(model))
 
 
+def pack_provenance(lang: Lang = "en") -> PackProvenance:
+    """Which pack answers for `lang` on this install, and which data it reads.
+
+    The same record every `Report.provenance.pack` carries, without checking a text
+    first: the pack's class, and each data distribution it reads mapped to its
+    installed version (empty for a built-in default). A caller recording a run, or
+    choosing what to draw from, reads it here rather than `getattr`ing the pack's
+    `data_distributions`, which is not part of the `LanguagePack` protocol.
+    """
+    return _describe_pack(get_pack(lang), lang)
+
+
 def rules(procedure_id: str) -> tuple[str, ...]:
     """Every `violation.rule` the row's checker can emit, sorted.
 
@@ -228,6 +242,7 @@ __all__ = [
     "NoCandidateWord",
     "NoPromptHint",
     "NotConstructive",
+    "PackProvenance",
     "PosTag",
     "Production",
     "Report",
@@ -251,6 +266,7 @@ __all__ = [
     "get_pack",
     "golden_cases",
     "list_procedures",
+    "pack_provenance",
     "produce",
     "prompt_hint",
     "render_hint",

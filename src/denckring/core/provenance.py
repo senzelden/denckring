@@ -80,8 +80,8 @@ def pack_provenance(pack: object, lang: str) -> PackProvenance:
     """Describe an installed pack.
 
     Read with `getattr` rather than through the `LanguagePack` protocol: that
-    protocol is a published contract — the README lists the `denckring.lang`
-    entry-point group among the five stable surfaces — and it is
+    protocol is a published contract — the README lists it, and the
+    `denckring.lang` entry-point group, among the stable surfaces — and it is
     `runtime_checkable`, so requiring a new member would stop a third-party pack
     satisfying `isinstance`. A pack that predates this reports no data rather
     than failing to load.

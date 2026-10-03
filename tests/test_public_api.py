@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 import denckring
 from denckring.core import errors
 from denckring.core.hints import show_kinds
+from denckring.core.protocol import Lang
 from denckring.core.registry import get
 from denckring.eval.harness import golden_cases
 
@@ -128,3 +129,19 @@ def test_an_unknown_show_kind_is_refused() -> None:
 
     with pytest.raises(ValueError, match="unknown x-denckring-show"):
         show_kinds(Params)
+
+
+@pytest.mark.parametrize("lang", ["en", "de", "fr"])
+def test_pack_provenance_is_what_a_report_records(lang: Lang) -> None:
+    """The bench `getattr`ed `data_distributions` itself (audit B9)."""
+    report = denckring.check("lipogram", "a text", lang=lang, forbidden="z")
+    assert report.provenance is not None
+    assert denckring.pack_provenance(lang) == report.provenance.pack
+    assert {"pack_provenance", "PackProvenance"} <= set(denckring.__all__)
+
+
+def test_pack_provenance_names_the_data_an_installed_pack_reads() -> None:
+    pack = denckring.get_pack("en")
+    recorded = denckring.pack_provenance("en")
+    assert set(recorded.data) == set(getattr(pack, "data_distributions", ()))
+    assert recorded.pack == type(pack).__name__
