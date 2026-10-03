@@ -133,6 +133,9 @@ All notable changes to this project are documented here. The format follows
   explicit `free` lets that pair satisfy the scheme. `blank_verse` checks no scheme, so
   there only `strict` changes anything: it fails a pair with an unknown ending, which
   every other setting still reads as unrhymed.
+  One golden case already set `free` and was read as `undecidable`:
+  `villanelle-passerat` (French) now scores 0.994 instead of 0.980, and its verdict,
+  unsatisfied for a broken refrain, is unchanged.
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
   anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
