@@ -33,7 +33,7 @@ class RondeauParams(RhymeParams):
         default=3,
         ge=1,
         description="How many opening words the rentrement repeats.",
-        json_schema_extra=param("task"),
+        json_schema_extra=param("task", examples=[2, 3, 4]),
     )
 
 

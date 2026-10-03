@@ -67,6 +67,15 @@ def infer_size(endings: list[str]) -> int:
     return len(endings)
 
 
+#: The largest size `x-denckring-valid` lists. Sizes grow sparse (31 of the first 100),
+#: and a quenina of a hundred end-words is already far past any written one.
+VALID_CAP = 100
+
+#: Every size up to `VALID_CAP` whose spiral returns each word home only on its last
+#: stanza: the sizes the form exists for.
+VALID_SIZES = [size for size in range(1, VALID_CAP + 1) if is_valid_size(size)]
+
+
 def end_words(text: str, pack: LanguagePack) -> list[str]:
     return [words[-1].casefold() for _, line in line_spans(text) if (words := pack.tokenize(line))]
 
@@ -75,7 +84,9 @@ class QueninaParams(BaseModel):
     n: int | None = Field(
         default=None,
         description="Words per stanza; inferred if unset.",
-        json_schema_extra=param("inferred"),
+        # Not an `enum`: any other size is accepted and fails as `invalid_size`, so the
+        # schema may not refuse it. The list is what a caller draws from (audit B5).
+        json_schema_extra=param("inferred", valid=VALID_SIZES),
     )
 
 

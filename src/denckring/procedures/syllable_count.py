@@ -126,7 +126,8 @@ def pattern_result(
 
 class SyllableCountParams(BaseModel):
     pattern: list[int] = Field(
-        description="Syllables required, line by line.", json_schema_extra=param("task")
+        description="Syllables required, line by line.",
+        json_schema_extra=param("task", examples=[[5, 7, 5], [5, 7, 5, 7, 7]]),
     )
 
 

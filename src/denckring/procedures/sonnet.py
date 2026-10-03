@@ -23,12 +23,19 @@ class SonnetParams(RhymeParams, MetreParams):
     scheme: str = Field(
         default="ABABCDCDEFEFGG",
         description="Rhyme pattern, one letter per line. Must be fourteen letters.",
-        json_schema_extra=param("task", "scheme"),
+        # Fourteen letters need fourteen characters at least: the one bound JSON Schema
+        # can state for `_fourteen_letters` without refusing a scheme it accepts.
+        json_schema_extra=param(
+            "task",
+            "scheme",
+            minLength=LINES,
+            examples=["ABABCDCDEFEFGG", "ABBAABBACDECDE", "ABABBCBCCDCDEE"],
+        ),
     )
     metre: str = Field(
         default="01" * 5,
         description="Stress pattern per line; 0 unstressed, 1 stressed.",
-        json_schema_extra=param("task", "metre"),
+        json_schema_extra=param("task", "metre", examples=["0101010101", "01010101"]),
     )
 
     @field_validator("scheme")

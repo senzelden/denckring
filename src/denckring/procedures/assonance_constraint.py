@@ -50,7 +50,7 @@ class AssonanceParams(BaseModel):
         default=2,
         ge=2,
         description="How many words in a line must share a vowel.",
-        json_schema_extra=param("task"),
+        json_schema_extra=param("task", examples=[2, 3]),
     )
 
 

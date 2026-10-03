@@ -22,7 +22,7 @@ class RengaParams(BaseModel):
             "A minimum number of stanzas to require, raising the built-in minimum "
             "of 2. Unset means the built-in minimum applies alone."
         ),
-        json_schema_extra=param("switch"),
+        json_schema_extra=param("switch", examples=[3, 4, 6]),
     )
 
 

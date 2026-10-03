@@ -32,7 +32,8 @@ class FormResult(NamedTuple):
 
 class RhymeSchemeParams(RhymeParams):
     scheme: str = Field(
-        description="Rhyme pattern such as ABAB.", json_schema_extra=param("task", "scheme")
+        description="Rhyme pattern such as ABAB.",
+        json_schema_extra=param("task", "scheme", examples=["AABB", "ABAB", "ABBA"]),
     )
     allow_identical: bool = Field(
         default=False,

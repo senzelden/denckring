@@ -22,6 +22,7 @@ from denckring.core.fields import (
     KINDS,
     ROLE_KEY,
     ROLES,
+    VALID_KEY,
     holds_strings,
     kinds,
     param,
@@ -102,6 +103,7 @@ def test_an_unknown_role_or_kind_is_refused() -> None:
 
 def test_param_writes_role_kind_and_any_further_schema() -> None:
     assert param("task") == {ROLE_KEY: "task"}
+    assert param("inferred", valid=(1, 2)) == {ROLE_KEY: "inferred", VALID_KEY: [1, 2]}
     assert param("task", "letters", examples=["et"]) == {
         ROLE_KEY: "task",
         KIND_KEY: "letters",

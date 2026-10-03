@@ -160,7 +160,9 @@ class ProteusVerseParams(BaseModel):
     metre: str = Field(
         default="hexameter",
         description=f"Which measure the permutations must hold: {', '.join(METRES)}.",
-        json_schema_extra=param("task", "id"),
+        # Stated in the schema though validated in `_read`, which refuses any other name on
+        # every line it scans (audit B5); derived from the table, so it grows with it.
+        json_schema_extra=param("task", "id", enum=sorted(METRES)),
     )
     minimum: int = Field(
         default=2,

@@ -20,7 +20,7 @@ Both sets are closed: a typo is refused when the schema is read, not published.
 from __future__ import annotations
 
 import types
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel
@@ -118,15 +118,28 @@ KINDS: dict[str, str] = {
 }
 
 
-def param(role: Role, kind: Kind | None = None, **schema: Any) -> dict[str, Any]:
+#: A list of the values a parameter's form exists for, where the checker accepts
+#: others and fails them rather than refusing them (`quenina.n`). Not a JSON Schema
+#: `enum`, which would refuse values `check` accepts today; a caller drawing a value
+#: draws from this (audit B5). JSON Schema keywords that do validate (`enum`,
+#: `pattern`, `minLength`) appear on a field only where `check` already refuses every
+#: value they rule out, which `tests/test_drawable_schemas.py` holds.
+VALID_KEY = "x-denckring-valid"
+
+
+def param(
+    role: Role, kind: Kind | None = None, *, valid: Sequence[Any] | None = None, **schema: Any
+) -> dict[str, Any]:
     """The `json_schema_extra` a field declares: its role, its kind, and any more keys.
 
-    `schema` carries further JSON Schema for the property (`x-denckring-show`,
-    `examples`, `enum`, ...), written into the published schema as given.
+    `valid` is written as `VALID_KEY`. `schema` carries further JSON Schema for the
+    property (`x-denckring-show`, `examples`, `enum`, ...), written as given.
     """
     extra: dict[str, Any] = {ROLE_KEY: role}
     if kind is not None:
         extra[KIND_KEY] = kind
+    if valid is not None:
+        extra[VALID_KEY] = list(valid)
     extra.update(schema)
     return extra
 

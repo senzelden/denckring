@@ -28,7 +28,7 @@ class HemelingParams(SourceParams, DiacriticParams, RhymeParams):
     scheme: str = Field(
         default="AA",
         description="Rhyme pattern the explication must hold, one letter per line.",
-        json_schema_extra=param("task", "scheme"),
+        json_schema_extra=param("task", "scheme", examples=["AA", "AABB", "ABAB"]),
     )
     allow_identical: bool = Field(
         default=False,

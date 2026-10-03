@@ -42,7 +42,9 @@ class LlullFigureParams(BaseModel):
     figure: str = Field(
         default="llull_ternary",
         description="Which figure to read against.",
-        json_schema_extra=param("task", "id"),
+        # The figures shipped, which `load_figure` alone reads; any other id raises
+        # `UnknownFigure` (audit B5).
+        json_schema_extra=param("task", "id", enum=devices.figure_ids()),
     )
     level: str | None = Field(
         default=None,

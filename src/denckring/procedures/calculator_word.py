@@ -33,7 +33,14 @@ class CalculatorWordParams(DiacriticParams):
     digits: str = Field(
         default="7353",
         description="The digits entered on the display, read by turning it over.",
-        json_schema_extra=param("task", "digits"),
+        # Exactly what `_readable_digits` accepts, so a caller drawing from the schema
+        # draws only readable displays (audit B5).
+        json_schema_extra=param(
+            "task",
+            "digits",
+            pattern=f"^[{''.join(sorted(FROM_DIGIT))}]+$",
+            examples=["7353", "0773", "5338"],
+        ),
     )
     words: int = Field(
         default=1,

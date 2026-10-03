@@ -122,6 +122,20 @@ All notable changes to this project are documented here. The format follows
   (ADR 0050, amended): `core.hints.UNSTATED_PARAMS` is gone, and `hint_omits` names
   only the two task parameters a hint still leaves out.
 
+- Schemas a caller can draw from, stating only what validation already refuses: the
+  JSON Schema of `calculator_word.digits` carries the `pattern` its validator applies
+  (digits a seven-segment display reads as letters), `proteus_verse.metre` and
+  `llull_figure.figure` an `enum` of the metres and figures they accept, and
+  `sonnet.scheme` a `minLength` of 14. `quenina.n` lists the sizes the form exists for
+  under `x-denckring-valid` (to 100), not as an `enum`, because any other size is
+  accepted and fails as `invalid_size`. `rhyme_scheme`, `hemeling`, `sonnet`,
+  `syllable_count`, `assonance_constraint`, `rondeau`, `renga`, `calculator_word`
+  carry `examples`. The schemas are not enforced by pydantic, so no call that
+  succeeded fails; a test holds every validating keyword to refusing only what `check`
+  refuses, and every example to a value it accepts. No bound is stated where the
+  checker accepts every value (`syllable_count.pattern`, `assonance_constraint.minimum`,
+  `rondeau.rentrement_words`, `sonnet.metre`).
+
 - `denckring.pack_provenance(lang)` returns which pack answers for a language and the
   data distributions it reads, with their versions: the record `Report.provenance.pack`
   carries, without checking a text first. `PackProvenance` is importable from
