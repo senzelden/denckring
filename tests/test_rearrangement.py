@@ -19,6 +19,37 @@ def test_boustrophedon_rejects_an_unturned_line() -> None:
     assert any(v.rule == "line_not_turned" for v in report.violations)
 
 
+# A turned line is read as an unturned one is: stripped and casefolded, the
+# policy `rearrangement_report` applies to every line. Compared byte for byte, a
+# trailing space on a turned line was `line_not_turned` while the same space on
+# an unturned line passed.
+def test_boustrophedon_strips_a_turned_line_as_it_strips_the_others() -> None:
+    for turned in (
+        "the cat sat down\ntsaf nar god a \none bird flew high",
+        "the cat sat down\n  tsaf nar god a\none bird flew high",
+        "the cat sat down \ntsaf nar god a\none bird flew high",
+    ):
+        report = check("boustrophedon", turned, source=SOURCE)
+        assert report.satisfied is True, (turned, report.violations)
+        assert report.score == 1.0
+
+
+def test_boustrophedon_casefolds_a_turned_line_as_it_casefolds_the_others() -> None:
+    for turned in (
+        "The cat sat down\ntsaf nar god a\none bird flew high",
+        "the cat sat down\ntsaf nar god A\none bird flew high",
+    ):
+        assert check("boustrophedon", turned, source=SOURCE).satisfied is True, turned
+
+
+def test_boustrophedon_still_rejects_a_padded_unturned_line() -> None:
+    report = check(
+        "boustrophedon", "the cat sat down\n a dog ran fast \none bird flew high", source=SOURCE
+    )
+    assert report.satisfied is False
+    assert "line_not_turned" in {v.rule for v in report.violations}
+
+
 def test_a_rearrangement_may_not_invent_material() -> None:
     added = "the cat sat down\ntsaf nar god a\none bird flew high\nand a new line"
     report = check("boustrophedon", added, source=SOURCE)

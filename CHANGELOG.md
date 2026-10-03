@@ -60,6 +60,10 @@ All notable changes to this project are documented here. The format follows
   `lipogram` has since ADR 0035 D3. `forbidden="ç"` never matched a folded letter, so
   any French text was satisfied; it now fails on every `c` and `ç`. A letter that folds
   to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics: false`.
+- `boustrophedon` compares a turned line stripped and casefolded, as it already compared
+  every line for missing or invented material. Byte for byte, a trailing space or an
+  indent on a turned line was `line_not_turned` while the same space on an unturned
+  line passed.
 
 ## [0.3.1] - 2026-09-22
 

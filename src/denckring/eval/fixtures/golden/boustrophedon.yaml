@@ -25,6 +25,17 @@ cases:
         a dog ran fast
         one bird flew high
     satisfied: false
+  - name: indented-turned-line
+    source: >-
+      constructed example; a turned line is stripped before comparison, as an
+      unturned one always was
+    text: "the cat sat down\n    tsaf nar god a\none bird flew high"
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+    satisfied: true
   - name: zeile-zwei-gewendet
     lang: de
     source: constructed example; the procedure is traditional
