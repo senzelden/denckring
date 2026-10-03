@@ -40,6 +40,9 @@ DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict")
 NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
+#: Graded words no reader would call everyday words: an editorial override of
+#: SCOWL's bands for `words()`, never read by a checker (ADR 0051).
+EXCLUSIONS_PATH = Path(str(files("denckring_en_data") / "data" / "everyday_exclusions.txt"))
 
 __version__ = "0.3.1"
 
@@ -117,7 +120,8 @@ def graded_words() -> Mapping[str, int]:
     the oracle's sources has (`abjure`), and also junk (`payed`, `numbest` sit
     in band 10). Widening the oracle to the graded list would make that junk a
     word in every membership row. A caller wanting everyday words wants neither
-    view as it stands, but the curated everyday-words view (planned).
+    view as it stands, but `denckring.words(max_band=...)`, which leaves out the
+    junk listed in `everyday_exclusions.txt` (ADR 0051).
     """
     table: dict[str, int] = {}
     with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
@@ -126,6 +130,13 @@ def graded_words() -> Mapping[str, int]:
             if band:
                 table[word] = int(band)
     return table
+
+
+@lru_cache(maxsize=1)
+def everyday_exclusions() -> frozenset[str]:
+    """The graded words `words()` leaves out, one per line, `#` starting a comment."""
+    lines = EXCLUSIONS_PATH.read_text(encoding="utf-8").splitlines()
+    return frozenset(word for line in lines if (word := line.partition("#")[0].strip()))
 
 
 @lru_cache(maxsize=1)
@@ -230,6 +241,9 @@ class EnglishDataPack(EnglishPack):
 
     def noun_index(self, word: str) -> int | None:
         return noun_positions().get(self._lemma(word))
+
+    def word_exclusions(self) -> frozenset[str]:
+        return everyday_exclusions()
 
     def graded_words(self) -> Mapping[str, int]:
         """A read-only view over the cached table.

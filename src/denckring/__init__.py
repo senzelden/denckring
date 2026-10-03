@@ -50,6 +50,7 @@ from denckring.core.rules import CATEGORIES, RULE_CATEGORIES
 from denckring.core.scope import SCOPES
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
+from denckring.lang.base import graded_view
 
 try:
     __version__ = version("denckring")
@@ -282,6 +283,39 @@ def witness(
     return " ".join(chosen)
 
 
+def words(
+    lang: Lang = "en", *, max_band: int | None = None, letters_only: bool = True
+) -> tuple[str, ...]:
+    """The language's graded words up to `max_band`, commonest band first (audit D1).
+
+    The words a caller drawing everyday vocabulary wants: the pack's
+    `graded_words()` kept to bands up to `max_band` (SCOWL's size classes in
+    English, where 10 is the commonest), to words of letters alone when
+    `letters_only`, and without the entries a pack excludes as no everyday word
+    (`payed`, `numbest`; ADR 0051). Sorted by band, then alphabetically. No
+    checker reads this view, so it moves no verdict. Raises `MissingCapability`
+    when the pack grades no words.
+    """
+    return graded_view(get_pack(lang), max_band, letters_only=letters_only)
+
+
+def nouns(lang: Lang = "en", *, max_band: int | None = None) -> tuple[str, ...]:
+    """The nouns N+7 counts through, in its order, optionally only everyday ones (D5).
+
+    With `max_band` unset, exactly the dictionary `n_plus_7` and `s_plus_7` read
+    when no `dictionary` is passed, which a prompt asking for N+7 must print,
+    since the answer is in it. With `max_band`, only the nouns that `words(lang,
+    max_band=max_band, letters_only=False)` also lists, still in dictionary order,
+    so a caller can build a source whose every noun a reader can be shown.
+    """
+    pack = get_pack(lang)
+    dictionary = tuple(pack.nouns())
+    if max_band is None:
+        return dictionary
+    everyday = set(graded_view(pack, max_band, letters_only=False))
+    return tuple(noun for noun in dictionary if noun in everyday)
+
+
 def _declared(procedure: Any) -> tuple[str, ...]:
     """A row's `rules`, or an error naming the row that forgot them.
 
@@ -386,6 +420,7 @@ __all__ = [
     "get_pack",
     "golden_cases",
     "list_procedures",
+    "nouns",
     "pack_provenance",
     "produce",
     "prompt_hint",
@@ -396,4 +431,5 @@ __all__ = [
     "scopes",
     "summaries",
     "witness",
+    "words",
 ]

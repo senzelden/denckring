@@ -89,7 +89,9 @@ class NPlus7Params(SourceParams, IdentityParams):
         default=None,
         description=(
             "The ordered word list to displace within. Defaults to the pack's "
-            "nouns. Order is the contract: N+7 walks the seventh entry after a "
+            "nouns, which a reader is not shown: `denckring.nouns(lang)` lists "
+            "them, and `nouns(lang, max_band=...)` the everyday ones, for a prompt "
+            "to print. Order is the contract: N+7 walks the seventh entry after a "
             "word, so a supplied list's order is the caller's editorial choice."
         ),
         json_schema_extra=param("material", "word"),

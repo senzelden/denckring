@@ -266,6 +266,15 @@ class BasePack:
         """The word's position in `nouns()`, or None if it is not a noun."""
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
 
+    def word_exclusions(self) -> frozenset[str]:
+        """Graded words `words()` leaves out as no everyday word: none, unless a pack
+        curates a list (English does; ADR 0051). Never read by a checker."""
+        return frozenset()
+
+    def words(self, max_band: int | None = None, *, letters_only: bool = True) -> tuple[str, ...]:
+        """The graded words up to `max_band`, commonest band first: see `graded_view`."""
+        return graded_view(self, max_band, letters_only=letters_only)
+
     def graded_words(self) -> Mapping[str, int]:
         """Every word the lexicon knows, with how common it is.
 
@@ -284,3 +293,33 @@ class BasePack:
         answer this one.
         """
         raise MissingCapability(DIRECT_CALL, self.lang, GRADED_WORDS)
+
+
+def graded_view(
+    pack: object, max_band: int | None = None, *, letters_only: bool = True
+) -> tuple[str, ...]:
+    """A pack's graded words as a list a caller can draw everyday words from.
+
+    `graded_words()` with three things done to it that every consumer drawing
+    words did for itself: kept to bands up to `max_band` (all, when `None`), kept
+    to words of letters alone when `letters_only` (French grades `aujourd'hui`
+    and `porte-monnaie`), and cleared of the pack's `word_exclusions`, the
+    entries SCOWL grades but no reader would call a word (`payed`, `numbest`).
+    Sorted by band, then alphabetically, so the commonest come first.
+
+    A view, not a capability: the graded table it reads is unchanged, and no
+    checker reads this, so no verdict depends on it. `word_exclusions` is read
+    with `getattr`, so a pack written to the `LanguagePack` protocol alone, which
+    does not name it, gets the view with nothing excluded.
+    """
+    graded: Mapping[str, int] = pack.graded_words()  # type: ignore[attr-defined]
+    exclusions = getattr(pack, "word_exclusions", None)
+    excluded: frozenset[str] = exclusions() if exclusions is not None else frozenset()
+    chosen = sorted(
+        (band, word)
+        for word, band in graded.items()
+        if (max_band is None or band <= max_band)
+        and (not letters_only or word.isalpha())
+        and word not in excluded
+    )
+    return tuple(word for _, word in chosen)

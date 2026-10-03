@@ -1,0 +1,12 @@
+# Graded words that `denckring.words()` leaves out: entries SCOWL grades in its
+# commonest bands that no reader would call an everyday word. An editorial
+# override of SCOWL for the everyday-words view only; no checker reads this file,
+# and `graded_words()` keeps every entry (ADR 0051). One word per line; a `#`
+# starts a comment. Each entry was measured in band 10 and says why it is out.
+cs        # a fragment: the plural of the letter c, or an abbreviation
+cums      # vulgar, and in no sense an everyday form
+hes       # `he's` with its apostrophe lost
+leaved    # `left` is the past of `leave`; `leaved` lives on only in `four-leaved`
+numbest   # superlative of `numb`, unattested in use
+payed     # a misspelling of `paid` outside the nautical sense
+re        # a fragment: the musical note, or `re:` without its colon

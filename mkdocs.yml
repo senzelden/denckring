@@ -108,6 +108,7 @@ nav:
       - "48. A bounded proverb corpus": adr/0048-a-bounded-proverb-corpus.md
       - "49. Strict relations and supplied bilingual data": adr/0049-strict-relations-and-supplied-bilingual-data.md
       - "50. Prompt hints are templates": adr/0050-templated-prompt-hints.md
+      - "51. An everyday-words view": adr/0051-an-everyday-words-view.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

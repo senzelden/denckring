@@ -26,6 +26,10 @@ The top-level entry points. Everything here is importable directly from `denckri
 
 ::: denckring.witness
 
+::: denckring.words
+
+::: denckring.nouns
+
 ::: denckring.golden_cases
 
 ::: denckring.pack_provenance

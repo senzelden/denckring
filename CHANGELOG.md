@@ -104,6 +104,16 @@ All notable changes to this project are documented here. The format follows
   verdict departs from its units'. `admits` and `witness` raise the new
   `NotWordLocal` for any other row, naming the parameters to state where there are some.
 
+- `denckring.words(lang, *, max_band=None, letters_only=True)`: a pack's graded words
+  up to a band, commonest first, without the entries the pack excludes as no everyday
+  word. `denckring-en-data` ships the first such list, seven band-10 entries (`payed`,
+  `numbest`, `cs`, `hes`, `cums`, `leaved`, `re`); ADR 0051 records it as an editorial
+  override of SCOWL that touches the view only, never `graded_words()`, `is_word` or a
+  checker. `denckring.nouns(lang, *, max_band=None)` lists the dictionary N+7 walks by
+  default, in its order, and with `max_band` only its everyday nouns, so a prompt can
+  print the material its answer comes from. `BasePack` gains `words` and an optional
+  `word_exclusions`; the `LanguagePack` protocol is unchanged.
+
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.
