@@ -105,6 +105,9 @@ All notable changes to this project are documented here. The format follows
   constraints' `evidence` and `estimated_words`, the latter only when some constraint
   estimated, so a composite is estimated whenever a constraint in it is; its verdict
   and score are unchanged. `Evidence` is importable from `denckring`.
+  `provenance.schema_version` moves from `1.0` to `1.1` for the added field, by its own
+  rule (minor on an added field), and a test now ties each version to the keys `Report`
+  and `Production` serialise.
 
 - `denckring.pack_provenance(lang)` returns which pack answers for a language and the
   data distributions it reads, with their versions: the record `Report.provenance.pack`
