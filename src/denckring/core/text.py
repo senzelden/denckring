@@ -268,6 +268,21 @@ def sentence_spans(text: str) -> list[tuple[int, str]]:
     return spans
 
 
+#: What `str.splitlines`, and so `line_spans`, breaks a line on.
+LINE_BREAKS = "\n\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+
+#: The characters that end each unit, as the splitters above read them: published as
+#: `describe(...).reading.units` so a caller can split a text the way a checker will
+#: (audit B7). A clause also ends at a line break, since `clause_spans` splits lines
+#: first; a sentence does not. `tests/test_text_units.py` holds each entry to its
+#: splitter character by character, so a mark added to one cannot leave this behind.
+UNIT_ENDS: dict[str, str] = {
+    "line": LINE_BREAKS,
+    "clause": _CLAUSE_BREAK + LINE_BREAKS,
+    "sentence": _SENTENCE_END,
+}
+
+
 def paragraph_spans(text: str) -> list[tuple[int, str]]:
     """Every non-blank paragraph as `(offset, text)`, split on blank lines.
 

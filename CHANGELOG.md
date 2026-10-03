@@ -90,6 +90,11 @@ All notable changes to this project are documented here. The format follows
   so `consonantal_lipogram`'s hint now reads `these consonants: "e", "t"` rather than
   `the consonants in "et"`, and `bivocalic`'s does the same for its vowels.
 
+- `describe(...).reading.units` maps `line`, `clause` and `sentence` to the characters
+  that end each, as the checkers split them: a clause ends at `,`, `;`, `:` or a line
+  break, a sentence at `.`, `!`, `?` or `…`. A guard holds each entry to its splitter
+  over every character in the Basic Multilingual Plane.
+
 ### Changed
 
 - A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`

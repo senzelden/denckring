@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
 from denckring.core.base import ConstructiveProcedure
@@ -17,6 +17,7 @@ from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
+from denckring.core.text import UNIT_ENDS
 
 
 class Scholarly(BaseModel):
@@ -85,6 +86,12 @@ class Reading(BaseModel):
     #: The pack's word pattern, for the language asked about. A caller comparing its
     #: own tokenisation against a verdict needs to know what this one counted.
     tokenization: str
+    #: The characters that end a line, a clause and a sentence, as the checkers split
+    #: them (`core.text.UNIT_ENDS`). The same for every row: a row that reads no clause
+    #: still says what one would be, so a caller can build a prompt or a guard on the
+    #: published marks rather than on a private constant. Punctuation only, as the
+    #: splitters are: `Mr.` ends a sentence.
+    units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
 
 
 class Description(BaseModel):
