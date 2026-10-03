@@ -56,6 +56,11 @@ All notable changes to this project are documented here. The format follows
   Both IDs and their shared behavior remain unchanged. Remove the wording guard
   that required the earlier, inaccurate generalisation.
 
+- `consonantal_lipogram` folds its `forbidden` letters the way it folds the text, as
+  `lipogram` has since ADR 0035 D3. `forbidden="ç"` never matched a folded letter, so
+  any French text was satisfied; it now fails on every `c` and `ç`. A letter that folds
+  to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics: false`.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

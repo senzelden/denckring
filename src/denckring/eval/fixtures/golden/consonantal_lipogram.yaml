@@ -23,3 +23,11 @@ cases:
     text: la bande se leva
     params: { forbidden: bcd }
     satisfied: false
+  - name: cedille-repliee
+    lang: fr
+    source: >-
+      constructed counterexample; `ç` folds to `c` like the text's letters, so
+      the cedilla in "garçon" is forbidden (ADR 0035, D3)
+    text: un garçon
+    params: { forbidden: ç }
+    satisfied: false
