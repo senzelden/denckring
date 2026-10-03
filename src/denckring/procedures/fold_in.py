@@ -97,7 +97,13 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
         violations: list[Violation] = []
         matched = 0
         for index, (offset, line) in enumerate(text_lines):
-            if index < len(expected) and line == expected[index]:
+            # Stripped and casefolded, the one line policy `boustrophedon` and
+            # `text_folding` hold: byte for byte, a trailing space or a capital
+            # was a wrong fold.
+            if (
+                index < len(expected)
+                and line.strip().casefold() == expected[index].strip().casefold()
+            ):
                 matched += 1
             else:
                 violations.append(

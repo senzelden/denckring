@@ -23,6 +23,23 @@ def test_fold_in_rejects_page_one_read_unfolded() -> None:
     assert any(v.rule == "not_the_fold" for v in report.violations)
 
 
+# A2's one policy, held here too: a folded line is compared stripped and
+# casefolded, so a trailing space or a capital is not a wrong fold.
+def test_fold_in_strips_and_casefolds_a_folded_line() -> None:
+    for folded in (
+        "alpha beta three four \nfive six ten",
+        "  alpha beta three four\nfive six ten",
+        "Alpha beta three four\nFive six ten",
+    ):
+        report = check("fold_in", folded, source=FOLD_SOURCE)
+        assert report.satisfied is True, (folded, report.violations)
+
+
+def test_fold_in_still_rejects_a_padded_unfolded_line() -> None:
+    report = check("fold_in", " Alpha beta gamma delta \nfive six ten", source=FOLD_SOURCE)
+    assert [v.rule for v in report.violations] == ["not_the_fold"]
+
+
 def test_fold_in_penalises_invented_material() -> None:
     folded = "alpha beta three four\nfive six ten"
     added = folded + "\nextra words here"

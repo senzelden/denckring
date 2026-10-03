@@ -81,7 +81,13 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
         expected_order = self._fold(source_lines, params.fold_at)
         for index, (offset, line) in enumerate(text_lines):
             total += 1
-            if index < len(expected_order) and line == expected_order[index]:
+            # Stripped and casefolded, the policy `rearrangement_report`
+            # applies to every line and `boustrophedon` to its turned ones:
+            # byte for byte, a trailing space or a capital was a wrong fold.
+            if (
+                index < len(expected_order)
+                and line.strip().casefold() == expected_order[index].strip().casefold()
+            ):
                 good += 1
             else:
                 violations.append(

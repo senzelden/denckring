@@ -64,6 +64,10 @@ All notable changes to this project are documented here. The format follows
   every line for missing or invented material. Byte for byte, a trailing space or an
   indent on a turned line was `line_not_turned` while the same space on an unturned
   line passed.
+- `text_folding` and `fold_in` hold the same line policy: a line in its folded
+  position is compared stripped and casefolded. Byte for byte, a trailing space, an
+  indent or a capital on a correctly folded line was `line_out_of_fold` or
+  `not_the_fold`.
 - English syllable estimates read a suffixed silent `e`. The spelling heuristic drops the
   `e` of a final `-es` or `-ed` after a consonant (`awakes` 2, `hoped` 1), but not after
   a sibilant (`faces`), `-ed` after `t`/`d` (`wanted`), or a consonant and a liquid

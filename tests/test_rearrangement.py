@@ -85,6 +85,25 @@ def test_text_folding_may_not_invent_material() -> None:
     assert report.satisfied is False
 
 
+# A2's one policy, held by the sibling row: a positional line is compared
+# stripped and casefolded, as `rearrangement_report` compares every line.
+def test_text_folding_strips_and_casefolds_a_folded_line() -> None:
+    source = "one\ntwo\nthree\nfour\nfive"
+    for folded in (
+        "three \nfour\nfive\none\ntwo",
+        "three\n  four\nfive\none\ntwo",
+        "Three\nfour\nfive\none\nTWO",
+    ):
+        report = check("text_folding", folded, source=source, fold_at=2)
+        assert report.satisfied is True, (folded, report.violations)
+
+
+def test_text_folding_still_rejects_a_padded_unfolded_line() -> None:
+    source = "one\ntwo\nthree\nfour\nfive"
+    report = check("text_folding", " One\ntwo\nthree\nfour\nfive", source=source, fold_at=2)
+    assert "line_out_of_fold" in {v.rule for v in report.violations}
+
+
 def test_text_folding_apply_round_trips() -> None:
     procedure = get("text_folding")
     assert isinstance(procedure, Constructive)
