@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -13,7 +14,12 @@ MIN_STEP = 1
 
 
 class EveryNthWordParams(SourceParams):
-    n: int = Field(default=7, ge=MIN_STEP, description="Keep one word in every n.")
+    n: int = Field(
+        default=7,
+        ge=MIN_STEP,
+        description="Keep one word in every n.",
+        json_schema_extra=param("task"),
+    )
 
 
 class EveryNthWordApplyParams(EveryNthWordParams, ApplyParams):

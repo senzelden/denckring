@@ -21,6 +21,7 @@ from denckring.core.base import (
     plain,
 )
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import selection_report, several_words, unchanged
@@ -32,7 +33,11 @@ class MesosticParams(SourceParams, IdentityParams):
     # keyword — unlike `diastic.seed_phrase`, `spine` was never forced into a
     # rename by a reserved-keyword collision, so there was no forced reason
     # for a default; it is here purely for that zero-argument convenience.
-    spine: str = Field(default="the", description="The spine word read down the lines.")
+    spine: str = Field(
+        default="the",
+        description="The spine word read down the lines.",
+        json_schema_extra=param("task", "phrase"),
+    )
 
 
 class MesosticApplyParams(ApplyParams, MesosticParams):

@@ -5,13 +5,18 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, single_letter
 
 
 class LipogramParams(DiacriticParams):
-    forbidden: str = Field(default="e", description="The letter the text must omit.")
+    forbidden: str = Field(
+        default="e",
+        description="The letter the text must omit.",
+        json_schema_extra=param("task", "letter"),
+    )
 
     @field_validator("forbidden")
     @classmethod

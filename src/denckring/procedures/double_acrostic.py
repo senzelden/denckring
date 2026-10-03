@@ -5,14 +5,20 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_target, letter_spans, line_spans
 
 
 class DoubleAcrosticParams(DiacriticParams):
-    first: str = Field(description="What the line initials must spell.")
-    last: str = Field(description="What the line final letters must spell.")
+    first: str = Field(
+        description="What the line initials must spell.", json_schema_extra=param("task", "phrase")
+    )
+    last: str = Field(
+        description="What the line final letters must spell.",
+        json_schema_extra=param("task", "phrase"),
+    )
 
     @field_validator("first", "last")
     @classmethod

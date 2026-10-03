@@ -64,6 +64,7 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import get, register
 
@@ -77,10 +78,12 @@ class MultipleConstraintParams(BaseModel):
     constraints: list[str] = Field(
         min_length=2,
         description="Ids of already-registered procedures this text must jointly satisfy.",
+        json_schema_extra=param("task", "id"),
     )
     constraint_params: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="Per-constraint parameters, keyed by the constraint's id in `constraints`.",
+        json_schema_extra=param("task"),
     )
 
     @field_validator("constraints")

@@ -11,13 +11,16 @@ from denckring.core.base import (
     SourceParams,
     plain,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_letter, letter_spans, single_letter
 
 
 class SlenderizingParams(SourceParams, DiacriticParams):
-    deleted: str = Field(description="The letter removed from the source.")
+    deleted: str = Field(
+        description="The letter removed from the source.", json_schema_extra=param("task", "letter")
+    )
 
     @field_validator("deleted")
     @classmethod

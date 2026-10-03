@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
@@ -15,7 +16,9 @@ VALUES = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 
 
 class ChronogramParams(DiacriticParams):
-    year: int = Field(description="The date the numeral letters must total.")
+    year: int = Field(
+        description="The date the numeral letters must total.", json_schema_extra=param("task")
+    )
     # A9: the bare numeral `MMXXVI` passes for 2026, though the row asks for a
     # phrase. Opt-in, so a 0.3.2 caller keeps every verdict.
     min_letters: int = Field(
@@ -24,6 +27,7 @@ class ChronogramParams(DiacriticParams):
         description=(
             "Fewest letters, numerals or not, the phrase must have. 0 accepts a bare numeral."
         ),
+        json_schema_extra=param("switch"),
     )
 
 

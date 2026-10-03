@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, quoted_letters, single_letter
@@ -14,7 +15,7 @@ class ConsonantalLipogramParams(DiacriticParams):
     forbidden: str = Field(
         description="The consonants the text must avoid.",
         # A set of letters, not a word: a hint renders "st" as `"s", "t"`.
-        json_schema_extra={"x-denckring-show": "letters"},
+        json_schema_extra=param("task", "letters", **{"x-denckring-show": "letters"}),
     )
 
     @field_validator("forbidden")

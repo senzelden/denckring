@@ -10,6 +10,9 @@ from denckring.core.registry import register
 
 
 class ${class}Params(BaseModel):
+    #: FILL IN the parameters. Each field declares its role, and a string its kind:
+    #: `Field(..., json_schema_extra=param("task", "letter"))` (`core.fields`).
+    #: `tests/test_param_metadata.py` fails on a field without them.
     pass
 
 

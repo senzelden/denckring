@@ -9,6 +9,7 @@ from pydantic import Field
 from denckring.core import arca
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import UnsettablePhrase
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -16,12 +17,19 @@ from denckring.procedures.syllable_count import line_syllables, syllable_evidenc
 
 
 class ArcaMusarithmicaParams(SourceParams):
-    pinakes: str = Field(description="The pattern tablets, as JSON.")
+    pinakes: str = Field(
+        description="The pattern tablets, as JSON.", json_schema_extra=param("material", "document")
+    )
     syntagma: str = Field(
         default=arca.DEFAULT_SYNTAGMA,
         description="Which tablet to draw from; Kircher's first is plain, his second florid.",
+        json_schema_extra=param("task", "id"),
     )
-    tonus: str | None = Field(default=None, description="The mode, if the table names any.")
+    tonus: str | None = Field(
+        default=None,
+        description="The mode, if the table names any.",
+        json_schema_extra=param("switch", "id"),
+    )
 
 
 class ArcaMusarithmicaApplyParams(ArcaMusarithmicaParams, SeedParams, ApplyParams):

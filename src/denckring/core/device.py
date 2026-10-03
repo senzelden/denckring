@@ -35,6 +35,7 @@ from denckring.core.errors import (
     UnknownLevel,
     counted,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
@@ -578,6 +579,7 @@ class DeviceParams(BaseModel):
     device: str = Field(
         default="harsdoerffer_1651",
         description="Which device to read the slots from.",
+        json_schema_extra=param("task", "id"),
     )
 
 

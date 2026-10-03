@@ -7,6 +7,7 @@ from collections import Counter
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, quoted_letters, single_letter
@@ -19,7 +20,7 @@ class BivocalicParams(DiacriticParams):
         default=None,
         description="The two permitted vowels.",
         # A set of letters, not a word: a hint renders "ae" as `"a", "e"`.
-        json_schema_extra={"x-denckring-show": "letters"},
+        json_schema_extra=param("inferred", "vowels", **{"x-denckring-show": "letters"}),
     )
 
     @field_validator("vowels")

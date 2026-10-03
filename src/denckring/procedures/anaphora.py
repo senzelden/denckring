@@ -7,25 +7,35 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import clause_spans, line_spans
 
 
 class AnaphoraParams(BaseModel):
-    opening: str | None = Field(default=None, description="Shared opening; inferred if unset.")
+    opening: str | None = Field(
+        default=None,
+        description="Shared opening; inferred if unset.",
+        json_schema_extra=param("inferred", "phrase"),
+    )
     #: The catalogue says "clauses or lines" and this row read lines only, so it
     #: could not see the figure inside a line. `line` stays the default because
     #: no existing verdict may move.
     unit: Literal["line", "clause"] = Field(
-        default="line", description="Whether the repetition is counted per line or per clause."
+        default="line",
+        description="Whether the repetition is counted per line or per clause.",
+        json_schema_extra=param("task"),
     )
     #: Real anaphora survives an enjambment: six of the seven lines of Gaunt's
     #: "This royal throne of kings" open with `This`, and the seventh is the
     #: second half of the sixth's sentence. Demanding all of them rejects the
     #: passage the figure is named for. `None` keeps the old meaning, all of them.
     minimum: int | None = Field(
-        default=None, ge=1, description="How many units must share the opening; all, if unset."
+        default=None,
+        ge=1,
+        description="How many units must share the opening; all, if unset.",
+        json_schema_extra=param("leniency"),
     )
 
 

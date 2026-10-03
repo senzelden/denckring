@@ -13,8 +13,8 @@ All notable changes to this project are documented here. The format follows
   `denckring.prompt_hint(procedure_id, lang=..., **params)` renders it after
   validating the params as `check` does. A row with no hint in the language raises
   `NoPromptHint`, and a stated parameter left `None` raises `UnsetHintParameter`.
-  A parameter a hint leaves out is declared, house-wide in `core.hints.UNSTATED_PARAMS`
-  or per row in the catalogue's new `hint_omits`, and a guard test holds the rule.
+  A parameter a hint leaves out is excused by its role (below), or, for a task
+  parameter, named in the catalogue's new `hint_omits`, and a guard test holds the rule.
   `describe`, and the CLI, MCP, docs gallery and explorer through it, render hints
   from the defaults where they fill every slot. For the other 36 rows they show the
   template. For `multiple_constraint`, `prompt_hint` also appends one `- ` line per
@@ -108,6 +108,19 @@ All notable changes to this project are documented here. The format follows
   `provenance.schema_version` moves from `1.0` to `1.1` for the added field, by its own
   rule (minor on an added field), and a test now ties each version to the keys `Report`
   and `Production` serialise.
+
+- Every params field declares its role and, for a string, its kind, in its JSON Schema:
+  `x-denckring-role` is one of `task`, `inferred` (unset means the checker reads it off
+  the text), `policy`, `leniency`, `switch`, `material`, `tolerance`, `budget` or
+  `apply_only`, and `x-denckring-kind` one of `letter`, `letters`, `vowel`, `vowels`,
+  `consonant`, `word`, `phrase`, `name`, `scheme`, `metre`, `digits`, `text`,
+  `document` or `id`. A `None` default no longer has to be read from prose to tell an
+  inferred parameter from a leniency or a default dictionary, and `forbidden` says
+  whether it is a letter, a set of letters or a word. Both sets are closed; guards hold
+  every field of every model to them and each kind to the values the golden corpus
+  passes. Which parameters a hint may leave unstated is now derived from the roles
+  (ADR 0050, amended): `core.hints.UNSTATED_PARAMS` is gone, and `hint_omits` names
+  only the two task parameters a hint still leaves out.
 
 - `denckring.pack_provenance(lang)` returns which pack answers for a language and the
   data distributions it reads, with their versions: the record `Report.provenance.pack`

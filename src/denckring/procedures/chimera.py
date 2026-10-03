@@ -114,6 +114,7 @@ from denckring.core.base import (
     SourceParams,
 )
 from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import sentence_spans
@@ -250,9 +251,18 @@ class ChimeraParams(SourceParams):
     who passes a second one.
     """
 
-    nouns_from: str = Field(description="The text the nouns are taken from.")
-    verbs_from: str = Field(description="The text the verbs are taken from.")
-    adjectives_from: str = Field(description="The text the adjectives are taken from.")
+    nouns_from: str = Field(
+        description="The text the nouns are taken from.",
+        json_schema_extra=param("material", "text"),
+    )
+    verbs_from: str = Field(
+        description="The text the verbs are taken from.",
+        json_schema_extra=param("material", "text"),
+    )
+    adjectives_from: str = Field(
+        description="The text the adjectives are taken from.",
+        json_schema_extra=param("material", "text"),
+    )
 
 
 class ChimeraApplyParams(ChimeraParams, SeedParams, ApplyParams):

@@ -80,10 +80,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write one sentence that uses every letter of the alphabet at least once.
-    hint_omits:
-      perfect: >-
-        a switch that tightens the task; str.format cannot phrase both of its
-        states, so the hint states the default one
 
   - id: heterogram
     names: { en: Heterogram, de: Heterogramm, fr: Hétérogramme }
@@ -103,10 +99,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write a phrase in which no letter of the alphabet appears more than once.
-    hint_omits:
-      scope: >-
-        a leniency: word scope is the looser one, and a phrase with no letter
-        repeated anywhere satisfies both
 
   - id: palindrome
     names: { en: Palindrome, de: Palindrom, fr: Palindrome }
@@ -220,10 +212,6 @@ procedures:
     prompt_hints:
       en: >-
         Write a dedication to "{name}" using only the letters that appear in that name.
-    hint_omits:
-      require_all: >-
-        a switch that tightens the task; str.format cannot phrase both of its
-        states, so the hint states the default one
 
   - id: acrostic
     names: { en: Acrostic, de: Akrostichon, fr: Acrostiche }
@@ -291,13 +279,6 @@ procedures:
       en: >-
         Replace each noun with the noun {offset} places after it in the dictionary,
         keeping everything else.
-    hint_omits:
-      dictionary: >-
-        an ordered word list supplied as data; the hint's 'the dictionary' names it
-      require_displacement: >-
-        a strictness: the hint asks for every noun displaced, which satisfies either
-        setting on a source with a listed noun; on one with none, the copy meets the
-        hint and fails the setting
     notes: >-
       `s_plus_7` is the same displacement under a second name, and runs this row's
       implementation rather than one of its own. See that row's note for what the
@@ -322,13 +303,6 @@ procedures:
       en: >-
         Replace each noun with the noun {offset} places after it in the dictionary,
         keeping everything else.
-    hint_omits:
-      dictionary: >-
-        an ordered word list supplied as data; the hint's 'the dictionary' names it
-      require_displacement: >-
-        a strictness: the hint asks for every noun displaced, which satisfies either
-        setting on a source with a listed noun; on one with none, the copy meets the
-        hint and fails the setting
     notes: >-
       S+7 is the French name of the noun displacement also catalogued here as
       `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns
@@ -362,10 +336,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Rearrange all the letters of the source phrase into a new phrase, using each exactly once.
-    hint_omits:
-      allow_subset: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: hemeling
     names:
@@ -402,10 +372,6 @@ procedures:
       de: >-
         Stelle die Buchstaben eines Namens zu einer neuen Wendung um und erkläre sie
         darunter in Reimen nach dem Schema {scheme}.
-    hint_omits:
-      allow_identical: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
     notes: >-
       The tightest rule in the surveyed European material, because both halves are
       mechanically checkable where most combinatorial procedures have one half that
@@ -575,10 +541,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write twelve-syllable lines that break cleanly after the sixth syllable.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: blank_verse
     names: { en: Blank verse, de: Blankvers, fr: Vers blanc }
@@ -608,10 +570,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write unrhymed lines of five iambic feet each.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: rhyme_scheme
     names: { en: Rhyme scheme, de: Reimschema, fr: Schéma de rimes }
@@ -631,10 +589,6 @@ procedures:
     prompt_hints:
       en: >-
         Write lines whose endings rhyme in the pattern {scheme}.
-    hint_omits:
-      allow_identical: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: sonnet
     names: { en: Sonnet, de: Sonett, fr: Sonnet }
@@ -655,10 +609,6 @@ procedures:
       en: >-
         Write fourteen lines rhyming {scheme}, each in the stress pattern {metre} (0
         unstressed, 1 stressed).
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: haiku
     names: { en: Haiku, de: Haiku, fr: Haïku }
@@ -721,10 +671,6 @@ procedures:
       en: >-
         Combine a prefix, an initial, a medial, a final and a suffix from the {device}
         device into a candidate word.
-    hint_omits:
-      require_all_rings: >-
-        a switch; the hint already names all five rings, the stricter state, which
-        satisfies either setting
     notes: >-
       Harsdörffer labels the rings 48, 50, 12, 120 and 24 but states no total. Two
       independent counts of the parts disagree about where the boundary between the
@@ -757,10 +703,6 @@ procedures:
       en: >-
         Write a line of {metre} whose words can be reordered in at least {minimum} ways,
         itself included, while the metre still holds.
-    hint_omits:
-      max_words: >-
-        a search budget: a longer line is refused with input_too_long rather than
-        judged
     notes: >-
       Harsdörffer states 39,916,800 permutations for an eleven-word line, which is 11!
       exactly, and Leibniz takes the figure up in De Arte Combinatoria (1666). It is one
@@ -904,10 +846,6 @@ procedures:
       fr: >-
         Retourne l'affichage {digits} de la calculatrice et écris ce qu'il donne en
         {words} mot(s), avec les seules lettres B, E, G, H, I, L, O et S.
-    hint_omits:
-      require_words: >-
-        a switch that tightens the task; str.format cannot phrase both of its
-        states, so the hint states the default one
     notes: >-
       The digit table is a module constant in `core/calculator.py`, not a pack
       capability: seven-segment geometry does not vary by orthography the way the
@@ -943,9 +881,6 @@ procedures:
       en: >-
         Write a phrase whose Roman-numeral letters add up to {year}, counting every i,
         v, x, l, c, d and m in either case.
-    hint_omits:
-      min_letters: >-
-        an opt-in minimum, 0 by default; a caller who sets it states it in the prompt
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
@@ -1253,10 +1188,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Rearrange the phrase into one that means its opposite, using every letter once.
-    hint_omits:
-      allow_subset: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: buchstabwechsel
     names:
@@ -1394,10 +1325,6 @@ procedures:
         Write a word or phrase, and nothing else, whose letters, read as one run, trace a
         closed walk: the run ends on the letter it begins with and never repeats a pair of
         adjacent letters, in either order.
-    hint_omits:
-      min_letters: >-
-        an opt-in minimum, two letters by default; a caller who raises it states it in
-        the prompt
 
   - id: homoteleuton
     names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
@@ -1606,13 +1533,6 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Empty the text of its nouns, verbs and adjectives and refill each class from a different source.
-    hint_omits:
-      nouns_from: >-
-        a source text supplied beside the prompt as material, as `source` is
-      verbs_from: >-
-        a source text supplied beside the prompt as material, as `source` is
-      adjectives_from: >-
-        a source text supplied beside the prompt as material, as `source` is
     notes: >-
       Built on the `pos` capability of ADR 0045, beside `homosyntaxism` and
       `verbless_prose`. The parameter shape it was said to be waiting for is
@@ -1749,11 +1669,6 @@ procedures:
     hint_omits:
       target: >-
         read by apply, and by check only under end_at_target; the hint names no end
-      min_steps: >-
-        an opt-in minimum, 0 by default; a caller who sets it states it in the prompt
-      end_at_target: >-
-        an opt-in requirement, off by default; a caller who sets it names the target
-        in the prompt
     notes: >-
       German and French are declared, and the checker takes a `fold_diacritics`
       parameter so both declarations hold. Folded — the house default — `schon`
@@ -1867,10 +1782,6 @@ procedures:
     prompt_hints:
       en: >-
         Write so that every sentence contains exactly {words} words.
-    hint_omits:
-      tolerance: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: anaphora
     names: { en: Anaphora, de: Anapher, fr: Anaphore }
@@ -1893,10 +1804,6 @@ procedures:
       en: >-
         Begin every {unit} with "{opening}". A line starts only after a line break; a
         clause starts after every comma, semicolon, colon or line break.
-    hint_omits:
-      minimum: >-
-        a leniency: unset means every unit, which the hint asks for; a number only
-        lowers the bar
 
   - id: epistrophe
     names: { en: Epistrophe, de: Epipher, fr: Épiphore }
@@ -1919,10 +1826,6 @@ procedures:
       en: >-
         End every {unit} with "{closing}". A line ends only at a line break; a clause
         ends at every comma, semicolon, colon or line break.
-    hint_omits:
-      minimum: >-
-        a leniency: unset means every unit, which the hint asks for; a number only
-        lowers the bar
 
   - id: antonymic_substitution
     names: { en: Antonymic substitution }
@@ -2091,13 +1994,6 @@ procedures:
       en: >-
         Replace up to {max_displacements} word(s) of a known phrase with words close to
         them in sound, leaving the rest of the phrase untouched.
-    hint_omits:
-      min_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
-      max_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
     notes: >-
       Puttenham's own name for it is `Prosonomasia, or the Nicknamer`, and his
       example is this row's operation exactly: `Claudius Tiberius Nero` becomes
@@ -2154,19 +2050,6 @@ procedures:
       en: >-
         Splice "{splice}" into another word so that both stay audible and the host is
         still recognisable.
-    hint_omits:
-      min_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
-      max_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
-      max_host_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
-      splice_lang: >-
-        names the pronouncing dictionary the spliced word is read with; the word
-        itself is stated
     notes: >-
       **This row checks a narrower figure than Carroll's, and is filed as
       `reference`/`codified` rather than `primary`/`author-stated` for that
@@ -2639,10 +2522,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write seven-line stanzas of iambic pentameter rhyming ABABBCC.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: spenserian_stanza
     names: { en: Spenserian stanza }
@@ -2661,10 +2540,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write nine lines rhyming ABABBCBCC, closing with a six-foot line.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: petrarchan_sonnet
     names: { en: Petrarchan sonnet, de: Italienisches Sonett, fr: Sonnet italien }
@@ -2707,10 +2582,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write three quatrains and a closing couplet in iambic pentameter.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: curtal_sonnet
     names: { en: Curtal sonnet }
@@ -2734,10 +2605,6 @@ procedures:
       stress model on the measurement and records the cost here instead.
     prompt_hints:
       en: Write eleven lines proportioned as a shrunken sonnet, six then four and a half.
-    hint_omits:
-      feminine_ending: >-
-        a leniency: the hint asks for the strict form, which satisfies either
-        setting
 
   - id: heroic_couplet
     names: { en: Heroic couplet }
@@ -3378,13 +3245,6 @@ procedures:
     deterministic: false
     prompt_hints:
       en: Supply versioned bilingual JSON data and a source; unknown entries fail.
-    hint_omits:
-      data: >-
-        a data document supplied beside the prompt; quoting it would stop the hint
-        being a hint
-      max_distance: >-
-        a measured tolerance; the hint states it qualitatively, and a threshold on a
-        normalised distance is not something a writer can aim at
     notes: >-
       ADR 0049: `data` is versioned JSON with distinct language labels, provenance,
       a shared symbol alphabet and per-word source and target pronunciations.
@@ -3442,10 +3302,6 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Supply versioned bilingual JSON data and a source; unknown entries fail.
-    hint_omits:
-      data: >-
-        a data document supplied beside the prompt; quoting it would stop the hint
-        being a hint
     notes: >-
       ADR 0049: `data` is versioned JSON with distinct source/target language
       labels, provenance and gloss alternatives. `lang` must match the source
@@ -3880,10 +3736,6 @@ procedures:
       de: >-
         {slots} Exzerpte aus entlegenen Fächern unter das Stichwort „{headword}“ stellen
         und die Ähnlichkeit finden.
-    hint_omits:
-      distinct_domains: >-
-        a switch; the hint already asks for unrelated fields, the stricter state,
-        which satisfies either setting
     notes: >-
       Jean Paul named the notebook but never wrote the rule down: unlike Harsdörffer,
       Llull and Kircher, who set out their own procedures, everything here is inferred
@@ -3955,13 +3807,6 @@ procedures:
       en: >-
         Number a small vocabulary in two languages, then send a sentence in
         {from_language} across it into {to_language}.
-    hint_omits:
-      table: >-
-        a data document supplied beside the prompt; quoting it would stop the hint
-        being a hint
-      require_complete: >-
-        a switch that tightens the task; str.format cannot phrase both of its
-        states, so the hint states the default one
     notes: >-
       No vocabulary travels with this package. Kircher's own has not been transcribed
       into anything machine-readable this project could verify, and a checker measuring
@@ -3994,13 +3839,6 @@ procedures:
       en: >-
         Count the syllables of the phrase, then take a pattern from syntagma {syntagma}
         of the table, indexed by that count.
-    hint_omits:
-      pinakes: >-
-        a data document supplied beside the prompt; quoting it would stop the hint
-        being a hint
-      tonus: >-
-        names a mode the supplied table must list; the checker only checks
-        membership, and the writer's task does not change
     notes: >-
       Kircher advertises that an amusos — someone with no musical training — can produce
       correct four-part settings in any language, which is the claim that makes the box

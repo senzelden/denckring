@@ -23,6 +23,7 @@ from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
 from denckring.core.source_compare import positional_report, selection_report
@@ -35,7 +36,10 @@ class ColumnReadingParams(SourceParams):
     # extra keyword always has something to read — a higher default would
     # raise `NoCandidateWord` on any source whose shortest line falls under it.
     column: int = Field(
-        default=1, ge=1, description="Which word position to read down each line (1-based)."
+        default=1,
+        ge=1,
+        description="Which word position to read down each line (1-based).",
+        json_schema_extra=param("task"),
     )
 
 

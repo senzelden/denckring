@@ -18,6 +18,7 @@ from denckring.core.base import (
     SourceParams,
 )
 from denckring.core.errors import InputTooLong
+from denckring.core.fields import param
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import unchanged
@@ -39,6 +40,7 @@ class LetterRearrangementParams(SourceParams, DiacriticParams):
             "Accept a transposal — a candidate built from some of the source's "
             "letters rather than all of them. Surplus letters are refused either way."
         ),
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -51,11 +53,13 @@ class AnagramApplyParams(ApplyParams, AnagramParams):
         default=3,
         ge=1,
         description="How many words a cover may use.",
+        json_schema_extra=param("apply_only"),
     )
     min_word_length: int = Field(
         default=2,
         ge=1,
         description="Shortest word a cover may use, which is what keeps orphan letters out.",
+        json_schema_extra=param("apply_only"),
     )
     # `le=60` matches `MAX_BAND` in the build script: nothing above band 60 is
     # shipped, so without a ceiling `max_size=70` would silently mean 60 — a
@@ -70,6 +74,7 @@ class AnagramApplyParams(ApplyParams, AnagramParams):
             "common words; 60 is the largest SCOWL states it is confident carries "
             "no misspellings, and the largest this package ships."
         ),
+        json_schema_extra=param("apply_only"),
     )
     # Measured against the shipped list at `max_words=3`, `min_word_length=2`:
     # `listen` exhausts in 2,994 nodes, `dormitory` in 7,958, `astronomer` in
@@ -87,6 +92,7 @@ class AnagramApplyParams(ApplyParams, AnagramParams):
         default=1_000_000,
         ge=1,
         description="Search nodes to visit before stopping and reporting truncation.",
+        json_schema_extra=param("budget"),
     )
 
 

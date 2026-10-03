@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
+from denckring.core.fields import param
 from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
@@ -45,6 +46,7 @@ class DiacriticParams(BaseModel):
     fold_diacritics: bool = Field(
         default=True,
         description="Treat accented letters as their base letter, and ß as ss.",
+        json_schema_extra=param("policy"),
     )
 
 
@@ -76,6 +78,7 @@ class IdentityParams(BaseModel):
             "Accept the source itself, unchanged, as an answer. Set false to fail a "
             "text whose letters are the source's, in the same order, as `unchanged`."
         ),
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -97,6 +100,7 @@ class RhymeParams(BaseModel):
             "leave the pair unscored (undecidable), let it satisfy the scheme "
             "(free), or fail it (strict)."
         ),
+        json_schema_extra=param("policy"),
     )
 
 
@@ -116,6 +120,7 @@ class MetreParams(BaseModel):
             "Whether a line may close on one extra unstressed syllable "
             "(a feminine or klingende ending) as well as on the bare metre."
         ),
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -127,7 +132,9 @@ class SourceParams(BaseModel):
     for callers that never touch Python.
     """
 
-    source: str = Field(description="The text this one was made from.")
+    source: str = Field(
+        description="The text this one was made from.", json_schema_extra=param("material", "text")
+    )
 
 
 class SeedParams(BaseModel):
@@ -145,7 +152,11 @@ class SeedParams(BaseModel):
     `fold_diacritics`.
     """
 
-    seed: int | None = Field(default=None, description="Fixes the draw, for a repeatable result.")
+    seed: int | None = Field(
+        default=None,
+        description="Fixes the draw, for a repeatable result.",
+        json_schema_extra=param("apply_only"),
+    )
 
 
 class ApplyParams(BaseModel):
@@ -184,11 +195,13 @@ class ApplyParams(BaseModel):
             "Permit output identical to the input, or empty, which normally "
             "means the procedure did not run."
         ),
+        json_schema_extra=param("apply_only"),
     )
     max_results: int = Field(
         default=10,
         ge=1,
         description="How many results to return at most. `apply` returns the first.",
+        json_schema_extra=param("apply_only"),
     )
 
 

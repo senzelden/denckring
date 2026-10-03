@@ -14,6 +14,7 @@ from collections import Counter
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, word_spans
@@ -21,7 +22,10 @@ from denckring.core.text import line_spans, word_spans
 
 class AlliterativeVerseParams(DiacriticParams):
     minimum: int = Field(
-        default=3, ge=2, description="How many words in a line must share an initial."
+        default=3,
+        ge=2,
+        description="How many words in a line must share an initial.",
+        json_schema_extra=param("task"),
     )
 
 

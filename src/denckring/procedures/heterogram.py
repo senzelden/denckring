@@ -7,13 +7,16 @@ from typing import Literal
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
 
 class HeterogramParams(DiacriticParams):
-    scope: Literal["text", "word"] = Field(default="text", description="Where repeats are banned.")
+    scope: Literal["text", "word"] = Field(
+        default="text", description="Where repeats are banned.", json_schema_extra=param("leniency")
+    )
 
 
 @register

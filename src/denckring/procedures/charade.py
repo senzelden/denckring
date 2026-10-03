@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
@@ -14,7 +15,10 @@ MIN_PARTS = 2
 
 class CharadeParams(BaseModel):
     parts: int = Field(
-        default=MIN_PARTS, ge=MIN_PARTS, description="Pieces each word must split into."
+        default=MIN_PARTS,
+        ge=MIN_PARTS,
+        description="Pieces each word must split into.",
+        json_schema_extra=param("task"),
     )
 
 

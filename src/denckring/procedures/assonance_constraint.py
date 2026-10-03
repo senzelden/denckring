@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
 from denckring.core.errors import MissingCapability
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans, word_spans
@@ -46,7 +47,10 @@ def _vowels_or_none(word: str, pack: LanguagePack) -> list[str] | None:
 
 class AssonanceParams(BaseModel):
     minimum: int = Field(
-        default=2, ge=2, description="How many words in a line must share a vowel."
+        default=2,
+        ge=2,
+        description="How many words in a line must share a vowel.",
+        json_schema_extra=param("task"),
     )
 
 

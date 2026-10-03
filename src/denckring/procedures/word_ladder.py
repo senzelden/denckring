@@ -47,6 +47,7 @@ from denckring.core.base import (
     plain,
 )
 from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -112,6 +113,7 @@ class WordLadderParams(DiacriticParams):
             "The word `apply` searches a ladder toward. `check` reads it only under "
             "`end_at_target`."
         ),
+        json_schema_extra=param("task", "word"),
     )
     # A9: `cold` alone, and a ladder that stops short of its target, both
     # passed. Opt-in, so a 0.3.2 caller keeps every verdict.
@@ -122,6 +124,7 @@ class WordLadderParams(DiacriticParams):
             "Fewest steps the ladder must take, a step being each word after the "
             "first. 0 accepts a single word."
         ),
+        json_schema_extra=param("switch"),
     )
     end_at_target: bool = Field(
         default=False,
@@ -129,6 +132,7 @@ class WordLadderParams(DiacriticParams):
             "Fail a ladder whose last word is not `target`, compared as a step "
             "compares its words. Needs `target`."
         ),
+        json_schema_extra=param("switch"),
     )
 
     @model_validator(mode="after")

@@ -26,6 +26,7 @@ from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import rearrangement_report
@@ -40,6 +41,7 @@ class TextFoldingParams(SourceParams):
         default=1,
         ge=1,
         description="How many lines make up the near flap; the far flap folds onto it.",
+        json_schema_extra=param("task"),
     )
 
 

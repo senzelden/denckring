@@ -10,6 +10,7 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -22,10 +23,12 @@ class SonnetParams(RhymeParams, MetreParams):
     scheme: str = Field(
         default="ABABCDCDEFEFGG",
         description="Rhyme pattern, one letter per line. Must be fourteen letters.",
+        json_schema_extra=param("task", "scheme"),
     )
     metre: str = Field(
         default="01" * 5,
         description="Stress pattern per line; 0 unstressed, 1 stressed.",
+        json_schema_extra=param("task", "metre"),
     )
 
     @field_validator("scheme")

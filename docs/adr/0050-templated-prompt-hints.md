@@ -132,3 +132,24 @@ costs are these:
 
 **Two error classes join the inventory**, 20 to 22, and `test_error_codes.py` pins
 the count.
+
+## Amendment, 0.3.2: the reason is the parameter's role
+
+The two lists above were written as prose, and a consumer that mints parameters
+copied them into a file of its own, one reason per parameter, because nothing
+machine-readable said what a parameter was (audit C1). Every params field now
+declares `x-denckring-role` in its JSON Schema, from a closed set
+(`core.fields.ROLES`): `task`, `inferred`, `policy`, `leniency`, `switch`,
+`material`, `tolerance`, `budget` and `apply_only`.
+
+The rule is derived from it. A hint states every `task` and `inferred` parameter;
+any other may stay out, for its role's reason (`core.hints.unstated`).
+`UNSTATED_PARAMS` is gone, since what it held is the `policy` and `material` roles of
+four mixins. `hint_omits` keeps only the task parameters a hint still leaves out
+(`multiple_constraint.constraint_params`, `word_ladder.target`), and a guard refuses
+an entry for a parameter its role already excuses.
+
+The cost is the row-specific wording the old entries carried. `heterogram.scope`
+said that word scope is the looser one; it now reads as any leniency does. A reason
+only one row needs can no longer be written for a parameter whose role already
+excuses it, though it can still go in the field's `description`.

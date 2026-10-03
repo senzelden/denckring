@@ -29,6 +29,7 @@ from pydantic import BaseModel, Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, plain
 from denckring.core.errors import InputTooLong
+from denckring.core.fields import param
 from denckring.core.prosody import word_stress
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
@@ -159,16 +160,19 @@ class ProteusVerseParams(BaseModel):
     metre: str = Field(
         default="hexameter",
         description=f"Which measure the permutations must hold: {', '.join(METRES)}.",
+        json_schema_extra=param("task", "id"),
     )
     minimum: int = Field(
         default=2,
         ge=1,
         description="How many valid orderings the line must admit, itself included.",
+        json_schema_extra=param("task"),
     )
     max_words: int = Field(
         default=DEFAULT_MAX_WORDS,
         ge=1,
         description="Refuse a line longer than this rather than search it.",
+        json_schema_extra=param("budget"),
     )
 
 

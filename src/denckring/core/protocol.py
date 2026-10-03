@@ -302,9 +302,11 @@ class Meta(BaseModel):
     #: through `denckring.prompt_hint`, or `describe`, never raw: a raw hint may
     #: still hold a `{placeholder}`.
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
-    #: Parameters this row's hints deliberately do not state, each with its
-    #: reason. Beside `core.hints.UNSTATED_PARAMS`, which holds the house-wide ones;
-    #: anything in neither must appear in every hint (ADR 0050).
+    #: Task parameters this row's hints deliberately do not state, each with its
+    #: reason. Every other unstated parameter is excused by its role
+    #: (`x-denckring-role`, `core.hints.unstated`), so this names only what a role
+    #: cannot explain; anything a role does not excuse and this does not name must
+    #: appear in every hint (ADR 0050).
     hint_omits: dict[str, str] = Field(default_factory=dict)
     #: Contested figures, reception history and caveats — anything true about the
     #: entry that is not part of what the procedure *is*. Keeping it out of

@@ -16,6 +16,7 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams, RhymeParams, SourceParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -27,10 +28,12 @@ class HemelingParams(SourceParams, DiacriticParams, RhymeParams):
     scheme: str = Field(
         default="AA",
         description="Rhyme pattern the explication must hold, one letter per line.",
+        json_schema_extra=param("task", "scheme"),
     )
     allow_identical: bool = Field(
         default=False,
         description="Permit a word to rhyme with itself, as French rime riche does.",
+        json_schema_extra=param("leniency"),
     )
 
     @field_validator("scheme")

@@ -7,6 +7,7 @@ from typing import NamedTuple
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.fields import param
 from denckring.core.prosody import UnknownRhyme, line_metre, scheme_violations, with_feminine
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -30,10 +31,13 @@ class FormResult(NamedTuple):
 
 
 class RhymeSchemeParams(RhymeParams):
-    scheme: str = Field(description="Rhyme pattern such as ABAB.")
+    scheme: str = Field(
+        description="Rhyme pattern such as ABAB.", json_schema_extra=param("task", "scheme")
+    )
     allow_identical: bool = Field(
         default=False,
         description="Permit a word to rhyme with itself, as French rime riche does.",
+        json_schema_extra=param("leniency"),
     )
 
     @field_validator("scheme")

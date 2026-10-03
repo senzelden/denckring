@@ -7,6 +7,7 @@ from typing import NamedTuple
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -124,7 +125,9 @@ def pattern_result(
 
 
 class SyllableCountParams(BaseModel):
-    pattern: list[int] = Field(description="Syllables required, line by line.")
+    pattern: list[int] = Field(
+        description="Syllables required, line by line.", json_schema_extra=param("task")
+    )
 
 
 @register

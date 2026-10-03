@@ -15,42 +15,28 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core.errors import UnsetHintParameter
+from denckring.core.fields import ROLES, roles
 from denckring.core.text import quoted_letters
 
-#: Parameters no hint states, house-wide, each with the reason. Everything else a
-#: row's checker accepts must appear in each of its hints or be named, with its
-#: own reason, in that row's catalogue `hint_omits` — the guard in
-#: `tests/test_prompt_hints.py` holds both halves.
-#:
-#: Kept to parameters whose meaning is the same on every row that has them. A
-#: reason true only of some rows belongs on those rows, where the next person to
-#: change one reads it.
-UNSTATED_PARAMS: dict[str, str] = {
-    "fold_diacritics": (
-        "reading policy: decides how the checker reads an accented letter, not what "
-        "the writer is asked to do"
-    ),
-    "unknown_rhyme": (
-        "reading policy: decides what a word missing from the pronouncing dictionary "
-        "means to the checker"
-    ),
-    "unknown_word": (
-        "reading policy: decides what a word missing from the pronouncing dictionary "
-        "means to the checker"
-    ),
-    "ambiguous_nouns": (
-        "reading policy: decides what an unchanged word the dictionary lists means to the checker"
-    ),
-    "allow_identity": (
-        "a strictness: no hint asks for the source back unchanged, and the setting "
-        "refuses a copy only where another answer exists, so on a source that "
-        "already meets the hint the copy may fail where another text passes"
-    ),
-    "source": (
-        "material, not instruction: the text being transformed is given beside the "
-        "prompt, and a hint quoting it whole would stop being a hint"
-    ),
-}
+#: The roles whose parameters every hint must state (`core.fields.ROLES`): what the
+#: writer is asked to do, and what the checker would otherwise read off the text.
+STATED_ROLES: frozenset[str] = frozenset({"task", "inferred"})
+
+
+def unstated(model: type[BaseModel], omits: Mapping[str, str]) -> dict[str, str]:
+    """Each parameter of `model` a hint may leave out, mapped to the reason.
+
+    Derived from each field's role (audit C1): a parameter whose role is not in
+    `STATED_ROLES` is left out for its role's reason, so a new reading policy or
+    leniency needs no entry anywhere. `omits` is the row's catalogue `hint_omits`:
+    the `task` parameters its hints still leave out, each with its reason (a
+    composite's own parameters, a ladder's end). The guards in
+    `tests/test_prompt_hints.py` hold every other parameter to every hint, and
+    `hint_omits` to naming only parameters the roles do not already excuse.
+    """
+    reasons = {name: ROLES[role] for name, role in roles(model).items() if role not in STATED_ROLES}
+    reasons.update(omits)
+    return reasons
 
 
 def placeholders(template: str) -> list[str]:

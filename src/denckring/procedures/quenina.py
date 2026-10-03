@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -71,7 +72,11 @@ def end_words(text: str, pack: LanguagePack) -> list[str]:
 
 
 class QueninaParams(BaseModel):
-    n: int | None = Field(default=None, description="Words per stanza; inferred if unset.")
+    n: int | None = Field(
+        default=None,
+        description="Words per stanza; inferred if unset.",
+        json_schema_extra=param("inferred"),
+    )
 
 
 @register

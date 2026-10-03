@@ -5,13 +5,17 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
 
 class LetterBankParams(DiacriticParams):
-    bank: str = Field(description="The source word supplying the permitted letters.")
+    bank: str = Field(
+        description="The source word supplying the permitted letters.",
+        json_schema_extra=param("task", "word"),
+    )
 
 
 @register

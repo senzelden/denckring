@@ -15,6 +15,7 @@ from denckring.core.base import (
     SourceParams,
     plain,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import unchanged
@@ -81,7 +82,9 @@ def displace(
 
 
 class NPlus7Params(SourceParams, IdentityParams):
-    offset: int = Field(default=7, description="How many nouns to count forward.")
+    offset: int = Field(
+        default=7, description="How many nouns to count forward.", json_schema_extra=param("task")
+    )
     dictionary: list[str] | None = Field(
         default=None,
         description=(
@@ -89,6 +92,7 @@ class NPlus7Params(SourceParams, IdentityParams):
             "nouns. Order is the contract: N+7 walks the seventh entry after a "
             "word, so a supplied list's order is the caller's editorial choice."
         ),
+        json_schema_extra=param("material", "word"),
     )
     # A supplied dictionary works wherever the pack already has a noun list; it
     # does not unlock N+7 for a language whose pack has none, because the spine
@@ -108,6 +112,7 @@ class NPlus7Params(SourceParams, IdentityParams):
             "position unscored (undecidable), accept it (free), or fail it "
             "(strict)."
         ),
+        json_schema_extra=param("policy"),
     )
     # Opt-in, so 0.3.2 moves no verdict. Under `free` or `undecidable` a text in
     # which every listed word was left alone passes, each one plausibly another
@@ -119,6 +124,7 @@ class NPlus7Params(SourceParams, IdentityParams):
             "Fail a text in which no word the dictionary lists was displaced, as "
             "`no_displacement`, whatever `ambiguous_nouns` makes of each one."
         ),
+        json_schema_extra=param("switch"),
     )
 
     @field_validator("dictionary")

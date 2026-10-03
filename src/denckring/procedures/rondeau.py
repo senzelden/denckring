@@ -16,6 +16,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.fields import param
 from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -29,7 +30,10 @@ LINES = 13 + len(RENTREMENT_LINES)
 
 class RondeauParams(RhymeParams):
     rentrement_words: int = Field(
-        default=3, ge=1, description="How many opening words the rentrement repeats."
+        default=3,
+        ge=1,
+        description="How many opening words the rentrement repeats.",
+        json_schema_extra=param("task"),
     )
 
 

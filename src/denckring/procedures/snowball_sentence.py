@@ -7,6 +7,7 @@ import re
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
@@ -14,8 +15,14 @@ SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
 class SnowballSentenceParams(BaseModel):
-    start: int | None = Field(default=None, description="Words in the first sentence.")
-    step: int = Field(default=1, description="Words added per sentence.")
+    start: int | None = Field(
+        default=None,
+        description="Words in the first sentence.",
+        json_schema_extra=param("inferred"),
+    )
+    step: int = Field(
+        default=1, description="Words added per sentence.", json_schema_extra=param("task")
+    )
 
 
 @register

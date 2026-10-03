@@ -5,13 +5,17 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, line_spans
 
 
 class BelleAbsenteParams(DiacriticParams):
-    name: str = Field(description="The dedicatee. One line per letter of it.")
+    name: str = Field(
+        description="The dedicatee. One line per letter of it.",
+        json_schema_extra=param("task", "name"),
+    )
 
     @field_validator("name")
     @classmethod

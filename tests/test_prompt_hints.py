@@ -18,11 +18,13 @@ import pytest
 from denckring import check, describe, prompt_hint
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, NoPromptHint, UnsetHintParameter
+from denckring.core.fields import ROLES, roles
 from denckring.core.hints import (
-    UNSTATED_PARAMS,
+    STATED_ROLES,
     default_values,
     placeholders,
     rendered_with_defaults,
+    unstated,
 )
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures
@@ -141,11 +143,13 @@ def test_an_unfixtured_slot_is_one_no_fixture_of_its_row_sets() -> None:
 def test_every_task_parameter_is_stated_or_declared_unstated(pid: str, lang: Lang) -> None:
     """The rule the feature exists for: a hint cannot quietly keep a default.
 
-    A parameter may stay out of a hint only for a recorded reason — house-wide in
-    `UNSTATED_PARAMS`, or for this row in its catalogue `hint_omits`.
+    A parameter may stay out of a hint only for a recorded reason: its role
+    (`x-denckring-role`) is not one a hint states, or, for a task parameter, this
+    row's catalogue `hint_omits` names it (audit C1).
     """
+    procedure = PROCEDURES[pid]
     stated = set(placeholders(ROWS[pid].prompt_hints[lang]))
-    exempt = set(UNSTATED_PARAMS) | set(ROWS[pid].hint_omits)
+    exempt = set(unstated(procedure.params_model(), ROWS[pid].hint_omits))
     silent = sorted(set(_properties(pid)) - stated - exempt)
     assert not silent, (
         f"{pid}:{lang} hint neither states {silent} as a placeholder nor declares it in hint_omits"
@@ -153,19 +157,32 @@ def test_every_task_parameter_is_stated_or_declared_unstated(pid: str, lang: Lan
 
 
 @pytest.mark.parametrize("pid", sorted(ROWS), ids=sorted(ROWS))
-def test_a_declared_omission_is_a_real_parameter_left_unstated_for_a_reason(pid: str) -> None:
-    """An omission naming nothing, or naming what the hint states, is stale."""
+def test_a_declared_omission_is_a_task_parameter_left_unstated_for_a_reason(pid: str) -> None:
+    """An omission naming nothing, naming what the hint states, or naming a parameter
+    its role already excuses, is stale: the role is the reason (audit C1)."""
     meta = ROWS[pid]
     for name, reason in meta.hint_omits.items():
         assert name in _properties(pid), f"{pid}: hint_omits names {name!r}, not a parameter"
-        assert name not in UNSTATED_PARAMS, f"{pid}: {name!r} is already exempt house-wide"
+        role = roles(PROCEDURES[pid].params_model()).get(name)
+        assert role in STATED_ROLES, f"{pid}: {name!r} is a {role} parameter, excused by its role"
         assert reason.strip(), f"{pid}: hint_omits gives {name!r} no reason"
         for lang, hint in meta.prompt_hints.items():
             assert name not in placeholders(hint), f"{pid}:{lang} states omitted {name!r}"
 
 
-def test_house_wide_exemptions_each_carry_a_reason() -> None:
-    assert all(reason.strip() for reason in UNSTATED_PARAMS.values())
+def test_an_excused_role_carries_its_reason() -> None:
+    """Every role a hint may leave unstated is one `unstated` can give a reason for."""
+    reasons = unstated(PROCEDURES["n_plus_7"].params_model(), {})
+    assert reasons["source"] == ROLES["material"]
+    assert reasons["ambiguous_nouns"] == ROLES["policy"]
+    assert "offset" not in reasons
+    assert all(ROLES[role].strip() for role in ROLES)
+
+
+def test_a_rows_own_omission_wins_over_its_roles() -> None:
+    """`hint_omits` speaks for the row; a role's reason is the fallback."""
+    reasons = unstated(PROCEDURES["n_plus_7"].params_model(), {"offset": "a reason"})
+    assert reasons["offset"] == "a reason"
 
 
 def test_a_minted_parameter_reaches_the_prompt() -> None:

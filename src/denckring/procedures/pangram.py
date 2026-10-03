@@ -7,13 +7,18 @@ from collections import Counter
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
 
 
 class PangramParams(DiacriticParams):
-    perfect: bool = Field(default=False, description="Require each letter exactly once.")
+    perfect: bool = Field(
+        default=False,
+        description="Require each letter exactly once.",
+        json_schema_extra=param("switch"),
+    )
 
 
 @register

@@ -10,6 +10,7 @@ from denckring.core import device as devices
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, require_capability
 from denckring.core.device import DeviceParams
 from denckring.core.errors import InvalidParams
+from denckring.core.fields import param
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
@@ -19,6 +20,7 @@ class DenckringParams(DeviceParams):
     require_all_rings: bool = Field(
         default=False,
         description="Every ring must contribute; skipping the prefix or suffix is not allowed.",
+        json_schema_extra=param("switch"),
     )
 
 
@@ -29,6 +31,7 @@ class DenckringApplyParams(DenckringParams, SeedParams, ApplyParams):
             "Whether to read the device's validity mask: `mask` marks each spun "
             "word as attested or neglected and applies the mask's own policy."
         ),
+        json_schema_extra=param("apply_only"),
     )
 
 

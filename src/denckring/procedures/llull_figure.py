@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from denckring.core import device as devices
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, plain
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 
@@ -38,12 +39,22 @@ def read_names(text: str, table: dict[str, str]) -> list[str]:
 
 
 class LlullFigureParams(BaseModel):
-    figure: str = Field(default="llull_ternary", description="Which figure to read against.")
+    figure: str = Field(
+        default="llull_ternary",
+        description="Which figure to read against.",
+        json_schema_extra=param("task", "id"),
+    )
     level: str | None = Field(
         default=None,
         description="Which table to read the letters at; inferred if unset.",
+        json_schema_extra=param("inferred", "id"),
     )
-    arity: int = Field(default=3, ge=MIN_ARITY, description="Principles per chamber.")
+    arity: int = Field(
+        default=3,
+        ge=MIN_ARITY,
+        description="Principles per chamber.",
+        json_schema_extra=param("task"),
+    )
 
 
 class LlullFigureApplyParams(LlullFigureParams, SeedParams, ApplyParams):
