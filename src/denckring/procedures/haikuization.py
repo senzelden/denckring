@@ -79,6 +79,7 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
             self._line_ends(params.source, pack),
             rule="wrong_line_end",
             note=lambda index, word: f"line {index + 1} ends in {word!r}",
+            end=len(text),
         )
         violations = drawn.violations + placed.violations
         good = drawn.good + placed.good

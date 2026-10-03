@@ -73,6 +73,7 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
             self._column(params.source, pack, column),
             rule="wrong_column_word",
             note=lambda index, word: f"line {index + 1}'s word {column} should be {word!r}",
+            end=len(text),
         )
         return self._report(
             good=drawn.good + placed.good,

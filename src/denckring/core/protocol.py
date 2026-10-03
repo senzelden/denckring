@@ -65,6 +65,11 @@ class Violation(BaseModel):
     """One place where a text fails a procedure."""
 
     rule: str
+    #: Where in the checked text, as a character index. `len(text)` means "at the
+    #: end": something the text ran out before supplying (a missing tail in
+    #: `every_nth_word`, `slenderizing`, `column_reading`, `haikuization`), placed
+    #: where it would go, so `text[offset]` is not always a valid index. `None`
+    #: means the violation has no place in the text (`missing_part`).
     offset: int | None = None
     found: str
     expected: str
@@ -80,10 +85,12 @@ class Evidence(BaseModel):
     auditor deciding whether to trust the verdict, needs the second thing.
 
     `basis` is a closed set rather than a confidence score. The pack knows whether
-    a count came out of a dictionary or out of a spelling heuristic, and that is
-    the whole of what it knows; attaching `0.94` to it would invent a precision no
-    measurement here supports, which is what the review that asked for this
-    warned against in its own last paragraph.
+    a count came out of a dictionary or was estimated, and that is the whole of
+    what this field says. English has two estimates since 0.3.2, the spelling
+    heuristic and a reading through a dictionary stem (`awakes` from `awake`),
+    and both report `estimated` without saying which. Attaching `0.94` to either
+    would invent a precision no measurement here supports, which is what the
+    review that asked for this warned against in its own last paragraph.
 
     `scope` exists because the answer is not always about a word. French counts a
     *line* — a final mute e elides or counts depending on what follows, so summing

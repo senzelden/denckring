@@ -1,5 +1,9 @@
 """Two more selections: one by column, one by line ending."""
 
+from typing import Any
+
+import pytest
+
 from denckring import check, get
 from denckring.core.protocol import Constructive
 
@@ -68,3 +72,17 @@ def test_haikuization_tolerates_a_line_end_outside_the_dictionary() -> None:
     source = "the sky is bright\na word made up: flurbish"
     report = check("haikuization", "bright flurbish", source=source)
     assert report.satisfied is True
+
+
+# A word the text runs out before is placed at the end of the text, the
+# convention `every_nth_word` and `slenderizing` share (`Violation.offset`).
+@pytest.mark.parametrize(
+    ("pid", "text", "params"),
+    [("column_reading", "cat", {"column": 2}), ("haikuization", "down", {})],
+)
+def test_a_missing_tail_is_placed_at_the_end_of_the_text(
+    pid: str, text: str, params: dict[str, Any]
+) -> None:
+    report = check(pid, text, source=PAGE, **params)
+    missing = [v.offset for v in report.violations if v.found == ""]
+    assert missing == [len(text), len(text)]

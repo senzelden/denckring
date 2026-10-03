@@ -44,9 +44,9 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
                     Violation(
                         rule="wrong_word",
                         # Placed at the text's word, as `positional_report`
-                        # places its siblings'. Unlike that helper, a word the
-                        # text runs out before goes at the text's end, where it
-                        # would go, so no violation here is left without a place.
+                        # places its siblings'; a word the text runs out before
+                        # goes at the text's end, where it would go
+                        # (`Violation.offset`).
                         offset=spans[index][0] if index < len(spans) else len(text),
                         found=actual[index] if index < len(actual) else "",
                         expected=word,

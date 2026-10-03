@@ -186,8 +186,13 @@ def positional_report(
     *,
     rule: str,
     note: Callable[[int, str], str],
+    end: int,
 ) -> ClassResult:
     """Whether `chosen` is exactly the words the source's positional rule produces.
+
+    `end` is the checked text's length: a word the text runs out before is
+    placed there, at the end where it would go, as `every_nth_word` and
+    `slenderizing` place theirs (`Violation.offset`).
 
     The fourth shape, and a sibling of `selection_report` rather than a variant of
     it: that one asks only whether each chosen word occurs in the source in order,
@@ -215,7 +220,7 @@ def positional_report(
             violations.append(
                 Violation(
                     rule=rule,
-                    offset=chosen[index][0] if index < len(chosen) else None,
+                    offset=chosen[index][0] if index < len(chosen) else end,
                     found=chosen[index][1] if index < len(chosen) else "",
                     expected=word,
                     note=note(index, word),
