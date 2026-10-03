@@ -162,3 +162,18 @@ def test_a_composite_passes_its_constraints_rules_through() -> None:
 def test_rules_refuses_an_unknown_row() -> None:
     with pytest.raises(UnknownProcedure):
         denckring.rules("no_such_row")
+
+
+def test_every_row_taking_unknown_rhyme_can_fail_on_it() -> None:
+    """A row that accepts `unknown_rhyme` and never reads it ignores a caller's `strict`.
+
+    Seventeen rows did until 0.3.2. Declaring the rule here, with the reach test above
+    demanding a golden case or witness for it, proves `strict` takes effect.
+    """
+    ignoring = sorted(
+        pid
+        for pid, procedure in all_procedures().items()
+        if "unknown_rhyme" in procedure.params_model().model_fields
+        and "unknown_rhyme" not in procedure.rules
+    )
+    assert ignoring == []

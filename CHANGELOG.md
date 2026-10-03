@@ -118,6 +118,17 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Seventeen fixed forms accepted `unknown_rhyme` and ignored it: `ballade`, `blank_verse`,
+  `clerihew`, `curtal_sonnet`, `englyn`, `heroic_couplet`, `limerick`, `ottava_rima`,
+  `petrarchan_sonnet`, `rhyme_royal`, `rondeau`, `shakespearean_sonnet`, `sonnet`,
+  `spenserian_stanza`, `terza_rima`, `triolet` and `villanelle`. Each now passes it to its
+  rhyme check and declares `unknown_rhyme` among its rules. The default, `undecidable`, is
+  what they already did, so no default verdict moves; only a caller who sets the parameter
+  sees a change. Explicit `strict` fails a pair whose ending the dictionary lacks, and
+  explicit `free` lets that pair satisfy the scheme. `blank_verse` checks no scheme, so
+  there only `strict` changes anything: it fails a pair with an unknown ending, which
+  every other setting still reads as unrhymed.
+
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
   anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
   colon and line break), and a guard holds that for

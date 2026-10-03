@@ -21,6 +21,7 @@ class Limerick(BaseProcedure[LimerickParams]):
         "does_not_rhyme",
         "identical_rhyme",
         "rhyme_undecidable",
+        "unknown_rhyme",
         "unwanted_rhyme",
         "wrong_line_count",
     )
@@ -34,6 +35,7 @@ class Limerick(BaseProcedure[LimerickParams]):
             text,
             pack,
             scheme="AABBA",
+            unknown_rhyme=params.unknown_rhyme,
         )
 
         return self._report(

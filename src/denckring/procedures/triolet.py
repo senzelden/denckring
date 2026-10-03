@@ -21,6 +21,7 @@ class Triolet(BaseProcedure[TrioletParams]):
         "broken_refrain",
         "does_not_rhyme",
         "rhyme_undecidable",
+        "unknown_rhyme",
         "unwanted_rhyme",
         "wrong_line_count",
     )
@@ -36,6 +37,7 @@ class Triolet(BaseProcedure[TrioletParams]):
             scheme="ABAAABAB",
             allow_identical=True,  # the refrains are the same line repeated
             refrains=[(0, 3), (0, 6), (1, 7)],
+            unknown_rhyme=params.unknown_rhyme,
         )
 
         return self._report(

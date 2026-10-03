@@ -30,6 +30,7 @@ class Clerihew(BaseProcedure[ClerihewParams]):
         "does_not_rhyme",
         "identical_rhyme",
         "rhyme_undecidable",
+        "unknown_rhyme",
         "unwanted_rhyme",
         "wrong_line_count",
     )
@@ -40,7 +41,7 @@ class Clerihew(BaseProcedure[ClerihewParams]):
 
     def _check(self, text: str, pack: LanguagePack, params: ClerihewParams) -> Report:
         found, matched, checks, _estimated, rhymes = scheme_violations(
-            text, pack, SCHEME, allow_identical=False
+            text, pack, SCHEME, allow_identical=False, unknown_rhyme=params.unknown_rhyme
         )
         return self._report(
             good=matched,

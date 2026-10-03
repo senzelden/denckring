@@ -43,6 +43,7 @@ class Rondeau(BaseProcedure[RondeauParams]):
         "does_not_rhyme",
         "identical_rhyme",
         "rhyme_undecidable",
+        "unknown_rhyme",
         "unwanted_rhyme",
         "wrong_line_count",
     )
@@ -87,7 +88,7 @@ class Rondeau(BaseProcedure[RondeauParams]):
             line for index, line in enumerate(lines) if index not in RENTREMENT_LINES
         )
         found, matched, checks, _estimated, rhymes = scheme_violations(
-            rhyming, pack, SCHEME, allow_identical=False
+            rhyming, pack, SCHEME, allow_identical=False, unknown_rhyme=params.unknown_rhyme
         )
         return self._report(
             good=good + matched,

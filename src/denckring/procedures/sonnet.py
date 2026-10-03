@@ -46,6 +46,7 @@ class Sonnet(BaseProcedure[SonnetParams]):
         "does_not_rhyme",
         "identical_rhyme",
         "rhyme_undecidable",
+        "unknown_rhyme",
         "unwanted_rhyme",
         "wrong_line_count",
         "wrong_line_length",
@@ -64,6 +65,7 @@ class Sonnet(BaseProcedure[SonnetParams]):
             metre=params.metre,
             lines=LINES,
             feminine_ending=params.feminine_ending,
+            unknown_rhyme=params.unknown_rhyme,
         )
         return self._report(
             good=result.good,
