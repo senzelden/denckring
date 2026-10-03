@@ -8,6 +8,7 @@ from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.scope import Scope
 from denckring.core.text import letter_spans
 
 
@@ -29,10 +30,15 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
 
     id = "beau_present"
     rules = ("letter_outside_name", "unused_name_letter")
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[BeauPresentParams]:
         return BeauPresentParams
+
+    def scope(self, params: BeauPresentParams) -> Scope:
+        """`require_all` asks the text as a whole to use every name letter."""
+        return "text" if params.require_all else "word"
 
     def _check(self, text: str, pack: LanguagePack, params: BeauPresentParams) -> Report:
         allowed = {ch for _, ch in letter_spans(params.name, pack, fold=params.fold_diacritics)}

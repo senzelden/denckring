@@ -34,6 +34,7 @@ class Tautogram(BaseProcedure[TautogramParams]):
 
     id = "tautogram"
     rules = ("wrong_initial",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[TautogramParams]:

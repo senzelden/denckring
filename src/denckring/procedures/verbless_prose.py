@@ -78,6 +78,7 @@ class VerblessProse(BaseProcedure[VerblessProseParams]):
 
     id = "verbless_prose"
     rules = ("finite_verb",)
+    local_scope = "sentence"
 
     @classmethod
     def params_model(cls) -> type[VerblessProseParams]:

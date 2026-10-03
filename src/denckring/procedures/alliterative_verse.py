@@ -35,6 +35,7 @@ class AlliterativeVerse(BaseProcedure[AlliterativeVerseParams]):
 
     id = "alliterative_verse"
     rules = ("too_few_alliterating",)
+    local_scope = "line"
 
     @classmethod
     def params_model(cls) -> type[AlliterativeVerseParams]:

@@ -32,6 +32,7 @@ class Lipogram(BaseProcedure[LipogramParams]):
 
     id = "lipogram"
     rules = ("forbidden_letter",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[LipogramParams]:

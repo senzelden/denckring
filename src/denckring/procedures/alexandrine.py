@@ -20,6 +20,7 @@ class Alexandrine(BaseProcedure[AlexandrineParams]):
 
     id = "alexandrine"
     rules = ("wrong_syllable_count",)
+    local_scope = "line"
 
     @classmethod
     def params_model(cls) -> type[AlexandrineParams]:

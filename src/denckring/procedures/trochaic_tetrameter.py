@@ -20,6 +20,7 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
 
     id = "trochaic_tetrameter"
     rules = ("wrong_line_length", "wrong_stress")
+    local_scope = "line"
 
     @classmethod
     def params_model(cls) -> type[TrochaicTetrameterParams]:

@@ -30,6 +30,7 @@ class Liponym(BaseProcedure[LiponymParams]):
 
     id = "liponym"
     rules = ("forbidden_word",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[LiponymParams]:

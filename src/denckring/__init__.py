@@ -1,5 +1,6 @@
 """denckring — a library of experimental writing procedures."""
 
+from collections.abc import Iterable
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
@@ -20,6 +21,7 @@ from denckring.core.errors import (
     NoCandidateWord,
     NoPromptHint,
     NotConstructive,
+    NotWordLocal,
     TextTooLong,
     UnknownDevice,
     UnknownFigure,
@@ -45,6 +47,7 @@ from denckring.core.provenance import PackProvenance
 from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
 from denckring.core.rules import CATEGORIES, RULE_CATEGORIES
+from denckring.core.scope import SCOPES
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
 
@@ -200,6 +203,85 @@ def failure_categories() -> dict[str, str]:
     return dict(CATEGORIES)
 
 
+def scope(procedure_id: str, **params: Any) -> str:
+    """The smallest unit the row judges alone under these parameters (audit C2).
+
+    One of `scopes()`: `word`, `line`, `sentence`, or `text` for no promise. A
+    word-scoped row passes a text of words if and only if it passes each word
+    alone, so a caller composing rows can build a passing text from passing
+    words. The parameters matter: `tautogram` is word-scoped only with `initial`
+    stated, since unset it reads the initial off the text's first word. Validated
+    as `check` validates them.
+    """
+    procedure = get(procedure_id)
+    return procedure.scope(procedure.parse_params(params))
+
+
+def scopes() -> dict[str, str]:
+    """Every scope `scope` returns, mapped to what it promises."""
+    return dict(SCOPES)
+
+
+def _word_local(procedure_id: str, params: dict[str, Any]) -> None:
+    """Refuse a row that does not judge each word alone, naming what would make it."""
+    procedure = get(procedure_id)
+    parsed = procedure.parse_params(params)
+    found = procedure.scope(parsed)
+    if found != "word":
+        raise NotWordLocal(procedure_id, found, procedure.unset_inferred(parsed))
+
+
+def admits(procedure_id: str, word: str, /, *, lang: Lang = "en", **params: Any) -> bool:
+    """Whether a word-scoped row passes `word` alone, and so in any text of such words.
+
+    Raises `NotWordLocal` when `scope(procedure_id, **params)` is not `word`: a
+    word alone has no verdict of its own there. Equal to
+    `check(procedure_id, word, ...).satisfied`; the scope is what makes that
+    answer hold in every text the word is joined into.
+    """
+    _word_local(procedure_id, params)
+    return check(procedure_id, word, lang=lang, **params).satisfied
+
+
+def witness(
+    procedure_id: str,
+    vocabulary: Iterable[str],
+    /,
+    *,
+    lang: Lang = "en",
+    size: int = 12,
+    **params: Any,
+) -> str:
+    """A text the row passes, built from `vocabulary`: proof the parameters can be met.
+
+    Golden cases prove a row satisfiable at its defaults; this proves it at any
+    parameters a word-scoped row is given (audit C6). It joins, by spaces and in
+    vocabulary order, the first `size` entries that are each one word as the
+    pack splits them and that the row admits. Raises `NotWordLocal` as `admits`
+    does, `InvalidParams` for a `size` under 1, and `NoCandidateWord` when no
+    entry is admitted, which is the vocabulary's answer, not the row's.
+    """
+    if size < 1:
+        raise InvalidParams(procedure_id, f"size must be at least 1, not {size}")
+    _word_local(procedure_id, params)
+    pack = get_pack(lang)
+    chosen: list[str] = []
+    for entry in vocabulary:
+        if [word for _, word in pack.word_spans(entry)] != [entry]:
+            continue
+        if check(procedure_id, entry, lang=lang, **params).satisfied:
+            chosen.append(entry)
+            if len(chosen) == size:
+                break
+    if not chosen:
+        raise NoCandidateWord(
+            procedure_id,
+            "no word of the vocabulary passes alone under these parameters — try a "
+            "larger vocabulary or other parameters",
+        )
+    return " ".join(chosen)
+
+
 def _declared(procedure: Any) -> tuple[str, ...]:
     """A row's `rules`, or an error naming the row that forgot them.
 
@@ -277,6 +359,7 @@ __all__ = [
     "NoCandidateWord",
     "NoPromptHint",
     "NotConstructive",
+    "NotWordLocal",
     "PackProvenance",
     "PosTag",
     "Production",
@@ -293,6 +376,7 @@ __all__ = [
     "UnsettablePhrase",
     "Violation",
     "__version__",
+    "admits",
     "all_procedures",
     "apply",
     "check",
@@ -308,5 +392,8 @@ __all__ = [
     "render_hint",
     "rule_categories",
     "rules",
+    "scope",
+    "scopes",
     "summaries",
+    "witness",
 ]

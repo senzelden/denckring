@@ -42,6 +42,7 @@ class Charade(BaseProcedure[CharadeParams]):
 
     id = "charade"
     rules = ("does_not_divide",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[CharadeParams]:

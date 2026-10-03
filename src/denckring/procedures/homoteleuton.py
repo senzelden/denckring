@@ -34,6 +34,7 @@ class Homoteleuton(BaseProcedure[HomoteleutonParams]):
 
     id = "homoteleuton"
     rules = ("wrong_final",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[HomoteleutonParams]:

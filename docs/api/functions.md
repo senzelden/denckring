@@ -18,6 +18,14 @@ The top-level entry points. Everything here is importable directly from `denckri
 
 ::: denckring.failure_categories
 
+::: denckring.scope
+
+::: denckring.scopes
+
+::: denckring.admits
+
+::: denckring.witness
+
 ::: denckring.golden_cases
 
 ::: denckring.pack_provenance

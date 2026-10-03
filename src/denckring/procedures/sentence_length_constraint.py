@@ -31,6 +31,7 @@ class SentenceLengthConstraint(BaseProcedure[SentenceLengthConstraintParams]):
 
     id = "sentence_length_constraint"
     rules = ("wrong_sentence_length",)
+    local_scope = "sentence"
 
     @classmethod
     def params_model(cls) -> type[SentenceLengthConstraintParams]:

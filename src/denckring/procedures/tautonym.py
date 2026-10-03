@@ -20,6 +20,7 @@ class Tautonym(BaseProcedure[TautonymParams]):
 
     id = "tautonym"
     rules = ("not_doubled",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[TautonymParams]:

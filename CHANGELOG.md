@@ -89,6 +89,21 @@ All notable changes to this project are documented here. The format follows
   must declare it. `column_reading` is not flagged unique: its checker passes the
   answer with a source word appended, reporting `extra_words` without failing.
 
+- `denckring.scope(procedure_id, **params)` names the smallest unit a row judges alone
+  under its parameters: `word`, `line`, `sentence`, or `text` for no claim
+  (`denckring.scopes()` defines each). A word-scoped row passes a text of words if and
+  only if it passes each word alone, so `denckring.admits(procedure_id, word, ...)`
+  answers for the word wherever it is set, and `denckring.witness(procedure_id,
+  vocabulary, ...)` builds a passing text from the admitted words, proving parameters
+  above the golden defaults satisfiable. Fifteen rows are word-scoped (the lipograms,
+  the vowel and consonant rows, `tautogram`, `homoteleuton`, `beau_present`,
+  `heterogram` and others), five line-scoped (the fixed metres, `alliterative_verse`)
+  and two sentence-scoped; a row inferring a parameter is local only with it stated,
+  and `multiple_constraint` keeps the coarsest scope of its constraints. A test builds
+  texts from passing and failing golden units for every claim and fails any whose
+  verdict departs from its units'. `admits` and `witness` raise the new
+  `NotWordLocal` for any other row, naming the parameters to state where there are some.
+
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.

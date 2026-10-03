@@ -32,6 +32,7 @@ class ConsonantalLipogram(BaseProcedure[ConsonantalLipogramParams]):
 
     id = "consonantal_lipogram"
     rules = ("forbidden_letter",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[ConsonantalLipogramParams]:

@@ -20,6 +20,7 @@ class IambicPentameter(BaseProcedure[IambicPentameterParams]):
 
     id = "iambic_pentameter"
     rules = ("wrong_line_length", "wrong_stress")
+    local_scope = "line"
 
     @classmethod
     def params_model(cls) -> type[IambicPentameterParams]:

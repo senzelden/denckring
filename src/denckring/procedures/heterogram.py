@@ -10,6 +10,7 @@ from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.scope import Scope
 from denckring.core.text import letter_spans, word_spans
 
 
@@ -25,10 +26,15 @@ class Heterogram(BaseProcedure[HeterogramParams]):
 
     id = "heterogram"
     rules = ("repeated_letter",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[HeterogramParams]:
         return HeterogramParams
+
+    def scope(self, params: HeterogramParams) -> Scope:
+        """Its own `scope` parameter: repeats banned in each word, or in the text."""
+        return params.scope
 
     def _check(self, text: str, pack: LanguagePack, params: HeterogramParams) -> Report:
         groups: list[list[tuple[int, str]]]

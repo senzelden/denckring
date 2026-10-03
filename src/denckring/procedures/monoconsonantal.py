@@ -36,6 +36,7 @@ class Monoconsonantal(BaseProcedure[MonoconsonantalParams]):
 
     id = "monoconsonantal"
     rules = ("foreign_consonant",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[MonoconsonantalParams]:

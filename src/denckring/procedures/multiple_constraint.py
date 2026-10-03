@@ -67,6 +67,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.fields import param
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import get, register
+from denckring.core.scope import Scope, coarsest
 
 #: This row's own id, checked against `constraints` at validation time. A literal
 #: rather than `cls.id` inside the validator: `field_validator` runs as part of
@@ -118,6 +119,14 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
         can state what it says (ADR 0050).
         """
         return [(cid, params.constraint_params.get(cid, {})) for cid in params.constraints]
+
+    def scope(self, params: MultipleConstraintParams) -> Scope:
+        """The scope every constraint keeps: satisfied only if all are, so a unit
+        every constraint judges alone is judged alone by the composite."""
+        return coarsest(
+            get(cid).scope(get(cid).parse_params(params.constraint_params.get(cid, {})))
+            for cid in params.constraints
+        )
 
     def _check(self, text: str, pack: LanguagePack, params: MultipleConstraintParams) -> Report:
         violations: list[Violation] = []

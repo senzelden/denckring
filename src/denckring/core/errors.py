@@ -598,3 +598,28 @@ class UnsetHintParameter(DenckringError):
 
     def detail(self) -> dict[str, Any]:
         return {"procedure_id": self.procedure_id, "param": self.param}
+
+
+class NotWordLocal(DenckringError):
+    """`admits` or `witness` was asked of a row that does not judge each word alone.
+
+    Answering anyway would be a guess: on a line-scoped row a word has no verdict
+    of its own, and on a tautogram with its initial unset the verdict on a word
+    depends on the text's first. `unset` names the parameters whose stating would
+    make the row word-local, so a caller knows whether a retry can work.
+    """
+
+    code = "not_word_local"
+
+    def __init__(self, procedure_id: str, scope: str, unset: list[str] | None = None) -> None:
+        self.procedure_id = procedure_id
+        self.scope = scope
+        self.unset = list(unset or [])
+        hint = f" State {', '.join(self.unset)} to judge each word alone." if self.unset else ""
+        super().__init__(
+            f"{procedure_id!r} has scope {scope!r} with these parameters, so a word alone "
+            f"has no verdict.{hint}"
+        )
+
+    def detail(self) -> dict[str, Any]:
+        return {"procedure_id": self.procedure_id, "scope": self.scope, "unset": self.unset}

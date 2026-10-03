@@ -40,3 +40,5 @@ which is the path to use: `denckring.core` is not under the stability promise.
 ::: denckring.core.errors.NoPromptHint
 
 ::: denckring.core.errors.UnsetHintParameter
+
+::: denckring.core.errors.NotWordLocal

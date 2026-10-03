@@ -39,6 +39,7 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
 
     id = "bivocalic"
     rules = ("foreign_vowel",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[BivocalicParams]:

@@ -21,6 +21,7 @@ class MonosyllabicProse(BaseProcedure[MonosyllabicProseParams]):
 
     id = "monosyllabic_prose"
     rules = ("polysyllabic_word",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[MonosyllabicProseParams]:

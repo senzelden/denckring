@@ -29,6 +29,8 @@ fixture and catalogue row — each marked `FILL IN`. Fill them in; invent no str
   not repeat them. Each params field declares `json_schema_extra=param(role, kind)`
   (`core.fields`): its role in the task, from a closed set, and for a string what kind
   of string it holds. A hint must state every `task` and `inferred` parameter.
+  If the checker judges each word, line or sentence alone, say so with `local_scope`
+  (`core/scope.py`); `tests/test_scope.py` then holds the claim to the checker.
   Build the `Report` with `self._report(...)` unless an empty text should be
   *unsatisfied* for your procedure, as it is for `pangram`.
 - **Golden fixture** — at least one authentic literary instance that must be satisfied

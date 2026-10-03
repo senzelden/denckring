@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
-from denckring.core.fields import param
+from denckring.core.fields import param, roles
 from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
@@ -30,6 +30,7 @@ from denckring.core.protocol import (
     Violation,
 )
 from denckring.core.provenance import provenance
+from denckring.core.scope import Scope
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -223,6 +224,11 @@ class BaseProcedure(ABC, Generic[P]):
     #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
     #: with every other row's vocabulary, since any of them can be composed.
     delegates_rules: ClassVar[bool] = False
+    #: The smallest unit this row judges alone, when every parameter it would
+    #: otherwise read off the text is stated (`core/scope.py`). `text`, the
+    #: default, claims nothing; `tests/test_scope.py` holds every other claim to
+    #: the checker on texts built from units.
+    local_scope: ClassVar[Scope] = "text"
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)
@@ -259,6 +265,26 @@ class BaseProcedure(ABC, Generic[P]):
         and refusals apply to it exactly as to a hint asked for directly.
         """
         return []
+
+    def scope(self, params: P) -> Scope:
+        """The smallest unit the verdict is a verdict on, under these parameters.
+
+        `local_scope`, unless a parameter whose role is `inferred` is unset: the
+        checker then reads it off the text as a whole (a tautogram's initial from
+        its first word), so no smaller unit is judged alone. A row whose scope
+        turns on a parameter of another role overrides this.
+        """
+        if self.unset_inferred(params):
+            return "text"
+        return self.local_scope
+
+    def unset_inferred(self, params: P) -> list[str]:
+        """The `inferred` parameters left unset, which keep a local row at `text`."""
+        return [
+            name
+            for name, role in roles(self.params_model()).items()
+            if role == "inferred" and getattr(params, name) is None
+        ]
 
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""
