@@ -59,10 +59,11 @@ class IdentityParams(BaseModel):
     Off, it refuses a copy only where the source admits a different correct
     answer (ruling R-U2a): each row states that predicate as the `alternative`
     it passes to `source_compare.unchanged`. A one-sentence `recombination`, a
-    one-word `cut_up`, a one-letter `anagram` or an N+7 source with no listed
-    noun has no answer but the copy, so the copy stands, and flipping the
-    default later leaves every instance satisfiable. The cost is that a copy of
-    such a source passes under either setting.
+    one-letter `anagram` or an N+7 source with no listed noun has no answer but
+    the copy, and a one-word `cut_up` none but the copy and the empty text, which
+    is not counted (it is the output `apply` refuses as degenerate). So the copy
+    stands, and flipping the default later leaves every instance satisfiable.
+    The cost is that a copy of such a source passes under either setting.
 
     A row that passes a copy *only* on such sources (a one-line
     `boustrophedon`) does not carry the field at all, since it could never

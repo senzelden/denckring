@@ -255,3 +255,21 @@ def test_a_displacement_that_walks_back_to_its_word_leaves_only_the_copy() -> No
         allow_identity=False,
     )
     assert report.satisfied
+
+
+@pytest.mark.parametrize(
+    "source",
+    ["It rains. It rains!", "Go! Go?", "Stop. Stop, stop.", "No. No no.", "Ha. Haha.", "1. 2."],
+)
+def test_a_recombination_whose_every_order_has_the_copys_letters_keeps_the_copy(
+    source: str,
+) -> None:
+    """Two sentences to the checker, one letter string to `unchanged`: every
+    reorder is the copy again, so nothing else could pass."""
+    assert check("recombination", source, source=source, allow_identity=False).satisfied
+
+
+def test_a_recombination_reorder_with_other_letters_is_the_answer_left() -> None:
+    source = "No. No yes."
+    assert not check("recombination", source, source=source, allow_identity=False).satisfied
+    assert check("recombination", "No yes. No.", source=source, allow_identity=False).satisfied

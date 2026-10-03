@@ -44,8 +44,10 @@ All notable changes to this project are documented here. The format follows
   leaves alone (one line, one sentence, no alternatives) do not take it, since the copy
   is the right answer there; `tests/test_allow_identity.py` names them and holds the
   rule for new rows. On a row that carries it, `false` still lets a copy stand where
-  the source admits no other answer (a one-sentence `recombination`, a one-word
-  `cut_up`). Generators already had an `allow_identity` (permit output identical to
+  the source admits no other non-empty answer: a one-sentence `recombination`, or one
+  whose every reordering has the copy's letters (`It rains. It rains!`), and a one-word
+  `cut_up` or `melting_text`, where the empty text also passes but is not counted as
+  an answer, since it is the output `apply` refuses as degenerate. Generators already had an `allow_identity` (permit output identical to
   the input or empty, default `false`); the check-side field shares the name with
   the opposite default until that default flips.
 

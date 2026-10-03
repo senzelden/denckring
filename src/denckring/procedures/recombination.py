@@ -18,6 +18,7 @@ from denckring.core.errors import InputTooShort, counted
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.source_compare import unchanged
+from denckring.core.text import letter_spans
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
@@ -28,6 +29,22 @@ class RecombinationParams(SourceParams, IdentityParams):
 
 def sentences(text: str) -> list[str]:
     return [s.strip().casefold() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
+
+
+def _reorder_changes_letters(source: str, pack: LanguagePack) -> bool:
+    """Whether some order of the source's sentences has other letters than the copy.
+
+    Decided on what `unchanged` compares, each sentence's letters, not on the
+    sentences `_check` counts: `It rains.` and `It rains!` are two sentences there
+    and one letter string here, so swapping them is no other answer. Reordering
+    changes the concatenation exactly when two of the strings do not commute
+    (`no` + `nono` does), the case `No. No no.` needs.
+    """
+    words = [
+        "".join(ch for _, ch in letter_spans(piece, pack, fold=False))
+        for piece in SENTENCE_SPLIT.split(source.strip())
+    ]
+    return any(a + b != b + a for i, a in enumerate(words) for b in words[i + 1 :])
 
 
 class RecombinationApplyParams(ApplyParams, RecombinationParams, SeedParams):
@@ -75,8 +92,7 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
             params.source,
             pack,
             allow=params.allow_identity,
-            # Another order needs two different sentences.
-            alternative=lambda: len(source) >= 2,
+            alternative=lambda: _reorder_changes_letters(params.source, pack),
             fold=False,
         )
         return self._report(
