@@ -90,6 +90,13 @@ All notable changes to this project are documented here. The format follows
   so `consonantal_lipogram`'s hint now reads `these consonants: "e", "t"` rather than
   `the consonants in "et"`, and `bivocalic`'s does the same for its vowels.
 
+### Changed
+
+- A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`
+  says `none of "e", "t"` (was `any letter outside 'et'`) and `bivocalic` says
+  `one of "a", "e"` (was `ae`). Message wording is outside the stability promise; no
+  verdict, score or rule moves.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

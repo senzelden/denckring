@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Iterable
 
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack
@@ -130,6 +131,16 @@ def single_letter(
             f"pass fold_diacritics=false to use it as a single letter",
         )
     return folded
+
+
+def quoted_letters(letters: Iterable[str]) -> str:
+    """A set of letters as a sentence reads it: `"e", "t"`, not `et`.
+
+    One rule for a prompt hint (`core.hints.show`, kind `letters`) and for a
+    violation's `expected` text, so the repair message and the prompt name the same
+    letters the same way. Quoted whole, a set of consonants reads as a word.
+    """
+    return ", ".join(f'"{letter}"' for letter in letters)
 
 
 def word_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:

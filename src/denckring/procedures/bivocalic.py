@@ -9,7 +9,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, single_letter
+from denckring.core.text import letter_spans, quoted_letters, single_letter
 
 PERMITTED = 2
 
@@ -71,7 +71,7 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
                 rule="foreign_vowel",
                 offset=offset,
                 found=ch,
-                expected="".join(sorted(permitted)),
+                expected=f"one of {quoted_letters(sorted(permitted))}",
             )
             for offset, ch in found
             if ch not in permitted

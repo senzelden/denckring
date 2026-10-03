@@ -15,6 +15,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core.errors import UnsetHintParameter
+from denckring.core.text import quoted_letters
 
 #: Parameters no hint states, house-wide, each with the reason. Everything else a
 #: row's checker accepts must appear in each of its hints or be named, with its
@@ -89,7 +90,7 @@ def show(value: Any, kind: str | None = None) -> str:
     such a placeholder unquoted.
     """
     if kind == "letters" and isinstance(value, str):
-        return ", ".join(f'"{letter}"' for letter in value)
+        return quoted_letters(value)
     if isinstance(value, Sequence) and not isinstance(value, str):
         return ", ".join(str(item) for item in value)
     return str(value)

@@ -7,7 +7,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, single_letter
+from denckring.core.text import letter_spans, quoted_letters, single_letter
 
 
 class ConsonantalLipogramParams(DiacriticParams):
@@ -52,7 +52,8 @@ class ConsonantalLipogram(BaseProcedure[ConsonantalLipogramParams]):
             for ch in params.forbidden
         ]
         banned = set(folded)
-        expected = f"any letter outside {''.join(folded)!r}"
+        # Each letter once, in the order given: `ç` and `c` fold to one letter.
+        expected = f"none of {quoted_letters(dict.fromkeys(folded))}"
         letters = letter_spans(text, pack, fold=params.fold_diacritics)
         violations = [
             Violation(

@@ -47,3 +47,14 @@ def test_unfolded_the_accented_letter_is_still_its_own_letter() -> None:
 def test_a_forbidden_letter_that_folds_to_two_is_refused() -> None:
     with pytest.raises(InvalidParams, match="fold_diacritics=false"):
         check("consonantal_lipogram", "Straße", lang="de", forbidden="bß")
+
+
+def test_the_expected_text_names_each_letter_of_the_set() -> None:
+    """`'bcd'` quoted whole reads as a word; repair feedback names letters (audit B11)."""
+    report = check("consonantal_lipogram", "a bad one", forbidden="bcd")
+    assert {v.expected for v in report.violations} == {'none of "b", "c", "d"'}
+
+
+def test_two_spellings_of_one_folded_letter_are_named_once() -> None:
+    report = check("consonantal_lipogram", "Le garçon", lang="fr", forbidden="çc")
+    assert {v.expected for v in report.violations} == {'none of "c"'}
