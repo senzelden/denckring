@@ -114,6 +114,19 @@ All notable changes to this project are documented here. The format follows
   print the material its answer comes from. `BasePack` gains `words` and an optional
   `word_exclusions`; the `LanguagePack` protocol is unchanged.
 
+- English word frequency (ADR 0052). `denckring-en-data` ships the count of each
+  graded word in the Leipzig Corpora Collection's `eng_news_2023_1M` (CC BY 4.0,
+  already among the distribution's licences), counted in lowercase so names in the
+  news do not rank common nouns. The pack declares the new `lexicon.frequency`
+  capability and answers `word_frequencies()`; `denckring.words(lang,
+  order="frequency")` sorts the everyday view by it. No checker reads it. German and
+  French have no counts, and their refusal names no extra.
+
+- ADR 0053 records why no pronunciation supplement ships for the five band-10 words
+  CMUdict lacks (`deeming`, `inclining`, `inputted`, `inputting`, `sophisticating`):
+  no licensed source holds them, and adding them would widen `is_word` and move
+  verdicts. Their syllable counts are already right, as estimates.
+
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Mapping, Sequence
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import Lang, PosTag
@@ -26,6 +26,9 @@ NOUNS = "lexicon.nouns"
 WORDS = "lexicon.words"
 GLOSSES = "lexicon.glosses"
 GRADED_WORDS = "lexicon.graded_words"
+#: How often each word occurs in a corpus: a frequency, where `graded_words` is a
+#: size class (ADR 0028, ADR 0052).
+FREQUENCY = "lexicon.frequency"
 PHONEMES = "phonemes"
 STRESS = "stress"
 #: A part-of-speech reading of a token in its sentence. One capability and not a
@@ -33,6 +36,9 @@ STRESS = "stress"
 #: there is no exact tier for a heuristic one to be contrasted with, and
 #: `PosTag.known` carries the per-token honesty instead. ADR 0045.
 POS = "pos"
+
+#: How `graded_view` sorts: by SCOWL-style band, or by corpus count (ADR 0052).
+WordOrder = Literal["band", "frequency"]
 
 # Both apostrophes are intentional: real text uses the typographic one.
 WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)  # noqa: RUF001
@@ -266,14 +272,30 @@ class BasePack:
         """The word's position in `nouns()`, or None if it is not a noun."""
         raise MissingCapability(DIRECT_CALL, self.lang, NOUNS)
 
+    def word_frequencies(self) -> Mapping[str, int]:
+        """How many times each word occurs in the pack's corpus, larger meaning commoner.
+
+        A count, not a band: `graded_words` says which size of dictionary a word
+        first appears in, which ADR 0028 warns is no frequency. Keyed by
+        lowercase word; a word the corpus never has is absent. Read by no checker
+        (ADR 0052).
+        """
+        raise MissingCapability(DIRECT_CALL, self.lang, FREQUENCY)
+
     def word_exclusions(self) -> frozenset[str]:
         """Graded words `words()` leaves out as no everyday word: none, unless a pack
         curates a list (English does; ADR 0051). Never read by a checker."""
         return frozenset()
 
-    def words(self, max_band: int | None = None, *, letters_only: bool = True) -> tuple[str, ...]:
-        """The graded words up to `max_band`, commonest band first: see `graded_view`."""
-        return graded_view(self, max_band, letters_only=letters_only)
+    def words(
+        self,
+        max_band: int | None = None,
+        *,
+        letters_only: bool = True,
+        order: WordOrder = "band",
+    ) -> tuple[str, ...]:
+        """The graded words up to `max_band`, commonest first: see `graded_view`."""
+        return graded_view(self, max_band, letters_only=letters_only, order=order)
 
     def graded_words(self) -> Mapping[str, int]:
         """Every word the lexicon knows, with how common it is.
@@ -296,7 +318,11 @@ class BasePack:
 
 
 def graded_view(
-    pack: object, max_band: int | None = None, *, letters_only: bool = True
+    pack: object,
+    max_band: int | None = None,
+    *,
+    letters_only: bool = True,
+    order: WordOrder = "band",
 ) -> tuple[str, ...]:
     """A pack's graded words as a list a caller can draw everyday words from.
 
@@ -305,7 +331,9 @@ def graded_view(
     to words of letters alone when `letters_only` (French grades `aujourd'hui`
     and `porte-monnaie`), and cleared of the pack's `word_exclusions`, the
     entries SCOWL grades but no reader would call a word (`payed`, `numbest`).
-    Sorted by band, then alphabetically, so the commonest come first.
+    Sorted by band, then alphabetically, so the commonest come first; with
+    `order="frequency"`, by the pack's `word_frequencies()` count, highest first,
+    words the corpus lacks last, and ties alphabetically.
 
     A view, not a capability: the graded table it reads is unchanged, and no
     checker reads this, so no verdict depends on it. `word_exclusions` is read
@@ -315,11 +343,17 @@ def graded_view(
     graded: Mapping[str, int] = pack.graded_words()  # type: ignore[attr-defined]
     exclusions = getattr(pack, "word_exclusions", None)
     excluded: frozenset[str] = exclusions() if exclusions is not None else frozenset()
-    chosen = sorted(
-        (band, word)
+    kept = [
+        word
         for word, band in graded.items()
         if (max_band is None or band <= max_band)
         and (not letters_only or word.isalpha())
         and word not in excluded
-    )
-    return tuple(word for _, word in chosen)
+    ]
+    if order == "frequency":
+        frequencies = getattr(pack, "word_frequencies", None)
+        if frequencies is None:
+            raise MissingCapability(DIRECT_CALL, getattr(pack, "lang", "?"), FREQUENCY)
+        counts: Mapping[str, int] = frequencies()
+        return tuple(sorted(kept, key=lambda word: (-counts.get(word, 0), word)))
+    return tuple(sorted(kept, key=lambda word: (graded[word], word)))

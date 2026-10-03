@@ -11,6 +11,7 @@ license-files = [
     "LICENSE-CMUDICT",
     "LICENSE-WORDNET",
     "LICENSE-SCOWL",
+    "LICENSE-LEIPZIG",
 ]
 authors = [{ name = "Dennis Senzel", email = "dennis.senzel@posteo.com" }]
 classifiers = [

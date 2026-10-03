@@ -50,7 +50,7 @@ from denckring.core.rules import CATEGORIES, RULE_CATEGORIES
 from denckring.core.scope import SCOPES
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
-from denckring.lang.base import graded_view
+from denckring.lang.base import WordOrder, graded_view
 
 try:
     __version__ = version("denckring")
@@ -284,7 +284,11 @@ def witness(
 
 
 def words(
-    lang: Lang = "en", *, max_band: int | None = None, letters_only: bool = True
+    lang: Lang = "en",
+    *,
+    max_band: int | None = None,
+    letters_only: bool = True,
+    order: WordOrder = "band",
 ) -> tuple[str, ...]:
     """The language's graded words up to `max_band`, commonest band first (audit D1).
 
@@ -292,11 +296,13 @@ def words(
     `graded_words()` kept to bands up to `max_band` (SCOWL's size classes in
     English, where 10 is the commonest), to words of letters alone when
     `letters_only`, and without the entries a pack excludes as no everyday word
-    (`payed`, `numbest`; ADR 0051). Sorted by band, then alphabetically. No
-    checker reads this view, so it moves no verdict. Raises `MissingCapability`
-    when the pack grades no words.
+    (`payed`, `numbest`; ADR 0051). Sorted by band, then alphabetically; with
+    `order="frequency"`, by how often each occurs in the pack's corpus, commonest
+    first (ADR 0052; English only so far). No checker reads this view, so it moves
+    no verdict. Raises `MissingCapability` when the pack grades no words, or has no
+    corpus counts for `order="frequency"`.
     """
-    return graded_view(get_pack(lang), max_band, letters_only=letters_only)
+    return graded_view(get_pack(lang), max_band, letters_only=letters_only, order=order)
 
 
 def nouns(lang: Lang = "en", *, max_band: int | None = None) -> tuple[str, ...]:

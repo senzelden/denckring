@@ -36,5 +36,11 @@ classes of [ADR 0028](../adr/0028-the-graded-lexicon.md), a ranking by commonnes
 holds words the other lacks: SCOWL has verbs and adjectives neither oracle source
 carries (`abjure`), and also entries that are not words at all (`payed` and `numbest`
 sit in band 10), so `is_word` is not widened to cover it. A caller wanting everyday
-words should not treat either as that list, but use the curated everyday-words view
-(planned).
+words should not treat either as that list, but use the curated everyday-words view,
+`denckring.words(lang, max_band=...)` ([ADR 0051](../adr/0051-an-everyday-words-view.md)),
+which leaves out the entries a pack lists in `word_exclusions()`.
+
+Neither is a frequency. English packs with `denckring-en-data` declare
+`lexicon.frequency` and answer `word_frequencies()`, each graded word's count in a
+million sentences of news ([ADR 0052](../adr/0052-english-word-frequency.md));
+`denckring.words(lang, order="frequency")` sorts the everyday view by it.

@@ -109,6 +109,8 @@ nav:
       - "49. Strict relations and supplied bilingual data": adr/0049-strict-relations-and-supplied-bilingual-data.md
       - "50. Prompt hints are templates": adr/0050-templated-prompt-hints.md
       - "51. An everyday-words view": adr/0051-an-everyday-words-view.md
+      - "52. English word frequency": adr/0052-english-word-frequency.md
+      - "53. No pronunciation supplement yet": adr/0053-no-pronunciation-supplement-yet.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

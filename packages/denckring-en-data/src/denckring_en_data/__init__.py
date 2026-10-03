@@ -21,6 +21,7 @@ from denckring.lang.base import (
     ALPHABET,
     ANTONYMS,
     FOLD_DIACRITICS,
+    FREQUENCY,
     GLOSSES,
     GRADED_WORDS,
     LETTER_SHAPES,
@@ -40,6 +41,8 @@ DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict")
 NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
+#: Word to corpus count, from Leipzig's English news corpus (ADR 0052).
+FREQUENCIES_PATH = Path(str(files("denckring_en_data") / "data" / "frequencies.txt.gz"))
 #: Graded words no reader would call everyday words: an editorial override of
 #: SCOWL's bands for `words()`, never read by a checker (ADR 0051).
 EXCLUSIONS_PATH = Path(str(files("denckring_en_data") / "data" / "everyday_exclusions.txt"))
@@ -133,6 +136,23 @@ def graded_words() -> Mapping[str, int]:
 
 
 @lru_cache(maxsize=1)
+def word_frequencies() -> Mapping[str, int]:
+    """Word to its count in the Leipzig Corpora Collection's `eng_news_2023_1M`.
+
+    Lowercase occurrences only, over the graded vocabulary (ADR 0052): a
+    frequency to rank everyday words by, where `graded_words()` holds SCOWL's
+    size classes, which ADR 0028 warns are none.
+    """
+    table: dict[str, int] = {}
+    with gzip.open(FREQUENCIES_PATH, mode="rt", encoding="utf-8") as handle:
+        for line in handle:
+            word, _, count = line.rstrip("\n").partition("\t")
+            if count:
+                table[word] = int(count)
+    return table
+
+
+@lru_cache(maxsize=1)
 def everyday_exclusions() -> frozenset[str]:
     """The graded words `words()` leaves out, one per line, `#` starting a comment."""
     lines = EXCLUSIONS_PATH.read_text(encoding="utf-8").splitlines()
@@ -214,6 +234,7 @@ class EnglishDataPack(EnglishPack):
             WORDS,
             GLOSSES,
             GRADED_WORDS,
+            FREQUENCY,
         }
     )
 
@@ -244,6 +265,10 @@ class EnglishDataPack(EnglishPack):
 
     def word_exclusions(self) -> frozenset[str]:
         return everyday_exclusions()
+
+    def word_frequencies(self) -> Mapping[str, int]:
+        """A read-only view over the cached table, as `graded_words` gives."""
+        return MappingProxyType(word_frequencies())
 
     def graded_words(self) -> Mapping[str, int]:
         """A read-only view over the cached table.
@@ -415,10 +440,13 @@ def pack() -> EnglishDataPack:
 
 __all__ = [
     "DICTIONARY_PATH",
+    "EXCLUSIONS_PATH",
+    "FREQUENCIES_PATH",
     "GLOSSES_PATH",
     "GRADED_WORDS_PATH",
     "NOUNS_PATH",
     "EnglishDataPack",
+    "everyday_exclusions",
     "gloss_table",
     "graded_words",
     "known_words",
@@ -426,4 +454,5 @@ __all__ = [
     "pack",
     "pronunciations",
     "variants",
+    "word_frequencies",
 ]

@@ -131,7 +131,15 @@ _PERMANENTLY_MISSING = frozenset(
 _UNSUPPLIED_TODAY = frozenset(
     (lang, capability)
     for lang in ("de", "fr")
-    for capability in ("pos", "lexicon.synonyms", "lexicon.antonyms", "corpus.proverbs")
+    for capability in (
+        "pos",
+        "lexicon.synonyms",
+        "lexicon.antonyms",
+        "corpus.proverbs",
+        # ADR 0052: corpus counts arrive English-only. German's Leipzig table was
+        # cut to bands at build time, so no installed German extra has counts.
+        "lexicon.frequency",
+    )
 )
 
 #: `(lang, capability)` pairs supplied by an extra that is *not* named after the
