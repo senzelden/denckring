@@ -41,6 +41,7 @@ from denckring.core.protocol import (
     Violation,
 )
 from denckring.core.registry import all_procedures, get
+from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
 
 try:
@@ -138,6 +139,40 @@ def rules(procedure_id: str) -> tuple[str, ...]:
     )
 
 
+def golden_cases(lang: Lang | None = None, *, runnable: bool = True) -> list[GoldenCase]:
+    """The shipped golden examples, each a text with the verdict its row must give.
+
+    Every case names its row (`procedure`), its `lang`, the `text` and the `params`
+    to check it with, and the recorded verdict (`satisfied`, with `min_score` or
+    `max_score` where the score is pinned too). `provenance` says where the text
+    came from: `external` (a published work), `constructed` (written for the suite)
+    or `self-generated` (the row's own `apply`). Only `external` is evidence about
+    the reading rather than the code. `requires` lists capabilities the case needs
+    beyond its row's.
+
+    `lang` keeps one language's cases. `runnable`, the default, keeps the cases this
+    install can run: the language's pack declares every capability the row and the
+    case require. A case it drops would end in `MissingCapability`, or would give an
+    answer about the installed data rather than the text, which is why the scoreboard
+    blocks it rather than scoring it. Pass `runnable=False` for the whole corpus.
+    """
+    from denckring.eval.harness import golden_cases as every_case
+    from denckring.eval.harness import unmet_requirements
+
+    cases = [case for case in every_case() if lang is None or case.lang == lang]
+    if not runnable:
+        return cases
+
+    def runs(case: GoldenCase) -> bool:
+        pack = get_pack(case.lang)
+        needed = get(case.procedure).meta.requires
+        return all(name in pack.capabilities for name in needed) and not unmet_requirements(
+            case, pack
+        )
+
+    return [case for case in cases if runs(case)]
+
+
 def list_procedures() -> list[str]:
     """Every registered procedure id, sorted."""
     return sorted(all_procedures())
@@ -149,6 +184,7 @@ __all__ = [
     "Description",
     "DuplicatePack",
     "DuplicateProcedure",
+    "GoldenCase",
     "InputTooLong",
     "InputTooShort",
     "InvalidParams",
@@ -184,6 +220,7 @@ __all__ = [
     "describe",
     "get",
     "get_pack",
+    "golden_cases",
     "list_procedures",
     "produce",
     "prompt_hint",

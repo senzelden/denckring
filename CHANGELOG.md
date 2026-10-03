@@ -78,6 +78,11 @@ All notable changes to this project are documented here. The format follows
   lists the pack surface as a contract: a protocol method keeps its signature and
   meaning, and a new one arrives as an optional member read with `getattr`.
 
+- `denckring.golden_cases(lang=None, *, runnable=True)` returns the shipped golden
+  examples as `denckring.GoldenCase`: text, params, recorded verdict, `provenance` and
+  case-level `requires`. `runnable` keeps the cases this install's packs can run, with
+  both the row's and the case's own requirements met.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

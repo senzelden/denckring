@@ -17,3 +17,7 @@ The models `check` and `describe` return.
 ::: denckring.core.describe.Summary
 
 ::: denckring.core.describe.Scholarly
+
+## The golden corpus
+
+::: denckring.eval.harness.GoldenCase

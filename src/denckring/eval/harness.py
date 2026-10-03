@@ -46,7 +46,11 @@ CaseProvenance = Literal["external", "constructed", "self-generated"]
 
 
 class GoldenCase(BaseModel):
-    """One recorded example, positive or negative, for a procedure."""
+    """One recorded example, positive or negative, for a procedure.
+
+    Published as `denckring.GoldenCase` and read through `denckring.golden_cases`,
+    which documents the fields; the rest of this module stays internal.
+    """
 
     procedure: str
     lang: Lang = "en"
