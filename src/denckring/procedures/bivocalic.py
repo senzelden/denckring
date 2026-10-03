@@ -15,7 +15,12 @@ PERMITTED = 2
 
 
 class BivocalicParams(DiacriticParams):
-    vowels: str | None = Field(default=None, description="The two permitted vowels.")
+    vowels: str | None = Field(
+        default=None,
+        description="The two permitted vowels.",
+        # A set of letters, not a word: a hint renders "ae" as `"a", "e"`.
+        json_schema_extra={"x-denckring-show": "letters"},
+    )
 
     @field_validator("vowels")
     @classmethod

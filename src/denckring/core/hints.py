@@ -57,25 +57,59 @@ def placeholders(template: str) -> list[str]:
     return [name for _, name, _, _ in Formatter().parse(template) if name is not None]
 
 
-def show(value: Any) -> str:
+#: How a parameter may declare it reads in a sentence, as
+#: `json_schema_extra={"x-denckring-show": ...}` on its field. Closed, so a typo is
+#: refused rather than rendered by the default rule. `letters` is a string of letters
+#: read as a set: `"et"` renders `"e", "t"`, each letter quoted, because a set of
+#: consonants quoted whole reads as the word `et` (audit B6, the bench's ruling R77).
+SHOW_KEY = "x-denckring-show"
+SHOW_KINDS: tuple[str, ...] = ("letters",)
+
+
+def show_kinds(model: type[BaseModel]) -> dict[str, str]:
+    """Each field of `model` that declares how it reads, mapped to its kind."""
+    kinds: dict[str, str] = {}
+    for name, field in model.model_fields.items():
+        extra = field.json_schema_extra
+        if isinstance(extra, Mapping) and SHOW_KEY in extra:
+            kind = extra[SHOW_KEY]
+            if kind not in SHOW_KINDS:
+                raise ValueError(f"{model.__name__}.{name}: unknown {SHOW_KEY} {kind!r}")
+            kinds[name] = str(kind)
+    return kinds
+
+
+def show(value: Any, kind: str | None = None) -> str:
     """How a parameter value reads in a sentence: the one rule for non-strings.
 
     A list or tuple joins its items with ", " (`[5, 7, 5]` reads `5, 7, 5`, not
     `[5, 7, 5]`); everything else is `str()`. A string is a sequence too, and is
-    kept whole.
+    kept whole, unless its field declares `letters` (`SHOW_KINDS`), when each
+    letter is quoted and the quotes joined with ", ". A template therefore leaves
+    such a placeholder unquoted.
     """
+    if kind == "letters" and isinstance(value, str):
+        return ", ".join(f'"{letter}"' for letter in value)
     if isinstance(value, Sequence) and not isinstance(value, str):
         return ", ".join(str(item) for item in value)
     return str(value)
 
 
-def render(procedure_id: str, template: str, values: Mapping[str, Any]) -> str:
-    """Fill `template` from `values`, refusing any placeholder whose value is `None`."""
+def render(
+    procedure_id: str,
+    template: str,
+    values: Mapping[str, Any],
+    kinds: Mapping[str, str] | None = None,
+) -> str:
+    """Fill `template` from `values`, refusing any placeholder whose value is `None`.
+
+    `kinds` is `show_kinds` of the row's params model: how each field reads.
+    """
     filled: dict[str, str] = {}
     for name in placeholders(template):
         if values.get(name) is None:
             raise UnsetHintParameter(procedure_id, name)
-        filled[name] = show(values[name])
+        filled[name] = show(values[name], (kinds or {}).get(name))
     return template.format(**filled)
 
 
@@ -98,5 +132,5 @@ def rendered_with_defaults(procedure_id: str, template: str, model: type[BaseMod
     """
     defaults = default_values(model)
     if all(name in defaults for name in placeholders(template)):
-        return render(procedure_id, template, defaults)
+        return render(procedure_id, template, defaults, show_kinds(model))
     return template

@@ -11,9 +11,11 @@ from __future__ import annotations
 import inspect
 
 import pytest
+from pydantic import BaseModel, Field
 
 import denckring
 from denckring.core import errors
+from denckring.core.hints import show_kinds
 from denckring.core.registry import get
 from denckring.eval.harness import golden_cases
 
@@ -79,3 +81,50 @@ def test_golden_cases_drops_what_this_install_cannot_run(monkeypatch: pytest.Mon
     alexandrines = {case.name for case in kept if case.procedure == "alexandrine"}
     assert alexandrines
     assert "gryphius-traenen-alexandriner" not in alexandrines
+
+
+def test_render_hint_renders_a_callers_template_by_the_rows_rule() -> None:
+    assert (
+        denckring.render_hint("consonantal_lipogram", "Avoid {forbidden}.", forbidden="ST")
+        == 'Avoid "s", "t".'
+    )
+    assert denckring.render_hint("syllable_count", "Lines of {pattern}.", pattern=[5, 7, 5]) == (
+        "Lines of 5, 7, 5."
+    )
+
+
+def test_render_hint_validates_as_check_does() -> None:
+    with pytest.raises(denckring.InvalidParams):
+        denckring.render_hint("consonantal_lipogram", "Avoid {forbidden}.", forbidden="4")
+    with pytest.raises(denckring.InvalidParams, match="not parameters"):
+        denckring.render_hint("consonantal_lipogram", "Avoid {letters}.", forbidden="st")
+    with pytest.raises(denckring.UnsetHintParameter):
+        denckring.render_hint("bivocalic", "Only {vowels}.")
+    with pytest.raises(denckring.UnknownLanguage):
+        denckring.render_hint("lipogram", "No {forbidden}.", lang="xx")  # type: ignore[arg-type]
+
+
+def test_a_letter_set_reads_as_letters_in_the_rows_own_hint() -> None:
+    """`"et"` quoted whole reads as a word; the bench re-rendered it (R77, audit B6)."""
+    hint = denckring.prompt_hint("consonantal_lipogram", forbidden="et")
+    assert '"e", "t"' in hint
+    assert '"et"' not in hint
+    assert '"a", "e"' in denckring.prompt_hint("bivocalic", vowels="ae")
+
+
+def test_every_declared_show_kind_is_one_the_renderer_knows() -> None:
+    """`show_kinds` refuses an unknown kind; reading every row's model proves none has one."""
+    declared = {
+        (pid, name)
+        for pid, procedure in denckring.all_procedures().items()
+        for name in show_kinds(procedure.params_model())
+    }
+    assert ("consonantal_lipogram", "forbidden") in declared
+
+
+def test_an_unknown_show_kind_is_refused() -> None:
+    class Params(BaseModel):
+        forbidden: str = Field(json_schema_extra={"x-denckring-show": "word"})
+
+    with pytest.raises(ValueError, match="unknown x-denckring-show"):
+        show_kinds(Params)

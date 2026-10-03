@@ -10,6 +10,8 @@ The top-level entry points. Everything here is importable directly from `denckri
 
 ::: denckring.prompt_hint
 
+::: denckring.render_hint
+
 ::: denckring.rules
 
 ::: denckring.golden_cases

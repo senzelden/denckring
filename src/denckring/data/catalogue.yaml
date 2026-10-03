@@ -1072,7 +1072,7 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a passage avoiding every one of the consonants in "{forbidden}".
+        Write a passage avoiding every one of these consonants: {forbidden}.
 
   - id: liponym
     names: { en: Liponym, fr: Liponyme }
@@ -1232,7 +1232,7 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a passage using no vowels but the two in "{vowels}".
+        Write a passage using no vowels but these two: {vowels}.
 
   - id: antigram
     names: { en: Antigram }

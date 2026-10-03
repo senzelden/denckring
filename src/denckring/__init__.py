@@ -29,7 +29,7 @@ from denckring.core.errors import (
     UnsetHintParameter,
     UnsettablePhrase,
 )
-from denckring.core.hints import render
+from denckring.core.hints import placeholders, render, show_kinds
 from denckring.core.protocol import (
     Constructive,
     Lang,
@@ -105,12 +105,39 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     if template is None:
         raise NoPromptHint(procedure_id, lang)
     parsed = procedure.parse_params(params)
-    lines = [render(procedure_id, template, dict(parsed))]
+    lines = [render(procedure_id, template, dict(parsed), show_kinds(procedure.params_model()))]
     lines += [
         f"- {prompt_hint(delegate, lang=lang, **delegate_params)}"
         for delegate, delegate_params in procedure.hint_delegates(parsed)
     ]
     return "\n".join(lines)
+
+
+def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params: Any) -> str:
+    """Render a template the caller owns by the rule `prompt_hint` uses.
+
+    For a caller writing its own prompt for a row rather than using the catalogue's.
+    `params` are validated as `check` validates them, so defaults fill in and a bad
+    value raises `InvalidParams`; `lang` must name a language a pack is installed
+    for, as it must for `check`. Values render as in `prompt_hint`: a list joins with
+    ", ", a field declaring `x-denckring-show: letters` quotes each letter (`"e",
+    "t"`), anything else is `str()`. A placeholder naming no parameter of the row
+    raises `InvalidParams`; one whose value is `None` raises `UnsetHintParameter`.
+    Unlike `prompt_hint`, nothing is appended for a composite's constraints: the
+    template is the whole prompt.
+    """
+    procedure = get(procedure_id)
+    get_pack(lang)
+    model = procedure.params_model()
+    unknown = sorted(set(placeholders(template)) - set(model.model_fields))
+    if unknown:
+        raise InvalidParams(
+            procedure_id,
+            f"template names {unknown}, which are not parameters of this row; "
+            f"it accepts {sorted(model.model_fields)}",
+        )
+    parsed = procedure.parse_params(params)
+    return render(procedure_id, template, dict(parsed), show_kinds(model))
 
 
 def rules(procedure_id: str) -> tuple[str, ...]:
@@ -224,6 +251,7 @@ __all__ = [
     "list_procedures",
     "produce",
     "prompt_hint",
+    "render_hint",
     "rules",
     "summaries",
 ]

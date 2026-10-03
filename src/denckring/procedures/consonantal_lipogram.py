@@ -11,7 +11,11 @@ from denckring.core.text import letter_spans, single_letter
 
 
 class ConsonantalLipogramParams(DiacriticParams):
-    forbidden: str = Field(description="The consonants the text must avoid.")
+    forbidden: str = Field(
+        description="The consonants the text must avoid.",
+        # A set of letters, not a word: a hint renders "st" as `"s", "t"`.
+        json_schema_extra={"x-denckring-show": "letters"},
+    )
 
     @field_validator("forbidden")
     @classmethod

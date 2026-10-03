@@ -83,6 +83,13 @@ All notable changes to this project are documented here. The format follows
   case-level `requires`. `runnable` keeps the cases this install's packs can run, with
   both the row's and the case's own requirements met.
 
+- `denckring.render_hint(procedure_id, template, *, lang="en", **params)` renders a
+  template the caller owns by `prompt_hint`'s rule, validating the params as `check`
+  does and refusing a placeholder that names no parameter. A field may declare how it
+  reads in a sentence with `x-denckring-show`; `letters` quotes each letter of a set,
+  so `consonantal_lipogram`'s hint now reads `these consonants: "e", "t"` rather than
+  `the consonants in "et"`, and `bivocalic`'s does the same for its vowels.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
