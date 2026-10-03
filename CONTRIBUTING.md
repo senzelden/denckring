@@ -21,8 +21,12 @@ fixture and catalogue row — each marked `FILL IN`. Fill them in; invent no str
 - **Catalogue row** (`src/denckring/data/catalogue.yaml`) — names, definitions, a real
   source with a date, `kind`, `languages`, `requires`, and an English prompt hint. The
   catalogue is the single source of truth for metadata; the module loads it.
-- **Module** — a Pydantic `Params` model and `_check`. Language, capability and
-  parameter validation already happened in `BaseProcedure.check`; do not repeat them.
+- **Module** — a Pydantic `Params` model, `_check`, and `rules`: every `violation.rule`
+  the checker can emit, sorted, declared in the class body (`denckring.rules` publishes
+  it). The tests fail on a rule emitted but not declared, and on one declared that no
+  golden case or witness in `tests/fixtures/rule_witnesses.yaml` emits. Language,
+  capability and parameter validation already happened in `BaseProcedure.check`; do
+  not repeat them.
   Build the `Report` with `self._report(...)` unless an empty text should be
   *unsatisfied* for your procedure, as it is for `pangram`.
 - **Golden fixture** — at least one authentic literary instance that must be satisfied

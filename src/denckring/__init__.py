@@ -168,17 +168,33 @@ def rules(procedure_id: str) -> tuple[str, ...]:
     """
     procedure = get(procedure_id)
     if not procedure.delegates_rules:
-        return procedure.rules
+        return _declared(procedure)
     return tuple(
         sorted(
             {
                 rule
                 for other in all_procedures().values()
                 if not other.delegates_rules
-                for rule in other.rules
+                for rule in _declared(other)
             }
         )
     )
+
+
+def _declared(procedure: Any) -> tuple[str, ...]:
+    """A row's `rules`, or an error naming the row that forgot them.
+
+    `BaseProcedure.rules` has no default by design, so a plugin or a new row without
+    one would surface as a bare `AttributeError`, and through `multiple_constraint`'s
+    union it would name the composite rather than the row at fault.
+    """
+    declared: tuple[str, ...] | None = getattr(procedure, "rules", None)
+    if declared is None:
+        raise TypeError(
+            f"procedure {procedure.id!r} declares no `rules`; every row lists the "
+            "`violation.rule` values its checker can emit (CONTRIBUTING.md)"
+        )
+    return declared
 
 
 def golden_cases(lang: Lang | None = None, *, runnable: bool = True) -> list[GoldenCase]:

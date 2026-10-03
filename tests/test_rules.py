@@ -177,3 +177,14 @@ def test_every_row_taking_unknown_rhyme_can_fail_on_it() -> None:
         and "unknown_rhyme" not in procedure.rules
     )
     assert ignoring == []
+
+
+def test_a_row_without_rules_is_named_even_through_the_composite(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A forgotten declaration names the row at fault, not `multiple_constraint`."""
+    monkeypatch.delattr(type(get("lipogram")), "rules")
+    with pytest.raises(TypeError, match="'lipogram' declares no `rules`"):
+        denckring.rules("multiple_constraint")
+    with pytest.raises(TypeError, match="'lipogram' declares no `rules`"):
+        denckring.rules("lipogram")

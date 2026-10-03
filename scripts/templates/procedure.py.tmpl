@@ -16,6 +16,9 @@ class ${class}Params(BaseModel):
 @register
 class $class(BaseProcedure[${class}Params]):
     id = "$id"
+    #: FILL IN every `violation.rule` this checker can emit, sorted. `denckring.rules`
+    #: publishes it; `tests/test_rules.py` fails until it is declared and reached.
+    rules = ()
 
     @classmethod
     def params_model(cls) -> type[${class}Params]:
