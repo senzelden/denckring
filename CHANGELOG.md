@@ -78,13 +78,6 @@ All notable changes to this project are documented here. The format follows
   `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
   checker had the spans; they now carry the offset of the text's letter or word, and a
   letter or word missing from the end is placed at the end of the text.
-- English `is_word` accepts every word `graded_words()` hands out. The membership
-  oracle was WordNet's nouns and CMUdict's headwords, and refused 24,628 graded words,
-  mostly verbs and adjectives (`abjure`, `abjectly`) and 10 of them in band 10
-  (`deeming`, `inputting`); it now includes the graded list, which stops at SCOWL's
-  band 60. Rows asking membership (`semordnilap`, `charade`, `word_square`, `tmesis`,
-  `word_ladder`, …) accept those words. One golden score moves: the Sator square's
-  `rotas` is now an English word (`word_square`, 0.8 to 0.8667, still unsatisfied).
 
 ## [0.3.1] - 2026-09-22
 

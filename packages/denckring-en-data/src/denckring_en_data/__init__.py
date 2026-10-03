@@ -106,12 +106,11 @@ def gloss_table() -> dict[str, tuple[str, ...]]:
 def graded_words() -> Mapping[str, int]:
     """Word to SCOWL size band, from the vendored graded list.
 
-    Unlike `known_words()`, this is not a union of lists built for other
+    Unlike `known_words()`, this is not a union of two lists built for other
     purposes: it is one list whose whole point is that its entries are ordered by
-    commonness. `known_words()` is not replaced by it — `semordnilap` and
+    commonness. `known_words()` stays exactly as it is — `semordnilap` and
     `charade` ask membership, and are right to keep asking the broad oracle ADR
-    0015 describes — but it includes it, so the two never disagree about whether
-    a word exists.
+    0015 describes.
     """
     table: dict[str, int] = {}
     with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
@@ -124,22 +123,18 @@ def graded_words() -> Mapping[str, int]:
 
 @lru_cache(maxsize=1)
 def known_words() -> frozenset[str]:
-    """Word membership, from the nouns, the pronouncing dictionary and the
-    graded list together.
+    """Word membership, from the nouns and the pronouncing dictionary together.
 
-    Neither of the first two alone is a general English word list: WordNet has
-    no inflections of the kind CMUdict carries, and CMUdict has proper nouns and
-    abbreviations WordNet omits. Neither holds every verb and adjective either
-    (`abjure`, `abjectly`), which the graded list does: without it, 24,628 words
-    `graded_words()` handed out were words `is_word` refused, and two
-    capabilities of one pack disagreed about whether a word exists.
+    Neither alone is a general English word list: WordNet has no inflections of
+    the kind CMUdict carries, and CMUdict has proper nouns and abbreviations
+    WordNet omits.
 
     The union is deliberately broad, and broad in a way callers should know
     about: CMUdict lists `tac`, so `cat` reverses into something this oracle
     calls a word. It answers "could this be a word" rather than "is this in a
     dictionary of standard English", and procedures resting on it inherit that.
     """
-    return frozenset(noun_list()) | frozenset(pronunciations()) | frozenset(graded_words())
+    return frozenset(noun_list()) | frozenset(pronunciations())
 
 
 @lru_cache(maxsize=2)

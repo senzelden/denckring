@@ -97,16 +97,3 @@ def test_the_pack_method_hands_back_a_view_not_the_live_cache() -> None:
     finally:
         del table[sentinel]
     assert sentinel not in view
-
-
-def test_every_graded_word_is_a_word() -> None:
-    """Two lexicon capabilities of one pack must not disagree about whether a
-    word exists. `graded_words()` handed out 24,628 entries `is_word` refused,
-    10 of them in band 10 (`deeming`, `inputting`), and most were verbs and
-    adjectives (`abjure`, `abjectly`) that WordNet's noun list cannot hold and
-    CMUdict happens to lack. The graded list stops at SCOWL's band 60, the size
-    its author is "fairly confident does not contain any misspellings" (ADR
-    0028), which is no looser than the CMUdict half of the union already was."""
-    pack = en_data.EnglishDataPack()
-    refused = [word for word in en_data.graded_words() if not pack.is_word(word)]
-    assert refused == []
