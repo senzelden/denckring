@@ -298,6 +298,23 @@ class Meta(BaseModel):
     #: honest about its own cost.
     apply_requires: tuple[str, ...] = Field(default_factory=tuple)
     deterministic: bool = True
+    #: Whether `check` passes one text for a given source and parameters: the text
+    #: `apply` returns, as the checker reads it (case and spacing aside). True for the
+    #: rows that compute their answer from the source (`every_nth_word`,
+    #: `slenderizing`), false where the writer chooses (`anagram`, `cut_up`). A caller
+    #: grading a transform can then score against one answer (audit C4).
+    #: `n_plus_7` is false: its default `ambiguous_nouns="free"` accepts a listed word
+    #: left unchanged, so more than one text passes. `tests/test_suitability.py`
+    #: holds each row flagged true to failing every text that differs in its words.
+    unique_answer: bool = False
+    #: Material a verdict depends on that the reader of a prompt cannot see unless the
+    #: caller prints it: a parameter whose default is shipped data (`n_plus_7`'s
+    #: `dictionary`, the pack's whole noun list; `denckring`'s `device`), or a
+    #: required capability whose data decides the answer (`lexicon.glosses`). Each
+    #: entry names the parameter or the capability. A prompt asking for such a row
+    #: either supplies its own material and prints it, or is asking for an answer no
+    #: writer can derive (audit C4).
+    hidden_material: tuple[str, ...] = Field(default_factory=tuple)
     #: `str.format` templates over the row's parameters (ADR 0050). Read them
     #: through `denckring.prompt_hint`, or `describe`, never raw: a raw hint may
     #: still hold a `{placeholder}`.

@@ -78,6 +78,17 @@ All notable changes to this project are documented here. The format follows
   rule no row declares. Published under the rules' own terms: a category may move in a
   minor release, and the changelog will say so.
 
+- Two catalogue flags for a caller building a transform prompt from a row, on `Meta`
+  and `describe`. `unique_answer` (on `boustrophedon`, `every_nth_word`, `fold_in`,
+  `haikuization`, `mathews_algorithm`, `slenderizing` and `text_folding`) says the
+  source and parameters fix the one text `check` passes; a test applies each row and
+  fails it if a dropped, added, swapped or changed word still passes.
+  `hidden_material` names the parameter or capability whose data decides the answer
+  and which a prompt does not carry: `n_plus_7`'s dictionary, a gloss lexicon, a
+  device, a figure, the proverb corpus. A row requiring nouns, glosses or proverbs
+  must declare it. `column_reading` is not flagged unique: its checker passes the
+  answer with a source word appended, reporting `extra_words` without failing.
+
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.

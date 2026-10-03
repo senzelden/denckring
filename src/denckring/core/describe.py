@@ -135,6 +135,10 @@ class Description(BaseModel):
     #: false); in `params`, on the source rows that declare it, accept the source
     #: back unchanged as an answer (default true until that default flips).
     apply_params: dict[str, Any]
+    #: `Meta.unique_answer`: `check` passes only the text `apply` returns.
+    unique_answer: bool = False
+    #: `Meta.hidden_material`: what the verdict reads that a prompt does not show.
+    hidden_material: list[str] = Field(default_factory=list)
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -281,6 +285,8 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
             if isinstance(procedure, ConstructiveProcedure)
             else {}
         ),
+        unique_answer=meta.unique_answer,
+        hidden_material=list(meta.hidden_material),
         scholarly=(
             Scholarly(
                 source=meta.source,

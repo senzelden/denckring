@@ -275,6 +275,7 @@ procedures:
     languages: [en, de, fr]
     requires: [tokens, lexicon.nouns]
     deterministic: true
+    hidden_material: [dictionary]
     prompt_hints:
       en: >-
         Replace each noun with the noun {offset} places after it in the dictionary,
@@ -299,6 +300,7 @@ procedures:
     languages: [en, de, fr]
     requires: [tokens, lexicon.nouns]
     deterministic: true
+    hidden_material: [dictionary]
     prompt_hints:
       en: >-
         Replace each noun with the noun {offset} places after it in the dictionary,
@@ -420,6 +422,7 @@ procedures:
     languages: [en, fr]
     requires: [tokens, lexicon.glosses]
     deterministic: true
+    hidden_material: [lexicon.glosses]
     prompt_hints:
       en: Replace every meaningful word with its dictionary definition, then do it again.
 
@@ -456,6 +459,7 @@ procedures:
     languages: [en, de]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: Interleave the left half of one passage with the right half of another, line by line.
 
@@ -667,6 +671,7 @@ procedures:
     languages: [de]
     requires: [tokens]
     deterministic: true
+    hidden_material: [device]
     prompt_hints:
       en: >-
         Combine a prefix, an initial, a medial, a final and a suffix from the {device}
@@ -1470,6 +1475,7 @@ procedures:
     languages: [en]
     requires: [tokens, corpus.proverbs]
     deterministic: true
+    hidden_material: [corpus.proverbs]
     prompt_hints:
       en: >-
         Join the source proverb’s opening to the ending of “{donor}”.
@@ -1499,6 +1505,7 @@ procedures:
     languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: Arrange the texts in a grid, rotate each column by one more step, and read across.
 
@@ -1601,6 +1608,7 @@ procedures:
     languages: [en, fr]
     requires: [tokens, fold_diacritics]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: >-
         Delete every "{deleted}" from the passage and read what the remaining letters
@@ -1623,6 +1631,7 @@ procedures:
     languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     notes: >-
       Only the line-end reading is checked. The definition's "rhyme-words or
       line ends" reads as two readings, but this codebase's rhyme machinery
@@ -2131,6 +2140,7 @@ procedures:
     languages: [en, fr]
     requires: [tokens, lexicon.glosses]
     deterministic: true
+    hidden_material: [lexicon.glosses]
     prompt_hints:
       en: Replace each meaningful word once with its dictionary definition.
 
@@ -3097,6 +3107,7 @@ procedures:
     languages: [en, fr]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: >-
         Keep one word in every {n} of the source and read what results.
@@ -3178,6 +3189,7 @@ procedures:
     languages: [en, de]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: >-
         Fold the page after its first {fold_at} line(s), so distant passages touch, and
@@ -3508,6 +3520,7 @@ procedures:
     languages: [en, de]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: Write alternate lines in reverse direction, turning at each line end.
 
@@ -3643,6 +3656,7 @@ procedures:
     languages: [en]
     requires: [tokens]
     deterministic: true
+    hidden_material: [figure]
     prompt_hints:
       en: >-
         Take the nine dignities of the {figure} figure and write out each chamber of
@@ -3884,6 +3898,7 @@ procedures:
     languages: [de]
     requires: []
     deterministic: true
+    hidden_material: [device]
     prompt_hints:
       en: >-
         Write six lines of six blocks each from the {device} device; after the subject
