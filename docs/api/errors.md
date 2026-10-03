@@ -4,6 +4,9 @@ Every failure mode in denckring is one of these. None of them is silent: each ca
 a stable `code`, a human-readable message, and a `detail()` dict for a caller that
 would rather not parse English out of the message.
 
+Each is importable from `denckring` itself (`from denckring import InvalidParams`),
+which is the path to use: `denckring.core` is not under the stability promise.
+
 ::: denckring.core.errors.DenckringError
 
 ::: denckring.core.errors.UnknownProcedure

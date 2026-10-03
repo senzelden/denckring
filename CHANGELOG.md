@@ -70,6 +70,10 @@ All notable changes to this project are documented here. The format follows
   case or a recorded witness. The ids are published but not yet under the stability
   promise.
 
+- Every error class is importable from `denckring` itself and listed in its `__all__`:
+  `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
+  under `denckring.core.errors`, a path outside the stability promise.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

@@ -4,7 +4,31 @@ from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
 from denckring.core.describe import Description, Scholarly, Summary, describe, summaries
-from denckring.core.errors import NoPromptHint, NotConstructive
+from denckring.core.errors import (
+    DegenerateOutput,
+    DenckringError,
+    DuplicatePack,
+    DuplicateProcedure,
+    InputTooLong,
+    InputTooShort,
+    InvalidParams,
+    MalformedCorpus,
+    MalformedDevice,
+    MalformedFigure,
+    MalformedTable,
+    MissingCapability,
+    NoCandidateWord,
+    NoPromptHint,
+    NotConstructive,
+    TextTooLong,
+    UnknownDevice,
+    UnknownFigure,
+    UnknownLanguage,
+    UnknownLevel,
+    UnknownProcedure,
+    UnsetHintParameter,
+    UnsettablePhrase,
+)
 from denckring.core.hints import render
 from denckring.core.protocol import Constructive, Lang, Meta, Production, Report, Violation
 from denckring.core.registry import all_procedures, get
@@ -110,13 +134,36 @@ def list_procedures() -> list[str]:
 
 
 __all__ = [
+    "DegenerateOutput",
+    "DenckringError",
     "Description",
+    "DuplicatePack",
+    "DuplicateProcedure",
+    "InputTooLong",
+    "InputTooShort",
+    "InvalidParams",
     "Lang",
+    "MalformedCorpus",
+    "MalformedDevice",
+    "MalformedFigure",
+    "MalformedTable",
     "Meta",
+    "MissingCapability",
+    "NoCandidateWord",
+    "NoPromptHint",
+    "NotConstructive",
     "Production",
     "Report",
     "Scholarly",
     "Summary",
+    "TextTooLong",
+    "UnknownDevice",
+    "UnknownFigure",
+    "UnknownLanguage",
+    "UnknownLevel",
+    "UnknownProcedure",
+    "UnsetHintParameter",
+    "UnsettablePhrase",
     "Violation",
     "__version__",
     "all_procedures",
