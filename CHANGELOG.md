@@ -101,8 +101,10 @@ All notable changes to this project are documented here. The format follows
   `metrics["estimated_words"]`, which is not promised and which, row by row, misses
   what `evidence` records (rhyme endings) or records what `evidence` does not (words
   read from spelling in `proteus_verse` and `spoonerism`, unresolved glosses). Added
-  beside the other fields; none of them changes. `Evidence` is importable from
-  `denckring`.
+  beside the other fields; none of them changes. `multiple_constraint` carries its
+  constraints' `evidence` and `estimated_words`, the latter only when some constraint
+  estimated, so a composite is estimated whenever a constraint in it is; its verdict
+  and score are unchanged. `Evidence` is importable from `denckring`.
 
 - `denckring.pack_provenance(lang)` returns which pack answers for a language and the
   data distributions it reads, with their versions: the record `Report.provenance.pack`

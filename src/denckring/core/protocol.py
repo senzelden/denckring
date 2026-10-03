@@ -148,7 +148,9 @@ class Report(BaseModel):
         and `rondeau`, which report no such metric). True when either says so. A word
         left unjudged counts: `definitional_expansion` scores only the words its
         glosses resolve, so its verdict covers less of the text than it reads as
-        covering, though `describe` calls its reading exact.
+        covering, though `describe` calls its reading exact. `multiple_constraint`
+        carries its constraints' evidence and counts, so a composite is estimated
+        when any constraint inside it is.
 
         Computed, not stored, so it cannot disagree with the report it describes,
         and added beside the other fields rather than changing any of them. It reads
