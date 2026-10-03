@@ -111,6 +111,13 @@ def graded_words() -> Mapping[str, int]:
     commonness. `known_words()` stays exactly as it is — `semordnilap` and
     `charade` ask membership, and are right to keep asking the broad oracle ADR
     0015 describes.
+
+    The two differ on purpose, and a graded word is not always an `is_word`
+    word: SCOWL's size classes (ADR 0028) hold verbs and adjectives neither of
+    the oracle's sources has (`abjure`), and also junk (`payed`, `numbest` sit
+    in band 10). Widening the oracle to the graded list would make that junk a
+    word in every membership row. A caller wanting everyday words wants neither
+    view as it stands, but the curated one the audit's D1 proposes.
     """
     table: dict[str, int] = {}
     with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
@@ -133,6 +140,11 @@ def known_words() -> frozenset[str]:
     about: CMUdict lists `tac`, so `cat` reverses into something this oracle
     calls a word. It answers "could this be a word" rather than "is this in a
     dictionary of standard English", and procedures resting on it inherit that.
+
+    It does not include `graded_words()`, and refuses about 24,600 of its
+    entries, on purpose: see that function. Every refusal is this union's own
+    answer — a graded word refused here is in neither source — and a test holds
+    that rule rather than the count.
     """
     return frozenset(noun_list()) | frozenset(pronunciations())
 

@@ -21,3 +21,15 @@ procedure, the language and the missing capability, rather than falling back to 
 approximation. Adding a language pack is a matter of implementing
 [`LanguagePack`](#denckring.core.protocol.LanguagePack) and declaring which of these
 strings it can honestly back — nothing more.
+
+## Word membership and the graded list
+
+`is_word` and `graded_words` answer different questions, and in English they
+disagree on purpose. `is_word` is the membership oracle of
+[ADR 0015](../adr/0015-lexicon-capabilities.md): WordNet's noun lemmas and CMUdict's
+headwords, deliberately broad ("could this be a word"). `graded_words` is SCOWL's size
+classes of [ADR 0028](../adr/0028-the-graded-lexicon.md), a ranking by commonness. Each
+holds words the other lacks: SCOWL has verbs and adjectives neither oracle source
+carries (`abjure`), and also entries that are not words at all (`payed` and `numbest`
+sit in band 10), so `is_word` is not widened to cover it. A caller wanting everyday
+words should not treat either as that list; a curated view is planned for it.

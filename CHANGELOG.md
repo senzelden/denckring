@@ -78,6 +78,13 @@ All notable changes to this project are documented here. The format follows
   `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
   checker had the spans; they now carry the offset of the text's letter or word, and a
   letter or word missing from the end is placed at the end of the text.
+- English `graded_words()` and `is_word` are documented as differing on purpose. The
+  graded table is SCOWL's size classes (ADR 0028) and includes words that are not
+  in the membership oracle: verbs and adjectives such as `abjure`, and band-10 junk such as
+  `payed` and `numbest`. The oracle stays WordNet's nouns plus CMUdict's headwords
+  (ADR 0015). The pack docstrings and the pack API page say so, and a test holds the
+  rule that every graded word the oracle refuses is in neither of its sources. Verdicts
+  are unchanged.
 
 ## [0.3.1] - 2026-09-22
 
