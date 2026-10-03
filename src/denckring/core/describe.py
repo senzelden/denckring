@@ -90,7 +90,9 @@ class Reading(BaseModel):
     #: them (`core.text.UNIT_ENDS`). The same for every row: a row that reads no clause
     #: still says what one would be, so a caller can build a prompt or a guard on the
     #: published marks rather than on a private constant. Punctuation only, as the
-    #: splitters are: `Mr.` ends a sentence.
+    #: splitters are: `Mr.` ends a sentence. Each entry is a set of characters, and a
+    #: break may take two of them: `\r\n` ends one line, as `str.splitlines` reads it,
+    #: so count line ends by splitting, not by counting members of `units["line"]`.
     units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
 
 

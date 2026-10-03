@@ -217,8 +217,8 @@ are built on them:
 Not stable, and expected to move: violation `rule` strings, `metrics` keys, message
 wording, and everything under `denckring.core`. Each row's rule strings are published,
 through `denckring.rules(procedure_id)`, so they can be mapped without reading checker
-source; a rename is still allowed in a minor release, and the changelog names it. A check's *verdict* is a contract; the
-reason it gives for a failure is not one yet.
+source; a rename is still allowed in a minor release, and the changelog names it. A
+check's *verdict* is a contract; the reason it gives for a failure is not one yet.
 
 ## The catalogue as data
 

@@ -43,3 +43,9 @@ def test_describe_publishes_the_units() -> None:
     assert reading.units == UNIT_ENDS
     assert set(",;:\n") <= set(reading.units["clause"])
     assert "\n" not in reading.units["sentence"]
+
+
+def test_crlf_is_one_line_break_though_both_characters_are_marks() -> None:
+    """The documented caveat of a character set: `\r\n` is two members, one break."""
+    assert {"\r", "\n"} <= set(UNIT_ENDS["line"])
+    assert len(line_spans("a\r\nb")) == 2
