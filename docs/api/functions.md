@@ -14,6 +14,10 @@ The top-level entry points. Everything here is importable directly from `denckri
 
 ::: denckring.rules
 
+::: denckring.rule_categories
+
+::: denckring.failure_categories
+
 ::: denckring.golden_cases
 
 ::: denckring.pack_provenance

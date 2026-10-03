@@ -70,6 +70,14 @@ All notable changes to this project are documented here. The format follows
   case or a recorded witness. The ids are published but not yet under the stability
   promise.
 
+- `denckring.rule_categories(procedure_id)` maps each of a row's rules to the kind of
+  failure it names, from a closed set `denckring.failure_categories()` defines:
+  `excluded_letter`, `inventory`, `word_choice`, `position`, `structure`, `count`,
+  `length`, `transcription`, `sound` and `unreadable`. One category per rule string,
+  the same on every row; a test fails a declared rule without one, and an entry for a
+  rule no row declares. Published under the rules' own terms: a category may move in a
+  minor release, and the changelog will say so.
+
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.

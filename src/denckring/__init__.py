@@ -44,6 +44,7 @@ from denckring.core.protocol import (
 from denckring.core.provenance import PackProvenance
 from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
+from denckring.core.rules import CATEGORIES, RULE_CATEGORIES
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
 
@@ -181,6 +182,24 @@ def rules(procedure_id: str) -> tuple[str, ...]:
     )
 
 
+def rule_categories(procedure_id: str) -> dict[str, str]:
+    """Each rule `rules(procedure_id)` returns, mapped to the kind of failure it names.
+
+    The categories are a closed set, defined in `failure_categories()`: a forbidden
+    letter is `excluded_letter`, a missing line `count`, a broken rhyme `sound`. One
+    category per rule string, the same on every row that emits it, so a caller
+    counting failures across rows counts by kind without a map of its own (audit C3).
+    Published with the rules themselves, and under the same terms: a rule's category
+    may move in a minor release, and the changelog will say so.
+    """
+    return {rule: RULE_CATEGORIES[rule] for rule in rules(procedure_id)}
+
+
+def failure_categories() -> dict[str, str]:
+    """Every failure category `rule_categories` uses, mapped to what it means."""
+    return dict(CATEGORIES)
+
+
 def _declared(procedure: Any) -> tuple[str, ...]:
     """A row's `rules`, or an error naming the row that forgot them.
 
@@ -278,6 +297,7 @@ __all__ = [
     "apply",
     "check",
     "describe",
+    "failure_categories",
     "get",
     "get_pack",
     "golden_cases",
@@ -286,6 +306,7 @@ __all__ = [
     "produce",
     "prompt_hint",
     "render_hint",
+    "rule_categories",
     "rules",
     "summaries",
 ]
