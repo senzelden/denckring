@@ -64,6 +64,16 @@ All notable changes to this project are documented here. The format follows
   every line for missing or invented material. Byte for byte, a trailing space or an
   indent on a turned line was `line_not_turned` while the same space on an unturned
   line passed.
+- English syllable estimates read a suffixed silent `e`. The spelling heuristic drops the
+  `e` of a final `-es` or `-ed` after a consonant (`awakes` 2, `hoped` 1), but not after
+  a sibilant (`faces`), `-ed` after `t`/`d` (`wanted`), or a consonant and a liquid
+  (`tables`, `hundred`); its agreement with CMUdict rises from 83.4% to 87.0%. With
+  `denckring[en]`, a plural CMUdict lacks is read through its stem (`awakes` from
+  `awake`, plus a syllable after a sibilant), agreeing with CMUdict on 98.9% of the
+  plurals it does hold. Both stay estimates and count in `estimated_words`. Two golden
+  cases keep their verdicts with fewer length violations: Chaucer's rhyme royal
+  (score 0.8974 to 0.9318) and Spenser's stanza (0.9688 to 0.9718, line 4 now failing on
+  stress rather than length).
 
 ## [0.3.1] - 2026-09-22
 

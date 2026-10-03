@@ -80,10 +80,13 @@ cases:
       read the wrong syllable count for this package's pentameter model —
       "Y cladd in mightie armes and siluer shielde," (line 2) reads 9
       syllables because the archaic "Y-" prefix is not read as adding a
-      syllable, and "The cruell markes of many' a bloudy fielde;" (line 4)
-      reads 11 because the elided "many' a" is not read as one syllable
-      (`wrong_line_length`). The ninth-line alexandrine itself scans clean.
-      Measured on this HEAD: score 0.9688, 2 violations.
+      syllable (`wrong_line_length`), and "The cruell markes of many' a
+      bloudy fielde;" (line 4) reads 10 syllables but cannot scan iambic,
+      because the elided "many' a" is read as three syllables and the
+      dictionary's stress on "many" falls off the beat (`wrong_stress`). Until
+      0.3.2 the spelling heuristic read "markes" as two syllables and the line
+      failed on length instead. The ninth-line alexandrine itself scans clean.
+      Measured on this HEAD: score 0.9718, 2 violations.
     text: |-
       A Gentle Knight was pricking on the plaine,
       Y cladd in mightie armes and siluer shielde,
