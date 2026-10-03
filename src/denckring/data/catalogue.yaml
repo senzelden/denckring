@@ -941,6 +941,9 @@ procedures:
       en: >-
         Write a phrase whose Roman-numeral letters add up to {year}, counting every i,
         v, x, l, c, d and m in either case.
+    hint_omits:
+      min_letters: >-
+        an opt-in minimum, 0 by default; a caller who sets it states it in the prompt
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
@@ -1389,6 +1392,10 @@ procedures:
         Write a word or phrase, and nothing else, whose letters, read as one run, trace a
         closed walk: the run ends on the letter it begins with and never repeats a pair of
         adjacent letters, in either order.
+    hint_omits:
+      min_letters: >-
+        an opt-in minimum, two letters by default; a caller who raises it states it in
+        the prompt
 
   - id: homoteleuton
     names: { en: Homoteleuton, de: Homoioteleuton, fr: Homéotéleute }
@@ -1739,7 +1746,12 @@ procedures:
         before it and differing from it in exactly one letter.
     hint_omits:
       target: >-
-        read only by apply; check judges any ladder, whatever its last word
+        read by apply, and by check only under end_at_target; the hint names no end
+      min_steps: >-
+        an opt-in minimum, 0 by default; a caller who sets it states it in the prompt
+      end_at_target: >-
+        an opt-in requirement, off by default; a caller who sets it names the target
+        in the prompt
     notes: >-
       German and French are declared, and the checker takes a `fold_diacritics`
       parameter so both declarations hold. Folded — the house default — `schon`

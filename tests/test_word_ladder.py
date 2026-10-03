@@ -109,3 +109,70 @@ def test_ranking_did_not_lengthen_the_ladder() -> None:
     from denckring import apply
 
     assert len(apply("word_ladder", "cold", lang="en", target="warm").split()) == 5
+
+
+def test_one_word_is_a_ladder_by_default_and_not_under_min_steps() -> None:
+    """A9: `cold` alone passed, and still does unless a minimum is asked for."""
+    assert check("word_ladder", "cold").satisfied
+    report = check("word_ladder", "cold", min_steps=1)
+    assert not report.satisfied
+    assert report.score < 1.0
+    assert [v.rule for v in report.violations] == ["too_few_steps"]
+    assert check("word_ladder", "cold cord card ward warm", min_steps=4).satisfied
+    assert not check("word_ladder", "cold cord card ward warm", min_steps=5).satisfied
+
+
+def test_a_negative_min_steps_is_refused() -> None:
+    with pytest.raises(InvalidParams):
+        check("word_ladder", "cold", min_steps=-1)
+
+
+def test_check_reads_target_only_when_asked_to() -> None:
+    """A9: `check` never read `target`. It still does not by default, so a caller
+    passing one for `apply`'s sake keeps today's verdict."""
+    ladder = "cold cord card ward"
+    assert check("word_ladder", ladder, target="warm").satisfied
+    report = check("word_ladder", ladder, target="warm", end_at_target=True)
+    assert not report.satisfied
+    assert report.score < 1.0
+    [violation] = report.violations
+    assert (violation.rule, violation.found, violation.expected) == ("wrong_end", "ward", "warm")
+    assert violation.offset == ladder.index("ward")
+    assert check("word_ladder", ladder + " warm", target="WARM", end_at_target=True).satisfied
+
+
+def test_ending_at_target_needs_a_target() -> None:
+    with pytest.raises(InvalidParams, match="target"):
+        check("word_ladder", "cold cord", end_at_target=True)
+
+
+def test_an_empty_ladder_has_no_end_at_the_target() -> None:
+    report = check("word_ladder", "", target="warm", end_at_target=True)
+    assert not report.satisfied
+    assert report.violations[0].offset is None
+
+
+def test_ending_at_target_compares_as_steps_compare() -> None:
+    """Folded by default, like a step: `schön` ends at `schon`. Unfolded, not."""
+    assert check("word_ladder", "schön", lang="de", target="schon", end_at_target=True).satisfied
+    assert not check(
+        "word_ladder",
+        "schön",
+        lang="de",
+        target="schon",
+        end_at_target=True,
+        fold_diacritics=False,
+    ).satisfied
+
+
+def test_apply_refuses_a_ladder_shorter_than_min_steps_rather_than_fail_its_check() -> None:
+    ladder = _apply("cold", target="warm", min_steps=4)
+    assert check("word_ladder", ladder, min_steps=4, target="warm", end_at_target=True).satisfied
+    with pytest.raises(NoCandidateWord, match="min_steps"):
+        _apply("cold", target="warm", min_steps=5)
+
+
+def _apply(text: str, *, target: str, min_steps: int) -> str:
+    procedure = get("word_ladder")
+    assert isinstance(procedure, Constructive)
+    return procedure.apply(text, target=target, min_steps=min_steps)

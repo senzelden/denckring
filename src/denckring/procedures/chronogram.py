@@ -16,6 +16,15 @@ VALUES = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 
 class ChronogramParams(DiacriticParams):
     year: int = Field(description="The date the numeral letters must total.")
+    # A9: the bare numeral `MMXXVI` passes for 2026, though the row asks for a
+    # phrase. Opt-in, so a 0.3.2 caller keeps every verdict.
+    min_letters: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "Fewest letters, numerals or not, the phrase must have. 0 accepts a bare numeral."
+        ),
+    )
 
 
 @register
@@ -29,34 +38,41 @@ class Chronogram(BaseProcedure[ChronogramParams]):
         return ChronogramParams
 
     def _check(self, text: str, pack: LanguagePack, params: ChronogramParams) -> Report:
-        numerals = [
-            (offset, ch)
-            for offset, ch in letter_spans(text, pack, fold=params.fold_diacritics)
-            if ch in VALUES
-        ]
+        letters = letter_spans(text, pack, fold=params.fold_diacritics)
+        numerals = [(offset, ch) for offset, ch in letters if ch in VALUES]
         total = sum(VALUES[ch] for _, ch in numerals)
-        if total == params.year:
-            return Report(
-                procedure=self.id,
-                satisfied=True,
-                score=1.0,
-                violations=[],
-                metrics={"total": float(total), "numerals": float(len(numerals))},
+        metrics = {"total": float(total), "numerals": float(len(numerals))}
+        violations: list[Violation] = []
+        score = 1.0
+        if total != params.year:
+            score = (
+                min(total, params.year) / max(total, params.year)
+                if max(total, params.year)
+                else 0.0
             )
-        score = (
-            min(total, params.year) / max(total, params.year) if max(total, params.year) else 0.0
-        )
-        return Report(
-            procedure=self.id,
-            satisfied=False,
-            score=score,
-            violations=[
+            violations.append(
                 Violation(
                     rule="wrong_total",
                     offset=None,
                     found=str(total),
                     expected=str(params.year),
                 )
-            ],
-            metrics={"total": float(total), "numerals": float(len(numerals))},
+            )
+        if len(letters) < params.min_letters:
+            # Below 1 by construction, so a short phrase never scores as satisfied.
+            score = min(score, len(letters) / params.min_letters)
+            violations.append(
+                Violation(
+                    rule="too_short",
+                    offset=None,
+                    found=f"{len(letters)} letters",
+                    expected=f"at least {params.min_letters} letters",
+                )
+            )
+        return Report(
+            procedure=self.id,
+            satisfied=not violations,
+            score=score,
+            violations=violations,
+            metrics=metrics,
         )

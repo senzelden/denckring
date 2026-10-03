@@ -49,6 +49,12 @@ All notable changes to this project are documented here. The format follows
   which no listed word was displaced fails as `no_displacement`, whatever
   `ambiguous_nouns` makes of each unchanged word.
 
+- Opt-in minimums against trivial passes, each defaulting to today's behaviour:
+  `word_ladder` takes `min_steps` (`too_few_steps`) and `end_at_target`, which makes
+  `check` read `target` and fail a ladder ending elsewhere (`wrong_end`); `apply`
+  refuses rather than return a shortest ladder under `min_steps`. `eodermdrome` and
+  `chronogram` take `min_letters` (`too_short`).
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
