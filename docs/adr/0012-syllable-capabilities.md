@@ -33,3 +33,8 @@ install correctly raises `MissingCapability`.
 The heuristic's agreement with the dictionary is measured by a test — currently 83.8%
 on a sample of 631 words — with an enforced floor, so a change that makes it worse
 fails the build rather than degrading quietly.
+
+**2026-10-03:** that test measures 86.85% on the same sample after 0.3.2 taught the
+heuristic the silent `e` of `-es`/`-ed`. The change is not a pure gain: over all of
+CMUdict, 450 words that read right before read wrong now (`tired`, `fires`, `naked`,
+`wicked`, `-iates` words) against 4,626 the other way. The floor is unchanged.

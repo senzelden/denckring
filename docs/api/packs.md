@@ -32,4 +32,5 @@ classes of [ADR 0028](../adr/0028-the-graded-lexicon.md), a ranking by commonnes
 holds words the other lacks: SCOWL has verbs and adjectives neither oracle source
 carries (`abjure`), and also entries that are not words at all (`payed` and `numbest`
 sit in band 10), so `is_word` is not widened to cover it. A caller wanting everyday
-words should not treat either as that list; a curated view is planned for it.
+words should not treat either as that list, but use the curated everyday-words view
+(planned).

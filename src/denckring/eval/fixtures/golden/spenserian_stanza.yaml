@@ -77,16 +77,17 @@ cases:
       Edmund Spenser, The Faerie Queene, Book I, Canto i, stanza 1 (1590
       edition); original spelling, i/j and u/v as in the early print (ADR
       0040 D5 — transcribed as printed, not modernised). Rejected: two lines
-      read the wrong syllable count for this package's pentameter model —
-      "Y cladd in mightie armes and siluer shielde," (line 2) reads 9
-      syllables because the archaic "Y-" prefix is not read as adding a
-      syllable (`wrong_line_length`), and "The cruell markes of many' a
-      bloudy fielde;" (line 4) reads 10 syllables but cannot scan iambic,
-      because the elided "many' a" is read as three syllables and the
-      dictionary's stress on "many" falls off the beat (`wrong_stress`). Until
-      0.3.2 the spelling heuristic read "markes" as two syllables and the line
-      failed on length instead. The ninth-line alexandrine itself scans clean.
-      Measured on this HEAD: score 0.9718, 2 violations.
+      fail this package's pentameter model. "Y cladd in mightie armes and
+      siluer shielde," (line 2) reads 9 syllables because the archaic "Y-"
+      prefix is not read as adding a syllable (`wrong_line_length`). "The
+      cruell markes of many' a bloudy fielde;" (line 4) reads 10, but only
+      because two errors cancel: the elided "many' a" is read as three
+      syllables (one too many) and "cruell", estimated by the spelling
+      heuristic, as one (one too few). Read as 10, it fails on stress instead,
+      the dictionary's stress on "many" falling off the beat (`wrong_stress`).
+      Until 0.3.2 the heuristic also read "markes" as two syllables, and the
+      line failed on length at 11. The ninth-line alexandrine itself scans
+      clean. Measured on this HEAD: score 0.9718, 2 violations.
     text: |-
       A Gentle Knight was pricking on the plaine,
       Y cladd in mightie armes and siluer shielde,

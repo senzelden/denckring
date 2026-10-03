@@ -27,7 +27,11 @@ _SYLLABIC_LE = re.compile(r"[^aeiouy]le$")
 #: the suffix is a syllable; nor after a consonant and a liquid (ta-bles,
 #: hun-dred), the syllabic ending `_SYLLABIC_LE` keeps for "-le". Measured on
 #: CMUdict: agreement on "-es" words rose from 54% to 89%, on "-ed" from 42% to
-#: 91%, and on every word from 83.4% to 87.0%.
+#: 91%, and on every word from 83.4% to 87.0% (ADR 0012's measured floor). Not a
+#: pure gain: 450 words read right before and wrong now, against 4,626 the other
+#: way. They are mostly "-ires", "-ired", "-ates" and adjectival "-ed" (`tired`,
+#: `fires`, `naked`, `wicked`, `affiliates`), read a syllable short. Only a
+#: core-only install, or a word the dictionary and its stems both lack, sees it.
 _SILENT_E_SUFFIX = re.compile(r"(?:[^aeiouyszxcgh]es|[^aeiouytd]ed)$")
 _SYLLABIC_LIQUID_SUFFIX = re.compile(r"[^aeiouy][lr]e[sd]$")
 

@@ -59,7 +59,8 @@ All notable changes to this project are documented here. The format follows
 - `consonantal_lipogram` folds its `forbidden` letters the way it folds the text, as
   `lipogram` has since ADR 0035 D3. `forbidden="ç"` never matched a folded letter, so
   any French text was satisfied; it now fails on every `c` and `ç`. A letter that folds
-  to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics: false`.
+  to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics=false` (ADR 0035
+  D4); before, it passed every text.
 - `boustrophedon` compares a turned line stripped and casefolded, as it already compared
   every line for missing or invented material. Byte for byte, a trailing space or an
   indent on a turned line was `line_not_turned` while the same space on an unturned
@@ -71,17 +72,26 @@ All notable changes to this project are documented here. The format follows
 - English syllable estimates read a suffixed silent `e`. The spelling heuristic drops the
   `e` of a final `-es` or `-ed` after a consonant (`awakes` 2, `hoped` 1), but not after
   a sibilant (`faces`), `-ed` after `t`/`d` (`wanted`), or a consonant and a liquid
-  (`tables`, `hundred`); its agreement with CMUdict rises from 83.4% to 87.0%. With
-  `denckring[en]`, a plural CMUdict lacks is read through its stem (`awakes` from
-  `awake`, plus a syllable after a sibilant), agreeing with CMUdict on 98.9% of the
-  plurals it does hold. Both stay estimates and count in `estimated_words`. Two golden
+  (`tables`, `hundred`); its agreement with CMUdict rises from 83.4% to 87.0%. That is
+  a net gain, not a pure one: 450 words that read right before now read a syllable
+  short, mostly `-ires`, `-ired`, `-ates` and adjectival `-ed` (`tired`, `fires`,
+  `naked`, `wicked`, `affiliates`), against 4,626 that read right only now. With
+  `denckring[en]` those words are dictionary-exact and unaffected; the cost falls on
+  core-only installs and on words the dictionary and its stems both lack. With
+  `denckring[en]`, an `-s`/`-es` form CMUdict lacks (`awakes`) is read through its
+  stem (`awake`, plus a syllable after a sibilant). Read the same way, the 13,973
+  such forms CMUdict does hold agree with it on 98.9%. Both stay estimates and count
+  in `estimated_words`. Two golden
   cases keep their verdicts with fewer length violations: Chaucer's rhyme royal
   (score 0.8974 to 0.9318) and Spenser's stanza (0.9688 to 0.9718, line 4 now failing on
   stress rather than length).
 - `slenderizing` and `every_nth_word` place every violation. `wrong_letter`,
   `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
   checker had the spans; they now carry the offset of the text's letter or word, and a
-  letter or word missing from the end is placed at the end of the text.
+  letter or word missing from the end is placed at the end of the text, `len(text)`.
+  `column_reading` and `haikuization` place a missing line word the same way instead
+  of `None`. `Violation.offset` documents the convention: `len(text)` means "at the
+  end", so `text[offset]` is not always a valid index.
 - English `graded_words()` and `is_word` are documented as differing on purpose. The
   graded table is SCOWL's size classes (ADR 0028) and includes words that are not
   in the membership oracle: verbs and adjectives such as `abjure`, and band-10 junk such as

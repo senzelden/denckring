@@ -100,7 +100,7 @@ def test_the_pack_method_hands_back_a_view_not_the_live_cache() -> None:
 
 
 def test_a_graded_word_the_oracle_refuses_is_outside_the_oracles_sources() -> None:
-    """The graded list and the membership oracle differ on purpose (audit D2).
+    """The graded list and the membership oracle differ on purpose.
 
     `graded_words()` is SCOWL's size classes (ADR 0028); `is_word` is WordNet's
     nouns and CMUdict's headwords (ADR 0015). SCOWL holds verbs and adjectives

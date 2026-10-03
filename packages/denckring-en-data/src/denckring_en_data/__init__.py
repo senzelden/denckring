@@ -117,7 +117,7 @@ def graded_words() -> Mapping[str, int]:
     the oracle's sources has (`abjure`), and also junk (`payed`, `numbest` sit
     in band 10). Widening the oracle to the graded list would make that junk a
     word in every membership row. A caller wanting everyday words wants neither
-    view as it stands, but the curated one the audit's D1 proposes.
+    view as it stands, but the curated everyday-words view (planned).
     """
     table: dict[str, int] = {}
     with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
@@ -319,13 +319,17 @@ def _syllables_of(phones: list[str]) -> int:
 
 
 def _inflected_syllables(letters: str) -> int | None:
-    """Syllables of a plural CMUdict lacks, read through the stem it has.
+    """Syllables of an `-s`/`-es` form CMUdict lacks, read through the stem it has.
 
-    The stems are `_inflections`' (`s`/`es` only, for the reasons recorded
-    there), and the suffix adds a syllable exactly when the stem ends in a
-    sibilant. `-ss` words are not plurals (`boss` is not `bos` + `s`). Measured
-    on CMUdict's own plurals, where both readings exist: 98.9% agreement, 97.9%
-    before the `-ss` exclusion; the spelling heuristic agrees on 87%.
+    Any such form, plural or verb (`awakes`). The stems are `_inflections'`
+    (`s`/`es` only, for the reasons recorded there), and the suffix adds a
+    syllable exactly when the stem ends in a sibilant. `-ss` words are not
+    inflections (`boss` is not `bos` + `s`). This only ever runs on words
+    CMUdict lacks, so its accuracy cannot be measured there; it is measured on
+    the 13,973 `-s`/`-es` words CMUdict *does* hold whose stem it also holds,
+    reading each through its stem as if the word were missing: 98.9%
+    agreement, 97.9% before the `-ss` exclusion. The spelling heuristic agrees
+    on 87% of all words.
     """
     if letters.endswith("ss"):
         return None
