@@ -55,6 +55,7 @@ class FoldIn(ConstructiveProcedure[FoldInParams, FoldInApplyParams]):
     """Constructive: `apply` performs the fold-in that `check` verifies."""
 
     id = "fold_in"
+    rules = ("not_the_fold",)
 
     @classmethod
     def params_model(cls) -> type[FoldInParams]:

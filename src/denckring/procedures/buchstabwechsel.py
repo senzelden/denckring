@@ -100,6 +100,7 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
     from `v`/`j`. See the module docstring for why this is not `anagram`."""
 
     id = "buchstabwechsel"
+    rules = ("missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[BuchstabwechselParams]:

@@ -20,6 +20,7 @@ class Transposal(BaseProcedure[TransposalParams]):
     """Word for word, the same letters in a different order."""
 
     id = "transposal"
+    rules = ("extra_word", "missing_word", "not_a_transposal", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[TransposalParams]:

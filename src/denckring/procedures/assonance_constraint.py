@@ -55,6 +55,7 @@ class AssonanceConstraint(BaseProcedure[AssonanceParams]):
     """Each line must carry `minimum` words sharing one vowel sound."""
 
     id = "assonance_constraint"
+    rules = ("no_repeated_vowel",)
 
     @classmethod
     def params_model(cls) -> type[AssonanceParams]:

@@ -44,6 +44,7 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
     """Constructive: `apply` arranges the lines that `check` verifies."""
 
     id = "mesostic"
+    rules = ("not_in_source", "spine_letter_missing", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[MesosticParams]:

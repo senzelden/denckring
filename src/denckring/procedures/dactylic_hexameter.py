@@ -36,6 +36,7 @@ class DactylicHexameter(BaseProcedure[DactylicHexameterParams]):
     """
 
     id = "dactylic_hexameter"
+    rules = ("wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[DactylicHexameterParams]:

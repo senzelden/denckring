@@ -21,6 +21,15 @@ class OttavaRima(BaseProcedure[OttavaRimaParams]):
     """Assembled from the shared rhyme and metre checks."""
 
     id = "ottava_rima"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[OttavaRimaParams]:

@@ -33,6 +33,7 @@ class Acrostic(BaseProcedure[AcrosticParams]):
     """
 
     id = "acrostic"
+    rules = ("extra_unit", "missing_unit", "wrong_letter")
 
     #: Which letter of each unit carries the target. Telestich uses -1.
     letter_index: ClassVar[int] = 0

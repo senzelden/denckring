@@ -26,6 +26,7 @@ class SingleSentence(BaseProcedure[SingleSentenceParams]):
     """
 
     id = "single_sentence"
+    rules = ("interior_terminator",)
 
     @classmethod
     def params_model(cls) -> type[SingleSentenceParams]:

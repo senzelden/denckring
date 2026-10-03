@@ -276,6 +276,14 @@ class Portmanteau(ConstructiveProcedure[PortmanteauParams, PortmanteauApplyParam
     """Constructive: `apply` proposes splices and `check` disposes of them."""
 
     id = "portmanteau"
+    rules = (
+        "host_unrecoverable",
+        "identical_to_host",
+        "sound_out_of_band",
+        "splice_not_a_word",
+        "splice_not_present",
+        "unresolvable_pronunciation",
+    )
 
     @classmethod
     def params_model(cls) -> type[PortmanteauParams]:

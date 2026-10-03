@@ -37,6 +37,7 @@ class Charade(BaseProcedure[CharadeParams]):
     """Every word must come apart into smaller words."""
 
     id = "charade"
+    rules = ("does_not_divide",)
 
     @classmethod
     def params_model(cls) -> type[CharadeParams]:

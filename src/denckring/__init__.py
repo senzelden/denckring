@@ -78,6 +78,32 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     return "\n".join(lines)
 
 
+def rules(procedure_id: str) -> tuple[str, ...]:
+    """Every `violation.rule` the row's checker can emit, sorted.
+
+    The vocabulary each row declares (`BaseProcedure.rules`), so a caller can map
+    rules to its own classes without reading checker source. `multiple_constraint`
+    passes its constraints' violations through unchanged, and any registered row
+    can be one of them, so it answers with every other row's vocabulary.
+
+    Published from 0.3.2 but not yet under the README's stability promise: a rule
+    may still be renamed in a minor release, and the changelog will say so.
+    """
+    procedure = get(procedure_id)
+    if not procedure.delegates_rules:
+        return procedure.rules
+    return tuple(
+        sorted(
+            {
+                rule
+                for other in all_procedures().values()
+                if not other.delegates_rules
+                for rule in other.rules
+            }
+        )
+    )
+
+
 def list_procedures() -> list[str]:
     """Every registered procedure id, sorted."""
     return sorted(all_procedures())
@@ -101,5 +127,6 @@ __all__ = [
     "list_procedures",
     "produce",
     "prompt_hint",
+    "rules",
     "summaries",
 ]

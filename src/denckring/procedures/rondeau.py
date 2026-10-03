@@ -38,6 +38,14 @@ class Rondeau(BaseProcedure[RondeauParams]):
     """Two rhymes across thirteen lines, plus two unrhymed rentrements."""
 
     id = "rondeau"
+    rules = (
+        "broken_rentrement",
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[RondeauParams]:

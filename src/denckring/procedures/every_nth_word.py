@@ -25,6 +25,7 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
     """Constructive: `apply` performs the selection `check` verifies."""
 
     id = "every_nth_word"
+    rules = ("extra_words", "wrong_word")
 
     @classmethod
     def params_model(cls) -> type[EveryNthWordParams]:

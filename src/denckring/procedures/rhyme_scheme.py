@@ -146,6 +146,14 @@ class RhymeScheme(BaseProcedure[RhymeSchemeParams]):
     """Lines sharing a letter must rhyme; lines with different letters must not."""
 
     id = "rhyme_scheme"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[RhymeSchemeParams]:

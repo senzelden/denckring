@@ -83,6 +83,7 @@ class Quenina(BaseProcedure[QueninaParams]):
     """
 
     id = "quenina"
+    rules = ("invalid_size", "missing_line", "wrong_end_word")
 
     @classmethod
     def params_model(cls) -> type[QueninaParams]:

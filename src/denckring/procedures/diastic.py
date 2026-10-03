@@ -54,6 +54,7 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
     """Constructive: `apply` performs the reading-through that `check` verifies."""
 
     id = "diastic"
+    rules = ("not_in_source", "unchanged", "wrong_letter_at_position")
 
     @classmethod
     def params_model(cls) -> type[DiasticParams]:

@@ -20,6 +20,7 @@ class MonosyllabicProse(BaseProcedure[MonosyllabicProseParams]):
     """No word longer than one syllable, from first to last."""
 
     id = "monosyllabic_prose"
+    rules = ("polysyllabic_word",)
 
     @classmethod
     def params_model(cls) -> type[MonosyllabicProseParams]:

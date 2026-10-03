@@ -26,6 +26,7 @@ class Lipogram(BaseProcedure[LipogramParams]):
     """Perec's constraint: choose a letter and never use it."""
 
     id = "lipogram"
+    rules = ("forbidden_letter",)
 
     @classmethod
     def params_model(cls) -> type[LipogramParams]:

@@ -101,6 +101,7 @@ class Spoonerism(ConstructiveProcedure[SpoonerismParams, SpoonerismApplyParams])
     """
 
     id = "spoonerism"
+    rules = ("onsets_not_distinct", "too_few_words", "unresolved_phonemes")
 
     @classmethod
     def params_model(cls) -> type[SpoonerismParams]:

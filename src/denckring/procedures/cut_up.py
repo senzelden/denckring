@@ -38,6 +38,7 @@ class CutUp(ConstructiveProcedure[CutUpParams, CutUpApplyParams]):
     """
 
     id = "cut_up"
+    rules = ("unchanged", "word_not_in_source")
 
     @classmethod
     def params_model(cls) -> type[CutUpParams]:

@@ -21,6 +21,7 @@ class Sestina(BaseProcedure[SestinaParams]):
     """Six sestets on six rotating end-words, checked as a quenina at n=6."""
 
     id = "sestina"
+    rules = ("missing_line", "wrong_end_word")
 
     @classmethod
     def params_model(cls) -> type[SestinaParams]:

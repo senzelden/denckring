@@ -147,6 +147,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
     """Constructive: `apply` searches the ladder `check` verifies."""
 
     id = "word_ladder"
+    rules = ("different_length", "not_a_word", "step_too_large", "too_few_steps", "wrong_end")
 
     @classmethod
     def params_model(cls) -> type[WordLadderParams]:

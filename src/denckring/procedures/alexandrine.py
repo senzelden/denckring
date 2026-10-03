@@ -19,6 +19,7 @@ class Alexandrine(BaseProcedure[AlexandrineParams]):
     """Checks the syllable measure only, not the caesura or the stress pattern."""
 
     id = "alexandrine"
+    rules = ("wrong_syllable_count",)
 
     @classmethod
     def params_model(cls) -> type[AlexandrineParams]:

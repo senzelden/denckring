@@ -11,6 +11,7 @@ from denckring.lang import get_pack
 @register
 class DefinitionalTranslation(BaseProcedure[GlossParams]):
     id = "definitional_translation"
+    rules = ("empty_source", "not_the_gloss_sequence", "unknown_gloss")
 
     @classmethod
     def params_model(cls) -> type[GlossParams]:

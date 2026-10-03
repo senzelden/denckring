@@ -17,6 +17,15 @@ class PetrarchanSonnet(BaseProcedure[PetrarchanSonnetParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "petrarchan_sonnet"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[PetrarchanSonnetParams]:

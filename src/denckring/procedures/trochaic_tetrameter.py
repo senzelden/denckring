@@ -19,6 +19,7 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "trochaic_tetrameter"
+    rules = ("wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[TrochaicTetrameterParams]:

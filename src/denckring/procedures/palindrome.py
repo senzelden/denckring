@@ -21,6 +21,7 @@ class Palindrome(BaseProcedure[PalindromeParams]):
     """Case, spacing and punctuation are ignored; only the letters mirror."""
 
     id = "palindrome"
+    rules = ("mirror_mismatch",)
 
     @classmethod
     def params_model(cls) -> type[PalindromeParams]:

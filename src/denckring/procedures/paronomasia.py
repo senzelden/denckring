@@ -262,6 +262,13 @@ class Paronomasia(ConstructiveProcedure[ParonomasiaParams, ParonomasiaApplyParam
     """Constructive: `apply` performs the displacement `check` verifies."""
 
     id = "paronomasia"
+    rules = (
+        "distance_out_of_band",
+        "length_mismatch",
+        "no_displacement",
+        "unrecoverable",
+        "unresolvable_pronunciation",
+    )
 
     @classmethod
     def params_model(cls) -> type[ParonomasiaParams]:

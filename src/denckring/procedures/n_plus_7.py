@@ -332,6 +332,16 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
     """Lescure's procedure: walk the dictionary seven nouns on."""
 
     id = "n_plus_7"
+    rules = (
+        "ambiguous_noun_unchanged",
+        "ambiguous_nouns_undecidable",
+        "changed_a_non_noun",
+        "changed_proclitic",
+        "no_displacement",
+        "unchanged",
+        "wrong_displacement",
+        "wrong_word_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[NPlus7Params]:

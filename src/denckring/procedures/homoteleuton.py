@@ -28,6 +28,7 @@ class Homoteleuton(BaseProcedure[HomoteleutonParams]):
     """The tautogram read from the other end of each word."""
 
     id = "homoteleuton"
+    rules = ("wrong_final",)
 
     @classmethod
     def params_model(cls) -> type[HomoteleutonParams]:

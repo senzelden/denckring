@@ -151,6 +151,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
     """
 
     id = "anagram"
+    rules = ("empty_transposal", "missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[AnagramParams]:

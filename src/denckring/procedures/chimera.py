@@ -264,6 +264,7 @@ class Chimera(ConstructiveProcedure[ChimeraParams, ChimeraApplyParams]):
     """One text's grammar and function words, three others' content words."""
 
     id = "chimera"
+    rules = ("extra_words", "frame_word_changed", "missing_word", "not_from_donor", "wrong_pos")
 
     @classmethod
     def params_model(cls) -> type[ChimeraParams]:

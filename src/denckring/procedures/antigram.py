@@ -27,6 +27,7 @@ class Antigram(BaseProcedure[AntigramParams]):
     """
 
     id = "antigram"
+    rules = ("missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[AntigramParams]:

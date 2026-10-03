@@ -52,6 +52,7 @@ class TextFolding(ConstructiveProcedure[TextFoldingParams, TextFoldingApplyParam
     """Constructive: `apply` performs the fold that `check` verifies."""
 
     id = "text_folding"
+    rules = ("invented_part", "line_out_of_fold", "missing_part")
 
     @classmethod
     def params_model(cls) -> type[TextFoldingParams]:

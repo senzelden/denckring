@@ -23,6 +23,7 @@ class SentenceLengthConstraint(BaseProcedure[SentenceLengthConstraintParams]):
     """Every sentence within tolerance of the target word count."""
 
     id = "sentence_length_constraint"
+    rules = ("wrong_sentence_length",)
 
     @classmethod
     def params_model(cls) -> type[SentenceLengthConstraintParams]:

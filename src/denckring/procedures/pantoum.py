@@ -21,6 +21,7 @@ class Pantoum(BaseProcedure[PantoumParams]):
     """Checks the line interlocking only, not metre or rhyme."""
 
     id = "pantoum"
+    rules = ("broken_interlock", "incomplete_quatrain")
 
     @classmethod
     def params_model(cls) -> type[PantoumParams]:

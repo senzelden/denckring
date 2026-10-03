@@ -30,6 +30,7 @@ class AlliterativeVerse(BaseProcedure[AlliterativeVerseParams]):
     """Each line must carry `minimum` words on one initial."""
 
     id = "alliterative_verse"
+    rules = ("too_few_alliterating",)
 
     @classmethod
     def params_model(cls) -> type[AlliterativeVerseParams]:

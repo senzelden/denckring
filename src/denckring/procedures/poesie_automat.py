@@ -78,6 +78,7 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
     """
 
     id = "poesie_automat"
+    rules = ("extra_line", "missing_line", "module_not_on_the_board")
 
     #: The board supplies the poem; `text` is never read. See
     #: `ConstructiveProcedure.ignores_input`.

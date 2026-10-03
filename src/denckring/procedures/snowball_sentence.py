@@ -23,6 +23,7 @@ class SnowballSentence(BaseProcedure[SnowballSentenceParams]):
     """The snowball raised from the word to the sentence."""
 
     id = "snowball_sentence"
+    rules = ("wrong_sentence_length",)
 
     @classmethod
     def params_model(cls) -> type[SnowballSentenceParams]:

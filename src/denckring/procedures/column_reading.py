@@ -48,6 +48,7 @@ class ColumnReading(ConstructiveProcedure[ColumnReadingParams, ColumnReadingAppl
     """Constructive: `apply` performs the vertical reading `check` verifies."""
 
     id = "column_reading"
+    rules = ("extra_words", "not_in_source", "wrong_column_word")
 
     @classmethod
     def params_model(cls) -> type[ColumnReadingParams]:

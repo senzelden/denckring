@@ -38,6 +38,7 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
     """Constructive: `apply` turns alternate lines that `check` verifies."""
 
     id = "boustrophedon"
+    rules = ("invented_part", "line_not_turned", "missing_part")
 
     @classmethod
     def params_model(cls) -> type[BoustrophedonParams]:

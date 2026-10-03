@@ -39,6 +39,16 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
     """The same walk as N+7, over the word list and step the caller supplies."""
 
     id = "s_plus_7"
+    rules = (
+        "ambiguous_noun_unchanged",
+        "ambiguous_nouns_undecidable",
+        "changed_a_non_noun",
+        "changed_proclitic",
+        "no_displacement",
+        "unchanged",
+        "wrong_displacement",
+        "wrong_word_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[SPlus7Params]:

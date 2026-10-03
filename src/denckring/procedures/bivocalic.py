@@ -32,6 +32,7 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
     """The univocalic loosened by one: two vowels, no more."""
 
     id = "bivocalic"
+    rules = ("foreign_vowel",)
 
     @classmethod
     def params_model(cls) -> type[BivocalicParams]:

@@ -30,6 +30,7 @@ class Monoconsonantal(BaseProcedure[MonoconsonantalParams]):
     """The mirror of the univocalic: one consonant, vowels unconstrained."""
 
     id = "monoconsonantal"
+    rules = ("foreign_consonant",)
 
     @classmethod
     def params_model(cls) -> type[MonoconsonantalParams]:

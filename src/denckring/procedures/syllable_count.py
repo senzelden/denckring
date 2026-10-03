@@ -132,6 +132,7 @@ class SyllableCount(BaseProcedure[SyllableCountParams]):
     """The general case the fixed syllabic forms delegate to."""
 
     id = "syllable_count"
+    rules = ("extra_line", "missing_line", "wrong_syllable_count")
 
     @classmethod
     def params_model(cls) -> type[SyllableCountParams]:

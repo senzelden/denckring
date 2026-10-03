@@ -56,6 +56,13 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
     """
 
     id = "ideenwuerfeln"
+    rules = (
+        "domain_repeated",
+        "domain_unknown",
+        "not_in_the_corpus",
+        "wrong_headword",
+        "wrong_number_of_excerpts",
+    )
 
     @classmethod
     def params_model(cls) -> type[IdeenwuerfelnParams]:

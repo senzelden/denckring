@@ -81,6 +81,11 @@ class Larding(BaseProcedure[LardingParams]):
     """
 
     id = "larding"
+    rules = (
+        "missing_intercalated_sentence",
+        "source_sentence_out_of_place",
+        "wrong_sentence_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[LardingParams]:

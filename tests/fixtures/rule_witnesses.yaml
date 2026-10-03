@@ -1,0 +1,1986 @@
+# One witness per declared `violation.rule` the golden corpus does not emit: a
+# check call whose report carries that rule. `tests/test_rules.py` runs each one,
+# so every rule a row declares is proved emittable by a golden case or by an
+# entry here. Recorded from the unit tests' own calls (the shortest text that
+# emitted the rule), else found by mutating the row's golden cases, else
+# written by hand.
+#
+# An entry here whose rule a golden case comes to emit is stale, and the test
+# says so: delete it.
+witnesses:
+- procedure: acrostic
+  rule: extra_unit
+  lang: en
+  params:
+    target: AB
+  text: |-
+    Apple
+    Berry
+    Cherry
+- procedure: acrostic
+  rule: missing_unit
+  lang: en
+  params:
+    target: AB
+  text: Apple
+- procedure: alcaic_stanza
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    sea forest beautiful daylight silver sea
+    song silver carefully daylight forest sea
+    sea silver daylight forest silver
+    forest silver carefully murmuring
+- procedure: anagram
+  rule: empty_transposal
+  lang: en
+  params:
+    source: dormitory
+    allow_subset: true
+  text: ''
+- procedure: anagram
+  rule: unchanged
+  lang: en
+  params:
+    source: ab
+    allow_identity: false
+  text: ab
+- procedure: antigram
+  rule: missing_letter
+  lang: en
+  params:
+    source: listen
+  text: ''
+- procedure: antigram
+  rule: surplus_letter
+  lang: en
+  params:
+    source: listen
+  text: |-
+    silent
+    silent
+- procedure: antonymic_substitution
+  rule: empty_source
+  lang: en
+  params:
+    source: ''
+  text: ''
+- procedure: antonymic_substitution
+  rule: wrong_word_count
+  lang: en
+  params:
+    source: big big
+  text: small
+- procedure: antonymic_translation
+  rule: empty_source
+  lang: en
+  params:
+    source: ''
+  text: ''
+- procedure: antonymic_translation
+  rule: wrong_word_count
+  lang: en
+  params:
+    source: big big
+  text: small
+- procedure: arca_musarithmica
+  rule: no_tablet_for_length
+  lang: en
+  params:
+    source: a phrase far too long for this box
+    pinakes: '{"source": "synthetic, in the shape of a pinax", "tones": ["I", "II", "III"], "syntagmata":
+      {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}, "2": {"4": ["5 4 3 2",
+      "3 2 1 2"]}}}'
+  text: 5 3 1 3
+- procedure: arca_musarithmica
+  rule: pattern_without_phrase
+  lang: en
+  params:
+    source: |-
+      the cat sat down
+      the dog ran home to eat
+    pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5
+      5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+  text: |-
+    5 3 1 3
+    5 5 3 1 3 5
+    5 5 3 1 3 5
+- procedure: arca_musarithmica
+  rule: phrase_not_set
+  lang: en
+  params:
+    source: |-
+      the cat sat down
+      the dog ran home to eat
+    pinakes: '{"tones": ["I", "II", "III"], "syntagmata": {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5
+      5 3 1 3 5", "1 1 3 5 3 1"]}}}'
+  text: 5 3 1 3
+- procedure: arca_musarithmica
+  rule: unknown_tone
+  lang: en
+  params:
+    source: the cat sat down
+    tonus: XI
+    pinakes: '{"source": "synthetic, in the shape of a pinax", "tones": ["I", "II", "III"], "syntagmata":
+      {"1": {"4": ["5 3 1 3", "1 3 5 3"], "6": ["5 5 3 1 3 5", "1 1 3 5 3 1"]}, "2": {"4": ["5 4 3 2",
+      "3 2 1 2"]}}}'
+  text: 5 3 1 3
+- procedure: ballade
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    a cat can climb a tall old tree
+    the dog will run and play all day
+    the bird will fly out to the sea
+    the sun will shine and light the way
+    the sky will clear by first of may
+    the wall was built of gray old stone
+    the birds will call what they all say
+    until the northern wind has blown
+    the clock will chime at half past three
+    the boys will laugh and run to play
+    a fish will leap and swim so free
+    the guests will come and wish to stay
+    the storm clouds turn both dark and gray
+    the barn stood dark and stayed alone
+    the goats will roam and love to stray
+    until the northern wind has blown
+    he holds the door shut with a key
+    the trees will bend then start to sway
+    the priest will grant the poor his plea
+    the child will shape the wet soft clay
+    the light comes down in one long ray
+    the truth at last to all was known
+    the hens will rest then soon they lay
+    until the northern wind has blown
+    the men will come at dusk to play
+    the corn stood tall for it had grown
+    the ships will sail out past the bay
+    until the northern wind has blown
+- procedure: ballade
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    a cat can climb a tall old zxqvk0
+    the dog will run and play all zxqvk1
+    the kestrel flies out to the zxqvk2
+    the sun will shine and light the zxqvk3
+    the sky will clear by first of zxqvk4
+    the wall was built of gray old zxqvk5
+    the birds will call what they all zxqvk6
+    until the northern wind has zxqvk7
+    the clock will chime at half past zxqvk8
+    the boys will laugh and run to zxqvk9
+    a fish will leap and swim so zxqvk10
+    the guests will come and wish to zxqvk11
+    the storm clouds turn both dark and zxqvk12
+    the barn stood dark and stayed zxqvk13
+    the goats will roam and love to zxqvk14
+    until the northern wind has zxqvk15
+    he holds the door shut with a zxqvk16
+    the trees will bend then start to zxqvk17
+    the priest will grant the poor his zxqvk18
+    the child will shape the wet soft zxqvk19
+    the light comes down in one long zxqvk20
+    the truth at last to all was zxqvk21
+    the hens will rest then soon they zxqvk22
+    until the northern wind has zxqvk23
+    the men will come at dusk to zxqvk24
+    the corn stood tall for it had zxqvk25
+    the ships will sail out past the zxqvk26
+    until the northern wind has zxqvk27
+- procedure: ballade
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    a cat can climb a tall old day
+    the dog will run and play all day
+    the kestrel flies out to the sea
+    the sun will shine and light the way
+    the sky will clear by first of may
+    the wall was built of gray old stone
+    the birds will call what they all say
+    until the northern wind has blown
+    the clock will chime at half past three
+    the boys will laugh and run to play
+    a fish will leap and swim so free
+    the guests will come and wish to stay
+    the storm clouds turn both dark and gray
+    the barn stood dark and stayed alone
+    the goats will roam and love to stray
+    until the northern wind has blown
+    he holds the door shut with a key
+    the trees will bend then start to sway
+    the priest will grant the poor his plea
+    the child will shape the wet soft clay
+    the light comes down in one long ray
+    the truth at last to all was known
+    the hens will rest then soon they lay
+    until the northern wind has blown
+    the men will come at dusk to pay
+    the corn stood tall for it had grown
+    the ships will sail out past the bay
+    until the northern wind has blown
+- procedure: ballade
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: ballade
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: |-
+    a cat can climb a tall old tree
+    the dog will run and play all day
+    the bird will fly out to the sea
+    the sun will shine and light the way
+    the sky will clear by first of may
+    the wall was built of gray old stone
+    the birds will call what they all say
+    until the northern wind has blown
+    the clock will chime at half past three
+    the boys will laugh and run to play
+    a fish will leap and swim so free
+    the guests will come and wish to stay
+    the storm clouds turn both dark and gray
+    the barn stood dark and stayed alone
+    the goats will roam and love to stray
+    until the northern wind has blown
+    he holds the door shut with a key
+    the trees will bend then start to sway
+    the priest will grant the poor his plea
+    the child will shape the wet soft clay
+    the light comes down in one long ray
+    the truth at last to all was known
+    the hens will rest then soon they lay
+    until the northern wind has blown
+    the men will come at dusk to pay
+    the corn stood tall for it had grown
+    the ships will sail out past the bay
+    a different closing line entirely
+- procedure: beau_present
+  rule: unused_name_letter
+  lang: en
+  params:
+    name: arch
+    require_all: true
+  text: arc
+- procedure: belle_absente
+  rule: wrong_line_count
+  lang: en
+  params:
+    name: Georges Perec
+  text: x
+- procedure: blank_verse
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: 󕥷
+- procedure: buchstabwechsel
+  rule: unchanged
+  lang: de
+  params:
+    source: a
+    allow_identity: false
+  text: a
+- procedure: calculator_word
+  rule: wrong_word_count
+  lang: de
+  params:
+    digits: '7353'
+  text: ''
+- procedure: cent_mille_milliards
+  rule: extra_line
+  lang: en
+  params:
+    source: |-
+      Auf | Ab
+      Nacht | Tag
+      kommt | geht
+  text: |-
+    Ab
+    Tag
+    geht
+    geht
+- procedure: cent_mille_milliards
+  rule: missing_line
+  lang: en
+  params:
+    source: |-
+      Auf | Ab
+      Nacht | Tag
+      kommt | geht
+  text: |-
+    Ab
+    Tag
+- procedure: chimera
+  rule: extra_words
+  lang: en
+  params:
+    source: ''
+    nouns_from: The cold wind carried the letter.
+    verbs_from: The warm girl watched the river.
+    adjectives_from: The small child painted the table.
+  text: The small wind watched the letter.
+- procedure: chimera
+  rule: missing_word
+  lang: en
+  params:
+    source: The quick boy opened the cart.
+    nouns_from: The cold wind carried the letter.
+    verbs_from: The warm girl watched the river.
+    adjectives_from: The small child painted the table.
+  text: The small wind.
+- procedure: chronogram
+  rule: too_short
+  lang: en
+  params:
+    year: 100
+    min_letters: 10
+  text: LVX
+- procedure: cinquain
+  rule: extra_line
+  lang: en
+  params: {}
+  text: |-
+    the cat
+    sat on the mat
+    the dog ran past the cat
+    the cat sat on the mat and thought
+    of mice
+    of mice
+- procedure: cinquain
+  rule: missing_line
+  lang: en
+  params: {}
+  text: ''
+- procedure: clerihew
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    sir humphry gravy
+    abominated gravy
+    he mixed his chemicals every night
+    and left the lab in the pale light
+- procedure: clerihew
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    sir humphry zxqvk0
+    abominated zxqvk1
+    he mixed his chemicals every zxqvk2
+    and left the lab in the pale zxqvk3
+- procedure: clerihew
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    sir humphry night
+    abominated gravy
+    he mixed his chemicals every night
+    and left the lab in the pale light
+- procedure: clerihew
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: column_reading
+  rule: extra_words
+  lang: en
+  params:
+    source: a
+    column: 1
+  text: a zzzzzzzz
+- procedure: column_reading
+  rule: not_in_source
+  lang: en
+  params:
+    source: a
+    column: 1
+  text: a zzzzzzzz
+- procedure: curtal_sonnet
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the fish will swim beneath the frozen break
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    the deer will wake before the morning break
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the moon will rise and fill the sky with light
+    the boat will drift below the open sea
+    the wind will move the grass and blow away
+    the stars will burn until the end of night
+    the birds will sing before the break of day
+- procedure: curtal_sonnet
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the fish will swim beneath the frozen zxqvk0
+    the cat can see the moon above the zxqvk1
+    the dog will run across the field zxqvk2
+    the deer will wake before the morning zxqvk3
+    a kestrel flies around the house at zxqvk4
+    the sun will set behind the hill in zxqvk5
+    the moon will rise and fill the sky with zxqvk6
+    the boat will drift below the open zxqvk7
+    the wind will move the grass and blow zxqvk8
+    the stars will burn until the end of zxqvk9
+    the birds will sing before the break of zxqvk10
+- procedure: curtal_sonnet
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the fish will swim beneath the frozen day
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    the deer will wake before the morning break
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the moon will rise and fill the sky with light
+    the boat will drift below the open sea
+    the wind will move the grass and blow away
+    the stars will burn until the end of night
+    the birds will sing before the break of day
+- procedure: cut_up
+  rule: unchanged
+  lang: en
+  params:
+    source: cat sat
+    allow_identity: false
+  text: cat sat
+- procedure: dactylic_hexameter
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: S
+- procedure: definitional_translation
+  rule: empty_source
+  lang: en
+  params:
+    source: ''
+    data: '{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance":
+      "constructed test data; not a verified bilingual dictionary", "glosses": {"cat": ["petit animal"],
+      "dog": ["animal fid\u00e8le"]}}'
+  text: ''
+- procedure: definitional_translation
+  rule: unknown_gloss
+  lang: en
+  params:
+    source: Silent night
+    data: '{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance":
+      "constructed test data; not a verified bilingual dictionary", "glosses": {"cat": ["petit animal"],
+      "dog": ["animal fidèle"]}}'
+  text: Silent night
+- procedure: denckring
+  rule: ring_skipped
+  lang: de
+  params:
+    require_all_rings: true
+  text: Lang
+- procedure: diastic
+  rule: unchanged
+  lang: en
+  params:
+    source: the cat
+    seed_phrase: t
+    allow_identity: false
+  text: the cat
+- procedure: double_acrostic
+  rule: extra_line
+  lang: en
+  params:
+    first: ab
+    last: ey
+  text: |-
+    Apple
+    Berry
+    Berry
+- procedure: double_acrostic
+  rule: missing_line
+  lang: en
+  params:
+    first: ab
+    last: ey
+  text: Apple
+- procedure: double_acrostic
+  rule: wrong_initial
+  lang: en
+  params:
+    first: aa
+    last: aa
+  text: |-
+    zz
+    zz
+- procedure: double_dactyl
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: |-
+    the
+    in
+    in
+    in
+    of
+    in
+    of
+    and
+- procedure: double_dactyl
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    about about about
+    about about about
+    about about about
+    about about about
+    about about about
+    about about about
+    about about about
+    about about about
+- procedure: elegiac_couplet
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: 𐲃
+- procedure: elegiac_couplet
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: murmuring murmuring song murmuring murmuring stone
+- procedure: englyn
+  rule: extra_line
+  lang: en
+  params: {}
+  text: |-
+    the summer evening settles by the bay
+    beside the quiet way
+    and the swallow calls the day
+    and the river hums today
+    and the river hums today
+- procedure: englyn
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the summer evening settles by the day
+    beside the quiet way
+    and the swallow calls the day
+    and the river hums today
+- procedure: englyn
+  rule: missing_line
+  lang: en
+  params: {}
+  text: ''
+- procedure: englyn
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the summer evening settles by the zxqvk0
+    beside the quiet zxqvk1
+    and the swallow calls the zxqvk2
+    and the river hums zxqvk3
+- procedure: englyn
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: eodermdrome
+  rule: repeated_edge
+  lang: en
+  params: {}
+  text: none
+- procedure: eodermdrome
+  rule: too_short
+  lang: en
+  params: {}
+  text: ''
+- procedure: every_nth_word
+  rule: extra_words
+  lang: en
+  params:
+    source: a a a a
+    n: 2
+  text: a a a a
+- procedure: ghazal
+  rule: broken_qafia
+  lang: en
+  params: {}
+  text: |-
+    i cannot find the road tonight
+    the lamps have all been painted tonight
+    the river takes another turn
+    and leaves its heavy load tonight
+    the letters that i never sent
+    are lying in the code tonight
+- procedure: ghazal
+  rule: unknown_rhyme
+  lang: en
+  params:
+    unknown_rhyme: strict
+  text: |-
+    i cannot find the road tonight
+    the lamps have all been slowed tonight
+    the river takes another turn
+    and leaves its heavy zqxvoad tonight
+- procedure: ghazal
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: haibun
+  rule: missing_prose
+  lang: en
+  params: {}
+  text: ''
+- procedure: haibun
+  rule: wrong_alternation
+  lang: en
+  params: {}
+  text: |-
+    cat
+
+    cat
+- procedure: haiku
+  rule: extra_line
+  lang: en
+  params: {}
+  text: "6K3\x1D?\U0002943F\x98\v±\x1E\U0006B7D5\x9C"
+- procedure: haiku
+  rule: missing_line
+  lang: en
+  params: {}
+  text: ''
+- procedure: haikuization
+  rule: extra_words
+  lang: en
+  params:
+    source: Silent night
+  text: Silent night
+- procedure: haikuization
+  rule: not_in_source
+  lang: en
+  params:
+    source: |-
+      the cat sat down
+      a dog ran fast
+      one bird flew high
+  text: cat dog bird extra
+- procedure: hemeling
+  rule: empty_anagram
+  lang: en
+  params:
+    source: silent
+  text: |-
+    .
+    the letters of your name will turn and then
+    they say a truer thing than they did when
+- procedure: hemeling
+  rule: identical_rhyme
+  lang: fr
+  params:
+    source: Marie
+  text: |-
+    aimer
+    On voit Marie qui sait leur amour
+    Elle chante à l'amour
+- procedure: hemeling
+  rule: missing_letter
+  lang: en
+  params:
+    source: silent
+  text: |-
+    .
+    the letters of your name will turn and then
+    they say a truer thing than they did when
+- procedure: hemeling
+  rule: rhyme_undecidable
+  lang: en
+  params:
+    source: silent
+  text: |-
+    listen
+    the letters of your name will turn and zxqvkt
+    they say a truer thing than they did when
+- procedure: hemeling
+  rule: unknown_rhyme
+  lang: en
+  params:
+    source: silent
+    unknown_rhyme: strict
+  text: |-
+    listen
+    the letters of your name will turn and zxqvkt
+    they say a truer thing than they did when
+- procedure: hemeling
+  rule: unwanted_rhyme
+  lang: en
+  params:
+    source: silent
+    scheme: AABB
+  text: |-
+    listen
+    the letters of your name will turn and then
+    they say a truer thing than they did now
+    and what was hidden there is plain again
+    as clear as any oath a man could vow
+- procedure: heroic_couplet
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    a bird can fly around the house at three
+    the dog will run across the field today
+    the sun will set behind the hill in may
+- procedure: heroic_couplet
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: "rW\N\aï:"
+- procedure: heroic_couplet
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    a bird can fly around the house at three
+    the dog will run across the field today
+    the sun will set behind the hill in may
+- procedure: heroic_couplet
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: '1'
+- procedure: heroic_couplet
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: '1'
+- procedure: heroic_couplet
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+- procedure: homoconsonantism
+  rule: extra_letters
+  lang: en
+  params:
+    source: a
+  text: a zzzz
+- procedure: homoconsonantism
+  rule: unchanged
+  lang: en
+  params:
+    source: b
+    allow_identity: false
+  text: b
+- procedure: homophonic_translation
+  rule: empty_stream
+  lang: en
+  params:
+    source: ''
+    data: '{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance":
+      "constructed test data; not a verified bilingual dictionary", "alphabet": ["a", "b", "c"], "source_pronunciations":
+      {"cat": ["a", "b"]}, "target_pronunciations": {"chat": ["a", "b"], "mot": ["a", "c"]}}'
+    max_distance: 0
+  text: ''
+- procedure: homophonic_translation
+  rule: unknown_pronunciation
+  lang: en
+  params:
+    source: cat
+    data: '{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance":
+      "constructed test data; not a verified bilingual dictionary", "alphabet": ["a", "b", "c"], "source_pronunciations":
+      {"cat": ["a", "b"]}, "target_pronunciations": {"chat": ["a", "b"], "mot": ["a", "c"]}}'
+    max_distance: 0
+  text: cat
+- procedure: homosyntaxism
+  rule: extra_words
+  lang: en
+  params:
+    source: ''
+  text: The girl read the book.
+- procedure: homovocalism
+  rule: unchanged
+  lang: en
+  params:
+    source: a
+    allow_identity: false
+  text: a
+- procedure: iambic_pentameter
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: Happy pretty little lovely yellow
+- procedure: ideenwuerfeln
+  rule: domain_repeated
+  lang: en
+  params:
+    source: '{"name": "synthetic", "entries": [{"text": "The Roman legions carried a portable sundial.",
+      "domain": "antiquity", "headwords": ["Zeit"]}, {"text": "The heart''s left ventricle is the thickest
+      chamber.", "domain": "anatomy", "headwords": ["Herz", "Zeit"]}, {"text": "A mayfly lives one day
+      as an adult.", "domain": "entomology", "headwords": ["Zeit"]}, {"text": "Whoever counts the hours
+      has already lost them.", "domain": "aphorism", "headwords": ["Zeit"]}]}'
+    distinct_domains: true
+  text: |-
+    The Roman legions carried a portable sundial.
+    The Roman legions carried a portable sundial.
+    A mayfly lives one day as an adult.
+- procedure: ideenwuerfeln
+  rule: domain_unknown
+  lang: en
+  params:
+    source: '{"entries": [{"text": "a"}, {"text": "b"}, {"text": "c"}]}'
+    distinct_domains: true
+  text: |-
+    a
+    b
+    c
+- procedure: ideenwuerfeln
+  rule: wrong_headword
+  lang: de
+  params:
+    source: Silent night
+    distinct_domains: true
+    headword: Zeit
+  text: Silent night
+- procedure: ideenwuerfeln
+  rule: wrong_number_of_excerpts
+  lang: en
+  params:
+    source: Silent night
+    distinct_domains: true
+  text: Silent night
+- procedure: kangaroo_word
+  rule: not_a_word
+  lang: fr
+  params:
+    synonym: ecoel
+  text: écologie
+- procedure: kangaroo_word
+  rule: synonym_is_the_word
+  lang: en
+  params:
+    synonym: encourage
+  text: encourage
+- procedure: letter_bank
+  rule: unused_bank_letter
+  lang: en
+  params:
+    bank: meander
+  text: mad
+- procedure: limerick
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    there was an old man with a zxqvk0
+    who said it is just as i zxqvk1
+    two owls and a zxqvk2
+    four larks and a zxqvk3
+    have all built their nests in my zxqvk4
+- procedure: limerick
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    there was an old man with a hen
+    who said it is just as i feared
+    two owls and a hen
+    four larks and a wren
+    have all built their nests in my beard
+- procedure: limerick
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: lipogrammatic_translation
+  rule: unchanged
+  lang: en
+  params:
+    allow_identity: false
+    source: x
+    forbidden: e
+  text: x
+- procedure: mathews_algorithm
+  rule: invented_part
+  lang: en
+  params:
+    source: |-
+      the quick brown
+
+      over lazy dogs
+
+      sleep under warm
+  text: |-
+    the quick brown
+    lazy dogs over
+    warm sleep under extraword
+- procedure: mathews_algorithm
+  rule: missing_part
+  lang: en
+  params:
+    source: |-
+      the quick brown fox jumps
+
+      over lazy dogs while cats
+
+      sleep under warm bright skies
+  text: |-
+    the quick brown fox jumps
+    lazy dogs while cats over
+- procedure: melting_text
+  rule: unchanged
+  lang: en
+  params:
+    allow_identity: false
+    source: a b c
+  text: a b c
+- procedure: mesostic
+  rule: not_in_source
+  lang: en
+  params:
+    source: a
+    spine: a
+  text: |-
+    a
+    zzzzzz
+- procedure: mesostic
+  rule: unchanged
+  lang: en
+  params:
+    source: a cat
+    spine: t
+    allow_identity: false
+  text: a cat
+- procedure: n_plus_7
+  rule: ambiguous_noun_unchanged
+  lang: en
+  params:
+    ambiguous_nouns: strict
+    source: the run of the mill
+  text: the run of the mill
+- procedure: n_plus_7
+  rule: ambiguous_nouns_undecidable
+  lang: en
+  params:
+    ambiguous_nouns: undecidable
+    source: cat
+  text: cat
+- procedure: n_plus_7
+  rule: changed_proclitic
+  lang: fr
+  params:
+    source: l'ami
+  text: zxqvkt
+- procedure: n_plus_7
+  rule: no_displacement
+  lang: en
+  params:
+    source: cat
+    ambiguous_nouns: undecidable
+    require_displacement: true
+    allow_identity: false
+  text: cat
+- procedure: n_plus_7
+  rule: unchanged
+  lang: en
+  params:
+    source: cat
+    ambiguous_nouns: undecidable
+    require_displacement: true
+    allow_identity: false
+  text: cat
+- procedure: n_plus_7
+  rule: wrong_displacement
+  lang: en
+  params:
+    source: aster
+    offset: 1
+  text: bramble
+- procedure: n_plus_7
+  rule: wrong_word_count
+  lang: en
+  params:
+    source: the cat
+  text: ''
+- procedure: ottava_rima
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the owl will call across the dark at sea
+    the fox will hide beneath the fallen way
+    the mice will creep beside the ancient stone
+    the birds will sing before the day has flown
+- procedure: ottava_rima
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a kestrel flies around the house at zxqvk2
+    the sun will set behind the hill in zxqvk3
+    the owl will call across the dark at zxqvk4
+    the fox will hide beneath the fallen zxqvk5
+    the mice will creep beside the ancient zxqvk6
+    the birds will sing before the day has zxqvk7
+- procedure: ottava_rima
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the owl will call across the dark at sea
+    the fox will hide beneath the fallen way
+    the mice will creep beside the ancient stone
+    the birds will sing before the day has flown
+- procedure: ottava_rima
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: |-
+    the flurbish can see the moon above the tree
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the owl will call across the dark at sea
+    the fox will hide beneath the fallen way
+    the mice will creep beside the ancient stone
+    the birds will sing before the day has flown
+- procedure: pangram
+  rule: repeated_letter
+  lang: en
+  params:
+    perfect: true
+  text: The quick brown fox jumps over the lazy dog.
+- procedure: pangrammatic_lipogram
+  rule: missing_letter
+  lang: en
+  params: {}
+  text: ''
+- procedure: pantoum
+  rule: incomplete_quatrain
+  lang: en
+  params: {}
+  text: |-
+    a
+    b
+    c
+    d
+    b
+    e
+    d
+- procedure: paronomasia
+  rule: length_mismatch
+  lang: en
+  params:
+    source: Brad Pitt
+  text: ''
+- procedure: pasigraphy
+  rule: extra_words
+  lang: en
+  params:
+    source: Silent night
+    table: '{"1": {"la": "deus", "en": "god"}, "2": {"la": "lux", "en": "light"}, "3": {"la": "verbum",
+      "en": "word"}, "4": {"la": "sermo", "en": "word"}}'
+    from_language: la
+    to_language: en
+  text: Silent night
+- procedure: pasigraphy
+  rule: no_number_for_word
+  lang: en
+  params:
+    source: deus fulmen
+    require_complete: true
+    table: '{"1": {"la": "deus", "de": "gott", "en": "god"}, "2": {"la": "lux", "de": "licht", "en": "light"},
+      "3": {"la": "aqua", "de": "wasser"}, "4": {"la": "verbum", "de": "wort", "en": "word"}, "5": {"la":
+      "sermo", "de": "wort", "en": "word"}}'
+    from_language: la
+    to_language: en
+  text: god —
+- procedure: pasigraphy
+  rule: no_word_at_number
+  lang: en
+  params:
+    source: deus aqua lux
+    require_complete: true
+    table: '{"1": {"la": "deus", "de": "gott", "en": "god"}, "2": {"la": "lux", "de": "licht", "en": "light"},
+      "3": {"la": "aqua", "de": "wasser"}, "4": {"la": "verbum", "de": "wort", "en": "word"}, "5": {"la":
+      "sermo", "de": "wort", "en": "word"}}'
+    from_language: la
+    to_language: en
+  text: god — light
+- procedure: petrarchan_sonnet
+  rule: does_not_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the cat
+    the dog will run across the field today
+    the sun will set behind the hill in may
+    a bird can fly around the house at three
+    the boat will drift below the open sea
+    the wind will move the grass and blow away
+    the light will fade before the end of day
+    the child will run across the field so free
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the moon will rise and fill the sky with light
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the stars will burn until the end of night
+- procedure: petrarchan_sonnet
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    the sun will set behind the hill in may
+    a bird can fly around the house at three
+    the boat will drift below the open sea
+    the wind will move the grass and blow away
+    the light will fade before the end of day
+    the child will run across the field so free
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the moon will rise and fill the sky with light
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the stars will burn until the end of night
+- procedure: petrarchan_sonnet
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    the sun will set behind the hill in zxqvk2
+    a bird can fly around the house at zxqvk3
+    the boat will drift below the open zxqvk4
+    the wind will move the grass and blow zxqvk5
+    the light will fade before the end of zxqvk6
+    the child will run across the field so zxqvk7
+    the fox will hide beneath the fallen zxqvk8
+    the fish will swim beneath the frozen zxqvk9
+    the moon will rise and fill the sky with zxqvk10
+    the owl will call across the dark zxqvk11
+    the deer will wake before the morning zxqvk12
+    the stars will burn until the end of zxqvk13
+- procedure: petrarchan_sonnet
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    the sun will set behind the hill in may
+    a bird can fly around the house at three
+    the boat will drift below the open sea
+    the wind will move the grass and blow away
+    the light will fade before the end of day
+    the child will run across the field so free
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the moon will rise and fill the sky with light
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the stars will burn until the end of night
+- procedure: petrarchan_sonnet
+  rule: wrong_line_length
+  lang: en
+  params: {}
+  text: ø
+- procedure: petrarchan_sonnet
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+- procedure: poesie_automat
+  rule: extra_line
+  lang: de
+  params: {}
+  text: |-
+    Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
+    Der Kies gegen Nässe laut Liste anscheinend vor Mittag aus Blech
+    Im Schacht knistert das Rohr seitdem ohne Halt vor Gericht
+    Der Hafen vor Tagen zuweilen über Eck gegen Rost in Serie
+    Die Straße gedeiht fortan mit Ansage in Reserve auf Umwegen
+    Um sechs das Gelände vor dem Amt nach Wunsch vormals im Schilf
+    Um sieben gefriert der Wind gegen bar neuerdings laut Ansage
+- procedure: quenina
+  rule: invalid_size
+  lang: en
+  params:
+    n: 4
+  text: |-
+    x a
+    x b
+    x c
+    x d
+- procedure: recombination
+  rule: sentence_not_in_source
+  lang: en
+  params:
+    source: A. B.
+  text: A. B. C.
+- procedure: recombination
+  rule: unchanged
+  lang: en
+  params:
+    allow_identity: false
+    source: A. B.
+  text: A. B.
+- procedure: renga
+  rule: wrong_stanza_shape
+  lang: en
+  params: {}
+  text: ä
+- procedure: renga
+  rule: wrong_syllable_count
+  lang: en
+  params: {}
+  text: "\x9E\U00087F81./[\x11\x1E/îﾎYæ\U00084148C\x1C\x96"
+- procedure: rhyme_royal
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the sun will set behind the hill in may
+    the birds will sing before the break of day
+    the fox will hide beneath the fallen stone
+    the owl will call across the dark alone
+- procedure: rhyme_royal
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a bird can fly around the house at zxqvk2
+    the sun will set behind the hill in zxqvk3
+    the birds will sing before the break of zxqvk4
+    the fox will hide beneath the fallen zxqvk5
+    the owl will call across the dark zxqvk6
+- procedure: rhyme_royal
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the sun will set behind the hill in may
+    the birds will sing before the break of day
+    the fox will hide beneath the fallen stone
+    the owl will call across the dark alone
+- procedure: rhyme_royal
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+    Happy pretty little lovely yellow
+- procedure: rhyme_scheme
+  rule: rhyme_undecidable
+  lang: fr
+  params:
+    scheme: AA
+  text: |-
+    la belle zzzzblorf
+    une autre chose
+- procedure: rhyme_scheme
+  rule: unknown_rhyme
+  lang: en
+  params:
+    scheme: AABB
+    unknown_rhyme: strict
+  text: |-
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen way
+    the owl will call across the flurbish
+    the mice will creep beside the flurbish
+- procedure: rhyme_scheme
+  rule: wrong_line_count
+  lang: en
+  params:
+    scheme: ABAB
+  text: |-
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    a bird can fly around the house at three
+- procedure: rondeau
+  rule: does_not_rhyme
+  lang: en
+  params:
+    rentrement_words: 3
+  text: |-
+    the tiles lie warm upon the floor
+    a single swallow crosses sky
+    no one can say the reason why
+    the garden waits for something more
+    the bread is kept inside the store
+    the boats are drawn along the shore
+    a distant gull begins to cry
+    the summer holds
+    the thunder starts its far off roar
+    the candle burns an hour before
+    the wind goes past with one long sigh
+    the truth is not one to deny
+    the harvest time will soon restore
+    the summer holds
+- procedure: rondeau
+  rule: identical_rhyme
+  lang: en
+  params:
+    rentrement_words: 3
+  text: |-
+    the summer holds the floor
+    the tiles lie warm upon the floor
+    a single swallow crosses sky
+    no one can say the reason why
+    the garden waits for something more
+    the bread is kept inside the store
+    the boats are drawn along the shore
+    a distant gull begins to cry
+    the summer holds
+    the thunder starts its far off roar
+    the candle burns an hour before
+    the wind goes past with one long sigh
+    the truth is not one to deny
+    the harvest time will soon restore
+    the summer holds
+- procedure: rondeau
+  rule: rhyme_undecidable
+  lang: en
+  params:
+    rentrement_words: 3
+  text: |-
+    the summer holds the zxqvk0
+    the tiles lie warm upon the zxqvk1
+    a single swallow crosses zxqvk2
+    no one can say the reason zxqvk3
+    the garden waits for something zxqvk4
+    the bread is kept inside the zxqvk5
+    the boats are drawn along the zxqvk6
+    a distant gull begins to zxqvk7
+    the summer zxqvk8
+    the thunder starts its far off zxqvk9
+    the candle burns an hour zxqvk10
+    the wind goes past with one long zxqvk11
+    the truth is not one to zxqvk12
+    the harvest time will soon zxqvk13
+    the summer zxqvk14
+- procedure: rondeau
+  rule: unwanted_rhyme
+  lang: en
+  params:
+    rentrement_words: 3
+  text: |-
+    the tiles lie warm upon the floor
+    a single swallow crosses sky
+    no one can say the reason why
+    the garden waits for something more
+    the bread is kept inside the store
+    the boats are drawn along the shore
+    a distant gull begins to cry
+    the summer holds
+    the thunder starts its far off roar
+    the candle burns an hour before
+    the wind goes past with one long sigh
+    the truth is not one to deny
+    the harvest time will soon restore
+    the summer holds
+- procedure: s_plus_7
+  rule: ambiguous_nouns_undecidable
+  lang: en
+  params:
+    source: cat
+    ambiguous_nouns: undecidable
+  text: cat
+- procedure: s_plus_7
+  rule: changed_proclitic
+  lang: fr
+  params:
+    source: l'île
+    offset: 3
+    ambiguous_nouns: strict
+  text: d'îlot
+- procedure: s_plus_7
+  rule: no_displacement
+  lang: en
+  params:
+    source: the cat sat on the table
+    ambiguous_nouns: free
+    require_displacement: true
+  text: the cat sat on the table
+- procedure: s_plus_7
+  rule: unchanged
+  lang: fr
+  params:
+    allow_identity: false
+    source: l'île
+    offset: 3
+    ambiguous_nouns: strict
+  text: l'île
+- procedure: s_plus_7
+  rule: wrong_word_count
+  lang: en
+  params:
+    source: the cat sat on the table
+    offset: 3
+  text: |-
+    the catacala satanism on the tablefork
+    the catacala satanism on the tablefork
+- procedure: sapphic_stanza
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    murmuring forest forest forest garden
+    wonderful forest garden morning morning
+    murmuring silver garden forest silver
+    garden wonderful
+- procedure: sator_square
+  rule: empty_grid
+  lang: en
+  params: {}
+  text: ''
+- procedure: sator_square
+  rule: row_column_mismatch
+  lang: en
+  params: {}
+  text: |-
+    ab
+    ab
+- procedure: sator_square
+  rule: wrong_row_length
+  lang: en
+  params: {}
+  text: 󏾰
+- procedure: semordnilap
+  rule: reversal_is_not_a_word
+  lang: en
+  params: {}
+  text: ÒD
+- procedure: senryu
+  rule: extra_line
+  lang: en
+  params: {}
+  text: |-
+    an old silent pond
+    a frog jumps into the pond
+    splash silence again
+    and more
+- procedure: senryu
+  rule: missing_line
+  lang: en
+  params: {}
+  text: ''
+- procedure: shakespearean_sonnet
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the moon will rise and fill the sky with light
+    the horse will stand beside the gate so still
+    the stars will burn until the end of night
+    the mouse will hide behind the open till
+    the clock will mark the passing of the time
+    the bell will ring and slowly start to chime
+- procedure: shakespearean_sonnet
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a bird can fly around the house at zxqvk2
+    the sun will set behind the hill in zxqvk3
+    the fox will hide beneath the fallen zxqvk4
+    the fish will swim beneath the frozen zxqvk5
+    the owl will call across the dark zxqvk6
+    the deer will wake before the morning zxqvk7
+    the moon will rise and fill the sky with zxqvk8
+    the horse will stand beside the gate so zxqvk9
+    the stars will burn until the end of zxqvk10
+    the mouse will hide behind the open zxqvk11
+    the clock will mark the passing of the zxqvk12
+    the bell will ring and slowly start to zxqvk13
+- procedure: shakespearean_sonnet
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the moon will rise and fill the sky with light
+    the horse will stand beside the gate so still
+    the stars will burn until the end of night
+    the mouse will hide behind the open till
+    the clock will mark the passing of the time
+    the bell will ring and slowly start to chime
+- procedure: sonnet
+  rule: identical_rhyme
+  lang: en
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the moon will rise and fill the sky with light
+    the horse will stand beside the gate so still
+    the stars will burn until the end of night
+    the mouse will hide behind the open till
+    the clock will mark the passing of the time
+    the bell will ring and slowly start to chime
+- procedure: sonnet
+  rule: rhyme_undecidable
+  lang: en
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a kestrel flies around the house at zxqvk2
+    the sun will set behind the hill in zxqvk3
+    the fox will hide beneath the fallen zxqvk4
+    the fish will swim beneath the frozen zxqvk5
+    the owl will call across the dark zxqvk6
+    the deer will wake before the morning zxqvk7
+    the moon will rise and fill the sky with zxqvk8
+    the horse will stand beside the gate so zxqvk9
+    the stars will burn until the end of zxqvk10
+    the mouse will hide behind the open zxqvk11
+    the clock will mark the passing of the zxqvk12
+    the bell will ring and slowly start to zxqvk13
+- procedure: sonnet
+  rule: unwanted_rhyme
+  lang: en
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the moon will rise and fill the sky with light
+    the horse will stand beside the gate so still
+    the stars will burn until the end of night
+    the mouse will hide behind the open till
+    the clock will mark the passing of the time
+    the bell will ring and slowly start to chime
+- procedure: spenserian_stanza
+  rule: identical_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the three
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the birds will sing before the break of day
+    the fox will hide beneath the fallen stone
+    the mice will creep beside the ancient way
+    the owl will call across the dark alone
+    and now the birds will sing before the day has flown
+- procedure: spenserian_stanza
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a kestrel flies around the house at zxqvk2
+    the sun will set behind the hill in zxqvk3
+    the birds will sing before the break of zxqvk4
+    the fox will hide beneath the fallen zxqvk5
+    the mice will creep beside the ancient zxqvk6
+    the owl will call across the dark zxqvk7
+    and now the birds will sing before the day has zxqvk8
+- procedure: spenserian_stanza
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the birds will sing before the break of day
+    the fox will hide beneath the fallen stone
+    the mice will creep beside the ancient way
+    the owl will call across the dark alone
+    and now the birds will sing before the day has flown
+- procedure: spenserian_stanza
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: spoonerism
+  rule: too_few_words
+  lang: en
+  params: {}
+  text: ''
+- procedure: supervocalic
+  rule: repeated_vowel
+  lang: en
+  params: {}
+  text: Éõé
+- procedure: syllable_count
+  rule: extra_line
+  lang: en
+  params:
+    pattern:
+    - 3
+    - 2
+  text: |-
+    the cat sat
+    the dog
+    more
+- procedure: syllable_count
+  rule: missing_line
+  lang: en
+  params:
+    pattern:
+    - 3
+    - 2
+  text: the cat sat
+- procedure: synonymic_substitution
+  rule: empty_source
+  lang: en
+  params:
+    source: ''
+  text: ''
+- procedure: synonymic_substitution
+  rule: wrong_word_count
+  lang: en
+  params:
+    source: big big
+  text: large
+- procedure: tanka
+  rule: extra_line
+  lang: en
+  params: {}
+  text: |-
+    an old silent pond
+    a frog jumps into the pond
+    splash silence again
+    a frog jumps into the pond
+    a frog jumps into the pond
+    a frog jumps into the pond
+- procedure: tanka
+  rule: wrong_syllable_count
+  lang: en
+  params: {}
+  text: "\x84"
+- procedure: telestich
+  rule: extra_unit
+  lang: en
+  params:
+    target: aon
+  text: |-
+    beta
+    zero
+    omen
+    omen
+- procedure: telestich
+  rule: missing_unit
+  lang: en
+  params:
+    target: aon
+  text: |-
+    beta
+    zero
+- procedure: terza_rima
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: "\U0007B64Ba\x13\x1C\U00024C29"
+- procedure: terza_rima
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: '"'
+- procedure: text_folding
+  rule: invented_part
+  lang: en
+  params:
+    source: |-
+      one
+      two
+      three
+      four
+      five
+    fold_at: 2
+  text: |-
+    three
+    four
+    five
+    one
+    two
+    six
+- procedure: text_folding
+  rule: missing_part
+  lang: en
+  params:
+    source: |-
+      one
+      two
+      three
+      four
+      five
+    fold_at: 2
+  text: |-
+    three
+    four
+    five
+    one
+- procedure: tmesis
+  rule: no_material_inserted
+  lang: en
+  params: {}
+  text: well-known
+- procedure: transposal
+  rule: extra_word
+  lang: en
+  params:
+    source: listen rat
+  text: |-
+    silent tar
+    silent tar
+- procedure: transposal
+  rule: missing_word
+  lang: en
+  params:
+    source: listen rat
+  text: silent
+- procedure: transposal
+  rule: unchanged
+  lang: en
+  params:
+    source: ab
+    allow_identity: false
+  text: ab
+- procedure: triolet
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a bird can fly around the house at zxqvk2
+    the cat can see the moon above the zxqvk3
+    the cat can see the moon above the zxqvk4
+    the sun will set behind the hill in zxqvk5
+    the cat can see the moon above the zxqvk6
+    the dog will run across the field zxqvk7
+- procedure: triolet
+  rule: wrong_line_count
+  lang: en
+  params: {}
+  text: ''
+- procedure: trochaic_tetrameter
+  rule: wrong_stress
+  lang: en
+  params: {}
+  text: |-
+    never having any away
+    seldom eating apple butter
+- procedure: univocalic_translation
+  rule: unchanged
+  lang: en
+  params:
+    allow_identity: false
+    source: x
+    vowel: e
+  text: x
+- procedure: villanelle
+  rule: does_not_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the cat
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    a bird can fly around the house at three
+- procedure: villanelle
+  rule: rhyme_undecidable
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the zxqvk0
+    the dog will run across the field zxqvk1
+    a bird can fly around the house at zxqvk2
+    the cat can see the moon above the zxqvk3
+    the sun will set behind the hill in zxqvk4
+    the cat can see the moon above the zxqvk5
+    the cat can see the moon above the zxqvk6
+    the dog will run across the field zxqvk7
+    a bird can fly around the house at zxqvk8
+    the cat can see the moon above the zxqvk9
+    the sun will set behind the hill in zxqvk10
+    the cat can see the moon above the zxqvk11
+    the cat can see the moon above the zxqvk12
+    the dog will run across the field zxqvk13
+    a bird can fly around the house at zxqvk14
+    the cat can see the moon above the zxqvk15
+    the sun will set behind the hill in zxqvk16
+    the cat can see the moon above the zxqvk17
+    a bird can fly around the house at zxqvk18
+- procedure: villanelle
+  rule: unwanted_rhyme
+  lang: en
+  params: {}
+  text: |-
+    the cat can see the moon above the day
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    the cat can see the moon above the tree
+    the dog will run across the field today
+    a bird can fly around the house at three
+    the cat can see the moon above the tree
+    the sun will set behind the hill in may
+    the cat can see the moon above the tree
+    a bird can fly around the house at three
+- procedure: wechselsatz
+  rule: extra_word
+  lang: en
+  params:
+    source: Auf|Ab Nacht|Tag kommt|geht
+  text: Ab Tag geht nun
+- procedure: wechselsatz
+  rule: missing_word
+  lang: de
+  params:
+    source: Auf|Ab Nacht|Tag kommt|geht
+  text: ''
+- procedure: word_ladder
+  rule: different_length
+  lang: en
+  params: {}
+  text: "\em ECÿ"
+- procedure: word_ladder
+  rule: not_a_word
+  lang: en
+  params: {}
+  text: ã
+- procedure: word_ladder
+  rule: too_few_steps
+  lang: en
+  params:
+    min_steps: 1
+  text: cold
+- procedure: word_ladder
+  rule: wrong_end
+  lang: en
+  params:
+    target: warm
+    end_at_target: true
+  text: ''
+- procedure: word_square
+  rule: empty_grid
+  lang: en
+  params: {}
+  text: ''
+- procedure: word_square
+  rule: wrong_row_length
+  lang: en
+  params: {}
+  text: 񬚤

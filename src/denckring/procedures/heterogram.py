@@ -21,6 +21,7 @@ class Heterogram(BaseProcedure[HeterogramParams]):
     """Borgmann's constraint: spend each letter once."""
 
     id = "heterogram"
+    rules = ("repeated_letter",)
 
     @classmethod
     def params_model(cls) -> type[HeterogramParams]:

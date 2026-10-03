@@ -22,6 +22,15 @@ class CurtalSonnet(BaseProcedure[CurtalSonnetParams]):
     """A sonnet shrunk by a consistent fraction, not a sonnet cut short."""
 
     id = "curtal_sonnet"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[CurtalSonnetParams]:

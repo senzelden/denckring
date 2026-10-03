@@ -77,6 +77,16 @@ class Ballade(BaseProcedure[BalladeParams]):
     """Twenty-eight lines, four of them the same line."""
 
     id = "ballade"
+    rules = (
+        "broken_refrain",
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[BalladeParams]:

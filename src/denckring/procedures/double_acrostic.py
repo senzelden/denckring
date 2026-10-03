@@ -27,6 +27,7 @@ class DoubleAcrostic(BaseProcedure[DoubleAcrosticParams]):
     """A poem bounded on both margins by a hidden word."""
 
     id = "double_acrostic"
+    rules = ("extra_line", "missing_line", "wrong_final", "wrong_initial")
 
     @classmethod
     def params_model(cls) -> type[DoubleAcrosticParams]:

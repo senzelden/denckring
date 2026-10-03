@@ -157,6 +157,7 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
     """
 
     id = "paragram"
+    rules = ("no_paragram",)
 
     @classmethod
     def params_model(cls) -> type[ParagramParams]:

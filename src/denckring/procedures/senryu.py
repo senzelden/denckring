@@ -21,6 +21,7 @@ class Senryu(BaseProcedure[SenryuParams]):
     """Checks the syllable pattern only; subject and season are not code's business."""
 
     id = "senryu"
+    rules = ("extra_line", "missing_line", "wrong_syllable_count")
 
     @classmethod
     def params_model(cls) -> type[SenryuParams]:

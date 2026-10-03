@@ -45,6 +45,13 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
     """
 
     id = "arca_musarithmica"
+    rules = (
+        "no_tablet_for_length",
+        "pattern_not_on_the_tablet",
+        "pattern_without_phrase",
+        "phrase_not_set",
+        "unknown_tone",
+    )
 
     @classmethod
     def params_model(cls) -> type[ArcaMusarithmicaParams]:

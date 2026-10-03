@@ -55,6 +55,17 @@ class Hemeling(BaseProcedure[HemelingParams]):
     """
 
     id = "hemeling"
+    rules = (
+        "does_not_rhyme",
+        "empty_anagram",
+        "identical_rhyme",
+        "missing_letter",
+        "rhyme_undecidable",
+        "surplus_letter",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[HemelingParams]:

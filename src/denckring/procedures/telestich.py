@@ -13,5 +13,6 @@ class Telestich(Acrostic):
     """The acrostic read from the other end of each line."""
 
     id = "telestich"
+    rules = ("extra_unit", "missing_unit", "wrong_letter")
 
     letter_index: ClassVar[int] = -1

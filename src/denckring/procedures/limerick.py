@@ -17,6 +17,13 @@ class Limerick(BaseProcedure[LimerickParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "limerick"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[LimerickParams]:

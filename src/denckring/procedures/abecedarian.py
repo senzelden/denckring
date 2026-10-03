@@ -32,6 +32,7 @@ class Abecedarian(BaseProcedure[AbecedarianParams]):
     """The initials run A, B, C — the alphabet used as a spine."""
 
     id = "abecedarian"
+    rules = ("wrong_initial",)
 
     @classmethod
     def params_model(cls) -> type[AbecedarianParams]:

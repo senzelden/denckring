@@ -17,6 +17,13 @@ class Triolet(BaseProcedure[TrioletParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "triolet"
+    rules = (
+        "broken_refrain",
+        "does_not_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[TrioletParams]:

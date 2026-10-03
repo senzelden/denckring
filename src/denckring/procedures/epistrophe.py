@@ -30,6 +30,7 @@ class Epistrophe(BaseProcedure[EpistropheParams]):
     """Anaphora read from the other end."""
 
     id = "epistrophe"
+    rules = ("wrong_closing",)
 
     @classmethod
     def params_model(cls) -> type[EpistropheParams]:

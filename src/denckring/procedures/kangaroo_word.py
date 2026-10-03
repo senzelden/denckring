@@ -35,6 +35,7 @@ class KangarooWord(BaseProcedure[KangarooWordParams]):
     """The decidable half of the form: a real word, hidden in order, not itself."""
 
     id = "kangaroo_word"
+    rules = ("not_a_word", "synonym_is_the_word", "synonym_not_in_order")
 
     @classmethod
     def params_model(cls) -> type[KangarooWordParams]:

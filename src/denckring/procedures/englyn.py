@@ -32,6 +32,15 @@ class Englyn(BaseProcedure[EnglynParams]):
     """
 
     id = "englyn"
+    rules = (
+        "does_not_rhyme",
+        "extra_line",
+        "identical_rhyme",
+        "missing_line",
+        "rhyme_undecidable",
+        "wrong_line_count",
+        "wrong_syllable_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[EnglynParams]:

@@ -77,6 +77,7 @@ class VerblessProse(BaseProcedure[VerblessProseParams]):
     """Nouns, participles and apposition carry it; no finite verb may."""
 
     id = "verbless_prose"
+    rules = ("finite_verb",)
 
     @classmethod
     def params_model(cls) -> type[VerblessProseParams]:

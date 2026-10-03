@@ -26,6 +26,13 @@ class Clerihew(BaseProcedure[ClerihewParams]):
     """Rhyme and line count only."""
 
     id = "clerihew"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[ClerihewParams]:

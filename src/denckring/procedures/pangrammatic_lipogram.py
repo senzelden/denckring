@@ -30,6 +30,7 @@ class PangrammaticLipogram(BaseProcedure[PangrammaticLipogramParams]):
     """
 
     id = "pangrammatic_lipogram"
+    rules = ("forbidden_letter", "missing_letter")
 
     @classmethod
     def params_model(cls) -> type[PangrammaticLipogramParams]:

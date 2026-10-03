@@ -19,6 +19,7 @@ class Tautonym(BaseProcedure[TautonymParams]):
     """Words like couscous, whose two halves are identical."""
 
     id = "tautonym"
+    rules = ("not_doubled",)
 
     @classmethod
     def params_model(cls) -> type[TautonymParams]:

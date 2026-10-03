@@ -17,6 +17,13 @@ class Villanelle(BaseProcedure[VillanelleParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "villanelle"
+    rules = (
+        "broken_refrain",
+        "does_not_rhyme",
+        "rhyme_undecidable",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[VillanelleParams]:

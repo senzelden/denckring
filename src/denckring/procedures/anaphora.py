@@ -34,6 +34,7 @@ class Anaphora(BaseProcedure[AnaphoraParams]):
     """The repetition that carries the structure from the front."""
 
     id = "anaphora"
+    rules = ("wrong_opening",)
 
     @classmethod
     def params_model(cls) -> type[AnaphoraParams]:

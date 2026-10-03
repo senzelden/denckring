@@ -196,6 +196,20 @@ class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
     id: ClassVar[str]
+    #: Every `violation.rule` this row's checker can emit, sorted: the published
+    #: vocabulary `denckring.rules` reads. Declared in each row's own class body and
+    #: never inherited or defaulted, so a row that forgot it fails `tests/test_rules.py`
+    #: rather than publishing an empty list. A rule a shared helper can emit is
+    #: declared only where the row's call can reach it: `iambic_pentameter` scans a
+    #: metre and checks no scheme, so it declares no rhyme rule although
+    #: `form_report` has them. `tests/conftest.py` fails any test whose report
+    #: carries an undeclared rule; `tests/test_rules.py` proves each declared rule
+    #: is emitted by a golden case or a recorded witness.
+    rules: ClassVar[tuple[str, ...]]
+    #: Set on a row whose violations are other rows' own, passed through:
+    #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
+    #: with every other row's vocabulary, since any of them can be composed.
+    delegates_rules: ClassVar[bool] = False
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)

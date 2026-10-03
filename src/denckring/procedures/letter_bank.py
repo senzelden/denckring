@@ -19,6 +19,7 @@ class LetterBank(BaseProcedure[LetterBankParams]):
     """Beau présent's stricter cousin: every bank letter must actually be spent."""
 
     id = "letter_bank"
+    rules = ("letter_outside_bank", "unused_bank_letter")
 
     @classmethod
     def params_model(cls) -> type[LetterBankParams]:

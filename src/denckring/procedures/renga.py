@@ -35,6 +35,7 @@ class Renga(BaseProcedure[RengaParams]):
     """
 
     id = "renga"
+    rules = ("too_few_links", "wrong_stanza_shape", "wrong_syllable_count")
 
     @classmethod
     def params_model(cls) -> type[RengaParams]:

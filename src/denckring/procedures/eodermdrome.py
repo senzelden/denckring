@@ -40,6 +40,7 @@ class Eodermdrome(BaseProcedure[EodermdromeParams]):
     """
 
     id = "eodermdrome"
+    rules = ("not_closed", "repeated_edge", "too_short")
 
     @classmethod
     def params_model(cls) -> type[EodermdromeParams]:

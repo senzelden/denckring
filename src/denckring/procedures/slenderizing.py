@@ -36,6 +36,7 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     """Strike out one letter throughout and let the rest close up."""
 
     id = "slenderizing"
+    rules = ("extra_letters", "wrong_letter")
 
     @classmethod
     def params_model(cls) -> type[SlenderizingParams]:

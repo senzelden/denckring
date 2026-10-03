@@ -28,6 +28,7 @@ class PangrammaticWindow(BaseProcedure[PangrammaticWindowParams]):
     """
 
     id = "pangrammatic_window"
+    rules = ("missing_letter", "window_too_long")
 
     @classmethod
     def params_model(cls) -> type[PangrammaticWindowParams]:

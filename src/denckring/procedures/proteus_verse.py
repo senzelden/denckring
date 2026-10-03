@@ -187,6 +187,7 @@ class ProteusVerse(ConstructiveProcedure[ProteusVerseParams, ProteusVerseApplyPa
     """
 
     id = "proteus_verse"
+    rules = ("does_not_scan", "too_few_variants", "wrong_line_count")
 
     @classmethod
     def params_model(cls) -> type[ProteusVerseParams]:

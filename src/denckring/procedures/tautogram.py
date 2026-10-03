@@ -28,6 +28,7 @@ class Tautogram(BaseProcedure[TautogramParams]):
     """Hucbald's constraint: one initial letter for every word."""
 
     id = "tautogram"
+    rules = ("wrong_initial",)
 
     @classmethod
     def params_model(cls) -> type[TautogramParams]:

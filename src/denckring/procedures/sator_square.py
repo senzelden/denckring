@@ -22,6 +22,13 @@ class SatorSquare(BaseProcedure[SatorSquareParams]):
     """
 
     id = "sator_square"
+    rules = (
+        "empty_grid",
+        "not_horizontally_palindromic",
+        "not_vertically_palindromic",
+        "row_column_mismatch",
+        "wrong_row_length",
+    )
 
     @classmethod
     def params_model(cls) -> type[SatorSquareParams]:

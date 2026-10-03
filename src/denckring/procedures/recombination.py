@@ -56,6 +56,7 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
     """The same sentences, redistributed, with none rewritten."""
 
     id = "recombination"
+    rules = ("sentence_dropped", "sentence_not_in_source", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[RecombinationParams]:

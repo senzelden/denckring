@@ -22,6 +22,7 @@ class ReverseSnowball(BaseProcedure[ReverseSnowballParams]):
     """The melting snowball: the same walk as `snowball`, stepping down."""
 
     id = "reverse_snowball"
+    rules = ("wrong_word_length",)
 
     @classmethod
     def params_model(cls) -> type[ReverseSnowballParams]:

@@ -67,6 +67,7 @@ class LlullFigure(ConstructiveProcedure[LlullFigureParams, LlullFigureApplyParam
     """
 
     id = "llull_figure"
+    rules = ("not_a_chamber", "repeated_principle", "wrong_arity")
 
     #: The figure supplies the chamber; `text` is never read. See
     #: `ConstructiveProcedure.ignores_input`.

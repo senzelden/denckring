@@ -39,6 +39,7 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
     `params.source` is undecidable and unchecked."""
 
     id = "lipogrammatic_translation"
+    rules = ("forbidden_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[LipogrammaticTranslationParams]:

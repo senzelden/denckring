@@ -67,6 +67,7 @@ class Pasigraphy(ConstructiveProcedure[PasigraphyParams, PasigraphyApplyParams])
     """
 
     id = "pasigraphy"
+    rules = ("extra_words", "no_number_for_word", "no_word_at_number", "wrong_rendering")
 
     @classmethod
     def params_model(cls) -> type[PasigraphyParams]:

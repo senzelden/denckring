@@ -40,6 +40,7 @@ class SerialLipogram(BaseProcedure[SerialLipogramParams]):
     """
 
     id = "serial_lipogram"
+    rules = ("forbidden_letter", "wrong_part_count")
 
     @classmethod
     def params_model(cls) -> type[SerialLipogramParams]:

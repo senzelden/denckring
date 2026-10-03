@@ -30,6 +30,7 @@ class BelleAbsente(BaseProcedure[BelleAbsenteParams]):
     """
 
     id = "belle_absente"
+    rules = ("forbidden_letter", "missing_letter", "wrong_line_count")
 
     @classmethod
     def params_model(cls) -> type[BelleAbsenteParams]:

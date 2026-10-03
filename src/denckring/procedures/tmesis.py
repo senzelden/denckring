@@ -43,6 +43,7 @@ class Tmesis(BaseProcedure[TmesisParams]):
     """A hyphenated compound must split into two halves that rejoin as a word."""
 
     id = "tmesis"
+    rules = ("halves_do_not_rejoin", "no_material_inserted", "too_few_splits")
 
     @classmethod
     def params_model(cls) -> type[TmesisParams]:

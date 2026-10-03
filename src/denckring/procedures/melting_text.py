@@ -32,6 +32,7 @@ class MeltingText(ConstructiveProcedure[MeltingTextParams, MeltingTextApplyParam
     """Each stage keeps a subsequence of the source and adds nothing."""
 
     id = "melting_text"
+    rules = ("unchanged", "word_not_in_source")
 
     @classmethod
     def params_model(cls) -> type[MeltingTextParams]:

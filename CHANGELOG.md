@@ -61,6 +61,15 @@ All notable changes to this project are documented here. The format follows
   refuses rather than return a shortest ladder under `min_steps`. `eodermdrome` and
   `chronogram` take `min_letters` (`too_short`).
 
+- Each row declares its `violation.rule` vocabulary (`rules` on the procedure class),
+  and `denckring.rules(procedure_id)` returns it, sorted. `multiple_constraint` passes
+  its constraints' violations through unchanged, so it answers with every other row's
+  vocabulary. A rule a shared helper can emit is declared only where the row's call
+  reaches it: `iambic_pentameter` declares no rhyme rule. Every rule a test or a golden
+  case emits must be declared, and every declared rule is proved emittable by a golden
+  case or a recorded witness. The ids are published but not yet under the stability
+  promise.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

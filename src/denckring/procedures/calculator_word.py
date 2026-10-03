@@ -82,6 +82,7 @@ class CalculatorWord(ConstructiveProcedure[CalculatorWordParams, CalculatorWordA
     """A word spelled by turning a calculator over."""
 
     id = "calculator_word"
+    rules = ("not_a_word", "undisplayable_letter", "wrong_digits", "wrong_word_count")
 
     @classmethod
     def params_model(cls) -> type[CalculatorWordParams]:

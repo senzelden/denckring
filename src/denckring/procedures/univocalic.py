@@ -30,6 +30,7 @@ class Univocalic(BaseProcedure[UnivocalicParams]):
     """One vowel only. Consonants are unconstrained."""
 
     id = "univocalic"
+    rules = ("foreign_vowel",)
 
     @classmethod
     def params_model(cls) -> type[UnivocalicParams]:

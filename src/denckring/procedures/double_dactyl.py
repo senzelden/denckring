@@ -38,6 +38,7 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
     """
 
     id = "double_dactyl"
+    rules = ("no_double_dactylic_word", "wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[DoubleDactylParams]:

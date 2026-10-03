@@ -32,6 +32,7 @@ class Chronogram(BaseProcedure[ChronogramParams]):
     """A phrase whose hidden numerals add up to a year."""
 
     id = "chronogram"
+    rules = ("too_short", "wrong_total")
 
     @classmethod
     def params_model(cls) -> type[ChronogramParams]:

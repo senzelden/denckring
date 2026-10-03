@@ -62,6 +62,7 @@ class Perverb(ConstructiveProcedure[PerverbParams, PerverbApplyParams]):
     """The source supplies the prefix; the donor supplies the suffix."""
 
     id = "perverb"
+    rules = ("not_the_graft", "unresolved_proverb_pair")
 
     @classmethod
     def params_model(cls) -> type[PerverbParams]:

@@ -26,6 +26,7 @@ class Liponym(BaseProcedure[LiponymParams]):
     """The lipogram raised from the letter to the word."""
 
     id = "liponym"
+    rules = ("forbidden_word",)
 
     @classmethod
     def params_model(cls) -> type[LiponymParams]:

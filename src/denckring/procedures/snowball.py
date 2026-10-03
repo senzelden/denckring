@@ -46,6 +46,7 @@ class Snowball(BaseProcedure[SnowballParams]):
     """Ausonius's rhopalic line, growing one letter at a time."""
 
     id = "snowball"
+    rules = ("wrong_word_length",)
 
     @classmethod
     def params_model(cls) -> type[SnowballParams]:

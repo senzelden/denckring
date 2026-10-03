@@ -27,6 +27,7 @@ class Pangram(BaseProcedure[PangramParams]):
     """
 
     id = "pangram"
+    rules = ("missing_letter", "repeated_letter")
 
     @classmethod
     def params_model(cls) -> type[PangramParams]:

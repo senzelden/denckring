@@ -99,6 +99,10 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     """Every named constraint's own `check`, combined; satisfied only if all are."""
 
     id = "multiple_constraint"
+    #: Every violation is a delegate's own, carried through with its rule unchanged;
+    #: `denckring.rules` answers with every other row's vocabulary.
+    rules = ()
+    delegates_rules = True
 
     @classmethod
     def params_model(cls) -> type[MultipleConstraintParams]:

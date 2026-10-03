@@ -47,6 +47,7 @@ class Denckring(ConstructiveProcedure[DenckringParams, DenckringApplyParams]):
     """
 
     id = "denckring"
+    rules = ("not_on_the_rings", "ring_skipped")
 
     #: The rings supply the word; `text` is never read. See
     #: `ConstructiveProcedure.ignores_input`.

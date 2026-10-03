@@ -26,6 +26,7 @@ class ConsonantalLipogram(BaseProcedure[ConsonantalLipogramParams]):
     """The lipogram widened from one letter to a set."""
 
     id = "consonantal_lipogram"
+    rules = ("forbidden_letter",)
 
     @classmethod
     def params_model(cls) -> type[ConsonantalLipogramParams]:

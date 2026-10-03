@@ -18,6 +18,7 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "blank_verse"
+    rules = ("unwanted_rhyme", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[BlankVerseParams]:

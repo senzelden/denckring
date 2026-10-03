@@ -20,6 +20,7 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
     """Perec's dedication form: the name supplies the whole alphabet."""
 
     id = "beau_present"
+    rules = ("letter_outside_name", "unused_name_letter")
 
     @classmethod
     def params_model(cls) -> type[BeauPresentParams]:

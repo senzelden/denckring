@@ -37,6 +37,7 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
     `params.source` is undecidable and unchecked."""
 
     id = "univocalic_translation"
+    rules = ("foreign_vowel", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[UnivocalicTranslationParams]:
