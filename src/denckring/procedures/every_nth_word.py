@@ -32,7 +32,8 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
 
     def _check(self, text: str, pack: LanguagePack, params: EveryNthWordParams) -> Report:
         expected = self._select(params.source, pack, params.n)
-        actual = [word.casefold() for _, word in word_spans(text, pack)]
+        spans = word_spans(text, pack)
+        actual = [word.casefold() for _, word in spans]
         violations: list[Violation] = []
         matched = 0
         for index, word in enumerate(expected):
@@ -42,7 +43,11 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
                 violations.append(
                     Violation(
                         rule="wrong_word",
-                        offset=None,
+                        # Placed at the text's word, as `positional_report`
+                        # places its siblings'. Unlike that helper, a word the
+                        # text runs out before goes at the text's end, where it
+                        # would go, so no violation here is left without a place.
+                        offset=spans[index][0] if index < len(spans) else len(text),
                         found=actual[index] if index < len(actual) else "",
                         expected=word,
                     )
@@ -51,7 +56,7 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
             violations.append(
                 Violation(
                     rule="extra_words",
-                    offset=None,
+                    offset=spans[len(expected)][0],
                     found=" ".join(actual[len(expected) :]),
                     expected="",
                 )

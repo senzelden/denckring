@@ -74,6 +74,10 @@ All notable changes to this project are documented here. The format follows
   cases keep their verdicts with fewer length violations: Chaucer's rhyme royal
   (score 0.8974 to 0.9318) and Spenser's stanza (0.9688 to 0.9718, line 4 now failing on
   stress rather than length).
+- `slenderizing` and `every_nth_word` place every violation. `wrong_letter`,
+  `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
+  checker had the spans; they now carry the offset of the text's letter or word, and a
+  letter or word missing from the end is placed at the end of the text.
 
 ## [0.3.1] - 2026-09-22
 
