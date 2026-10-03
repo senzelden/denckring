@@ -74,6 +74,10 @@ All notable changes to this project are documented here. The format follows
   `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.
 
+- `get_pack`, `LanguagePack` and `PosTag` are importable from `denckring`, and the README
+  lists the pack surface as a contract: a protocol method keeps its signature and
+  meaning, and a new one arrives as an optional member read with `getattr`.
+
 ### Fixed
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The

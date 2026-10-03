@@ -3,6 +3,10 @@
 What a third-party language pack must implement, and how it tells the library
 what it can do.
 
+`LanguagePack` and `get_pack` are importable from `denckring` and are under the
+README's stability promise: a method here keeps its signature and meaning, and a new
+one arrives as an optional member a caller reads with `getattr`.
+
 ::: denckring.core.protocol.LanguagePack
 
 ::: denckring.core.protocol.Constructive

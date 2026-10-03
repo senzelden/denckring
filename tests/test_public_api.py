@@ -31,3 +31,15 @@ def test_every_error_class_is_exported_from_the_top_level() -> None:
     )
     assert missing == []
     assert "DenckringError" in defined
+
+
+def test_the_pack_surface_is_exported_from_the_top_level() -> None:
+    """`get_pack` and the protocol it returns are a contract (README, audit B3)."""
+    from denckring import lang
+    from denckring.core import protocol
+
+    assert denckring.get_pack is lang.get_pack
+    assert denckring.LanguagePack is protocol.LanguagePack
+    assert denckring.PosTag is protocol.PosTag
+    assert {"get_pack", "LanguagePack", "PosTag"} <= set(denckring.__all__)
+    assert isinstance(denckring.get_pack("en"), denckring.LanguagePack)

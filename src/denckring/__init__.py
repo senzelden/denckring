@@ -30,8 +30,18 @@ from denckring.core.errors import (
     UnsettablePhrase,
 )
 from denckring.core.hints import render
-from denckring.core.protocol import Constructive, Lang, Meta, Production, Report, Violation
+from denckring.core.protocol import (
+    Constructive,
+    Lang,
+    LanguagePack,
+    Meta,
+    PosTag,
+    Production,
+    Report,
+    Violation,
+)
 from denckring.core.registry import all_procedures, get
+from denckring.lang import get_pack
 
 try:
     __version__ = version("denckring")
@@ -143,6 +153,7 @@ __all__ = [
     "InputTooShort",
     "InvalidParams",
     "Lang",
+    "LanguagePack",
     "MalformedCorpus",
     "MalformedDevice",
     "MalformedFigure",
@@ -152,6 +163,7 @@ __all__ = [
     "NoCandidateWord",
     "NoPromptHint",
     "NotConstructive",
+    "PosTag",
     "Production",
     "Report",
     "Scholarly",
@@ -171,6 +183,7 @@ __all__ = [
     "check",
     "describe",
     "get",
+    "get_pack",
     "list_procedures",
     "produce",
     "prompt_hint",

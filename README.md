@@ -181,7 +181,7 @@ than reporting a gap that can never close.
 ## What is stable
 
 `0.x` means the API can change in a minor release, and the changelog says when it does.
-Five surfaces are treated as contracts regardless, because things outside this repository
+Six surfaces are treated as contracts regardless, because things outside this repository
 are built on them:
 
 - **Procedure ids.** An id that has shipped does not change meaning. When a row is
@@ -200,6 +200,12 @@ are built on them:
   returns `texts[0]`.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
   and `attribution` keys the CC BY terms are carried by.
+- **The language-pack surface**: `denckring.get_pack` (also `denckring.lang.get_pack`)
+  and the `LanguagePack` protocol it returns, both importable from `denckring`. A
+  method on the protocol keeps its signature and meaning. A new pack method arrives
+  as an optional member, read with `getattr` and a fallback, because the protocol is
+  `runtime_checkable` and a required method added later would make every pack
+  written before it fail `isinstance`.
 - **The `denckring.lang` entry-point group** and the capability names a pack
   declares, so an installed third-party pack keeps working. This covers
   replacing or extending the data behind English, German or French (ADR
