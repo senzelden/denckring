@@ -63,6 +63,9 @@ from __future__ import annotations
 
 import json
 import math
+from collections import Counter
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -148,6 +151,29 @@ def _old_shape(params: dict[str, Any]) -> str | None:
     )
 
 
+def _labels(constraints: list[Constraint]) -> list[str]:
+    """How each entry is named in a violation's `note`: its id, with its position when
+    the id appears more than once, so two lipograms' violations can be told apart."""
+    counts = Counter(entry.id for entry in constraints)
+    return [
+        entry.id if counts[entry.id] == 1 else f"{entry.id} (constraints[{position}])"
+        for position, entry in enumerate(constraints)
+    ]
+
+
+@contextmanager
+def _placed(position: int) -> Iterator[None]:
+    """A delegate's `InvalidParams`, saying which entry it came from.
+
+    The delegate's own id stays the error's `procedure_id`; the message gains the
+    entry's position, which is all that tells two entries with one id apart.
+    """
+    try:
+        yield
+    except InvalidParams as exc:
+        raise InvalidParams(exc.procedure_id, f"constraints[{position}]: {exc.message}") from exc
+
+
 @register
 class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     """Every named constraint's own `check`, combined; satisfied only if all are."""
@@ -188,10 +214,12 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     def scope(self, params: MultipleConstraintParams) -> Scope:
         """The scope every constraint keeps: satisfied only if all are, so a unit
         every constraint judges alone is judged alone by the composite."""
-        return coarsest(
-            get(entry.id).scope(get(entry.id).parse_params(entry.params))
-            for entry in params.constraints
-        )
+        scopes: list[Scope] = []
+        for position, entry in enumerate(params.constraints):
+            with _placed(position):
+                delegate = get(entry.id)
+                scopes.append(delegate.scope(delegate.parse_params(entry.params)))
+        return coarsest(scopes)
 
     def _check(self, text: str, pack: LanguagePack, params: MultipleConstraintParams) -> Report:
         violations: list[Violation] = []
@@ -203,8 +231,10 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
         estimated_words = 0.0
         scores: list[float] = []
         good = 0
+        labels = _labels(params.constraints)
         for position, entry in enumerate(params.constraints):
-            report = get(entry.id).check(text, lang=pack.lang, **entry.params)
+            with _placed(position):
+                report = get(entry.id).check(text, lang=pack.lang, **entry.params)
             good += report.satisfied
             scores.append(report.score)
             metrics[f"delegates.{position}.satisfied"] = float(report.satisfied)
@@ -212,7 +242,8 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
             evidence += report.evidence
             estimated_words += report.metrics.get("estimated_words", 0.0)
             for violation in report.violations:
-                note = entry.id if violation.note is None else f"{entry.id}: {violation.note}"
+                label = labels[position]
+                note = label if violation.note is None else f"{label}: {violation.note}"
                 violations.append(violation.model_copy(update={"note": note}))
         metrics["satisfied_constraints"] = float(good)
         if estimated_words:

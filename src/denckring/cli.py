@@ -63,11 +63,24 @@ def _read(source: str | None) -> str:
     return Path(source).read_text(encoding="utf-8")
 
 
-def _coerce(value: str) -> Any:
-    # A JSON array or object, so a structured parameter can be given on the command
-    # line: `multiple_constraint`'s `constraints` is a list of {"id", "params"}
-    # (ADR 0059). Anything that does not parse stays the string it was.
-    if value[:1] in ("[", "{"):
+def _structured(*schemas: dict[str, Any]) -> set[str]:
+    """The parameters whose schema `type` is an array or an object, in any branch."""
+    found: set[str] = set()
+    for schema in schemas:
+        for name, spec in schema.get("properties", {}).items():
+            branches = [spec, *spec.get("anyOf", [])]
+            if any(branch.get("type") in ("array", "object") for branch in branches):
+                found.add(name)
+    return found
+
+
+def _coerce(value: str, structured: bool = False) -> Any:
+    # JSON for a field the schema types as an array or an object, so a structured
+    # parameter can be given on the command line: `multiple_constraint`'s
+    # `constraints` is a list of {"id", "params"} (ADR 0059). Only there, so a string
+    # parameter whose value happens to be JSON (`source='[1]'`) stays a string; and a
+    # value that does not parse stays the string it was.
+    if structured and value[:1] in ("[", "{"):
         try:
             return json.loads(value)
         except json.JSONDecodeError:
@@ -81,13 +94,13 @@ def _coerce(value: str) -> Any:
         return value
 
 
-def _parse_params(pairs: list[str]) -> dict[str, Any]:
+def _parse_params(pairs: list[str], structured: set[str] | None = None) -> dict[str, Any]:
     params: dict[str, Any] = {}
     for pair in pairs:
         key, separator, value = pair.partition("=")
         if not separator:
             raise typer.BadParameter(f"--param expects key=value, got {pair!r}")
-        params[key] = _coerce(value)
+        params[key] = _coerce(value, key in (structured or set()))
     return params
 
 
@@ -110,7 +123,7 @@ def check_command(
     """Validate a text. Exits 1 when the text does not satisfy the procedure."""
     try:
         procedure = get(procedure_id)
-        params = _parse_params(param or [])
+        params = _parse_params(param or [], _structured(procedure.params_schema()))
         if source is not None:
             params["source"] = _read(source)
         report = procedure.check(_read(file), lang=_lang(lang), **params)
@@ -154,9 +167,14 @@ def apply_command(
     # `None` to a procedure that takes no seed would be an `InvalidParams` on
     # every invocation; sending a real one is a caller error worth reporting.
     drawn = {"seed": seed} if seed is not None else {}
+    # `Constructive` (the protocol) does not carry `apply_params_model`; every class
+    # that implements it does, through `ConstructiveProcedure`.
+    apply_model = getattr(procedure, "apply_params_model", None)
+    applied: dict[str, Any] = apply_model().model_json_schema() if apply_model else {}
+    structured = _structured(procedure.params_schema(), applied)
     try:
         produced = procedure.produce(
-            _read(file), lang=_lang(lang), **drawn, **_parse_params(param or [])
+            _read(file), lang=_lang(lang), **drawn, **_parse_params(param or [], structured)
         )
     except DenckringError as exc:
         _fail(exc)

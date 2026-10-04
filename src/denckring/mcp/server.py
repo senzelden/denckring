@@ -61,11 +61,12 @@ MAX_TEXT_CHARS = _parse_max_text_chars()
 
 
 def _strings_length(value: Any) -> int:
-    """The length of every string in `value`, however deeply nested in lists and dicts."""
+    """The length of every string in `value`, however deeply nested in lists and dicts,
+    keys included: a delegate's refusal of an unknown parameter echoes its name back."""
     if isinstance(value, str):
         return len(value)
     if isinstance(value, dict):
-        return sum(_strings_length(item) for item in value.values())
+        return sum(_strings_length(key) + _strings_length(item) for key, item in value.items())
     if isinstance(value, list):
         return sum(_strings_length(item) for item in value)
     return 0

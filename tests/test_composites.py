@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+import denckring
 from denckring import check
 from denckring.core.errors import InvalidParams, MissingCapability
 from denckring.core.protocol import Report
@@ -202,6 +203,23 @@ def test_an_unsatisfied_composite_never_rounds_to_a_perfect_score(
     report = check("multiple_constraint", "text", constraints=_pair("a"))
     assert report.satisfied is False
     assert report.score < 1.0
+
+
+def test_a_repeated_id_is_named_with_its_position() -> None:
+    """Two lipograms' violations, and a refusal of one's parameters, say which entry."""
+    twice = [
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+        {"id": "lipogram", "params": {"forbidden": "a"}},
+    ]
+    report = check("multiple_constraint", "the cat sat", constraints=twice)
+    assert {v.note for v in report.violations} == {"lipogram (constraints[1])"}
+    bad = [twice[0], {"id": "lipogram", "params": {"forbidden": "a", "nope": 1}}]
+    with pytest.raises(InvalidParams) as raised:
+        check("multiple_constraint", "the cat sat", constraints=bad)
+    assert raised.value.procedure_id == "lipogram"
+    assert "constraints[1]: unknown parameter" in str(raised.value)
+    with pytest.raises(InvalidParams, match=r"constraints\[1\]"):
+        denckring.scope("multiple_constraint", constraints=bad)
 
 
 def test_violations_carry_the_producing_constraints_id_in_note() -> None:

@@ -233,6 +233,24 @@ def test_render_hint_states_what_the_callers_template_leaves_out() -> None:
     assert render_hint("word_ladder", template, target="warm") == "Write a ladder ending on warm."
 
 
+def test_render_hint_states_each_composite_entrys_params() -> None:
+    """A caller's own composite template names the constraints by id; the entries'
+    parameters are stated by one line per constraint, as `prompt_hint` states them,
+    so a repeated id with two different letters loses neither (ADR 0059)."""
+    constraints = [
+        {"id": "lipogram", "params": {"forbidden": "e"}},
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+        {"id": "acrostic", "params": {"target": "CAT"}},
+    ]
+    rendered = render_hint("multiple_constraint", "Write: {constraints}.", constraints=constraints)
+    assert '"e"' in rendered and '"z"' in rendered and "CAT" in rendered
+    assert rendered.split("\n")[1:] == [
+        "- " + prompt_hint("lipogram", forbidden="e"),
+        "- " + prompt_hint("lipogram", forbidden="z"),
+        "- " + prompt_hint("acrostic", target="CAT"),
+    ]
+
+
 def test_a_composite_states_its_constraints_parameters_once() -> None:
     """Each entry's `params` is stated by that constraint's own line, not again as a
     setting; a constraint's own setting is indented under its line."""

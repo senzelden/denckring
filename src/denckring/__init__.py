@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
+from denckring.core.base import BaseProcedure
 from denckring.core.describe import Description, Scholarly, Summary, describe, summaries
 from denckring.core.errors import (
     DegenerateOutput,
@@ -130,11 +131,16 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     carried = {*placeholders(template), *procedure.hint_delegated}
     lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
     lines += settings(model, values, shown, carried, lang)
-    lines += [
+    lines += _delegate_lines(procedure, parsed, lang)
+    return "\n".join(lines)
+
+
+def _delegate_lines(procedure: BaseProcedure[Any], parsed: Any, lang: Lang) -> list[str]:
+    """One `- ` line per delegate, its own hint rendered from its own params (ADR 0050)."""
+    return [
         "- " + prompt_hint(delegate, lang=lang, **delegate_params).replace("\n", "\n  ")
         for delegate, delegate_params in procedure.hint_delegates(parsed)
     ]
-    return "\n".join(lines)
 
 
 def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params: Any) -> str:
@@ -151,9 +157,11 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     raises `InvalidParams`; one whose value is `None` raises `UnsetHintParameter`.
     A parameter the template has no placeholder for, set off its default, is
     appended on its own line as `prompt_hint` appends it, so a template written
-    without a threshold cannot drop one a caller sets. Unlike `prompt_hint`, no
-    line is appended per composite constraint: a composite's `constraints` is stated
-    only where the template names it, each entry by its id alone.
+    without a threshold cannot drop one a caller sets. A composite is followed by
+    one line per constraint, as in `prompt_hint`, each that constraint's catalogue
+    hint rendered from its entry's `params`: the caller's template states the
+    composite, and the entries' parameters are stated whether it names them or not
+    (ADR 0059).
     """
     procedure = get(procedure_id)
     get_pack(lang)
@@ -168,8 +176,10 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     parsed = procedure.parse_params(params)
     values = dict(parsed)
     shown = as_compared(values, model, get_pack(lang))
+    carried = {*placeholders(template), *procedure.hint_delegated}
     lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
-    lines += settings(model, values, shown, set(placeholders(template)), lang)
+    lines += settings(model, values, shown, carried, lang)
+    lines += _delegate_lines(procedure, parsed, lang)
     return "\n".join(lines)
 
 

@@ -99,6 +99,15 @@ def test_check_text_tool_refuses_an_oversized_source_inside_a_composite() -> Non
     assert result["code"] == "text_too_long"
 
 
+def test_check_text_tool_counts_a_huge_key_nested_in_a_composite() -> None:
+    from denckring.mcp import server
+
+    huge_key = "k" * (server.MAX_TEXT_CHARS + 1)
+    constraints = [{"id": "lipogram", "params": {huge_key: 1}}, {"id": "univocalic"}]
+    result = check_text_tool("multiple_constraint", "short", {"constraints": constraints})
+    assert result["code"] == "text_too_long"
+
+
 def test_check_text_tool_still_runs_an_ordinary_text() -> None:
     """The previous assertion — `"code" not in result or result.get("satisfied")
     is not None` — is a disjunction almost any dict satisfies, including an

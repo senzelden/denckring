@@ -214,6 +214,9 @@ class InvalidParams(DenckringError):
 
     def __init__(self, procedure_id: str, message: str) -> None:
         self.procedure_id = procedure_id
+        #: The message without the procedure prefix, so a composite can say which of
+        #: its entries a delegate's refusal came from (ADR 0059).
+        self.message = message
         super().__init__(f"Invalid parameters for procedure {procedure_id!r}: {message}")
 
     def detail(self) -> dict[str, Any]:
