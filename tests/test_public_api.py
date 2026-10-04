@@ -17,7 +17,8 @@ from pydantic import BaseModel, Field
 
 import denckring
 from denckring.core import errors
-from denckring.core.hints import show_kinds
+from denckring.core.fields import kinds
+from denckring.core.hints import LETTER_SET_KINDS, show_kinds
 from denckring.core.protocol import Lang
 from denckring.core.registry import get
 from denckring.eval.harness import golden_cases
@@ -123,6 +124,18 @@ def test_every_declared_show_kind_is_one_the_renderer_knows() -> None:
         for name in show_kinds(procedure.params_model())
     }
     assert ("consonantal_lipogram", "forbidden") in declared
+
+
+def test_a_letter_set_kind_shows_as_letters_and_only_it_does() -> None:
+    """M3: the kind and the show key say one thing twice, so they are held together. A
+    letter-set field without the key renders `"et"`, the B6 bug, and the key on any
+    other kind quotes a word letter by letter."""
+    for pid, procedure in denckring.all_procedures().items():
+        model = procedure.params_model()
+        shown = show_kinds(model)
+        for name, kind in kinds(model).items():
+            letter_set = kind in LETTER_SET_KINDS
+            assert (shown.get(name) == "letters") == letter_set, f"{pid}.{name}: {kind}"
 
 
 def test_an_unknown_show_kind_is_refused() -> None:

@@ -55,6 +55,11 @@ def placeholders(template: str) -> list[str]:
 SHOW_KEY = "x-denckring-show"
 SHOW_KINDS: tuple[str, ...] = ("letters",)
 
+#: The string kinds (`core.fields.KINDS`) that hold a set of letters written together,
+#: each of which must declare `x-denckring-show: letters`: one that does not renders
+#: `"et"` again (`tests/test_public_api.py` holds every row's fields to it).
+LETTER_SET_KINDS: frozenset[str] = frozenset({"letters", "vowels"})
+
 
 def show_kinds(model: type[BaseModel]) -> dict[str, str]:
     """Each field of `model` that declares how it reads, mapped to its kind."""
