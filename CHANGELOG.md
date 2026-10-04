@@ -247,8 +247,10 @@ All notable changes to this project are documented here. The format follows
   alongside an `extra_words` violation, because the surplus never reached the score's
   denominator; each extra word now counts against it. `haikuization` shares the check
   but could not reach the case: a word after its last line end is not in the source, so
-  `not_in_source` already failed the text. No golden verdict or score moves; a new
-  golden case holds the fix.
+  `not_in_source` already failed the text. On both rows a text that already fails with
+  surplus words now scores lower, since each surplus word joins the denominator (for
+  example 0.857 to 0.75); its verdict does not change. No golden verdict or score
+  moves; a new golden case holds the fix.
 
 - `assonance_constraint` names the same vowel in every process. When vowels tied for a
   line's top count, the `no_repeated_vowel` violation named whichever a `set` iterated
