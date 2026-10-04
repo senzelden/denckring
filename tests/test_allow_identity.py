@@ -18,11 +18,12 @@ from typing import Any
 import pytest
 
 from denckring import apply, check
-from denckring.core.base import ConstructiveProcedure
+from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import DegenerateOutput, DenckringError
-from denckring.core.protocol import Lang
+from denckring.core.protocol import Lang, Produced
 from denckring.core.registry import all_procedures, get
 from denckring.eval.harness import GoldenCase, golden_cases
+from denckring.procedures.anagram import Anagram
 
 ROWS = (
     "anagram",
@@ -305,6 +306,33 @@ def test_a_generator_refuses_a_copy_its_checker_refuses() -> None:
     guard, comparing the text, let through."""
     with pytest.raises(DegenerateOutput) as caught:
         apply("cut_up", "a.a", lang="en", seed=0)
-    assert caught.value.observed == DegenerateOutput.IDENTICAL
+    # Not `IDENTICAL`: `a a` is not the text `a.a`, only its letters again.
+    assert caught.value.observed == DegenerateOutput.COPY
+    assert "identical" not in str(caught.value)
     assert apply("cut_up", "a.a", lang="en", seed=0, allow_identity=True) == "a a"
     assert [v.rule for v in check("cut_up", "a a", source="a.a").violations] == ["unchanged"]
+
+
+class _AnagramWithoutFoldOnApply(Anagram):
+    """An anagram generator whose apply model lacks `fold_diacritics`, while its
+    check model folds by default, and whose one candidate is the source with an
+    accent: a copy to the checker, not to an unfolded comparison."""
+
+    class _Apply(ApplyParams, SourceParams):
+        pass
+
+    @classmethod
+    def apply_params_model(cls) -> type[Any]:
+        return cls._Apply
+
+    def _produce(self, text: str, pack: Any, params: Any) -> Produced:
+        return plain(["çà"])
+
+
+def test_the_guard_folds_as_the_checker_does_when_the_apply_model_does_not_say() -> None:
+    """The guard falls back to the check model's `fold_diacritics`, which is what
+    `unchanged` reads, so it cannot be narrower than the checker."""
+    assert not check("anagram", "çà", source="ca").satisfied
+    with pytest.raises(DegenerateOutput) as caught:
+        _AnagramWithoutFoldOnApply().apply("ca", lang="en")
+    assert caught.value.observed == DegenerateOutput.COPY

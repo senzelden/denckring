@@ -353,7 +353,7 @@ class InputTooShort(DenckringError):
 
 
 class DegenerateOutput(DenckringError):
-    """`apply` produced its own input, or nothing at all.
+    """`apply` produced its own input, its input's letters again, or nothing at all.
 
     Raised rather than returned, for the reason `diastic` raises
     `NoCandidateWord` rather than returning "": handing back text that
@@ -362,7 +362,7 @@ class DegenerateOutput(DenckringError):
 
     One error for these observations, because a caller cannot act very
     differently on them — each means the returned text says nothing about what
-    the procedure did. `IDENTICAL` and `EMPTY` are waived by the same
+    the procedure did. `IDENTICAL`, `COPY` and `EMPTY` are waived by the same
     `allow_identity`; `NOTHING` is not — see below. The empty case is the more
     dangerous of the two waivable ones: `BaseProcedure._report` scores an empty
     text 1.0, so `melting_text` returning `""` was a satisfied report on a text
@@ -391,6 +391,11 @@ class DegenerateOutput(DenckringError):
     #: `detail()` — so a caller distinguishing them reads a stable string
     #: rather than parsing English, and one that does not can ignore the field.
     IDENTICAL = "text identical to its input"
+    #: The input's letters in the input's order, in text that is not identical
+    #: (`cut_up` rejoining `a.a` as `a a`): refused on a row whose checker
+    #: refuses such a copy by default (ADR 0055). A shape of its own rather than
+    #: a wider `IDENTICAL`, whose string is stable and would then be false.
+    COPY = "the input's letters in the input's order"
     EMPTY = "empty text from input that was not empty"
     #: `_produce` returned no candidate at all — not one judged empty or
     #: identical, none offered in the first place. See the class docstring for
@@ -400,7 +405,7 @@ class DegenerateOutput(DenckringError):
     def __init__(self, procedure_id: str, observed: str = IDENTICAL) -> None:
         self.procedure_id = procedure_id
         self.observed = observed
-        # `NOTHING` gets no `allow_identity` hint: unlike the other two shapes,
+        # `NOTHING` gets no `allow_identity` hint: unlike the other shapes,
         # that flag cannot waive it, and offering it here would tell a caller a
         # retry could work when it cannot.
         hint = (

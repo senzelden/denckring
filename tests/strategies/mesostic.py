@@ -15,8 +15,13 @@ def _spine_from(words: list[str]) -> str:
 
 
 def satisfying() -> CaseStrategy:
+    """The source has one word more than the reading takes, so the reading is never
+    a copy, which the row refuses by default since 0.4.0 (ADR 0055)."""
     return st.lists(_WORD, min_size=1, max_size=6).map(
-        lambda ws: ("\n".join(ws), {"source": " ".join(ws), "spine": _spine_from(ws)})
+        lambda ws: (
+            "\n".join(ws),
+            {"source": " ".join([*ws, "zzzzzz"]), "spine": _spine_from(ws)},
+        )
     )
 
 

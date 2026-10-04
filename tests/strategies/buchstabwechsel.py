@@ -11,7 +11,7 @@ import random
 
 from hypothesis import strategies as st
 
-from strategies import CaseStrategy
+from strategies import CaseStrategy, not_a_copy
 
 #: Every base letter except `h`, which is generated separately below so that a
 #: satisfying case can carry a different `h` count on each side.
@@ -20,11 +20,15 @@ _H_COUNT = st.integers(min_value=0, max_value=3)
 
 
 def satisfying() -> CaseStrategy:
-    return st.tuples(_TEXT, st.integers(min_value=0, max_value=1000), _H_COUNT, _H_COUNT).map(
-        lambda p: (
-            "".join(random.Random(p[1]).sample(list(p[0]), len(p[0]))) + "h" * p[3],
-            {"source": p[0] + "h" * p[2]},
+    return (
+        st.tuples(_TEXT, st.integers(min_value=0, max_value=1000), _H_COUNT, _H_COUNT)
+        .map(
+            lambda p: (
+                "".join(random.Random(p[1]).sample(list(p[0]), len(p[0]))) + "h" * p[3],
+                {"source": p[0] + "h" * p[2]},
+            )
         )
+        .filter(not_a_copy)
     )
 
 

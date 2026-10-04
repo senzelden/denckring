@@ -196,8 +196,9 @@ class ApplyParams(BaseModel):
     allow_identity: bool = Field(
         default=False,
         description=(
-            "Permit output identical to the input, or empty, which normally "
-            "means the procedure did not run."
+            "Permit output that is the input again, or empty, which normally "
+            "means the procedure did not run. On a row whose checker refuses a "
+            "copy, the input again includes its letters in the same order."
         ),
         json_schema_extra=param("apply_only"),
     )
@@ -547,11 +548,16 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         ]
         if kept:
             return kept
-        observed = (
-            DegenerateOutput.EMPTY
-            if text.strip() and any(not candidate.text.strip() for candidate in produced)
-            else DegenerateOutput.IDENTICAL
-        )
+        if text.strip() and any(not candidate.text.strip() for candidate in produced):
+            observed = DegenerateOutput.EMPTY
+        elif any(
+            candidate.text.strip().casefold() == text.strip().casefold() for candidate in produced
+        ):
+            observed = DegenerateOutput.IDENTICAL
+        else:
+            # Only the letter comparison caught them (ADR 0055): `a a` from
+            # `a.a` is not identical text, and the message must not say it is.
+            observed = DegenerateOutput.COPY
         raise DegenerateOutput(self.id, observed)
 
     def _is_degenerate(self, text: str, produced: str, params: A, pack: LanguagePack) -> bool:
@@ -602,6 +608,11 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         if "allow_identity" not in self.params_model().model_fields:
             return False
         # The fold each row passes `unchanged`: its own `fold_diacritics`, or
-        # none for a row without one.
-        fold = bool(getattr(params, "fold_diacritics", False))
+        # none for a row without one. Read off the apply params, where a caller
+        # sets it, falling back to the check model's default: `unchanged` reads
+        # the check model, and an apply model that dropped the field would
+        # otherwise give a guard narrower than its checker.
+        fallback = self.params_model().model_fields.get("fold_diacritics")
+        default = bool(fallback.default) if fallback is not None else False
+        fold = bool(getattr(params, "fold_diacritics", default))
         return is_copy(produced, text, pack, fold=fold)

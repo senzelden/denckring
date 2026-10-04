@@ -47,7 +47,10 @@ input's, casefolded, so `cut_up` could turn `a.a` into `a a` and return it. Unde
 new default its own checker fails that text, which breaks the round-trip property. For
 a row whose checker carries the field, the guard now also refuses an output with the
 source's letters in the source's order (`source_compare.is_copy`, with the fold that
-row's `unchanged` uses). `ApplyParams.allow_identity` still waives it. The two fields
+row's `unchanged` uses, read off the check model when the apply model lacks the field).
+Where only that comparison caught the output, the error's `observed` is a new shape,
+`DegenerateOutput.COPY`, since the text was not identical and `IDENTICAL`'s string is
+stable. `ApplyParams.allow_identity` still waives it. The two fields
 now share their default as well as their name.
 
 **N+7's `ambiguous_nouns` defaults to `strict` when the caller supplies `dictionary`,

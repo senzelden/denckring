@@ -7,14 +7,16 @@ though what it names is never verified.
 
 from hypothesis import strategies as st
 
-from strategies import CaseStrategy
+from strategies import CaseStrategy, not_a_copy
 
 _LETTERS = "abcdfghijklmnopqrstuvwxyz"  # deliberately without "e"
 
 
 def satisfying() -> CaseStrategy:
-    return st.text(alphabet=_LETTERS + " ", min_size=0, max_size=60).map(
-        lambda text: (text, {"forbidden": "e", "source": "x"})
+    return (
+        st.text(alphabet=_LETTERS + " ", min_size=0, max_size=60)
+        .map(lambda text: (text, {"forbidden": "e", "source": "x"}))
+        .filter(not_a_copy)
     )
 
 

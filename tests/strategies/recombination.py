@@ -2,17 +2,21 @@
 
 from hypothesis import strategies as st
 
-from strategies import CaseStrategy
+from strategies import CaseStrategy, not_a_copy
 
 _SENTENCE = st.text(alphabet="abcdefghijklmnopqrstuvwxyz", min_size=1, max_size=6)
 
 
 def satisfying() -> CaseStrategy:
-    return st.lists(_SENTENCE, min_size=1, max_size=5, unique=True).map(
-        lambda ss: (
-            " ".join(s + "." for s in reversed(ss)),
-            {"source": " ".join(s + "." for s in ss)},
+    return (
+        st.lists(_SENTENCE, min_size=1, max_size=5, unique=True)
+        .map(
+            lambda ss: (
+                " ".join(s + "." for s in reversed(ss)),
+                {"source": " ".join(s + "." for s in ss)},
+            )
         )
+        .filter(not_a_copy)
     )
 
 

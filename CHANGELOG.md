@@ -53,7 +53,9 @@ patch.
   one-sentence `recombination`, a one-word `cut_up`, an N+7 source with no listed noun),
   because refusing it there would fail every text. A refused copy costs one unit of
   score, so `satisfied` and the `unchanged` rule are what mark it. `apply` on these rows
-  refuses a copy in the same sense, so `cut_up` no longer returns `a a` for `a.a`.
+  refuses a copy in the same sense, so `cut_up` no longer returns `a a` for `a.a`: it
+  raises `degenerate_output` with a new `observed` shape, `the input's letters in the
+  input's order` (`DegenerateOutput.COPY`), where the text was not identical.
   Golden corpus, re-measured over all 687 cases: no verdict or score moves. One
   `s_plus_7` case retypes its source to show `ambiguous_nouns="strict"`, and it now sets
   `allow_identity: true` so that it fails for that reason alone.

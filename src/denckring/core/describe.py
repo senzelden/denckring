@@ -162,9 +162,10 @@ class Description(BaseModel):
     #: things. `params` is not merely a subset of this one: `source` is supplied
     #: by `apply` from the text it transforms, and passing it as a parameter is
     #: refused. Both may carry `allow_identity`, under one name with two
-    #: meanings: here, permit output identical to the input or empty (default
-    #: false); in `params`, on the source rows that declare it, accept the source
-    #: back unchanged as an answer (default false since 0.4.0, ADR 0055).
+    #: meanings: here, permit output that is the input again (on a source row,
+    #: its letters in order) or empty (default false); in `params`, on the
+    #: source rows that declare it, accept the source back unchanged as an
+    #: answer (default false since 0.4.0, ADR 0055).
     apply_params: dict[str, Any]
     #: `Meta.unique_answer`: `check` passes only the text `apply` returns.
     unique_answer: bool = False

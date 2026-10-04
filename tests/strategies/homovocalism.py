@@ -2,7 +2,7 @@
 
 from hypothesis import strategies as st
 
-from strategies import CaseStrategy
+from strategies import CaseStrategy, not_a_copy
 
 _WORD = st.text(alphabet="abcdefghijklmnopqrstuvwxyz", min_size=1, max_size=5)
 _CONSONANTS = "bcdfghjklmnpqrstvwxyz"
@@ -17,8 +17,10 @@ def _rotate_consonants(word: str) -> str:
 
 
 def satisfying() -> CaseStrategy:
-    return st.lists(_WORD, min_size=1, max_size=8).map(
-        lambda ws: (" ".join(_rotate_consonants(w) for w in ws), {"source": " ".join(ws)})
+    return (
+        st.lists(_WORD, min_size=1, max_size=8)
+        .map(lambda ws: (" ".join(_rotate_consonants(w) for w in ws), {"source": " ".join(ws)}))
+        .filter(not_a_copy)
     )
 
 
