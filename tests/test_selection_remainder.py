@@ -86,3 +86,17 @@ def test_a_missing_tail_is_placed_at_the_end_of_the_text(
     report = check(pid, text, source=PAGE, **params)
     missing = [v.offset for v in report.violations if v.found == ""]
     assert missing == [len(text), len(text)]
+
+
+def test_column_reading_fails_source_words_appended_after_the_column() -> None:
+    """R-F1: the column with source words appended is not the column. It used to pass
+    beside its own `extra_words` violation, because the surplus never reached the
+    denominator. `haikuization` shares `positional_report` but cannot reach that case:
+    its last expected word is the source's last word, so any word appended after it is
+    also `not_in_source`, which already failed the text."""
+    report = check("column_reading", "cat dog bird high", source=PAGE, column=2)
+    assert report.satisfied is False
+    assert report.score < 1.0
+    assert [v.rule for v in report.violations] == ["extra_words"]
+    after_the_end = check("haikuization", "down fast high high", source=PAGE)
+    assert {v.rule for v in after_the_end.violations} >= {"extra_words", "not_in_source"}

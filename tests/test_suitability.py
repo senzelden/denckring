@@ -74,9 +74,6 @@ def test_the_transforms_the_bench_used_are_flagged() -> None:
     """Not the rule, an anchor: the rows whose answer the source fixes."""
     assert {"every_nth_word", "slenderizing", "boustrophedon"} <= set(UNIQUE)
     assert not PROCEDURES["anagram"].meta.unique_answer
-    # Not unique today: an appended word from the source costs only an `extra_words`
-    # violation on a report that stays satisfied (selection_report floors its total).
-    assert not PROCEDURES["column_reading"].meta.unique_answer
 
 
 @pytest.mark.parametrize("pid", UNIQUE)

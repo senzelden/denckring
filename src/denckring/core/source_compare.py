@@ -297,4 +297,7 @@ def positional_report(
                 expected="",
             )
         )
-    return ClassResult(violations, good, len(expected))
+    # Each surplus word counts against the total. Counting only `expected` once let
+    # `column_reading` pass a text with source words appended, satisfied beside its own
+    # `extra_words` violation (R-F1).
+    return ClassResult(violations, good, max(len(expected), len(chosen)))

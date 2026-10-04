@@ -89,8 +89,8 @@ All notable changes to this project are documented here. The format follows
   `hidden_material` names the parameter or capability whose data decides the answer
   and which a prompt does not carry: `n_plus_7`'s dictionary, a gloss lexicon, a
   device, a figure, the proverb corpus. A row requiring nouns, glosses or proverbs
-  must declare it. `column_reading` is not flagged unique: its checker passes the
-  answer with a source word appended, reporting `extra_words` without failing.
+  must declare it. `column_reading` carries `unique_answer` too, now that an appended
+  source word fails it (below, under Fixed).
 
 - `denckring.scope(procedure_id, **params)` names the smallest unit a row judges alone
   under its parameters: `word`, `line`, `sentence`, or `text` for no claim
@@ -236,6 +236,14 @@ All notable changes to this project are documented here. The format follows
   spiral checked no stanza and the size was counted as matched lines. `n=0` already
   failed. Now every size below 1 is unsatisfied with that one violation. No golden case
   moves; all of them set `n` to 3.
+
+- `column_reading` fails a text with source words appended after the column. The
+  column followed by more source words returned `satisfied` true with a score of 1.0
+  alongside an `extra_words` violation, because the surplus never reached the score's
+  denominator; each extra word now counts against it. `haikuization` shares the check
+  but could not reach the case: a word after its last line end is not in the source, so
+  `not_in_source` already failed the text. No golden verdict or score moves; a new
+  golden case holds the fix.
 
 - Seventeen fixed forms accepted `unknown_rhyme` and ignored it: `ballade`, `blank_verse`,
   `clerihew`, `curtal_sonnet`, `englyn`, `heroic_couplet`, `limerick`, `ottava_rima`,

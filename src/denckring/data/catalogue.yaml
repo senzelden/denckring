@@ -3275,6 +3275,7 @@ procedures:
     languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
+    unique_answer: true
     prompt_hints:
       en: >-
         Take word number {column} of each line of the source text, counting the words of
