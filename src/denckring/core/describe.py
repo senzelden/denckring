@@ -12,7 +12,7 @@ from typing import Any, Literal, get_args
 from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
-from denckring.core.base import ConstructiveProcedure
+from denckring.core.base import ConstructiveProcedure, RhymeParams
 from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
@@ -81,6 +81,33 @@ _FOLD_POLICY = (
 )
 _NO_FOLD_POLICY = "Case only. This procedure does not compare letters, so nothing folds."
 
+#: How each language's pack keys a rhyme, the half of `Reading.rhyme` that differs by
+#: language. Held to the packs by `tests/test_rhyme_variants.py`, since no one reads
+#: these sentences back out of the code they describe.
+_RHYME_KEYS: dict[Lang, str] = {
+    "en": (
+        "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
+        "end, one key per listed pronunciation. Secondary stress does not key a rhyme: "
+        "'someday' rhymes from its 'some', so it does not rhyme with 'day'."
+    ),
+    "de": (
+        "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
+        "end, read from the word's first transcription only: the dictionary's list mixes "
+        "in inflected forms ('du' lists 'dich'). Secondary stress does not key a rhyme."
+    ),
+    "fr": (
+        "A line ending's rhyme key is its sounds from the last vowel to the end; French has "
+        "no lexical stress, and the dictionary holds one transcription per spelling."
+    ),
+}
+#: How a scheme reads the keys, the half that is the same in every language (ADR 0057).
+_RHYME_PAIRS = (
+    " Lines the scheme pairs rhyme when some reading of each shares a key. Lines it keeps "
+    "apart fail only when every reading of each shares the key, so a word with two "
+    "readings passes if one keeps the pair apart. Each pair is judged on its own: one "
+    "reading may keep one pair apart while another makes a second pair rhyme."
+)
+
 #: Strings whose tokenization answers the questions a word count turns on: both
 #: apostrophes (an English contraction, a French elision), a hyphen, a digit.
 WORD_PROBES = ("don't", "l’âme", "well-known", "route66")  # noqa: RUF001
@@ -125,6 +152,11 @@ class Reading(BaseModel):
     #: German. `supervocalic` reads a narrower inventory, the five vowels, with `y` left
     #: out in every language (ADR 0035, D1).
     vowels: str
+    #: What makes two line endings rhyme, on a row that judges a rhyme (its parameters
+    #: take `RhymeParams`), and `None` on every other row. The key a pack reads and
+    #: how a scheme reads several of them, which a writer told two lines rhyme
+    #: against the scheme needs and the verdict alone does not say (ADR 0057).
+    rhyme: str | None = None
 
 
 class Description(BaseModel):
@@ -267,6 +299,11 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
         tokenization=pack.word_re.pattern,
         word_examples={probe: pack.word_re.findall(probe) for probe in WORD_PROBES},
         vowels="".join(sorted(pack.vowels())),
+        rhyme=(
+            _RHYME_KEYS[lang] + _RHYME_PAIRS
+            if issubclass(procedure.params_model(), RhymeParams)
+            else None
+        ),
     )
 
 

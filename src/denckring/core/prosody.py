@@ -331,8 +331,9 @@ def word_rhyme_keys(word: str, pack: LanguagePack) -> tuple[frozenset[str], bool
 def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[str], bool]]:
     """Per line: offset, the final word, its rhyme keys, and whether they are known.
 
-    Two lines rhyme when their key sets intersect — the same satisfiability
-    reading applied to pronunciation that metre applies to stress. The fourth
+    Two lines may rhyme when their key sets intersect — the same satisfiability
+    reading applied to pronunciation that metre applies to stress — and must when
+    every pair of keys matches (`may_rhyme`, `must_rhyme`, ADR 0057). The fourth
     element distinguishes "this word rhymes with nothing here" from "the
     dictionary does not carry this word", which are different claims.
     """
@@ -344,6 +345,28 @@ def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[
         found, exact = word_rhyme_keys(words[-1], pack)
         keys.append((offset, words[-1], found, exact))
     return keys
+
+
+def may_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
+    """Whether some reading of each word makes the two rhyme: any pair of keys matches.
+
+    What a pair the scheme wants to rhyme needs, the satisfiability reading ADR 0014
+    gave metre.
+    """
+    return bool(first & second)
+
+
+def must_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
+    """Whether every reading of each word makes the two rhyme: every pair of keys matches.
+
+    What fails a pair the scheme wants kept apart (ADR 0057). The mirror of
+    `may_rhyme`: a writer may have meant any listed reading, so a pair rhymes against
+    the scheme only when no choice of readings keeps it apart. Keys are compared for
+    equality, so this holds exactly when both words have the same single key. Decided
+    per pair, like `may_rhyme`, and not for the scheme jointly: one word's variant may
+    keep one pair apart while its other variant makes a second pair rhyme.
+    """
+    return bool(first) and bool(second) and all(a == b for a in first for b in second)
 
 
 def rhyme_evidence(
@@ -384,7 +407,9 @@ def scheme_violations(
 
     Both directions matter: lines sharing a letter must rhyme, and lines with
     different letters must not. A poem in which everything rhymes does not
-    satisfy `ABAB`.
+    satisfy `ABAB`. Each direction reads a word's several keys in the writer's
+    favour: a wanted pair rhymes when some reading of each does, and an unwanted
+    pair fails only when every reading of each does (ADR 0057).
 
     `unknown_rhyme` decides what a line ending the pronouncing dictionary does
     not carry means, which is an editorial question rather than a library
@@ -439,7 +464,9 @@ def scheme_violations(
                 continue
             checks += 1
             should_rhyme = letters[i] == letters[j]
-            does_rhyme = bool(keys[i][2] & keys[j][2])
+            # A wanted rhyme needs one pairing of readings to match, an unwanted one
+            # fails only when every pairing does (ADR 0057).
+            does_rhyme = (may_rhyme if should_rhyme else must_rhyme)(keys[i][2], keys[j][2])
             # Compared past any leading elided proclitic, or `l'amour` and
             # `amour` — the same rhyme word — read as two different ones:
             # `identical_rhyme` exists to catch French rime riche's commonest

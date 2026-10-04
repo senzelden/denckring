@@ -61,7 +61,11 @@ cases:
     Göschen 1787), Act I, Scene 1, lines 1–14; text from Project Gutenberg (older
     orthography: Heiligthum, heil''gen). Rejected: `wrong_stress` on "schauderndem",
     which the dictionary gives as `100` (unstressed-stressed-unstressed) where the
-    iambic metre wants `101`. Measured on this HEAD: score 0.9947, 1 violation.'
+    iambic metre wants `101`, and on "hierher", read as its first transcription `11`.
+    Wiktionary also lists `hiːɐ̯ˈheːɐ̯` (`01`), the reading Goethe''s line wants, but
+    German stress reads the first transcription only since ADR 0057, which records
+    this as its cost. Measured on this HEAD: score 0.9895, 2 violations (0.9947 and
+    1 before ADR 0057).'
   text: 'Heraus in eure Schatten, rege Wipfel
 
     Des alten, heil''gen, dichtbelaubten Haines,
@@ -91,5 +95,5 @@ cases:
     Nur dumpfe Töne brausend mir herüber.'
   params:
     feminine_ending: true
-  min_score: 0.99
+  min_score: 0.98
   satisfied: false

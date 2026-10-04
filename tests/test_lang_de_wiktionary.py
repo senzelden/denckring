@@ -153,10 +153,14 @@ def test_an_unknown_word_refuses_to_guess_a_pronunciation() -> None:
             call("Zwirbelquast")
 
 
-def test_several_readings_are_offered_where_wiktionary_lists_them() -> None:
-    """`gehen` is `ˈɡeːən` and `ɡeːn` — two syllables or one, which is the
-    difference between a line scanning and not."""
-    assert PACK.stress_patterns("gehen") == ["10", "?"]
+def test_only_the_first_transcription_is_offered() -> None:
+    """ADR 0057. The table lists `du` with *deiner*'s `ˈdaɪ̯nɐ` and cannot say which
+    transcriptions are the headword's own, so stress and rhyme read the first, as
+    syllable counts do. The cost is pinned here too: `gehen` is `ˈɡeːən` and `ɡeːn`,
+    a real variant, and its one-syllable reading is no longer offered."""
+    assert wiktionary.pronunciations()["gehen"] == ["ˈɡeːən", "ɡeːn"]
+    assert PACK.stress_patterns("gehen") == ["10"]
+    assert PACK.rhyme_keys("gehen") == [PACK.rhyme_key("gehen")]
 
 
 def test_words_that_rhyme_share_a_key_and_words_that_do_not_do_not() -> None:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
-from denckring.core.prosody import rhyme_evidence, rhyme_keys
+from denckring.core.prosody import must_rhyme, rhyme_evidence, rhyme_keys
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
@@ -54,7 +54,9 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
                         expected="a word the pronouncing dictionary carries",
                     )
                 )
-            elif keys[index][2] & keys[other][2]:
+            # Only a pair no choice of readings keeps apart rhymes against the
+            # form (ADR 0057), as `scheme_violations` reads an unwanted rhyme.
+            elif must_rhyme(keys[index][2], keys[other][2]):
                 violations.append(
                     Violation(
                         rule="unwanted_rhyme",

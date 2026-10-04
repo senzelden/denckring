@@ -101,9 +101,9 @@ def _read(path: Path) -> dict[str, list[str]]:
 def pronunciations() -> dict[str, list[str]]:
     """Headword to every transcription Wiktionary lists, in its order.
 
-    Order is load-bearing: `stress_pattern` and `rhyme_key` answer with the
-    first, which is the reading a writer is most likely to have had in mind, and
-    `stress_patterns` offers the rest to the scansion search.
+    Order is load-bearing: every reading the pack offers is the first, which is
+    the headword's own. The rest may be inflected forms' transcriptions, which the
+    table does not mark (ADR 0057), so no method offers them.
     """
     return _read(PRONUNCIATIONS_PATH)
 
@@ -334,25 +334,29 @@ class GermanWiktionaryPack(GermanDataPack):
         return rhyme_of(self._forms_or_raise(word)[0])
 
     def rhyme_keys(self, word: str) -> list[str]:
-        """Every transcription's rhyme key. Two words rhyme if any pair matches."""
-        return list(dict.fromkeys(rhyme_of(form) for form in self._forms_or_raise(word)))
+        """The first transcription's rhyme key, alone (ADR 0057).
+
+        The table cannot tell a headword's variants from its inflected forms'
+        transcriptions (see `_headword_forms`), so the one key that is surely the
+        headword's own is the only one offered: `du` no longer rhymes with `mich`
+        through *dich*.
+        """
+        return [rhyme_of(form) for form in self._headword_forms(word)]
 
     def stress_pattern(self, word: str) -> str:
         """The first transcription's stress pattern."""
         return stress_of(self._forms_or_raise(word)[0])
 
     def stress_patterns(self, word: str) -> list[str]:
-        """Every transcription's stress pattern, longest first.
+        """The first transcription's stress pattern, alone (ADR 0057).
 
-        A line scans if some combination of listed pronunciations fits, and German
-        Wiktionary lists genuinely different readings — `gehen` is both `ˈɡeːən`
-        and `ɡeːn`, two syllables or one, which is the difference between a line
-        scanning and not. Longest first for the reason the English pack sorts the
-        same way: `denckring.core.prosody._scan` takes the first fit, and the
-        fuller reading is the one a writer wrote.
+        A line scans if some combination of a word's own readings fits, and the
+        table cannot say which of its transcriptions are the word's own (see
+        `_headword_forms`): `du` lists *deiner*'s `ˈdaɪ̯nɐ`, and reading it let a
+        metre scan `du` as two syllables. The cost is a real variant: `gehen` is
+        both `ˈɡeːən` and `ɡeːn`, and only the first is offered now.
         """
-        found = dict.fromkeys(stress_of(form) for form in self._forms_or_raise(word))
-        return sorted(found, key=len, reverse=True)
+        return [stress_of(form) for form in self._headword_forms(word)]
 
     def glosses(self, word: str) -> tuple[str, ...]:
         """Every sense the dictionary carries, or nothing.
@@ -367,6 +371,17 @@ class GermanWiktionaryPack(GermanDataPack):
     def _forms(self, word: str) -> list[str] | None:
         """Every transcription for the word, or None if the table has none."""
         return look_up(pronunciations(), word)
+
+    def _headword_forms(self, word: str) -> list[str]:
+        """The transcriptions that are surely the headword's own: the first.
+
+        Wiktionary's `{{IPA}}` line labels an inflected form's transcription with
+        its case or number (`{{Gen.}}`, `{{Pl.}}`), but the build keeps only the
+        transcriptions, so this table lists `du` with *deiner*, *dich* and *euch*
+        and cannot say which is which. The first is the headword's, so stress and
+        rhyme read it alone, as syllable counts do (ADR 0054, ADR 0057).
+        """
+        return self._forms_or_raise(word)[:1]
 
     def _forms_or_raise(self, word: str) -> list[str]:
         forms = self._forms(word)
