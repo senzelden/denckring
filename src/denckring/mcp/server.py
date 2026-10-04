@@ -114,8 +114,8 @@ def describe_procedure_tool(
     not carry. Both may carry `allow_identity`, with different meanings: in
     `apply_params`, permit output identical to the input or empty (default
     false); in `params`, on the source rows that have it, accept the source back
-    unchanged as an answer (default true for now). Set `scholarly` for the
-    form's source, attribution and history.
+    unchanged as an answer (default false, so a copy fails where another answer
+    exists). Set `scholarly` for the form's source, attribution and history.
     """
     try:
         return describe(procedure, lang=lang, scholarly=scholarly).model_dump()

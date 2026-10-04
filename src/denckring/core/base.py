@@ -31,6 +31,7 @@ from denckring.core.protocol import (
 )
 from denckring.core.provenance import provenance
 from denckring.core.scope import Scope
+from denckring.core.source_compare import is_copy
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -57,7 +58,7 @@ class IdentityParams(BaseModel):
     Measured, not assumed: on these rows `check(pid, source, source=source)` is
     satisfied, though the copy is not what the row asks for (an anagram of
     `listen` that is `listen`). `antigram` has always refused it; this lets the
-    others do the same. Opt-in, so no verdict moves in 0.3.2.
+    others do the same. Opt-in in 0.3.2; off by default since 0.4.0 (ADR 0055).
 
     Off, it refuses a copy only where the source admits a different correct
     answer (ruling R-U2a): each row states that predicate as the `alternative`
@@ -65,8 +66,8 @@ class IdentityParams(BaseModel):
     one-letter `anagram` or an N+7 source with no listed noun has no answer but
     the copy, and a one-word `cut_up` none but the copy and the empty text, which
     is not counted (it is the output `apply` refuses as degenerate). So the copy
-    stands, and flipping the default later leaves every instance satisfiable.
-    The cost is that a copy of such a source passes under either setting.
+    stands, and the default being off leaves every instance satisfiable. The
+    cost is that a copy of such a source passes under either setting.
 
     A row that passes a copy *only* on such sources (a one-line
     `boustrophedon`) does not carry the field at all, since it could never
@@ -74,10 +75,11 @@ class IdentityParams(BaseModel):
     """
 
     allow_identity: bool = Field(
-        default=True,
+        default=False,
         description=(
-            "Accept the source itself, unchanged, as an answer. Set false to fail a "
-            "text whose letters are the source's, in the same order, as `unchanged`."
+            "Accept the source itself, unchanged, as an answer. Off, a text whose "
+            "letters are the source's, in the same order, fails as `unchanged`, "
+            "unless the source admits no other answer."
         ),
         json_schema_extra=param("leniency"),
     )
@@ -168,10 +170,11 @@ class ApplyParams(BaseModel):
     default; `allow_identity` is the one escape for the caller who genuinely
     wants the degenerate case, under either of its two shapes.
 
-    `IdentityParams` asks `check` the same question under the same name, with
-    the opposite default in 0.3.2. An apply model that mixes in both lists this
-    one first, because a field on an earlier base wins: listed after the check
-    model, `ApplyParams` would hand the generator `check`'s `true`. `tests/test_allow_identity.py`
+    `IdentityParams` asks `check` the same question under the same name, and
+    since 0.4.0 with the same default (ADR 0055). An apply model that mixes in
+    both still lists this one first, because a field on an earlier base wins and
+    the two descriptions differ: listed after the check model, `ApplyParams`
+    would hand the generator `check`'s field. `tests/test_allow_identity.py`
     holds that for every generator.
 
     No field here, or on any model this mixes into, may be named `lang`:
@@ -487,7 +490,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             # `candidates` rather than `texts`, which since ADR 0027 is a
             # computed field carrying no constraint of its own.
             raise DegenerateOutput(self.id, DegenerateOutput.NOTHING)
-        found = self._guard_degenerate(text, produced.candidates, parsed)
+        found = self._guard_degenerate(text, produced.candidates, parsed, pack)
         # `getattr`, falling back to one rather than ten, for the reason
         # `_guard_degenerate` reads `allow_identity` the same way: a generator
         # may declare an apply-params model that does not inherit `ApplyParams`,
@@ -517,7 +520,9 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         """
         return self.produce(text, lang=lang, **params).texts[0]
 
-    def _guard_degenerate(self, text: str, produced: list[Candidate], params: A) -> list[Candidate]:
+    def _guard_degenerate(
+        self, text: str, produced: list[Candidate], params: A, pack: LanguagePack
+    ) -> list[Candidate]:
         """Refuse output that says nothing about what the procedure did.
 
         `allow_identity` is on `ApplyParams`, so every generator carries the
@@ -536,7 +541,9 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         if getattr(params, "allow_identity", False):
             return produced
         kept = [
-            candidate for candidate in produced if not self._is_degenerate(text, candidate.text)
+            candidate
+            for candidate in produced
+            if not self._is_degenerate(text, candidate.text, params, pack)
         ]
         if kept:
             return kept
@@ -547,7 +554,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         )
         raise DegenerateOutput(self.id, observed)
 
-    def _is_degenerate(self, text: str, produced: str) -> bool:
+    def _is_degenerate(self, text: str, produced: str, params: A, pack: LanguagePack) -> bool:
         """One candidate's worth of the judgement the guard used to make wholesale.
 
         Filtering rather than refusing is what a multi-result generator needs: an
@@ -577,7 +584,24 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
         Capitalisation alone is not a transformation any row in this catalogue
         claims to perform, so text differing from its input only in case says
         nothing about what the procedure did.
+
+        A row whose checker carries `IdentityParams` reads a copy more widely:
+        the source's letters in its order, whatever the spacing and punctuation
+        (`source_compare.is_copy`, with the fold the row's `unchanged` uses). Its
+        checker refuses that copy by default since 0.4.0 (ADR 0055), so a
+        generator handing one back (`cut_up` turning `a.a` into `a a`) returned
+        text its own checker fails. Refused here even where the checker would let
+        the copy stand, as the exact copy always has been.
         """
         if not produced.strip() and text.strip():
             return True
-        return not self.ignores_input and produced.strip().casefold() == text.strip().casefold()
+        if self.ignores_input:
+            return False
+        if produced.strip().casefold() == text.strip().casefold():
+            return True
+        if "allow_identity" not in self.params_model().model_fields:
+            return False
+        # The fold each row passes `unchanged`: its own `fold_diacritics`, or
+        # none for a row without one.
+        fold = bool(getattr(params, "fold_diacritics", False))
+        return is_copy(produced, text, pack, fold=fold)

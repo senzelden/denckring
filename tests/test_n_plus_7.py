@@ -18,8 +18,9 @@ def test_a_correct_displacement_is_satisfied() -> None:
 
 
 def test_leaving_a_noun_alone_is_readable_as_another_part_of_speech() -> None:
-    """A word list cannot rule it out, so it is tolerated and counted."""
-    report = check("n_plus_7", SOURCE, source=SOURCE)
+    """A word list cannot rule it out, so it is tolerated and counted. One noun
+    displaced, so the text is not a copy, which `allow_identity` refuses."""
+    report = check("n_plus_7", "the catacomb sat on the table", source=SOURCE)
     assert report.satisfied
     assert report.metrics["ambiguous_words"] > 0
 
@@ -167,9 +168,12 @@ def test_requiring_a_displacement_fails_a_text_that_displaces_nothing(
     pid: str, reading: str
 ) -> None:
     """Every listed word left alone is readable, one by one, as another part of
-    speech; all of them together is not an N+7. Opt-in: the default still passes."""
-    assert check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading).satisfied
-    report = check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading, require_displacement=True)
+    speech; all of them together is not an N+7. Opt-in: without it the text passes.
+    A text that displaces nothing is a copy, so `allow_identity` is set to keep
+    `unchanged` (ADR 0055) out of what this test reads."""
+    lenient: dict[str, Any] = {"ambiguous_nouns": reading, "allow_identity": True}
+    assert check(pid, SOURCE, source=SOURCE, **lenient).satisfied
+    report = check(pid, SOURCE, source=SOURCE, require_displacement=True, **lenient)
     assert not report.satisfied
     assert report.score < 1.0
     assert [v.rule for v in report.violations] == ["no_displacement"]

@@ -3,7 +3,8 @@
 Fourteen rows accepted a copy of their source as a correct answer, measured rather
 than listed: `check(pid, source, source=source)` was satisfied with each row's own
 golden parameters. `antigram` has always refused that, as `unchanged`; the other rows
-now can, opt-in. The default stays `True` in 0.3.2 so no verdict moves.
+could, opt-in, from 0.3.2, and do by default from 0.4.0 (ADR 0055). `allow_identity=True`
+restores the old reading, and is how the tests below find the copy each row accepts.
 
 The guard at the bottom holds the rule for rows not yet written: a source row whose
 checker passes a copy either carries the parameter or is named in `COPY_IS_THE_ANSWER`
@@ -16,9 +17,9 @@ from typing import Any
 
 import pytest
 
-from denckring import check
+from denckring import apply, check
 from denckring.core.base import ConstructiveProcedure
-from denckring.core.errors import DenckringError
+from denckring.core.errors import DegenerateOutput, DenckringError
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures, get
 from denckring.eval.harness import GoldenCase, golden_cases
@@ -83,14 +84,17 @@ def _string_source_cases(pid: str) -> list[GoldenCase]:
 
 
 def _copy_passes(pid: str, lang: Lang, params: dict[str, Any], source: str) -> bool:
+    """Whether the row accepts a copy at its most lenient: a row that can refuse
+    one is asked not to, so the measure is what the checker reads, not its default."""
+    lenient = {"allow_identity": True} if pid in _offering() else {}
     try:
-        return check(pid, source, lang=lang, **{**params, "source": source}).satisfied
+        return check(pid, source, lang=lang, **{**params, "source": source, **lenient}).satisfied
     except DenckringError:  # a source this row refuses outright is not a copy it accepts
         return False
 
 
 def _a_copy_that_passes(pid: str) -> tuple[Lang, dict[str, Any]]:
-    """Golden parameters under which a copy of the golden source passes by default."""
+    """Golden parameters under which a copy of the golden source passes when allowed."""
     for case in _string_source_cases(pid):
         if _copy_passes(pid, case.lang, case.params, case.params["source"]):
             return case.lang, case.params
@@ -98,12 +102,15 @@ def _a_copy_that_passes(pid: str) -> tuple[Lang, dict[str, Any]]:
 
 
 @pytest.mark.parametrize("pid", ROWS)
-def test_the_default_still_accepts_the_copy(pid: str) -> None:
+def test_the_default_refuses_the_copy_and_true_accepts_it(pid: str) -> None:
+    """ADR 0055: the default is the strict reading, and `true` the old one."""
     lang, params = _a_copy_that_passes(pid)
+    params = {key: value for key, value in params.items() if key != "allow_identity"}
     report = check(pid, params["source"], lang=lang, **params)
-    assert get(pid).params_model().model_fields["allow_identity"].default is True
-    assert report.satisfied
-    assert check(pid, params["source"], lang=lang, allow_identity=True, **params) == report
+    assert get(pid).params_model().model_fields["allow_identity"].default is False
+    assert not report.satisfied
+    assert check(pid, params["source"], lang=lang, allow_identity=False, **params) == report
+    assert check(pid, params["source"], lang=lang, allow_identity=True, **params).satisfied
 
 
 @pytest.mark.parametrize("pid", ROWS)
@@ -123,14 +130,16 @@ def test_refusing_identity_fails_the_copy_as_antigram_does(pid: str) -> None:
 
 @pytest.mark.parametrize("pid", ROWS)
 def test_refusing_identity_moves_no_other_golden_verdict(pid: str) -> None:
-    """Only a copy is refused: every golden case that is not one keeps its verdict
-    and its score."""
+    """Only a copy is refused: every golden case that is not one keeps the verdict
+    and the score it had under the old default."""
     for case in _string_source_cases(pid):
-        default = check(pid, case.text, lang=case.lang, **case.params)
-        if default.satisfied and case.text.split() == case.params["source"].split():
+        params = {**case.params, "allow_identity": True}
+        lenient = check(pid, case.text, lang=case.lang, **params)
+        if lenient.satisfied and case.text.split() == case.params["source"].split():
             continue
-        strict = check(pid, case.text, lang=case.lang, allow_identity=False, **case.params)
-        assert (strict.satisfied, strict.score) == (default.satisfied, default.score), case.name
+        params["allow_identity"] = False
+        strict = check(pid, case.text, lang=case.lang, **params)
+        assert (strict.satisfied, strict.score) == (lenient.satisfied, lenient.score), case.name
 
 
 def test_a_copy_differing_in_case_spacing_and_punctuation_is_still_a_copy() -> None:
@@ -181,8 +190,9 @@ def test_every_source_row_that_accepts_a_copy_can_refuse_it_or_says_why_not() ->
 
 def test_every_generator_still_refuses_its_own_input_by_default() -> None:
     """`ApplyParams.allow_identity` is `false`, and a check model mixing in
-    `IdentityParams` must not hand a generator its `true`: the two share a name,
-    and the base listed first decides the default."""
+    `IdentityParams` must not hand a generator its field: the two share a name,
+    the base listed first decides the default, and the check side's was `true`
+    until 0.4.0 (ADR 0055)."""
     for pid in all_procedures():
         procedure = get(pid)
         if isinstance(procedure, ConstructiveProcedure):
@@ -272,3 +282,15 @@ def test_a_recombination_reorder_with_other_letters_is_the_answer_left() -> None
     source = "No. No yes."
     assert not check("recombination", source, source=source, allow_identity=False).satisfied
     assert check("recombination", "No yes. No.", source=source, allow_identity=False).satisfied
+
+
+def test_a_generator_refuses_a_copy_its_checker_refuses() -> None:
+    """ADR 0055: `apply`'s guard reads a copy as `unchanged` does, the source's
+    letters in order, so a generator's default output never fails its checker's
+    default as one. `cut_up` could only rejoin `a.a` as `a a`, which the old
+    guard, comparing the text, let through."""
+    with pytest.raises(DegenerateOutput) as caught:
+        apply("cut_up", "a.a", lang="en", seed=0)
+    assert caught.value.observed == DegenerateOutput.IDENTICAL
+    assert apply("cut_up", "a.a", lang="en", seed=0, allow_identity=True) == "a a"
+    assert [v.rule for v in check("cut_up", "a a", source="a.a").violations] == ["unchanged"]

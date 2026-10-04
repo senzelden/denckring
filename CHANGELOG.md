@@ -46,6 +46,18 @@ patch.
   and their reports could already be `estimated`. The split is 85 exact and 48 heuristic
   (was 87 and 46). An `exact` row never reports `estimated`, with no exceptions.
 
+- **Source rows refuse a copy of their source by default** (ADR 0055, audit A5).
+  `allow_identity` now defaults to `false` on the 14 rows that take it, so a text whose
+  letters are the source's, in order, fails as `unchanged`. Pass `allow_identity=true`
+  for the old reading. A copy still passes where the source admits no other answer (a
+  one-sentence `recombination`, a one-word `cut_up`, an N+7 source with no listed noun),
+  because refusing it there would fail every text. A refused copy costs one unit of
+  score, so `satisfied` and the `unchanged` rule are what mark it. `apply` on these rows
+  refuses a copy in the same sense, so `cut_up` no longer returns `a a` for `a.a`.
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves. One
+  `s_plus_7` case retypes its source to show `ambiguous_nouns="strict"`, and it now sets
+  `allow_identity: true` so that it fails for that reason alone.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters

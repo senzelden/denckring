@@ -95,8 +95,11 @@ VOWEL_ROWS: dict[str, Callable[[str, Lang], bool]] = {
     "monoconsonantal": lambda letter, lang: (
         not _fails("monoconsonantal", letter, lang, consonant="c" if letter == "b" else "b")
     ),
-    # Against a source with no vowel, a vowel is one the source does not have.
-    "homovocalism": lambda letter, lang: _fails("homovocalism", letter, lang, source="b"),
+    # Against a source with no vowel, a vowel is one the source does not have. The
+    # letter `b` is that source's copy, which only `allow_identity` lets pass.
+    "homovocalism": lambda letter, lang: _fails(
+        "homovocalism", letter, lang, source="b", allow_identity=True
+    ),
 }
 
 

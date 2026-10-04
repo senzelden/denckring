@@ -62,9 +62,7 @@ def unchanged(
     """
     if allow:
         return []
-    if [ch for _, ch in letter_spans(text, pack, fold=fold)] != [
-        ch for _, ch in letter_spans(source, pack, fold=fold)
-    ]:
+    if not is_copy(text, source, pack, fold=fold):
         return []
     if not alternative():
         return []
@@ -75,6 +73,15 @@ def unchanged(
             found=text.strip(),
             expected="a change to the source, not the source itself",
         )
+    ]
+
+
+def is_copy(text: str, source: str, pack: LanguagePack, *, fold: bool) -> bool:
+    """Whether `text` is `source`'s letters in `source`'s order: what `unchanged`
+    refuses, and what `ConstructiveProcedure`'s guard refuses from a generator
+    whose checker can refuse it, so the two cannot disagree about a copy."""
+    return [ch for _, ch in letter_spans(text, pack, fold=fold)] == [
+        ch for _, ch in letter_spans(source, pack, fold=fold)
     ]
 
 

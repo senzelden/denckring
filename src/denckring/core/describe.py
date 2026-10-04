@@ -164,7 +164,7 @@ class Description(BaseModel):
     #: refused. Both may carry `allow_identity`, under one name with two
     #: meanings: here, permit output identical to the input or empty (default
     #: false); in `params`, on the source rows that declare it, accept the source
-    #: back unchanged as an answer (default true until that default flips).
+    #: back unchanged as an answer (default false since 0.4.0, ADR 0055).
     apply_params: dict[str, Any]
     #: `Meta.unique_answer`: `check` passes only the text `apply` returns.
     unique_answer: bool = False
