@@ -30,13 +30,20 @@ scan `du` as two syllables.
 
 ## Decision
 
-**A pair a scheme keeps apart fails only when every pairing of readings rhymes**
-(ruling R-U9a). `prosody.may_rhyme` is the old test, any pair of keys matching, and a
-wanted pair still uses it. `prosody.must_rhyme` is the new one, every pair of keys
-matching. Keys are compared for equality, so it holds exactly when both words have the
-same single key. `scheme_violations` uses it for `unwanted_rhyme`, and so does
-`blank_verse`. A word the dictionary lacks has no keys, so it rhymes with nothing in
-either direction, as before.
+**A pair a scheme keeps apart fails when every pairing of readings rhymes, or when the
+two words have the same set of keys** (rulings R-U9a and R-U9f). `prosody.may_rhyme` is
+the old test, any pair of keys matching, and a wanted pair still uses it.
+`prosody.must_rhyme` is the new one. `scheme_violations` uses it for `unwanted_rhyme`,
+and so does `blank_verse`. Its first clause is the satisfiability mirror: no choice of
+readings keeps the pair apart. Keys are compared for equality, so that holds when both
+words have the same single key. The second clause is about readers, not readings. A
+reader has one accent and reads every word in it. Two words with the same keys, such as
+`fog` and `bog` (each `AA1 G` or `AO1 G`), rhyme for every reader, whichever accent that
+is. The first clause alone passed them, by reading one word in one accent and the other
+in another, a mix no speaker makes. A pair whose keys overlap without being the same set
+still passes. `gone` is `AO1 N` and `on` is `AA1 N` or `AO1 N`, and a reader who says
+`on` as `AA1 N` keeps them apart. A word the dictionary lacks has no keys, so it rhymes
+with nothing in either direction, as before.
 
 Each pair is decided on its own, as the wanted side already was. The scheme is not
 solved jointly. A joint solve would pick one reading per word for the whole poem and
@@ -47,7 +54,8 @@ readings, and it would make a verdict depend on pairs far from the one reported.
 20 rows whose parameters take `RhymeParams` and is `None` elsewhere. It states the
 pack's key and how a scheme reads several keys. For English, the key runs from the last
 primary-stressed vowel, and secondary stress does not key a rhyme (`someday` and `day`).
-For German, it says the first transcription only. For French, it says the last vowel,
+A word with no primary stress keys from its last vowel (`the` keys `AH0`), in English
+and in German. For German, it also says the first transcription only. For French, it says the last vowel,
 one transcription per spelling. `tests/test_rhyme_variants.py` holds each sentence to
 its pack.
 
@@ -62,18 +70,28 @@ own readings from its forms'. The labels are not a clean signal either. A real
 variant comes as `auch:` (`hierher`), a regional note (`Erde`), or the next
 homograph's line (`Band`), all on the same line or the same page. So
 `GermanWiktionaryPack.stress_patterns` and `rhyme_keys` now offer the first
-transcription alone, through one helper, `_headword_forms`. `du` is `?` and `uː`. It
+transcription alone. Every reading the pack gives, syllable counts included, takes it
+from one helper, `_headword`, so the rule cannot drift between them. A test holds all
+59,538 headwords with several transcriptions to one stress pattern, one rhyme key and
+one syllable count each. `du` is `?` and `uː`. It
 no longer rhymes with `mich`, and German evidence is never `ambiguous`.
 
 ## Consequences
 
-`unwanted_rhyme` is more lenient, and that is the cost. A pair that rhymes on one
-reading and not on another passes, whichever reading the writer meant. `on` and
-`gone`, `bog` and `log`, `wind` and `find` may now close lines with different letters.
-The checker cannot know which reading the writer meant, which is the position ADR 0014
-took for stress and ADR 0054 for syllable counts. The same word on two lines with
-different letters passes when it has two keys: `wind` and `wind` are kept apart by
-reading one as the noun and one as the verb.
+`unwanted_rhyme` is more lenient, and that is the cost. A pair that rhymes for some
+readers and not for others passes, whichever reading the writer meant. `on` and `gone`,
+`bog` and `log`, `wind` and `find` may now close lines with different letters. The
+checker cannot know which reading the writer meant, which is the position ADR 0014 took
+for stress and ADR 0054 for syllable counts.
+
+The same-keys clause has its own costs. It treats every listed key as an accent, and
+some are not. `wind` is `AY1 N D` as a verb and `IH1 N D` as a noun, a difference of
+sense rather than accent. Two lines ending on `wind` under different letters now fail,
+though a writer could mean the verb on one and the noun on the other. The clause is
+also all or nothing. Two words that share all but one key pass, as `gone` and `on` do,
+even where most readers would rhyme them. Of CMUdict's 5,877 alphabetic headwords with
+more than one rhyme key, 1,426 share their exact set with another word, and only such
+words can meet the clause with a partner other than themselves.
 
 Deciding each pair on its own admits verdicts no single reading supports. One word's
 reading may keep pair A apart while its other reading makes pair B rhyme. In
@@ -95,7 +113,8 @@ labels kept and deciding which labels name a variant. That is a data change for 
 release.
 
 **Golden corpus, re-measured over all 687 cases: no verdict moves, and two scores do.**
-Both are German metre, and both cases were already failing for other reasons.
+Both are German metre, and both cases were already failing for other reasons. The
+same-keys clause moves nothing: no golden pair kept apart has the same several keys.
 
 | case | before | after | why |
 |---|---|---|---|
