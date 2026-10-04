@@ -158,3 +158,15 @@ def test_runnable_still_treats_an_unknown_language_as_not_runnable() -> None:
     meta = get_meta("lipogram")
     ok, _missing = describe.runnable(meta, "xx")  # type: ignore[arg-type]
     assert not ok
+
+
+def test_description_carries_rules_in_their_published_order() -> None:
+    """`Description.rules` is `denckring.rules`, for every row (ruling R-F6): sorted,
+    and the composite's is every other row's vocabulary."""
+    import denckring
+    from denckring.core.registry import all_procedures
+
+    for pid in all_procedures():
+        described = denckring.describe(pid).rules
+        assert described == list(denckring.rules(pid)), pid
+        assert described == sorted(described), pid

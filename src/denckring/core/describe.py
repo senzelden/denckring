@@ -217,6 +217,11 @@ class Description(BaseModel):
     unique_answer: bool = False
     #: `Meta.hidden_material`: what the verdict reads that a prompt does not show.
     hidden_material: list[str] = Field(default_factory=list)
+    #: Every `violation.rule` the row's checker can emit, sorted: `denckring.rules`,
+    #: carried here so a caller of the CLI or the MCP server reads the vocabulary the
+    #: README promises without Python (ruling R-F6). `multiple_constraint` answers with
+    #: every other row's rules, as `denckring.rules` does. Added in 0.4.0.
+    rules: list[str] = Field(default_factory=list)
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -325,6 +330,8 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
 
 def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -> Description:
     """One procedure, in full. Raises `UnknownProcedure` for an unknown id."""
+    from denckring import rules
+
     meta = catalogue.get(procedure_id)
     procedure = get(procedure_id)
     is_constructive = isinstance(procedure, Constructive)
@@ -378,6 +385,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         ),
         unique_answer=meta.unique_answer,
         hidden_material=list(meta.hidden_material),
+        rules=list(rules(procedure_id)),
         scholarly=(
             Scholarly(
                 source=meta.source,

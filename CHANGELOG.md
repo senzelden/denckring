@@ -166,6 +166,12 @@ evidence or descriptions only, or add something.
   `Evidence` move into the promised exports. `rule_categories`, `failure_categories`,
   `metrics` keys and the wording of messages and hints stay unpromised.
 
+- **`describe()` carries each row's rules** (ADR 0059). `Description.rules` is
+  `denckring.rules(procedure_id)`, sorted, so a caller of the CLI or the MCP server reads
+  the promised vocabulary without Python: `describe` and `show` print it, their `--json`
+  output carries it as `rules`, and so does the MCP `describe_procedure` tool.
+  `multiple_constraint`'s is every other row's vocabulary, as `denckring.rules` answers.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters

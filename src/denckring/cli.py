@@ -11,7 +11,7 @@ from typing import Annotated, Any, cast, get_args
 
 import typer
 
-from denckring import __version__
+from denckring import __version__, rules
 from denckring.core import catalogue
 from denckring.core.describe import describe, summaries
 from denckring.core.errors import DenckringError, NotConstructive, UnknownLanguage
@@ -204,6 +204,7 @@ def describe_command(
         typer.echo(f"\nHint: {described.prompt_hints}")
     if not described.runnable:
         typer.echo(f"\nNot runnable here — missing: {', '.join(described.missing)}")
+    typer.echo(f"\nRules: {', '.join(described.rules) or '—'}")
 
 
 @app.command("list")
@@ -285,12 +286,20 @@ def show_command(
         return
     examples = [c.model_dump() for c in harness.golden_cases() if c.procedure == procedure_id]
     schema: dict[str, Any] = {}
+    # The rules its checker can emit (`denckring.rules`); none for a row with no checker.
+    published: list[str] = []
     if procedure_id in all_procedures():
         schema = get(procedure_id).params_schema()
+        published = list(rules(procedure_id))
     if as_json:
         typer.echo(
             json.dumps(
-                {"meta": meta.model_dump(), "params_schema": schema, "examples": examples},
+                {
+                    "meta": meta.model_dump(),
+                    "params_schema": schema,
+                    "rules": published,
+                    "examples": examples,
+                },
                 indent=2,
                 ensure_ascii=False,
             )
@@ -301,6 +310,7 @@ def show_command(
     typer.echo(f"  source: {meta.source}")
     typer.echo(f"  kind: {meta.kind}   languages: {', '.join(meta.languages)}")
     typer.echo(f"  requires: {', '.join(meta.requires) or '—'}")
+    typer.echo(f"  rules: {', '.join(published) or '—'}")
     for example in examples:
         typer.echo(f"  example [{example['name']}] satisfied={example['satisfied']}")
 

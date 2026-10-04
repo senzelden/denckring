@@ -265,3 +265,11 @@ def test_parse_max_text_chars_handles_valid_and_malformed_inputs(
     monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "-50")
     with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS.*-50"):
         assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_describe_carries_the_rows_published_rules() -> None:
+    """The MCP surface states the promised rule vocabulary too (ruling R-F6)."""
+    import denckring
+
+    for pid in ("lipogram", "multiple_constraint"):
+        assert describe_procedure_tool(pid)["rules"] == list(denckring.rules(pid))

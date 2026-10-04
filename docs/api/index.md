@@ -65,7 +65,10 @@ Each entry in `violations` is where and how the text failed: `rule` names which 
 tripped, `offset` is the character position in the original text (or `null` when a
 violation is not localisable, such as a form-wide count), `found` is what was there,
 and `expected` is what the rule required. `note` carries anything else worth saying
-and is usually `null`.
+and is usually `null`. Every `rule` a row can emit is listed, sorted, by
+`denckring.rules(procedure_id)` and by `describe(procedure_id).rules`, which
+`denckring describe --json`, `denckring show --json` and the MCP `describe_procedure`
+tool carry as `rules`. A published rule keeps its name and meaning (ADR 0059).
 
 `metrics` is free-form and procedure-specific, but one key recurs across the
 syllable-counting forms — sonnets, ballades, iambic pentameter and the rest —

@@ -49,3 +49,19 @@ def test_list_json_rejects_status_filter() -> None:
     result = runner.invoke(app, ["list", "--json", "--status", "implemented"])
     assert result.exit_code != 0
     assert "Traceback" not in result.stdout
+
+
+def test_describe_and_show_carry_the_rows_published_rules() -> None:
+    """A non-Python caller reads the promised rule vocabulary (ruling R-F6), in
+    `denckring.rules`' order, from both commands, as JSON and as text."""
+    import denckring
+
+    for pid in ("lipogram", "haiku", "multiple_constraint"):
+        published = list(denckring.rules(pid))
+        assert published
+        described = json.loads(runner.invoke(app, ["describe", pid, "--json"]).stdout)
+        assert described["rules"] == published
+        shown = json.loads(runner.invoke(app, ["show", pid, "--json"]).stdout)
+        assert shown["rules"] == published
+        assert f"Rules: {', '.join(published)}" in runner.invoke(app, ["describe", pid]).stdout
+        assert f"rules: {', '.join(published)}" in runner.invoke(app, ["show", pid]).stdout

@@ -216,7 +216,9 @@ are built on them:
   accepted any; not an estimate) and `estimated` (no listing, so a heuristic answered). A
   caller deciding to leave a verdict unscored reads `estimated`, or `basis` per entry,
   and needs no metrics key. A new basis would arrive with a new `schema_version`.
-  `describe`'s `Description` carries `runs_in` under the same promise. `provenance`
+  `describe`'s `Description` carries `runs_in` under the same promise, and `rules`, the
+  row's `denckring.rules` in the same sorted order, which `describe --json`, `show --json`
+  and the MCP server's `describe_procedure` carry too. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
   and not when the package is released: `1.2` since `Evidence.basis` gained `ambiguous`
   (1.1 added `estimated`).
