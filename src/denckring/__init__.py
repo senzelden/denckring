@@ -216,11 +216,14 @@ def rule_categories(procedure_id: str) -> dict[str, str]:
 
     The categories are a closed set, defined in `failure_categories()`: a forbidden
     letter is `excluded_letter`, a missing line `count`, a broken rhyme `sound`. A rule
-    string has the same category on every row that emits it, but one:
+    string has the same category on every row that emits it, but two:
     `slenderizing`'s `wrong_letter` is `transcription`, where the spine rows'
-    is `position`. So a caller counting failures across rows counts by kind without
-    a map of its own (audit C3), provided it asks each row rather than keying by the
-    rule alone. `multiple_constraint` answers with each rule's usual category.
+    is `position`, and `missing_letter` is `transcription` on the rows that align
+    a text's letters with its source's (`slenderizing`, `homoconsonantism`,
+    `homovocalism`), where the inventory rows' is `inventory`. So a caller counting
+    failures across rows counts by kind without a map of its own (audit C3),
+    provided it asks each row rather than keying by the rule alone.
+    `multiple_constraint` answers with each rule's usual category.
     Published with the rules themselves, and under the same terms: a rule's category
     may move in a minor release, and the changelog will say so.
     """

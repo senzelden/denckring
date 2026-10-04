@@ -6,8 +6,9 @@ from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.fields import param
-from denckring.core.protocol import LanguagePack, Produced, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
+from denckring.core.source_compare import aligned_report
 from denckring.core.text import word_spans
 
 MIN_STEP = 1
@@ -31,7 +32,7 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
     """Constructive: `apply` performs the selection `check` verifies."""
 
     id = "every_nth_word"
-    rules = ("extra_words", "wrong_word")
+    rules = ("extra_words", "missing_word", "wrong_word")
 
     @classmethod
     def params_model(cls) -> type[EveryNthWordParams]:
@@ -40,38 +41,24 @@ class EveryNthWord(ConstructiveProcedure[EveryNthWordParams, EveryNthWordApplyPa
     def _check(self, text: str, pack: LanguagePack, params: EveryNthWordParams) -> Report:
         expected = self._select(params.source, pack, params.n)
         spans = word_spans(text, pack)
-        actual = [word.casefold() for _, word in spans]
-        violations: list[Violation] = []
-        matched = 0
-        for index, word in enumerate(expected):
-            if index < len(actual) and actual[index] == word:
-                matched += 1
-            else:
-                violations.append(
-                    Violation(
-                        rule="wrong_word",
-                        # Placed at the text's word, as `positional_report`
-                        # places its siblings'; a word the text runs out before
-                        # goes at the text's end, where it would go
-                        # (`Violation.offset`).
-                        offset=spans[index][0] if index < len(spans) else len(text),
-                        found=actual[index] if index < len(actual) else "",
-                        expected=word,
-                    )
-                )
-        if len(actual) > len(expected):
-            violations.append(
-                Violation(
-                    rule="extra_words",
-                    offset=spans[len(expected)][0],
-                    found=" ".join(actual[len(expected) :]),
-                    expected="",
-                )
-            )
+        # Aligned (ADR 0056): a dropped word costs one unit, not every word after
+        # it. Placed at the text's word, as `positional_report` places its
+        # siblings'; a missing word no later word follows goes at the text's end,
+        # where it would go (`Violation.offset`).
+        result = aligned_report(
+            expected,
+            [(offset, word.casefold()) for offset, word in spans],
+            key=lambda word: word,
+            substituted="wrong_word",
+            inserted="extra_words",
+            deleted="missing_word",
+            joiner=" ",
+            end=len(text),
+        )
         return self._report(
-            good=matched,
-            total=max(len(expected), len(actual)),
-            violations=violations,
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
             metrics={"kept": float(len(expected))},
         )
 

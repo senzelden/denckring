@@ -12,8 +12,9 @@ from denckring.core.base import (
     plain,
 )
 from denckring.core.fields import param
-from denckring.core.protocol import LanguagePack, Produced, Report, Violation
+from denckring.core.protocol import LanguagePack, Produced, Report
 from denckring.core.registry import register
+from denckring.core.source_compare import aligned_report
 from denckring.core.text import fold_letter, letter_spans, single_letter
 
 
@@ -39,7 +40,7 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     """Strike out one letter throughout and let the rest close up."""
 
     id = "slenderizing"
-    rules = ("extra_letters", "wrong_letter")
+    rules = ("extra_letters", "missing_letter", "wrong_letter")
 
     @classmethod
     def params_model(cls) -> type[SlenderizingParams]:
@@ -52,39 +53,27 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
         )
         expected = [ch for _, ch in letter_spans(params.source, pack, fold=fold) if ch != deleted]
         spans = letter_spans(text, pack, fold=fold)
-        actual = [ch for _, ch in spans]
-        violations: list[Violation] = []
-        matched = 0
-        for index, letter in enumerate(expected):
-            if index < len(actual) and actual[index] == letter:
-                matched += 1
-            else:
-                violations.append(
-                    Violation(
-                        rule="wrong_letter",
-                        # A letter the text runs out before is placed at its
-                        # end, where it would go: every violation here has a
-                        # place, and an offset-less one left a caller nothing
-                        # to point at but the rule name.
-                        offset=spans[index][0] if index < len(spans) else len(text),
-                        found=actual[index] if index < len(actual) else "",
-                        expected=letter,
-                    )
-                )
-        if len(actual) > len(expected):
-            violations.append(
-                Violation(
-                    rule="extra_letters",
-                    offset=spans[len(expected)][0],
-                    found="".join(actual[len(expected) :]),
-                    expected="",
-                )
-            )
+        # Aligned (ADR 0056), so a dropped letter costs one unit, not every letter
+        # after it. Letters compare as `letter_spans` folds them and no further:
+        # with `fold_diacritics` off, case is the writer's to keep. A letter
+        # missing at the end is placed at the text's end, where it would go: every
+        # violation here has a place, and an offset-less one left a caller nothing
+        # to point at but the rule name.
+        result = aligned_report(
+            expected,
+            spans,
+            key=lambda letter: letter,
+            substituted="wrong_letter",
+            inserted="extra_letters",
+            deleted="missing_letter",
+            joiner="",
+            end=len(text),
+        )
         return self._report(
-            good=matched,
-            total=max(len(expected), len(actual)),
-            violations=violations,
-            metrics={"expected": float(len(expected)), "actual": float(len(actual))},
+            good=result.good,
+            total=result.total,
+            violations=result.violations,
+            metrics={"expected": float(len(expected)), "actual": float(len(spans))},
         )
 
     @classmethod

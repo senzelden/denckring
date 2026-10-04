@@ -118,7 +118,17 @@ def test_the_three_readings_diverge_when_a_real_mistake_sits_beside_an_ambiguity
 
 def test_a_different_word_count_is_a_violation() -> None:
     report = check("n_plus_7", "too short", source=SOURCE)
-    assert report.violations[0].rule == "wrong_word_count"
+    assert not report.satisfied
+    assert "missing_word" in {v.rule for v in report.violations}
+
+
+def test_a_dropped_word_is_judged_around_not_counted_as_zero() -> None:
+    """ADR 0056: a word-count mismatch scored the whole text 0/1 as
+    `wrong_word_count`. Aligned against the correct N+7, the words either side
+    of a gap are still judged as displacements, so a wrong one is still named."""
+    report = check("n_plus_7", "the zebra on the tablespoonful", source="the cat sat on the table")
+    assert [v.rule for v in report.violations] == ["wrong_displacement", "missing_word"]
+    assert report.score == 4 / 6
 
 
 def test_a_supplied_dictionary_is_the_one_that_gets_walked() -> None:

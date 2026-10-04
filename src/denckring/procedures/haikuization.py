@@ -50,7 +50,7 @@ class Haikuization(ConstructiveProcedure[HaikuizationParams, HaikuizationApplyPa
     """Constructive: `apply` performs the reduction `check` verifies."""
 
     id = "haikuization"
-    rules = ("extra_words", "not_in_source", "wrong_line_end")
+    rules = ("extra_words", "missing_word", "not_in_source", "wrong_line_end")
 
     @classmethod
     def params_model(cls) -> type[HaikuizationParams]:

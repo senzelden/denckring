@@ -94,7 +94,7 @@ def test_a_wordless_text_and_source_agree_vacuously() -> None:
 def test_an_empty_candidate_still_fails_against_a_source_with_words() -> None:
     report = get("n_plus_7").check("", lang="en", source="the cat")
     assert not report.satisfied
-    assert [v.rule for v in report.violations] == ["wrong_word_count"]
+    assert [v.rule for v in report.violations] == ["missing_word", "missing_word"]
 
 
 # ── anagram ────────────────────────────────────────────────────────────────

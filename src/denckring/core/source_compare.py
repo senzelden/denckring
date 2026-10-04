@@ -11,9 +11,10 @@ was written first, by hand, with the comparison inline and no `keep` parameter a
 — it only ever asked "is this letter a consonant?". Writing `homovocalism` against
 that code showed the entire body was identical except for one predicate (`not in
 vowels` vs. `in vowels`) and one violation name (`wrong_consonant` vs. `wrong_vowel`).
-Nothing else moved: not the index-by-index matching, not the `extra_letters` handling,
-not the `max(len(expected), len(actual), 1)` denominator that keeps an empty source
-from scoring as vacuously satisfied. That is why `keep` is a two-value `Literal`
+Nothing else moved: not the matching, not the `extra_letters` handling, not the
+denominator that keeps an empty source from scoring as vacuously satisfied. (The
+matching was index by index then; it is an alignment now, `aligned_report`, shared
+with every positional row, ADR 0056.) That is why `keep` is a two-value `Literal`
 rather than a predicate callback — a callback would have let a future caller ask for
 some third partition of the alphabet this module was never asked to support, and the
 two rows that exist do not need one.
@@ -22,7 +23,8 @@ two rows that exist do not need one.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
+from difflib import SequenceMatcher
 from typing import Literal, NamedTuple
 
 from denckring.core.protocol import LanguagePack, Violation
@@ -106,6 +108,161 @@ class ClassResult(NamedTuple):
     total: int
 
 
+Step = Literal["match", "substitute", "insert", "delete"]
+
+
+class Aligned(NamedTuple):
+    """One step of an alignment: `expected` and `actual` index the two sequences,
+    and the side a step has no unit on is `None` (an insertion has no expected
+    unit, a deletion no actual one)."""
+
+    step: Step
+    expected: int | None
+    actual: int | None
+
+
+def align(expected: Sequence[str], actual: Sequence[str]) -> list[Aligned]:
+    """The steps that turn `expected` into `actual`, in order (ADR 0056).
+
+    The positional rows compared index by index, so one dropped unit shifted every
+    later one and the text scored as if it had nothing right after the drop.
+    `SequenceMatcher` with no junk and `autojunk=False` is deterministic and has
+    no popularity heuristic, so the same pair always aligns the same way. A
+    `replace` of unequal spans pairs its units in order as substitutions and
+    leaves the rest as insertions or deletions: the alignment's length is then
+    max(len_a, len_b) for that span, which is what the score's denominator counts.
+    Only identical sequences align with no step but `match`, so a score of 1.0
+    still means an exact match and nothing else (ADR 0005).
+    """
+    steps: list[Aligned] = []
+    matcher = SequenceMatcher(None, list(expected), list(actual), autojunk=False)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            steps.extend(
+                Aligned("match", i, j) for i, j in zip(range(i1, i2), range(j1, j2), strict=True)
+            )
+            continue
+        paired = min(i2 - i1, j2 - j1)
+        steps.extend(Aligned("substitute", i1 + k, j1 + k) for k in range(paired))
+        steps.extend(Aligned("delete", i, None) for i in range(i1 + paired, i2))
+        steps.extend(Aligned("insert", None, j) for j in range(j1 + paired, j2))
+    return steps
+
+
+def gaps(
+    steps: Sequence[Aligned],
+    expected: Sequence[str],
+    actual: Sequence[tuple[int, str]],
+    *,
+    inserted: str,
+    deleted: str,
+    joiner: str,
+    end: int,
+    note: Callable[[int, str], str] | None = None,
+) -> dict[int, Violation]:
+    """The insertions and deletions of an alignment, keyed by the step each is
+    reported at, so a caller judging the paired units its own way (N+7) can
+    keep every violation in text order.
+
+    A run of inserted units is one `inserted` violation at its first unit, its
+    units joined by `joiner`: the shape every `extra_*` rule had when only a
+    tail could be surplus. A deleted unit is one `deleted` violation each, as
+    `homosyntaxism`'s `missing_word` reports each position the writer still
+    owes, placed where it would go: at the next unit of the text, or at `end`
+    (the text's length) when none follows. `note`, given the expected index and
+    unit, phrases a deletion.
+    """
+    found: dict[int, Violation] = {}
+    upcoming: int | None = None
+    for index in range(len(steps) - 1, -1, -1):
+        _, i, j = steps[index]
+        if j is not None:
+            upcoming = j
+            continue
+        if i is not None:
+            found[index] = Violation(
+                rule=deleted,
+                offset=actual[upcoming][0] if upcoming is not None else end,
+                found="",
+                expected=expected[i],
+                note=note(i, expected[i]) if note is not None else None,
+            )
+    runs: dict[int, list[int]] = {}
+    start: int | None = None
+    for index, (step, _, j) in enumerate(steps):
+        if step == "insert" and j is not None:
+            start = index if start is None else start
+            runs.setdefault(start, []).append(j)
+        else:
+            start = None
+    for index, members in runs.items():
+        found[index] = Violation(
+            rule=inserted,
+            offset=actual[members[0]][0],
+            found=joiner.join(actual[j][1] for j in members),
+            expected="",
+        )
+    return dict(sorted(found.items()))
+
+
+def aligned_report(
+    expected: Sequence[str],
+    actual: Sequence[tuple[int, str]],
+    *,
+    key: Callable[[str], str],
+    substituted: str,
+    inserted: str,
+    deleted: str,
+    joiner: str,
+    end: int,
+    note: Callable[[int, str], str] | None = None,
+) -> ClassResult:
+    """Score `actual` against `expected` over their alignment (`align`, ADR 0056).
+
+    The one comparison every positional row makes: `positional_report`,
+    `letter_class_report`, `slenderizing` and `every_nth_word` call it, and
+    N+7's word-count mismatch uses `align` and `gaps` directly. `good` is the
+    matched count and `total` the alignment's length, so one dropped unit costs
+    one unit rather than every unit after it.
+
+    `key` is what two units are compared by (casefolded words, or letters as
+    the row folds them); `found` and `expected` keep each unit as shown. A
+    substitution keeps the row's rule (`substituted`); insertions and deletions
+    are `gaps`'. `note`, given the expected index and unit, phrases a
+    substitution or a deletion.
+    """
+    steps = align([key(unit) for unit in expected], [key(unit) for _, unit in actual])
+    unpaired = gaps(
+        steps,
+        expected,
+        actual,
+        inserted=inserted,
+        deleted=deleted,
+        joiner=joiner,
+        end=end,
+        note=note,
+    )
+    violations: list[Violation] = []
+    good = 0
+    for index, (step, i, j) in enumerate(steps):
+        if index in unpaired:
+            violations.append(unpaired[index])
+        elif step == "match":
+            good += 1
+        elif step == "substitute" and i is not None and j is not None:
+            offset, unit = actual[j]
+            violations.append(
+                Violation(
+                    rule=substituted,
+                    offset=offset,
+                    found=unit,
+                    expected=expected[i],
+                    note=note(i, expected[i]) if note is not None else None,
+                )
+            )
+    return ClassResult(violations, good, len(steps))
+
+
 def _of_class(
     text: str, pack: LanguagePack, keep: LetterClass, *, fold: bool
 ) -> list[tuple[int, str]]:
@@ -129,36 +286,22 @@ def letter_class_report(
     writer can act on — the same reasoning the metre scanner names the word.
     """
     rule = "wrong_consonant" if keep == "consonants" else "wrong_vowel"
-    expected = _of_class(source, pack, keep, fold=fold)
-    actual = _of_class(text, pack, keep, fold=fold)
-    violations: list[Violation] = []
-    good = 0
-    for index, (_, letter) in enumerate(expected):
-        if index < len(actual) and actual[index][1].casefold() == letter.casefold():
-            good += 1
-        else:
-            violations.append(
-                Violation(
-                    rule=rule,
-                    offset=actual[index][0] if index < len(actual) else None,
-                    found=actual[index][1] if index < len(actual) else "",
-                    expected=letter,
-                )
-            )
-    if len(actual) > len(expected):
-        violations.append(
-            Violation(
-                rule="extra_letters",
-                offset=actual[len(expected)][0],
-                found="".join(letter for _, letter in actual[len(expected) :]),
-                expected="",
-            )
-        )
-    # No `, 1` floor: when neither the source nor the text has a single letter of
-    # `keep`'s class, `total` is genuinely 0, and `_report` already treats that as
-    # vacuously satisfied — the same rule `lipogram` relies on for an empty text. A
-    # floor here would score that case 0/1 with zero violations to explain why.
-    return ClassResult(violations, good, max(len(expected), len(actual)))
+    # Aligned, not compared index by index (ADR 0056): one dropped letter costs
+    # one unit. Its `total` is the alignment's length, with no `, 1` floor: when
+    # neither the source nor the text has a single letter of `keep`'s class,
+    # `total` is genuinely 0, and `_report` already treats that as vacuously
+    # satisfied — the same rule `lipogram` relies on for an empty text. A floor
+    # here would score that case 0/1 with zero violations to explain why.
+    return aligned_report(
+        [letter for _, letter in _of_class(source, pack, keep, fold=fold)],
+        _of_class(text, pack, keep, fold=fold),
+        key=str.casefold,
+        substituted=rule,
+        inserted="extra_letters",
+        deleted="missing_letter",
+        joiner="",
+        end=len(text),
+    )
 
 
 def selection_report(chosen: list[tuple[int, str]], source: str, pack: LanguagePack) -> ClassResult:
@@ -259,9 +402,9 @@ def positional_report(
 ) -> ClassResult:
     """Whether `chosen` is exactly the words the source's positional rule produces.
 
-    `end` is the checked text's length: a word the text runs out before is
-    placed there, at the end where it would go, as `every_nth_word` and
-    `slenderizing` place theirs (`Violation.offset`).
+    `end` is the checked text's length: a missing word no later word of the text
+    follows is placed there, at the end where it would go, as `every_nth_word`
+    and `slenderizing` place theirs (`Violation.offset`).
 
     The fourth shape, and a sibling of `selection_report` rather than a variant of
     it: that one asks only whether each chosen word occurs in the source in order,
@@ -271,8 +414,8 @@ def positional_report(
     is a property of the word (a letter at an index), not an identity fixed in
     advance. Those two rows carried this loop, the `extra_words` tail and all,
     line for line identical but for the rule name and how `expected` was computed
-    — the second of which is exactly the caller's business, and is why `expected`
-    arrives already computed.
+    (the loop is `aligned_report` now, ADR 0056) — the second of which is
+    exactly the caller's business, and is why `expected` arrives already computed.
 
     `note` is a callable where `letter_class_report`'s `keep` is a `Literal`, and
     the difference is deliberate rather than inconsistent: `keep` decides the
@@ -280,31 +423,18 @@ def positional_report(
     never agreed to support, while `note` only phrases a violation a human reads
     and cannot change whether the text passes.
     """
-    violations: list[Violation] = []
-    good = 0
-    for index, word in enumerate(expected):
-        if index < len(chosen) and chosen[index][1].casefold() == word.casefold():
-            good += 1
-        else:
-            violations.append(
-                Violation(
-                    rule=rule,
-                    offset=chosen[index][0] if index < len(chosen) else end,
-                    found=chosen[index][1] if index < len(chosen) else "",
-                    expected=word,
-                    note=note(index, word),
-                )
-            )
-    if len(chosen) > len(expected):
-        violations.append(
-            Violation(
-                rule="extra_words",
-                offset=chosen[len(expected)][0],
-                found=" ".join(word for _, word in chosen[len(expected) :]),
-                expected="",
-            )
-        )
-    # Each surplus word counts against the total. Counting only `expected` once let
-    # `column_reading` pass a text with source words appended, satisfied beside its own
-    # `extra_words` violation (R-F1).
-    return ClassResult(violations, good, max(len(expected), len(chosen)))
+    # Aligned (ADR 0056), so a dropped word costs one unit and the words after
+    # it still count. Each surplus word is one more unit of the alignment, so a
+    # text with source words appended cannot pass beside its own `extra_words`
+    # violation, as `column_reading` once did (R-F1).
+    return aligned_report(
+        expected,
+        chosen,
+        key=str.casefold,
+        substituted=rule,
+        inserted="extra_words",
+        deleted="missing_word",
+        joiner=" ",
+        end=end,
+        note=note,
+    )

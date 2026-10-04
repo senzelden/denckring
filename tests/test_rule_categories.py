@@ -82,4 +82,8 @@ def test_wrong_letter_is_a_place_on_a_spine_and_a_transcription_on_slenderizing(
     assert denckring.rule_categories("acrostic")["wrong_letter"] == "position"
     assert denckring.rule_categories("telestich")["wrong_letter"] == "position"
     slender = denckring.rule_categories("slenderizing")
-    assert slender == {"extra_letters": "transcription", "wrong_letter": "transcription"}
+    assert slender == {
+        "extra_letters": "transcription",
+        "missing_letter": "transcription",
+        "wrong_letter": "transcription",
+    }

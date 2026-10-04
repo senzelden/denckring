@@ -6,7 +6,7 @@ names: a forbidden letter, a missing letter and a line out of order are differen
 mistakes for a writer to make. denckring-bench kept that map itself, in a file it
 re-checked by hand against every release. It is here instead, keyed by the rule
 string, which is shared vocabulary: `missing_line` means the same on every row
-that emits it. `ROW_CATEGORIES` names the one exception.
+that emits it. `ROW_CATEGORIES` names the exceptions.
 
 One category per rule on each row, and the set is closed. The bench's eight classes were drawn
 over a pool with no prosodic rows and no data-driven rows; `sound` and
@@ -273,10 +273,18 @@ RULE_CATEGORIES: dict[str, Category] = {
 #: string, and recategorising it everywhere would only move the error onto the
 #: spine rows, so the exception is stated here instead.
 #:
+#: `missing_letter` is the same case (ADR 0056). On the inventory rows a letter the
+#: text was owed is absent from its stock; on `slenderizing`, `homoconsonantism` and
+#: `homovocalism`, which align the text's letters with the source's, it is a letter
+#: the transcription dropped, beside its siblings `extra_letters` and `wrong_*`.
+#:
 #: `multiple_constraint` passes violations through without naming the row that
 #: emitted them, so its map gives the default: a `slenderizing` failure inside a
 #: composite reads as `position`.
 ROW_CATEGORIES: dict[tuple[str, str], Category] = {
+    ("homoconsonantism", "missing_letter"): "transcription",
+    ("homovocalism", "missing_letter"): "transcription",
+    ("slenderizing", "missing_letter"): "transcription",
     ("slenderizing", "wrong_letter"): "transcription",
 }
 

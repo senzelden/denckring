@@ -18,7 +18,7 @@ from denckring.core.base import (
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import unchanged
+from denckring.core.source_compare import align, gaps, unchanged
 from denckring.core.text import split_elision, word_spans
 
 #: The three readings of an unchanged listed word (`NPlus7Params.ambiguous_nouns`).
@@ -179,6 +179,62 @@ class NPlus7ApplyParams(ApplyParams, NPlus7Params):
     pass
 
 
+Pair = tuple[tuple[int, str], tuple[int, str]]
+
+
+def _pairing(
+    candidate: list[tuple[int, str]],
+    source: list[tuple[int, str]],
+    nouns: Sequence[str],
+    noun_index: Callable[[str], int | None],
+    offset: int,
+    *,
+    end: int,
+) -> tuple[list[Pair | None], dict[int, Violation]]:
+    """Which candidate word answers which source word, one entry per unit.
+
+    With as many words as the source, word for word, as it always was. With a
+    different count, the old report scored the whole text 0/1 as
+    `wrong_word_count`, so one dropped article cost every displacement after it
+    (audit A6). The two are aligned instead (ADR 0056), against the text a
+    correct N+7 would be: each listed word displaced, every other word as it
+    stands. The pairs are then judged as before, and each word inserted or
+    missing is an entry of its own, `None`, with its violation in the dict
+    (`source_compare.gaps`). A listed word left alone aligns as a substitution,
+    which pairs it with its source word all the same, so the reading in
+    `ambiguous_nouns` still decides it. The equal-count path is left word for
+    word on purpose: an alignment could pair a word with a later word of the
+    same spelling, and only a dropped or added word is what A6 is about.
+    """
+    if len(candidate) == len(source):
+        return list(zip(candidate, source, strict=True)), {}
+
+    def correct(word: str) -> str:
+        prefix, tail = split_elision(word)
+        index = noun_index(tail)
+        if index is None:
+            return word
+        return f"{prefix}{nouns[(index + offset) % len(nouns)]}"
+
+    expected = [correct(word) for _, word in source]
+    steps = align(
+        [word.casefold() for word in expected], [word.casefold() for _, word in candidate]
+    )
+    unpaired = gaps(
+        steps,
+        expected,
+        candidate,
+        inserted="extra_words",
+        deleted="missing_word",
+        joiner=" ",
+        end=end,
+    )
+    pairs: list[Pair | None] = [
+        (candidate[j], source[i]) if i is not None and j is not None else None for _, i, j in steps
+    ]
+    return pairs, unpaired
+
+
 def displacement_report(
     procedure: BaseProcedure[NPlus7Params],
     text: str,
@@ -203,26 +259,18 @@ def displacement_report(
     reading = ambiguous_reading(params)
     violations: list[Violation] = []
 
-    if len(candidate) != len(source):
-        return procedure._report(
-            good=0,
-            total=1,
-            violations=[
-                Violation(
-                    rule="wrong_word_count",
-                    offset=None,
-                    found=f"{len(candidate)} words",
-                    expected=f"{len(source)} words",
-                )
-            ],
-            metrics={"words": float(len(candidate)), "ambiguous_words": 0.0},
-        )
-
+    steps, unpaired = _pairing(candidate, source, nouns, noun_index, params.offset, end=len(text))
     ambiguous = 0
     undecided = 0
     displaced = 0
     good = 0
-    for (offset, produced), (_, original) in zip(candidate, source, strict=True):
+    for position, pair in enumerate(steps):
+        if pair is None:
+            # A run of inserted words is one violation, keyed at its first step.
+            if position in unpaired:
+                violations.append(unpaired[position])
+            continue
+        (offset, produced), (_, original) = pair
         # A leading proclitic glued on by elision (`l'`, `d'`, `qu'`) is
         # never itself a noun, so it is compared separately and must not
         # change; the noun index and every reading below runs on the tail
@@ -298,7 +346,9 @@ def displacement_report(
                     expected=f"{original_prefix}{expected_tail}",
                 )
             )
-    decided = len(candidate) - undecided
+    # Every step of the alignment is a unit: each word inserted or missing
+    # counts once, beside the pairs judged above.
+    decided = len(steps) - undecided
     metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
     # Each refusal is one more unit, failed, on top of whatever was weighed.
     refused = unchanged(
@@ -370,10 +420,11 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
         "ambiguous_nouns_undecidable",
         "changed_a_non_noun",
         "changed_proclitic",
+        "extra_words",
+        "missing_word",
         "no_displacement",
         "unchanged",
         "wrong_displacement",
-        "wrong_word_count",
     )
 
     @classmethod

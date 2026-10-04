@@ -27,7 +27,7 @@ class Homovocalism(BaseProcedure[HomovocalismParams]):
     """The vowel sequence is the constraint; the consonants are the freedom."""
 
     id = "homovocalism"
-    rules = ("extra_letters", "unchanged", "wrong_vowel")
+    rules = ("extra_letters", "missing_letter", "unchanged", "wrong_vowel")
 
     @classmethod
     def params_model(cls) -> type[HomovocalismParams]:
