@@ -8,7 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import word_spans
+from denckring.core.text import letter_spans, word_spans
 
 
 class SnowballParams(BaseModel):
@@ -30,11 +30,19 @@ def rhopalic_violations(
     """Words whose length departs from the arithmetic progression, and the word count.
 
     Shared with `reverse_snowball`, which is the same walk with a negative step.
+
+    A word's length is its letters, not its characters (ADR 0058). The word pattern
+    keeps an apostrophe between letters inside a word, so `len` read `I'm` as three
+    while a writer told to count letters counts two. `letter_spans` is the notion of
+    a letter every letter row shares; unfolded, so `ß` stays one letter.
     """
-    words = word_spans(text, pack)
+    words = [
+        (offset, word, len(letter_spans(word, pack, fold=False)))
+        for offset, word in word_spans(text, pack)
+    ]
     if not words:
         return [], 0
-    first = start if start is not None else len(words[0][1])
+    first = start if start is not None else words[0][2]
     violations = [
         Violation(
             rule="wrong_word_length",
@@ -42,8 +50,8 @@ def rhopalic_violations(
             found=word,
             expected=f"{first + index * step} letters",
         )
-        for index, (offset, word) in enumerate(words)
-        if len(word) != first + index * step
+        for index, (offset, word, letters) in enumerate(words)
+        if letters != first + index * step
     ]
     return violations, len(words)
 
