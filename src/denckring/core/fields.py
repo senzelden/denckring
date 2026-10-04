@@ -42,7 +42,9 @@ Role = Literal[
 
 #: Each role, and what it tells a caller writing a prompt for the row. The reason a
 #: hint may leave a parameter unstated is its role's (`core.hints.unstated`): a hint
-#: must state every `task` and `inferred` parameter, and may leave any other unstated.
+#: must state every `task` and `inferred` parameter, and may leave any other unstated
+#: at its default. Set off its default, `prompt_hint` states it anyway
+#: (`core.hints.settings`).
 ROLES: dict[str, str] = {
     "task": "What the writer is asked to do. Every hint states it.",
     "inferred": (
@@ -60,8 +62,8 @@ ROLES: dict[str, str] = {
         "under both"
     ),
     "switch": (
-        "a switch that adds a requirement the default does not make; a caller who "
-        "turns it on states it in the prompt"
+        "a switch that adds a requirement the default does not make; set, `prompt_hint` "
+        "states it on a line of its own"
     ),
     "material": (
         "material, not instruction: data the checker reads beside the text (the source, "

@@ -28,7 +28,8 @@ fixture and catalogue row — each marked `FILL IN`. Fill them in; invent no str
   capability and parameter validation already happened in `BaseProcedure.check`; do
   not repeat them. Each params field declares `json_schema_extra=param(role, kind)`
   (`core.fields`): its role in the task, from a closed set, and for a string what kind
-  of string it holds. A hint must state every `task` and `inferred` parameter.
+  of string it holds. A hint must state every `task` and `inferred` parameter;
+  `prompt_hint` states any other a caller sets off its default after the hint.
   If the checker judges each word, line or sentence alone, say so with `local_scope`
   (`core/scope.py`); `tests/test_scope.py` then holds the claim to the checker.
   Build the `Report` with `self._report(...)` unless an empty text should be

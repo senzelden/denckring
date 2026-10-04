@@ -8,7 +8,7 @@ judged another, and neither half looked wrong on its own.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from string import Formatter
 from typing import Any
 
@@ -28,10 +28,12 @@ def unstated(model: type[BaseModel], omits: Mapping[str, str]) -> dict[str, str]
     """Each parameter of `model` a hint may leave out, mapped to the reason.
 
     Derived from each field's role (audit C1): a parameter whose role is not in
-    `STATED_ROLES` is left out for its role's reason, so a new reading policy or
-    leniency needs no entry anywhere. `omits` is the row's catalogue `hint_omits`:
-    the `task` parameters its hints still leave out, each with its reason (a
-    composite's own parameters, a ladder's end). The guards in
+    `STATED_ROLES` is left out of the template for its role's reason, so a new
+    reading policy or leniency needs no entry anywhere. The excuse holds at the
+    default only: set otherwise, `settings` states the parameter after the hint.
+    `omits` is the row's catalogue `hint_omits`: the `task` parameters its hints
+    still leave out, each with its reason (a composite's own parameters, a
+    ladder's end). The guards in
     `tests/test_prompt_hints.py` hold every other parameter to every hint, and
     `hint_omits` to naming only parameters the roles do not already excuse.
     """
@@ -139,6 +141,41 @@ def render(
             raise UnsetHintParameter(procedure_id, name)
         filled[name] = show(values[name], (kinds or {}).get(name), lang)
     return template.format(**filled)
+
+
+def settings(
+    model: type[BaseModel],
+    values: Mapping[str, Any],
+    shown: Mapping[str, Any],
+    carried: Collection[str],
+    lang: Lang = "en",
+) -> list[str]:
+    """One line per parameter set off its default that the prompt does not otherwise carry.
+
+    A role may excuse a parameter from a template (`unstated`), but only at its
+    default: set otherwise, it changes what the checker judges, and a prompt that
+    drops it asks for the default task while the text is graded on another (the
+    final 0.3.2 review's I3: `eodermdrome` with `min_letters=12` read as accepting
+    `dead`). So each such parameter is appended as `- name = value: description`,
+    in field order, the value read by `show` from `shown` and the description the
+    field's own, which is English in every language. `values` are the parsed
+    parameters, compared with each default; `carried` names the parameters the
+    template states, or that another line states. A parameter with no default is
+    never listed: a required `task` parameter is in every template, and required
+    material is given to the writer rather than quoted. With every value at its
+    default the list is empty, so the hint is byte for byte what it was.
+    """
+    kinds = show_kinds(model)
+    lines: list[str] = []
+    for name, field in model.model_fields.items():
+        if name in carried or field.is_required():
+            continue
+        if values.get(name) == field.get_default(call_default_factory=True):
+            continue
+        value = show(shown.get(name), kinds.get(name), lang)
+        description = (field.description or "").strip()
+        lines.append(f"- {name} = {value}: {description}" if description else f"- {name} = {value}")
+    return lines
 
 
 def default_values(model: type[BaseModel]) -> dict[str, Any]:

@@ -224,6 +224,9 @@ class BaseProcedure(ABC, Generic[P]):
     #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
     #: with every other row's vocabulary, since any of them can be composed.
     delegates_rules: ClassVar[bool] = False
+    #: The parameters `hint_delegates` states, one line per delegate, so `prompt_hint`
+    #: does not state them again as settings (`core.hints.settings`).
+    hint_delegated: ClassVar[frozenset[str]] = frozenset()
     #: The smallest unit this row judges alone, when every parameter it would
     #: otherwise read off the text is stated (`core/scope.py`). `text`, the
     #: default, claims nothing; `tests/test_scope.py` holds every other claim to

@@ -31,7 +31,7 @@ from denckring.core.errors import (
     UnsetHintParameter,
     UnsettablePhrase,
 )
-from denckring.core.hints import as_compared, placeholders, render, show_kinds
+from denckring.core.hints import as_compared, placeholders, render, settings, show_kinds
 from denckring.core.protocol import (
     Constructive,
     Evidence,
@@ -92,7 +92,7 @@ def _constructive(procedure_id: str) -> Constructive:
 
 
 def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
-    """The row's prompt hint in `lang`, stating the parameters given (ADR 0050).
+    """The row's prompt hint in `lang`, stating every parameter given (ADR 0050).
 
     `params` are validated as `check` validates them, so defaults fill in and a
     bad value raises `InvalidParams` exactly as it would there. Values render by
@@ -101,6 +101,13 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     `fold_diacritics` a letter is shown folded, as the checker compares it
     (`core.hints.as_compared`).
 
+    A parameter the template has no placeholder for, set to anything but its
+    default, follows the hint on a line of its own, `- name = value: ` and the
+    field's description (English in every language), in field order
+    (`core.hints.settings`): a switch or threshold such as `eodermdrome`'s
+    `min_letters` changes what the checker judges, so the prompt says so. With
+    every such parameter at its default, nothing is appended.
+
     Raises `NoPromptHint` when the row has no hint in `lang` — no fallback to
     English, which `describe` does and discloses in `untranslated`, but a bare
     string cannot — and `UnsetHintParameter` when the hint states a parameter
@@ -108,9 +115,9 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
 
     A composite (`multiple_constraint`) is followed by one line per named
     constraint, `- ` and that constraint's own hint rendered from its
-    `constraint_params` entry by this same function, in `constraints` order. So
-    each sub-hint validates and refuses as it would if asked for directly, and
-    the error names the sub-constraint.
+    `constraint_params` entry by this same function, in `constraints` order, any
+    lines of its own indented under it. So each sub-hint validates and refuses as
+    it would if asked for directly, and the error names the sub-constraint.
     """
     procedure = get(procedure_id)
     template = procedure.meta.prompt_hints.get(lang)
@@ -118,10 +125,13 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
         raise NoPromptHint(procedure_id, lang)
     parsed = procedure.parse_params(params)
     model = procedure.params_model()
-    shown = as_compared(dict(parsed), model, get_pack(lang))
+    values = dict(parsed)
+    shown = as_compared(values, model, get_pack(lang))
+    carried = {*placeholders(template), *procedure.hint_delegated}
     lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
+    lines += settings(model, values, shown, carried, lang)
     lines += [
-        f"- {prompt_hint(delegate, lang=lang, **delegate_params)}"
+        "- " + prompt_hint(delegate, lang=lang, **delegate_params).replace("\n", "\n  ")
         for delegate, delegate_params in procedure.hint_delegates(parsed)
     ]
     return "\n".join(lines)
@@ -139,8 +149,11 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     `str()`. Under `fold_diacritics` a letter is shown folded, as the checker compares
     it. A placeholder naming no parameter of the row
     raises `InvalidParams`; one whose value is `None` raises `UnsetHintParameter`.
-    Unlike `prompt_hint`, nothing is appended for a composite's constraints: the
-    template is the whole prompt.
+    A parameter the template has no placeholder for, set off its default, is
+    appended on its own line as `prompt_hint` appends it, so a template written
+    without a threshold cannot drop one a caller sets. Unlike `prompt_hint`, no
+    line is appended per composite constraint, so a non-default
+    `constraint_params` is stated as a setting like any other parameter.
     """
     procedure = get(procedure_id)
     get_pack(lang)
@@ -153,8 +166,11 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
             f"it accepts {sorted(model.model_fields)}",
         )
     parsed = procedure.parse_params(params)
-    shown = as_compared(dict(parsed), model, get_pack(lang))
-    return render(procedure_id, template, shown, show_kinds(model), lang)
+    values = dict(parsed)
+    shown = as_compared(values, model, get_pack(lang))
+    lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
+    lines += settings(model, values, shown, set(placeholders(template)), lang)
+    return "\n".join(lines)
 
 
 def pack_provenance(lang: Lang = "en") -> PackProvenance:

@@ -107,6 +107,7 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     #: `denckring.rules` answers with every other row's vocabulary.
     rules = ()
     delegates_rules = True
+    hint_delegated = frozenset({"constraint_params"})
 
     @classmethod
     def params_model(cls) -> type[MultipleConstraintParams]:

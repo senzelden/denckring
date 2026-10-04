@@ -15,7 +15,7 @@ from typing import Any
 
 import pytest
 
-from denckring import check, describe, prompt_hint
+from denckring import check, describe, prompt_hint, render_hint
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, NoPromptHint, UnsetHintParameter
 from denckring.core.fields import ROLES, roles
@@ -189,6 +189,98 @@ def test_a_minted_parameter_reaches_the_prompt() -> None:
     """The case the renderer exists for: a value other than the default."""
     assert '"q"' in prompt_hint("lipogram", forbidden="q")
     assert '"q"' not in prompt_hint("lipogram")
+
+
+def _setting(pid: str, name: str, value: str) -> str:
+    """The line a hint appends for a parameter it does not carry, set off its default."""
+    description = PROCEDURES[pid].params_model().model_fields[name].description
+    return f"- {name} = {value}: {description}"
+
+
+def test_a_threshold_the_template_does_not_carry_is_stated_when_set() -> None:
+    """R-F3: a switch or threshold set off its default changes what the checker
+    judges, so the prompt says so. Dropped, `dead` read as an answer the hint
+    allowed and the checker refused as `too_short`."""
+    default = prompt_hint("eodermdrome")
+    assert prompt_hint("eodermdrome", min_letters=12) == "\n".join(
+        [default, _setting("eodermdrome", "min_letters", "12")]
+    )
+    assert check("eodermdrome", "dead", min_letters=12).satisfied is False
+
+
+def test_each_set_parameter_gets_its_own_line_in_field_order() -> None:
+    lines = prompt_hint("word_ladder", target="warm", end_at_target=True, min_steps=3).split("\n")
+    assert lines == [
+        prompt_hint("word_ladder"),
+        _setting("word_ladder", "target", "warm"),
+        _setting("word_ladder", "min_steps", "3"),
+        _setting("word_ladder", "end_at_target", "True"),
+    ]
+
+
+def test_a_parameter_given_its_default_value_adds_nothing() -> None:
+    """Byte-identical: stating the default is not setting anything."""
+    assert prompt_hint("eodermdrome", min_letters=2) == prompt_hint("eodermdrome")
+    assert prompt_hint("word_ladder", end_at_target=False) == prompt_hint("word_ladder")
+
+
+def test_render_hint_states_what_the_callers_template_leaves_out() -> None:
+    template = "Write a ladder ending on {target}."
+    rendered = render_hint("word_ladder", template, target="warm", min_steps=3)
+    assert rendered == "\n".join(
+        ["Write a ladder ending on warm.", _setting("word_ladder", "min_steps", "3")]
+    )
+    assert render_hint("word_ladder", template, target="warm") == "Write a ladder ending on warm."
+
+
+def test_a_composite_states_its_constraints_parameters_once() -> None:
+    """`constraint_params` is stated by each constraint's own line, not again as a
+    setting; a constraint's own setting is indented under its line."""
+    composite: dict[str, Any] = {
+        "constraints": ["lipogram", "eodermdrome"],
+        "constraint_params": {"lipogram": {"forbidden": "q"}, "eodermdrome": {"min_letters": 9}},
+    }
+    lines = prompt_hint("multiple_constraint", **composite).split("\n")
+    assert lines[1:] == [
+        "- " + prompt_hint("lipogram", forbidden="q"),
+        "- " + prompt_hint("eodermdrome"),
+        "  " + _setting("eodermdrome", "min_letters", "9"),
+    ]
+
+
+#: Flips a row refuses without another parameter: `end_at_target` needs a `target`,
+#: and `test_each_set_parameter_gets_its_own_line_in_field_order` states it with one.
+REFUSED_ALONE = {("word_ladder", "end_at_target")}
+
+
+def _flippable() -> list[tuple[str, str]]:
+    """Each boolean parameter a hint does not carry, on rows whose hint renders bare."""
+    found: list[tuple[str, str]] = []
+    for pid, lang in IMPLEMENTED_HINTS:
+        if lang != "en" or PROCEDURES[pid].params_schema().get("required"):
+            continue
+        model = PROCEDURES[pid].params_model()
+        if set(placeholders(ROWS[pid].prompt_hints[lang])) - set(default_values(model)):
+            continue
+        stated = set(placeholders(ROWS[pid].prompt_hints[lang]))
+        for name, field in model.model_fields.items():
+            if name not in stated and isinstance(field.default, bool):
+                found.append((pid, name))
+    return found
+
+
+@pytest.mark.parametrize(("pid", "name"), _flippable(), ids=[f"{p}.{n}" for p, n in _flippable()])
+def test_no_parameter_set_off_its_default_is_dropped(pid: str, name: str) -> None:
+    """The rule, on every row it can be asked of without inventing a value: flip a
+    boolean the template does not carry, and the prompt names it."""
+    flipped = not PROCEDURES[pid].params_model().model_fields[name].default
+    params: dict[str, Any] = {name: flipped}
+    if (pid, name) in REFUSED_ALONE:
+        with pytest.raises(InvalidParams):
+            prompt_hint(pid, **params)
+        return
+    rendered = prompt_hint(pid, **params)
+    assert rendered.split("\n")[-1] == _setting(pid, name, str(flipped))
 
 
 def test_parameters_are_validated_as_check_validates_them() -> None:

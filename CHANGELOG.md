@@ -19,7 +19,12 @@ All notable changes to this project are documented here. The format follows
   from the defaults where they fill every slot. For the other 36 rows they show the
   template. For `multiple_constraint`, `prompt_hint` also appends one `- ` line per
   named constraint, giving that constraint's own hint rendered from its
-  `constraint_params`.
+  `constraint_params`. A parameter a hint excuses only at its default (a switch,
+  threshold, policy or tolerance) is not dropped when a caller sets it otherwise:
+  `prompt_hint` and `render_hint` append it as `- name = value: ` and the field's
+  description, in English, one line per parameter. So `eodermdrome` with
+  `min_letters=12` no longer reads as accepting `dead`. Rendered from the defaults, a
+  hint is unchanged.
 
 - Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
   synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.
