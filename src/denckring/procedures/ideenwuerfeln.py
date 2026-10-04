@@ -25,7 +25,7 @@ class IdeenwuerfelnParams(SourceParams):
     )
     headword: str | None = Field(
         default=None,
-        description="Draw only from entries filed under this word.",
+        description="Draw only from entries filed under this word; unset, any entry serves.",
         json_schema_extra=param("switch", "word"),
     )
     distinct_domains: bool = Field(

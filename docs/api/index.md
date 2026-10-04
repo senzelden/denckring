@@ -81,3 +81,21 @@ To decide whether to trust a verdict at all, read `Report.estimated` rather than
 metric: it is true whenever the verdict rests on anything estimated or left unjudged,
 including what `estimated_words` misses on some rows (rhyme endings, for one), and it
 is under the README's stability promise, which `metrics` keys are not.
+
+## How a checker reads text
+
+`describe(procedure_id, lang=...).reading` says how the text is cut up before it is
+judged, so a caller can write a prompt or a guard that agrees with the checker:
+
+- `tokenization` is the word pattern, and `word_examples` shows what it does with the
+  cases a count turns on. An apostrophe between letters stays inside a word (`don't`,
+  `l’âme`), so a word's length counts it; a hyphen splits a word in two (`well-known`
+  is two words); a digit is no part of a word.
+- `units` lists the characters that end a line, a clause and a sentence.
+- `vowels` lists the letters the vowel rows (`univocalic`, `bivocalic`,
+  `monoconsonantal`, `homovocalism`) read as vowels. `y` is one in French and not in
+  English or German.
+- `normalization` says how letters fold before they are compared, and `determinacy`
+  whether the verdict can rest on an estimate.
+
+`reading` is published but not yet under the stability promise.

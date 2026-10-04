@@ -27,7 +27,7 @@ class ArcaMusarithmicaParams(SourceParams):
     )
     tonus: str | None = Field(
         default=None,
-        description="The mode, if the table names any.",
+        description="The mode, if the table names any; unset, no mode is checked.",
         json_schema_extra=param("switch", "id"),
     )
 

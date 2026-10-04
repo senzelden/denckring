@@ -17,7 +17,7 @@ SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 class SnowballSentenceParams(BaseModel):
     start: int | None = Field(
         default=None,
-        description="Words in the first sentence.",
+        description="Words in the first sentence; inferred if unset.",
         json_schema_extra=param("inferred"),
     )
     step: int = Field(

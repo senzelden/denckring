@@ -68,6 +68,10 @@ _FOLD_POLICY = (
 )
 _NO_FOLD_POLICY = "Case only. This procedure does not compare letters, so nothing folds."
 
+#: Strings whose tokenization answers the questions a word count turns on: both
+#: apostrophes (an English contraction, a French elision), a hyphen, a digit.
+WORD_PROBES = ("don't", "l’âme", "well-known", "route66")  # noqa: RUF001
+
 
 class Reading(BaseModel):
     """How a checker turns text into the units it judges, and how firm the answer is.
@@ -94,6 +98,19 @@ class Reading(BaseModel):
     #: break may take two of them: `\r\n` ends one line, as `str.splitlines` reads it,
     #: so count line ends by splitting, not by counting members of `units["line"]`.
     units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
+    #: What `tokenization` makes of an apostrophe, a hyphen and a digit, shown by running
+    #: it on `WORD_PROBES`: each probe maps to the words it yields. An apostrophe between
+    #: letters stays inside a word, so a length counts it (`snowball` reads `I'm` as
+    #: three); a hyphen splits a word in two; a digit is no part of one. Derived by
+    #: running the pattern rather than written down, so it cannot drift from it (audit
+    #: E6).
+    word_examples: dict[str, list[str]]
+    #: The letters `univocalic`, `bivocalic`, `monoconsonantal` and `homovocalism` read
+    #: as vowels in this language, as the pack lists them; the text's letters are folded
+    #: before they are compared. `y` is among them in French and not in English or
+    #: German. `supervocalic` reads a narrower inventory, the five vowels, with `y` left
+    #: out in every language (ADR 0035, D1).
+    vowels: str
 
 
 class Description(BaseModel):
@@ -228,10 +245,13 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
     from denckring.lang import get_pack
 
     folds = "fold_diacritics" in procedure.params_model().model_fields
+    pack = get_pack(lang)
     return Reading(
         determinacy="heuristic" if _SOFT & set(meta.requires) else "exact",
         normalization=_FOLD_POLICY if folds else _NO_FOLD_POLICY,
-        tokenization=get_pack(lang).word_re.pattern,
+        tokenization=pack.word_re.pattern,
+        word_examples={probe: pack.word_re.findall(probe) for probe in WORD_PROBES},
+        vowels="".join(sorted(pack.vowels())),
     )
 
 

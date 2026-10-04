@@ -14,7 +14,15 @@ from collections.abc import Callable
 import pytest
 
 import denckring
-from denckring.core.text import UNIT_ENDS, clause_spans, line_spans, sentence_spans
+from denckring.core.describe import WORD_PROBES
+from denckring.core.protocol import Lang
+from denckring.core.text import (
+    UNIT_ENDS,
+    clause_spans,
+    line_spans,
+    sentence_spans,
+    word_spans,
+)
 
 SPLITTERS: dict[str, Callable[[str], list[tuple[int, str]]]] = {
     "line": line_spans,
@@ -49,3 +57,38 @@ def test_crlf_is_one_line_break_though_both_characters_are_marks() -> None:
     """The documented caveat of a character set: `\r\n` is two members, one break."""
     assert {"\r", "\n"} <= set(UNIT_ENDS["line"])
     assert len(line_spans("a\r\nb")) == 2
+
+
+@pytest.mark.parametrize("lang", ["en", "de", "fr"])
+def test_the_word_examples_are_what_the_word_counting_rows_count(lang: Lang) -> None:
+    """`reading.word_examples` states the apostrophe, hyphen and digit readings
+    (audit E6). It is only worth publishing if it is what a row counts: `every_nth_word`
+    with `n=1` keeps exactly the words the tokenizer finds, so for each probe the
+    published words are the one answer it passes."""
+    reading = denckring.describe("every_nth_word", lang=lang).reading
+    assert set(reading.word_examples) == set(WORD_PROBES)
+    assert reading.word_examples["well-known"] == ["well", "known"]
+    assert reading.word_examples["don't"] == ["don't"]
+    pack = denckring.get_pack(lang)
+    for probe, words in reading.word_examples.items():
+        assert [word for _, word in word_spans(probe, pack)] == words
+        answer = " ".join(words)
+        report = denckring.check("every_nth_word", answer, lang=lang, source=probe, n=1)
+        assert report.satisfied and report.metrics["kept"] == len(words)
+
+
+@pytest.mark.parametrize("lang", ["en", "de", "fr"])
+def test_the_published_vowels_are_what_univocalic_reads(lang: Lang) -> None:
+    """A letter is in `reading.vowels` exactly when `univocalic` limited to another
+    vowel fails it: `y` is a vowel there in French and a consonant in English and German
+    (audit A10, E6)."""
+    reading = denckring.describe("univocalic", lang=lang).reading
+    pack = denckring.get_pack(lang)
+    other = {"a": "e"}
+    for letter in sorted(set(pack.alphabet()) | set(reading.vowels)):
+        allowed = other.get(letter, "a")
+        fails = not denckring.check(
+            "univocalic", letter, lang=lang, vowel=allowed, fold_diacritics=False
+        ).satisfied
+        assert fails == (letter in reading.vowels), letter
+    assert ("y" in reading.vowels) == (lang == "fr")

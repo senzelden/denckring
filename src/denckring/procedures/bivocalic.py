@@ -18,7 +18,7 @@ PERMITTED = 2
 class BivocalicParams(DiacriticParams):
     vowels: str | None = Field(
         default=None,
-        description="The two permitted vowels.",
+        description="The two permitted vowels; inferred if unset.",
         # A set of letters, not a word: a hint renders "ae" as `"a", "e"`.
         json_schema_extra=param("inferred", "vowels", **{"x-denckring-show": "letters"}),
     )

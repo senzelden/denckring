@@ -22,7 +22,7 @@ class SerialLipogramParams(DiacriticParams):
     )
     start: str | None = Field(
         default=None,
-        description="The letter the first part omits.",
+        description="The letter the first part omits; inferred if unset.",
         json_schema_extra=param("inferred", "letter"),
     )
 

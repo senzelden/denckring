@@ -212,7 +212,8 @@ class ParonomasiaApplyParams(ParonomasiaParams, ApplyParams):
         default=None,
         description=(
             "A trade whose vocabulary should win: bakery, hair, optician. Its "
-            "words are offered before any others at the same distance."
+            "words are offered before any others at the same distance. Unset, no "
+            "trade is ranked first."
         ),
         json_schema_extra=param("apply_only", "id"),
     )

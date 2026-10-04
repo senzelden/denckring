@@ -111,7 +111,7 @@ class WordLadderParams(DiacriticParams):
         default=None,
         description=(
             "The word `apply` searches a ladder toward. `check` reads it only under "
-            "`end_at_target`."
+            "`end_at_target`. Unset, `check` reads no end and `apply` refuses."
         ),
         json_schema_extra=param("task", "word"),
     )

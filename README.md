@@ -251,7 +251,7 @@ a changelog line when they do. All but `Report.evidence` and `reading` are new i
 - `scope`, `scopes`, `admits` and `witness`;
 - `words` and `nouns`;
 - `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
-- `describe`'s `reading`, including its new `units`.
+- `describe`'s `reading`, including its new `units`, `word_examples` and `vowels`.
 
 ## The catalogue as data
 

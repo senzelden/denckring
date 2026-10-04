@@ -156,6 +156,14 @@ All notable changes to this project are documented here. The format follows
   break, a sentence at `.`, `!`, `?` or `…`. A guard holds each entry to its splitter
   over every character in the Basic Multilingual Plane.
 
+- `describe(...).reading` states the readings a count turns on (audit E6).
+  `word_examples` runs the word pattern on four probes, so a caller sees that an
+  apostrophe stays inside a word (`don't`, `l’âme`), a hyphen splits one (`well-known`
+  is two) and a digit is no part of one; `vowels` lists the letters `univocalic`,
+  `bivocalic`, `monoconsonantal` and `homovocalism` read as vowels, `y` among them in
+  French only. Both are derived from the pack, and tests hold them to what
+  `every_nth_word` and `univocalic` do.
+
 - `Report.estimated`: whether the verdict rests on anything estimated or left unjudged,
   computed from `evidence` and the row's own count, and under the README's stability
   promise. A caller deciding to leave a verdict unscored reads this rather than
@@ -309,7 +317,7 @@ All notable changes to this project are documented here. The format follows
   `hidden_material` and `hint_omits` flags; `prompt_hint` and `render_hint`, whose hint
   wording is catalogue text; `golden_cases` and `GoldenCase`; `scope`, `scopes`,
   `admits` and `witness`; `words` and `nouns`; `pack_provenance` and `PackProvenance`;
-  and `describe`'s `reading` with its `units`. The API pages document every export from
+  and `describe`'s `reading` with its `units`, `word_examples` and `vowels`. The API pages document every export from
   `denckring` rather than from `denckring.core`, adding `apply`, `produce`, `Production`
   and six error classes they had left out. A test fails an export the API pages do not
   document from the top level, or the README does not classify.
@@ -359,6 +367,14 @@ All notable changes to this project are documented here. The format follows
   two letters), `palindrome`, `acrostic` and `telestich` (their `unit` renders as an
   English word), the snowballs (what counts as a letter waits on the 0.4.0 reading),
   `word_ladder`, the N+7 rows, and the rhyme and metre rows.
+
+- Every parameter defaulting to `None` says in its description what unset means:
+  `bivocalic.vowels`, `monoconsonantal.consonant`, `serial_lipogram.start` and
+  `snowball_sentence.start` are inferred, as their siblings already said; `seed` draws
+  afresh; `arca_musarithmica.tonus` checks no mode; `ideenwuerfeln.headword` takes any
+  entry; the `domain` and `splice_lang` fields and `word_ladder.target` say what they
+  fall back to. A test holds every field of every params model to it. The API docs
+  gain a section on how a checker reads text.
 
 ## [0.3.1] - 2026-09-22
 

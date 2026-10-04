@@ -10,6 +10,7 @@ kinds agree with the values the golden corpus actually passes.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -183,3 +184,24 @@ def test_the_role_reasons_read_as_reasons() -> None:
     """Every role a hint may omit gives `unstated` a sentence to say why."""
     assert all(text.strip() for text in ROLES.values())
     assert all(text.strip() for text in KINDS.values())
+
+
+#: How a description says what an unset parameter means: "inferred if unset", "all, if
+#: unset", "Unset, ...", or a stated default ("Defaults to the pack's nouns").
+SAYS_WHAT_UNSET_MEANS = re.compile(r"\bunset\b|\bdefaults to\b", re.IGNORECASE)
+
+
+@pytest.mark.parametrize("pid", sorted(PROCEDURES))
+def test_every_none_default_says_what_none_means(pid: str) -> None:
+    """A `None` default means a different thing per field: inferred from the text, no
+    check at all, a fresh draw, the pack's own data. Four fields said "inferred if
+    unset" and four in the same situation said nothing (audit E6); a caller reading
+    the schema could not tell which reading applied."""
+    for model in _models(pid):
+        for name, field in model.model_fields.items():
+            if field.default is None:
+                description = field.description or ""
+                assert SAYS_WHAT_UNSET_MEANS.search(description), (
+                    f"{pid}: {model.__name__}.{name} defaults to None and its description "
+                    f"does not say what unset means: {description!r}"
+                )

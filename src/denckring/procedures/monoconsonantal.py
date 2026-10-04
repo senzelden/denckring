@@ -16,7 +16,7 @@ from denckring.core.text import letter_spans, single_letter
 class MonoconsonantalParams(DiacriticParams):
     consonant: str | None = Field(
         default=None,
-        description="The permitted consonant.",
+        description="The permitted consonant; inferred if unset.",
         json_schema_extra=param("inferred", "consonant"),
     )
 

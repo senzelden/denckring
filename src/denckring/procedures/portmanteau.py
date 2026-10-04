@@ -187,7 +187,7 @@ class PortmanteauParams(SourceParams):
         default=None,
         description=(
             "The language the spliced word belongs to, when it is not the host's. "
-            "`Imagin'hair` is English inside French."
+            "`Imagin'hair` is English inside French. Unset, the host's language."
         ),
         json_schema_extra=param("policy"),
     )
@@ -258,7 +258,10 @@ class PortmanteauApplyParams(SourceParams, ApplyParams):
 
     domain: str | None = Field(
         default=None,
-        description="A trade whose vocabulary to splice from: bakery, hair, optician.",
+        description=(
+            "A trade whose vocabulary to splice from: bakery, hair, optician. Unset, "
+            "only `domain_words` is spliced from."
+        ),
         json_schema_extra=param("apply_only", "id"),
     )
     domain_words: list[str] = Field(
@@ -270,7 +273,14 @@ class PortmanteauApplyParams(SourceParams, ApplyParams):
     max_host_distance: float = Field(
         default=0.5, ge=0.0, le=1.0, json_schema_extra=param("tolerance")
     )
-    splice_lang: Lang | None = Field(default=None, json_schema_extra=param("policy"))
+    splice_lang: Lang | None = Field(
+        default=None,
+        description=(
+            "The language the spliced word belongs to, when it is not the host's. "
+            "Unset, the host's language."
+        ),
+        json_schema_extra=param("policy"),
+    )
 
     def trade(self, lang: str) -> tuple[str, ...]:
         """The vocabulary to splice from, in the order it was written."""

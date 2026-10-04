@@ -155,7 +155,7 @@ class SeedParams(BaseModel):
 
     seed: int | None = Field(
         default=None,
-        description="Fixes the draw, for a repeatable result.",
+        description="Fixes the draw, for a repeatable result; unset, each call draws afresh.",
         json_schema_extra=param("apply_only"),
     )
 
