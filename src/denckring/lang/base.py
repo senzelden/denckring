@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Mapping, Sequence
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, get_args
 
 from denckring.core.errors import MissingCapability
 from denckring.core.protocol import Lang, PosTag
@@ -338,8 +338,12 @@ def graded_view(
     A view, not a capability: the graded table it reads is unchanged, and no
     checker reads this, so no verdict depends on it. `word_exclusions` is read
     with `getattr`, so a pack written to the `LanguagePack` protocol alone, which
-    does not name it, gets the view with nothing excluded.
+    does not name it, gets the view with nothing excluded. An `order` outside
+    `WordOrder` raises `ValueError`, since the `Literal` binds a type-checked
+    caller only and anything else used to fall through to band order.
     """
+    if order not in get_args(WordOrder):
+        raise ValueError(f"order must be one of {get_args(WordOrder)}, not {order!r}")
     graded: Mapping[str, int] = pack.graded_words()  # type: ignore[attr-defined]
     exclusions = getattr(pack, "word_exclusions", None)
     excluded: frozenset[str] = exclusions() if exclusions is not None else frozenset()

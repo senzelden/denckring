@@ -304,7 +304,7 @@ def words(
     `order="frequency"`, by how often each occurs in the pack's corpus, commonest
     first (ADR 0052; English only so far). No checker reads this view, so it moves
     no verdict. Raises `MissingCapability` when the pack grades no words, or has no
-    corpus counts for `order="frequency"`.
+    corpus counts for `order="frequency"`, and `ValueError` for any other `order`.
     """
     return graded_view(get_pack(lang), max_band, letters_only=letters_only, order=order)
 

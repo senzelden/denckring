@@ -124,3 +124,13 @@ def test_the_views_are_published() -> None:
     assert "nouns(lang" in str(
         denckring.describe("n_plus_7").params["properties"]["dictionary"]["description"]
     )
+
+
+@pytest.mark.parametrize("order", ["alpha", "Frequency", ""])
+def test_an_unknown_order_is_refused_rather_than_read_as_band(order: str) -> None:
+    """`WordOrder` binds only a type-checked caller. One passing a string from JSON or
+    a command line used to get band order back for any value but `frequency`."""
+    with pytest.raises(ValueError, match=r"band.*frequency"):
+        words("en", order=order)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match=r"band.*frequency"):
+        graded_view(get_pack("en"), order=order)  # type: ignore[arg-type]

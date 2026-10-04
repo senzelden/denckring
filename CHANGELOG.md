@@ -122,8 +122,9 @@ All notable changes to this project are documented here. The format follows
   already among the distribution's licences), counted in lowercase so names in the
   news do not rank common nouns. The pack declares the new `lexicon.frequency`
   capability and answers `word_frequencies()`; `denckring.words(lang,
-  order="frequency")` sorts the everyday view by it. No checker reads it. German and
-  French have no counts, and their refusal names no extra.
+  order="frequency")` sorts the everyday view by it, and any `order` but `band` or
+  `frequency` raises `ValueError`. No checker reads it. German and French have no
+  counts, and their refusal names no extra.
 
 - ADR 0053 records why no pronunciation supplement ships for the five band-10 words
   CMUdict lacks (`deeming`, `inclining`, `inputted`, `inputting`, `sophisticating`):
