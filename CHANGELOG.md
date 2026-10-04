@@ -12,7 +12,11 @@ patch.
 
 ### 0.4.0: Changed
 
-- **A line meets a syllable count when some reading of its words does** (ADR 0054,
+An entry marked **Breaking:** changes, for a call that is itself unchanged, a verdict,
+a parameter's default (in the schema too) or a published rule. The others change scores,
+evidence or descriptions only, or add something.
+
+- **Breaking:** **A line meets a syllable count when some reading of its words does** (ADR 0054,
   audit A3). The line-count rows read each word's first CMUdict pronunciation, while
   metre and rhyme read every one, so `every family sings` failed a haiku's five as seven
   syllables with nothing estimated. `syllable_count`, `haiku`, `tanka`, `senryu`,
@@ -46,7 +50,7 @@ patch.
   and their reports could already be `estimated`. The split is 85 exact and 48 heuristic
   (was 87 and 46). An `exact` row never reports `estimated`, with no exceptions.
 
-- **Source rows refuse a copy of their source by default** (ADR 0055, audit A5).
+- **Breaking:** **Source rows refuse a copy of their source by default** (ADR 0055, audit A5).
   `allow_identity` now defaults to `false` on the 14 rows that take it, so a text whose
   letters are the source's, in order, fails as `unchanged`. Pass `allow_identity=true`
   for the old reading. A copy still passes where the source admits no other answer (a
@@ -60,7 +64,7 @@ patch.
   `s_plus_7` case retypes its source to show `ambiguous_nouns="strict"`, and it now sets
   `allow_identity: true` so that it fails for that reason alone.
 
-- **N+7 reads a supplied dictionary strictly** (ADR 0055, audit A5). On `n_plus_7`
+- **Breaking:** **N+7 reads a supplied dictionary strictly** (ADR 0055, audit A5). On `n_plus_7`
   and `s_plus_7`, `ambiguous_nouns` defaults to `None`, which resolves to `strict` when
   `dictionary` is supplied and to `free` with the pack's nouns, as before. An explicit
   value still wins. With a supplied list, a listed word left unchanged fails as
@@ -70,7 +74,7 @@ patch.
   counted in `ambiguous_words`. Golden corpus: nothing moves, since no case supplies
   `dictionary`.
 
-- **Positional rows score over an alignment** (ADR 0056, audit A6). `column_reading`,
+- **Breaking:** **Positional rows score over an alignment** (ADR 0056, audit A6). `column_reading`,
   `haikuization`, `every_nth_word`, `slenderizing`, `homoconsonantism`,
   `homovocalism`, `n_plus_7` and `s_plus_7` compared a text with what their rule
   expects index by index, so one dropped unit made every later unit wrong, and N+7
@@ -89,7 +93,7 @@ patch.
   before. Golden corpus, re-measured over all 687 cases: no verdict moves. Three
   `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765, 0.167 to 0.833).
 
-- **A pair kept apart fails only when every reader rhymes it** (ADR 0057, audit A8).
+- **Breaking:** **A pair kept apart fails only when every reader rhymes it** (ADR 0057, audit A8).
   `unwanted_rhyme`, on every rhyme-scheme row and on `blank_verse`, fired when any pair
   of the two words' keys matched, so `gone` and `on` (`AA1 N` or `AO1 N`) failed `AB`.
   It now fires only when every pairing matches, or when the two words have the same set
@@ -103,7 +107,7 @@ patch.
   stress; the last vowel in French) and how a scheme reads
   several keys; on every other row it is `None`.
 
-- **German stress and rhyme read the first transcription only** (ADR 0057). Wiktionary's
+- **Breaking:** **German stress and rhyme read the first transcription only** (ADR 0057). Wiktionary's
   list for a headword carries its inflected forms' transcriptions, and the vendored
   table does not say which are which: `du` rhymed with `mich` through *dich* and scanned
   as two syllables through *deiner*. `stress_patterns` and `rhyme_keys` on the German
@@ -117,7 +121,7 @@ patch.
   Seven evidence entries in three German cases change `value` as the other
   transcriptions drop out (`hierher`'s rhyme is `eː ɐ̯`, was `eː ɐ̯/iː ɐ̯ h eː ɐ̯`).
 
-- **A snowball counts letters, not characters** (ADR 0058, audit A10). `snowball` and
+- **Breaking:** **A snowball counts letters, not characters** (ADR 0058, audit A10). `snowball` and
   `reverse_snowball` measured each word with `len`, and the word pattern keeps an
   apostrophe inside a word, so `I'm` was three letters long. They now count the word's
   letters (`letter_spans`, unfolded, so `ß` is one): `A I'm the` passes and `be I'm`
@@ -127,7 +131,7 @@ patch.
   `snowball_sentence` too), and `y` is no vowel in English or German (`vowels`).
   Golden corpus, re-measured over all 687 cases: no verdict or score moves.
 
-- **Breaking: `multiple_constraint` takes a list of `{"id", "params"}` entries** (ADR
+- **Breaking:** **`multiple_constraint` takes a list of `{"id", "params"}` entries** (ADR
   0059, audit B10). `constraints: [{"id": "univocalic", "params": {"vowel": "e"}},
   {"id": "lipogram", "params": {"forbidden": "a"}}]` replaces `constraints` as a list
   of ids plus `constraint_params` keyed by id, so the same procedure may appear twice
@@ -136,10 +140,17 @@ patch.
   the mean of the constraints' own scores (was one unit per satisfied constraint, so 0,
   0.5 or 1), and `satisfied` still needs every constraint. `metrics` carries
   `delegates.<i>.satisfied` and `delegates.<i>.score` in constraint order, replacing
-  `<id>_score`. The CLI reads a `--param` value that parses as a JSON array or object as
-  JSON, so `-p 'constraints=[...]'` works; any other value is read as before. The MCP
-  server's length cap counts strings nested in a composite's entries. The explorer's
-  bench renders and reads the field as JSON. Golden corpus, re-measured over all 687
+  `<id>_score`. A violation's `note`, and a constraint's `InvalidParams`, name the entry's
+  position when its id repeats (`lipogram (constraints[1])`; the error always does).
+  `prompt_hint` and now `render_hint` follow the composite's hint with one line per
+  entry, each that constraint's own hint from its `params` (`render_hint` stated
+  `constraint_params` as one setting line before). The CLI reads a
+  `--param` value as JSON when the field's schema type is an array or an object, so
+  `-p 'constraints=[...]'` works, and any other value is read as before. The MCP
+  server's length cap counts every string nested in the parameters, keys included. The
+  explorer's bench renders and reads the field as JSON, and reports a malformed value
+  as `That value could not be read: constraints is not valid JSON: ...` (the notice
+  for every unreadable field, which said `That is not a number`). Golden corpus, re-measured over all 687
   cases: the six fixtures move to the new shape, no verdict moves, and three failing
   cases' scores rise (0.5 to 0.667 in English and French, 0.5 to 0.6875 in German).
 

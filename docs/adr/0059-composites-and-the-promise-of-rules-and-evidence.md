@@ -29,13 +29,19 @@ in order. `constraint_params` is gone. The same id may appear more than once. Th
 shape is refused with `InvalidParams`, and the message rewrites the caller's own call in
 the new shape. It is never re-read, so a caller still building the old shape cannot
 pass with its parameters dropped. The recursion guard, capability propagation, scope and
-hint delegation (ADR 0050) work on the entries as they worked on the ids.
+hint delegation (ADR 0050) work on the entries as they worked on the ids. A hint
+names each constraint by its id and follows with one line per entry, that constraint's
+own hint rendered from its `params`; `render_hint`, which renders a caller's own
+template, appends the same lines, so a template naming `{constraints}` cannot drop the
+letters and words the entries set.
 
 The composite's score is the mean of its constraints' own scores. `satisfied` is true
 only when every constraint is satisfied, so `satisfied == (score == 1.0)` still holds: a
 mean of scores in `[0, 1]` is 1.0 exactly when each is, and an unsatisfied mean that
 rounds to 1.0 in floating point is capped one step below it. Violations keep their rule
-strings and are prefixed with their constraint's id in `note`, as before. `metrics`
+strings and are prefixed with their constraint's id in `note`, as before; when an id
+repeats, the note names the entry's position too (`lipogram (constraints[1])`), and a
+constraint's `InvalidParams` always does. `metrics`
 carries each constraint's verdict and score in constraint order as
 `delegates.<i>.satisfied` (1.0 or 0.0) and `delegates.<i>.score`. These keys are flat
 and numbered by position because `Report.metrics` maps names to numbers and is under
@@ -50,16 +56,20 @@ fields (`subject`, `scope`, `offset`, `value`, `basis`) and the basis vocabulary
 `dictionary`, `ambiguous` and `estimated`. `metrics` keys, message wording and hint
 wording stay unstable. Tests hold the README to this: every field `Report` serialises,
 every `Evidence` field and every basis value must be named in the promise, and the
-unstable list must not name rules.
+unstable list must not name rules. `tests/data/published-rules.json` records every row's
+published rules, and a test fails when one of them is no longer in `rules(pid)`, telling
+whoever removed it to name the removal as breaking and update the snapshot. Additions
+pass, so the snapshot only grows by hand.
 
 ## Consequences
 
 The parameter shape is a breaking change. Every caller of `multiple_constraint` has to
 rewrite its call, including the golden fixtures, the explorer's form and anyone's saved
 prompts. The refusal names the new shape, but it still refuses. The CLI's `--param`
-now reads a value that parses as a JSON array or object as JSON. Before this a value
-such as `[ab]` was a string, and it still is, but a parameter whose valid string value
-happens to be well-formed JSON now arrives parsed. No row has such a parameter today.
+now reads a value as JSON when the field's schema type is an array or an object, so
+`source='[1]'` is still a one-line source text. On such a field a value that is
+well-formed JSON now arrives parsed where it used to arrive as a string; a value of
+the wrong shape is refused with `InvalidParams`, never misread.
 
 The mean inherits each constraint's own scale. A row that scores leniently and a row
 that scores strictly count the same in it, so the mean says how far each constraint is
