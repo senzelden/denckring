@@ -210,8 +210,7 @@ are built on them:
   `describe` that carries it. Fields may be added; the ones already there do not change
   type or meaning. `estimated` says whether the verdict rests on anything estimated or left
   unjudged, and is what to read in place of `metrics["estimated_words"]`. Each `evidence`
-  entry is one measurement the verdict rests on: `subject` (the word or line, followed in
-  a composite whose id repeats by its entry's position, `glorbix (constraints[1])`), `scope`
+  entry is one measurement the verdict rests on: `subject` (the word or line), `scope`
   (`word` or `line`), `offset`, `value` and `basis`, which is one of `dictionary` (looked
   up, read one way), `ambiguous` (looked up, more than one listed reading, and the checker
   accepted any; not an estimate) and `estimated` (no listing, so a heuristic answered). A

@@ -301,26 +301,3 @@ def test_multiple_constraint_lets_a_delegates_missing_capability_propagate_clean
         )
     assert exc_info.value.procedure_id == "dactylic_hexameter"
     assert exc_info.value.capability == "stress"
-
-
-def test_a_repeated_ids_evidence_names_its_position() -> None:
-    """Two `syllable_count` entries give each word's evidence twice; each copy says which
-    entry it came from, as the violations do, and still points at its word. An id that
-    appears once keeps its constraint's evidence unchanged."""
-    text = "the glorbix sang"
-    twice = [
-        {"id": "syllable_count", "params": {"pattern": [4]}},
-        {"id": "syllable_count", "params": {"pattern": [5]}},
-    ]
-    alone = check("syllable_count", text, pattern=[4]).evidence
-    assert alone
-    report = check("multiple_constraint", text, constraints=twice)
-    assert len(report.evidence) == 2 * len(alone)
-    for position, half in enumerate((report.evidence[: len(alone)], report.evidence[len(alone) :])):
-        for mine, theirs in zip(half, alone, strict=True):
-            assert mine.subject == f"{theirs.subject} (constraints[{position}])"
-            assert mine.model_dump(exclude={"subject"}) == theirs.model_dump(exclude={"subject"})
-            assert mine.offset is not None
-            assert text[mine.offset :].startswith(theirs.subject)
-    once = [twice[0], {"id": "lipogram", "params": {"forbidden": "z"}}]
-    assert check("multiple_constraint", text, constraints=once).evidence == alone
