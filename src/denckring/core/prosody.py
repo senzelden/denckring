@@ -146,9 +146,11 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
             Evidence(
                 subject=word,
                 offset=offset + at,
-                # The first reading, which is the one the violations below report
-                # against, so the account and the complaint agree.
-                value=forms[0] if forms else "",
+                # Every form the scan could take, first first. A fitted line replaces
+                # it below with the one form the scan read; a failed line keeps them
+                # all, since the violations name the first and the scan tried the rest
+                # (ADR 0054).
+                value="/".join(tried),
                 # `ambiguous` when the scan was free to take another listed form,
                 # and not when the cap held it to the first (ADR 0054).
                 basis="estimated" if not exact else "ambiguous" if len(tried) > 1 else "dictionary",
@@ -158,7 +160,13 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
-        return MetreResult([], len(words), max(len(words), 1), estimated, tuple(evidence))
+        # The stress the verdict rests on, as `MetreResult` promises: `every` as `10`
+        # in a line that scans only on that reading, not its first form `100`.
+        read = tuple(
+            entry.model_copy(update={"value": form})
+            for entry, form in zip(evidence, fitted, strict=True)
+        )
+        return MetreResult([], len(words), max(len(words), 1), estimated, read)
 
     violations: list[Violation] = []
     # No combination fits. Report against the first pronunciation of each word,

@@ -59,8 +59,9 @@ A test requires any pack that overrides the second to override the first.
 word, and the checker accepted any of them. It applies to syllable, stress and rhyme
 evidence alike, so the value means one thing throughout: `every` as `2 or 3 syllables`,
 and `bog` rhyming on `AA1 G/AO1 G`. A metre word marked this way is one the scan was
-free to read another way. Above `MAX_COMBINATIONS` the scan reads first forms only, and
-the evidence then says `dictionary`. `ambiguous` is not an estimate, so it does not make
+free to read another way, and its `value` is the form the scan fitted (`every` as `10`),
+or every form it tried when the line does not scan. Above `MAX_COMBINATIONS` the scan
+reads first forms only, and the evidence then says `dictionary`. `ambiguous` is not an estimate, so it does not make
 `Report.estimated` true. `dictionary` now means the word was read one way.
 `SCHEMA_VERSION` moves to 1.2. A parser that holds 1.1's closed set of two values would
 refuse the third. The schema guard therefore records the basis values for each version
@@ -73,11 +74,23 @@ that. The rule now has no exceptions: a row that `describe` calls `exact` never 
 
 ## Consequences
 
-The syllabic rows are more lenient, and that is the cost. A line with *k* ambiguous
-words accepts up to *k* + 1 totals rather than one. A writer who meant the three-syllable
+The syllabic rows are more lenient, and that is the cost. A line accepts every total
+some choice of readings gives, rather than one: each ambiguous word can add a total per
+extra reading, and the set never reaches beyond the span between the line's lowest and
+highest readings. `actually` alone gives three (2, 3 or 4). A writer who meant the three-syllable
 `every` in a line one syllable long passes as surely as one who meant two. The checker
 cannot know which reading the writer meant, which is the same position ADR 0014 took
-for stress. In CMUdict, 1,508 of the 1,592 ambiguous words differ by one syllable. The
+for stress.
+
+Each dimension is satisfied on its own, so a word may count on one reading and rhyme or
+scan on another. In `englyn`, which judges syllables and rhyme in one checker, `fire`
+can make a six-syllable line as one syllable while rhyming with `higher` on its
+two-syllable key. ADR 0014 already let metre and rhyme choose separately, and a
+composite already mixed readings across its constraints; `englyn` is the one row where
+this change brings the mix inside a single checker. Coupling one reading per word
+across dimensions would be a new design, not a fix. Within one dimension the readings
+agree: on all 117,493 alphabetic CMUdict headwords, the set of syllable counts equals
+the set of stress-pattern lengths exactly. In CMUdict, 1,508 of the 1,592 ambiguous words differ by one syllable. The
 other 84 differ by two to five, mostly abbreviations and names that CMUdict also
 spells out letter by letter. Some of those are ordinary words, so a line now passes
 with `cod` read as three syllables (C.O.D.), `ins` as three, or `rep` as five. The
@@ -89,8 +102,10 @@ readings a speaker uses.
 fail for a named reason, under the first reading, and none of them turns on an ambiguous
 count. What moved is evidence: 61 entries in 31 cases go from `dictionary` to
 `ambiguous`. All of them are stress or rhyme evidence on the sonnet, stanza and rhyme
-rows, in English and in German. None of the syllable rows' cases contains an ambiguous
-word. The verdicts that move are outside the corpus, on texts like the audit's.
+rows, in English and in German. Five of those entries also change `value`, the metre
+form now being the one the scan read: `temperate` in Sonnet 18 is `100/10` (was
+`100`), since that line does not scan and both forms were tried. None of the syllable
+rows' cases contains an ambiguous word. The verdicts that move are outside the corpus, on texts like the audit's.
 
 A violation that no reading meets now names every reading: `found` says
 `4, 5 or 6 syllables` where it said `6 syllables`. This is the format `line_metre` uses

@@ -97,6 +97,10 @@ class Evidence(BaseModel):
     syllables, `bog` rhyming on either vowel. Looked up, not estimated, so it does
     not make a report `estimated`; it says the verdict may rest on a variant rather
     than the first form. `dictionary` now means the checker read the word one way.
+    Not always a variant of the word itself: German Wiktionary's list for a headword
+    carries its inflected forms' transcriptions too, so German stress and rhyme
+    evidence can be `ambiguous` on readings that belong to another form (`du` with
+    *deiner*'s). German syllable counts read the first transcription only (ADR 0054).
 
     `scope` exists because the answer is not always about a word. French counts a
     *line* — a final mute e elides or counts depending on what follows, so summing

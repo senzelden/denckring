@@ -33,8 +33,11 @@ patch.
 - `Evidence.basis` gains `ambiguous`: the dictionary lists more than one reading and the
   checker accepted any of them. It is used on syllable, stress and rhyme evidence. It is
   not an estimate, so `Report.estimated` stays false. `dictionary` now means one reading.
+  Metre evidence names the stress form the scan fitted (`every` as `10`, was its first
+  form `100`), or every form tried, joined by `/`, when the line does not scan.
   In the golden corpus, 61 evidence entries in 31 cases (sonnet, stanza and rhyme rows,
-  English and German) go from `dictionary` to `ambiguous`. `provenance.schema_version` is
+  English and German) go from `dictionary` to `ambiguous`, and five metre entries change
+  `value`. `provenance.schema_version` is
   `1.2` (was `1.1`), and the schema test now ties each version to its basis values as
   well as its keys.
 

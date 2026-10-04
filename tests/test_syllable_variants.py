@@ -168,6 +168,21 @@ def test_metre_evidence_marks_a_word_it_could_read_two_ways() -> None:
     assert sun.basis == "dictionary"
 
 
+def test_metre_evidence_names_the_form_the_scan_fitted() -> None:
+    """The line scans only with `every` as two syllables, `10`; its first form is `100`.
+    Evidence naming `100` would describe a reading the verdict did not use (U6 review M3)."""
+    report = check("iambic_pentameter", "and every flower opens to the sun")
+    assert report.satisfied
+    assert next(e for e in report.evidence if e.subject == "every").value == "10"
+
+
+def test_metre_evidence_on_a_failed_line_names_every_form_tried() -> None:
+    report = check("iambic_pentameter", "every every every every every")
+    assert not report.satisfied
+    values = {e.value for e in report.evidence if e.subject == "every"}
+    assert values == {"100/10"}, values
+
+
 def test_rhyme_evidence_marks_a_word_with_two_keys() -> None:
     report = check("rhyme_scheme", "a heavy log\na misty bog", scheme="AA")
     basis = {e.subject: e.basis for e in report.evidence}
