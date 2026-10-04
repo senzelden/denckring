@@ -23,10 +23,10 @@ ADR 0005 asked for.
 **The positional rows score over an alignment** (rulings R-U8a and R-U8b). One shared
 helper, `source_compare.align`, aligns the expected units with the text's units by
 minimal edits (Levenshtein). A substitution, an insertion and a deletion each cost 1,
-and a match costs 0. A dynamic-programming table finds the cheapest alignment, and the
-helper traces it back from the end. Where two steps tie, it takes the diagonal (a
-match or a substitution) first, then a deletion, then an insertion, so the same pair
-always aligns the same way. The alignment works over the units each row already
+and a match costs 0. A dynamic-programming table holds the cheapest cost of aligning
+each pair of suffixes, and the helper traces the alignment forward from the start.
+Where two steps tie, it takes the diagonal (a match or a substitution) first, then a
+deletion, then an insertion, so the same pair always aligns the same way. The alignment works over the units each row already
 compared: casefolded words, or letters as the row folds them.
 `source_compare.aligned_report` scores the alignment, and `positional_report`,
 `letter_class_report`, `slenderizing` and `every_nth_word` call it.
@@ -37,8 +37,11 @@ it keeps the longest matching block first and does not minimise edits. It read
 inserted `o` and a deleted `a`, which costs two units, where the text has one
 substituted vowel. A minimal-edit alignment keeps a lone substitution as one unit, so
 it scores exactly what index-by-index comparison scored. The tie-break decides where a
-gap lands among equally cheap alignments. Traced from the end, `a a` against `a`
-deletes the first `a`, and a span replaced by a longer one puts its insertion first.
+gap lands among equally cheap alignments. Traced forward, the diagonal pairs units
+from the start, so a gap lands last in any tied stretch. `a a` against `a` deletes the
+last `a`, a span replaced by a longer one puts its insertion last, and a word appended
+to a correct text is the surplus at its own offset. Where nothing aligns better, the
+steps are index-by-index comparison's own: substitutions, then the tail.
 
 **`good` is the matched count, and the denominator is the alignment's length**:
 matches, substitutions, insertions and deletions. A span replaced by one of a
@@ -83,10 +86,12 @@ what they reported was the cascade. `n_plus_7` and `s_plus_7` add `extra_words` 
 maps rules, such as denckring-bench's failure classes, has to re-map those rows.
 
 Where the alignment places a gap is a choice among equally cheap alignments, and the
-tie-break makes it. A text with no unit right, plus one surplus unit, reports the
-surplus first, not as a tail: `haikuization` of `cat dog bird extra` names `cat` as
-`extra_words`. The score is the same wherever the gap sits. The `found` and `offset`
-of the violations are what the tie-break decides.
+tie-break makes it. That choice decides the `found` and `offset` of the violations.
+It can also move the score. Equally cheap alignments can differ in length and in
+matches: `cbca` against `bcaaa` costs three edits either way, but it scores 3/6 as
+traced forward and 2/5 traced from the end. That is rare (the review's probe found 40
+of 20,000 random pairs over a three-letter alphabet), but it makes the tie order part
+of the scoring contract. Changing it is a score change like any other.
 
 The alignment is O(n·m) in time and memory, where index-by-index comparison was
 linear. A long letter row (`slenderizing` on a page of prose, a few thousand letters
@@ -94,11 +99,11 @@ on each side) builds a table of millions of cells for each check. The rows are w
 for short texts, and the ruling chose an exact alignment over a faster approximate
 one.
 
-Two other rows compare a sequence index by index and are not changed here. The
+Four other rows compare a sequence index by index and are not changed here. The
 relation rows (`synonymic_substitution`, `antonymic_substitution`,
 `antonymic_translation`) still score a word-count mismatch 0/1 as `wrong_word_count`,
-and `homosyntaxism` still matches part-of-speech tags position by position. Neither was
-in A6. Both could move to `align` under the same reasoning.
+and `homosyntaxism` still matches part-of-speech tags position by position. None of
+them was in A6. All four could move to `align` under the same reasoning.
 
 **Golden corpus, re-measured over all 687 cases: no verdict moves, and three scores do.**
 

@@ -127,48 +127,53 @@ def align(expected: Sequence[str], actual: Sequence[str]) -> list[Aligned]:
     later one and the text scored as if it had nothing right after the drop. This
     is a minimal-edit (Levenshtein) alignment instead (ruling R-U8b): a
     substitution, an insertion and a deletion each cost 1, a match 0, and the
-    steps are the cheapest way from one sequence to the other. Traced back from
-    the end, a tie prefers the diagonal (a match or a substitution), then a
-    deletion, then an insertion, so the same pair always aligns the same way, and
-    a lone substitution stays one substituted unit, scoring exactly what index
-    by index scored. `difflib.SequenceMatcher` was the first choice and was
-    dropped: it keeps the longest matching block first, so a substitution beside
-    an identical unit came out as an insertion and a deletion.
+    steps are the cheapest way from one sequence to the other. Traced forward
+    from the start over a table of suffix costs, a tie prefers the diagonal (a
+    match or a substitution), then a deletion, then an insertion, so the same
+    pair always aligns the same way. Pairing from the start pushes a gap to the
+    end of any tied stretch: a word appended to a correct text is the surplus,
+    at its own offset, and where nothing aligns better the steps are index by
+    index's own, substitutions and then the tail. A lone substitution stays one
+    substituted unit, scoring exactly what index by index scored.
+    `difflib.SequenceMatcher` was the first choice and was dropped: it keeps the
+    longest matching block first, so a substitution beside an identical unit
+    came out as an insertion and a deletion. The tie order is part of the
+    scoring contract: equally cheap alignments can differ in length and in
+    matches, so they can score differently (ADR 0056).
 
     Only identical sequences align with no step but `match`, so a score of 1.0
     still means an exact match and nothing else (ADR 0005). The table is
     O(n·m) in time and memory.
     """
     rows, cols = len(expected), len(actual)
-    # cost[i][j]: the fewest edits turning expected[:i] into actual[:j].
+    # cost[i][j]: the fewest edits turning expected[i:] into actual[j:].
     cost = [[0] * (cols + 1) for _ in range(rows + 1)]
     for i in range(rows + 1):
-        cost[i][0] = i
+        cost[i][cols] = rows - i
     for j in range(cols + 1):
-        cost[0][j] = j
-    for i in range(1, rows + 1):
-        above, here = cost[i - 1], cost[i]
-        want = expected[i - 1]
-        for j in range(1, cols + 1):
+        cost[rows][j] = cols - j
+    for i in range(rows - 1, -1, -1):
+        below, here = cost[i + 1], cost[i]
+        want = expected[i]
+        for j in range(cols - 1, -1, -1):
             here[j] = min(
-                above[j - 1] + (want != actual[j - 1]),
-                above[j] + 1,
-                here[j - 1] + 1,
+                below[j + 1] + (want != actual[j]),
+                below[j] + 1,
+                here[j + 1] + 1,
             )
     steps: list[Aligned] = []
-    i, j = rows, cols
-    while i or j:
-        if i and j and cost[i][j] == cost[i - 1][j - 1] + (expected[i - 1] != actual[j - 1]):
-            same = expected[i - 1] == actual[j - 1]
-            steps.append(Aligned("match" if same else "substitute", i - 1, j - 1))
-            i, j = i - 1, j - 1
-        elif i and cost[i][j] == cost[i - 1][j] + 1:
-            steps.append(Aligned("delete", i - 1, None))
-            i -= 1
+    i, j = 0, 0
+    while i < rows or j < cols:
+        same = i < rows and j < cols and expected[i] == actual[j]
+        if i < rows and j < cols and cost[i][j] == cost[i + 1][j + 1] + (not same):
+            steps.append(Aligned("match" if same else "substitute", i, j))
+            i, j = i + 1, j + 1
+        elif i < rows and cost[i][j] == cost[i + 1][j] + 1:
+            steps.append(Aligned("delete", i, None))
+            i += 1
         else:
-            steps.append(Aligned("insert", None, j - 1))
-            j -= 1
-    steps.reverse()
+            steps.append(Aligned("insert", None, j))
+            j += 1
     return steps
 
 
