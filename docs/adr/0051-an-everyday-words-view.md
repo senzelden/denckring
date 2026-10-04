@@ -22,7 +22,8 @@ letters alone unless `letters_only` is false, and without the entries in the pac
 `word_exclusions()`. `BasePack.words` is the same view. `word_exclusions` is an
 optional pack member read with `getattr`, as `syllable_evidence` is: a pack written to the protocol
 alone gets the view with nothing excluded, and the `LanguagePack` protocol does not
-change.
+change. ADR 0052 adds a fourth parameter, `order`, which sorts the view by corpus
+frequency instead.
 
 `denckring-en-data` ships `everyday_exclusions.txt`: `cs`, `cums`, `hes`, `leaved`,
 `numbest`, `payed` and `re`, each with its reason on its line. This is an editorial

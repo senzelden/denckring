@@ -144,8 +144,8 @@ declares `x-denckring-role` in its JSON Schema, from a closed set
 
 The rule is derived from it. A hint states every `task` and `inferred` parameter;
 any other may stay out, for its role's reason (`core.hints.unstated`).
-`UNSTATED_PARAMS` is gone, since what it held is the `policy` and `material` roles of
-four mixins. `hint_omits` keeps only the task parameters a hint still leaves out
+`UNSTATED_PARAMS` is gone, since what it held is the `policy`, `leniency` and
+`material` roles of four mixins. `hint_omits` keeps only the task parameters a hint still leaves out
 (`multiple_constraint.constraint_params`, `word_ladder.target`), and a guard refuses
 an entry for a parameter its role already excuses.
 
