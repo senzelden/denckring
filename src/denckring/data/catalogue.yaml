@@ -1008,11 +1008,16 @@ procedures:
     attested: codified
     kind: restrictive
     languages: [en, fr]
+    notes: >-
+      The checker takes any set of letters, vowels included, and fails every letter of
+      the set wherever it appears: a group of consonants is the form's case, not the
+      checker's limit. `lipogram` forbids one letter; this row is the one to use for
+      several, whichever they are.
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
       en: >-
-        Write a passage avoiding every one of these consonants: {forbidden}.
+        Write a passage avoiding every one of these letters: {forbidden}.
 
   - id: liponym
     names: { en: Liponym, fr: Liponyme }

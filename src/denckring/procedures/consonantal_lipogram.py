@@ -1,4 +1,11 @@
-"""Consonantal lipogram — a whole group of consonants is banned."""
+"""Consonantal lipogram — a whole group of letters is banned.
+
+The form, as the Oulipo's *Atlas* defines it, bans a group of consonants. The checker
+bans whatever letters it is given, vowels included, and that is a published contract:
+denckring-bench's lipogram suite forbids vowels through this row, since `lipogram`
+takes one letter only. Narrowing the validator to consonants would be a breaking
+change, made only with a deprecation (audit E3).
+"""
 
 from __future__ import annotations
 
@@ -13,7 +20,7 @@ from denckring.core.text import letter_spans, quoted_letters, single_letter
 
 class ConsonantalLipogramParams(DiacriticParams):
     forbidden: str = Field(
-        description="The consonants the text must avoid.",
+        description="The letters the text must avoid: any set, vowels included.",
         # A set of letters, not a word: a hint renders "st" as `"s", "t"`.
         json_schema_extra=param("task", "letters", **{"x-denckring-show": "letters"}),
     )

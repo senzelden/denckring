@@ -319,6 +319,12 @@ All notable changes to this project are documented here. The format follows
   not about `check`, which is deterministic on every row, and not derived from `apply`,
   so a generator that draws is found by its `seed` parameter rather than by the flag.
 
+- `consonantal_lipogram` is documented as the checker reads it: a lipogram over any set
+  of letters, vowels included. Its `forbidden` description and English hint say
+  "letters", a catalogue note says the form's consonant group is its case and not the
+  checker's limit, and two golden cases forbid `ae`. The checker is unchanged, and
+  narrowing it to consonants would now need a deprecation.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

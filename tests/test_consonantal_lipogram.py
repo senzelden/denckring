@@ -1,6 +1,7 @@
 import pytest
 
-from denckring import check
+from denckring import check, describe
+from denckring.core import catalogue
 from denckring.core.errors import InvalidParams
 
 
@@ -58,3 +59,17 @@ def test_the_expected_text_names_each_letter_of_the_set() -> None:
 def test_two_spellings_of_one_folded_letter_are_named_once() -> None:
     report = check("consonantal_lipogram", "Le garçon", lang="fr", forbidden="çc")
     assert {v.expected for v in report.violations} == {'none of "c"'}
+
+
+def test_the_row_documents_the_letter_set_its_checker_accepts() -> None:
+    """The checker forbids any letters, vowels included, and a published suite forbids
+    vowels through it (audit E3). A description, note or hint saying "consonants"
+    states a narrower contract than the one callers rely on."""
+    assert not check("consonantal_lipogram", "a real one", forbidden="ae").satisfied
+    described = describe("consonantal_lipogram")
+    field = described.params["properties"]["forbidden"]["description"]
+    assert "consonant" not in field.casefold()
+    assert described.prompt_hints is not None
+    assert "consonant" not in described.prompt_hints.casefold()
+    notes = catalogue.get("consonantal_lipogram").notes
+    assert notes is not None and "vowels" in notes
