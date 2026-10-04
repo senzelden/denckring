@@ -163,6 +163,17 @@ def _labels(constraints: list[Constraint]) -> list[str]:
     ]
 
 
+def _placed_evidence(item: Evidence, position: int) -> Evidence:
+    """An entry's evidence, attributable when its id repeats in `constraints`.
+
+    `Evidence` has no note, so its `subject`, the field that names the item, takes the
+    position, as a violation's `note` does: `glorbix (constraints[1])`. `offset` still
+    points at the word, and nothing else changes; an id that appears once keeps its
+    evidence as its own report gives it.
+    """
+    return item.model_copy(update={"subject": f"{item.subject} (constraints[{position}])"})
+
+
 @contextmanager
 def _placed(position: int) -> Iterator[None]:
     """A delegate's `InvalidParams`, saying which entry it came from.
@@ -244,7 +255,11 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
             scores.append(report.score)
             metrics[f"delegates.{position}.satisfied"] = float(report.satisfied)
             metrics[f"delegates.{position}.score"] = report.score
-            evidence += report.evidence
+            evidence += (
+                report.evidence
+                if labels[position] == entry.id
+                else [_placed_evidence(item, position) for item in report.evidence]
+            )
             estimated_words += report.metrics.get("estimated_words", 0.0)
             for violation in report.violations:
                 label = labels[position]

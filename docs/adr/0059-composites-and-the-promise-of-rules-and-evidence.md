@@ -41,7 +41,11 @@ mean of scores in `[0, 1]` is 1.0 exactly when each is, and an unsatisfied mean 
 rounds to 1.0 in floating point is capped one step below it. Violations keep their rule
 strings and are prefixed with their constraint's id in `note`, as before; when an id
 repeats, the note names the entry's position too (`lipogram (constraints[1])`), and a
-constraint's `InvalidParams` always does. `metrics`
+constraint's `InvalidParams` always does. `evidence` is the constraints' own,
+concatenated in constraint order. `Evidence` has no note, so when an id repeats each
+entry's `subject` names the position instead (`glorbix (constraints[1])`), and its
+`offset` still points at the word; an id that appears once keeps its evidence as its
+own report gives it. `metrics`
 carries each constraint's verdict and score in constraint order as
 `delegates.<i>.satisfied` (1.0 or 0.0) and `delegates.<i>.score`. These keys are flat
 and numbered by position because `Report.metrics` maps names to numbers and is under

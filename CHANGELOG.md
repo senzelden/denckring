@@ -145,6 +145,9 @@ evidence or descriptions only, or add something.
   `delegates.<i>.satisfied` and `delegates.<i>.score` in constraint order, replacing
   `<id>_score`. A violation's `note`, and a constraint's `InvalidParams`, name the entry's
   position when its id repeats (`lipogram (constraints[1])`; the error always does).
+  `evidence` is the constraints' own, in constraint order; when an id repeats, each
+  entry's `subject` names its position too (`glorbix (constraints[1])`), and its
+  `offset` still points at the word.
   `prompt_hint` and now `render_hint` follow the composite's hint with one line per
   entry, each that constraint's own hint from its `params` (`render_hint` stated
   `constraint_params` as one setting line before). The CLI reads a

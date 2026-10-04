@@ -106,6 +106,11 @@ class Evidence(BaseModel):
     *line* — a final mute e elides or counts depending on what follows, so summing
     citation forms undercounts systematically (ADR 0034) — and there is no
     per-word breakdown to report. Saying so is better than manufacturing one.
+
+    `subject` is the word or line measured. In a `multiple_constraint` report whose
+    `constraints` name one id twice, it is followed by its entry's position
+    (`glorbix (constraints[1])`), as a violation's `note` is, so the two copies can be
+    told apart; `offset` still points at the word.
     """
 
     subject: str
