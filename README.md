@@ -238,20 +238,22 @@ a failure is not one yet.
 
 **Published, not yet promised.** These are exported and documented, so nothing has to
 reach into `denckring.core` for them, but they may still change in a minor release, with
-a changelog line when they do. All but `Report.evidence` and `reading` are new in 0.3.2:
+a changelog line when they do. All but `Report.evidence` and `Description.reading` are
+new in 0.3.2:
 
 - `rules`, `rule_categories` and `failure_categories`: the rule ids and the kind of
   failure each names;
 - `Report.evidence` and its type, `Evidence`; that field, like the rule ids, is planned
   for the promise in 0.4.0;
-- the catalogue flags `unique_answer` and `hidden_material`, on `Meta` and
-  `Description`, and `Meta.hint_omits`;
+- the catalogue flags `Meta.unique_answer` and `Meta.hidden_material`, which
+  `Description` carries too, and `Meta.hint_omits`;
 - `prompt_hint` and `render_hint`, which render the catalogue's hint templates;
 - `golden_cases` and `GoldenCase`;
 - `scope`, `scopes`, `admits` and `witness`;
 - `words` and `nouns`;
 - `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
-- `describe`'s `reading`, including its new `units`, `word_examples` and `vowels`.
+- `Description.reading`, including its new `reading.units`, `reading.word_examples`
+  and `reading.vowels`.
 
 ## The catalogue as data
 

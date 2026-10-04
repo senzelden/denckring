@@ -143,8 +143,11 @@ All notable changes to this project are documented here. The format follows
   template the caller owns by `prompt_hint`'s rule, validating the params as `check`
   does and refusing a placeholder that names no parameter. A field may declare how it
   reads in a sentence with `x-denckring-show`; `letters` quotes each letter of a set,
-  so `consonantal_lipogram`'s hint now reads `these consonants: "e", "t"` rather than
-  `the consonants in "et"`, and `bivocalic`'s does the same for its vowels.
+  so `consonantal_lipogram`'s hint now reads `these letters: "e", "t"` rather than
+  `the consonants in "et"`, and `bivocalic`'s does the same for its vowels. A German or
+  French hint quotes the letters in its own marks (`„e“, „t“`, `« e », « t »`). Under
+  `fold_diacritics` a letter is shown as the checker compares it: `forbidden="é"`
+  renders `e`, since every `e` fails.
 
 - `describe(...).reading.units` maps `line`, `clause` and `sentence` to the characters
   that end each, as the checkers split them: a clause ends at `,`, `;`, `:` or a line
@@ -358,8 +361,10 @@ All notable changes to this project are documented here. The format follows
   French: `lipogram`, `lipogrammatic_translation`, `consonantal_lipogram`, `liponym`,
   `pangram`, `beau_present`, `column_reading`, `every_nth_word`, `haikuization`,
   `mathews_algorithm`, `quenina` and `slenderizing`. The lipogram hints say how a
-  letter folds (`ä` as `a`, `ß` as `ss`, `ç` as `c`), and the French word-counting
-  hints that an elided word counts with the word it precedes. Rows are left without a
+  letter folds (`ä` as `a`, `ß` as `ss`, `é` and `ë` as `e`, `ç` as `c`), and the
+  French hints that count or pick words (`every_nth_word`, `column_reading`,
+  `haikuization`, `mathews_algorithm`, `quenina`) that an elided word counts with the
+  word it precedes. Counts are worded to read correctly at 1. Rows are left without a
   hint where a translation would have to settle something open: `univocalic` (`y` is a
   vowel in French and not in German), `heterogram` and the anagram rows (`ß` folds to
   two letters), `palindrome`, `acrostic` and `telestich` (their `unit` renders as an

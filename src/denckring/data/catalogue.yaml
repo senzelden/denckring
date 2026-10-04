@@ -26,7 +26,7 @@ procedures:
         und ß als ss.
       fr: >-
         Écris un texte où la lettre « {forbidden} » n'apparaît jamais, ni en majuscule,
-        ni avec un accent ou une cédille : é compte comme e et ç comme c.
+        ni avec un accent, un tréma ou une cédille : é et ë comptent comme e, ç comme c.
 
   - id: univocalic
     names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
@@ -300,8 +300,7 @@ procedures:
     prompt_hints:
       en: >-
         Replace each noun the dictionary lists with the noun {offset} places after it
-        there, counting on from the start of the list past its end, and keep everything
-        else.
+        there; past the list's end, continue from its start. Keep everything else.
     notes: >-
       `s_plus_7` is the same displacement under a second name, and runs this row's
       implementation rather than one of its own. See that row's note for what the
@@ -326,8 +325,7 @@ procedures:
     prompt_hints:
       en: >-
         Replace each noun the dictionary lists with the noun {offset} places after it
-        there, counting on from the start of the list past its end, and keep everything
-        else.
+        there; past the list's end, continue from its start. Keep everything else.
     notes: >-
       S+7 is the French name of the noun displacement also catalogued here as
       `n_plus_7`. Oulipo's account defines the base procedure in terms of nouns
@@ -1679,8 +1677,8 @@ procedures:
         accented form, and every other letter kept, in its order.
       fr: >-
         Recopie le texte source en supprimant toutes les lettres « {deleted} », en
-        majuscule ou en minuscule, avec ou sans accent ou cédille, et en gardant toutes
-        les autres lettres, dans leur ordre.
+        majuscule ou en minuscule, avec ou sans accent, tréma ou cédille, et en gardant
+        toutes les autres lettres, dans leur ordre.
 
   - id: haikuization
     names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
@@ -1730,7 +1728,8 @@ procedures:
       fr: >-
         Prends le dernier mot de chaque ligne du texte source, de la première ligne à la
         dernière, et écris ces mots dans cet ordre, séparés par des espaces, et rien
-        d'autre.
+        d'autre. Un mot élidé compte avec le mot qu'il précède (l'arbre est un seul mot)
+        ; un trait d'union sépare deux mots.
 
   - id: word_ladder
     names: { en: Word ladder, de: Wortleiter, fr: Échelle de mots }
@@ -2293,16 +2292,17 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write {n} stanzas of {n} lines each. The last words of the first stanza's lines
-        are the end-words. Each later stanza ends its lines on the previous stanza's
-        end-words in spiral order: its last, then its first, then its second to last,
-        then its second, and so on inward.
+        Write stanzas of {n} lines each, as many stanzas as each has lines. The last
+        words of the first stanza's lines are the end-words. Each later stanza ends its
+        lines on the previous stanza's end-words in spiral order: its last, then its
+        first, then its second to last, then its second, and so on inward.
       fr: >-
-        Écris {n} strophes de {n} vers chacune. Les derniers mots des vers de la
-        première strophe sont les mots-rimes. Chaque strophe suivante termine ses vers
-        sur les mots-rimes de la strophe précédente en spirale : son dernier, puis son
-        premier, puis son avant-dernier, puis son deuxième, et ainsi de suite vers le
-        milieu.
+        Écris des strophes de {n} vers chacune, autant de strophes que chacune compte de
+        vers. Les derniers mots des vers de la première strophe sont les mots-rimes. Un
+        mot élidé compte avec le mot qu'il précède (l'arbre est un seul mot) ; un trait
+        d'union sépare deux mots. Chaque strophe suivante termine ses vers sur les
+        mots-rimes de la strophe précédente en spirale : son dernier, puis son premier,
+        puis son avant-dernier, puis son deuxième, et ainsi de suite vers le milieu.
 
   - id: pantoum
     names: { en: Pantoum, de: Pantun, fr: Pantoum }
@@ -3278,19 +3278,19 @@ procedures:
     prompt_hints:
       en: >-
         Take word number {column} of each line of the source text, counting the words of
-        every line from 1, from the first line to the last; a line with fewer than
-        {column} words gives nothing. A hyphenated word counts as two. Write the words
+        every line from 1, from the first line to the last; a line that has no word
+        number {column} gives nothing. A hyphenated word counts as two. Write the words
         you took in that order, separated by spaces, and nothing else.
       de: >-
         Nimm aus jeder Zeile des Ausgangstexts das Wort Nummer {column}, wobei du in
         jeder Zeile neu ab 1 zählst, von der ersten Zeile bis zur letzten; eine Zeile
-        mit weniger als {column} Wörtern liefert nichts. Ein Bindestrich trennt zwei
-        Wörter. Schreibe die genommenen Wörter in dieser Reihenfolge, durch Leerzeichen
+        ohne Wort Nummer {column} liefert nichts. Ein Bindestrich trennt zwei Wörter.
+        Schreibe die genommenen Wörter in dieser Reihenfolge, durch Leerzeichen
         getrennt, und sonst nichts.
       fr: >-
         Prends le mot numéro {column} de chaque ligne du texte source, en comptant les
         mots de chaque ligne à partir de 1, de la première ligne à la dernière ; une
-        ligne de moins de {column} mots ne donne rien. Un mot élidé compte avec le mot
+        ligne sans mot numéro {column} ne donne rien. Un mot élidé compte avec le mot
         qu'il précède (l'arbre est un seul mot) ; un trait d'union sépare deux mots.
         Écris les mots pris dans cet ordre, séparés par des espaces, et rien d'autre.
 
@@ -3353,13 +3353,14 @@ procedures:
     prompt_hints:
       en: >-
         Copy the lines of the source text, each unchanged and on a line of its own, in a
-        new order: first every line after line {fold_at}, in their order, then the first
-        {fold_at} line(s), in their order. Blank lines are not counted.
+        new order: first every line after line {fold_at}, in their order, then every
+        line up to and including line {fold_at}, in their order. Blank lines are not
+        counted.
       de: >-
         Schreibe die Zeilen des Ausgangstexts ab, jede unverändert und in einer eigenen
         Zeile, aber in neuer Reihenfolge: erst alle Zeilen nach Zeile {fold_at}, in
-        ihrer Reihenfolge, dann die ersten {fold_at} Zeile(n), in ihrer Reihenfolge.
-        Leerzeilen werden nicht mitgezählt.
+        ihrer Reihenfolge, dann alle Zeilen bis einschließlich Zeile {fold_at}, in ihrer
+        Reihenfolge. Leerzeilen werden nicht mitgezählt.
 
   - id: oracle_reading
     names: { en: Oracle reading }
@@ -3515,7 +3516,8 @@ procedures:
         als u und ß als ss.
       fr: >-
         Traduis le texte sans jamais employer la lettre « {forbidden} », ni en
-        majuscule, ni avec un accent ou une cédille : é compte comme e et ç comme c.
+        majuscule, ni avec un accent, un tréma ou une cédille : é et ë comptent comme e,
+        ç comme c.
 
   - id: univocalic_translation
     names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }

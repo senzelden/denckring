@@ -15,7 +15,8 @@ from typing import Any
 from pydantic import BaseModel
 
 from denckring.core.errors import UnsetHintParameter
-from denckring.core.fields import ROLES, roles
+from denckring.core.fields import ROLES, kinds, roles
+from denckring.core.protocol import Lang, LanguagePack
 from denckring.core.text import quoted_letters
 
 #: The roles whose parameters every hint must state (`core.fields.ROLES`): what the
@@ -66,7 +67,45 @@ def show_kinds(model: type[BaseModel]) -> dict[str, str]:
     return kinds
 
 
-def show(value: Any, kind: str | None = None) -> str:
+#: The quotation marks a hint in each language puts round a letter, as its own
+#: templates quote a placeholder: a French hint reading `"b", "c"` mixes two styles.
+QUOTES: dict[str, tuple[str, str]] = {
+    "en": ('"', '"'),
+    "de": ("\u201e", "\u201c"),
+    "fr": ("\u00ab ", " \u00bb"),
+}
+
+#: The string kinds (`core.fields.KINDS`) that name letters, which a checker compares
+#: folded when `fold_diacritics` is on.
+LETTER_KINDS: frozenset[str] = frozenset({"letter", "letters", "vowel", "vowels", "consonant"})
+
+
+def as_compared(
+    values: Mapping[str, Any], model: type[BaseModel], pack: LanguagePack
+) -> dict[str, Any]:
+    """`values` with each letter given as the checker compares it.
+
+    Under `fold_diacritics`, `forbidden="é"` forbids every `e`: a hint stating `é`
+    beside its own sentence that `é` counts as `e` asked for one thing and was judged
+    on another. So a letter-kind value is shown folded, each letter of a set once, in
+    the order given, as `consonantal_lipogram` names it in a violation. A letter that
+    folds to two (`ß`) is left as given: the checker refuses it, and the hint should
+    not pretend otherwise. Rendering only; `check` folds for itself.
+    """
+    shown = dict(values)
+    if not shown.get("fold_diacritics"):
+        return shown
+    for name, kind in kinds(model).items():
+        value = shown.get(name)
+        if kind not in LETTER_KINDS or not isinstance(value, str):
+            continue
+        folded = [pack.fold_diacritics(ch) for ch in value]
+        if all(len(letter) == 1 for letter in folded):
+            shown[name] = "".join(dict.fromkeys(folded) if kind == "letters" else folded)
+    return shown
+
+
+def show(value: Any, kind: str | None = None, lang: Lang = "en") -> str:
     """How a parameter value reads in a sentence: the one rule for non-strings.
 
     A list or tuple joins its items with ", " (`[5, 7, 5]` reads `5, 7, 5`, not
@@ -76,7 +115,7 @@ def show(value: Any, kind: str | None = None) -> str:
     such a placeholder unquoted.
     """
     if kind == "letters" and isinstance(value, str):
-        return quoted_letters(value)
+        return quoted_letters(value, QUOTES[lang])
     if isinstance(value, Sequence) and not isinstance(value, str):
         return ", ".join(str(item) for item in value)
     return str(value)
@@ -87,16 +126,18 @@ def render(
     template: str,
     values: Mapping[str, Any],
     kinds: Mapping[str, str] | None = None,
+    lang: Lang = "en",
 ) -> str:
     """Fill `template` from `values`, refusing any placeholder whose value is `None`.
 
-    `kinds` is `show_kinds` of the row's params model: how each field reads.
+    `kinds` is `show_kinds` of the row's params model: how each field reads. `lang`
+    is the template's language, which picks the quotation marks.
     """
     filled: dict[str, str] = {}
     for name in placeholders(template):
         if values.get(name) is None:
             raise UnsetHintParameter(procedure_id, name)
-        filled[name] = show(values[name], (kinds or {}).get(name))
+        filled[name] = show(values[name], (kinds or {}).get(name), lang)
     return template.format(**filled)
 
 
@@ -110,7 +151,9 @@ def default_values(model: type[BaseModel]) -> dict[str, Any]:
     return {name: value for name, value in defaults.items() if value is not None}
 
 
-def rendered_with_defaults(procedure_id: str, template: str, model: type[BaseModel]) -> str:
+def rendered_with_defaults(
+    procedure_id: str, template: str, model: type[BaseModel], lang: Lang = "en"
+) -> str:
     """The template rendered from defaults if they fill every slot, else unchanged.
 
     What `describe` shows (ADR 0050). A hint whose slot has no default cannot be
@@ -119,5 +162,5 @@ def rendered_with_defaults(procedure_id: str, template: str, model: type[BaseMod
     """
     defaults = default_values(model)
     if all(name in defaults for name in placeholders(template)):
-        return render(procedure_id, template, defaults, show_kinds(model))
+        return render(procedure_id, template, defaults, show_kinds(model), lang)
     return template

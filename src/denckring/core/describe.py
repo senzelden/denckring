@@ -270,7 +270,10 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         # every surface reading it show a hint a model can act on (ADR 0050).
         prompt_hints=(
             rendered_with_defaults(
-                meta.id, _text(meta.prompt_hints, lang), procedure.params_model()
+                meta.id,
+                _text(meta.prompt_hints, lang),
+                procedure.params_model(),
+                lang if lang in meta.prompt_hints else "en",
             )
             or None
         ),

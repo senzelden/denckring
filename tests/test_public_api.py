@@ -9,6 +9,7 @@ from `core`, because nothing else offered them (audit B2-B4, B7, B9).
 from __future__ import annotations
 
 import inspect
+import re
 from pathlib import Path
 
 import pytest
@@ -183,20 +184,62 @@ def test_the_api_docs_document_every_export_from_the_top_level() -> None:
     assert elsewhere == [], "document an exported name from `denckring`, not where it is defined"
 
 
+def _classifying_text(readme: str) -> str:
+    """The parts of "What is stable" that classify an export: the bullet naming the
+    exports under the promise, the pack-surface bullet, and the list of what is
+    published but not yet promised. The rest of the section names fields and keys
+    (`provenance`, `estimated`), which say nothing about an export of that name."""
+    section = readme.split("## What is stable", 1)[1].split("\n## ", 1)[0]
+    bullets = section.split("\n- ")
+    promised = [
+        bullet
+        for bullet in bullets
+        if bullet.startswith(("**The names `denckring` exports**", "**The language-pack surface**"))
+    ]
+    assert len(promised) == 2, "the promise's two export bullets were renamed"
+    not_yet = section.split("**Published, not yet promised.**", 1)[1]
+    return "\n".join([*promised, not_yet])
+
+
 def test_the_stability_section_classifies_every_export() -> None:
     """Every name `denckring` exports is either promised or listed as not yet promised,
     so a new export cannot arrive without the README saying which (audit E1). Error
-    classes are covered as a family: `DenckringError` and every subclass."""
-    text = README.read_text(encoding="utf-8")
-    section = text.split("## What is stable", 1)[1].split("\n## ", 1)[0]
+    classes are covered as a family: `DenckringError` and every subclass. A name counts
+    only as a whole backticked token in the classifying text, so a field such as
+    `provenance` elsewhere in the section does not classify an export of that name."""
+    tokens = set(re.findall(r"`([^`]+)`", _classifying_text(README.read_text(encoding="utf-8"))))
     unnamed = sorted(
         name
         for name in _exported()
-        if f"`{name}`" not in section
-        and f"`denckring.{name}`" not in section
+        if name not in tokens
+        and f"denckring.{name}" not in tokens
         and not (
             inspect.isclass(value := getattr(denckring, name))
             and issubclass(value, errors.DenckringError)
         )
     )
     assert unnamed == []
+
+
+@pytest.mark.parametrize(
+    ("lang", "expected"),
+    [("en", '"s", "t"'), ("de", "„s“, „t“"), ("fr", "« s », « t »")],
+)
+def test_a_letter_set_is_quoted_as_its_language_quotes(lang: Lang, expected: str) -> None:
+    """A French hint read `aucune de ces lettres : "b", "c"` while quoting every other
+    placeholder with guillemets (U5 review M2)."""
+    assert denckring.render_hint(
+        "consonantal_lipogram", "{forbidden}", lang=lang, forbidden="st"
+    ) == (expected)
+
+
+def test_a_hint_names_a_letter_as_the_checker_compares_it() -> None:
+    """Under `fold_diacritics`, `forbidden="é"` forbids every `e`. A hint stating `é`
+    beside its own sentence that `é` counts as `e` contradicted the checker (U5 review
+    M3); the letter is shown folded, and shown as given where nothing folds."""
+    hint = denckring.prompt_hint("lipogram", lang="fr", forbidden="é")
+    assert "« e »" in hint
+    assert not denckring.check("lipogram", "le chat", lang="fr", forbidden="é").satisfied
+    assert '"e", "t"' in denckring.prompt_hint("consonantal_lipogram", forbidden="ÉtE")
+    unfolded = denckring.prompt_hint("lipogram", lang="de", forbidden="ä", fold_diacritics=False)
+    assert "„ä“" in unfolded

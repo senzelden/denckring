@@ -31,7 +31,7 @@ from denckring.core.errors import (
     UnsetHintParameter,
     UnsettablePhrase,
 )
-from denckring.core.hints import placeholders, render, show_kinds
+from denckring.core.hints import as_compared, placeholders, render, show_kinds
 from denckring.core.protocol import (
     Constructive,
     Evidence,
@@ -97,6 +97,9 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     `params` are validated as `check` validates them, so defaults fill in and a
     bad value raises `InvalidParams` exactly as it would there. Values render by
     one rule: a list or tuple joins its items with ", ", anything else is `str()`.
+    A letter set is quoted letter by letter in the language's own marks, and under
+    `fold_diacritics` a letter is shown folded, as the checker compares it
+    (`core.hints.as_compared`).
 
     Raises `NoPromptHint` when the row has no hint in `lang` — no fallback to
     English, which `describe` does and discloses in `untranslated`, but a bare
@@ -114,7 +117,9 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     if template is None:
         raise NoPromptHint(procedure_id, lang)
     parsed = procedure.parse_params(params)
-    lines = [render(procedure_id, template, dict(parsed), show_kinds(procedure.params_model()))]
+    model = procedure.params_model()
+    shown = as_compared(dict(parsed), model, get_pack(lang))
+    lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
     lines += [
         f"- {prompt_hint(delegate, lang=lang, **delegate_params)}"
         for delegate, delegate_params in procedure.hint_delegates(parsed)
@@ -130,7 +135,9 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     value raises `InvalidParams`; `lang` must name a language a pack is installed
     for, as it must for `check`. Values render as in `prompt_hint`: a list joins with
     ", ", a field declaring `x-denckring-show: letters` quotes each letter (`"e",
-    "t"`), anything else is `str()`. A placeholder naming no parameter of the row
+    "t"`, or `„e“, „t“` and `« e », « t »` in German and French), anything else is
+    `str()`. Under `fold_diacritics` a letter is shown folded, as the checker compares
+    it. A placeholder naming no parameter of the row
     raises `InvalidParams`; one whose value is `None` raises `UnsetHintParameter`.
     Unlike `prompt_hint`, nothing is appended for a composite's constraints: the
     template is the whole prompt.
@@ -146,7 +153,8 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
             f"it accepts {sorted(model.model_fields)}",
         )
     parsed = procedure.parse_params(params)
-    return render(procedure_id, template, dict(parsed), show_kinds(model))
+    shown = as_compared(dict(parsed), model, get_pack(lang))
+    return render(procedure_id, template, shown, show_kinds(model), lang)
 
 
 def pack_provenance(lang: Lang = "en") -> PackProvenance:

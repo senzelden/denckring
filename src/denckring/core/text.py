@@ -133,14 +133,17 @@ def single_letter(
     return folded
 
 
-def quoted_letters(letters: Iterable[str]) -> str:
+def quoted_letters(letters: Iterable[str], quotes: tuple[str, str] = ('"', '"')) -> str:
     """A set of letters as a sentence reads it: `"e", "t"`, not `et`.
 
     One rule for a prompt hint (`core.hints.show`, kind `letters`) and for a
     violation's `expected` text, so the repair message and the prompt name the same
     letters the same way. Quoted whole, a set of consonants reads as a word.
+    `quotes` lets a German or French hint use its own marks (`core.hints.QUOTES`);
+    a violation's text is English and keeps the default.
     """
-    return ", ".join(f'"{letter}"' for letter in letters)
+    opening, closing = quotes
+    return ", ".join(f"{opening}{letter}{closing}" for letter in letters)
 
 
 def word_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
