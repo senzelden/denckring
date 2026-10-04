@@ -60,22 +60,29 @@ def _parse_max_text_chars() -> int:
 MAX_TEXT_CHARS = _parse_max_text_chars()
 
 
+def _strings_length(value: Any) -> int:
+    """The length of every string in `value`, however deeply nested in lists and dicts."""
+    if isinstance(value, str):
+        return len(value)
+    if isinstance(value, dict):
+        return sum(_strings_length(item) for item in value.values())
+    if isinstance(value, list):
+        return sum(_strings_length(item) for item in value)
+    return 0
+
+
 def _total_length(text: str, params: dict[str, Any] | None) -> int:
-    """`text` plus every string (or list-of-string) value in `params`.
+    """`text` plus every string anywhere in `params`.
 
     Several `checkability: source` procedures carry a second, unbounded
     document in `params["source"]` (`SourceParams`), and `paronomasia`'s
     `domain_words` is a list of them — both are the same remote boundary
     `MAX_TEXT_CHARS` exists to close, and `text` alone did not cover them
-    (whole-branch review finding on P2-06).
+    (whole-branch review finding on P2-06). Nested, because `multiple_constraint`
+    carries each constraint's parameters inside its `constraints` entries (ADR
+    0059), so a source row's document can sit two levels down.
     """
-    total = len(text)
-    for value in (params or {}).values():
-        if isinstance(value, str):
-            total += len(value)
-        elif isinstance(value, list):
-            total += sum(len(v) for v in value if isinstance(v, str))
-    return total
+    return len(text) + _strings_length(params or {})
 
 
 def _check_text_length(text: str, params: dict[str, Any] | None = None) -> dict[str, Any] | None:

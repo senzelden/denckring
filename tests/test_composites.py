@@ -1,11 +1,16 @@
 """Unit tests for `larding` and `multiple_constraint`, beyond the golden/strategy suites."""
 
+import math
+from typing import Any
+
 import pytest
 
 from denckring import check
 from denckring.core.errors import InvalidParams, MissingCapability
+from denckring.core.protocol import Report
 from denckring.core.registry import get
 from denckring.lang.en import EnglishPack
+from denckring.procedures import multiple_constraint
 
 # ---------------------------------------------------------------------------
 # larding
@@ -88,24 +93,113 @@ def test_larding_is_vacuous_with_no_source_sentences() -> None:
 # ---------------------------------------------------------------------------
 
 
+#: The golden fixtures' pair: a vowel-e univocalic and a lipogram.
+def _pair(forbidden: str) -> list[dict[str, Any]]:
+    return [
+        {"id": "univocalic", "params": {"vowel": "e"}},
+        {"id": "lipogram", "params": {"forbidden": forbidden}},
+    ]
+
+
 def test_multiple_constraint_satisfied_only_when_all_are() -> None:
     report = check(
-        "multiple_constraint",
-        "the letters were her tender ferments",
-        constraints=["univocalic", "lipogram"],
-        constraint_params={"univocalic": {"vowel": "e"}, "lipogram": {"forbidden": "a"}},
+        "multiple_constraint", "the letters were her tender ferments", constraints=_pair("a")
     )
     assert report.satisfied is True
     assert report.score == 1.0
 
 
 def test_multiple_constraint_fails_when_one_constraint_fails() -> None:
-    report = check(
-        "multiple_constraint",
-        "the cat sat",
-        constraints=["univocalic", "lipogram"],
-        constraint_params={"univocalic": {"vowel": "e"}, "lipogram": {"forbidden": "z"}},
-    )
+    report = check("multiple_constraint", "the cat sat", constraints=_pair("z"))
+    assert report.satisfied is False
+    assert report.score < 1.0
+
+
+def test_the_score_is_the_mean_of_the_constraints_scores() -> None:
+    """ADR 0059: one unit per constraint scored a pair 0, 0.5 or 1, whatever the
+    distance to passing. The mean reads each constraint's own score."""
+    text = "the cat sat"
+    report = check("multiple_constraint", text, constraints=_pair("z"))
+    alone = [check(e["id"], text, **e["params"]).score for e in _pair("z")]
+    assert alone[0] < 1.0 and alone[1] == 1.0
+    assert report.score == pytest.approx(sum(alone) / 2)
+    assert report.score != 0.5
+
+
+def test_each_constraints_verdict_and_score_is_reported_in_order() -> None:
+    report = check("multiple_constraint", "the cat sat", constraints=_pair("z"))
+    univocalic = check("univocalic", "the cat sat", vowel="e")
+    assert report.metrics["delegates.0.satisfied"] == 0.0
+    assert report.metrics["delegates.0.score"] == univocalic.score
+    assert report.metrics["delegates.1.satisfied"] == 1.0
+    assert report.metrics["delegates.1.score"] == 1.0
+    assert report.metrics["satisfied_constraints"] == 1.0
+
+
+def test_the_same_constraint_may_appear_twice_with_different_params() -> None:
+    """The old shape keyed parameters by id, so two lipograms could not be composed."""
+    twice = [
+        {"id": "lipogram", "params": {"forbidden": "a"}},
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+    ]
+    report = check("multiple_constraint", "the cat sat", constraints=twice)
+    assert report.satisfied is False
+    assert report.metrics["delegates.0.satisfied"] == 0.0
+    assert report.metrics["delegates.1.satisfied"] == 1.0
+    assert {v.found for v in report.violations} == {"a"}
+    assert check("multiple_constraint", "the dog ran", constraints=twice).satisfied is False
+    assert check("multiple_constraint", "the doe fled", constraints=twice).satisfied is True
+
+
+@pytest.mark.parametrize(
+    "old",
+    [
+        {
+            "constraints": ["univocalic", "lipogram"],
+            "constraint_params": {"univocalic": {"vowel": "e"}, "lipogram": {"forbidden": "a"}},
+        },
+        {"constraints": ["univocalic", "lipogram"]},
+        {"constraints": _pair("a"), "constraint_params": {}},
+    ],
+)
+def test_the_pre_0_4_shape_is_refused_with_the_new_shape_in_the_message(
+    old: dict[str, Any],
+) -> None:
+    """Refused, never re-read (ADR 0059): the message rewrites the caller's own call."""
+    with pytest.raises(InvalidParams) as raised:
+        check("multiple_constraint", "the cat", **old)
+    message = str(raised.value)
+    assert "constraint_params" in message and "ADR 0059" in message
+    assert '{"id": "univocalic", "params": {' in message
+    if old.get("constraint_params"):
+        assert '"params": {"vowel": "e"}' in message
+
+
+def test_an_entry_with_an_unknown_key_is_refused() -> None:
+    entries = [*_pair("a")[:1], {"id": "lipogram", "parms": {"forbidden": "a"}}]
+    with pytest.raises(InvalidParams, match="parms"):
+        check("multiple_constraint", "text", constraints=entries)
+
+
+def test_an_unsatisfied_composite_never_rounds_to_a_perfect_score(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Two scores each one rounding step below 1.0 average to 1.0 in floating point;
+    `Report` would refuse that unsatisfied score, so it is capped below 1.0."""
+    near = math.nextafter(1.0, 0.0)
+    assert (near + near) / 2 == near and (1.0 + near) / 2 == 1.0
+
+    class Near:
+        def check(self, text: str, **_: Any) -> Report:
+            return Report(procedure="stub", satisfied=False, score=near)
+
+    class Perfect:
+        def check(self, text: str, **_: Any) -> Report:
+            return Report(procedure="stub", satisfied=True, score=1.0)
+
+    stubs = {"lipogram": Near(), "univocalic": Perfect()}
+    monkeypatch.setattr(multiple_constraint, "get", stubs.__getitem__)
+    report = check("multiple_constraint", "text", constraints=_pair("a"))
     assert report.satisfied is False
     assert report.score < 1.0
 
@@ -113,12 +207,7 @@ def test_multiple_constraint_fails_when_one_constraint_fails() -> None:
 def test_violations_carry_the_producing_constraints_id_in_note() -> None:
     """Unreadable otherwise: a bare 'foreign_vowel' violation does not say which
     of several named constraints objected."""
-    report = check(
-        "multiple_constraint",
-        "the cat sat",
-        constraints=["univocalic", "lipogram"],
-        constraint_params={"univocalic": {"vowel": "e"}, "lipogram": {"forbidden": "z"}},
-    )
+    report = check("multiple_constraint", "the cat sat", constraints=_pair("z"))
     assert report.violations
     assert all(v.note == "univocalic" for v in report.violations)
 
@@ -128,11 +217,10 @@ def test_a_delegates_own_note_is_preserved_alongside_the_constraint_id() -> None
     report = check(
         "multiple_constraint",
         "zzz",
-        constraints=["diastic", "univocalic"],
-        constraint_params={
-            "diastic": {"source": "abc"},
-            "univocalic": {"vowel": "e"},
-        },
+        constraints=[
+            {"id": "diastic", "params": {"source": "abc"}},
+            {"id": "univocalic", "params": {"vowel": "e"}},
+        ],
     )
     diastic_violations = [v for v in report.violations if v.note and v.note.startswith("diastic")]
     assert diastic_violations
@@ -145,7 +233,7 @@ def test_a_delegates_own_note_is_preserved_alongside_the_constraint_id() -> None
 
 def test_multiple_constraint_requires_at_least_two_constraints() -> None:
     with pytest.raises(InvalidParams):
-        check("multiple_constraint", "text", constraints=["univocalic"])
+        check("multiple_constraint", "text", constraints=_pair("a")[:1])
 
 
 def test_multiple_constraint_rejects_direct_self_reference() -> None:
@@ -153,27 +241,20 @@ def test_multiple_constraint_rejects_direct_self_reference() -> None:
         check(
             "multiple_constraint",
             "text",
-            constraints=["multiple_constraint", "univocalic"],
-            constraint_params={"univocalic": {"vowel": "e"}},
+            constraints=[{"id": "multiple_constraint"}, *_pair("a")[:1]],
         )
 
 
-def test_multiple_constraint_rejects_a_self_reference_nested_in_constraint_params() -> None:
+def test_multiple_constraint_rejects_a_self_reference_nested_in_an_entrys_params() -> None:
     """The self-reference does not have to be the whole list — naming it alongside a
     real constraint, with its own (never-reached) nested params, is caught the same
     way, before any delegate executes."""
+    nested = {"constraints": [{"id": "lipogram"}, {"id": "multiple_constraint"}]}
     with pytest.raises(InvalidParams, match="multiple_constraint"):
         check(
             "multiple_constraint",
             "text",
-            constraints=["univocalic", "multiple_constraint"],
-            constraint_params={
-                "univocalic": {"vowel": "e"},
-                "multiple_constraint": {
-                    "constraints": ["lipogram", "multiple_constraint"],
-                    "constraint_params": {"lipogram": {"forbidden": "z"}},
-                },
-            },
+            constraints=[*_pair("a")[:1], {"id": "multiple_constraint", "params": nested}],
         )
 
 
@@ -198,8 +279,7 @@ def test_multiple_constraint_lets_a_delegates_missing_capability_propagate_clean
         check(
             "multiple_constraint",
             "some plain text for testing purposes",
-            constraints=["univocalic", "dactylic_hexameter"],
-            constraint_params={"univocalic": {"vowel": "e"}},
+            constraints=[*_pair("a")[:1], {"id": "dactylic_hexameter"}],
         )
     assert exc_info.value.procedure_id == "dactylic_hexameter"
     assert exc_info.value.capability == "stress"

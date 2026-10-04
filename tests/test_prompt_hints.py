@@ -234,11 +234,13 @@ def test_render_hint_states_what_the_callers_template_leaves_out() -> None:
 
 
 def test_a_composite_states_its_constraints_parameters_once() -> None:
-    """`constraint_params` is stated by each constraint's own line, not again as a
+    """Each entry's `params` is stated by that constraint's own line, not again as a
     setting; a constraint's own setting is indented under its line."""
     composite: dict[str, Any] = {
-        "constraints": ["lipogram", "eodermdrome"],
-        "constraint_params": {"lipogram": {"forbidden": "q"}, "eodermdrome": {"min_letters": 9}},
+        "constraints": [
+            {"id": "lipogram", "params": {"forbidden": "q"}},
+            {"id": "eodermdrome", "params": {"min_letters": 9}},
+        ],
     }
     lines = prompt_hint("multiple_constraint", **composite).split("\n")
     assert lines[1:] == [
@@ -348,13 +350,15 @@ def test_describe_keeps_the_template_where_a_placeholder_has_no_default() -> Non
 #: Two constraints, each with a non-default parameter, so a sub-hint rendered from
 #: its defaults or left out entirely cannot pass.
 COMPOSITE: dict[str, Any] = {
-    "constraints": ["lipogram", "univocalic"],
-    "constraint_params": {"lipogram": {"forbidden": "q"}, "univocalic": {"vowel": "o"}},
+    "constraints": [
+        {"id": "lipogram", "params": {"forbidden": "q"}},
+        {"id": "univocalic", "params": {"vowel": "o"}},
+    ],
 }
 
 
 def test_a_composite_hint_states_each_constraint_with_its_own_params() -> None:
-    """`constraint_params` changes the task, so the prompt has to say it.
+    """An entry's `params` changes the task, so the prompt has to say it.
 
     The composite's own hint comes first, then one `- ` line per named
     constraint, in `constraints` order, each rendered by the same renderer.
@@ -368,14 +372,18 @@ def test_a_composite_hint_states_each_constraint_with_its_own_params() -> None:
 
 
 def test_a_sub_constraint_is_validated_as_its_own_check_would() -> None:
-    bad = {**COMPOSITE, "constraint_params": {"lipogram": {"forbidden": "qq"}}}
+    bad: dict[str, Any] = {
+        "constraints": [{"id": "lipogram", "params": {"forbidden": "qq"}}, {"id": "univocalic"}]
+    }
     with pytest.raises(InvalidParams) as raised:
         prompt_hint("multiple_constraint", **bad)
     assert raised.value.procedure_id == "lipogram"
 
 
 def test_a_sub_constraint_left_unset_is_refused_by_name() -> None:
-    unset = {**COMPOSITE, "constraint_params": {"lipogram": {"forbidden": "q"}}}
+    unset: dict[str, Any] = {
+        "constraints": [{"id": "lipogram", "params": {"forbidden": "q"}}, {"id": "univocalic"}]
+    }
     with pytest.raises(UnsetHintParameter) as raised:
         prompt_hint("multiple_constraint", **unset)
     assert raised.value.detail() == {"procedure_id": "univocalic", "param": "vowel"}
@@ -390,7 +398,8 @@ def test_a_sub_constraint_without_a_hint_in_the_language_is_refused_by_name(
     monkeypatch.setitem(
         ROWS["multiple_constraint"].prompt_hints, "de", "Erfülle zugleich: {constraints}."
     )
-    unhinted = [pid for pid in COMPOSITE["constraints"] if "de" not in ROWS[pid].prompt_hints]
+    ids = [entry["id"] for entry in COMPOSITE["constraints"]]
+    unhinted = [pid for pid in ids if "de" not in ROWS[pid].prompt_hints]
     assert unhinted, "give the composite a constraint with no German hint"
     with pytest.raises(NoPromptHint) as raised:
         prompt_hint("multiple_constraint", lang="de", **COMPOSITE)

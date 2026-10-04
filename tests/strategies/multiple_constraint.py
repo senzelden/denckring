@@ -15,8 +15,10 @@ from strategies import CaseStrategy
 _CONSONANTS = "bcdfghjklmnpqrstvwxy"  # no vowel but "e", and no "z"
 
 _PARAMS = {
-    "constraints": ["univocalic", "lipogram"],
-    "constraint_params": {"univocalic": {"vowel": "e"}, "lipogram": {"forbidden": "z"}},
+    "constraints": [
+        {"id": "univocalic", "params": {"vowel": "e"}},
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+    ],
 }
 
 

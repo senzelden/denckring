@@ -151,8 +151,7 @@ def test_a_composite_passes_its_constraints_rules_through() -> None:
     report = denckring.check(
         "multiple_constraint",
         "the cat",
-        constraints=["lipogram", "univocalic"],
-        constraint_params={"lipogram": {"forbidden": "t"}},
+        constraints=[{"id": "lipogram", "params": {"forbidden": "t"}}, {"id": "univocalic"}],
     )
     rules = {violation.rule for violation in report.violations}
     assert "forbidden_letter" in rules

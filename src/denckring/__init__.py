@@ -114,8 +114,8 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     whose value is `None` ("inferred" to a checker, nothing to a sentence).
 
     A composite (`multiple_constraint`) is followed by one line per named
-    constraint, `- ` and that constraint's own hint rendered from its
-    `constraint_params` entry by this same function, in `constraints` order, any
+    constraint, `- ` and that constraint's own hint rendered from its entry's
+    `params` by this same function, in `constraints` order, any
     lines of its own indented under it. So each sub-hint validates and refuses as
     it would if asked for directly, and the error names the sub-constraint.
     """
@@ -152,8 +152,8 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     A parameter the template has no placeholder for, set off its default, is
     appended on its own line as `prompt_hint` appends it, so a template written
     without a threshold cannot drop one a caller sets. Unlike `prompt_hint`, no
-    line is appended per composite constraint, so a non-default
-    `constraint_params` is stated as a setting like any other parameter.
+    line is appended per composite constraint: a composite's `constraints` is stated
+    only where the template names it, each entry by its id alone.
     """
     procedure = get(procedure_id)
     get_pack(lang)

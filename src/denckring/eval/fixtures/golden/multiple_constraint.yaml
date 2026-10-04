@@ -5,45 +5,51 @@ cases:
     source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
     text: the letters were her tender ferments
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: a } }
     satisfied: true
   - name: one-of-two-constraints-fails
     source: constructed counterexample; the vowel constraint is broken, the letter one is not
     text: the cat sat
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: z } }
     satisfied: false
   - name: univocalic-und-lipogram-beide-erfuellt
     lang: de
     source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
     text: wer entdeckt echtes leben
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: a } }
     satisfied: true
   - name: eine-von-zwei-bedingungen-scheitert
     lang: de
     source: constructed counterexample; the vowel constraint is broken, the letter one is not — reuses lipogram's own de fixture
     text: der Wind trug die Blumen fort
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: z } }
     satisfied: false
   - name: univocalisme-et-lipogramme-tiennent-ensemble
     lang: fr
     source: constructed example; satisfies a vowel-e univocalic and an a-lipogram together
     text: les lettres tendres se perdent
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: a } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: a } }
     satisfied: true
   - name: une-des-deux-contraintes-echoue
     lang: fr
     source: constructed counterexample; the vowel constraint is broken, the letter one is not
     text: le chat dort
     params:
-      constraints: [univocalic, lipogram]
-      constraint_params: { univocalic: { vowel: e }, lipogram: { forbidden: z } }
+      constraints:
+        - { id: univocalic, params: { vowel: e } }
+        - { id: lipogram, params: { forbidden: z } }
     satisfied: false

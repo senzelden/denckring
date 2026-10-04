@@ -64,6 +64,14 @@ def _read(source: str | None) -> str:
 
 
 def _coerce(value: str) -> Any:
+    # A JSON array or object, so a structured parameter can be given on the command
+    # line: `multiple_constraint`'s `constraints` is a list of {"id", "params"}
+    # (ADR 0059). Anything that does not parse stays the string it was.
+    if value[:1] in ("[", "{"):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return value
     lowered = value.lower()
     if lowered in {"true", "false"}:
         return lowered == "true"

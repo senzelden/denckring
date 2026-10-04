@@ -2188,10 +2188,6 @@ procedures:
       en: >-
         Satisfy all of these constraints in the same passage, without relaxing any:
         {constraints}.
-    hint_omits:
-      constraint_params: >-
-        stated by prompt_hint, which follows this hint with each named constraint's
-        own hint rendered from its entry here
     notes: >-
       German declared: this row's own logic needs only `tokens`, which is
       what `languages` records. It says nothing about whether a *particular*

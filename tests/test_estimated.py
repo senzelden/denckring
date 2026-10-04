@@ -92,7 +92,8 @@ def test_a_composite_rests_on_its_constraints_estimates(procedure: str) -> None:
     """A composite verdict is only as firm as its softest constraint (U3 review I1).
 
     `proteus_verse` discloses its guesses only in the metric, so the composite has to
-    carry that as well as the constraints' evidence. The verdict and score do not move.
+    carry that as well as the constraints' evidence. The verdict does not move, and the
+    constraint's own score is the composite's first delegate score.
     """
     text, params, lang = _estimated_golden(procedure)
     alone = check(procedure, text, lang=lang, **params)
@@ -100,11 +101,13 @@ def test_a_composite_rests_on_its_constraints_estimates(procedure: str) -> None:
         "multiple_constraint",
         text,
         lang=lang,
-        constraints=[procedure, "lipogram"],
-        constraint_params={procedure: params, "lipogram": {"forbidden": "q"}},
+        constraints=[
+            {"id": procedure, "params": params},
+            {"id": "lipogram", "params": {"forbidden": "q"}},
+        ],
     )
     assert composite.estimated
-    assert composite.metrics[f"{procedure}_score"] == alone.score
+    assert composite.metrics["delegates.0.score"] == alone.score
     assert composite.satisfied == alone.satisfied
     assert composite.evidence == alone.evidence
 
@@ -113,8 +116,7 @@ def test_a_composite_of_exact_rows_reports_no_estimate() -> None:
     composite = check(
         "multiple_constraint",
         "the cat",
-        constraints=["lipogram", "univocalic"],
-        constraint_params={"lipogram": {"forbidden": "q"}},
+        constraints=[{"id": "lipogram", "params": {"forbidden": "q"}}, {"id": "univocalic"}],
     )
     assert not composite.estimated
     assert "estimated_words" not in composite.metrics

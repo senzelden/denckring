@@ -85,6 +85,20 @@ def test_check_text_tool_refuses_an_oversized_source_param() -> None:
     assert result["code"] == "text_too_long"
 
 
+def test_check_text_tool_refuses_an_oversized_source_inside_a_composite() -> None:
+    """A composite carries each constraint's parameters in its `constraints` entries
+    (ADR 0059), so a source row's document arrives nested two levels down."""
+    from denckring.mcp import server
+
+    huge_source = "a " * server.MAX_TEXT_CHARS
+    constraints = [
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+        {"id": "n_plus_7", "params": {"source": huge_source}},
+    ]
+    result = check_text_tool("multiple_constraint", "short text", {"constraints": constraints})
+    assert result["code"] == "text_too_long"
+
+
 def test_check_text_tool_still_runs_an_ordinary_text() -> None:
     """The previous assertion — `"code" not in result or result.get("satisfied")
     is not None` — is a disjunction almost any dict satisfies, including an
