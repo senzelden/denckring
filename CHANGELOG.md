@@ -245,6 +245,11 @@ All notable changes to this project are documented here. The format follows
   `not_in_source` already failed the text. No golden verdict or score moves; a new
   golden case holds the fix.
 
+- `assonance_constraint` names the same vowel in every process. When vowels tied for a
+  line's top count, the `no_repeated_vowel` violation named whichever a `set` iterated
+  first, so its `found` changed with `PYTHONHASHSEED`. It now names the tied vowel the
+  line reaches first. Message only: no verdict or score depends on which vowel is named.
+
 - Seventeen fixed forms accepted `unknown_rhyme` and ignored it: `ballade`, `blank_verse`,
   `clerihew`, `curtal_sonnet`, `englyn`, `heroic_couplet`, `limerick`, `ottava_rima`,
   `petrarchan_sonnet`, `rhyme_royal`, `rondeau`, `shakespearean_sonnet`, `sonnet`,

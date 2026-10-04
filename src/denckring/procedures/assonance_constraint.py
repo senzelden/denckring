@@ -81,7 +81,11 @@ class AssonanceConstraint(BaseProcedure[AssonanceParams]):
                 if vowels is None:
                     estimated += 1
                     continue
-                carried.update(set(vowels))
+                # Each vowel once per word, kept in the word's order: `most_common`
+                # ranks a tie in first-insertion order, so the violation names the tied
+                # vowel the line reaches first. A `set` here ranked ties by hash, and the
+                # message changed with `PYTHONHASHSEED` (R-F2).
+                carried.update(dict.fromkeys(vowels).keys())
             best, count = carried.most_common(1)[0] if carried else ("", 0)
             if count >= params.minimum:
                 good += 1
