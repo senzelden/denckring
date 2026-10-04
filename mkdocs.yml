@@ -116,6 +116,7 @@ nav:
       - "56. Aligned scoring for positional rows": adr/0056-aligned-scoring-for-positional-rows.md
       - "57. Rhyme readings in the writer's favour": adr/0057-rhyme-readings-in-the-writers-favour.md
       - "58. A word is as long as its letters": adr/0058-a-word-is-as-long-as-its-letters.md
+      - "59. Composites, and promised rules and evidence": adr/0059-composites-and-the-promise-of-rules-and-evidence.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

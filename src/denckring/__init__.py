@@ -193,8 +193,9 @@ def rules(procedure_id: str) -> tuple[str, ...]:
     passes its constraints' violations through unchanged, and any registered row
     can be one of them, so it answers with every other row's vocabulary.
 
-    Published from 0.3.2 but not yet under the README's stability promise: a rule
-    may still be renamed in a minor release, and the changelog will say so.
+    Under the README's stability promise since 0.4.0 (ADR 0059): a published rule
+    keeps its name and meaning, a row may add rules, and removing or renaming one is
+    a breaking change the changelog names.
     """
     procedure = get(procedure_id)
     if not procedure.delegates_rules:

@@ -80,7 +80,9 @@ number is small enough to trust.
 To decide whether to trust a verdict at all, read `Report.estimated` rather than this
 metric: it is true whenever the verdict rests on anything estimated or left unjudged,
 including what `estimated_words` misses on some rows (rhyme endings, for one), and it
-is under the README's stability promise, which `metrics` keys are not.
+is under the README's stability promise, which `metrics` keys are not. So is
+`evidence` itself, since 0.4.0: a caller can decide per entry from its `basis`
+(`dictionary`, `ambiguous` or `estimated`) without reading a metric (ADR 0059).
 
 A word the dictionary lists more than one way is looked up, not guessed, so it does not
 make a verdict estimated. Its `evidence` entry has basis `ambiguous` and names every

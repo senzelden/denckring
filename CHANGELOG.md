@@ -30,19 +30,19 @@ patch.
   the audit's move from failing to passing. 92 of the 3,966 band-10 words have listed
   readings with different counts.
 
-- `Evidence.basis` gains `ambiguous`: the dictionary lists more than one reading and the
+- `Evidence.basis` gains `ambiguous` (ADR 0054): the dictionary lists more than one reading and the
   checker accepted any of them. It is used on syllable, stress and rhyme evidence. It is
   not an estimate, so `Report.estimated` stays false. `dictionary` now means one reading.
   Metre evidence names the stress form the scan fitted (`every` as `10`, was its first
   form `100`), or every form tried, joined by `/`, when the line does not scan.
-  In the golden corpus, 61 evidence entries in 31 cases (sonnet, stanza and rhyme rows,
-  English and German) go from `dictionary` to `ambiguous`, and five metre entries change
-  `value`. `provenance.schema_version` is
-  `1.2` (was `1.1`), and the schema test now ties each version to its basis values as
-  well as its keys.
+  In the golden corpus, 51 evidence entries in 27 English cases (sonnet, stanza and
+  rhyme rows) go from `dictionary` to `ambiguous`, and three English metre entries change
+  `value`. German entries stay `dictionary` (ADR 0057, below).
+  `provenance.schema_version` is `1.2` (was `1.1`), and the schema test now ties each
+  version to its basis values as well as its keys.
 
 - `describe().reading.determinacy` is `heuristic` for `definitional_expansion` and
-  `definitional_literature` (was `exact`): a word no gloss resolves is left unjudged,
+  `definitional_literature` (was `exact`; ADR 0054): a word no gloss resolves is left unjudged,
   and their reports could already be `estimated`. The split is 85 exact and 48 heuristic
   (was 87 and 46). An `exact` row never reports `estimated`, with no exceptions.
 
@@ -78,7 +78,7 @@ patch.
   edits (Levenshtein; a tie prefers a substitution, then a deletion, then an
   insertion; `source_compare.align`, `aligned_report`): `good` is the matched count and the
   denominator the alignment's length, so one dropped unit costs one unit. Only an exact
-  match scores 1.0, and no verdict moves. Scores and violation lists change. A
+  match scores 1.0. Scores and violation lists change. A
   substitution keeps the row's rule. An inserted run is `extra_words` or
   `extra_letters` at its first unit, mid-text as well as at the end. A missing unit is
   `missing_word` or `missing_letter`, placed where it would go. `n_plus_7` and
@@ -114,7 +114,8 @@ patch.
   scores move, both on cases that already failed: Goethe's *Iphigenie* blank verse
   0.9947 to 0.9895 (`hierher`), and its `min_score` floor drops from 0.99 to 0.98;
   Gryphius's sonnet 0.9873 to 0.9879 (`du`), which resolves the defect ADR 0040 parked.
-  Ten evidence entries in four German cases go from `ambiguous` to `dictionary`.
+  Seven evidence entries in three German cases change `value` as the other
+  transcriptions drop out (`hierher`'s rhyme is `eː ɐ̯`, was `eː ɐ̯/iː ɐ̯ h eː ɐ̯`).
 
 - **A snowball counts letters, not characters** (ADR 0058, audit A10). `snowball` and
   `reverse_snowball` measured each word with `len`, and the word pattern keeps an
@@ -125,6 +126,31 @@ patch.
   (`word_examples`, `well-known` is two words in `sentence_length_constraint` and
   `snowball_sentence` too), and `y` is no vowel in English or German (`vowels`).
   Golden corpus, re-measured over all 687 cases: no verdict or score moves.
+
+- **Breaking: `multiple_constraint` takes a list of `{"id", "params"}` entries** (ADR
+  0059, audit B10). `constraints: [{"id": "univocalic", "params": {"vowel": "e"}},
+  {"id": "lipogram", "params": {"forbidden": "a"}}]` replaces `constraints` as a list
+  of ids plus `constraint_params` keyed by id, so the same procedure may appear twice
+  (two lipograms, two acrostics). The old shape raises `InvalidParams`, whose message
+  is the caller's own call rewritten in the new shape; it is never re-read. The score is
+  the mean of the constraints' own scores (was one unit per satisfied constraint, so 0,
+  0.5 or 1), and `satisfied` still needs every constraint. `metrics` carries
+  `delegates.<i>.satisfied` and `delegates.<i>.score` in constraint order, replacing
+  `<id>_score`. The CLI reads a `--param` value that parses as a JSON array or object as
+  JSON, so `-p 'constraints=[...]'` works; any other value is read as before. The MCP
+  server's length cap counts strings nested in a composite's entries. The explorer's
+  bench renders and reads the field as JSON. Golden corpus, re-measured over all 687
+  cases: the six fixtures move to the new shape, no verdict moves, and three failing
+  cases' scores rise (0.5 to 0.667 in English and French, 0.5 to 0.6875 in German).
+
+- **Rule ids and `Report.evidence` are under the stability promise** (ADR 0059, audits
+  B1 and B8). A rule published through `denckring.rules(procedure_id)` keeps its name
+  and meaning; a row may add rules, and removing or renaming one is a breaking change
+  the changelog names. `evidence` joins the `Report` JSON fields the README promises,
+  with `Evidence`'s fields and its basis values (`dictionary`, `ambiguous`,
+  `estimated`), so a caller can leave a verdict unscored from `basis` alone. `rules` and
+  `Evidence` move into the promised exports. `rule_categories`, `failure_categories`,
+  `metrics` keys and the wording of messages and hints stay unpromised.
 
 ### Added
 
