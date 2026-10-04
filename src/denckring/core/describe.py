@@ -88,12 +88,14 @@ _RHYME_KEYS: dict[Lang, str] = {
     "en": (
         "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
         "end, one key per listed pronunciation. Secondary stress does not key a rhyme: "
-        "'someday' rhymes from its 'some', so it does not rhyme with 'day'."
+        "'someday' rhymes from its 'some', so it does not rhyme with 'day'. A word with no "
+        "primary stress keys from its last vowel ('the' keys 'AH0')."
     ),
     "de": (
         "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
         "end, read from the word's first transcription only: the dictionary's list mixes "
-        "in inflected forms ('du' lists 'dich'). Secondary stress does not key a rhyme."
+        "in inflected forms ('du' lists 'dich'). Secondary stress does not key a rhyme. A "
+        "word with no primary stress keys from its last vowel."
     ),
     "fr": (
         "A line ending's rhyme key is its sounds from the last vowel to the end; French has "
@@ -103,9 +105,11 @@ _RHYME_KEYS: dict[Lang, str] = {
 #: How a scheme reads the keys, the half that is the same in every language (ADR 0057).
 _RHYME_PAIRS = (
     " Lines the scheme pairs rhyme when some reading of each shares a key. Lines it keeps "
-    "apart fail only when every reading of each shares the key, so a word with two "
-    "readings passes if one keeps the pair apart. Each pair is judged on its own: one "
-    "reading may keep one pair apart while another makes a second pair rhyme."
+    "apart fail when every reading of each shares the key, or when the two words have the "
+    "same keys, since then every reader rhymes them ('fog' and 'bog'). Otherwise a word "
+    "with two readings passes if one keeps the pair apart ('gone' and 'on'). Each pair is "
+    "judged on its own: one reading may keep one pair apart while another makes a second "
+    "pair rhyme."
 )
 
 #: Strings whose tokenization answers the questions a word count turns on: both

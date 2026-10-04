@@ -333,7 +333,8 @@ def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[
 
     Two lines may rhyme when their key sets intersect — the same satisfiability
     reading applied to pronunciation that metre applies to stress — and must when
-    every pair of keys matches (`may_rhyme`, `must_rhyme`, ADR 0057). The fourth
+    every pair of keys matches or the two sets are the same (`may_rhyme`,
+    `must_rhyme`, ADR 0057). The fourth
     element distinguishes "this word rhymes with nothing here" from "the
     dictionary does not carry this word", which are different claims.
     """
@@ -357,16 +358,24 @@ def may_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
 
 
 def must_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
-    """Whether every reading of each word makes the two rhyme: every pair of keys matches.
+    """Whether the two rhyme against a scheme that keeps them apart (ADR 0057).
 
-    What fails a pair the scheme wants kept apart (ADR 0057). The mirror of
-    `may_rhyme`: a writer may have meant any listed reading, so a pair rhymes against
-    the scheme only when no choice of readings keeps it apart. Keys are compared for
-    equality, so this holds exactly when both words have the same single key. Decided
-    per pair, like `may_rhyme`, and not for the scheme jointly: one word's variant may
-    keep one pair apart while its other variant makes a second pair rhyme.
+    Two ways, either of which fails the pair. Every pairing of the two words' readings
+    rhymes, so no choice keeps them apart. Or the two have the same set of keys, so
+    whichever accent a reader has, it reads both words alike: `fog` and `bog` are each
+    `AA1 G` or `AO1 G`, and a speaker who says one way says both. Reading one word in
+    one accent and the other in another models no speaker. A pair whose keys overlap
+    without being the same set passes, because some reader keeps it apart: `gone` is
+    `AO1 N`, and `on` may be `AA1 N`.
+
+    Keys are compared for equality, so the first way is a case of the second: both
+    words have the same single key. Decided per pair, like `may_rhyme`, and not for
+    the scheme jointly: one word's variant may keep one pair apart while its other
+    variant makes a second pair rhyme. An empty set, a word the dictionary lacks,
+    rhymes with nothing.
     """
-    return bool(first) and bool(second) and all(a == b for a in first for b in second)
+    every_pairing = all(a == b for a in first for b in second)
+    return bool(first) and bool(second) and (every_pairing or first == second)
 
 
 def rhyme_evidence(
@@ -408,8 +417,9 @@ def scheme_violations(
     Both directions matter: lines sharing a letter must rhyme, and lines with
     different letters must not. A poem in which everything rhymes does not
     satisfy `ABAB`. Each direction reads a word's several keys in the writer's
-    favour: a wanted pair rhymes when some reading of each does, and an unwanted
-    pair fails only when every reading of each does (ADR 0057).
+    favour, as far as one reader could: a wanted pair rhymes when some reading of
+    each does, and an unwanted pair fails when every reading of each does or when
+    the two have the same keys, so that every reader rhymes them (ADR 0057).
 
     `unknown_rhyme` decides what a line ending the pronouncing dictionary does
     not carry means, which is an editorial question rather than a library
@@ -464,8 +474,8 @@ def scheme_violations(
                 continue
             checks += 1
             should_rhyme = letters[i] == letters[j]
-            # A wanted rhyme needs one pairing of readings to match, an unwanted one
-            # fails only when every pairing does (ADR 0057).
+            # A wanted rhyme needs one pairing of readings to match. An unwanted one
+            # fails when every pairing does, or the key sets are the same (ADR 0057).
             does_rhyme = (may_rhyme if should_rhyme else must_rhyme)(keys[i][2], keys[j][2])
             # Compared past any leading elided proclitic, or `l'amour` and
             # `amour` — the same rhyme word — read as two different ones:

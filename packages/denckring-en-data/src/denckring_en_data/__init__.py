@@ -328,7 +328,11 @@ class EnglishDataPack(EnglishPack):
         return _rhyme_of(_phones_or_raise(self, word))
 
     def rhyme_keys(self, word: str) -> list[str]:
-        """Every pronunciation's rhyme key. Two words rhyme if any pair matches."""
+        """Every pronunciation's rhyme key.
+
+        A wanted pair rhymes if any pair of keys matches; an unwanted pair only if every
+        pair does or the two sets are the same (ADR 0057).
+        """
         return list(dict.fromkeys(_rhyme_of(f) for f in _forms_or_raise(self, word)))
 
     def stress_pattern(self, word: str) -> str:

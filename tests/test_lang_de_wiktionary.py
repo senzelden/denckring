@@ -229,3 +229,19 @@ def test_every_shipped_transcription_is_usable_german_ipa() -> None:
             assert form.strip() == form, word
             assert " " not in form and "…" not in form, word
             assert wiktionary.syllables_of(form) >= 1, word
+
+
+def test_every_headword_with_several_transcriptions_reads_one() -> None:
+    """ADR 0057: German evidence is never `ambiguous`, because every reading is the
+    first transcription's. Held over every headword listing more than one, not only
+    `du` and `gehen`, so a method that slips back to reading the list is caught."""
+    several = sorted(word for word, forms in wiktionary.pronunciations().items() if len(forms) > 1)
+    assert len(several) > 50_000
+    for word in several:
+        first = wiktionary.pronunciations()[word][0]
+        assert PACK.stress_patterns(word) == [wiktionary.stress_of(first)], word
+        assert PACK.rhyme_keys(word) == [wiktionary.rhyme_of(first)], word
+        assert PACK.syllable_counts(word) == (
+            frozenset({wiktionary.syllables_of(first)}),
+            True,
+        ), word

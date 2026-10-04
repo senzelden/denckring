@@ -312,13 +312,13 @@ class GermanWiktionaryPack(GermanDataPack):
         inherited from `GermanPack` — and the `exact` flag says which was used. A
         phoneme list has no honest estimate at all.
         """
-        forms = self._forms(word)
-        if forms is None:
+        found = self._headword(word)
+        if found is None:
             return super().syllable_count(word)
-        return syllables_of(forms[0]), True
+        return syllables_of(found), True
 
     def phonemes(self, word: str) -> list[str]:
-        return phonemes_of(self._forms_or_raise(word)[0])
+        return phonemes_of(self._headword_or_raise(word))
 
     def is_vowel_phoneme(self, phoneme: str) -> bool:
         """A vowel symbol not marked non-syllabic, or a syllabic consonant.
@@ -331,32 +331,32 @@ class GermanWiktionaryPack(GermanDataPack):
 
     def rhyme_key(self, word: str) -> str:
         """The first transcription's rhyme key."""
-        return rhyme_of(self._forms_or_raise(word)[0])
+        return rhyme_of(self._headword_or_raise(word))
 
     def rhyme_keys(self, word: str) -> list[str]:
         """The first transcription's rhyme key, alone (ADR 0057).
 
         The table cannot tell a headword's variants from its inflected forms'
-        transcriptions (see `_headword_forms`), so the one key that is surely the
+        transcriptions (see `_headword`), so the one key that is surely the
         headword's own is the only one offered: `du` no longer rhymes with `mich`
         through *dich*.
         """
-        return [rhyme_of(form) for form in self._headword_forms(word)]
+        return [rhyme_of(self._headword_or_raise(word))]
 
     def stress_pattern(self, word: str) -> str:
         """The first transcription's stress pattern."""
-        return stress_of(self._forms_or_raise(word)[0])
+        return stress_of(self._headword_or_raise(word))
 
     def stress_patterns(self, word: str) -> list[str]:
         """The first transcription's stress pattern, alone (ADR 0057).
 
         A line scans if some combination of a word's own readings fits, and the
         table cannot say which of its transcriptions are the word's own (see
-        `_headword_forms`): `du` lists *deiner*'s `ˈdaɪ̯nɐ`, and reading it let a
+        `_headword`): `du` lists *deiner*'s `ˈdaɪ̯nɐ`, and reading it let a
         metre scan `du` as two syllables. The cost is a real variant: `gehen` is
         both `ˈɡeːən` and `ɡeːn`, and only the first is offered now.
         """
-        return [stress_of(form) for form in self._headword_forms(word)]
+        return [stress_of(self._headword_or_raise(word))]
 
     def glosses(self, word: str) -> tuple[str, ...]:
         """Every sense the dictionary carries, or nothing.
@@ -368,26 +368,24 @@ class GermanWiktionaryPack(GermanDataPack):
         """
         return look_up(gloss_table(), word) or ()
 
-    def _forms(self, word: str) -> list[str] | None:
-        """Every transcription for the word, or None if the table has none."""
-        return look_up(pronunciations(), word)
+    def _headword(self, word: str) -> str | None:
+        """The one transcription surely the headword's own, the first; None if unlisted.
 
-    def _headword_forms(self, word: str) -> list[str]:
-        """The transcriptions that are surely the headword's own: the first.
-
-        Wiktionary's `{{IPA}}` line labels an inflected form's transcription with
-        its case or number (`{{Gen.}}`, `{{Pl.}}`), but the build keeps only the
-        transcriptions, so this table lists `du` with *deiner*, *dich* and *euch*
-        and cannot say which is which. The first is the headword's, so stress and
-        rhyme read it alone, as syllable counts do (ADR 0054, ADR 0057).
+        Every reading this pack gives goes through here, syllables, phonemes, stress
+        and rhyme alike, so the rule that picks it cannot drift between them (ADR 0054,
+        ADR 0057). Wiktionary's `{{IPA}}` line labels an inflected form's
+        transcription with its case or number (`{{Gen.}}`, `{{Pl.}}`), but the build
+        keeps only the transcriptions, so this table lists `du` with *deiner*, *dich*
+        and *euch* and cannot say which is which. The first is the headword's.
         """
-        return self._forms_or_raise(word)[:1]
+        forms = look_up(pronunciations(), word)
+        return forms[0] if forms else None
 
-    def _forms_or_raise(self, word: str) -> list[str]:
-        forms = self._forms(word)
-        if not forms:
+    def _headword_or_raise(self, word: str) -> str:
+        found = self._headword(word)
+        if found is None:
             raise MissingCapability(f"<word {word!r}>", self.lang, PHONEMES)
-        return forms
+        return found
 
 
 __all__ = [

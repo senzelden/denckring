@@ -54,8 +54,8 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
                         expected="a word the pronouncing dictionary carries",
                     )
                 )
-            # Only a pair no choice of readings keeps apart rhymes against the
-            # form (ADR 0057), as `scheme_violations` reads an unwanted rhyme.
+            # A pair rhymes against the form when no reader keeps it apart (ADR
+            # 0057), as `scheme_violations` reads an unwanted rhyme.
             elif must_rhyme(keys[index][2], keys[other][2]):
                 violations.append(
                     Violation(

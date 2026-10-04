@@ -39,10 +39,12 @@ def test_a_wanted_rhyme_needs_one_matching_pair_of_readings() -> None:
     assert not may_rhyme(_keys(), _keys("AO1 N"))
 
 
-def test_an_unwanted_rhyme_needs_every_pair_of_readings_to_match() -> None:
+def test_an_unwanted_rhyme_needs_every_reader_to_rhyme_the_pair() -> None:
+    """Every pairing matches, or the two have the same keys (ADR 0057)."""
     assert must_rhyme(_keys("AO1 N"), _keys("AO1 N"))
+    assert must_rhyme(_keys("AA1 N", "AO1 N"), _keys("AA1 N", "AO1 N"))
     assert not must_rhyme(_keys("AA1 N", "AO1 N"), _keys("AO1 N"))
-    assert not must_rhyme(_keys("AA1 N", "AO1 N"), _keys("AA1 N", "AO1 N"))
+    assert not must_rhyme(_keys("AA1 N", "AO1 N"), _keys("AA1 N", "AO1 N", "OW1 N"))
     # An ending the dictionary lacks rhymes with nothing, as it always has.
     assert not must_rhyme(_keys(), _keys())
     assert not must_rhyme(_keys(), _keys("AO1 N"))
@@ -71,6 +73,17 @@ def test_blank_verse_reads_an_unwanted_rhyme_the_same_way() -> None:
     rules = [v.rule for v in check("blank_verse", GONE_ON).violations]
     assert "unwanted_rhyme" not in rules
     rules = [v.rule for v in check("blank_verse", GONE_DAWN).violations]
+    assert "unwanted_rhyme" in rules
+
+
+def test_two_words_with_the_same_keys_rhyme_for_every_reader() -> None:
+    """`fog` and `bog` are each `AA1 G` or `AO1 G`. A speaker who says one way says
+    both, so no reader keeps them apart, though reading each word in a different
+    accent would. The same holds for a word against itself."""
+    for text in ("in the fog\nin the bog", "the wind\nthe wind"):
+        report = check("rhyme_scheme", text, scheme="AB")
+        assert [v.rule for v in report.violations] == ["unwanted_rhyme"], text
+    rules = [v.rule for v in check("blank_verse", "in the fog\nin the bog").violations]
     assert "unwanted_rhyme" in rules
 
 
