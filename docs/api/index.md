@@ -82,6 +82,12 @@ metric: it is true whenever the verdict rests on anything estimated or left unju
 including what `estimated_words` misses on some rows (rhyme endings, for one), and it
 is under the README's stability promise, which `metrics` keys are not.
 
+A word the dictionary lists more than one way is looked up, not guessed, so it does not
+make a verdict estimated. Its `evidence` entry has basis `ambiguous` and names every
+reading (`every`: `2 or 3 syllables`), because the checker accepted any of them. A haiku
+line passes when some reading of its words gives the count, as a metrical line scans
+when some reading of its stresses fits (ADR 0054, ADR 0014).
+
 ## How a checker reads text
 
 `describe(procedure_id, lang=...).reading` says how the text is cut up before it is
@@ -96,6 +102,7 @@ judged, so a caller can write a prompt or a guard that agrees with the checker:
   `monoconsonantal`, `homovocalism`) read as vowels. `y` is one in French and not in
   English or German.
 - `normalization` says how letters fold before they are compared, and `determinacy`
-  whether the verdict can rest on an estimate.
+  whether the verdict can rest on an estimate or on words left unjudged. A row read
+  `exact` never reports `estimated`.
 
 `reading` is published but not yet under the stability promise.

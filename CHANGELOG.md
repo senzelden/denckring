@@ -6,6 +6,43 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+Two releases are in preparation. The sections headed `0.4.0` are for the minor release,
+which may change readings and defaults, each under an ADR. The rest are for the 0.3.2
+patch.
+
+### 0.4.0: Changed
+
+- **A line meets a syllable count when some reading of its words does** (ADR 0054,
+  audit A3). The line-count rows read each word's first CMUdict pronunciation, while
+  metre and rhyme read every one, so `every family sings` failed a haiku's five as seven
+  syllables with nothing estimated. `syllable_count`, `haiku`, `tanka`, `senryu`,
+  `cinquain`, `englyn`, `hendecasyllable`, `alexandrine`, `renga`, `haibun` and
+  `arca_musarithmica` now accept a line when any combination of listed readings meets
+  the count. `monosyllabic_prose` accepts a word with a one-syllable reading (`fire`),
+  and `double_dactyl` accepts a word with a six-syllable reading (`paradoxically`).
+  Packs gain `syllable_counts(word)` and `line_syllable_counts(line)`, and English's
+  reads every CMUdict variant. Both are optional, are not on the `LanguagePack`
+  protocol, and are read with `getattr`. German keeps its first transcription, because
+  Wiktionary's list carries inflected forms (`du` lists *deiner*). French returns its one
+  line total. A violation no reading meets names every reading: `found` is
+  `4, 5 or 6 syllables`.
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves. Texts like
+  the audit's move from failing to passing. 92 of the 3,966 band-10 words have listed
+  readings with different counts.
+
+- `Evidence.basis` gains `ambiguous`: the dictionary lists more than one reading and the
+  checker accepted any of them. It is used on syllable, stress and rhyme evidence. It is
+  not an estimate, so `Report.estimated` stays false. `dictionary` now means one reading.
+  In the golden corpus, 61 evidence entries in 31 cases (sonnet, stanza and rhyme rows,
+  English and German) go from `dictionary` to `ambiguous`. `provenance.schema_version` is
+  `1.2` (was `1.1`), and the schema test now ties each version to its basis values as
+  well as its keys.
+
+- `describe().reading.determinacy` is `heuristic` for `definitional_expansion` and
+  `definitional_literature` (was `exact`): a word no gloss resolves is left unjudged,
+  and their reports could already be `estimated`. The split is 85 exact and 48 heuristic
+  (was 87 and 46). An `exact` row never reports `estimated`, with no exceptions.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters
