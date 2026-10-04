@@ -1,7 +1,8 @@
 # denckring-en-data
 
-English pronunciation data for [denckring](https://github.com/senzelden/denckring):
-exact syllable counts, and the phoneme tails that rhyme checking will need.
+English data for [denckring](https://github.com/senzelden/denckring): exact syllable
+counts and rhyme from a pronouncing dictionary, and the nouns, glosses, graded words and
+word frequencies the lexicon rows read.
 
 ```console
 pip install denckring[en]

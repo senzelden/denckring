@@ -209,10 +209,11 @@ def _members(sdist: Path) -> list[str]:
 
 def test_the_sdist_does_not_carry_the_workspace_members(sdist: Path) -> None:
     """`denckring-en-data` and `denckring-de-data` publish their own distributions under
-    their own licence expressions — `Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause` and
-    `Apache-2.0 AND CC0-1.0`. Shipping their data inside the core sdist duplicates
-    several megabytes and puts third-party data under a declaration that does not
-    describe it. The explorer is a development tool published nowhere."""
+    their own licence expressions — `Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause AND
+    HPND-sell-variant` and `Apache-2.0 AND CC0-1.0`. Shipping their data inside the
+    core sdist duplicates several megabytes and puts third-party data under a
+    declaration that does not describe it. The explorer is a development tool
+    published nowhere."""
     stowaways = [name for name in _members(sdist) if name.startswith(("packages/", "apps/"))]
     assert stowaways == []
 

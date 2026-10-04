@@ -53,8 +53,8 @@ def counts(rows: Iterable[tuple[str, int]], graded: Mapping[str, int]) -> dict[s
     Kept to `graded`'s keys, SCOWL's sizes up to 60, which carry no names, no
     abbreviations and no misspellings, so the table ranks the words the pack
     already calls words and adds none. `rows` may repeat a form; the largest
-    count wins, since a corpus can split one word across rows its tokeniser did
-    not unify.
+    count wins, which reads a duplicated row once where a sum would count it
+    twice. A form the corpus split across rows would want the sum instead.
     """
     best: dict[str, int] = {}
     for form, count in rows:
