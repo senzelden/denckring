@@ -25,7 +25,9 @@ apostrophe is no part of a word's length and `I'm` is two letters. The word is s
 pattern's word: the apostrophe keeps `I'm` one word, and `found` names the whole token.
 The letters are read unfolded, so `ß` is one letter, as written, and not the `ss` that
 folding gives it. The rows take no `fold_diacritics`, and a length should not depend on
-a spelling convention the writer did not choose.
+a spelling convention the writer did not choose. For the same reason a ligature is one
+letter, as the letter rows already read it: `œuf` is three letters, and `ﬁne` written
+with the `ﬁ` ligature is three.
 
 The ruling (R-U9c) covers every row that measures a word's length with `len` on a word
 token. A survey of the checkers found that `rhopalic_violations` is the only one:
