@@ -51,7 +51,6 @@ COPY_IS_THE_ANSWER = {
     "larding": "a source of one sentence has no pair to lard between",
     "text_folding": "a fold at or past the last line leaves no far flap to bring forward",
     "boustrophedon": "a one-line source has no second line to turn",
-    "column_reading": "a one-column source reads back as itself",
     "slenderizing": "a source without the deleted letter loses nothing",
     "definitional_expansion": "a source with no word the pack can gloss has nothing to expand",
     "definitional_literature": "a source with no word the pack can gloss has nothing to expand",
