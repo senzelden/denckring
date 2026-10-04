@@ -70,6 +70,26 @@ patch.
   counted in `ambiguous_words`. Golden corpus: nothing moves, since no case supplies
   `dictionary`.
 
+- **Positional rows score over an alignment** (ADR 0056, audit A6). `column_reading`,
+  `haikuization`, `every_nth_word`, `slenderizing`, `homoconsonantism`,
+  `homovocalism`, `n_plus_7` and `s_plus_7` compared a text with what their rule
+  expects index by index, so one dropped unit made every later unit wrong, and N+7
+  scored any word-count mismatch 0/1. They now align the two with `difflib`
+  (`source_compare.align`, `aligned_report`): `good` is the matched count and the
+  denominator the alignment's length, so one dropped unit costs one unit. Only an exact
+  match scores 1.0, and no verdict moves. Scores and violation lists change. A
+  substitution keeps the row's rule. An inserted run is `extra_words` or
+  `extra_letters` at its first unit, mid-text as well as at the end. A missing unit is
+  `missing_word` or `missing_letter`, placed where it would go. `n_plus_7` and
+  `s_plus_7` declare `extra_words` and `missing_word` and no longer emit
+  `wrong_word_count`. Their mismatched texts are judged word by word around the gaps.
+  `missing_letter` is `transcription` on `slenderizing`, `homoconsonantism` and
+  `homovocalism` (`rule_categories`). The alignment keeps the longest matching block
+  first, so a substitution beside its twin can show as an insertion and a deletion
+  and score lower than before. Golden corpus, re-measured over all 687 cases: no
+  verdict moves. Three `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765,
+  0.167 to 0.833), and one `homovocalism` score falls (0.667 to 0.5).
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters
