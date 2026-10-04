@@ -446,13 +446,6 @@ witnesses:
   params: {}
   text: ''
 - procedure: column_reading
-  rule: extra_words
-  lang: en
-  params:
-    source: a
-    column: 1
-  text: a zzzzzzzz
-- procedure: column_reading
   rule: not_in_source
   lang: en
   params:
