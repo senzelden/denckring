@@ -84,8 +84,9 @@ class QueninaParams(BaseModel):
     n: int | None = Field(
         default=None,
         description="Words per stanza; inferred if unset.",
-        # Not an `enum`: any other size is accepted and fails as `invalid_size`, so the
-        # schema may not refuse it. The list is what a caller draws from (audit B5).
+        # Not an `enum`: any other size, zero and negatives included, is accepted and
+        # fails as `invalid_size`, so the schema may not refuse it. The list is what a
+        # caller draws from (audit B5).
         json_schema_extra=param("inferred", valid=VALID_SIZES),
     )
 
@@ -110,16 +111,24 @@ class Quenina(BaseProcedure[QueninaParams]):
         if not endings:
             return self._report(good=0, total=0, violations=[], metrics={"lines": 0.0})
         size = params.n if params.n is not None else infer_size(endings)
+        invalid = Violation(
+            rule="invalid_size",
+            offset=None,
+            found=str(size),
+            expected="a size whose spiral permutation has full order",
+        )
+        if size < 1:
+            # No stanza to rotate. Falling through used to count a negative size as
+            # matched lines, so `n=-1` scored 1.0 with this violation attached.
+            return self._report(
+                good=0,
+                total=1,
+                violations=[invalid],
+                metrics={"size": float(size), "lines": float(len(endings))},
+            )
         violations: list[Violation] = []
         if not is_valid_size(size):
-            violations.append(
-                Violation(
-                    rule="invalid_size",
-                    offset=None,
-                    found=str(size),
-                    expected="a size whose spiral permutation has full order",
-                )
-            )
+            violations.append(invalid)
         permutation = spiral(size)
         expected = endings[:size]
         if len(expected) < size:

@@ -184,8 +184,8 @@ All notable changes to this project are documented here. The format follows
   (digits a seven-segment display reads as letters), `proteus_verse.metre` and
   `llull_figure.figure` an `enum` of the metres and figures they accept, and
   `sonnet.scheme` a `minLength` of 14. `quenina.n` lists the sizes the form exists for
-  under `x-denckring-valid` (to 100), not as an `enum`, because any other size is
-  accepted and fails as `invalid_size`. `rhyme_scheme`, `hemeling`, `sonnet`,
+  under `x-denckring-valid` (to 100), not as an `enum`, because any other size, zero
+  and negatives included, is accepted and fails as `invalid_size`. `rhyme_scheme`, `hemeling`, `sonnet`,
   `syllable_count`, `assonance_constraint`, `rondeau`, `renga`, `calculator_word`
   carry `examples`. The schemas are not enforced by pydantic, so no call that
   succeeded fails; a test holds every validating keyword to refusing only what `check`
@@ -206,6 +206,12 @@ All notable changes to this project are documented here. The format follows
   verdict, score or rule moves.
 
 ### Fixed
+
+- `quenina` with `n` below 1 now fails. A negative size used to return `satisfied`
+  true with a score of 1.0 alongside an `invalid_size` violation, because the empty
+  spiral checked no stanza and the size was counted as matched lines. `n=0` already
+  failed. Now every size below 1 is unsatisfied with that one violation. No golden case
+  moves; all of them set `n` to 3.
 
 - Seventeen fixed forms accepted `unknown_rhyme` and ignored it: `ballade`, `blank_verse`,
   `clerihew`, `curtal_sonnet`, `englyn`, `heroic_couplet`, `limerick`, `ottava_rima`,

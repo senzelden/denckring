@@ -198,3 +198,14 @@ def test_quenina_lists_exactly_the_sizes_the_form_exists_for() -> None:
         assert ("invalid_size" in rules) is (size not in listed), size
     assert listed == [size for size in range(1, VALID_CAP + 1) if is_valid_size(size)]
     assert listed[:7] == [1, 2, 3, 5, 6, 9, 11]
+
+
+@pytest.mark.parametrize("size", [0, -1, -5])
+def test_quenina_fails_a_size_below_one(size: int) -> None:
+    """The schema states no `minimum` for `n`, so a caller drawing from an integer range
+    can pass a size below one. It must fail as `invalid_size`: a negative size once
+    passed, because the spiral was empty and the size itself was counted as matched."""
+    report = check("quenina", "a\nb\nc\nd", n=size)
+    assert report.satisfied is False, size
+    assert report.score < 1.0, size
+    assert [v.rule for v in report.violations] == ["invalid_size"], size
