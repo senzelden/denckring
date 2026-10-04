@@ -165,8 +165,15 @@ CAPABILITY_METHODS: dict[str, tuple[str, ...]] = {
     # `line_syllables` also needs a matching entry in `METHOD_CAPABILITY` below — the
     # two dicts are hand-maintained and not derived from each other, and
     # `test_the_two_capability_tables_agree` is the guard that a name added here alone
-    # is a mistake.
-    "syllables.heuristic": ("syllable_count", "line_syllables"),
+    # is a mistake. `syllable_counts` and `line_syllable_counts` are the same story one
+    # step on (ADR 0054): a row that keeps every pronunciation reaches `syllable_count`
+    # only through them, so the spy watches them too.
+    "syllables.heuristic": (
+        "syllable_count",
+        "line_syllables",
+        "syllable_counts",
+        "line_syllable_counts",
+    ),
 }
 
 _TRACKED_METHODS = frozenset(m for methods in CAPABILITY_METHODS.values() for m in methods)
@@ -189,6 +196,8 @@ METHOD_CAPABILITY: dict[str, str] = {
     "exceeds_x_height": LETTER_SHAPES,
     "syllable_count": SYLLABLES_HEURISTIC,
     "line_syllables": SYLLABLES_HEURISTIC,
+    "syllable_counts": SYLLABLES_HEURISTIC,
+    "line_syllable_counts": SYLLABLES_HEURISTIC,
     "syllables": SYLLABLES,
     "phonemes": PHONEMES,
     "rhyme_key": PHONEMES,
