@@ -314,6 +314,11 @@ All notable changes to this project are documented here. The format follows
   and six error classes they had left out. A test fails an export the API pages do not
   document from the top level, or the README does not classify.
 
+- `deterministic` is documented, on `Meta` and in the README: it is a catalogue claim
+  about the form's output (false where chance or the writer decides, as in a cut-up),
+  not about `check`, which is deterministic on every row, and not derived from `apply`,
+  so a generator that draws is found by its `seed` parameter rather than by the flag.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

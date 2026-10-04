@@ -297,6 +297,15 @@ class Meta(BaseModel):
     #: optional half, and this is the field that lets the optional half be
     #: honest about its own cost.
     apply_requires: tuple[str, ...] = Field(default_factory=tuple)
+    #: Whether the form, as catalogued, fixes its output: false where it leaves the
+    #: result to chance or to the writer (`cut_up`, `homophonic_translation`). A claim
+    #: about generation, read from the form's definition rather than derived from this
+    #: install's `apply`: most implemented rows marked false have no generator, and
+    #: rows whose `apply` draws from a `seed` are not all marked false
+    #: (`arca_musarithmica` and `denckring` are true). It says nothing about `check`,
+    #: which is deterministic on every row: the same text, language and parameters give
+    #: the same `Report` (`tests/test_invariants.py`). To know whether a generator
+    #: draws, look for `seed` among its apply params; the same seed repeats the draw.
     deterministic: bool = True
     #: Whether `check` passes one text for a given source and parameters: the text
     #: `apply` returns, as the checker reads it (case and spacing aside). True for the

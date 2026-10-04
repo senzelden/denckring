@@ -155,6 +155,12 @@ loop can tell whether a text missed by one word or by fifty.
 empty), `truncated`, and `metrics` — and `apply` is defined as `produce(...).texts[0]`,
 the one-text surface for a caller who wants the best answer and not the search behind it.
 
+Every `check` is deterministic: the same text, language and parameters give the same
+`Report`, on every row. A row's catalogue flag `deterministic` is about the form, not the
+checker: it is false where the form leaves its output to chance or to the writer, as a
+cut-up or a homophonic translation does. A generator that draws takes a `seed`, which
+repeats the draw and which `provenance` echoes.
+
 Both carry `provenance`: the package version, a schema version that moves independently
 of it, which pack answered and which data distributions it was reading, the
 `fold_diacritics` policy in force, and the `seed` a drawing generator used. German names
