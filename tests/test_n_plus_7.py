@@ -127,7 +127,10 @@ def test_a_dropped_word_is_judged_around_not_counted_as_zero() -> None:
     `wrong_word_count`. Aligned against the correct N+7, the words either side
     of a gap are still judged as displacements, so a wrong one is still named."""
     report = check("n_plus_7", "the zebra on the tablespoonful", source="the cat sat on the table")
-    assert [v.rule for v in report.violations] == ["wrong_displacement", "missing_word"]
+    assert [(v.rule, v.found, v.expected) for v in report.violations] == [
+        ("missing_word", "", "catacomb"),
+        ("wrong_displacement", "zebra", "satchmo"),
+    ]
     assert report.score == 4 / 6
 
 

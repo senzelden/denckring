@@ -30,12 +30,12 @@ def test_homovocalism_rejects_a_changed_vowel() -> None:
     assert [(v.rule, v.found, v.expected) for v in report.violations] == [("wrong_vowel", "i", "a")]
 
 
-def test_a_changed_vowel_beside_its_twin_aligns_as_a_gap_pair() -> None:
-    """The cost ADR 0056 admits. `SequenceMatcher` takes the longest matching
-    block first, not the fewest edits: e-o-a against e-a-a keeps `e` and the
-    last `a`, so the `o` is an insertion and one `a` a deletion. Two units, not
-    one, so this text scores 0.5 where index by index it scored 0.667."""
+def test_a_changed_vowel_beside_its_twin_is_one_substitution() -> None:
+    """Ruling R-U8b. e-o-a against e-a-a is one substituted vowel, and scores
+    2/3, as index by index did. `SequenceMatcher`, which keeps the longest
+    matching block first, read it as an inserted `o` and a deleted `a` and
+    scored 0.5: the alignment has to be the fewest edits (ADR 0056)."""
     report = check("homovocalism", "the cot sat", source=SOURCE)
     assert report.satisfied is False
-    assert [v.rule for v in report.violations] == ["extra_letters", "missing_letter"]
-    assert report.score == 0.5
+    assert [(v.rule, v.found, v.expected) for v in report.violations] == [("wrong_vowel", "o", "a")]
+    assert report.score == 2 / 3

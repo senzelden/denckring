@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 
 from denckring import check
-from denckring.core.source_compare import align, aligned_report
+from denckring.core.source_compare import Aligned, align, aligned_report
 
 PAGE = "a cat\nb dog\nc bird\nd fish"
 HAIKU_SOURCE = "the cat sat down\na dog ran fast\nbirds fly high\nfish swim deep"
@@ -147,17 +147,76 @@ def test_only_an_exact_match_scores_one() -> None:
         assert result.violations
 
 
-def test_an_unequal_replace_counts_its_longer_side() -> None:
-    """R-U8a: a `replace` of two units by three pairs two as substitutions and
-    leaves one insertion, so the span counts three units, not five."""
+def test_two_units_replaced_by_three_cost_three_steps() -> None:
+    """Two substitutions and one insertion, not two deletions and three
+    insertions. Traced back from the end, a tie prefers the diagonal, so the
+    insertion lands first in the span (R-U8b)."""
     steps = align(["a", "x", "y", "b"], ["a", "p", "q", "r", "b"])
     assert [step.step for step in steps] == [
         "match",
-        "substitute",
-        "substitute",
         "insert",
+        "substitute",
+        "substitute",
         "match",
     ]
+
+
+def test_a_tie_prefers_substitution_then_deletion_then_insertion() -> None:
+    # One unit against another: a substitution (1), never a deletion and an
+    # insertion (2).
+    assert [s.step for s in align(["a"], ["b"])] == ["substitute"]
+    # `a b` against `b a`: every alignment costs 2. The diagonal is preferred, so
+    # two substitutions, not a deletion and an insertion around a match.
+    assert [s.step for s in align(["a", "b"], ["b", "a"])] == ["substitute", "substitute"]
+    # `a a` against `a`: one deletion either way. From the end, the diagonal
+    # matches the last `a`, and the first is the one deleted.
+    assert align(["a", "a"], ["a"]) == [Aligned("delete", 0, None), Aligned("match", 1, 0)]
+
+
+# (row, text, params, score, the one substitution's rule, found, expected): a
+# substituted unit beside an identical one, which a longest-block alignment
+# split into an insertion and a deletion.
+SUBSTITUTED: list[tuple[str, str, dict[str, Any], float, str, str, str]] = [
+    ("homovocalism", "the cot sat", {"source": "the cat sat"}, 2 / 3, "wrong_vowel", "o", "a"),
+    (
+        "homoconsonantism",
+        "a bbc",
+        {"source": "a bcc"},
+        2 / 3,
+        "wrong_consonant",
+        "b",
+        "c",
+    ),
+    ("slenderizing", "abb", {"source": "aab", "deleted": "z"}, 2 / 3, "wrong_letter", "b", "a"),
+    (
+        "every_nth_word",
+        "b c c",
+        {"source": "b b c", "n": 1},
+        2 / 3,
+        "wrong_word",
+        "c",
+        "b",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ("pid", "text", "params", "score", "rule", "found", "expected"),
+    SUBSTITUTED,
+    ids=[case[0] for case in SUBSTITUTED],
+)
+def test_a_substitution_beside_its_twin_costs_one_unit(
+    pid: str,
+    text: str,
+    params: dict[str, Any],
+    score: float,
+    rule: str,
+    found: str,
+    expected: str,
+) -> None:
+    report = check(pid, text, **params)
+    assert report.score == pytest.approx(score)
+    assert [(v.rule, v.found, v.expected) for v in report.violations] == [(rule, found, expected)]
 
 
 def test_an_empty_pair_aligns_to_nothing() -> None:

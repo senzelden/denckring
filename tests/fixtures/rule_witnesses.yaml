@@ -929,6 +929,12 @@ witnesses:
     source: ''
   text: The girl read the book.
 - procedure: homovocalism
+  rule: missing_letter
+  lang: en
+  params:
+    source: the cat sat on a mat
+  text: th cat sat on a mat
+- procedure: homovocalism
   rule: unchanged
   lang: en
   params:

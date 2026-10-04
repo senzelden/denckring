@@ -74,8 +74,9 @@ patch.
   `haikuization`, `every_nth_word`, `slenderizing`, `homoconsonantism`,
   `homovocalism`, `n_plus_7` and `s_plus_7` compared a text with what their rule
   expects index by index, so one dropped unit made every later unit wrong, and N+7
-  scored any word-count mismatch 0/1. They now align the two with `difflib`
-  (`source_compare.align`, `aligned_report`): `good` is the matched count and the
+  scored any word-count mismatch 0/1. They now align the two by minimal
+  edits (Levenshtein; a tie prefers a substitution, then a deletion, then an
+  insertion; `source_compare.align`, `aligned_report`): `good` is the matched count and the
   denominator the alignment's length, so one dropped unit costs one unit. Only an exact
   match scores 1.0, and no verdict moves. Scores and violation lists change. A
   substitution keeps the row's rule. An inserted run is `extra_words` or
@@ -84,11 +85,9 @@ patch.
   `s_plus_7` declare `extra_words` and `missing_word` and no longer emit
   `wrong_word_count`. Their mismatched texts are judged word by word around the gaps.
   `missing_letter` is `transcription` on `slenderizing`, `homoconsonantism` and
-  `homovocalism` (`rule_categories`). The alignment keeps the longest matching block
-  first, so a substitution beside its twin can show as an insertion and a deletion
-  and score lower than before. Golden corpus, re-measured over all 687 cases: no
-  verdict moves. Three `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765,
-  0.167 to 0.833), and one `homovocalism` score falls (0.667 to 0.5).
+  `homovocalism` (`rule_categories`). A lone substitution still costs one unit, as
+  before. Golden corpus, re-measured over all 687 cases: no verdict moves. Three
+  `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765, 0.167 to 0.833).
 
 ### Added
 

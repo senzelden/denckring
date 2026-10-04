@@ -20,18 +20,30 @@ ADR 0005 asked for.
 
 ## Decision
 
-**The positional rows score over an alignment** (ruling R-U8a). One shared helper,
-`source_compare.align`, aligns the expected units with the text's units using
-`difflib.SequenceMatcher(None, expected, produced, autojunk=False)`. It works over the
-units each row already compared: casefolded words, or letters as the row folds them.
-With no junk function and no autojunk heuristic, the same pair always aligns the same
-way. `source_compare.aligned_report` scores the alignment, and `positional_report`,
+**The positional rows score over an alignment** (rulings R-U8a and R-U8b). One shared
+helper, `source_compare.align`, aligns the expected units with the text's units by
+minimal edits (Levenshtein). A substitution, an insertion and a deletion each cost 1,
+and a match costs 0. A dynamic-programming table finds the cheapest alignment, and the
+helper traces it back from the end. Where two steps tie, it takes the diagonal (a
+match or a substitution) first, then a deletion, then an insertion, so the same pair
+always aligns the same way. The alignment works over the units each row already
+compared: casefolded words, or letters as the row folds them.
+`source_compare.aligned_report` scores the alignment, and `positional_report`,
 `letter_class_report`, `slenderizing` and `every_nth_word` call it.
 
+R-U8a first named `difflib.SequenceMatcher`. That was dropped before release because
+it keeps the longest matching block first and does not minimise edits. It read
+`homovocalism`'s `the cot sat` against `the cat sat` (e-o-a against e-a-a) as an
+inserted `o` and a deleted `a`, which costs two units, where the text has one
+substituted vowel. A minimal-edit alignment keeps a lone substitution as one unit, so
+it scores exactly what index-by-index comparison scored. The tie-break decides where a
+gap lands among equally cheap alignments. Traced from the end, `a a` against `a`
+deletes the first `a`, and a span replaced by a longer one puts its insertion first.
+
 **`good` is the matched count, and the denominator is the alignment's length**:
-matches, substitutions, insertions and deletions. A `replace` of unequal spans counts
-its longer side. It pairs units in order as substitutions and leaves the rest as
-insertions or deletions. Only identical sequences align with nothing but matches, so
+matches, substitutions, insertions and deletions. A span replaced by one of a
+different length counts its longer side, because its units pair as substitutions and
+the rest are insertions or deletions. Only identical sequences align with nothing but matches, so
 1.0 still means an exact match and nothing else. No verdict moves. A text with one
 dropped unit now scores (n − 1)/n, where it used to score its matched prefix over n.
 
@@ -70,20 +82,17 @@ what they reported was the cascade. `n_plus_7` and `s_plus_7` add `extra_words` 
 `missing_word` to their declared rules and drop `wrong_word_count`. A consumer that
 maps rules, such as denckring-bench's failure classes, has to re-map those rows.
 
-`SequenceMatcher` keeps the longest matching block first. It does not minimise edits.
-When a substituted unit sits next to a twin, it can come out as an insertion and a
-deletion. `homovocalism`'s `the cot sat` against `the cat sat` aligns e-o-a with e-a-a
-as keep `e`, insert `o`, keep `a`, delete `a`. That is two units, so the text scores
-0.5, where index by index it scored 0.667 with one `wrong_vowel`. The ruling chose
-determinism and the standard library over an optimal edit alignment. A text can
-therefore score lower than it did before, and its violations can describe a
-substitution as a gap pair. `tests/test_letter_class.py` pins the case so that the cost
-stays visible.
+Where the alignment places a gap is a choice among equally cheap alignments, and the
+tie-break makes it. A text with no unit right, plus one surplus unit, reports the
+surplus first, not as a tail: `haikuization` of `cat dog bird extra` names `cat` as
+`extra_words`. The score is the same wherever the gap sits. The `found` and `offset`
+of the violations are what the tie-break decides.
 
-The alignment is quadratic in the worst case, where index-by-index comparison was
-linear. A long letter row (`slenderizing` on a page of prose) pays for that, though
-`SequenceMatcher` stays fast on texts that mostly match, which is the case these rows
-are written for.
+The alignment is O(n·m) in time and memory, where index-by-index comparison was
+linear. A long letter row (`slenderizing` on a page of prose, a few thousand letters
+on each side) builds a table of millions of cells for each check. The rows are written
+for short texts, and the ruling chose an exact alignment over a faster approximate
+one.
 
 Two other rows compare a sequence index by index and are not changed here. The
 relation rows (`synonymic_substitution`, `antonymic_substitution`,
@@ -91,19 +100,21 @@ relation rows (`synonymic_substitution`, `antonymic_substitution`,
 and `homosyntaxism` still matches part-of-speech tags position by position. Neither was
 in A6. Both could move to `align` under the same reasoning.
 
-**Golden corpus, re-measured over all 687 cases: no verdict moves, and four scores do.**
+**Golden corpus, re-measured over all 687 cases: no verdict moves, and three scores do.**
 
 | case | before | after | violations now |
 |---|---|---|---|
 | `slenderizing` en `r-kept` | 0.250 | 0.750 | one `extra_letters` (`r`) |
 | `slenderizing` de `eszett-kept-while-deleting-s` | 0.412 | 0.765 | two `extra_letters` (each `ß`'s `ss`) |
 | `slenderizing` fr `oe-ligature-dropped-whole-while-deleting-e` | 0.167 | 0.833 | two `missing_letter` (each `œ`'s `o`) |
-| `homovocalism` en `a-changed-vowel` | 0.667 | 0.500 | `extra_letters` and `missing_letter` (the cost above) |
 
 The three `slenderizing` moves are the cascade this ADR removes: each text was one
 letter (or one ligature's letters) off, and the old report named every letter after
 the first slip as wrong. No golden case on `column_reading`, `haikuization`,
-`every_nth_word`, `homoconsonantism`, `n_plus_7` or `s_plus_7` has a dropped or
-inserted unit, so none of their scores moves. `tests/test_aligned_scoring.py` drops
+`every_nth_word`, `homoconsonantism`, `homovocalism`, `n_plus_7` or `s_plus_7` has a
+dropped or inserted unit, so none of their scores moves. `homovocalism`'s
+`a-changed-vowel` is one substituted vowel, and keeps its 0.667. `tests/test_aligned_scoring.py` drops
 one unit early on each of the eight rows and requires it to cost exactly one unit. It
-fails against the index-by-index code on every row.
+fails against the index-by-index code on every row. The same file holds a substitution
+beside an identical unit to (n − 1)/n on four rows, and that test fails against
+`SequenceMatcher`.

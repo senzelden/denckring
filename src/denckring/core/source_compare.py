@@ -24,7 +24,6 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable, Sequence
-from difflib import SequenceMatcher
 from typing import Literal, NamedTuple
 
 from denckring.core.protocol import LanguagePack, Violation
@@ -125,27 +124,51 @@ def align(expected: Sequence[str], actual: Sequence[str]) -> list[Aligned]:
     """The steps that turn `expected` into `actual`, in order (ADR 0056).
 
     The positional rows compared index by index, so one dropped unit shifted every
-    later one and the text scored as if it had nothing right after the drop.
-    `SequenceMatcher` with no junk and `autojunk=False` is deterministic and has
-    no popularity heuristic, so the same pair always aligns the same way. A
-    `replace` of unequal spans pairs its units in order as substitutions and
-    leaves the rest as insertions or deletions: the alignment's length is then
-    max(len_a, len_b) for that span, which is what the score's denominator counts.
+    later one and the text scored as if it had nothing right after the drop. This
+    is a minimal-edit (Levenshtein) alignment instead (ruling R-U8b): a
+    substitution, an insertion and a deletion each cost 1, a match 0, and the
+    steps are the cheapest way from one sequence to the other. Traced back from
+    the end, a tie prefers the diagonal (a match or a substitution), then a
+    deletion, then an insertion, so the same pair always aligns the same way, and
+    a lone substitution stays one substituted unit, scoring exactly what index
+    by index scored. `difflib.SequenceMatcher` was the first choice and was
+    dropped: it keeps the longest matching block first, so a substitution beside
+    an identical unit came out as an insertion and a deletion.
+
     Only identical sequences align with no step but `match`, so a score of 1.0
-    still means an exact match and nothing else (ADR 0005).
+    still means an exact match and nothing else (ADR 0005). The table is
+    O(n·m) in time and memory.
     """
-    steps: list[Aligned] = []
-    matcher = SequenceMatcher(None, list(expected), list(actual), autojunk=False)
-    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-        if tag == "equal":
-            steps.extend(
-                Aligned("match", i, j) for i, j in zip(range(i1, i2), range(j1, j2), strict=True)
+    rows, cols = len(expected), len(actual)
+    # cost[i][j]: the fewest edits turning expected[:i] into actual[:j].
+    cost = [[0] * (cols + 1) for _ in range(rows + 1)]
+    for i in range(rows + 1):
+        cost[i][0] = i
+    for j in range(cols + 1):
+        cost[0][j] = j
+    for i in range(1, rows + 1):
+        above, here = cost[i - 1], cost[i]
+        want = expected[i - 1]
+        for j in range(1, cols + 1):
+            here[j] = min(
+                above[j - 1] + (want != actual[j - 1]),
+                above[j] + 1,
+                here[j - 1] + 1,
             )
-            continue
-        paired = min(i2 - i1, j2 - j1)
-        steps.extend(Aligned("substitute", i1 + k, j1 + k) for k in range(paired))
-        steps.extend(Aligned("delete", i, None) for i in range(i1 + paired, i2))
-        steps.extend(Aligned("insert", None, j) for j in range(j1 + paired, j2))
+    steps: list[Aligned] = []
+    i, j = rows, cols
+    while i or j:
+        if i and j and cost[i][j] == cost[i - 1][j - 1] + (expected[i - 1] != actual[j - 1]):
+            same = expected[i - 1] == actual[j - 1]
+            steps.append(Aligned("match" if same else "substitute", i - 1, j - 1))
+            i, j = i - 1, j - 1
+        elif i and cost[i][j] == cost[i - 1][j] + 1:
+            steps.append(Aligned("delete", i - 1, None))
+            i -= 1
+        else:
+            steps.append(Aligned("insert", None, j - 1))
+            j -= 1
+    steps.reverse()
     return steps
 
 
