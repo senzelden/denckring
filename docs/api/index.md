@@ -106,6 +106,7 @@ judged, so a caller can write a prompt or a guard that agrees with the checker:
   English or German.
 - `normalization` says how letters fold before they are compared, and `determinacy`
   whether the verdict can rest on an estimate or on words left unjudged. A row read
-  `exact` never reports `estimated`.
+  `exact` never reports `estimated`, with no exceptions: `multiple_constraint` reads
+  `heuristic`, since its entries may name a row that estimates.
 
 `reading` is published but not yet under the stability promise.

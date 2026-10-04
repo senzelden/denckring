@@ -57,7 +57,8 @@ class Summary(BaseModel):
 #: `lexicon.glosses` joined in 0.4.0 (ADR 0054). A gloss lookup guesses nothing, but
 #: a word no gloss resolves is left unjudged, and `Report.estimated` says so: the two
 #: `definitional_*` rows called themselves `exact` while their reports could say
-#: `estimated`. The rule now has no exception: an `exact` row is never `estimated`.
+#: `estimated`. With `_reading`'s one other reason for `heuristic` (a row whose
+#: parameters name its capabilities), an `exact` row is never `estimated`.
 _SOFT = frozenset(
     {
         "syllables",
@@ -128,6 +129,12 @@ class Reading(BaseModel):
     verdict can rest on a guess, or on words left unjudged, not that it did.
     `Report.estimated` is what says whether it actually did on a given call, and
     `Report.evidence` which words. An `exact` row's report is never `estimated`.
+
+    A row is `heuristic` when its `requires` name a capability a pack may estimate,
+    or when its parameters rather than its `requires` decide what it needs
+    (`requires_from_params`): `multiple_constraint` may compose any row, so a
+    description of the row cannot know whether a call's entries estimate, and reads
+    it `heuristic` even though a composite of exact rows never is (ruling R-F5).
     """
 
     determinacy: Literal["exact", "heuristic"]
@@ -301,7 +308,9 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
     folds = "fold_diacritics" in procedure.params_model().model_fields
     pack = get_pack(lang)
     return Reading(
-        determinacy="heuristic" if _SOFT & set(meta.requires) else "exact",
+        determinacy=(
+            "heuristic" if procedure.requires_from_params or _SOFT & set(meta.requires) else "exact"
+        ),
         normalization=_FOLD_POLICY if folds else _NO_FOLD_POLICY,
         tokenization=pack.word_re.pattern,
         word_examples={probe: pack.word_re.findall(probe) for probe in WORD_PROBES},

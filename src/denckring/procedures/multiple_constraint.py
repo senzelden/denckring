@@ -28,7 +28,9 @@ declares only its own, and lets each named constraint's `MissingCapability` (fro
 uncaught, naming the delegate and the capability it actually lacks rather than a
 confusing failure blamed on `multiple_constraint` itself. `describe_procedure`
 reporting `requires: [tokens]` for this row is correct and must not be read as a
-promise that every composition it could run is covered by that alone.
+promise that every composition it could run is covered by that alone. For the
+same reason `describe` reads this row's determinacy as `heuristic`
+(`requires_from_params`, ruling R-F5): an entry may name a row that estimates.
 
 **The score is the mean of the constraints' own scores** (ADR 0059, ADR 0005).
 Until 0.4.0 each constraint contributed one unit, satisfied or not, so a pair
@@ -183,6 +185,9 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     #: `denckring.rules` answers with every other row's vocabulary.
     rules = ()
     delegates_rules = True
+    #: What a call needs is what its entries name, so `describe` reads this row
+    #: `heuristic`: any entry may be a row that estimates.
+    requires_from_params = True
     #: Each entry's `params` is stated by that constraint's own hint line, so
     #: `constraints` is never restated as a setting, whether or not a template
     #: names it.

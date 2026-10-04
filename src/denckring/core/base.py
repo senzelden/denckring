@@ -228,6 +228,12 @@ class BaseProcedure(ABC, Generic[P]):
     #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
     #: with every other row's vocabulary, since any of them can be composed.
     delegates_rules: ClassVar[bool] = False
+    #: Set on a row whose capabilities are named by its parameters rather than by
+    #: `meta.requires`: `multiple_constraint`, whose entries may name any row. Its
+    #: `meta.requires` covers only its own logic, so `describe` cannot read its
+    #: determinacy from that list and reads it `heuristic` (ruling R-F5): a row-level
+    #: description cannot know which rows a call will compose.
+    requires_from_params: ClassVar[bool] = False
     #: The parameters `hint_delegates` states, one line per delegate, so `prompt_hint`
     #: does not state them again as settings (`core.hints.settings`).
     hint_delegated: ClassVar[frozenset[str]] = frozenset()

@@ -47,8 +47,11 @@ evidence or descriptions only, or add something.
 
 - `describe().reading.determinacy` is `heuristic` for `definitional_expansion` and
   `definitional_literature` (was `exact`; ADR 0054): a word no gloss resolves is left unjudged,
-  and their reports could already be `estimated`. The split is 85 exact and 48 heuristic
-  (was 87 and 46). An `exact` row never reports `estimated`, with no exceptions.
+  and their reports could already be `estimated`. It is `heuristic` for `multiple_constraint`
+  too (was `exact`): its entries may name a row that estimates, and a description of the row
+  cannot know which a call composes, so a composite of exact rows is described more
+  cautiously than it runs. The split is 84 exact and 49 heuristic (was 87 and 46). An
+  `exact` row never reports `estimated`, with no exceptions.
 
 - **Breaking:** **Source rows refuse a copy of their source by default** (ADR 0055, audit A5).
   `allow_identity` now defaults to `false` on the 14 rows that take it, so a text whose

@@ -9,6 +9,8 @@ reading is exact never reports one.
 
 from __future__ import annotations
 
+import contextlib
+from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -37,18 +39,74 @@ def test_a_rhyme_ending_the_dictionary_lacks_is_estimated() -> None:
     assert report.estimated
 
 
+#: A composite whose first entry estimates: `glorbix` is in no dictionary, so
+#: `syllable_count` guesses it. No golden case composes an estimating row.
+GLORBIX: dict[str, Any] = {
+    "constraints": [
+        {"id": "syllable_count", "params": {"pattern": [4]}},
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+    ]
+}
+
+
+def _calls() -> Iterator[tuple[str, str, Lang, dict[str, Any]]]:
+    """Every golden case, then each estimated one again inside a composite.
+
+    The golden corpus alone cannot hold the rule for `multiple_constraint`: its
+    determinacy turns on what a call composes, and no golden composite composes a row
+    that estimates (final 0.4.0 review, finding 1).
+    """
+    estimated: list[tuple[str, str, Lang, dict[str, Any]]] = []
+    for case in denckring.golden_cases():
+        yield case.procedure, case.text, case.lang, case.params
+        with contextlib.suppress(denckring.DenckringError):
+            if check(case.procedure, case.text, lang=case.lang, **case.params).estimated:
+                estimated.append((case.procedure, case.text, case.lang, case.params))
+    yield "multiple_constraint", "the glorbix sang", "en", GLORBIX
+    for procedure, text, lang, params in estimated:
+        if procedure == "multiple_constraint":
+            continue
+        composed = [
+            {"id": procedure, "params": params},
+            {"id": "lipogram", "params": {"forbidden": "q"}},
+        ]
+        yield "multiple_constraint", text, lang, {"constraints": composed}
+
+
 def test_an_exact_row_never_rests_on_an_estimate() -> None:
     """No exceptions since 0.4.0. Until then the two `definitional_*` rows read `exact`
     while a source word no gloss resolves (`the`, `went`) made their reports
-    `estimated` (U3 review M3); `describe` now reads them `heuristic` (ADR 0054)."""
-    for case in denckring.golden_cases():
-        if denckring.describe(case.procedure).reading.determinacy != "exact":
+    `estimated` (U3 review M3); `describe` now reads them `heuristic` (ADR 0054), and
+    `multiple_constraint`, whose entries may estimate, too (ruling R-F5)."""
+    for procedure, text, lang, params in _calls():
+        if denckring.describe(procedure).reading.determinacy != "exact":
             continue
         try:
-            report = check(case.procedure, case.text, lang=case.lang, **case.params)
+            report = check(procedure, text, lang=lang, **params)
         except denckring.DenckringError:
             continue
-        assert not report.estimated, (case.procedure, case.name)
+        assert not report.estimated, (procedure, text, params)
+
+
+def test_a_composite_of_an_estimating_row_is_described_heuristic() -> None:
+    """The case the golden corpus lacks: `syllable_count` guesses `glorbix`, so the
+    composite reports `estimated`, and its description has to allow for that."""
+    assert check("multiple_constraint", "the glorbix sang", **GLORBIX).estimated
+    assert denckring.describe("multiple_constraint").reading.determinacy == "heuristic"
+
+
+def test_a_row_whose_params_name_its_requires_is_heuristic() -> None:
+    """The rule, not the id: every row marked `requires_from_params` reads `heuristic`,
+    and every row that delegates its rules to its entries is so marked."""
+    from denckring.core.registry import all_procedures
+
+    marked = [pid for pid, p in all_procedures().items() if p.requires_from_params]
+    assert marked
+    for pid, procedure in all_procedures().items():
+        if procedure.delegates_rules:
+            assert procedure.requires_from_params, pid
+    for pid in marked:
+        assert denckring.describe(pid).reading.determinacy == "heuristic", pid
 
 
 def test_a_word_no_gloss_resolves_is_estimated() -> None:

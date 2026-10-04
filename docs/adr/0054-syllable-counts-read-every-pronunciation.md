@@ -69,7 +69,10 @@ as well as the keys.
 
 **`lexicon.glosses` joins the capabilities that make a row `heuristic`.** A gloss lookup
 guesses nothing, but it can leave words unjudged, and `Report.estimated` already counts
-that. The rule now has no exceptions: a row that `describe` calls `exact` never reports
+that. `multiple_constraint` reads `heuristic` too: its `requires` cover only its own
+logic, and its entries may name any row, so a description of the row cannot know whether
+a call composes one that estimates (`BaseProcedure.requires_from_params`, ruling R-F5).
+The rule now has no exceptions: a row that `describe` calls `exact` never reports
 `estimated`.
 
 ## Consequences
@@ -124,6 +127,8 @@ It refuses a phrase whose first reading the tablet cannot set, even when another
 could be set and the checker would accept it. A generator that does less than its
 checker accepts is the safe direction, and the round-trip harness stays green.
 
-The two `definitional_*` rows now read `heuristic` in `describe`, which moves the
-published split from 87 exact and 46 heuristic to 85 and 48. A caller that routed on
-`exact` to skip uncertainty handling will now handle those two rows, which is the point.
+The two `definitional_*` rows and `multiple_constraint` now read `heuristic` in
+`describe`, which moves the published split from 87 exact and 46 heuristic to 84 and 49.
+A caller that routed on `exact` to skip uncertainty handling will now handle those three
+rows, which is the point. A composite of exact rows is described more cautiously than it
+runs; its report's `estimated` stays false.
