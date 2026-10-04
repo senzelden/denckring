@@ -345,6 +345,21 @@ All notable changes to this project are documented here. The format follows
   say that a hyphenated word counts as two, as the tokenizer reads it. Checkers are
   unchanged.
 
+- Twenty-three German and French hints, written where the checker runs in the
+  language and what it reads there is certain. German: `lipogram`,
+  `lipogrammatic_translation`, `tautogram`, `pangram`, `beau_present`, `boustrophedon`,
+  `column_reading`, `fold_in`, `haikuization`, `mathews_algorithm` and `text_folding`.
+  French: `lipogram`, `lipogrammatic_translation`, `consonantal_lipogram`, `liponym`,
+  `pangram`, `beau_present`, `column_reading`, `every_nth_word`, `haikuization`,
+  `mathews_algorithm`, `quenina` and `slenderizing`. The lipogram hints say how a
+  letter folds (`ä` as `a`, `ß` as `ss`, `ç` as `c`), and the French word-counting
+  hints that an elided word counts with the word it precedes. Rows are left without a
+  hint where a translation would have to settle something open: `univocalic` (`y` is a
+  vowel in French and not in German), `heterogram` and the anagram rows (`ß` folds to
+  two letters), `palindrome`, `acrostic` and `telestich` (their `unit` renders as an
+  English word), the snowballs (what counts as a letter waits on the 0.4.0 reading),
+  `word_ladder`, the N+7 rows, and the rhyme and metre rows.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

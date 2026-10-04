@@ -20,6 +20,13 @@ procedures:
       en: >-
         Write a passage that never uses the letter "{forbidden}", in any case or
         accented form.
+      de: >-
+        Schreibe einen Text, in dem der Buchstabe „{forbidden}“ nie vorkommt, auch nicht
+        als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü als u
+        und ß als ss.
+      fr: >-
+        Écris un texte où la lettre « {forbidden} » n'apparaît jamais, ni en majuscule,
+        ni avec un accent ou une cédille : é compte comme e et ç comme c.
 
   - id: univocalic
     names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
@@ -57,8 +64,10 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
-      en: >-
-        Write a passage in which every single word begins with the letter "{initial}".
+      en: Write a passage in which every single word begins with the letter "{initial}".
+      de: >-
+        Schreibe einen Text, in dem jedes einzelne Wort mit dem Buchstaben „{initial}“
+        beginnt.
 
   - id: pangram
     names: { en: Pangram, de: Pangramm, fr: Pangramme }
@@ -80,6 +89,12 @@ procedures:
     deterministic: true
     prompt_hints:
       en: Write one sentence that uses every letter of the alphabet at least once.
+      de: >-
+        Schreibe einen Satz, der jeden Buchstaben des Alphabets von a bis z mindestens
+        einmal enthält.
+      fr: >-
+        Écris une phrase qui contient chaque lettre de l'alphabet, de a à z, au moins
+        une fois.
 
   - id: heterogram
     names: { en: Heterogram, de: Heterogramm, fr: Hétérogramme }
@@ -212,6 +227,12 @@ procedures:
     prompt_hints:
       en: >-
         Write a dedication to "{name}" using only the letters that appear in that name.
+      de: >-
+        Schreibe eine Widmung an „{name}“, die nur Buchstaben verwendet, die in diesem
+        Namen vorkommen.
+      fr: >-
+        Écris une dédicace à « {name} » qui n'emploie que les lettres présentes dans ce
+        nom.
 
   - id: acrostic
     names: { en: Acrostic, de: Akrostichon, fr: Acrostiche }
@@ -469,6 +490,13 @@ procedures:
         first passage, then the second half of that line of the second passage. Halve
         each line by its words, giving the middle word of an odd count to the first
         half. Write nothing else.
+      de: >-
+        Der Ausgangstext besteht aus zwei Abschnitten, getrennt durch eine Leerzeile.
+        Schreibe für jede Zeilennummer, die beide Abschnitte haben, eine Zeile: die
+        erste Hälfte dieser Zeile des ersten Abschnitts, dann die zweite Hälfte dieser
+        Zeile des zweiten Abschnitts. Halbiere jede Zeile nach ihren Wörtern; bei
+        ungerader Zahl gehört das mittlere Wort zur ersten Hälfte. Schreibe sonst
+        nichts.
 
   - id: diastic
     names: { en: Diastic reading, de: Diastische Lesung, fr: Lecture diastique }
@@ -1025,6 +1053,8 @@ procedures:
     prompt_hints:
       en: >-
         Write a passage avoiding every one of these letters: {forbidden}.
+      fr: >-
+        Écris un texte qui n'emploie aucune de ces lettres : {forbidden}.
 
   - id: liponym
     names: { en: Liponym, fr: Liponyme }
@@ -1043,8 +1073,8 @@ procedures:
     requires: [tokens]
     deterministic: true
     prompt_hints:
-      en: >-
-        Write a passage that never uses the word "{forbidden}".
+      en: Write a passage that never uses the word "{forbidden}".
+      fr: Écris un texte qui n'emploie jamais le mot « {forbidden} ».
 
   - id: charade
     names: { en: Charade, de: Scharade, fr: Charade }
@@ -1526,6 +1556,22 @@ procedures:
         words of the third passage to its end, and so on, one more for each later
         passage, leaving the first passage as it is. Write the words of all the passages
         in that order, first passage first, and nothing else.
+      de: >-
+        Der Ausgangstext besteht aus mehreren Abschnitten, getrennt durch Leerzeilen.
+        Kürze jeden Abschnitt auf so viele Wörter, wie der kürzeste hat; ein Bindestrich
+        trennt zwei Wörter. Stelle dann das erste Wort des zweiten Abschnitts an dessen
+        Ende, die ersten zwei Wörter des dritten an dessen Ende und so fort, für jeden
+        weiteren Abschnitt eines mehr; der erste Abschnitt bleibt, wie er ist. Schreibe
+        die Wörter aller Abschnitte in dieser Reihenfolge, den ersten Abschnitt zuerst,
+        und sonst nichts.
+      fr: >-
+        Le texte source contient plusieurs passages séparés par des lignes vides. Réduis
+        chaque passage à autant de mots que le plus court en compte, un mot élidé
+        comptant avec le mot qu'il précède (l'arbre est un seul mot) et un trait d'union
+        séparant deux mots. Puis déplace le premier mot du deuxième passage à sa fin,
+        les deux premiers mots du troisième à sa fin, et ainsi de suite, un de plus pour
+        chaque passage suivant, en laissant le premier tel quel. Écris les mots de tous
+        les passages dans cet ordre, le premier passage d'abord, et rien d'autre.
 
   - id: chimera
     names: { en: Chimera, fr: Chimère }
@@ -1631,6 +1677,10 @@ procedures:
       en: >-
         Copy the source text with every letter "{deleted}" deleted, in any case or
         accented form, and every other letter kept, in its order.
+      fr: >-
+        Recopie le texte source en supprimant toutes les lettres « {deleted} », en
+        majuscule ou en minuscule, avec ou sans accent ou cédille, et en gardant toutes
+        les autres lettres, dans leur ordre.
 
   - id: haikuization
     names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
@@ -1673,6 +1723,14 @@ procedures:
         Take the last word of each line of the source text, from the first line to the
         last, and write those words in that order, separated by spaces, and nothing
         else.
+      de: >-
+        Nimm das letzte Wort jeder Zeile des Ausgangstexts, von der ersten Zeile bis zur
+        letzten, und schreibe diese Wörter in dieser Reihenfolge, durch Leerzeichen
+        getrennt, und sonst nichts.
+      fr: >-
+        Prends le dernier mot de chaque ligne du texte source, de la première ligne à la
+        dernière, et écris ces mots dans cet ordre, séparés par des espaces, et rien
+        d'autre.
 
   - id: word_ladder
     names: { en: Word ladder, de: Wortleiter, fr: Échelle de mots }
@@ -2239,6 +2297,12 @@ procedures:
         are the end-words. Each later stanza ends its lines on the previous stanza's
         end-words in spiral order: its last, then its first, then its second to last,
         then its second, and so on inward.
+      fr: >-
+        Écris {n} strophes de {n} vers chacune. Les derniers mots des vers de la
+        première strophe sont les mots-rimes. Chaque strophe suivante termine ses vers
+        sur les mots-rimes de la strophe précédente en spirale : son dernier, puis son
+        premier, puis son avant-dernier, puis son deuxième, et ainsi de suite vers le
+        milieu.
 
   - id: pantoum
     names: { en: Pantoum, de: Pantun, fr: Pantoum }
@@ -3187,6 +3251,12 @@ procedures:
         across line breaks, and keep only the words whose number is a multiple of {n}. A
         hyphenated word counts as two. Write the kept words in their order, separated by
         spaces, and nothing else.
+      fr: >-
+        Numérote les mots du texte source à partir de 1, du premier au dernier et d'une
+        ligne à l'autre, et garde seulement ceux dont le numéro est un multiple de {n}.
+        Un mot élidé compte avec le mot qu'il précède (l'arbre est un seul mot) ; un
+        trait d'union sépare deux mots. Écris les mots gardés dans leur ordre, séparés
+        par des espaces, et rien d'autre.
 
   - id: column_reading
     names: { en: Column reading, de: Spaltenlesung, fr: Lecture en colonnes }
@@ -3211,6 +3281,18 @@ procedures:
         every line from 1, from the first line to the last; a line with fewer than
         {column} words gives nothing. A hyphenated word counts as two. Write the words
         you took in that order, separated by spaces, and nothing else.
+      de: >-
+        Nimm aus jeder Zeile des Ausgangstexts das Wort Nummer {column}, wobei du in
+        jeder Zeile neu ab 1 zählst, von der ersten Zeile bis zur letzten; eine Zeile
+        mit weniger als {column} Wörtern liefert nichts. Ein Bindestrich trennt zwei
+        Wörter. Schreibe die genommenen Wörter in dieser Reihenfolge, durch Leerzeichen
+        getrennt, und sonst nichts.
+      fr: >-
+        Prends le mot numéro {column} de chaque ligne du texte source, en comptant les
+        mots de chaque ligne à partir de 1, de la première ligne à la dernière ; une
+        ligne de moins de {column} mots ne donne rien. Un mot élidé compte avec le mot
+        qu'il précède (l'arbre est un seul mot) ; un trait d'union sépare deux mots.
+        Écris les mots pris dans cet ordre, séparés par des espaces, et rien d'autre.
 
   - id: palimpsest
     names: { en: Palimpsest, de: Palimpsest, fr: Palimpseste }
@@ -3273,6 +3355,11 @@ procedures:
         Copy the lines of the source text, each unchanged and on a line of its own, in a
         new order: first every line after line {fold_at}, in their order, then the first
         {fold_at} line(s), in their order. Blank lines are not counted.
+      de: >-
+        Schreibe die Zeilen des Ausgangstexts ab, jede unverändert und in einer eigenen
+        Zeile, aber in neuer Reihenfolge: erst alle Zeilen nach Zeile {fold_at}, in
+        ihrer Reihenfolge, dann die ersten {fold_at} Zeile(n), in ihrer Reihenfolge.
+        Leerzeilen werden nicht mitgezählt.
 
   - id: oracle_reading
     names: { en: Oracle reading }
@@ -3421,8 +3508,14 @@ procedures:
     requires: [tokens, fold_diacritics]
     deterministic: false
     prompt_hints:
-      en: >-
-        Translate the passage while never using the letter "{forbidden}".
+      en: Translate the passage while never using the letter "{forbidden}".
+      de: >-
+        Übersetze den Text, ohne je den Buchstaben „{forbidden}“ zu verwenden, auch
+        nicht als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü
+        als u und ß als ss.
+      fr: >-
+        Traduis le texte sans jamais employer la lettre « {forbidden} », ni en
+        majuscule, ni avec un accent ou une cédille : é compte comme e et ç comme c.
 
   - id: univocalic_translation
     names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }
@@ -3605,6 +3698,11 @@ procedures:
         Copy the source text line by line, but write its 2nd, 4th, 6th and every other
         even-numbered line backwards, character by character, from its last character to
         its first. Copy the odd-numbered lines unchanged. Blank lines are not counted.
+      de: >-
+        Schreibe den Ausgangstext Zeile für Zeile ab, aber die 2., 4., 6. und jede
+        weitere gerade Zeile rückwärts, Zeichen für Zeichen, vom letzten Zeichen bis zum
+        ersten. Die ungeraden Zeilen schreibst du unverändert ab. Leerzeilen werden
+        nicht mitgezählt.
 
   - id: sator_square
     names: { en: Sator square, de: Sator-Quadrat, fr: Carré Sator }

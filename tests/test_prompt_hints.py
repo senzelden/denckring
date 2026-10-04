@@ -298,9 +298,11 @@ def test_a_sub_constraint_without_a_hint_in_the_language_is_refused_by_name(
     monkeypatch.setitem(
         ROWS["multiple_constraint"].prompt_hints, "de", "Erfülle zugleich: {constraints}."
     )
+    unhinted = [pid for pid in COMPOSITE["constraints"] if "de" not in ROWS[pid].prompt_hints]
+    assert unhinted, "give the composite a constraint with no German hint"
     with pytest.raises(NoPromptHint) as raised:
         prompt_hint("multiple_constraint", lang="de", **COMPOSITE)
-    assert raised.value.detail() == {"procedure_id": "lipogram", "lang": "de"}
+    assert raised.value.detail() == {"procedure_id": unhinted[0], "lang": "de"}
 
 
 def _clause_unit_hints() -> list[str]:
