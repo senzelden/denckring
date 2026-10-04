@@ -132,7 +132,7 @@ All notable changes to this project are documented here. The format follows
   verdicts. Their syllable counts are already right, as estimates.
 
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
-  `DenckringError` and its 22 subclasses, which `docs/api/errors.md` documented only
+  `DenckringError` and its 23 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.
 
 - `get_pack`, `LanguagePack` and `PosTag` are importable from `denckring`, and the README
@@ -193,9 +193,11 @@ All notable changes to this project are documented here. The format follows
   `syllable_count`, `assonance_constraint`, `rondeau`, `renga`, `calculator_word`
   carry `examples`. The schemas are not enforced by pydantic, so no call that
   succeeded fails; a test holds every validating keyword to refusing only what `check`
-  refuses, and every example to a value it accepts. No bound is stated where the
-  checker accepts every value (`syllable_count.pattern`, `assonance_constraint.minimum`,
-  `rondeau.rentrement_words`, `sonnet.metre`).
+  refuses, and every example to a value it accepts. No bound is stated beyond what
+  validation already enforces where the checker accepts every value that passes it:
+  `syllable_count.pattern` and `sonnet.metre` take any value, and
+  `assonance_constraint.minimum` and `rondeau.rentrement_words` keep their validated
+  minimums of 2 and 1.
 
 - `denckring.pack_provenance(lang)` returns which pack answers for a language and the
   data distributions it reads, with their versions: the record `Report.provenance.pack`
