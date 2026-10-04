@@ -6,9 +6,9 @@ names: a forbidden letter, a missing letter and a line out of order are differen
 mistakes for a writer to make. denckring-bench kept that map itself, in a file it
 re-checked by hand against every release. It is here instead, keyed by the rule
 string, which is shared vocabulary: `missing_line` means the same on every row
-that emits it.
+that emits it. `ROW_CATEGORIES` names the one exception.
 
-One category per rule, and the set is closed. The bench's eight classes were drawn
+One category per rule on each row, and the set is closed. The bench's eight classes were drawn
 over a pool with no prosodic rows and no data-driven rows; `sound` and
 `unreadable` are added for the two kinds of failure only those rows have.
 """
@@ -258,9 +258,29 @@ _BY_CATEGORY: dict[Category, tuple[str, ...]] = {
     ),
 }
 
-#: Every declared rule, mapped to its category. `tests/test_rule_categories.py` holds
-#: it to the declarations both ways: no declared rule without a category, no entry
-#: for a rule no row declares.
+#: Every declared rule, mapped to its category on every row but those in
+#: `ROW_CATEGORIES`. `tests/test_rule_categories.py` holds it to the declarations both
+#: ways: no declared rule without a category, no entry for a rule no row declares.
 RULE_CATEGORIES: dict[str, Category] = {
     rule: category for category, rules in _BY_CATEGORY.items() for rule in rules
 }
+
+#: The rows on which a rule string names another kind of failure than it does
+#: elsewhere, keyed by (row, rule). Rule strings are shared vocabulary, but
+#: `wrong_letter` was coined twice: on `acrostic` and `telestich` a spine letter is
+#: in the wrong place, while on `slenderizing` the text departs from its source,
+#: as its sibling `extra_letters` does. Renaming the rule would move a published
+#: string, and recategorising it everywhere would only move the error onto the
+#: spine rows, so the exception is stated here instead.
+#:
+#: `multiple_constraint` passes violations through without naming the row that
+#: emitted them, so its map gives the default: a `slenderizing` failure inside a
+#: composite reads as `position`.
+ROW_CATEGORIES: dict[tuple[str, str], Category] = {
+    ("slenderizing", "wrong_letter"): "transcription",
+}
+
+
+def category(procedure_id: str, rule: str) -> Category:
+    """The kind of failure `rule` names when `procedure_id` emits it."""
+    return ROW_CATEGORIES.get((procedure_id, rule), RULE_CATEGORIES[rule])

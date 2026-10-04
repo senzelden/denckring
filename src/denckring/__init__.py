@@ -46,7 +46,8 @@ from denckring.core.protocol import (
 from denckring.core.provenance import PackProvenance
 from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
-from denckring.core.rules import CATEGORIES, RULE_CATEGORIES
+from denckring.core.rules import CATEGORIES
+from denckring.core.rules import category as _category
 from denckring.core.scope import SCOPES
 from denckring.eval.harness import GoldenCase
 from denckring.lang import get_pack
@@ -190,13 +191,16 @@ def rule_categories(procedure_id: str) -> dict[str, str]:
     """Each rule `rules(procedure_id)` returns, mapped to the kind of failure it names.
 
     The categories are a closed set, defined in `failure_categories()`: a forbidden
-    letter is `excluded_letter`, a missing line `count`, a broken rhyme `sound`. One
-    category per rule string, the same on every row that emits it, so a caller
-    counting failures across rows counts by kind without a map of its own (audit C3).
+    letter is `excluded_letter`, a missing line `count`, a broken rhyme `sound`. A rule
+    string has the same category on every row that emits it, but one:
+    `slenderizing`'s `wrong_letter` is `transcription`, where the spine rows'
+    is `position`. So a caller counting failures across rows counts by kind without
+    a map of its own (audit C3), provided it asks each row rather than keying by the
+    rule alone. `multiple_constraint` answers with each rule's usual category.
     Published with the rules themselves, and under the same terms: a rule's category
     may move in a minor release, and the changelog will say so.
     """
-    return {rule: RULE_CATEGORIES[rule] for rule in rules(procedure_id)}
+    return {rule: _category(procedure_id, rule) for rule in rules(procedure_id)}
 
 
 def failure_categories() -> dict[str, str]:

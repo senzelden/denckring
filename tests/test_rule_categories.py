@@ -14,7 +14,13 @@ import pytest
 
 import denckring
 from denckring.core.registry import all_procedures
-from denckring.core.rules import _BY_CATEGORY, CATEGORIES, RULE_CATEGORIES, Category
+from denckring.core.rules import (
+    _BY_CATEGORY,
+    CATEGORIES,
+    ROW_CATEGORIES,
+    RULE_CATEGORIES,
+    Category,
+)
 
 PROCEDURES = all_procedures()
 DECLARED = {rule for procedure in PROCEDURES.values() for rule in procedure.rules}
@@ -59,3 +65,21 @@ def test_the_categories_read_as_the_kinds_of_mistake_they_name() -> None:
     assert denckring.rule_categories("n_plus_7")["unchanged"] == "transcription"
     assert denckring.rule_categories("rhyme_scheme")["rhyme_undecidable"] == "unreadable"
     assert denckring.failure_categories() is not denckring.failure_categories()
+
+
+def test_a_row_exception_names_a_rule_its_row_declares_and_changes_it() -> None:
+    """An exception is for a rule that means another kind of failure on one row. One
+    the row cannot emit, or that restates the default, is a stale entry."""
+    for (pid, rule), category in ROW_CATEGORIES.items():
+        assert rule in PROCEDURES[pid].rules, (pid, rule)
+        assert category != RULE_CATEGORIES[rule], (pid, rule)
+        assert category in CATEGORIES, (pid, rule)
+
+
+def test_wrong_letter_is_a_place_on_a_spine_and_a_transcription_on_slenderizing() -> None:
+    """On `acrostic` and `telestich` the letter is on the wrong line's edge; on
+    `slenderizing` the text departs from its source, beside `extra_letters`."""
+    assert denckring.rule_categories("acrostic")["wrong_letter"] == "position"
+    assert denckring.rule_categories("telestich")["wrong_letter"] == "position"
+    slender = denckring.rule_categories("slenderizing")
+    assert slender == {"extra_letters": "transcription", "wrong_letter": "transcription"}

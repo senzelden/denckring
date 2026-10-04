@@ -74,8 +74,11 @@ All notable changes to this project are documented here. The format follows
   failure it names, from a closed set `denckring.failure_categories()` defines:
   `excluded_letter`, `inventory`, `word_choice`, `position`, `structure`, `count`,
   `length`, `transcription`, `sound` and `unreadable`. One category per rule string,
-  the same on every row; a test fails a declared rule without one, and an entry for a
-  rule no row declares. Published under the rules' own terms: a category may move in a
+  the same on every row but one: `wrong_letter` is `position` on `acrostic` and
+  `telestich` and `transcription` on `slenderizing`, where the text departs from its
+  source. `multiple_constraint` answers with each rule's usual category. A test fails a
+  declared rule without one, an entry for a rule no row declares, and a row exception
+  that restates the default. Published under the rules' own terms: a category may move in a
   minor release, and the changelog will say so.
 
 - Two catalogue flags for a caller building a transform prompt from a row, on `Meta`
