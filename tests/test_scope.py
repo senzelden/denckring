@@ -25,7 +25,7 @@ from denckring.core.fields import kinds, roles
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures
 from denckring.core.scope import SCOPES, coarsest
-from denckring.core.text import line_spans
+from denckring.core.text import UNIT_ENDS, line_spans
 from denckring.lang import get_pack
 
 PROCEDURES = all_procedures()
@@ -46,7 +46,9 @@ COMPOSITES: list[dict[str, Any]] = [
     },
 ]
 
-SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+#: The marks that close a sentence, as the scope and the reading both publish them.
+SENTENCE_MARKS = UNIT_ENDS["sentence"]
+SENTENCE_END = re.compile(rf"(?<=[{re.escape(SENTENCE_MARKS)}])\s+")
 
 
 def _stated(pid: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -102,12 +104,15 @@ def _units(unit: str, pid: str, lang: Lang, params: dict[str, Any]) -> list[str]
     elif unit == "line":
         found = [line for text in texts for _, line in line_spans(text)]
     else:
-        found = [
+        closed = [
             sentence.strip()
             for text in texts
             for sentence in SENTENCE_END.split(text.strip())
-            if sentence.strip() and sentence.strip()[-1] in ".!?"
+            if sentence.strip() and sentence.strip()[-1] in SENTENCE_MARKS
         ]
+        # Each sentence closed by every mark in turn, so the claim is tested at each
+        # mark it names and not only at those the golden texts happen to use.
+        found = [sentence[:-1] + mark for sentence in closed for mark in SENTENCE_MARKS]
     return list(dict.fromkeys(found))[:POOL]
 
 
@@ -281,3 +286,11 @@ def test_scope_takes_lang_as_its_siblings_do() -> None:
     assert admits("lipogram", "chat", **params) is True
     with pytest.raises(UnknownLanguage):
         scope("lipogram", forbidden="e", lang="xx")  # type: ignore[arg-type]
+
+
+def test_a_sentence_scope_ends_where_the_reading_says_a_sentence_ends() -> None:
+    """M4: `scopes()` and `describe(...).reading.units` publish one set of marks."""
+    marks = denckring.describe("verbless_prose").reading.units["sentence"]
+    assert marks
+    for mark in marks:
+        assert repr(mark) in denckring.scopes()["sentence"], mark

@@ -13,8 +13,10 @@ A scope is a promise about texts built from units, not about every string:
   and only if every word passes alone.
 - `line`: a text of lines joined by line breaks passes if and only if every line
   passes alone.
-- `sentence`: a text of sentences, each closed by `.`, `!` or `?` and joined by a
-  space, passes if and only if every sentence passes alone.
+- `sentence`: a text of sentences, each closed by a sentence-final mark and joined
+  by a space, passes if and only if every sentence passes alone. The marks are
+  `UNIT_ENDS["sentence"]`, the set `describe(...).reading.units` publishes, so the
+  two definitions cannot disagree.
 - `text`: no such promise. The default, so a row that makes no claim makes no
   false one.
 
@@ -32,7 +34,16 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Literal
 
+from denckring.core.text import UNIT_ENDS
+
 Scope = Literal["word", "line", "sentence", "text"]
+
+
+def _either(marks: str) -> str:
+    """`marks` as a phrase: `'.', '!', '?' or '…'`."""
+    quoted = [repr(mark) for mark in marks]
+    return quoted[0] if len(quoted) == 1 else f"{', '.join(quoted[:-1])} or {quoted[-1]}"
+
 
 #: Each scope, and what it promises.
 SCOPES: dict[str, str] = {
@@ -44,8 +55,8 @@ SCOPES: dict[str, str] = {
         "A text of lines joined by line breaks passes if and only if every line passes alone."
     ),
     "sentence": (
-        "A text of sentences, each closed by '.', '!' or '?' and joined by a space, passes "
-        "if and only if every sentence passes alone."
+        f"A text of sentences, each closed by {_either(UNIT_ENDS['sentence'])} and joined "
+        "by a space, passes if and only if every sentence passes alone."
     ),
     "text": "No unit smaller than the text is judged alone.",
 }
