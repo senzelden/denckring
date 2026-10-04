@@ -297,6 +297,23 @@ All notable changes to this project are documented here. The format follows
   rule that every graded word the oracle refuses is in neither of its sources. Verdicts
   are unchanged.
 
+### Docs
+
+- The README's stability promise names its Python surface: the names `denckring`
+  exports, from that path. The functions and models that 0.3.1 exported, the error
+  classes (name, place under `DenckringError`, `code`) and the pack surface (`get_pack`,
+  `LanguagePack`, `PosTag`) are under it, and so is `Report.estimated`, with
+  `provenance.schema_version` at `1.1`. The rest is listed as published but not yet
+  promised: `rules`, `rule_categories` and `failure_categories`; `Report.evidence` and
+  `Evidence`, planned for the promise in 0.4.0 with the rule ids; the `unique_answer`,
+  `hidden_material` and `hint_omits` flags; `prompt_hint` and `render_hint`, whose hint
+  wording is catalogue text; `golden_cases` and `GoldenCase`; `scope`, `scopes`,
+  `admits` and `witness`; `words` and `nouns`; `pack_provenance` and `PackProvenance`;
+  and `describe`'s `reading` with its `units`. The API pages document every export from
+  `denckring` rather than from `denckring.core`, adding `apply`, `produce`, `Production`
+  and six error classes they had left out. A test fails an export the API pages do not
+  document from the top level, or the README does not classify.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

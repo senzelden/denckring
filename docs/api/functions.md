@@ -1,8 +1,14 @@
 # Functions
 
-The top-level entry points. Everything here is importable directly from `denckring`.
+The top-level entry points. Everything here is importable directly from `denckring`;
+the README's "What is stable" says which are under its promise and which are published
+but not yet promised.
 
 ::: denckring.check
+
+::: denckring.produce
+
+::: denckring.apply
 
 ::: denckring.get
 

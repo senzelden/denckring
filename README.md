@@ -181,13 +181,22 @@ than reporting a gap that can never close.
 ## What is stable
 
 `0.x` means the API can change in a minor release, and the changelog says when it does.
-Six surfaces are treated as contracts regardless, because things outside this repository
+Seven surfaces are treated as contracts regardless, because things outside this repository
 are built on them:
 
 - **Procedure ids.** An id that has shipped does not change meaning. When a row is
   replaced, the old id stays findable through `denckring search` as an alias — though
   `get` resolves ids only, and raises `UnknownProcedure` naming the replacement.
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
+- **The names `denckring` exports**, imported from `denckring` itself. `check`, `apply`,
+  `produce`, `describe`, `get`, `list_procedures`, `summaries` and `all_procedures` keep
+  their signatures and meaning; a new parameter arrives as a keyword whose default keeps
+  today's answer. `Report`, `Violation`, `Production`, `Description`, `Summary`,
+  `Scholarly`, `Meta` and `Lang` keep the type and meaning of every field they have,
+  except the fields listed below as not yet promised. `DenckringError` and every
+  subclass keep their names, their place under `DenckringError` and their `code`. The
+  same objects reached through `denckring.core` are not covered: the path is part of
+  the promise. The rest of `__all__` is published but not yet promised, as listed below.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
   `provenance`, `estimated` — and the `--json` output of `check`, `show` and `describe`
   that carries it. Fields may be added; the ones already there do not change type or
@@ -195,7 +204,7 @@ are built on them:
   unjudged, and is what to read in place of `metrics["estimated_words"]`.
   `describe`'s `Description` carries `runs_in` under the same promise. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
-  and not when the package is released.
+  and not when the package is released: `1.1` since `estimated` was added.
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`,
   `provenance` — and the `--json` output of `apply`. Covered by the same promise in the
   same words. Both `candidates` and `texts` are ordered, best first, because `apply`
@@ -203,11 +212,11 @@ are built on them:
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
   and `attribution` keys the CC BY terms are carried by.
 - **The language-pack surface**: `denckring.get_pack` (also `denckring.lang.get_pack`)
-  and the `LanguagePack` protocol it returns, both importable from `denckring`. A
-  method on the protocol keeps its signature and meaning. A new pack method arrives
-  as an optional member, read with `getattr` and a fallback, because the protocol is
-  `runtime_checkable` and a required method added later would make every pack
-  written before it fail `isinstance`.
+  and the `LanguagePack` protocol it returns, with the `PosTag` its `pos_tags` answers,
+  all importable from `denckring`. A method on the protocol keeps its signature and
+  meaning. A new pack method arrives as an optional member, read with `getattr` and a
+  fallback, because the protocol is `runtime_checkable` and a required method added
+  later would make every pack written before it fail `isinstance`.
 - **The `denckring.lang` entry-point group** and the capability names a pack
   declares, so an installed third-party pack keeps working. This covers
   replacing or extending the data behind English, German or French (ADR
@@ -215,10 +224,28 @@ are built on them:
   register a new language through this mechanism.
 
 Not stable, and expected to move: violation `rule` strings, `metrics` keys, message
-wording, and everything under `denckring.core`. Each row's rule strings are published,
-through `denckring.rules(procedure_id)`, so they can be mapped without reading checker
-source; a rename is still allowed in a minor release, and the changelog names it. A
-check's *verdict* is a contract; the reason it gives for a failure is not one yet.
+wording, the wording of prompt hints, and everything under `denckring.core`. Each row's
+rule strings are published, through `denckring.rules(procedure_id)`, so they can be
+mapped without reading checker source; a rename is still allowed in a minor release,
+and the changelog names it. A check's *verdict* is a contract; the reason it gives for
+a failure is not one yet.
+
+**Published, not yet promised.** These are exported and documented, so nothing has to
+reach into `denckring.core` for them, but they may still change in a minor release, with
+a changelog line when they do. All but `Report.evidence` and `reading` are new in 0.3.2:
+
+- `rules`, `rule_categories` and `failure_categories`: the rule ids and the kind of
+  failure each names;
+- `Report.evidence` and its type, `Evidence`; that field, like the rule ids, is planned
+  for the promise in 0.4.0;
+- the catalogue flags `unique_answer` and `hidden_material`, on `Meta` and
+  `Description`, and `Meta.hint_omits`;
+- `prompt_hint` and `render_hint`, which render the catalogue's hint templates;
+- `golden_cases` and `GoldenCase`;
+- `scope`, `scopes`, `admits` and `witness`;
+- `words` and `nouns`;
+- `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
+- `describe`'s `reading`, including its new `units`.
 
 ## The catalogue as data
 

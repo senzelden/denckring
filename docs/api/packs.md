@@ -7,7 +7,14 @@ what it can do.
 README's stability promise: a method here keeps its signature and meaning, and a new
 one arrives as an optional member a caller reads with `getattr`.
 
-::: denckring.core.protocol.LanguagePack
+::: denckring.get_pack
+
+::: denckring.LanguagePack
+
+`Constructive`, the protocol a procedure with a generator satisfies, is documented
+where it is defined: it is not exported from `denckring`, so it is outside the
+promise. `describe(...).constructive` answers the same question from the stable
+surface.
 
 ::: denckring.core.protocol.Constructive
 
@@ -20,10 +27,10 @@ set, built from string constants defined in `denckring.lang.base`: `TOKENS`,
 procedure, in turn, declares a `requires` list of the same strings on its catalogue
 entry. `BaseProcedure.check` compares the two before running anything: if the pack's
 `capabilities` do not cover everything the procedure `requires`, it raises
-[`MissingCapability`](errors.md#denckring.core.errors.MissingCapability) naming the
+[`MissingCapability`](errors.md#denckring.MissingCapability) naming the
 procedure, the language and the missing capability, rather than falling back to an
 approximation. Adding a language pack is a matter of implementing
-[`LanguagePack`](#denckring.core.protocol.LanguagePack) and declaring which of these
+[`LanguagePack`](#denckring.LanguagePack) and declaring which of these
 strings it can honestly back — nothing more.
 
 ## Word membership and the graded list

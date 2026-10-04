@@ -76,3 +76,8 @@ silently would let a caller believe every count was exact. `estimated_words` is 
 the library discloses, instead, how many words in the checked text were guessed
 rather than looked up — so a caller who needs certainty can decide whether that
 number is small enough to trust.
+
+To decide whether to trust a verdict at all, read `Report.estimated` rather than this
+metric: it is true whenever the verdict rests on anything estimated or left unjudged,
+including what `estimated_words` misses on some rows (rhyme endings, for one), and it
+is under the README's stability promise, which `metrics` keys are not.

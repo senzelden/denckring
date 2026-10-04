@@ -9,6 +9,7 @@ from `core`, because nothing else offered them (audit B2-B4, B7, B9).
 from __future__ import annotations
 
 import inspect
+from pathlib import Path
 
 import pytest
 from pydantic import BaseModel, Field
@@ -145,3 +146,57 @@ def test_pack_provenance_names_the_data_an_installed_pack_reads() -> None:
     recorded = denckring.pack_provenance("en")
     assert set(recorded.data) == set(getattr(pack, "data_distributions", ()))
     assert recorded.pack == type(pack).__name__
+
+
+DOCS_API = Path(__file__).resolve().parents[1] / "docs" / "api"
+README = Path(__file__).resolve().parents[1] / "README.md"
+
+#: Documented where defined because `denckring` does not export them, so no top-level
+#: path exists to document them from.
+UNEXPORTED_DOCUMENTED = {"denckring.core.protocol.Constructive"}
+
+
+def _exported() -> list[str]:
+    return [name for name in denckring.__all__ if not name.startswith("_")]
+
+
+def _directives() -> set[str]:
+    return {
+        line.removeprefix(":::").strip()
+        for page in DOCS_API.glob("*.md")
+        for line in page.read_text(encoding="utf-8").splitlines()
+        if line.startswith(":::")
+    }
+
+
+def test_the_api_docs_document_every_export_from_the_top_level() -> None:
+    """The API pages documented `denckring.core.*` paths, which the README puts
+    outside the stability promise, and left out `apply` and `produce` (audit E1)."""
+    documented = _directives()
+    missing = sorted(name for name in _exported() if f"denckring.{name}" not in documented)
+    assert missing == []
+    elsewhere = sorted(
+        path
+        for path in documented - UNEXPORTED_DOCUMENTED
+        if path.removeprefix("denckring.") not in denckring.__all__
+    )
+    assert elsewhere == [], "document an exported name from `denckring`, not where it is defined"
+
+
+def test_the_stability_section_classifies_every_export() -> None:
+    """Every name `denckring` exports is either promised or listed as not yet promised,
+    so a new export cannot arrive without the README saying which (audit E1). Error
+    classes are covered as a family: `DenckringError` and every subclass."""
+    text = README.read_text(encoding="utf-8")
+    section = text.split("## What is stable", 1)[1].split("\n## ", 1)[0]
+    unnamed = sorted(
+        name
+        for name in _exported()
+        if f"`{name}`" not in section
+        and f"`denckring.{name}`" not in section
+        and not (
+            inspect.isclass(value := getattr(denckring, name))
+            and issubclass(value, errors.DenckringError)
+        )
+    )
+    assert unnamed == []

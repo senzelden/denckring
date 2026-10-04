@@ -5,40 +5,55 @@ a stable `code`, a human-readable message, and a `detail()` dict for a caller th
 would rather not parse English out of the message.
 
 Each is importable from `denckring` itself (`from denckring import InvalidParams`),
-which is the path to use: `denckring.core` is not under the stability promise.
+and this page documents them from there: that is the path under the README's
+stability promise, and `denckring.core.errors`, where they are defined, is not. A
+class keeps its name, its place under `DenckringError` and its `code`; the message
+wording may change.
 
-::: denckring.core.errors.DenckringError
+::: denckring.DenckringError
 
-::: denckring.core.errors.UnknownProcedure
+::: denckring.UnknownProcedure
 
-::: denckring.core.errors.UnknownLanguage
+::: denckring.UnknownLanguage
 
-::: denckring.core.errors.MissingCapability
+::: denckring.MissingCapability
 
-::: denckring.core.errors.InvalidParams
+::: denckring.InvalidParams
 
-::: denckring.core.errors.DuplicateProcedure
+::: denckring.DuplicateProcedure
 
-::: denckring.core.errors.UnknownDevice
+::: denckring.UnknownDevice
 
-::: denckring.core.errors.UnsettablePhrase
+::: denckring.UnsettablePhrase
 
-::: denckring.core.errors.InputTooLong
+::: denckring.InputTooLong
 
-::: denckring.core.errors.NoCandidateWord
+::: denckring.TextTooLong
 
-::: denckring.core.errors.MalformedTable
+::: denckring.InputTooShort
 
-::: denckring.core.errors.MalformedCorpus
+::: denckring.DegenerateOutput
 
-::: denckring.core.errors.UnknownFigure
+::: denckring.NoCandidateWord
 
-::: denckring.core.errors.UnknownLevel
+::: denckring.MalformedTable
 
-::: denckring.core.errors.DuplicatePack
+::: denckring.MalformedCorpus
 
-::: denckring.core.errors.NoPromptHint
+::: denckring.MalformedDevice
 
-::: denckring.core.errors.UnsetHintParameter
+::: denckring.MalformedFigure
 
-::: denckring.core.errors.NotWordLocal
+::: denckring.UnknownFigure
+
+::: denckring.UnknownLevel
+
+::: denckring.DuplicatePack
+
+::: denckring.NotConstructive
+
+::: denckring.NoPromptHint
+
+::: denckring.UnsetHintParameter
+
+::: denckring.NotWordLocal
