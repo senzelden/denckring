@@ -126,11 +126,6 @@ All notable changes to this project are documented here. The format follows
   `frequency` raises `ValueError`. No checker reads it. German and French have no
   counts, and their refusal names no extra.
 
-- ADR 0053 records why no pronunciation supplement ships for the five band-10 words
-  CMUdict lacks (`deeming`, `inclining`, `inputted`, `inputting`, `sophisticating`):
-  no licensed source holds them, and adding them would widen `is_word` and move
-  verdicts. Their syllable counts are already right, as estimates.
-
 - Every error class is importable from `denckring` itself and listed in its `__all__`:
   `DenckringError` and its 23 subclasses, which `docs/api/errors.md` documented only
   under `denckring.core.errors`, a path outside the stability promise.
@@ -174,9 +169,6 @@ All notable changes to this project are documented here. The format follows
   constraints' `evidence` and `estimated_words`, the latter only when some constraint
   estimated, so a composite is estimated whenever a constraint in it is; its verdict
   and score are unchanged. `Evidence` is importable from `denckring`.
-  `provenance.schema_version` moves from `1.0` to `1.1` for the added field, by its own
-  rule (minor on an added field), and a test now ties each version to the keys `Report`
-  and `Production` serialise.
 
 - Every params field declares its role and, for a string, its kind, in its JSON Schema:
   `x-denckring-role` is one of `task`, `inferred` (unset means the checker reads it off
@@ -214,10 +206,25 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- `Meta.prompt_hints` holds templates (ADR 0050): a raw hint may contain
+  `{placeholder}`s naming the row's parameters, where it used to hold finished text
+  written for the default parameters. Read a hint through `prompt_hint` or
+  `describe`, which render it.
+
+- `provenance.schema_version` is `1.1` on every `Report` and `Production` (was `1.0`),
+  for the added `Report.estimated`, by its own rule: a minor step for an added field.
+  A test now ties each version to the keys `Report` and `Production` serialise. No
+  verdict or score moves.
+
 - A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`
   says `none of "e", "t"` (was `any letter outside 'et'`) and `bivocalic` says
   `one of "a", "e"` (was `ae`). Message wording is outside the stability promise; no
   verdict, score or rule moves.
+
+- The sdist bound is raised from 1,050,000 to 1,150,000 bytes. This release's code,
+  tests and ADRs, not a data file, took the clean build to 1,060,716 bytes; the
+  smallest data file the bound exists to catch is now `frequencies.txt.gz` (202,997
+  bytes), so the bound still fails a build that ships it.
 
 ### Fixed
 
@@ -241,39 +248,22 @@ All notable changes to this project are documented here. The format follows
   `villanelle-passerat` (French) now scores 0.994 instead of 0.980, and its verdict,
   unsatisfied for a broken refrain, is unchanged.
 
-- Reword 18 English prompt hints whose literal reading fails their own checker. The
-  anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
-  colon and line break), and a guard holds that for
-  every English hint of a row with a clause unit.
-  Six hints that named a search (`eodermdrome`, `semordnilap`, `supervocalic`,
-  `charade`, `tautonym`, `word_ladder`) now state that the whole text is the answer.
-  Seven state a rule their checker applies: `tmesis` hyphens, `paragram` pairs,
-  `chronogram` case, `belle_absente` alphabet, `serial_lipogram` wrap-around,
-  `sestina` rotation and `reverse_snowball`'s end. `acrostic` and `telestich` state
-  the unit count, and `liponym` no longer points at a subject the prompt never gives.
-  No hint offers an example that passes its checker alone, and a guard holds that
-  for English hints.
-  Checkers and fixtures are unchanged.
-
-- Correct S+7's English, German and French definitions to the noun-displacement
-  procedure documented by Oulipo (#23). Cite its public account and distinguish
-  the base form from configurable word-list and offset extensions in the notes.
-  Both IDs and their shared behavior remain unchanged. Remove the wording guard
-  that required the earlier, inaccurate generalisation.
-
 - `consonantal_lipogram` folds its `forbidden` letters the way it folds the text, as
   `lipogram` has since ADR 0035 D3. `forbidden="ç"` never matched a folded letter, so
   any French text was satisfied; it now fails on every `c` and `ç`. A letter that folds
   to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics=false` (ADR 0035
   D4); before, it passed every text.
+
 - `boustrophedon` compares a turned line stripped and casefolded, as it already compared
   every line for missing or invented material. Byte for byte, a trailing space or an
   indent on a turned line was `line_not_turned` while the same space on an unturned
   line passed.
+
 - `text_folding` and `fold_in` hold the same line policy: a line in its folded
   position is compared stripped and casefolded. Byte for byte, a trailing space, an
   indent or a capital on a correctly folded line was `line_out_of_fold` or
   `not_the_fold`.
+
 - English syllable estimates read a suffixed silent `e`. The spelling heuristic drops the
   `e` of a final `-es` or `-ed` after a consonant (`awakes` 2, `hoped` 1), but not after
   a sibilant (`faces`), `-ed` after `t`/`d` (`wanted`), or a consonant and a liquid
@@ -290,6 +280,7 @@ All notable changes to this project are documented here. The format follows
   cases keep their verdicts with fewer length violations: Chaucer's rhyme royal
   (score 0.8974 to 0.9318) and Spenser's stanza (0.9688 to 0.9718, line 4 now failing on
   stress rather than length).
+
 - `slenderizing` and `every_nth_word` place every violation. `wrong_letter`,
   `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
   checker had the spans; they now carry the offset of the text's letter or word, and a
@@ -297,13 +288,6 @@ All notable changes to this project are documented here. The format follows
   `column_reading` and `haikuization` place a missing line word the same way instead
   of `None`. `Violation.offset` documents the convention: `len(text)` means "at the
   end", so `text[offset]` is not always a valid index.
-- English `graded_words()` and `is_word` are documented as differing on purpose. The
-  graded table is SCOWL's size classes (ADR 0028) and includes words that are not
-  in the membership oracle: verbs and adjectives such as `abjure`, and band-10 junk such as
-  `payed` and `numbest`. The oracle stays WordNet's nouns plus CMUdict's headwords
-  (ADR 0015). The pack docstrings and the pack API page say so, and a test holds the
-  rule that every graded word the oracle refuses is in neither of its sources. Verdicts
-  are unchanged.
 
 ### Docs
 
@@ -332,6 +316,20 @@ All notable changes to this project are documented here. The format follows
   "letters", a catalogue note says the form's consonant group is its case and not the
   checker's limit, and two golden cases forbid `ae`. The checker is unchanged, and
   narrowing it to consonants would now need a deprecation.
+
+- Reword 18 English prompt hints whose literal reading fails their own checker. The
+  anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
+  colon and line break), and a guard holds that for
+  every English hint of a row with a clause unit.
+  Six hints that named a search (`eodermdrome`, `semordnilap`, `supervocalic`,
+  `charade`, `tautonym`, `word_ladder`) now state that the whole text is the answer.
+  Seven state a rule their checker applies: `tmesis` hyphens, `paragram` pairs,
+  `chronogram` case, `belle_absente` alphabet, `serial_lipogram` wrap-around,
+  `sestina` rotation and `reverse_snowball`'s end. `acrostic` and `telestich` state
+  the unit count, and `liponym` no longer points at a subject the prompt never gives.
+  No hint offers an example that passes its checker alone, and a guard holds that
+  for English hints.
+  Checkers and fixtures are unchanged.
 
 - The hint audit extended to the transform rows, `quenina` and the prosodic rows:
   30 English hints reworded to state the rule their checker applies. The transforms
@@ -375,6 +373,25 @@ All notable changes to this project are documented here. The format follows
   entry; the `domain` and `splice_lang` fields and `word_ladder.target` say what they
   fall back to. A test holds every field of every params model to it. The API docs
   gain a section on how a checker reads text.
+
+- Correct S+7's English, German and French definitions to the noun-displacement
+  procedure documented by Oulipo (#23). Cite its public account and distinguish
+  the base form from configurable word-list and offset extensions in the notes.
+  Both IDs and their shared behavior remain unchanged. Remove the wording guard
+  that required the earlier, inaccurate generalisation.
+
+- English `graded_words()` and `is_word` are documented as differing on purpose. The
+  graded table is SCOWL's size classes (ADR 0028) and includes words that are not
+  in the membership oracle: verbs and adjectives such as `abjure`, and band-10 junk such as
+  `payed` and `numbest`. The oracle stays WordNet's nouns plus CMUdict's headwords
+  (ADR 0015). The pack docstrings and the pack API page say so, and a test holds the
+  rule that every graded word the oracle refuses is in neither of its sources. Verdicts
+  are unchanged.
+
+- ADR 0053 records why no pronunciation supplement ships for the five band-10 words
+  CMUdict lacks (`deeming`, `inclining`, `inputted`, `inputting`, `sophisticating`):
+  no licensed source holds them, and adding them would widen `is_word` and move
+  verdicts. Their syllable counts are already right, as estimates.
 
 ## [0.3.1] - 2026-09-22
 
