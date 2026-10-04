@@ -116,6 +116,16 @@ patch.
   Gryphius's sonnet 0.9873 to 0.9879 (`du`), which resolves the defect ADR 0040 parked.
   Ten evidence entries in four German cases go from `ambiguous` to `dictionary`.
 
+- **A snowball counts letters, not characters** (ADR 0058, audit A10). `snowball` and
+  `reverse_snowball` measured each word with `len`, and the word pattern keeps an
+  apostrophe inside a word, so `I'm` was three letters long. They now count the word's
+  letters (`letter_spans`, unfolded, so `ß` is one): `A I'm the` passes and `be I'm`
+  fails. No other checker measures a word's length that way. The hyphen and `y`
+  readings are unchanged and stated in `describe().reading`: a hyphen splits a word
+  (`word_examples`, `well-known` is two words in `sentence_length_constraint` and
+  `snowball_sentence` too), and `y` is no vowel in English or German (`vowels`).
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters

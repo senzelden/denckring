@@ -95,8 +95,9 @@ judged, so a caller can write a prompt or a guard that agrees with the checker:
 
 - `tokenization` is the word pattern, and `word_examples` shows what it does with the
   cases a count turns on. An apostrophe between letters stays inside a word (`don't`,
-  `l’âme`), so a word's length counts it; a hyphen splits a word in two (`well-known`
-  is two words); a digit is no part of a word.
+  `l’âme`), but a word's length counts its letters only, so `snowball` reads `I'm` as
+  two (ADR 0058); a hyphen splits a word in two (`well-known` is two words, in a
+  sentence's word count as anywhere); a digit is no part of a word.
 - `units` lists the characters that end a line, a clause and a sentence.
 - `vowels` lists the letters the vowel rows (`univocalic`, `bivocalic`,
   `monoconsonantal`, `homovocalism`) read as vowels. `y` is one in French and not in

@@ -133,7 +133,9 @@ class Reading(BaseModel):
     determinacy: Literal["exact", "heuristic"]
     normalization: str
     #: The pack's word pattern, for the language asked about. A caller comparing its
-    #: own tokenisation against a verdict needs to know what this one counted.
+    #: own tokenisation against a verdict needs to know what this one counted. Kept a
+    #: pattern rather than prose, so a caller can run it; what it makes of a hyphen is
+    #: `word_examples`, and whether `y` is a vowel is `vowels` (audit A10, ADR 0058).
     tokenization: str
     #: The characters that end a line, a clause and a sentence, as the checkers split
     #: them (`core.text.UNIT_ENDS`). The same for every row: a row that reads no clause
@@ -145,10 +147,11 @@ class Reading(BaseModel):
     units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
     #: What `tokenization` makes of an apostrophe, a hyphen and a digit, shown by running
     #: it on `WORD_PROBES`: each probe maps to the words it yields. An apostrophe between
-    #: letters stays inside a word, so a length counts it (`snowball` reads `I'm` as
-    #: three); a hyphen splits a word in two; a digit is no part of one. Derived by
-    #: running the pattern rather than written down, so it cannot drift from it (audit
-    #: E6).
+    #: letters stays inside a word, though a word's length counts only its letters
+    #: (`snowball` reads `I'm` as two, ADR 0058); a hyphen splits a word in two, so a
+    #: sentence's word count reads `well-known` as two; a digit is no part of one.
+    #: Derived by running the pattern rather than written down, so it cannot drift from
+    #: it (audit E6).
     word_examples: dict[str, list[str]]
     #: The letters `univocalic`, `bivocalic`, `monoconsonantal` and `homovocalism` read
     #: as vowels in this language, as the pack lists them; the text's letters are folded
