@@ -137,9 +137,12 @@ def coerce(fields: list[Field], form: dict[str, str]) -> dict[str, Any]:
             params[spec.name] = int(raw)
         elif spec.kind == "array" and spec.item_kind == "object":
             # A list of objects has no comma-separated spelling; the form holds JSON.
-            # A malformed value raises `ValueError` (`JSONDecodeError` is one), which
-            # the routes already turn into a notice rather than a 500.
-            params[spec.name] = json.loads(raw)
+            # A malformed value is a `ValueError` naming the field, which the routes
+            # turn into a notice rather than a 500.
+            try:
+                params[spec.name] = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{spec.name} is not valid JSON: {exc.msg}") from exc
         elif spec.kind == "array":
             parts = raw.replace(",", " ").split()
             if spec.item_kind == "integer":

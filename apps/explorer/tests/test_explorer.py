@@ -204,7 +204,8 @@ def test_a_number_list_parameter_is_still_read_as_numbers() -> None:
     )
     assert "Satisfied" in good.text
     bad = client.post("/p/syllable_count/check", data={"text": "a b", "lang": "en", "pattern": "x"})
-    assert "That is not a number" in bad.text
+    assert "That value could not be read" in bad.text
+    assert "invalid literal for int()" in bad.text
 
 
 def test_a_list_of_objects_round_trips_through_the_form_as_json() -> None:
@@ -221,6 +222,11 @@ def test_a_list_of_objects_round_trips_through_the_form_as_json() -> None:
         data={"text": "the letters were her tender ferments", "lang": "en", "constraints": posted},
     )
     assert "Satisfied" in response.text
+    malformed = client.post(
+        "/p/multiple_constraint/check",
+        data={"text": "the cat", "lang": "en", "constraints": posted.replace(",", "", 1)},
+    )
+    assert "That value could not be read: constraints is not valid JSON" in malformed.text
 
 
 def test_search_finds_by_alias() -> None:

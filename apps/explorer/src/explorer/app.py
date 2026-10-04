@@ -1240,7 +1240,9 @@ async def check(request: Request, procedure_id: str) -> HTMLResponse:
     try:
         params = bench.coerce(fields, {k: str(v) for k, v in form.items()})
     except ValueError as exc:
-        return page(request, "_proof.html", report=None, problem=f"That is not a number: {exc}")
+        return page(
+            request, "_proof.html", report=None, problem=f"That value could not be read: {exc}"
+        )
     report, problem = bench.run(procedure_id, text, lang, params)
     return page(
         request,
@@ -1275,7 +1277,9 @@ async def apply(request: Request, procedure_id: str) -> HTMLResponse:
     except ValueError as exc:
         # The check route has always guarded this; apply used to let the
         # ValueError escape as a 500 for any procedure with an integer field.
-        return page(request, "_generated.html", produced="", problem=f"That is not a number: {exc}")
+        return page(
+            request, "_generated.html", produced="", problem=f"That value could not be read: {exc}"
+        )
     produced, problem = bench.generate(procedure_id, text, lang, params)
     return page(
         request,
