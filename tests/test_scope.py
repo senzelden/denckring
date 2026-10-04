@@ -20,7 +20,7 @@ from hypothesis import strategies as st
 
 import denckring
 from denckring import admits, check, golden_cases, scope, witness
-from denckring.core.errors import InvalidParams, NoCandidateWord, NotWordLocal
+from denckring.core.errors import InvalidParams, NoCandidateWord, NotWordLocal, UnknownLanguage
 from denckring.core.fields import kinds, roles
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures
@@ -271,3 +271,13 @@ def test_a_row_judging_no_word_alone_refuses_admits_and_witness() -> None:
     with pytest.raises(NotWordLocal, match="State initial"):
         witness("tautogram", ["sun"])
     assert raised.value.to_dict()["code"] == "not_word_local"
+
+
+def test_scope_takes_lang_as_its_siblings_do() -> None:
+    """M2: one kwargs dict serves `scope`, `admits` and `check` alike. The scope is
+    the same in every language, and an unknown one is refused as `check` refuses it."""
+    params: dict[str, Any] = {"forbidden": "e", "lang": "fr"}
+    assert scope("lipogram", **params) == scope("lipogram", forbidden="e") == "word"
+    assert admits("lipogram", "chat", **params) is True
+    with pytest.raises(UnknownLanguage):
+        scope("lipogram", forbidden="e", lang="xx")  # type: ignore[arg-type]

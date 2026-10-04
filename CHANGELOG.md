@@ -97,8 +97,8 @@ All notable changes to this project are documented here. The format follows
   must declare it. `column_reading` carries `unique_answer` too, now that an appended
   source word fails it (below, under Fixed).
 
-- `denckring.scope(procedure_id, **params)` names the smallest unit a row judges alone
-  under its parameters: `word`, `line`, `sentence`, or `text` for no claim
+- `denckring.scope(procedure_id, *, lang="en", **params)` names the smallest unit a
+  row judges alone under its parameters: `word`, `line`, `sentence`, or `text` for no claim
   (`denckring.scopes()` defines each). A word-scoped row passes a text of words if and
   only if it passes each word alone, so `denckring.admits(procedure_id, word, ...)`
   answers for the word wherever it is set, and `denckring.witness(procedure_id,

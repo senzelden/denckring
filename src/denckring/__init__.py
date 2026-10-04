@@ -232,7 +232,7 @@ def failure_categories() -> dict[str, str]:
     return dict(CATEGORIES)
 
 
-def scope(procedure_id: str, **params: Any) -> str:
+def scope(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     """The smallest unit the row judges alone under these parameters (audit C2).
 
     One of `scopes()`: `word`, `line`, `sentence`, or `text` for no promise. A
@@ -240,9 +240,13 @@ def scope(procedure_id: str, **params: Any) -> str:
     alone, so a caller composing rows can build a passing text from passing
     words. The parameters matter: `tautogram` is word-scoped only with `initial`
     stated, since unset it reads the initial off the text's first word. Validated
-    as `check` validates them.
+    as `check` validates them. `lang` is taken as `admits` and `check` take it, so
+    one set of keyword arguments serves all three, and must name a language a pack
+    is installed for; the scope is a property of the rule and is the same in every
+    language.
     """
     procedure = get(procedure_id)
+    get_pack(lang)
     return procedure.scope(procedure.parse_params(params))
 
 
