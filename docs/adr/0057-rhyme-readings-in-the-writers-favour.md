@@ -24,7 +24,8 @@ not rhyme with `day`. A writer could not have learned this from `describe()`.
 German had the opposite fault, recorded in ADR 0054. German Wiktionary's `{{IPA}}` line
 for a headword lists the transcriptions of its inflected forms too. `du` lists eight:
 `duː`, then *deiner*'s `ˈdaɪ̯nɐ`, *dich*'s `dɪç`, *euer*'s `ˈɔɪ̯ɐ` and four more. ADR 0054
-kept German syllable counts on the first transcription for that reason (ruling R-U6a).
+kept German syllable counts on the first transcription for that reason (its decision
+"German keeps its first transcription").
 Stress and rhyme still read all eight. `du` rhymed with `mich`, and a German metre could
 scan `du` as two syllables.
 

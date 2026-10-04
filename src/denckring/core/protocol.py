@@ -93,7 +93,7 @@ class Evidence(BaseModel):
     review that asked for this warned against in its own last paragraph.
 
     `ambiguous` (0.4.0, ADR 0054) is the dictionary listing more than one reading of
-    the word, every one of which the checker accepted: `every` counted as 3 or 2
+    the word, any one of which the checker would accept: `every` counted as 3 or 2
     syllables, `bog` rhyming on either vowel. Looked up, not estimated, so it does
     not make a report `estimated`; it says the verdict may rest on a variant rather
     than the first form. `dictionary` now means the checker read the word one way.
