@@ -112,11 +112,12 @@ A violation that no reading meets now names every reading: `found` says
 when it widens a length message. A caller that parsed one integer out of `found`
 breaks. `found` was never under the stability promise.
 
-German stress and rhyme already read every Wiktionary transcription, inflected forms
-included. That is why the German sonnet and ballade cases now show `ambiguous`
-evidence, and it means a German metre can scan on a reading that belongs to another
-form of the word. This ADR does not change that, and it is recorded here so that the
-asymmetry with German syllable counting is not mistaken for a decision about stress.
+German stress and rhyme read every Wiktionary transcription when this ADR was written,
+inflected forms included. That is why the German sonnet and ballade cases showed
+`ambiguous` evidence, and it let a German metre scan on a reading that belongs to
+another form of the word. ADR 0057 ended the asymmetry: German stress and rhyme now
+read the first transcription only, as syllable counts do, and German evidence is never
+`ambiguous`.
 
 `arca_musarithmica`'s generator still sets each phrase at its first reading's length.
 It refuses a phrase whose first reading the tablet cannot set, even when another reading

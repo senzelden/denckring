@@ -172,7 +172,9 @@ It makes one of the 42 German canonical lines — Gryphius, "Es ist alles eitel"
 `line_syllables` reads the same line correctly at 13. Parked rather than fixed:
 `sonnet/gryphius-eitel-sonett`'s golden case carries a `min_score` floor rather than
 an exact score for exactly this reason, so a later fix to the pronunciation data
-raises the score instead of breaking the fixture.
+raises the score instead of breaking the fixture. (Resolved in 0.4.0 by ADR 0057. The
+cause was not case: Wiktionary files *deiner*'s `ˈdaɪ̯nɐ` under `du`, and German stress
+now reads the first transcription only.)
 
 **A scoring artefact, parked.** `metre_violations` returns `total=1` from its
 wrong-length branch and `total=len(words)` from the branch where a line matches a

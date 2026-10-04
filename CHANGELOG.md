@@ -89,6 +89,31 @@ patch.
   before. Golden corpus, re-measured over all 687 cases: no verdict moves. Three
   `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765, 0.167 to 0.833).
 
+- **A pair kept apart fails only when every reading rhymes** (ADR 0057, audit A8).
+  `unwanted_rhyme`, on every rhyme-scheme row and on `blank_verse`, fired when any pair
+  of the two words' keys matched, so `gone` and `on` (`AA1 N` or `AO1 N`) failed `AB`.
+  It now fires only when every pairing matches, which is when both words have the same
+  single key. A wanted rhyme still needs one matching pairing. Each pair is decided on
+  its own, not the scheme jointly, so one reading of a word may keep one pair apart while
+  another makes a second pair rhyme. `prosody.may_rhyme` and `prosody.must_rhyme` name
+  the two tests. `describe().reading.rhyme` is new: on the 20 rows that judge a rhyme it
+  says what the key is (from the last primary-stressed vowel in English and German, so
+  `someday` does not rhyme with `day`; the last vowel in French) and how a scheme reads
+  several keys; on every other row it is `None`.
+
+- **German stress and rhyme read the first transcription only** (ADR 0057). Wiktionary's
+  list for a headword carries its inflected forms' transcriptions, and the vendored
+  table does not say which are which: `du` rhymed with `mich` through *dich* and scanned
+  as two syllables through *deiner*. `stress_patterns` and `rhyme_keys` on the German
+  Wiktionary pack now return the first transcription's alone, as syllable counts already
+  did (ADR 0054). Real variants are lost with them: `gehen` is no longer offered as one
+  syllable, and `hierher` no longer as `01`. German evidence is never `ambiguous`.
+  Golden corpus, re-measured over all 687 cases: no verdict moves. Two German metre
+  scores move, both on cases that already failed: Goethe's *Iphigenie* blank verse
+  0.9947 to 0.9895 (`hierher`), and its `min_score` floor drops from 0.99 to 0.98;
+  Gryphius's sonnet 0.9873 to 0.9879 (`du`), which resolves the defect ADR 0040 parked.
+  Ten evidence entries in four German cases go from `ambiguous` to `dictionary`.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters

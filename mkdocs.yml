@@ -114,6 +114,7 @@ nav:
       - "54. Syllable counts read every pronunciation": adr/0054-syllable-counts-read-every-pronunciation.md
       - "55. Stricter defaults for source rows": adr/0055-stricter-defaults-for-source-rows.md
       - "56. Aligned scoring for positional rows": adr/0056-aligned-scoring-for-positional-rows.md
+      - "57. Rhyme readings in the writer's favour": adr/0057-rhyme-readings-in-the-writers-favour.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

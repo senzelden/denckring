@@ -255,7 +255,7 @@ new in 0.3.2:
 - `words` and `nouns`;
 - `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
 - `Description.reading`, including its new `reading.units`, `reading.word_examples`
-  and `reading.vowels`.
+  and `reading.vowels`, and `reading.rhyme`, new in 0.4.0.
 
 ## The catalogue as data
 
