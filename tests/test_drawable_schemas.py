@@ -96,7 +96,12 @@ def _accepted(case: GoldenCase, name: str, value: Any) -> bool:
 
 
 def _meets(keywords: dict[str, Any], value: Any) -> bool:
-    """A JSON Schema check of the keywords this file evaluates, on one value."""
+    """A JSON Schema check of the keywords this file evaluates, on one value.
+
+    `pattern` is matched with `re.search`, as Python's `jsonschema` matches it, so a
+    pattern that is anchored only under ECMA-262 (where `$` never matches before a
+    trailing newline) fails here rather than in a Python consumer.
+    """
     if "enum" in keywords and value not in keywords["enum"]:
         return False
     if isinstance(value, str):
@@ -123,6 +128,8 @@ def _probes(case: GoldenCase, name: str, keywords: dict[str, Any]) -> list[Any]:
     strings = ["", "0", "2", "7", "٣", "73532", "x", "A" * 13, "A" * 14, "1" * 14, "../x"]
     near = [f"{value}x" for value in found if isinstance(value, str)]
     near += [value.upper() for value in found if isinstance(value, str)]
+    # A trailing newline, which `$` admits under Python's regex semantics.
+    near += [f"{value}\n" for value in found if isinstance(value, str)]
     return [value for value in [*found, *strings, *near] if value is not None]
 
 

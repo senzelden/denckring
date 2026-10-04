@@ -34,11 +34,13 @@ class CalculatorWordParams(DiacriticParams):
         default="7353",
         description="The digits entered on the display, read by turning it over.",
         # Exactly what `_readable_digits` accepts, so a caller drawing from the schema
-        # draws only readable displays (audit B5).
+        # draws only readable displays (audit B5). `(?!\n)` is for Python's `jsonschema`,
+        # whose `re.search` lets `$` match before a trailing newline; under ECMA-262,
+        # the dialect JSON Schema names, `$` is already the end and the lookahead is inert.
         json_schema_extra=param(
             "task",
             "digits",
-            pattern=f"^[{''.join(sorted(FROM_DIGIT))}]+$",
+            pattern=f"^[{''.join(sorted(FROM_DIGIT))}]+$(?!\n)",
             examples=["7353", "0773", "5338"],
         ),
     )
