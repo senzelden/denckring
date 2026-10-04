@@ -211,7 +211,8 @@ are built on them:
   unjudged, and is what to read in place of `metrics["estimated_words"]`.
   `describe`'s `Description` carries `runs_in` under the same promise. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
-  and not when the package is released: `1.1` since `estimated` was added.
+  and not when the package is released: `1.2` since `Evidence.basis` gained `ambiguous`
+  (1.1 added `estimated`).
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`,
   `provenance` — and the `--json` output of `apply`. Covered by the same promise in the
   same words. Both `candidates` and `texts` are ordered, best first, because `apply`

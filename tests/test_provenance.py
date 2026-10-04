@@ -171,3 +171,14 @@ def test_the_schema_version_moves_with_the_serialised_shape() -> None:
     assert set(production.model_dump(mode="json")) == shapes["Production"]
     basis = Evidence.model_fields["basis"].annotation
     assert set(get_args(basis)) == shapes["Evidence.basis"]
+
+
+def test_the_readme_states_the_schema_version_in_force() -> None:
+    """The stability promise names the version a JSON consumer pins to. It said `1.1`
+    after the bump to `1.2` (U6 review I1), and nothing noticed: a consumer pinning it
+    would refuse every report the release writes."""
+    import re
+
+    readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
+    stated = re.findall(r"`(\d+\.\d+)` since", readme)
+    assert stated == [SCHEMA_VERSION], stated
