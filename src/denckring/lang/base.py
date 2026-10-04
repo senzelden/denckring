@@ -154,6 +154,41 @@ class BasePack:
         """
         raise MissingCapability(DIRECT_CALL, self.lang, SYLLABLES_HEURISTIC)
 
+    def syllable_counts(self, word: str) -> tuple[frozenset[int], bool]:
+        """Every count the word's listed pronunciations give, and whether it was looked up.
+
+        `syllable_count` answers with the first pronunciation, and a line-count row
+        that read only that one failed `every family` as seven syllables when the
+        dictionary also lists the five a writer meant. A pack with variants overrides
+        this; the default is the one count, so a pack without them is unchanged.
+        `syllable_count`'s answer is always a member (ADR 0054).
+
+        Not on the `LanguagePack` protocol: it is `runtime_checkable`, so a new member
+        would stop a third-party pack satisfying it. Callers read it with `getattr`.
+        """
+        count, exact = self.syllable_count(word)
+        return frozenset({count}), exact
+
+    def line_syllable_counts(self, line: str) -> tuple[frozenset[int], int]:
+        """Every total some choice of pronunciations gives, and how many words were estimated.
+
+        `line_syllables` with each word's variants kept (ADR 0054): the line meets a
+        count when some combination of readings does, the satisfiability ADR 0014
+        applies to metre. Totals rather than combinations, so a line of many
+        ambiguous words costs a set of small integers, not a product of choices.
+
+        A pack overriding `line_syllables` overrides this too, or the two disagree:
+        French counts a line, not its words, and returns its one total.
+        """
+        totals = frozenset({0})
+        estimated = 0
+        for word in self.tokenize(line):
+            counts, exact = self.syllable_counts(word)
+            totals = frozenset(total + count for total in totals for count in counts)
+            if not exact:
+                estimated += 1
+        return totals, estimated
+
     def line_syllables(self, line: str) -> tuple[int, int]:
         """How many syllables the line has, and how many words were estimated.
 

@@ -4,7 +4,7 @@ denckring-bench leaves a verdict unscored when it rests on a guess, and read
 `metrics["estimated_words"]` to decide, a key outside the stability promise. The
 metric and `evidence` each record cases the other misses, so the signal has to read
 both; these tests hold it to one case of each kind, and to the rule that a row whose
-reading is exact reports one only for words its data left unjudged.
+reading is exact never reports one.
 """
 
 from __future__ import annotations
@@ -37,13 +37,10 @@ def test_a_rhyme_ending_the_dictionary_lacks_is_estimated() -> None:
     assert report.estimated
 
 
-#: Exact rows that still report words they could not judge: a source word no gloss
-#: resolves (`the`, `went`) is counted in `estimated_words` and left out of the score,
-#: so the verdict covers less of the text than it reads as covering.
-UNJUDGED_WORDS = {"definitional_expansion", "definitional_literature"}
-
-
-def test_an_exact_row_rests_on_an_estimate_only_where_it_left_words_unjudged() -> None:
+def test_an_exact_row_never_rests_on_an_estimate() -> None:
+    """No exceptions since 0.4.0. Until then the two `definitional_*` rows read `exact`
+    while a source word no gloss resolves (`the`, `went`) made their reports
+    `estimated` (U3 review M3); `describe` now reads them `heuristic` (ADR 0054)."""
     for case in denckring.golden_cases():
         if denckring.describe(case.procedure).reading.determinacy != "exact":
             continue
@@ -51,9 +48,7 @@ def test_an_exact_row_rests_on_an_estimate_only_where_it_left_words_unjudged() -
             report = check(case.procedure, case.text, lang=case.lang, **case.params)
         except denckring.DenckringError:
             continue
-        if report.estimated:
-            assert case.procedure in UNJUDGED_WORDS, (case.procedure, case.name)
-            assert not report.evidence
+        assert not report.estimated, (case.procedure, case.name)
 
 
 def test_a_word_no_gloss_resolves_is_estimated() -> None:

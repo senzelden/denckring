@@ -13,7 +13,12 @@ from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
-from denckring.procedures.syllable_count import line_syllables, syllable_evidence
+from denckring.procedures.syllable_count import (
+    line_syllable_counts,
+    line_syllables,
+    syllable_evidence,
+    syllables_text,
+)
 
 
 class ArcaMusarithmicaParams(SourceParams):
@@ -67,7 +72,7 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
 
     def _check(self, text: str, pack: LanguagePack, params: ArcaMusarithmicaParams) -> Report:
         tablets = arca.parse(params.pinakes)
-        measured = line_syllables(params.source, pack)
+        measured = line_syllable_counts(params.source, pack)
         chosen = [line.strip() for _, line in line_spans(text)]
 
         violations: list[Violation] = []
@@ -91,14 +96,23 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
                     )
                 )
 
-        for index, (_, syllables, _) in enumerate(measured):
-            offered = tablets.patterns(syllables, params.syntagma)
+        for index, (_, totals, _) in enumerate(measured):
+            # A phrase with several readings may be set at any length one of them
+            # gives (ADR 0054); the tablet decides which of those it covers.
+            settable = frozenset(n for n in totals if tablets.patterns(n, params.syntagma))
+            offered = list(
+                dict.fromkeys(
+                    pattern
+                    for length in sorted(settable)
+                    for pattern in tablets.patterns(length, params.syntagma)
+                )
+            )
             if not offered:
                 violations.append(
                     Violation(
                         rule="no_tablet_for_length",
                         offset=None,
-                        found=f"a phrase of {syllables} syllables",
+                        found=f"a phrase of {syllables_text(totals)}",
                         expected=f"a length the tablet covers: {tablets.lengths(params.syntagma)}",
                         note="the box cannot set a phrase of this length at all",
                     )
@@ -110,7 +124,7 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
                         rule="phrase_not_set",
                         offset=None,
                         found="",
-                        expected=f"one of {len(offered)} patterns for {syllables} syllables",
+                        expected=f"one of {len(offered)} patterns for {syllables_text(settable)}",
                     )
                 )
                 continue
@@ -122,7 +136,9 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
                         rule="pattern_not_on_the_tablet",
                         offset=None,
                         found=chosen[index],
-                        expected=f"one of the {len(offered)} patterns for {syllables} syllables",
+                        expected=(
+                            f"one of the {len(offered)} patterns for {syllables_text(settable)}"
+                        ),
                     )
                 )
         for extra in chosen[len(measured) :]:

@@ -154,7 +154,7 @@ def test_the_stem_fallback_agrees_with_the_dictionary_where_both_answer() -> Non
         if found is None:
             continue
         tried += 1
-        agreed += found == sum(1 for p in phones if p[-1].isdigit())
+        agreed += found[0] == sum(1 for p in phones if p[-1].isdigit())
     assert tried > 10_000
     assert agreed / tried >= 0.98
 

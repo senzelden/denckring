@@ -8,16 +8,17 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import paragraph_spans
-from denckring.procedures.syllable_count import line_syllables, syllable_evidence
+from denckring.procedures.syllable_count import line_syllable_counts, syllable_evidence
 
 HAIKU = [5, 7, 5]
 
 
 def _is_haiku(block: str, pack: LanguagePack) -> tuple[bool, int]:
     """Whether the block scans as 5-7-5, and how many of its words were estimated."""
-    measured = line_syllables(block, pack)
+    measured = line_syllable_counts(block, pack)
+    # Verse when some reading of each line scans, as `haiku` reads it (ADR 0054).
     verse = len(measured) == len(HAIKU) and all(
-        syllables == expected for (_, syllables, _), expected in zip(measured, HAIKU, strict=True)
+        expected in totals for (_, totals, _), expected in zip(measured, HAIKU, strict=True)
     )
     return verse, sum(count for _, _, count in measured)
 

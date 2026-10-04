@@ -140,6 +140,8 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
         forms, exact = word_stress(word, pack)
         if not exact:
             estimated += 1
+        combinations *= max(len(forms), 1)
+        tried = forms if combinations <= MAX_COMBINATIONS else forms[:1]
         evidence.append(
             Evidence(
                 subject=word,
@@ -147,11 +149,12 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
                 # The first reading, which is the one the violations below report
                 # against, so the account and the complaint agree.
                 value=forms[0] if forms else "",
-                basis="dictionary" if exact else "estimated",
+                # `ambiguous` when the scan was free to take another listed form,
+                # and not when the cap held it to the first (ADR 0054).
+                basis="estimated" if not exact else "ambiguous" if len(tried) > 1 else "dictionary",
             )
         )
-        combinations *= max(len(forms), 1)
-        words.append((word, forms if combinations <= MAX_COMBINATIONS else forms[:1]))
+        words.append((word, tried))
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
@@ -353,7 +356,9 @@ def rhyme_evidence(
             # line's ending; `Violation.offset` still locates the line.
             offset=None,
             value="/".join(sorted(found)) if found else "no rhyme key",
-            basis="dictionary" if exact else "estimated",
+            # Any key may make the pair rhyme, so several is a verdict that may rest
+            # on a variant (ADR 0054).
+            basis="estimated" if not exact else "ambiguous" if len(found) > 1 else "dictionary",
         )
         for _, word, found, exact in keys
     )

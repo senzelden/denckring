@@ -250,9 +250,25 @@ class EnglishDataPack(EnglishPack):
         if phones is None:
             from_stem = _inflected_syllables(letters)
             if from_stem is not None:
-                return from_stem, False
+                return from_stem[0], False
             return super().syllable_count(word)
         return _syllables_of(phones), True
+
+    def syllable_counts(self, word: str) -> tuple[frozenset[int], bool]:
+        """Every listed pronunciation's count: `every` is 3 and 2 (ADR 0054).
+
+        `syllable_count` answers with the first form, as `pronunciations()` does; this
+        is the reading `stress_patterns` and `rhyme_keys` already take. A word read
+        through its stem takes every form of the stem, and is still an estimate.
+        """
+        letters = "".join(ch for ch in self.fold_diacritics(word) if ch.isalpha())
+        forms = variants().get(letters)
+        if forms is None:
+            from_stem = _inflected_syllables(letters)
+            if from_stem is not None:
+                return frozenset(from_stem), False
+            return super().syllable_counts(word)
+        return frozenset(_syllables_of(phones) for phones in forms), True
 
     def is_word(self, word: str) -> bool:
         return self._lemma(word) in known_words()
@@ -357,8 +373,12 @@ def _syllables_of(phones: list[str]) -> int:
     return sum(1 for phone in phones if phone[-1].isdigit())
 
 
-def _inflected_syllables(letters: str) -> int | None:
+def _inflected_syllables(letters: str) -> list[int] | None:
     """Syllables of an `-s`/`-es` form CMUdict lacks, read through the stem it has.
+
+    One count per pronunciation of the stem, in CMUdict's order, so the first is
+    the first form's: `syllable_count` takes it and `syllable_counts` takes them
+    all (ADR 0054).
 
     Any such form, plural or verb (`awakes`). The stems are `_inflections'`
     (`s`/`es` only, for the reasons recorded there), and the suffix adds a
@@ -372,11 +392,11 @@ def _inflected_syllables(letters: str) -> int | None:
     """
     if letters.endswith("ss"):
         return None
-    table = pronunciations()
+    table = variants()
     for stem in _inflections(letters):
-        phones = table.get(stem)
-        if phones is not None:
-            return _syllables_of(phones) + (phones[-1] in _SIBILANTS)
+        forms = table.get(stem)
+        if forms is not None:
+            return [_syllables_of(phones) + (phones[-1] in _SIBILANTS) for phones in forms]
     return None
 
 

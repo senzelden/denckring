@@ -9,6 +9,7 @@ from denckring.core.prosody import stanza_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
+from denckring.procedures.syllable_count import word_syllable_counts
 
 #: Lines 1-3 and 5-7 are double dactyls; lines 4 and 8 close the quatrain.
 DOUBLE_DACTYL = "100100"
@@ -56,7 +57,7 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
             single = [
                 index
                 for index, words in zip(SECOND_QUATRAIN, tokens, strict=True)
-                if len(words) == 1 and pack.syllable_count(words[0])[0] == 6
+                if len(words) == 1 and 6 in word_syllable_counts(words[0], pack)[0]
             ]
             if single:
                 good += 1

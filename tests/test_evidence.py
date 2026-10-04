@@ -33,7 +33,8 @@ def test_a_syllabic_report_names_the_words_it_counted() -> None:
 
 
 def test_every_entry_declares_how_it_was_obtained() -> None:
-    assert {e.basis for e in check("haiku", HAIKU_EN).evidence} <= {"dictionary", "estimated"}
+    bases = {e.basis for e in check("haiku", HAIKU_EN).evidence}
+    assert bases <= {"dictionary", "ambiguous", "estimated"}
 
 
 def test_the_evidence_agrees_with_the_metric_it_details() -> None:

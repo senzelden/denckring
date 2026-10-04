@@ -53,8 +53,21 @@ class Summary(BaseModel):
 #: would be the overclaim this field exists to prevent — `describe()` would tell
 #: a caller that `verbless_prose`'s verdict is certain when its own ADR puts
 #: finite-verb recall at 0.9498.
+#:
+#: `lexicon.glosses` joined in 0.4.0 (ADR 0054). A gloss lookup guesses nothing, but
+#: a word no gloss resolves is left unjudged, and `Report.estimated` says so: the two
+#: `definitional_*` rows called themselves `exact` while their reports could say
+#: `estimated`. The rule now has no exception: an `exact` row is never `estimated`.
 _SOFT = frozenset(
-    {"syllables", "syllables.heuristic", "syllables.dictionary", "stress", "phonemes", "pos"}
+    {
+        "syllables",
+        "syllables.heuristic",
+        "syllables.dictionary",
+        "stress",
+        "phonemes",
+        "pos",
+        "lexicon.glosses",
+    }
 )
 
 #: What folding does, stated once. `BasePack.fold_diacritics` case-folds and strips
@@ -81,8 +94,9 @@ class Reading(BaseModel):
     word, and whether the answer is exact or may rest on an estimate.
 
     `determinacy` is a property of the *row*, not of a run: `heuristic` means the
-    verdict can rest on a guess, not that it did. `Report.evidence` is what says
-    whether it actually did, word by word, on a given call.
+    verdict can rest on a guess, or on words left unjudged, not that it did.
+    `Report.estimated` is what says whether it actually did on a given call, and
+    `Report.evidence` which words. An `exact` row's report is never `estimated`.
     """
 
     determinacy: Literal["exact", "heuristic"]

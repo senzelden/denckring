@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import get_args
 
 import pytest
 from typer.testing import CliRunner
 
 from denckring import __version__, check, produce
 from denckring.cli import app
+from denckring.core.protocol import Evidence
 from denckring.core.provenance import SCHEMA_VERSION, pack_provenance, provenance
 from denckring.lang import get_pack
 
@@ -125,26 +127,37 @@ def test_the_cli_check_json_carries_provenance(tmp_path: Path) -> None:
     assert json.loads(result.stdout)["provenance"]["denckring"] == __version__
 
 
-#: Every key `Report` and `Production` serialise, per schema version. An added field
-#: changes the set; finding no entry for the version in force means the field landed
-#: without the minor bump `SCHEMA_VERSION`'s own comment requires (U3 review I2).
+_REPORT_KEYS = frozenset(
+    {
+        "procedure",
+        "satisfied",
+        "score",
+        "violations",
+        "metrics",
+        "evidence",
+        "provenance",
+        "estimated",
+    }
+)
+_PRODUCTION_KEYS = frozenset(
+    {"procedure", "candidates", "truncated", "metrics", "provenance", "texts"}
+)
+
+#: Every key `Report` and `Production` serialise, and every value `Evidence.basis` can
+#: take, per schema version. An added field or basis value changes a set; finding no
+#: entry for the version in force means it landed without the minor bump
+#: `SCHEMA_VERSION`'s own comment requires (U3 review I2). A closed value set is
+#: shape too: a parser holding 1.1's two bases refuses a report carrying a third.
 SERIALISED_KEYS: dict[str, dict[str, frozenset[str]]] = {
     "1.1": {
-        "Report": frozenset(
-            {
-                "procedure",
-                "satisfied",
-                "score",
-                "violations",
-                "metrics",
-                "evidence",
-                "provenance",
-                "estimated",
-            }
-        ),
-        "Production": frozenset(
-            {"procedure", "candidates", "truncated", "metrics", "provenance", "texts"}
-        ),
+        "Report": _REPORT_KEYS,
+        "Production": _PRODUCTION_KEYS,
+        "Evidence.basis": frozenset({"dictionary", "estimated"}),
+    },
+    "1.2": {
+        "Report": _REPORT_KEYS,
+        "Production": _PRODUCTION_KEYS,
+        "Evidence.basis": frozenset({"dictionary", "ambiguous", "estimated"}),
     },
 }
 
@@ -156,3 +169,5 @@ def test_the_schema_version_moves_with_the_serialised_shape() -> None:
     assert shapes is not None, f"no recorded shape for schema {SCHEMA_VERSION}"
     assert set(report.model_dump(mode="json")) == shapes["Report"]
     assert set(production.model_dump(mode="json")) == shapes["Production"]
+    basis = Evidence.model_fields["basis"].annotation
+    assert set(get_args(basis)) == shapes["Evidence.basis"]

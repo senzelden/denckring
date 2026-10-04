@@ -28,9 +28,11 @@ from pydantic import BaseModel, Field
 #: The shape of `Report` and `Production`, versioned apart from the package.
 #: Bump the minor on an added field, the major on one that changes meaning —
 #: which the stability promise in the README says will not happen to a field
-#: already shipped. 1.1 (0.3.2) added `Report.estimated`. `tests/test_provenance.py`
-#: holds each version to the keys it serialises, so an added field cannot skip this.
-SCHEMA_VERSION = "1.1"
+#: already shipped. 1.1 (0.3.2) added `Report.estimated`; 1.2 (0.4.0) added the
+#: `ambiguous` value to `Evidence.basis` (ADR 0054), since a parser holding the
+#: closed set would refuse it. `tests/test_provenance.py` holds each version to the
+#: keys it serialises and to the basis values, so neither can change without this.
+SCHEMA_VERSION = "1.2"
 
 #: What a pack reports when it reads no data files. The three built-in defaults
 #: are part of the library, so their content is pinned by the package version

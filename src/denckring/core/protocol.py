@@ -92,6 +92,12 @@ class Evidence(BaseModel):
     would invent a precision no measurement here supports, which is what the
     review that asked for this warned against in its own last paragraph.
 
+    `ambiguous` (0.4.0, ADR 0054) is the dictionary listing more than one reading of
+    the word, every one of which the checker accepted: `every` counted as 3 or 2
+    syllables, `bog` rhyming on either vowel. Looked up, not estimated, so it does
+    not make a report `estimated`; it says the verdict may rest on a variant rather
+    than the first form. `dictionary` now means the checker read the word one way.
+
     `scope` exists because the answer is not always about a word. French counts a
     *line* — a final mute e elides or counts depending on what follows, so summing
     citation forms undercounts systematically (ADR 0034) — and there is no
@@ -102,7 +108,7 @@ class Evidence(BaseModel):
     scope: Literal["word", "line"] = "word"
     offset: int | None = None
     value: str
-    basis: Literal["dictionary", "estimated"]
+    basis: Literal["dictionary", "ambiguous", "estimated"]
 
 
 class Report(BaseModel):
@@ -148,7 +154,8 @@ class Report(BaseModel):
         and `rondeau`, which report no such metric). True when either says so. A word
         left unjudged counts: `definitional_expansion` scores only the words its
         glosses resolve, so its verdict covers less of the text than it reads as
-        covering, though `describe` calls its reading exact. `multiple_constraint`
+        covering, and `describe` calls its reading heuristic (ADR 0054). An
+        `ambiguous` basis does not count: the word was looked up. `multiple_constraint`
         carries its constraints' evidence and counts, so a composite is estimated
         when any constraint inside it is.
 
