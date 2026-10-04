@@ -77,18 +77,37 @@ def test_the_word_examples_are_what_the_word_counting_rows_count(lang: Lang) -> 
         assert report.satisfied and report.metrics["kept"] == len(words)
 
 
+def _fails(pid: str, letter: str, lang: Lang, **params: object) -> bool:
+    return not denckring.check(pid, letter, lang=lang, fold_diacritics=False, **params).satisfied
+
+
+#: For each row the field comment names, whether a one-letter text fails, as a function
+#: of whether the letter is a vowel. Each is limited to letters other than the one
+#: tried, so only the vowel reading decides.
+VOWEL_ROWS: dict[str, Callable[[str, Lang], bool]] = {
+    "univocalic": lambda letter, lang: _fails(
+        "univocalic", letter, lang, vowel="e" if letter == "a" else "a"
+    ),
+    "bivocalic": lambda letter, lang: _fails(
+        "bivocalic", letter, lang, vowels="ei" if letter in "ao" else "ao"
+    ),
+    # Fails a consonant other than its own, passes any vowel: the opposite sense.
+    "monoconsonantal": lambda letter, lang: (
+        not _fails("monoconsonantal", letter, lang, consonant="c" if letter == "b" else "b")
+    ),
+    # Against a source with no vowel, a vowel is one the source does not have.
+    "homovocalism": lambda letter, lang: _fails("homovocalism", letter, lang, source="b"),
+}
+
+
+@pytest.mark.parametrize("row", sorted(VOWEL_ROWS))
 @pytest.mark.parametrize("lang", ["en", "de", "fr"])
-def test_the_published_vowels_are_what_univocalic_reads(lang: Lang) -> None:
-    """A letter is in `reading.vowels` exactly when `univocalic` limited to another
-    vowel fails it: `y` is a vowel there in French and a consonant in English and German
-    (audit A10, E6)."""
-    reading = denckring.describe("univocalic", lang=lang).reading
+def test_the_published_vowels_are_what_the_vowel_rows_read(lang: Lang, row: str) -> None:
+    """A letter is in `reading.vowels` exactly when each row the field names reads it
+    as a vowel: `y` is one in French and a consonant in English and German (audit A10,
+    E6). A row moving to another inventory, as `supervocalic` reads one, fails here."""
+    reading = denckring.describe(row, lang=lang).reading
     pack = denckring.get_pack(lang)
-    other = {"a": "e"}
     for letter in sorted(set(pack.alphabet()) | set(reading.vowels)):
-        allowed = other.get(letter, "a")
-        fails = not denckring.check(
-            "univocalic", letter, lang=lang, vowel=allowed, fold_diacritics=False
-        ).satisfied
-        assert fails == (letter in reading.vowels), letter
+        assert VOWEL_ROWS[row](letter, lang) == (letter in reading.vowels), letter
     assert ("y" in reading.vowels) == (lang == "fr")
