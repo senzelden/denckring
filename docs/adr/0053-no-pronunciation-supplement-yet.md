@@ -29,7 +29,8 @@ data packages have never shipped.
 CMUdict's headwords (ADR 0015), so a pronunciation added for `inputted` makes it a
 word for `is_word`, `semordnilap` and `charade`. Its syllable count would turn from
 estimated to exact, and `estimated_words` would change in reports. Rhyme rows would
-decide pairs they now report as `rhyme_undecidable`. 0.3.2 moves no verdict.
+decide pairs they now report as `rhyme_undecidable`. 0.3.2 moves no verdict beyond
+the bug fixes its changelog names, and a supplement is not a bug fix.
 
 ## Consequences
 
