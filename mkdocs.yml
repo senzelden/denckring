@@ -112,7 +112,7 @@ nav:
       - "52. English word frequency": adr/0052-english-word-frequency.md
       - "53. No pronunciation supplement yet": adr/0053-no-pronunciation-supplement-yet.md
       - "54. Syllable counts read every pronunciation": adr/0054-syllable-counts-read-every-pronunciation.md
-      - "55. Source rows refuse a copy by default": adr/0055-source-rows-refuse-a-copy-by-default.md
+      - "55. Stricter defaults for source rows": adr/0055-stricter-defaults-for-source-rows.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

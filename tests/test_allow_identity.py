@@ -224,8 +224,22 @@ EDGES: dict[str, tuple[Lang, dict[str, Any], str | None, str, str]] = {
         "It rains. It snows.",
         "It snows. It rains.",
     ),
-    "n_plus_7": ("en", {"dictionary": GARDEN}, "the cat", "the aster", "the hazel"),
-    "s_plus_7": ("en", {"dictionary": GARDEN}, "the cat", "the aster", "the hazel"),
+    # `free`, so the copy fails as `unchanged` alone: with a supplied dictionary the
+    # default reading is `strict` (ADR 0055), which fails the unchanged `aster` too.
+    "n_plus_7": (
+        "en",
+        {"dictionary": GARDEN, "ambiguous_nouns": "free"},
+        "the cat",
+        "the aster",
+        "the hazel",
+    ),
+    "s_plus_7": (
+        "en",
+        {"dictionary": GARDEN, "ambiguous_nouns": "free"},
+        "the cat",
+        "the aster",
+        "the hazel",
+    ),
 }
 
 

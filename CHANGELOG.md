@@ -58,6 +58,16 @@ patch.
   `s_plus_7` case retypes its source to show `ambiguous_nouns="strict"`, and it now sets
   `allow_identity: true` so that it fails for that reason alone.
 
+- **N+7 reads a supplied dictionary strictly** (ADR 0055, audit A5). On `n_plus_7`
+  and `s_plus_7`, `ambiguous_nouns` defaults to `None`, which resolves to `strict` when
+  `dictionary` is supplied and to `free` with the pack's nouns, as before. An explicit
+  value still wins. With a supplied list, a listed word left unchanged fails as
+  `ambiguous_noun_unchanged`. The schema's default for the field is now `null` (was
+  `"free"`). A listed word whose displacement is itself (an offset that is a multiple
+  of the list's length) now passes under every reading, `strict` included, and is not
+  counted in `ambiguous_words`. Golden corpus: nothing moves, since no case supplies
+  `dictionary`.
+
 ### Added
 
 - **Prompt hints are templates** (ADR 0050). Each hint states its row's parameters

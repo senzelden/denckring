@@ -21,6 +21,9 @@ from denckring.core.registry import register
 from denckring.core.source_compare import unchanged
 from denckring.core.text import split_elision, word_spans
 
+#: The three readings of an unchanged listed word (`NPlus7Params.ambiguous_nouns`).
+AmbiguousNouns = Literal["undecidable", "free", "strict"]
+
 
 def resolve_dictionary(
     pack: LanguagePack, dictionary: list[str] | None
@@ -107,12 +110,18 @@ class NPlus7Params(SourceParams, IdentityParams):
     # alone because it is a noun that survived, or because it is a verb here.
     # Same three readings, same names, for the same reason: a caller who has
     # met one has met both.
-    ambiguous_nouns: Literal["undecidable", "free", "strict"] = Field(
-        default="free",
+    #
+    # `None` resolves in the checker (`ambiguous_reading`), the house convention
+    # for a value read off the call. A supplied list is the caller saying which
+    # words are nouns here, so a listed word left alone is a missed displacement
+    # (`strict`); the pack's list cannot say that, so it keeps `free`. ADR 0055.
+    ambiguous_nouns: AmbiguousNouns | None = Field(
+        default=None,
         description=(
             "What an unchanged word that the dictionary lists means: leave the "
             "position unscored (undecidable), accept it (free), or fail it "
-            "(strict)."
+            "(strict). Unset: strict with a supplied dictionary, free with the "
+            "pack's nouns."
         ),
         json_schema_extra=param("policy"),
     )
@@ -145,6 +154,14 @@ class NPlus7Params(SourceParams, IdentityParams):
         return value
 
 
+def ambiguous_reading(params: NPlus7Params) -> AmbiguousNouns:
+    """The reading `ambiguous_nouns` names, with `None` resolved (ADR 0055):
+    `strict` when the caller supplied `dictionary`, `free` with the pack's."""
+    if params.ambiguous_nouns is not None:
+        return params.ambiguous_nouns
+    return "strict" if params.dictionary is not None else "free"
+
+
 def _moves(
     word: str,
     nouns: Sequence[str],
@@ -173,15 +190,17 @@ def displacement_report(
     A word list cannot tell you that *run* is a verb in this sentence. So an
     unchanged word that happens to be in the noun list is never automatically a
     mistake; what it counts as instead is `params.ambiguous_nouns`'s call —
-    accepted (`free`, the default, and what shipped before this parameter
-    existed), left out of the score entirely (`undecidable`), or failed
-    (`strict`). Every reading reports the same `ambiguous_words` count, in the
+    accepted (`free`, the default with the pack's nouns, and what shipped before
+    this parameter existed), left out of the score entirely (`undecidable`), or
+    failed (`strict`, the default with a supplied dictionary since ADR 0055).
+    Every reading reports the same `ambiguous_words` count, in the
     same way `estimated_words` keeps the syllable heuristic honest — only what
     the count does to the score changes.
     """
     candidate = word_spans(text, pack)
     source = word_spans(params.source, pack)
     nouns, noun_index = resolve_dictionary(pack, params.dictionary)
+    reading = ambiguous_reading(params)
     violations: list[Violation] = []
 
     if len(candidate) != len(source):
@@ -222,7 +241,13 @@ def displacement_report(
             continue
         index = noun_index(original_tail)
         if produced_tail.casefold() == original_tail.casefold():
-            if index is None:
+            # A listed word whose walk comes back round to it (an offset that
+            # is a multiple of the list's length) is displaced correctly by
+            # being left alone, so no reading has anything to judge. Under
+            # `strict`, now the default with a supplied list (ADR 0055), it
+            # was failed, which left a copy of such a source, its only answer,
+            # unsatisfiable (ruling R-U2a).
+            if index is None or not _moves(original, nouns, noun_index, params.offset):
                 good += 1
             else:
                 # Listed as a noun but left alone: readable as another part of
@@ -231,9 +256,9 @@ def displacement_report(
                 # depends on which one was chosen; `ambiguous_nouns` decides
                 # only what the position does to the score.
                 ambiguous += 1
-                if params.ambiguous_nouns == "free":
+                if reading == "free":
                     good += 1
-                elif params.ambiguous_nouns == "strict":
+                elif reading == "strict":
                     violations.append(
                         Violation(
                             rule="ambiguous_noun_unchanged",

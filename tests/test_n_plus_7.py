@@ -205,3 +205,55 @@ def test_a_wholly_undecidable_copy_reports_both_failures() -> None:
         "no_displacement",
     ]
     assert report.score == 0.0
+
+
+#: One listed word displaced (`aster`, seven on in `GARDEN`, is `hazel`) and one
+#: left alone, so the text is no copy and only the reading decides.
+HALF = ("the hazel and the crocus", "the aster and the crocus")
+
+
+@pytest.mark.parametrize("pid", ["n_plus_7", "s_plus_7"])
+def test_a_supplied_dictionary_reads_an_unchanged_listed_word_strictly(pid: str) -> None:
+    """ADR 0055: a supplied list is the caller saying which words are nouns here,
+    so by default a listed word left alone is a missed displacement."""
+    text, source = HALF
+    unset = check(pid, text, source=source, dictionary=GARDEN)
+    assert unset == check(pid, text, source=source, dictionary=GARDEN, ambiguous_nouns="strict")
+    assert [v.rule for v in unset.violations] == ["ambiguous_noun_unchanged"]
+    assert check(pid, text, source=source, dictionary=GARDEN, ambiguous_nouns="free").satisfied
+
+
+@pytest.mark.parametrize("pid", ["n_plus_7", "s_plus_7"])
+def test_the_packs_nouns_still_read_an_unchanged_listed_word_freely(pid: str) -> None:
+    """The pack's list cannot say which words are nouns in this text, so `free`
+    stays its default, and no golden verdict moved."""
+    text = "the catacomb sat on the table"
+    unset = check(pid, text, source=SOURCE)
+    assert unset == check(pid, text, source=SOURCE, ambiguous_nouns="free")
+    assert unset.satisfied
+    assert not check(pid, text, source=SOURCE, ambiguous_nouns="strict").satisfied
+
+
+def test_the_reading_defaults_to_none_resolved_by_the_checker() -> None:
+    """Ruling R-U7a: `None` in the schema, so an explicit reading always wins."""
+    field = NPlus7.params_model().model_fields["ambiguous_nouns"]
+    assert field.default is None
+    assert "Unset: strict with a supplied dictionary, free with the pack's" in (
+        field.description or ""
+    )
+
+
+def test_a_word_that_walks_back_to_itself_passes_even_strictly() -> None:
+    """Eight nouns, eight places on: `aster` displaces to `aster`, so leaving it
+    is the right answer, not an ambiguous one."""
+    report = check(
+        "n_plus_7",
+        "the aster",
+        source="the aster",
+        dictionary=GARDEN,
+        offset=8,
+        ambiguous_nouns="strict",
+        allow_identity=True,
+    )
+    assert report.satisfied
+    assert report.metrics["ambiguous_words"] == 0

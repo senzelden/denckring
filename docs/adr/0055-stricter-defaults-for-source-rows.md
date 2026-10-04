@@ -1,4 +1,4 @@
-# 55. Source rows refuse a copy by default
+# 55. Stricter defaults for source rows
 
 ## Context
 
@@ -15,6 +15,14 @@ its input and score 1.0, so the bench forced strict parameters on every transfor
 sent (`FIXED_PARAMS`), and still had to exclude rows it had no parameter to force.
 Release 0.3.2 added `allow_identity` to the fourteen rows. Its default was `true`, so
 that a patch release moved no verdict, and the field promised the flip this ADR makes.
+
+N+7 had a second way to pass without doing the work. ADR 0029 gave `ambiguous_nouns`
+three readings of a listed word left unchanged, and made `free` the default: a word
+list cannot say that *run* is a noun in this sentence, so leaving it alone may be
+right. The bench forced `ambiguous_nouns="strict"` for that reason. But when the
+caller supplies the `dictionary`, the list is the caller's statement of which words
+are to move. A listed word left alone is then a missed displacement, not an ambiguity
+the checker has to respect. ADR 0029 named this default as open to revisiting.
 
 ## Decision
 
@@ -41,6 +49,22 @@ a row whose checker carries the field, the guard now also refuses an output with
 source's letters in the source's order (`source_compare.is_copy`, with the fold that
 row's `unchanged` uses). `ApplyParams.allow_identity` still waives it. The two fields
 now share their default as well as their name.
+
+**N+7's `ambiguous_nouns` defaults to `strict` when the caller supplies `dictionary`,
+and stays `free` with the pack's nouns** (ruling R-U7a). The default is `None`,
+resolved in the checker (`n_plus_7.ambiguous_reading`), which is the house convention
+for a value read off the call, so an explicit reading always wins. The field
+description and the schema both say what `None` means. The hint needs no new
+omission: `ambiguous_nouns` is reading policy, which a hint may leave out by role
+(ADR 0050), and the hint already asks for every listed noun to move. `s_plus_7`
+inherits the field and the default.
+
+**A listed word whose walk comes back to it is displaced correctly by being left
+alone.** With an offset that is a multiple of the list's length, `aster` displaces to
+`aster`. The checker used to count that unchanged word as ambiguous, so `strict`
+failed it. Under the new default a copy of such a source, which is its only answer,
+would have been unsatisfiable, against ruling R-U2a. Such a word now counts as good
+under every reading and is not counted in `ambiguous_words`.
 
 ## Consequences
 
@@ -70,9 +94,24 @@ guard refuses a copy even where the checker would let it stand, as it always ref
 the exact copy. The generator does less than its checker accepts, which is the safe
 direction, and the round-trip harness stays green.
 
+The N+7 default splits on whether a parameter is set, so one row now has two default
+readings, and a caller reading the schema sees `null` where it used to see `"free"`. A
+caller who read that default to learn the reading now has to resolve it as the checker
+does. A caller who supplied a dictionary and relied on `free` gets
+`ambiguous_noun_unchanged` for each listed word left alone, which is the purpose. The
+pack's list keeps `free`, because nothing about it says which words in a text are
+nouns. `undecidable` there would only lower scores the audit did not question. A
+caller who sets `ambiguous_nouns="free"` explicitly now sees it stated after the hint
+(`prompt_hint` lists a value off its default, and the default is now `None`). The line
+is true, but it is new.
+
 **No verdict or score in the golden corpus moved.** Re-measured over all 687
 cases, every `satisfied` and every `score` is unchanged. One case's violations changed:
 `s_plus_7`'s `elided-source-retyped-unchanged-under-strict` retypes its source, so it
 gained `unchanged` beside the `ambiguous_noun_unchanged` it exists to show, and its
 score stayed 0. That case is about the strict reading of an ambiguous noun, not about
-copies, so it now sets `allow_identity: true` to fail for its own reason alone.
+copies, so it now sets `allow_identity: true` to fail for its own reason alone. No
+golden case supplies `dictionary`, and none uses an offset that walks a word back to
+itself, so the N+7 change moved nothing in the corpus, evidence included. The cost of
+that is that the corpus does not exercise the strict default. The tests in
+`tests/test_n_plus_7.py` do.
