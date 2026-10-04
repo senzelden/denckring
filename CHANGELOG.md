@@ -325,6 +325,26 @@ All notable changes to this project are documented here. The format follows
   checker's limit, and two golden cases forbid `ae`. The checker is unchanged, and
   narrowing it to consonants would now need a deprecation.
 
+- The hint audit extended to the transform rows, `quenina` and the prosodic rows:
+  30 English hints reworded to state the rule their checker applies. The transforms
+  say how to derive the one answer: `haikuization` takes each line's last word (it
+  said "rhyming words"), `every_nth_word` keeps the words numbered by multiples of `n`,
+  `boustrophedon` turns the even-numbered lines character by character,
+  `slenderizing` copies the source without the letter (it said "read what the
+  remaining letters now say"), `mathews_algorithm` rotates passages, not columns, and
+  `column_reading`, `text_folding`, `fold_in`, `n_plus_7` and `s_plus_7` state their
+  order and wrap-around; `quenina` gives the spiral order. Fixed forms state the line
+  count, scheme, metre and refrains their checker holds them to: `ottava_rima` and
+  `rhyme_royal` are one stanza, not several; `curtal_sonnet` has eleven full lines,
+  not ten and a half; `englyn` rhymes all four lines rather than "consonant
+  patterning"; `ballade`, `petrarchan_sonnet`, `shakespearean_sonnet`,
+  `spenserian_stanza`, `rondeau`, `triolet` and `villanelle` give their schemes and
+  refrain lines; `sapphic_stanza`, `alcaic_stanza`, `dactylic_hexameter`,
+  `elegiac_couplet` and `double_dactyl` their stress patterns; `haibun`, `renga` and
+  `ghazal` the order and the lines their checker reads. The word-counting transforms
+  say that a hyphenated word counts as two, as the tokenizer reads it. Checkers are
+  unchanged.
+
 ## [0.3.1] - 2026-09-22
 
 ### Added

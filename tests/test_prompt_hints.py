@@ -210,7 +210,8 @@ def test_a_list_renders_as_its_items_joined_by_comma_and_space() -> None:
     # A non-default integer, so the assertion can tell a rendered value from the
     # default the template would otherwise print.
     rendered = prompt_hint("every_nth_word", source="a b c", n=3)
-    assert "every 3 " in rendered and "every 7 " not in rendered
+    assert rendered == ROWS["every_nth_word"].prompt_hints["en"].format(n=3)
+    assert rendered != ROWS["every_nth_word"].prompt_hints["en"].format(n=7)
 
 
 def test_a_placeholder_left_unset_is_refused_by_name() -> None:
