@@ -6,11 +6,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-Two releases are in preparation. The sections headed `0.4.0` are for the minor release,
-which may change readings and defaults, each under an ADR. The rest are for the 0.3.2
-patch.
-
-### 0.4.0: Changed
+### Changed
 
 An entry marked **Breaking:** changes, for a call that is itself unchanged, a verdict,
 a parameter's default (in the schema too) or a published rule. The others change scores,
@@ -171,6 +167,8 @@ evidence or descriptions only, or add something.
   the promised vocabulary without Python: `describe` and `show` print it, their `--json`
   output carries it as `rules`, and so does the MCP `describe_procedure` tool.
   `multiple_constraint`'s is every other row's vocabulary, as `denckring.rules` answers.
+
+## [0.3.2] - 2026-10-05
 
 ### Added
 
@@ -2421,7 +2419,8 @@ evidence or descriptions only, or add something.
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/senzelden/denckring/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/senzelden/denckring/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/senzelden/denckring/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/senzelden/denckring/compare/v0.1.1...v0.2.0

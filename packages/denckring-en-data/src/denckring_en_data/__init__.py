@@ -47,7 +47,7 @@ FREQUENCIES_PATH = Path(str(files("denckring_en_data") / "data" / "frequencies.t
 #: SCOWL's bands for `words()`, never read by a checker (ADR 0051).
 EXCLUSIONS_PATH = Path(str(files("denckring_en_data") / "data" / "everyday_exclusions.txt"))
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 
 @lru_cache(maxsize=1)
