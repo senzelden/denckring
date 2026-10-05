@@ -7,6 +7,7 @@ from pydantic import Field
 from denckring.core import device as devices
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, plain
 from denckring.core.device import Device, DeviceParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -50,6 +51,7 @@ class PoesieAutomatParams(DeviceParams):
     device: str = Field(
         default="poesieautomat_2000",
         description="Which device to read the modules from.",
+        json_schema_extra=param("task", "id"),
     )
 
 
@@ -78,6 +80,7 @@ class PoesieAutomat(ConstructiveProcedure[PoesieAutomatParams, PoesieAutomatAppl
     """
 
     id = "poesie_automat"
+    rules = ("extra_line", "missing_line", "module_not_on_the_board")
 
     #: The board supplies the poem; `text` is never read. See
     #: `ConstructiveProcedure.ignores_input`.

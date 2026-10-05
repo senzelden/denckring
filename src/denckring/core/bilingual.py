@@ -9,6 +9,7 @@ from typing import Any, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, Json, field_validator, model_validator
 
 from denckring.core.base import SourceParams
+from denckring.core.fields import param
 from denckring.core.protocol import Lang, LanguagePack
 from denckring.lang.base import WORD_RE
 
@@ -104,7 +105,8 @@ class PronunciationData(BilingualData):
 
 class GlossParams(SourceParams):
     data: Json[GlossData] = Field(
-        description="Versioned JSON containing source-token to target-gloss alternatives."
+        description="Versioned JSON containing source-token to target-gloss alternatives.",
+        json_schema_extra=param("material"),
     )
 
     _unique = field_validator("data", mode="before")(unique_json)
@@ -112,13 +114,15 @@ class GlossParams(SourceParams):
 
 class PronunciationParams(SourceParams):
     data: Json[PronunciationData] = Field(
-        description="Versioned JSON with two pronunciation tables and a shared symbol alphabet."
+        description="Versioned JSON with two pronunciation tables and a shared symbol alphabet.",
+        json_schema_extra=param("material"),
     )
     max_distance: float = Field(
         ge=0,
         le=1,
         allow_inf_nan=False,
         description="Explicit maximum normalized symbol edit distance; no default.",
+        json_schema_extra=param("tolerance"),
     )
 
     _unique = field_validator("data", mode="before")(unique_json)

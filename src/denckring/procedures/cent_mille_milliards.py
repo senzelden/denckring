@@ -42,6 +42,7 @@ class CentMilleMilliards(
     """
 
     id = "cent_mille_milliards"
+    rules = ("extra_line", "line_not_offered", "missing_line")
 
     @classmethod
     def params_model(cls) -> type[CentMilleMilliardsParams]:

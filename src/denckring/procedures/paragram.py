@@ -14,6 +14,7 @@ from denckring.core.base import (
     plain,
 )
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -39,7 +40,12 @@ CandidateScore = tuple[bool, bool, int, int]
 
 
 class ParagramParams(DiacriticParams):
-    minimum: int = Field(default=1, ge=0, description="How many swapped pairs are wanted.")
+    minimum: int = Field(
+        default=1,
+        ge=0,
+        description="How many swapped pairs are wanted.",
+        json_schema_extra=param("task"),
+    )
 
 
 class ParagramApplyParams(ParagramParams, ApplyParams):
@@ -157,6 +163,7 @@ class Paragram(ConstructiveProcedure[ParagramParams, ParagramApplyParams]):
     """
 
     id = "paragram"
+    rules = ("no_paragram",)
 
     @classmethod
     def params_model(cls) -> type[ParagramParams]:

@@ -214,6 +214,13 @@ silently defaulting to index 0 as before. Ten golden cases were added, one per f
 plus a negative for four of them, all in the language the original defect was reproduced
 in (`tests/test_folding_seam.py`, `eval --all` 498 → 508).
 
+**2026-10-03: a seventh row, `consonantal_lipogram`, had the same seam and was not
+listed.** It built its forbidden set from the raw parameter, so `forbidden="ç"` in French
+never matched a folded letter and every text passed: `lipogram`'s inverted verdict, in the
+group row. Fixed for 0.3.2 with the same `single_letter` helper, one character at a time
+as `bivocalic` folds `vowels`; a letter that folds to two (`ß`) is refused by name under
+D4. One golden case added (`cedille-repliee`).
+
 ## Consequences
 
 **German `supervocalic` is satisfiable for the first time, and its catalogue row still

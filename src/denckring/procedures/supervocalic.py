@@ -24,6 +24,7 @@ class Supervocalic(BaseProcedure[SupervocalicParams]):
     """
 
     id = "supervocalic"
+    rules = ("missing_vowel", "repeated_vowel")
 
     @classmethod
     def params_model(cls) -> type[SupervocalicParams]:

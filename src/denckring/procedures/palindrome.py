@@ -7,13 +7,16 @@ from typing import Literal
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, word_spans
 
 
 class PalindromeParams(DiacriticParams):
-    unit: Literal["letter", "word"] = Field(default="letter", description="What is mirrored.")
+    unit: Literal["letter", "word"] = Field(
+        default="letter", description="What is mirrored.", json_schema_extra=param("task")
+    )
 
 
 @register
@@ -21,6 +24,7 @@ class Palindrome(BaseProcedure[PalindromeParams]):
     """Case, spacing and punctuation are ignored; only the letters mirror."""
 
     id = "palindrome"
+    rules = ("mirror_mismatch",)
 
     @classmethod
     def params_model(cls) -> type[PalindromeParams]:

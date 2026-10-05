@@ -21,6 +21,16 @@ cases:
         one bird flew high
       column: 1
     satisfied: false
+  - name: the-column-with-a-source-word-appended
+    source: constructed counterexample
+    text: cat dog bird high
+    params:
+      source: |-
+        the cat sat down
+        a dog ran fast
+        one bird flew high
+      column: 2
+    satisfied: false
   - name: zweites-wort-jeder-zeile-gelesen
     lang: de
     source: constructed example; the procedure is from Oulipo's Atlas de littérature potentielle

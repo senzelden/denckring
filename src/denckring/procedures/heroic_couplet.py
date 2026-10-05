@@ -32,6 +32,16 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "heroic_couplet"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[HeroicCoupletParams]:
@@ -43,6 +53,7 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
             pack,
             scheme="".join(chr(65 + i // 2) for i in range(_line_count(text))),
             metre="01" * 5,
+            unknown_rhyme=params.unknown_rhyme,
         )
 
         return self._report(

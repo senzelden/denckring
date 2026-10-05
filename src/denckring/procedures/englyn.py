@@ -32,6 +32,16 @@ class Englyn(BaseProcedure[EnglynParams]):
     """
 
     id = "englyn"
+    rules = (
+        "does_not_rhyme",
+        "extra_line",
+        "identical_rhyme",
+        "missing_line",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "wrong_line_count",
+        "wrong_syllable_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[EnglynParams]:
@@ -40,7 +50,7 @@ class Englyn(BaseProcedure[EnglynParams]):
     def _check(self, text: str, pack: LanguagePack, params: EnglynParams) -> Report:
         syllabic = pattern_result(text, pack, PATTERN)
         found, matched, checks, _estimated, rhymes = scheme_violations(
-            text, pack, SCHEME, allow_identical=False
+            text, pack, SCHEME, allow_identical=False, unknown_rhyme=params.unknown_rhyme
         )
         return self._report(
             good=syllabic.good + matched,

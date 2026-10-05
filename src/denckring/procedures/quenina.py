@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -66,12 +67,28 @@ def infer_size(endings: list[str]) -> int:
     return len(endings)
 
 
+#: The largest size `x-denckring-valid` lists. Sizes grow sparse (31 of the first 100),
+#: and a quenina of a hundred end-words is already far past any written one.
+VALID_CAP = 100
+
+#: Every size up to `VALID_CAP` whose spiral returns each word home only on its last
+#: stanza: the sizes the form exists for.
+VALID_SIZES = [size for size in range(1, VALID_CAP + 1) if is_valid_size(size)]
+
+
 def end_words(text: str, pack: LanguagePack) -> list[str]:
     return [words[-1].casefold() for _, line in line_spans(text) if (words := pack.tokenize(line))]
 
 
 class QueninaParams(BaseModel):
-    n: int | None = Field(default=None, description="Words per stanza; inferred if unset.")
+    n: int | None = Field(
+        default=None,
+        description="Words per stanza; inferred if unset.",
+        # Not an `enum`: any other size, zero and negatives included, is accepted and
+        # fails as `invalid_size`, so the schema may not refuse it. The list is what a
+        # caller draws from (audit B5).
+        json_schema_extra=param("inferred", valid=VALID_SIZES),
+    )
 
 
 @register
@@ -83,6 +100,7 @@ class Quenina(BaseProcedure[QueninaParams]):
     """
 
     id = "quenina"
+    rules = ("invalid_size", "missing_line", "wrong_end_word")
 
     @classmethod
     def params_model(cls) -> type[QueninaParams]:
@@ -93,16 +111,24 @@ class Quenina(BaseProcedure[QueninaParams]):
         if not endings:
             return self._report(good=0, total=0, violations=[], metrics={"lines": 0.0})
         size = params.n if params.n is not None else infer_size(endings)
+        invalid = Violation(
+            rule="invalid_size",
+            offset=None,
+            found=str(size),
+            expected="a size whose spiral permutation has full order",
+        )
+        if size < 1:
+            # No stanza to rotate. Falling through used to count a negative size as
+            # matched lines, so `n=-1` scored 1.0 with this violation attached.
+            return self._report(
+                good=0,
+                total=1,
+                violations=[invalid],
+                metrics={"size": float(size), "lines": float(len(endings))},
+            )
         violations: list[Violation] = []
         if not is_valid_size(size):
-            violations.append(
-                Violation(
-                    rule="invalid_size",
-                    offset=None,
-                    found=str(size),
-                    expected="a size whose spiral permutation has full order",
-                )
-            )
+            violations.append(invalid)
         permutation = spiral(size)
         expected = endings[:size]
         if len(expected) < size:

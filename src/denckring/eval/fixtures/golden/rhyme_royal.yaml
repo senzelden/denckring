@@ -54,10 +54,11 @@ cases:
       College Cambridge MS 61 (ADR 0040 D5 — transcribed as edited, not
       modernised). Rejected: Middle English "ye" (thee/you) does not rhyme
       with "joie" under this package's model (`does_not_rhyme`, ADR 0040 D3),
-      and three lines carry Middle English spelling ("Priamus", "lovynge",
-      "t'endite") the pronouncing dictionary does not hold, reading 9 or 11
-      syllables instead of 10 (`wrong_line_length`). Measured on this HEAD:
-      score 0.8974, 4 violations.
+      and two lines carry Middle English spelling ("Priamus", "t'endite") the
+      pronouncing dictionary does not hold, reading 9 syllables instead of 10
+      (`wrong_line_length`). A third ("lovynge", "aventures") read 11 until the
+      spelling heuristic learned the silent `e` of `-es` (0.3.2). Measured on
+      this HEAD: score 0.9318, 3 violations.
     text: |-
       The double sorwe of Troilus to tellen,
       That was the kyng Priamus sone of Troye,

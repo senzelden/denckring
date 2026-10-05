@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import paragraph_spans
@@ -21,6 +22,7 @@ class RengaParams(BaseModel):
             "A minimum number of stanzas to require, raising the built-in minimum "
             "of 2. Unset means the built-in minimum applies alone."
         ),
+        json_schema_extra=param("switch", examples=[3, 4, 6]),
     )
 
 
@@ -35,6 +37,7 @@ class Renga(BaseProcedure[RengaParams]):
     """
 
     id = "renga"
+    rules = ("too_few_links", "wrong_stanza_shape", "wrong_syllable_count")
 
     @classmethod
     def params_model(cls) -> type[RengaParams]:

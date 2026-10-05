@@ -21,13 +21,30 @@ class OttavaRima(BaseProcedure[OttavaRimaParams]):
     """Assembled from the shared rhyme and metre checks."""
 
     id = "ottava_rima"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[OttavaRimaParams]:
         return OttavaRimaParams
 
     def _check(self, text: str, pack: LanguagePack, params: OttavaRimaParams) -> Report:
-        result = form_report(text, pack, scheme=SCHEME, metre=repeat_to("01", 5), lines=LINES)
+        result = form_report(
+            text,
+            pack,
+            scheme=SCHEME,
+            metre=repeat_to("01", 5),
+            lines=LINES,
+            unknown_rhyme=params.unknown_rhyme,
+        )
         return self._report(
             good=result.good,
             total=result.total,

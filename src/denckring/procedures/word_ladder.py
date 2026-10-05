@@ -37,7 +37,7 @@ from collections import deque
 from functools import lru_cache
 from itertools import pairwise
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from denckring.core.base import (
     MID_BAND,
@@ -47,6 +47,7 @@ from denckring.core.base import (
     plain,
 )
 from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -102,14 +103,43 @@ def _alphabet(pack: LanguagePack, *, fold: bool) -> str:
 
 
 class WordLadderParams(DiacriticParams):
-    # Left optional — defaulting to `None` — so `check`, which never needs a
-    # target, only the ladder text itself, can be called with no extra
-    # parameter; `apply` is the one that requires it, and does so explicitly
-    # rather than through this field's own validation, because the same model
-    # has to serve both callers.
+    # Left optional — defaulting to `None` — so `check`, which needs a target
+    # only under `end_at_target`, can be called with no extra parameter; `apply`
+    # always requires it, and does so explicitly rather than through this
+    # field's own validation, because the same model has to serve both callers.
     target: str | None = Field(
-        default=None, description="The word `apply` searches a ladder toward."
+        default=None,
+        description=(
+            "The word `apply` searches a ladder toward. `check` reads it only under "
+            "`end_at_target`. Unset, `check` reads no end and `apply` refuses."
+        ),
+        json_schema_extra=param("task", "word"),
     )
+    # A9: `cold` alone, and a ladder that stops short of its target, both
+    # passed. Opt-in, so a 0.3.2 caller keeps every verdict.
+    min_steps: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "Fewest steps the ladder must take, a step being each word after the "
+            "first. 0 accepts a single word."
+        ),
+        json_schema_extra=param("switch"),
+    )
+    end_at_target: bool = Field(
+        default=False,
+        description=(
+            "Fail a ladder whose last word is not `target`, compared as a step "
+            "compares its words. Needs `target`."
+        ),
+        json_schema_extra=param("switch"),
+    )
+
+    @model_validator(mode="after")
+    def _a_required_end_needs_a_target(self) -> WordLadderParams:
+        if self.end_at_target and not self.target:
+            raise ValueError("end_at_target needs a target to end at")
+        return self
 
 
 class WordLadderApplyParams(WordLadderParams, ApplyParams):
@@ -121,6 +151,7 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
     """Constructive: `apply` searches the ladder `check` verifies."""
 
     id = "word_ladder"
+    rules = ("different_length", "not_a_word", "step_too_large", "too_few_steps", "wrong_end")
 
     @classmethod
     def params_model(cls) -> type[WordLadderParams]:
@@ -174,16 +205,46 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
                     )
                 )
 
+        steps = max(len(spans) - 1, 0)
+        if steps < params.min_steps:
+            total += 1
+            violations.append(
+                Violation(
+                    rule="too_few_steps",
+                    offset=None,
+                    found=f"{steps} steps",
+                    expected=f"at least {params.min_steps} steps",
+                )
+            )
+        if params.end_at_target and params.target:
+            total += 1
+            last = spans[-1] if spans else None
+            fold = params.fold_diacritics
+            if last is not None and _folded(last[1], pack, fold=fold) == _folded(
+                params.target, pack, fold=fold
+            ):
+                good += 1
+            else:
+                violations.append(
+                    Violation(
+                        rule="wrong_end",
+                        offset=last[0] if last else None,
+                        found=last[1] if last else "",
+                        expected=params.target,
+                    )
+                )
+
         # `total` stays 0 for empty text rather than being floored at 1: an
         # empty ladder violates none of the per-word or per-step rules above,
         # so `_report`'s own vacuous-truth branch (score 1.0 when total == 0)
         # is the right answer here, unlike `diastic`'s deliberate departure
-        # from it for a selection that is supposed to select something.
+        # from it for a selection that is supposed to select something. The
+        # two opt-in requirements above are the exception: each adds its unit.
         return self._report(
             good=good,
             total=total,
             violations=violations,
-            metrics={"words": float(len(spans)), "steps": float(max(len(spans) - 1, 0))},
+            metrics={"words": float(len(spans)), "steps": float(steps)},
         )
 
     @classmethod
@@ -260,6 +321,17 @@ class WordLadder(ConstructiveProcedure[WordLadderParams, WordLadderApplyParams])
                 self.id,
                 f"no ladder connects {start!r} to {target!r} within "
                 f"{MAX_LADDER_WORDS} words — try a shorter hop, or check a "
+                "ladder instead of generating one",
+            )
+        if len(ladder) - 1 < params.min_steps:
+            # The search returns a shortest ladder, so a longer one is not
+            # something it can be asked for; handing back the short one would
+            # fail this row's own `check` under the same `min_steps`.
+            raise NoCandidateWord(
+                self.id,
+                f"the shortest ladder from {start!r} to {target!r} takes "
+                f"{len(ladder) - 1} steps, fewer than min_steps={params.min_steps}, "
+                "and this search finds shortest ladders only — check a longer "
                 "ladder instead of generating one",
             )
         return plain([" ".join(ladder)])

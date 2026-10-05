@@ -7,15 +7,21 @@ from collections import Counter
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
-from denckring.core.text import letter_spans, single_letter
+from denckring.core.text import letter_spans, quoted_letters, single_letter
 
 PERMITTED = 2
 
 
 class BivocalicParams(DiacriticParams):
-    vowels: str | None = Field(default=None, description="The two permitted vowels.")
+    vowels: str | None = Field(
+        default=None,
+        description="The two permitted vowels; inferred if unset.",
+        # A set of letters, not a word: a hint renders "ae" as `"a", "e"`.
+        json_schema_extra=param("inferred", "vowels", **{"x-denckring-show": "letters"}),
+    )
 
     @field_validator("vowels")
     @classmethod
@@ -32,6 +38,8 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
     """The univocalic loosened by one: two vowels, no more."""
 
     id = "bivocalic"
+    rules = ("foreign_vowel",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[BivocalicParams]:
@@ -65,7 +73,7 @@ class Bivocalic(BaseProcedure[BivocalicParams]):
                 rule="foreign_vowel",
                 offset=offset,
                 found=ch,
-                expected="".join(sorted(permitted)),
+                expected=f"one of {quoted_letters(sorted(permitted))}",
             )
             for offset, ch in found
             if ch not in permitted

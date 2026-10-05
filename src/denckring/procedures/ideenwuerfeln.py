@@ -9,6 +9,7 @@ from pydantic import Field
 from denckring.core import corpus as corpora
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
 from denckring.core.errors import InputTooShort, counted
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -19,13 +20,18 @@ SEPARATOR = "\n"
 
 
 class IdeenwuerfelnParams(SourceParams):
-    slots: int = Field(default=3, ge=MIN_SLOTS, description="Excerpts per throw.")
+    slots: int = Field(
+        default=3, ge=MIN_SLOTS, description="Excerpts per throw.", json_schema_extra=param("task")
+    )
     headword: str | None = Field(
-        default=None, description="Draw only from entries filed under this word."
+        default=None,
+        description="Draw only from entries filed under this word; unset, any entry serves.",
+        json_schema_extra=param("switch", "word"),
     )
     distinct_domains: bool = Field(
         default=False,
         description="Every excerpt must come from a different field.",
+        json_schema_extra=param("switch"),
     )
 
 
@@ -56,6 +62,13 @@ class Ideenwuerfeln(ConstructiveProcedure[IdeenwuerfelnParams, IdeenwuerfelnAppl
     """
 
     id = "ideenwuerfeln"
+    rules = (
+        "domain_repeated",
+        "domain_unknown",
+        "not_in_the_corpus",
+        "wrong_headword",
+        "wrong_number_of_excerpts",
+    )
 
     @classmethod
     def params_model(cls) -> type[IdeenwuerfelnParams]:

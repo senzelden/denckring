@@ -10,6 +10,7 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.core.text import line_spans
@@ -22,10 +23,19 @@ class SonnetParams(RhymeParams, MetreParams):
     scheme: str = Field(
         default="ABABCDCDEFEFGG",
         description="Rhyme pattern, one letter per line. Must be fourteen letters.",
+        # Fourteen letters need fourteen characters at least: the one bound JSON Schema
+        # can state for `_fourteen_letters` without refusing a scheme it accepts.
+        json_schema_extra=param(
+            "task",
+            "scheme",
+            minLength=LINES,
+            examples=["ABABCDCDEFEFGG", "ABBAABBACDECDE", "ABABBCBCCDCDEE"],
+        ),
     )
     metre: str = Field(
         default="01" * 5,
         description="Stress pattern per line; 0 unstressed, 1 stressed.",
+        json_schema_extra=param("task", "metre", examples=["0101010101", "01010101"]),
     )
 
     @field_validator("scheme")
@@ -42,6 +52,16 @@ class Sonnet(BaseProcedure[SonnetParams]):
     """Fourteen lines, plus whatever scheme and metre the caller names."""
 
     id = "sonnet"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[SonnetParams]:
@@ -55,6 +75,7 @@ class Sonnet(BaseProcedure[SonnetParams]):
             metre=params.metre,
             lines=LINES,
             feminine_ending=params.feminine_ending,
+            unknown_rhyme=params.unknown_rhyme,
         )
         return self._report(
             good=result.good,

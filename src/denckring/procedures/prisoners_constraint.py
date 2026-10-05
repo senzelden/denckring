@@ -24,6 +24,8 @@ class PrisonersConstraint(BaseProcedure[PrisonersConstraintParams]):
     """
 
     id = "prisoners_constraint"
+    rules = ("tall_or_deep_letter",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[PrisonersConstraintParams]:

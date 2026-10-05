@@ -21,6 +21,8 @@ class Hendecasyllable(BaseProcedure[HendecasyllableParams]):
     """Checks the syllable measure only, not the caesura or the stress pattern."""
 
     id = "hendecasyllable"
+    rules = ("wrong_syllable_count",)
+    local_scope = "line"
 
     @classmethod
     def params_model(cls) -> type[HendecasyllableParams]:

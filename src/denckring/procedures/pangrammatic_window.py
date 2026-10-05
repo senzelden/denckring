@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
@@ -15,7 +16,9 @@ class PangrammaticWindowParams(DiacriticParams):
     #: from one text, and without a bar this procedure is `pangram` under a
     #: second name — so the caller states the bar, as ADR 0009 makes editorial
     #: choices parameters rather than hidden constants.
-    max_length: int = Field(ge=26, description="The longest window that still counts.")
+    max_length: int = Field(
+        ge=26, description="The longest window that still counts.", json_schema_extra=param("task")
+    )
 
 
 @register
@@ -28,6 +31,7 @@ class PangrammaticWindow(BaseProcedure[PangrammaticWindowParams]):
     """
 
     id = "pangrammatic_window"
+    rules = ("missing_letter", "window_too_long")
 
     @classmethod
     def params_model(cls) -> type[PangrammaticWindowParams]:

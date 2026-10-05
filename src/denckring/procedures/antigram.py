@@ -6,10 +6,14 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans
-from denckring.procedures.anagram import AnagramParams, letter_counts, multiset_violations
+from denckring.procedures.anagram import (
+    LetterRearrangementParams,
+    letter_counts,
+    multiset_violations,
+)
 
 
-class AntigramParams(AnagramParams):
+class AntigramParams(LetterRearrangementParams):
     pass
 
 
@@ -23,6 +27,7 @@ class Antigram(BaseProcedure[AntigramParams]):
     """
 
     id = "antigram"
+    rules = ("missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[AntigramParams]:

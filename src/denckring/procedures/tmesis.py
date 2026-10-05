@@ -19,6 +19,7 @@ import re
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
@@ -34,7 +35,10 @@ def _compound_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
 
 class TmesisParams(BaseModel):
     minimum: int = Field(
-        default=1, ge=1, description="How many valid word-splits the text must carry."
+        default=1,
+        ge=1,
+        description="How many valid word-splits the text must carry.",
+        json_schema_extra=param("task"),
     )
 
 
@@ -43,6 +47,7 @@ class Tmesis(BaseProcedure[TmesisParams]):
     """A hyphenated compound must split into two halves that rejoin as a word."""
 
     id = "tmesis"
+    rules = ("halves_do_not_rejoin", "no_material_inserted", "too_few_splits")
 
     @classmethod
     def params_model(cls) -> type[TmesisParams]:

@@ -7,14 +7,20 @@ from typing import ClassVar, Literal
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_target, letter_spans, line_spans, word_spans
 
 
 class AcrosticParams(DiacriticParams):
-    target: str = Field(description="The word or phrase the unit letters must spell.")
-    unit: Literal["line", "word"] = Field(default="line", description="What carries a letter.")
+    target: str = Field(
+        description="The word or phrase the unit letters must spell.",
+        json_schema_extra=param("task", "phrase"),
+    )
+    unit: Literal["line", "word"] = Field(
+        default="line", description="What carries a letter.", json_schema_extra=param("task")
+    )
 
     @field_validator("target")
     @classmethod
@@ -33,6 +39,7 @@ class Acrostic(BaseProcedure[AcrosticParams]):
     """
 
     id = "acrostic"
+    rules = ("extra_unit", "missing_unit", "wrong_letter")
 
     #: Which letter of each unit carries the target. Telestich uses -1.
     letter_index: ClassVar[int] = 0

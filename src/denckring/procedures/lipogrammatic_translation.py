@@ -21,13 +21,15 @@ not just be writing.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import BaseProcedure, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import get, register
+from denckring.core.source_compare import unchanged
+from denckring.core.text import letter_spans
 from denckring.procedures.lipogram import LipogramParams
 
 
-class LipogrammaticTranslationParams(SourceParams, LipogramParams):
+class LipogrammaticTranslationParams(SourceParams, LipogramParams, IdentityParams):
     pass
 
 
@@ -37,6 +39,7 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
     `params.source` is undecidable and unchecked."""
 
     id = "lipogrammatic_translation"
+    rules = ("forbidden_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[LipogrammaticTranslationParams]:
@@ -55,9 +58,25 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
         # `tests/test_constraint_translations.py`.
         total = int(delegate.metrics["letters"])
         good = total - int(delegate.metrics["hits"])
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # The check never reads the source: the copy with one more allowed
+            # letter is another answer, whenever the alphabet has one left.
+            alternative=lambda: bool(
+                set(pack.alphabet())
+                - {
+                    ch
+                    for _, ch in letter_spans(params.forbidden, pack, fold=params.fold_diacritics)
+                }
+            ),
+            fold=params.fold_diacritics,
+        )
         return self._report(
             good=good,
-            total=total,
-            violations=delegate.violations,
+            total=total + len(copy),
+            violations=delegate.violations + copy,
             metrics=dict(delegate.metrics),
         )

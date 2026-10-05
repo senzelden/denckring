@@ -16,3 +16,9 @@ def test_explicit_vowels_are_respected() -> None:
 
 def test_empty_text_is_vacuously_satisfied() -> None:
     assert check("bivocalic", "").satisfied
+
+
+def test_the_expected_text_names_each_permitted_vowel() -> None:
+    """A set of two vowels reads as letters, not as the string `ae` (audit B11)."""
+    report = check("bivocalic", "a bad tea sit", vowels="ae")
+    assert {v.expected for v in report.violations} == {'one of "a", "e"'}

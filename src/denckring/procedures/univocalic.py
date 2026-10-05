@@ -7,13 +7,18 @@ from collections import Counter
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, single_letter
 
 
 class UnivocalicParams(DiacriticParams):
-    vowel: str | None = Field(default=None, description="The permitted vowel; inferred if unset.")
+    vowel: str | None = Field(
+        default=None,
+        description="The permitted vowel; inferred if unset.",
+        json_schema_extra=param("inferred", "vowel"),
+    )
 
     @field_validator("vowel")
     @classmethod
@@ -30,6 +35,8 @@ class Univocalic(BaseProcedure[UnivocalicParams]):
     """One vowel only. Consonants are unconstrained."""
 
     id = "univocalic"
+    rules = ("foreign_vowel",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[UnivocalicParams]:

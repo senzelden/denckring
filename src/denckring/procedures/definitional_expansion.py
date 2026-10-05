@@ -161,6 +161,7 @@ class DefinitionalExpansion(BaseProcedure[DefinitionalExpansionParams]):
     source replaced once by one of its dictionary definitions."""
 
     id = "definitional_expansion"
+    rules = ("not_expanded",)
 
     @classmethod
     def params_model(cls) -> type[DefinitionalExpansionParams]:

@@ -13,23 +13,34 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report
+from denckring.core.source_compare import selection_report, several_words, unchanged
 from denckring.core.text import line_spans, word_spans
 
 
-class MesosticParams(SourceParams):
+class MesosticParams(SourceParams, IdentityParams):
     # Defaulted like `every_nth_word.n`, so `apply()` is usable with no extra
     # keyword — unlike `diastic.seed_phrase`, `spine` was never forced into a
     # rename by a reserved-keyword collision, so there was no forced reason
     # for a default; it is here purely for that zero-argument convenience.
-    spine: str = Field(default="the", description="The spine word read down the lines.")
+    spine: str = Field(
+        default="the",
+        description="The spine word read down the lines.",
+        json_schema_extra=param("task", "phrase"),
+    )
 
 
-class MesosticApplyParams(MesosticParams, ApplyParams):
+class MesosticApplyParams(ApplyParams, MesosticParams):
     pass
 
 
@@ -38,6 +49,7 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
     """Constructive: `apply` arranges the lines that `check` verifies."""
 
     id = "mesostic"
+    rules = ("not_in_source", "spine_letter_missing", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[MesosticParams]:
@@ -73,10 +85,18 @@ class Mesostic(ConstructiveProcedure[MesosticParams, MesosticApplyParams]):
                         note=f"line {index + 1} must carry {letter!r}",
                     )
                 )
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: several_words(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=good,
-            total=max(total, 1),
-            violations=violations,
+            total=max(total, 1) + len(copy),
+            violations=violations + copy,
             metrics={"lines": float(len(lines))},
         )
 

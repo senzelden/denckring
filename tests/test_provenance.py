@@ -114,7 +114,7 @@ def test_the_cli_json_carries_the_seed(tmp_path: Path) -> None:
 
 
 def test_the_cli_check_json_carries_provenance(tmp_path: Path) -> None:
-    """`check --json` is named in the README among the five stable surfaces, so
+    """`check --json` is named in the README among the stable surfaces, so
     the stamp has to reach it too."""
     source = tmp_path / "t.txt"
     source.write_text("a conforming bit of writing\n", encoding="utf-8")
@@ -123,3 +123,36 @@ def test_the_cli_check_json_carries_provenance(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, result.stdout
     assert json.loads(result.stdout)["provenance"]["denckring"] == __version__
+
+
+#: Every key `Report` and `Production` serialise, per schema version. An added field
+#: changes the set; finding no entry for the version in force means the field landed
+#: without the minor bump `SCHEMA_VERSION`'s own comment requires (U3 review I2).
+SERIALISED_KEYS: dict[str, dict[str, frozenset[str]]] = {
+    "1.1": {
+        "Report": frozenset(
+            {
+                "procedure",
+                "satisfied",
+                "score",
+                "violations",
+                "metrics",
+                "evidence",
+                "provenance",
+                "estimated",
+            }
+        ),
+        "Production": frozenset(
+            {"procedure", "candidates", "truncated", "metrics", "provenance", "texts"}
+        ),
+    },
+}
+
+
+def test_the_schema_version_moves_with_the_serialised_shape() -> None:
+    report = check("lipogram", "a text", forbidden="e")
+    production = produce("anagram", "listen")
+    shapes = SERIALISED_KEYS.get(SCHEMA_VERSION)
+    assert shapes is not None, f"no recorded shape for schema {SCHEMA_VERSION}"
+    assert set(report.model_dump(mode="json")) == shapes["Report"]
+    assert set(production.model_dump(mode="json")) == shapes["Production"]

@@ -64,8 +64,10 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from denckring.core.base import BaseProcedure
-from denckring.core.protocol import LanguagePack, Report, Violation
+from denckring.core.fields import param
+from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import get, register
+from denckring.core.scope import Scope, coarsest
 
 #: This row's own id, checked against `constraints` at validation time. A literal
 #: rather than `cls.id` inside the validator: `field_validator` runs as part of
@@ -77,10 +79,12 @@ class MultipleConstraintParams(BaseModel):
     constraints: list[str] = Field(
         min_length=2,
         description="Ids of already-registered procedures this text must jointly satisfy.",
+        json_schema_extra=param("task", "id"),
     )
     constraint_params: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="Per-constraint parameters, keyed by the constraint's id in `constraints`.",
+        json_schema_extra=param("task"),
     )
 
     @field_validator("constraints")
@@ -99,6 +103,11 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
     """Every named constraint's own `check`, combined; satisfied only if all are."""
 
     id = "multiple_constraint"
+    #: Every violation is a delegate's own, carried through with its rule unchanged;
+    #: `denckring.rules` answers with every other row's vocabulary.
+    rules = ()
+    delegates_rules = True
+    hint_delegated = frozenset({"constraint_params"})
 
     @classmethod
     def params_model(cls) -> type[MultipleConstraintParams]:
@@ -112,9 +121,22 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
         """
         return [(cid, params.constraint_params.get(cid, {})) for cid in params.constraints]
 
+    def scope(self, params: MultipleConstraintParams) -> Scope:
+        """The scope every constraint keeps: satisfied only if all are, so a unit
+        every constraint judges alone is judged alone by the composite."""
+        return coarsest(
+            get(cid).scope(get(cid).parse_params(params.constraint_params.get(cid, {})))
+            for cid in params.constraints
+        )
+
     def _check(self, text: str, pack: LanguagePack, params: MultipleConstraintParams) -> Report:
         violations: list[Violation] = []
         metrics: dict[str, float] = {"constraints": float(len(params.constraints))}
+        # The constraints' own accounts of what they measured, so `Report.estimated`
+        # says of the composite what it says of any constraint inside it. Added, never
+        # scored: the verdict and the score below read only the constraints' verdicts.
+        evidence: list[Evidence] = []
+        estimated_words = 0.0
         good = 0
         for constraint_id in params.constraints:
             delegate = get(constraint_id)
@@ -123,6 +145,8 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
             if report.satisfied:
                 good += 1
             metrics[f"{constraint_id}_score"] = report.score
+            evidence += report.evidence
+            estimated_words += report.metrics.get("estimated_words", 0.0)
             for violation in report.violations:
                 note = (
                     constraint_id
@@ -131,9 +155,14 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
                 )
                 violations.append(violation.model_copy(update={"note": note}))
         metrics["satisfied_constraints"] = float(good)
+        if estimated_words:
+            # Only when some constraint estimated, so a composite of exact rows reports
+            # exactly the metrics it always has.
+            metrics["estimated_words"] = estimated_words
         return self._report(
             good=good,
             total=len(params.constraints),
             violations=violations,
             metrics=metrics,
+            evidence=evidence,
         )

@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
+from denckring.core.fields import param, roles
 from denckring.core.prosody import UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
@@ -29,6 +30,7 @@ from denckring.core.protocol import (
     Violation,
 )
 from denckring.core.provenance import provenance
+from denckring.core.scope import Scope
 
 P = TypeVar("P", bound=BaseModel)
 A = TypeVar("A", bound=BaseModel)
@@ -45,6 +47,39 @@ class DiacriticParams(BaseModel):
     fold_diacritics: bool = Field(
         default=True,
         description="Treat accented letters as their base letter, and ß as ss.",
+        json_schema_extra=param("policy"),
+    )
+
+
+class IdentityParams(BaseModel):
+    """Mixed into every source row whose checker passes its source, unchanged.
+
+    Measured, not assumed: on these rows `check(pid, source, source=source)` is
+    satisfied, though the copy is not what the row asks for (an anagram of
+    `listen` that is `listen`). `antigram` has always refused it; this lets the
+    others do the same. Opt-in, so no verdict moves in 0.3.2.
+
+    Off, it refuses a copy only where the source admits a different correct
+    answer (ruling R-U2a): each row states that predicate as the `alternative`
+    it passes to `source_compare.unchanged`. A one-sentence `recombination`, a
+    one-letter `anagram` or an N+7 source with no listed noun has no answer but
+    the copy, and a one-word `cut_up` none but the copy and the empty text, which
+    is not counted (it is the output `apply` refuses as degenerate). So the copy
+    stands, and flipping the default later leaves every instance satisfiable.
+    The cost is that a copy of such a source passes under either setting.
+
+    A row that passes a copy *only* on such sources (a one-line
+    `boustrophedon`) does not carry the field at all, since it could never
+    refuse anything; `tests/test_allow_identity.py` names those rows and why.
+    """
+
+    allow_identity: bool = Field(
+        default=True,
+        description=(
+            "Accept the source itself, unchanged, as an answer. Set false to fail a "
+            "text whose letters are the source's, in the same order, as `unchanged`."
+        ),
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -66,6 +101,7 @@ class RhymeParams(BaseModel):
             "leave the pair unscored (undecidable), let it satisfy the scheme "
             "(free), or fail it (strict)."
         ),
+        json_schema_extra=param("policy"),
     )
 
 
@@ -85,6 +121,7 @@ class MetreParams(BaseModel):
             "Whether a line may close on one extra unstressed syllable "
             "(a feminine or klingende ending) as well as on the bare metre."
         ),
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -96,7 +133,9 @@ class SourceParams(BaseModel):
     for callers that never touch Python.
     """
 
-    source: str = Field(description="The text this one was made from.")
+    source: str = Field(
+        description="The text this one was made from.", json_schema_extra=param("material", "text")
+    )
 
 
 class SeedParams(BaseModel):
@@ -114,7 +153,11 @@ class SeedParams(BaseModel):
     `fold_diacritics`.
     """
 
-    seed: int | None = Field(default=None, description="Fixes the draw, for a repeatable result.")
+    seed: int | None = Field(
+        default=None,
+        description="Fixes the draw, for a repeatable result; unset, each call draws afresh.",
+        json_schema_extra=param("apply_only"),
+    )
 
 
 class ApplyParams(BaseModel):
@@ -124,6 +167,12 @@ class ApplyParams(BaseModel):
     run the procedure in any way a caller can act on. Refusing both is the
     default; `allow_identity` is the one escape for the caller who genuinely
     wants the degenerate case, under either of its two shapes.
+
+    `IdentityParams` asks `check` the same question under the same name, with
+    the opposite default in 0.3.2. An apply model that mixes in both lists this
+    one first, because a field on an earlier base wins: listed after the check
+    model, `ApplyParams` would hand the generator `check`'s `true`. `tests/test_allow_identity.py`
+    holds that for every generator.
 
     No field here, or on any model this mixes into, may be named `lang`:
     `ConstructiveProcedure.produce` and `apply` both take `lang` as an explicit
@@ -147,11 +196,13 @@ class ApplyParams(BaseModel):
             "Permit output identical to the input, or empty, which normally "
             "means the procedure did not run."
         ),
+        json_schema_extra=param("apply_only"),
     )
     max_results: int = Field(
         default=10,
         ge=1,
         description="How many results to return at most. `apply` returns the first.",
+        json_schema_extra=param("apply_only"),
     )
 
 
@@ -159,6 +210,28 @@ class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
     id: ClassVar[str]
+    #: Every `violation.rule` this row's checker can emit, sorted: the published
+    #: vocabulary `denckring.rules` reads. Declared in each row's own class body and
+    #: never inherited or defaulted, so a row that forgot it fails `tests/test_rules.py`
+    #: rather than publishing an empty list. A rule a shared helper can emit is
+    #: declared only where the row's call can reach it: `iambic_pentameter` scans a
+    #: metre and checks no scheme, so it declares no rhyme rule although
+    #: `form_report` has them. `tests/conftest.py` fails any test whose report
+    #: carries an undeclared rule; `tests/test_rules.py` proves each declared rule
+    #: is emitted by a golden case or a recorded witness.
+    rules: ClassVar[tuple[str, ...]]
+    #: Set on a row whose violations are other rows' own, passed through:
+    #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
+    #: with every other row's vocabulary, since any of them can be composed.
+    delegates_rules: ClassVar[bool] = False
+    #: The parameters `hint_delegates` states, one line per delegate, so `prompt_hint`
+    #: does not state them again as settings (`core.hints.settings`).
+    hint_delegated: ClassVar[frozenset[str]] = frozenset()
+    #: The smallest unit this row judges alone, when every parameter it would
+    #: otherwise read off the text is stated (`core/scope.py`). `text`, the
+    #: default, claims nothing; `tests/test_scope.py` holds every other claim to
+    #: the checker on texts built from units.
+    local_scope: ClassVar[Scope] = "text"
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)
@@ -195,6 +268,26 @@ class BaseProcedure(ABC, Generic[P]):
         and refusals apply to it exactly as to a hint asked for directly.
         """
         return []
+
+    def scope(self, params: P) -> Scope:
+        """The smallest unit the verdict is a verdict on, under these parameters.
+
+        `local_scope`, unless a parameter whose role is `inferred` is unset: the
+        checker then reads it off the text as a whole (a tautogram's initial from
+        its first word), so no smaller unit is judged alone. A row whose scope
+        turns on a parameter of another role overrides this.
+        """
+        if self.unset_inferred(params):
+            return "text"
+        return self.local_scope
+
+    def unset_inferred(self, params: P) -> list[str]:
+        """The `inferred` parameters left unset, which keep a local row at `text`."""
+        return [
+            name
+            for name, role in roles(self.params_model()).items()
+            if role == "inferred" and getattr(params, name) is None
+        ]
 
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""

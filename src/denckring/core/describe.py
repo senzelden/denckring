@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
 from denckring.core.base import ConstructiveProcedure
@@ -17,6 +17,7 @@ from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
+from denckring.core.text import UNIT_ENDS
 
 
 class Scholarly(BaseModel):
@@ -67,6 +68,10 @@ _FOLD_POLICY = (
 )
 _NO_FOLD_POLICY = "Case only. This procedure does not compare letters, so nothing folds."
 
+#: Strings whose tokenization answers the questions a word count turns on: both
+#: apostrophes (an English contraction, a French elision), a hyphen, a digit.
+WORD_PROBES = ("don't", "l’âme", "well-known", "route66")  # noqa: RUF001
+
 
 class Reading(BaseModel):
     """How a checker turns text into the units it judges, and how firm the answer is.
@@ -85,6 +90,27 @@ class Reading(BaseModel):
     #: The pack's word pattern, for the language asked about. A caller comparing its
     #: own tokenisation against a verdict needs to know what this one counted.
     tokenization: str
+    #: The characters that end a line, a clause and a sentence, as the checkers split
+    #: them (`core.text.UNIT_ENDS`). The same for every row: a row that reads no clause
+    #: still says what one would be, so a caller can build a prompt or a guard on the
+    #: published marks rather than on a private constant. Punctuation only, as the
+    #: splitters are: `Mr.` ends a sentence. Each entry is a set of characters, and a
+    #: break may take two of them: `\r\n` ends one line, as `str.splitlines` reads it,
+    #: so count line ends by splitting, not by counting members of `units["line"]`.
+    units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
+    #: What `tokenization` makes of an apostrophe, a hyphen and a digit, shown by running
+    #: it on `WORD_PROBES`: each probe maps to the words it yields. An apostrophe between
+    #: letters stays inside a word, so a length counts it (`snowball` reads `I'm` as
+    #: three); a hyphen splits a word in two; a digit is no part of one. Derived by
+    #: running the pattern rather than written down, so it cannot drift from it (audit
+    #: E6).
+    word_examples: dict[str, list[str]]
+    #: The letters `univocalic`, `bivocalic`, `monoconsonantal` and `homovocalism` read
+    #: as vowels in this language, as the pack lists them; the text's letters are folded
+    #: before they are compared. `y` is among them in French and not in English or
+    #: German. `supervocalic` reads a narrower inventory, the five vowels, with `y` left
+    #: out in every language (ADR 0035, D1).
+    vowels: str
 
 
 class Description(BaseModel):
@@ -116,13 +142,20 @@ class Description(BaseModel):
     params: dict[str, Any]
     #: JSON Schema for the parameters `apply` accepts, empty for a row with no
     #: generator to pass any to. Distinct from `params`, which is the checker's
-    #: model and does not carry `seed` or `allow_identity` — so a caller that
-    #: never touches Python could see neither, and the developer feedback that
+    #: model and does not carry `seed` — so a caller that never touches Python
+    #: could not see it, and the developer feedback that
     #: started this chapter was largely that the MCP surface does not say
     #: things. `params` is not merely a subset of this one: `source` is supplied
     #: by `apply` from the text it transforms, and passing it as a parameter is
-    #: refused.
+    #: refused. Both may carry `allow_identity`, under one name with two
+    #: meanings: here, permit output identical to the input or empty (default
+    #: false); in `params`, on the source rows that declare it, accept the source
+    #: back unchanged as an answer (default true until that default flips).
     apply_params: dict[str, Any]
+    #: `Meta.unique_answer`: `check` passes only the text `apply` returns.
+    unique_answer: bool = False
+    #: `Meta.hidden_material`: what the verdict reads that a prompt does not show.
+    hidden_material: list[str] = Field(default_factory=list)
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -212,10 +245,13 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
     from denckring.lang import get_pack
 
     folds = "fold_diacritics" in procedure.params_model().model_fields
+    pack = get_pack(lang)
     return Reading(
         determinacy="heuristic" if _SOFT & set(meta.requires) else "exact",
         normalization=_FOLD_POLICY if folds else _NO_FOLD_POLICY,
-        tokenization=get_pack(lang).word_re.pattern,
+        tokenization=pack.word_re.pattern,
+        word_examples={probe: pack.word_re.findall(probe) for probe in WORD_PROBES},
+        vowels="".join(sorted(pack.vowels())),
     )
 
 
@@ -234,7 +270,10 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         # every surface reading it show a hint a model can act on (ADR 0050).
         prompt_hints=(
             rendered_with_defaults(
-                meta.id, _text(meta.prompt_hints, lang), procedure.params_model()
+                meta.id,
+                _text(meta.prompt_hints, lang),
+                procedure.params_model(),
+                lang if lang in meta.prompt_hints else "en",
             )
             or None
         ),
@@ -269,6 +308,8 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
             if isinstance(procedure, ConstructiveProcedure)
             else {}
         ),
+        unique_answer=meta.unique_answer,
+        hidden_material=list(meta.hidden_material),
         scholarly=(
             Scholarly(
                 source=meta.source,

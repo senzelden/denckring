@@ -49,6 +49,7 @@ class MathewsAlgorithm(ConstructiveProcedure[MathewsAlgorithmParams, MathewsAlgo
     """Constructive: `apply` performs the rotation that `check` verifies."""
 
     id = "mathews_algorithm"
+    rules = ("invented_part", "missing_part", "word_out_of_rotation")
 
     @classmethod
     def params_model(cls) -> type[MathewsAlgorithmParams]:

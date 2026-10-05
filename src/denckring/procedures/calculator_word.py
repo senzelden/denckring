@@ -23,6 +23,7 @@ from pydantic import Field, field_validator
 from denckring.core.base import ApplyParams, ConstructiveProcedure, DiacriticParams
 from denckring.core.calculator import ALPHABET, FROM_DIGIT, from_digits, to_digits
 from denckring.core.errors import InvalidParams, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_letter, word_spans
@@ -32,11 +33,22 @@ class CalculatorWordParams(DiacriticParams):
     digits: str = Field(
         default="7353",
         description="The digits entered on the display, read by turning it over.",
+        # Exactly what `_readable_digits` accepts, so a caller drawing from the schema
+        # draws only readable displays (audit B5). `(?!\n)` is for Python's `jsonschema`,
+        # whose `re.search` lets `$` match before a trailing newline; under ECMA-262,
+        # the dialect JSON Schema names, `$` is already the end and the lookahead is inert.
+        json_schema_extra=param(
+            "task",
+            "digits",
+            pattern=f"^[{''.join(sorted(FROM_DIGIT))}]+$(?!\n)",
+            examples=["7353", "0773", "5338"],
+        ),
     )
     words: int = Field(
         default=1,
         ge=1,
         description="How many words the digits must spell.",
+        json_schema_extra=param("task"),
     )
     require_words: bool = Field(
         default=True,
@@ -44,6 +56,7 @@ class CalculatorWordParams(DiacriticParams):
             "Whether each word must be one the language knows. False checks the "
             "display mapping alone, admitting any letter combination it can write."
         ),
+        json_schema_extra=param("leniency"),
     )
     #: Redeclared rather than inherited so a reader of this model sees the value
     #: without going to `DiacriticParams` for it — this is the one row in the
@@ -55,6 +68,7 @@ class CalculatorWordParams(DiacriticParams):
             "Whether an accented letter counts as its base letter. False by "
             "default on this row alone: the display cannot write the accent."
         ),
+        json_schema_extra=param("policy"),
     )
 
     @field_validator("digits")
@@ -82,6 +96,7 @@ class CalculatorWord(ConstructiveProcedure[CalculatorWordParams, CalculatorWordA
     """A word spelled by turning a calculator over."""
 
     id = "calculator_word"
+    rules = ("not_a_word", "undisplayable_letter", "wrong_digits", "wrong_word_count")
 
     @classmethod
     def params_model(cls) -> type[CalculatorWordParams]:

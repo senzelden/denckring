@@ -32,6 +32,14 @@ class TerzaRima(BaseProcedure[TerzaRimaParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "terza_rima"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[TerzaRimaParams]:
@@ -42,6 +50,7 @@ class TerzaRima(BaseProcedure[TerzaRimaParams]):
             text,
             pack,
             scheme=_terza_scheme(_line_count(text)),
+            unknown_rhyme=params.unknown_rhyme,
         )
 
         return self._report(

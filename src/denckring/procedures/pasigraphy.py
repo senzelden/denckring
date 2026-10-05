@@ -6,6 +6,7 @@ from pydantic import Field
 
 from denckring.core import pasigraph
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -16,12 +17,20 @@ GAP = "—"
 
 
 class PasigraphyParams(SourceParams):
-    table: str = Field(description="The numbered vocabulary, as JSON.")
-    from_language: str = Field(description="Language the source is written in.")
-    to_language: str = Field(description="Language the rendering is in.")
+    table: str = Field(
+        description="The numbered vocabulary, as JSON.",
+        json_schema_extra=param("material", "document"),
+    )
+    from_language: str = Field(
+        description="Language the source is written in.", json_schema_extra=param("task", "id")
+    )
+    to_language: str = Field(
+        description="Language the rendering is in.", json_schema_extra=param("task", "id")
+    )
     require_complete: bool = Field(
         default=False,
         description="Every word must cross; a gap in the rendering is a failure.",
+        json_schema_extra=param("switch"),
     )
 
 
@@ -67,6 +76,7 @@ class Pasigraphy(ConstructiveProcedure[PasigraphyParams, PasigraphyApplyParams])
     """
 
     id = "pasigraphy"
+    rules = ("extra_words", "no_number_for_word", "no_word_at_number", "wrong_rendering")
 
     @classmethod
     def params_model(cls) -> type[PasigraphyParams]:

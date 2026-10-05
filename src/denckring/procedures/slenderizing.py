@@ -11,13 +11,16 @@ from denckring.core.base import (
     SourceParams,
     plain,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import fold_letter, letter_spans, single_letter
 
 
 class SlenderizingParams(SourceParams, DiacriticParams):
-    deleted: str = Field(description="The letter removed from the source.")
+    deleted: str = Field(
+        description="The letter removed from the source.", json_schema_extra=param("task", "letter")
+    )
 
     @field_validator("deleted")
     @classmethod
@@ -36,6 +39,7 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
     """Strike out one letter throughout and let the rest close up."""
 
     id = "slenderizing"
+    rules = ("extra_letters", "wrong_letter")
 
     @classmethod
     def params_model(cls) -> type[SlenderizingParams]:
@@ -47,7 +51,8 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
             params.deleted, pack, fold=fold, procedure_id=self.id, field="deleted"
         )
         expected = [ch for _, ch in letter_spans(params.source, pack, fold=fold) if ch != deleted]
-        actual = [ch for _, ch in letter_spans(text, pack, fold=fold)]
+        spans = letter_spans(text, pack, fold=fold)
+        actual = [ch for _, ch in spans]
         violations: list[Violation] = []
         matched = 0
         for index, letter in enumerate(expected):
@@ -57,7 +62,11 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
                 violations.append(
                     Violation(
                         rule="wrong_letter",
-                        offset=None,
+                        # A letter the text runs out before is placed at its
+                        # end, where it would go: every violation here has a
+                        # place, and an offset-less one left a caller nothing
+                        # to point at but the rule name.
+                        offset=spans[index][0] if index < len(spans) else len(text),
                         found=actual[index] if index < len(actual) else "",
                         expected=letter,
                     )
@@ -66,7 +75,7 @@ class Slenderizing(ConstructiveProcedure[SlenderizingParams, SlenderizingApplyPa
             violations.append(
                 Violation(
                     rule="extra_letters",
-                    offset=None,
+                    offset=spans[len(expected)][0],
                     found="".join(actual[len(expected) :]),
                     expected="",
                 )

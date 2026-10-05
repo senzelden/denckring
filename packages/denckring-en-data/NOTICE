@@ -34,3 +34,15 @@ The data in this distribution is not, and is redistributed under its own terms:
     scripts/build_graded_words.py is the derivation.
 
     SCOWL, http://wordlist.aspell.net/, see LICENSE-SCOWL
+
+  - src/denckring_en_data/data/frequencies.txt.gz is derived from the Leipzig
+    Corpora Collection's eng_news_2023_1M corpus, licensed CC BY 4.0, with the
+    attribution in LICENSE-LEIPZIG. It is a modification: the corpus's word list
+    reduced to the lowercase forms of the words graded_words.txt.gz holds, one
+    `word<TAB>count` line each. No sentence from the corpus is included.
+    scripts/build_frequencies.py is the derivation. The licence version is
+    established as for denckring-de-frequency (ADR 0038 D1): the Leipzig terms say
+    "CC BY", and the link on those words points at the 4.0 deed.
+
+  - src/denckring_en_data/data/everyday_exclusions.txt is this project's own
+    editorial list (ADR 0051), under the Apache License like the code.

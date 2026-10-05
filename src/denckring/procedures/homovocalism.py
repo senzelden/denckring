@@ -12,13 +12,13 @@ nothing here for a generator to do that would not just be writing.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, DiacriticParams, SourceParams
+from denckring.core.base import BaseProcedure, DiacriticParams, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
-from denckring.core.source_compare import letter_class_report
+from denckring.core.source_compare import letter_class_report, unchanged
 
 
-class HomovocalismParams(SourceParams, DiacriticParams):
+class HomovocalismParams(SourceParams, DiacriticParams, IdentityParams):
     pass
 
 
@@ -27,6 +27,7 @@ class Homovocalism(BaseProcedure[HomovocalismParams]):
     """The vowel sequence is the constraint; the consonants are the freedom."""
 
     id = "homovocalism"
+    rules = ("extra_letters", "unchanged", "wrong_vowel")
 
     @classmethod
     def params_model(cls) -> type[HomovocalismParams]:
@@ -36,9 +37,19 @@ class Homovocalism(BaseProcedure[HomovocalismParams]):
         result = letter_class_report(
             text, params.source, pack, keep="vowels", fold=params.fold_diacritics
         )
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Only vowels are compared, so the copy with one more consonant is
+            # always another answer.
+            alternative=lambda: True,
+            fold=params.fold_diacritics,
+        )
         return self._report(
             good=result.good,
-            total=result.total,
-            violations=result.violations,
+            total=result.total + len(copy),
+            violations=result.violations + copy,
             metrics={"kept": float(result.total)},
         )

@@ -6,15 +6,24 @@ import random
 import re
 from collections import Counter
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SeedParams, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SeedParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import InputTooShort, counted
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
+from denckring.core.text import letter_spans
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
-class RecombinationParams(SourceParams):
+class RecombinationParams(SourceParams, IdentityParams):
     pass
 
 
@@ -22,7 +31,23 @@ def sentences(text: str) -> list[str]:
     return [s.strip().casefold() for s in SENTENCE_SPLIT.split(text.strip()) if s.strip()]
 
 
-class RecombinationApplyParams(RecombinationParams, SeedParams, ApplyParams):
+def _reorder_changes_letters(source: str, pack: LanguagePack) -> bool:
+    """Whether some order of the source's sentences has other letters than the copy.
+
+    Decided on what `unchanged` compares, each sentence's letters, not on the
+    sentences `_check` counts: `It rains.` and `It rains!` are two sentences there
+    and one letter string here, so swapping them is no other answer. Reordering
+    changes the concatenation exactly when two of the strings do not commute
+    (`no` + `nono` does), the case `No. No no.` needs.
+    """
+    words = [
+        "".join(ch for _, ch in letter_spans(piece, pack, fold=False))
+        for piece in SENTENCE_SPLIT.split(source.strip())
+    ]
+    return any(a + b != b + a for i, a in enumerate(words) for b in words[i + 1 :])
+
+
+class RecombinationApplyParams(ApplyParams, RecombinationParams, SeedParams):
     pass
 
 
@@ -31,6 +56,7 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
     """The same sentences, redistributed, with none rewritten."""
 
     id = "recombination"
+    rules = ("sentence_dropped", "sentence_not_in_source", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[RecombinationParams]:
@@ -62,10 +88,18 @@ class Recombination(ConstructiveProcedure[RecombinationParams, RecombinationAppl
                 )
         shared = sum((candidate & source).values())
         total = max(sum(candidate.values()), sum(source.values()))
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: _reorder_changes_letters(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=shared,
-            total=total,
-            violations=violations,
+            total=total + len(copy),
+            violations=violations + copy,
             metrics={"sentences": float(sum(candidate.values()))},
         )
 

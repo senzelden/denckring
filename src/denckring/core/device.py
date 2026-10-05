@@ -35,6 +35,7 @@ from denckring.core.errors import (
     UnknownLevel,
     counted,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack
 
 DEVICE_DIR = Path(str(files("denckring") / "data" / "devices"))
@@ -116,6 +117,11 @@ def _locate(directory: Path, item_id: str) -> Path | None:
         return None
     candidate = directory / f"{item_id}.yaml"
     try:
+        # The name as listed, not as the filesystem resolves it: on a
+        # case-insensitive one (macOS, Windows) `LLULL_TERNARY` would find
+        # `llull_ternary.yaml`, so an id's validity would depend on the OS.
+        if candidate.name not in {path.name for path in directory.iterdir()}:
+            return None
         if not candidate.is_file():
             return None
         resolved_dir = directory.resolve()
@@ -578,6 +584,7 @@ class DeviceParams(BaseModel):
     device: str = Field(
         default="harsdoerffer_1651",
         description="Which device to read the slots from.",
+        json_schema_extra=param("task", "id"),
     )
 
 
@@ -623,6 +630,11 @@ class Figure(BaseModel):
         return ["".join(combo) for combo in combinations(self.letters, arity)]
 
 
+def figure_ids() -> list[str]:
+    """The id of every figure shipped, sorted: what `load_figure` can read."""
+    return sorted(path.stem for path in FIGURE_DIR.glob("*.yaml"))
+
+
 def load_figure(figure_id: str) -> Figure:
     """Read a figure by id from the shipped data.
 
@@ -642,7 +654,7 @@ def load_figure(figure_id: str) -> Figure:
     """
     path = _locate(FIGURE_DIR, figure_id)
     if path is None:
-        raise UnknownFigure(figure_id, sorted(p.stem for p in FIGURE_DIR.glob("*.yaml")))
+        raise UnknownFigure(figure_id, figure_ids())
     return _load_figure_path(path)
 
 

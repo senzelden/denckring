@@ -38,6 +38,7 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
     """Constructive: `apply` turns alternate lines that `check` verifies."""
 
     id = "boustrophedon"
+    rules = ("invented_part", "line_not_turned", "missing_part")
 
     @classmethod
     def params_model(cls) -> type[BoustrophedonParams]:
@@ -66,7 +67,10 @@ class Boustrophedon(ConstructiveProcedure[BoustrophedonParams, BoustrophedonAppl
                 continue
             total += 1
             expected = source_lines[index][::-1]
-            if line == expected:
+            # Stripped and casefolded, the policy `rearrangement_report` applies
+            # to every line: byte for byte, a trailing space on a turned line was
+            # `line_not_turned` while the same space on an unturned one passed.
+            if line.strip().casefold() == expected.strip().casefold():
                 good += 1
             else:
                 violations.append(

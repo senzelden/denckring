@@ -4,7 +4,7 @@ Finding 6 of the 2026-09-02 MCP sweep: several disclosure surfaces answered a
 question with something other than the answer. These pin the fixes.
 """
 
-from denckring import describe
+from denckring import describe, get, list_procedures
 
 
 def test_a_row_says_which_of_its_texts_are_not_in_the_asked_language() -> None:
@@ -15,10 +15,19 @@ def test_a_row_says_which_of_its_texts_are_not_in_the_asked_language() -> None:
     prose in a field typed as French with nothing marking the substitution, so a
     client could not tell a translated row from an untranslated one.
     """
-    described = describe("lipogram", lang="fr")
-    assert described.name == "Lipogramme"
+    # A row with a French name but an English-only hint, found rather than named, so a
+    # new French hint does not turn this red (it moved off `lipogram` in 0.3.2).
+    rows = [pid for pid in list_procedures() if _fr_named_without_fr_hint(pid)]
+    assert rows, "no row has a French name and an English-only hint"
+    described = describe(rows[0], lang="fr")
+    assert described.name == get(rows[0]).meta.names["fr"]
     # The hint exists in English only, so this row is not fully French.
-    assert described.untranslated == ["prompt_hints"]
+    assert "prompt_hints" in described.untranslated
+
+
+def _fr_named_without_fr_hint(pid: str) -> bool:
+    meta = get(pid).meta
+    return "fr" in meta.names and "en" in meta.prompt_hints and "fr" not in meta.prompt_hints
 
 
 def test_a_fully_localised_row_reports_nothing_untranslated() -> None:

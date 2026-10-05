@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Iterable
 
 from denckring.core.errors import InvalidParams
 from denckring.core.protocol import LanguagePack
@@ -132,6 +133,19 @@ def single_letter(
     return folded
 
 
+def quoted_letters(letters: Iterable[str], quotes: tuple[str, str] = ('"', '"')) -> str:
+    """A set of letters as a sentence reads it: `"e", "t"`, not `et`.
+
+    One rule for a prompt hint (`core.hints.show`, kind `letters`) and for a
+    violation's `expected` text, so the repair message and the prompt name the same
+    letters the same way. Quoted whole, a set of consonants reads as a word.
+    `quotes` lets a German or French hint use its own marks (`core.hints.QUOTES`);
+    a violation's text is English and keeps the default.
+    """
+    opening, closing = quotes
+    return ", ".join(f"{opening}{letter}{closing}" for letter in letters)
+
+
 def word_spans(text: str, pack: LanguagePack) -> list[tuple[int, str]]:
     """Every word as `(offset, word)`, unfolded."""
     return pack.word_spans(text)
@@ -255,6 +269,21 @@ def sentence_spans(text: str) -> list[tuple[int, str]]:
             start = index + 1
     emit(text[start:], start)
     return spans
+
+
+#: What `str.splitlines`, and so `line_spans`, breaks a line on.
+LINE_BREAKS = "\n\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+
+#: The characters that end each unit, as the splitters above read them: published as
+#: `describe(...).reading.units` so a caller can split a text the way a checker will
+#: (audit B7). A clause also ends at a line break, since `clause_spans` splits lines
+#: first; a sentence does not. `tests/test_text_units.py` holds each entry to its
+#: splitter character by character, so a mark added to one cannot leave this behind.
+UNIT_ENDS: dict[str, str] = {
+    "line": LINE_BREAKS,
+    "clause": _CLAUSE_BREAK + LINE_BREAKS,
+    "sentence": _SENTENCE_END,
+}
 
 
 def paragraph_spans(text: str) -> list[tuple[int, str]]:

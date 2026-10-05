@@ -70,14 +70,15 @@ from __future__ import annotations
 
 from collections import Counter
 
-from denckring.core.base import BaseProcedure, DiacriticParams, SourceParams
+from denckring.core.base import BaseProcedure, DiacriticParams, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.lang.base import WORDS
 from denckring.procedures.anagram import letter_counts, multiset_violations
 
 
-class BuchstabwechselParams(SourceParams, DiacriticParams):
+class BuchstabwechselParams(SourceParams, DiacriticParams, IdentityParams):
     pass
 
 
@@ -99,6 +100,7 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
     from `v`/`j`. See the module docstring for why this is not `anagram`."""
 
     id = "buchstabwechsel"
+    rules = ("missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[BuchstabwechselParams]:
@@ -113,9 +115,19 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
         if WORDS in pack.capabilities:
             tokens = pack.tokenize(text)
             metrics["known_words"] = float(sum(1 for token in tokens if pack.is_word(token)))
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Rule II lets an `h` in or out anywhere, so the copy with one more
+            # `h` is always another answer.
+            alternative=lambda: True,
+            fold=fold,
+        )
         return self._report(
             good=shared,
-            total=total,
-            violations=violations,
+            total=total + len(copy),
+            violations=violations + copy,
             metrics=metrics,
         )

@@ -17,6 +17,7 @@ class AlphabeticalSentence(BaseProcedure[AlphabeticalSentenceParams]):
     """Every word sorts at or after the word before it."""
 
     id = "alphabetical_sentence"
+    rules = ("out_of_order",)
 
     @classmethod
     def params_model(cls) -> type[AlphabeticalSentenceParams]:

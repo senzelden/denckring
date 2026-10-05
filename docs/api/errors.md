@@ -4,36 +4,56 @@ Every failure mode in denckring is one of these. None of them is silent: each ca
 a stable `code`, a human-readable message, and a `detail()` dict for a caller that
 would rather not parse English out of the message.
 
-::: denckring.core.errors.DenckringError
+Each is importable from `denckring` itself (`from denckring import InvalidParams`),
+and this page documents them from there: that is the path under the README's
+stability promise, and `denckring.core.errors`, where they are defined, is not. A
+class keeps its name, its place under `DenckringError` and its `code`; the message
+wording may change.
 
-::: denckring.core.errors.UnknownProcedure
+::: denckring.DenckringError
 
-::: denckring.core.errors.UnknownLanguage
+::: denckring.UnknownProcedure
 
-::: denckring.core.errors.MissingCapability
+::: denckring.UnknownLanguage
 
-::: denckring.core.errors.InvalidParams
+::: denckring.MissingCapability
 
-::: denckring.core.errors.DuplicateProcedure
+::: denckring.InvalidParams
 
-::: denckring.core.errors.UnknownDevice
+::: denckring.DuplicateProcedure
 
-::: denckring.core.errors.UnsettablePhrase
+::: denckring.UnknownDevice
 
-::: denckring.core.errors.InputTooLong
+::: denckring.UnsettablePhrase
 
-::: denckring.core.errors.NoCandidateWord
+::: denckring.InputTooLong
 
-::: denckring.core.errors.MalformedTable
+::: denckring.TextTooLong
 
-::: denckring.core.errors.MalformedCorpus
+::: denckring.InputTooShort
 
-::: denckring.core.errors.UnknownFigure
+::: denckring.DegenerateOutput
 
-::: denckring.core.errors.UnknownLevel
+::: denckring.NoCandidateWord
 
-::: denckring.core.errors.DuplicatePack
+::: denckring.MalformedTable
 
-::: denckring.core.errors.NoPromptHint
+::: denckring.MalformedCorpus
 
-::: denckring.core.errors.UnsetHintParameter
+::: denckring.MalformedDevice
+
+::: denckring.MalformedFigure
+
+::: denckring.UnknownFigure
+
+::: denckring.UnknownLevel
+
+::: denckring.DuplicatePack
+
+::: denckring.NotConstructive
+
+::: denckring.NoPromptHint
+
+::: denckring.UnsetHintParameter
+
+::: denckring.NotWordLocal

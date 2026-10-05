@@ -5,13 +5,18 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import single_letter, word_spans
 
 
 class TautogramParams(DiacriticParams):
-    initial: str | None = Field(default=None, description="Shared initial; inferred if unset.")
+    initial: str | None = Field(
+        default=None,
+        description="Shared initial; inferred if unset.",
+        json_schema_extra=param("inferred", "letter"),
+    )
 
     @field_validator("initial")
     @classmethod
@@ -28,6 +33,8 @@ class Tautogram(BaseProcedure[TautogramParams]):
     """Hucbald's constraint: one initial letter for every word."""
 
     id = "tautogram"
+    rules = ("wrong_initial",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[TautogramParams]:

@@ -11,6 +11,19 @@ cases:
     text: a bad one
     params: { forbidden: bcd }
     satisfied: false
+  - name: avoids-a-set-with-vowels
+    source: >-
+      constructed example; the set may hold vowels, which the lipogram suite of
+      denckring-bench relies on (audit E3)
+    text: I hold strong words, now lost.
+    params: { forbidden: ae }
+    satisfied: true
+  - name: uses-a-vowel-of-the-set
+    source: >-
+      constructed counterexample; a vowel in the set fails like a consonant would
+    text: I hold strong words, now lost again.
+    params: { forbidden: ae }
+    satisfied: false
   - name: evite-le-groupe
     lang: fr
     source: constructed example
@@ -22,4 +35,12 @@ cases:
     source: constructed counterexample
     text: la bande se leva
     params: { forbidden: bcd }
+    satisfied: false
+  - name: cedille-repliee
+    lang: fr
+    source: >-
+      constructed counterexample; `ç` folds to `c` like the text's letters, so
+      the cedilla in "garçon" is forbidden (ADR 0035, D3)
+    text: un garçon
+    params: { forbidden: ç }
     satisfied: false

@@ -5,13 +5,18 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, single_letter, word_spans
 
 
 class HomoteleutonParams(DiacriticParams):
-    final: str | None = Field(default=None, description="Shared final letter; inferred if unset.")
+    final: str | None = Field(
+        default=None,
+        description="Shared final letter; inferred if unset.",
+        json_schema_extra=param("inferred", "letter"),
+    )
 
     @field_validator("final")
     @classmethod
@@ -28,6 +33,8 @@ class Homoteleuton(BaseProcedure[HomoteleutonParams]):
     """The tautogram read from the other end of each word."""
 
     id = "homoteleuton"
+    rules = ("wrong_final",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[HomoteleutonParams]:

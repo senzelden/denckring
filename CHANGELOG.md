@@ -13,13 +13,18 @@ All notable changes to this project are documented here. The format follows
   `denckring.prompt_hint(procedure_id, lang=..., **params)` renders it after
   validating the params as `check` does. A row with no hint in the language raises
   `NoPromptHint`, and a stated parameter left `None` raises `UnsetHintParameter`.
-  A parameter a hint leaves out is declared, house-wide in `core.hints.UNSTATED_PARAMS`
-  or per row in the catalogue's new `hint_omits`, and a guard test holds the rule.
+  A parameter a hint leaves out is excused by its role (below), or, for a task
+  parameter, named in the catalogue's new `hint_omits`, and a guard test holds the rule.
   `describe`, and the CLI, MCP, docs gallery and explorer through it, render hints
   from the defaults where they fill every slot. For the other 36 rows they show the
   template. For `multiple_constraint`, `prompt_hint` also appends one `- ` line per
   named constraint, giving that constraint's own hint rendered from its
-  `constraint_params`.
+  `constraint_params`. A parameter a hint excuses only at its default (a switch,
+  threshold, policy or tolerance) is not dropped when a caller sets it otherwise:
+  `prompt_hint` and `render_hint` append it as `- name = value: ` and the field's
+  description, in English, one line per parameter. So `eodermdrome` with
+  `min_letters=12` no longer reads as accepting `dead`. Rendered from the defaults, a
+  hint is unchanged.
 
 - Complete the five remaining #22 checkers under ADR 0049: strict OEWN 2024
   synonym/antonym substitution, and supplied-data bilingual gloss and sound checks.
@@ -34,7 +39,311 @@ All notable changes to this project are documented here. The format follows
   output and unresolved verdicts for unknown sayings. ADR 0048 records sources,
   editorial seams and limits; requires `denckring[en]`.
 
+- `allow_identity` (default `true`, so no verdict moves) on the 14 source rows whose
+  checker passed an unchanged copy of the source, measured with each row's golden
+  parameters: `anagram`, `buchstabwechsel`, `cut_up`, `diastic`, `homoconsonantism`,
+  `homovocalism`, `lipogrammatic_translation`, `melting_text`, `mesostic`, `n_plus_7`,
+  `recombination`, `s_plus_7`, `transposal` and `univocalic_translation`. Set to `false`,
+  a text whose letters are the source's in the same order fails as `unchanged`, the
+  rule `antigram` has always applied. Rows that pass a copy only on a source the rule
+  leaves alone (one line, one sentence, no alternatives) do not take it, since the copy
+  is the right answer there; `tests/test_allow_identity.py` names them and holds the
+  rule for new rows. On a row that carries it, `false` still lets a copy stand where
+  the source admits no other non-empty answer: a one-sentence `recombination`, or one
+  whose every reordering has the copy's letters (`It rains. It rains!`), and a one-word
+  `cut_up` or `melting_text`, where the empty text also passes but is not counted as
+  an answer, since it is the output `apply` refuses as degenerate. Generators already had an `allow_identity` (permit output identical to
+  the input or empty, default `false`); the check-side field shares the name with
+  the opposite default until that default flips.
+
+- `require_displacement` on `n_plus_7` and `s_plus_7` (default `false`). Set, a text in
+  which no listed word was displaced fails as `no_displacement`, whatever
+  `ambiguous_nouns` makes of each unchanged word.
+
+- Opt-in minimums against trivial passes, each defaulting to today's behaviour:
+  `word_ladder` takes `min_steps` (`too_few_steps`) and `end_at_target`, which makes
+  `check` read `target` and fail a ladder ending elsewhere (`wrong_end`); `apply`
+  refuses rather than return a shortest ladder under `min_steps`. `eodermdrome` and
+  `chronogram` take `min_letters` (`too_short`).
+
+- Each row declares its `violation.rule` vocabulary (`rules` on the procedure class),
+  and `denckring.rules(procedure_id)` returns it, sorted. `multiple_constraint` passes
+  its constraints' violations through unchanged, so it answers with every other row's
+  vocabulary. A rule a shared helper can emit is declared only where the row's call
+  reaches it: `iambic_pentameter` declares no rhyme rule. Every rule a test or a golden
+  case emits must be declared, and every declared rule is proved emittable by a golden
+  case or a recorded witness. The ids are published but not yet under the stability
+  promise.
+
+- `denckring.rule_categories(procedure_id)` maps each of a row's rules to the kind of
+  failure it names, from a closed set `denckring.failure_categories()` defines:
+  `excluded_letter`, `inventory`, `word_choice`, `position`, `structure`, `count`,
+  `length`, `transcription`, `sound` and `unreadable`. One category per rule string,
+  the same on every row but one: `wrong_letter` is `position` on `acrostic` and
+  `telestich` and `transcription` on `slenderizing`, where the text departs from its
+  source. `multiple_constraint` answers with each rule's usual category. A test fails a
+  declared rule without one, an entry for a rule no row declares, and a row exception
+  that restates the default. Published under the rules' own terms: a category may move in a
+  minor release, and the changelog will say so.
+
+- Two catalogue flags for a caller building a transform prompt from a row, on `Meta`
+  and `describe`. `unique_answer` (on `boustrophedon`, `every_nth_word`, `fold_in`,
+  `haikuization`, `mathews_algorithm`, `slenderizing` and `text_folding`) says the
+  source and parameters fix the one text `check` passes; a test applies each row and
+  fails it if a dropped, added, swapped or changed word still passes.
+  `hidden_material` names the parameter or capability whose data decides the answer
+  and which a prompt does not carry: `n_plus_7`'s dictionary, a gloss lexicon, a
+  device, a figure, the proverb corpus. A row requiring nouns, glosses or proverbs
+  must declare it. `column_reading` carries `unique_answer` too, now that an appended
+  source word fails it (below, under Fixed).
+
+- `denckring.scope(procedure_id, *, lang="en", **params)` names the smallest unit a
+  row judges alone under its parameters: `word`, `line`, `sentence`, or `text` for no claim
+  (`denckring.scopes()` defines each). A word-scoped row passes a text of words if and
+  only if it passes each word alone, so `denckring.admits(procedure_id, word, ...)`
+  answers for the word wherever it is set, and `denckring.witness(procedure_id,
+  vocabulary, ...)` builds a passing text from the admitted words, proving parameters
+  above the golden defaults satisfiable. Fifteen rows are word-scoped (the lipograms,
+  the vowel and consonant rows, `tautogram`, `homoteleuton`, `beau_present`,
+  `heterogram` and others), five line-scoped (the fixed metres, `alliterative_verse`)
+  and two sentence-scoped; a row inferring a parameter is local only with it stated,
+  and `multiple_constraint` keeps the coarsest scope of its constraints. A test builds
+  texts from passing and failing golden units for every claim and fails any whose
+  verdict departs from its units'. `admits` and `witness` raise the new
+  `NotWordLocal` for any other row, naming the parameters to state where there are some.
+
+- `denckring.words(lang, *, max_band=None, letters_only=True)`: a pack's graded words
+  up to a band, commonest first, without the entries the pack excludes as no everyday
+  word. `denckring-en-data` ships the first such list, seven band-10 entries (`payed`,
+  `numbest`, `cs`, `hes`, `cums`, `leaved`, `re`); ADR 0051 records it as an editorial
+  override of SCOWL that touches the view only, never `graded_words()`, `is_word` or a
+  checker. `denckring.nouns(lang, *, max_band=None)` lists the dictionary N+7 walks by
+  default, in its order, and with `max_band` only its everyday nouns, so a prompt can
+  print the material its answer comes from. `BasePack` gains `words` and an optional
+  `word_exclusions`; the `LanguagePack` protocol is unchanged.
+
+- English word frequency (ADR 0052). `denckring-en-data` ships the count of each
+  graded word in the Leipzig Corpora Collection's `eng_news_2023_1M` (CC BY 4.0,
+  already among the distribution's licences), counted in lowercase so names in the
+  news do not rank common nouns. The pack declares the new `lexicon.frequency`
+  capability and answers `word_frequencies()`; `denckring.words(lang,
+  order="frequency")` sorts the everyday view by it, and any `order` but `band` or
+  `frequency` raises `ValueError`. No checker reads it. German and French have no
+  counts, and their refusal names no extra.
+
+- Every error class is importable from `denckring` itself and listed in its `__all__`:
+  `DenckringError` and its 23 subclasses, which `docs/api/errors.md` documented only
+  under `denckring.core.errors`, a path outside the stability promise.
+
+- `get_pack`, `LanguagePack` and `PosTag` are importable from `denckring`, and the README
+  lists the pack surface as a contract: a protocol method keeps its signature and
+  meaning, and a new one arrives as an optional member read with `getattr`.
+
+- `denckring.golden_cases(lang=None, *, runnable=True)` returns the shipped golden
+  examples as `denckring.GoldenCase`: text, params, recorded verdict, `provenance` and
+  case-level `requires`. `runnable` keeps the cases this install's packs can run, with
+  both the row's and the case's own requirements met.
+
+- `denckring.render_hint(procedure_id, template, *, lang="en", **params)` renders a
+  template the caller owns by `prompt_hint`'s rule, validating the params as `check`
+  does and refusing a placeholder that names no parameter. A field may declare how it
+  reads in a sentence with `x-denckring-show`; `letters` quotes each letter of a set,
+  so `consonantal_lipogram`'s hint now reads `these letters: "e", "t"` rather than
+  `the consonants in "et"`, and `bivocalic`'s does the same for its vowels. A German or
+  French hint quotes the letters in its own marks (`„e“, „t“`, `« e », « t »`). Under
+  `fold_diacritics` a letter is shown as the checker compares it: `forbidden="é"`
+  renders `e`, since every `e` fails.
+
+- `describe(...).reading.units` maps `line`, `clause` and `sentence` to the characters
+  that end each, as the checkers split them: a clause ends at `,`, `;`, `:` or a line
+  break, a sentence at `.`, `!`, `?` or `…`. A guard holds each entry to its splitter
+  over every character in the Basic Multilingual Plane.
+
+- `describe(...).reading` states the readings a count turns on (audit E6).
+  `word_examples` runs the word pattern on four probes, so a caller sees that an
+  apostrophe stays inside a word (`don't`, `l’âme`), a hyphen splits one (`well-known`
+  is two) and a digit is no part of one; `vowels` lists the letters `univocalic`,
+  `bivocalic`, `monoconsonantal` and `homovocalism` read as vowels, `y` among them in
+  French only. Both are derived from the pack, and tests hold them to what
+  `every_nth_word` and `univocalic` do.
+
+- `Report.estimated`: whether the verdict rests on anything estimated or left unjudged,
+  computed from `evidence` and the row's own count, and under the README's stability
+  promise. A caller deciding to leave a verdict unscored reads this rather than
+  `metrics["estimated_words"]`, which is not promised and which, row by row, misses
+  what `evidence` records (rhyme endings) or records what `evidence` does not (words
+  read from spelling in `proteus_verse` and `spoonerism`, unresolved glosses). Added
+  beside the other fields; none of them changes. `multiple_constraint` carries its
+  constraints' `evidence` and `estimated_words`, the latter only when some constraint
+  estimated, so a composite is estimated whenever a constraint in it is; its verdict
+  and score are unchanged. `Evidence` is importable from `denckring`.
+
+- Every params field declares its role and, for a string, its kind, in its JSON Schema:
+  `x-denckring-role` is one of `task`, `inferred` (unset means the checker reads it off
+  the text), `policy`, `leniency`, `switch`, `material`, `tolerance`, `budget` or
+  `apply_only`, and `x-denckring-kind` one of `letter`, `letters`, `vowel`, `vowels`,
+  `consonant`, `word`, `phrase`, `name`, `scheme`, `metre`, `digits`, `text`,
+  `document` or `id`. A `None` default no longer has to be read from prose to tell an
+  inferred parameter from a leniency or a default dictionary, and `forbidden` says
+  whether it is a letter, a set of letters or a word. Both sets are closed; guards hold
+  every field of every model to them and each kind to the values the golden corpus
+  passes. Which parameters a hint may leave unstated is now derived from the roles
+  (ADR 0050, amended): `core.hints.UNSTATED_PARAMS` is gone, and `hint_omits` names
+  only the two task parameters a hint still leaves out.
+
+- Schemas a caller can draw from, stating only what validation already refuses: the
+  JSON Schema of `calculator_word.digits` carries the `pattern` its validator applies
+  (digits a seven-segment display reads as letters), `proteus_verse.metre` and
+  `llull_figure.figure` an `enum` of the metres and figures they accept, and
+  `sonnet.scheme` a `minLength` of 14. `quenina.n` lists the sizes the form exists for
+  under `x-denckring-valid` (to 100), not as an `enum`, because any other size, zero
+  and negatives included, is accepted and fails as `invalid_size`. `rhyme_scheme`, `hemeling`, `sonnet`,
+  `syllable_count`, `assonance_constraint`, `rondeau`, `renga`, `calculator_word`
+  carry `examples`. The schemas are not enforced by pydantic, so no call that
+  succeeded fails; a test holds every validating keyword to refusing only what `check`
+  refuses, and every example to a value it accepts. No bound is stated beyond what
+  validation already enforces where the checker accepts every value that passes it:
+  `syllable_count.pattern` and `sonnet.metre` take any value, and
+  `assonance_constraint.minimum` and `rondeau.rentrement_words` keep their validated
+  minimums of 2 and 1.
+
+- `denckring.pack_provenance(lang)` returns which pack answers for a language and the
+  data distributions it reads, with their versions: the record `Report.provenance.pack`
+  carries, without checking a text first. `PackProvenance` is importable from
+  `denckring`.
+
+### Changed
+
+- `Meta.prompt_hints` holds templates (ADR 0050): a raw hint may contain
+  `{placeholder}`s naming the row's parameters, where it used to hold finished text
+  written for the default parameters. Read a hint through `prompt_hint` or
+  `describe`, which render it.
+
+- `provenance.schema_version` is `1.1` on every `Report` and `Production` (was `1.0`),
+  for the added `Report.estimated`, by its own rule: a minor step for an added field.
+  A test now ties each version to the keys `Report` and `Production` serialise. No
+  verdict or score moves.
+
+- A violation's `expected` text names a letter set letter by letter: `consonantal_lipogram`
+  says `none of "e", "t"` (was `any letter outside 'et'`) and `bivocalic` says
+  `one of "a", "e"` (was `ae`). Message wording is outside the stability promise; no
+  verdict, score or rule moves.
+
+- The sdist bound is raised from 1,050,000 to 1,150,000 bytes. This release's code,
+  tests and ADRs, not a data file, took the clean build to 1,060,716 bytes; the
+  smallest data file the bound exists to catch is now `frequencies.txt.gz` (202,997
+  bytes), so the bound still fails a build that ships it.
+
 ### Fixed
+
+- A device or figure id is read in its own case on every OS. On a case-insensitive
+  filesystem (macOS, Windows) `LLULL_TERNARY` found `llull_ternary.yaml`, so
+  `llull_figure` accepted an id that Linux refused; the lookup now matches the file's
+  listed name exactly.
+
+- `quenina` with `n` below 1 now fails. A negative size used to return `satisfied`
+  true with a score of 1.0 alongside an `invalid_size` violation, because the empty
+  spiral checked no stanza and the size was counted as matched lines. `n=0` already
+  failed. Now every size below 1 is unsatisfied with that one violation. No golden case
+  moves; all of them set `n` to 3.
+
+- `column_reading` fails a text with source words appended after the column. The
+  column followed by more source words returned `satisfied` true with a score of 1.0
+  alongside an `extra_words` violation, because the surplus never reached the score's
+  denominator; each extra word now counts against it. `haikuization` shares the check
+  but could not reach the case: a word after its last line end is not in the source, so
+  `not_in_source` already failed the text. On both rows a text that already fails with
+  surplus words now scores lower, since each surplus word joins the denominator (for
+  example 0.857 to 0.75); its verdict does not change. No golden verdict or score
+  moves; a new golden case holds the fix.
+
+- `assonance_constraint` names the same vowel in every process. When vowels tied for a
+  line's top count, the `no_repeated_vowel` violation named whichever a `set` iterated
+  first, so its `found` changed with `PYTHONHASHSEED`. It now names the tied vowel the
+  line reaches first. Message only: no verdict or score depends on which vowel is named.
+
+- Seventeen fixed forms accepted `unknown_rhyme` and ignored it: `ballade`, `blank_verse`,
+  `clerihew`, `curtal_sonnet`, `englyn`, `heroic_couplet`, `limerick`, `ottava_rima`,
+  `petrarchan_sonnet`, `rhyme_royal`, `rondeau`, `shakespearean_sonnet`, `sonnet`,
+  `spenserian_stanza`, `terza_rima`, `triolet` and `villanelle`. Each now passes it to its
+  rhyme check and declares `unknown_rhyme` among its rules. The default, `undecidable`, is
+  what they already did, so no default verdict moves; only a caller who sets the parameter
+  sees a change. Explicit `strict` fails a pair whose ending the dictionary lacks, and
+  explicit `free` lets that pair satisfy the scheme. `blank_verse` checks no scheme, so
+  there only `strict` changes anything: it fails a pair with an unknown ending, which
+  every other setting still reads as unrhymed.
+  One golden case already set `free` and was read as `undecidable`:
+  `villanelle-passerat` (French) now scores 0.994 instead of 0.980, and its verdict,
+  unsatisfied for a broken refrain, is unchanged.
+
+- `consonantal_lipogram` folds its `forbidden` letters the way it folds the text, as
+  `lipogram` has since ADR 0035 D3. `forbidden="ç"` never matched a folded letter, so
+  any French text was satisfied; it now fails on every `c` and `ç`. A letter that folds
+  to two (`ß`) is refused with `invalid_params`, naming `fold_diacritics=false` (ADR 0035
+  D4); before, it passed every text.
+
+- `boustrophedon` compares a turned line stripped and casefolded, as it already compared
+  every line for missing or invented material. Byte for byte, a trailing space or an
+  indent on a turned line was `line_not_turned` while the same space on an unturned
+  line passed.
+
+- `text_folding` and `fold_in` hold the same line policy: a line in its folded
+  position is compared stripped and casefolded. Byte for byte, a trailing space, an
+  indent or a capital on a correctly folded line was `line_out_of_fold` or
+  `not_the_fold`.
+
+- English syllable estimates read a suffixed silent `e`. The spelling heuristic drops the
+  `e` of a final `-es` or `-ed` after a consonant (`awakes` 2, `hoped` 1), but not after
+  a sibilant (`faces`), `-ed` after `t`/`d` (`wanted`), or a consonant and a liquid
+  (`tables`, `hundred`); its agreement with CMUdict rises from 83.4% to 87.0%. That is
+  a net gain, not a pure one: 450 words that read right before now read a syllable
+  short, mostly `-ires`, `-ired`, `-ates` and adjectival `-ed` (`tired`, `fires`,
+  `naked`, `wicked`, `affiliates`), against 4,626 that read right only now. With
+  `denckring[en]` those words are dictionary-exact and unaffected; the cost falls on
+  core-only installs and on words the dictionary and its stems both lack. With
+  `denckring[en]`, an `-s`/`-es` form CMUdict lacks (`awakes`) is read through its
+  stem (`awake`, plus a syllable after a sibilant). Read the same way, the 13,973
+  such forms CMUdict does hold agree with it on 98.9%. Both stay estimates and count
+  in `estimated_words`. Two golden
+  cases keep their verdicts with fewer length violations: Chaucer's rhyme royal
+  (score 0.8974 to 0.9318) and Spenser's stanza (0.9688 to 0.9718, line 4 now failing on
+  stress rather than length).
+
+- `slenderizing` and `every_nth_word` place every violation. `wrong_letter`,
+  `wrong_word`, `extra_letters` and `extra_words` carried `offset=None` although the
+  checker had the spans; they now carry the offset of the text's letter or word, and a
+  letter or word missing from the end is placed at the end of the text, `len(text)`.
+  `column_reading` and `haikuization` place a missing line word the same way instead
+  of `None`. `Violation.offset` documents the convention: `len(text)` means "at the
+  end", so `text[offset]` is not always a valid index.
+
+### Docs
+
+- The README's stability promise names its Python surface: the names `denckring`
+  exports, from that path. The functions and models that 0.3.1 exported, the error
+  classes (name, place under `DenckringError`, `code`) and the pack surface (`get_pack`,
+  `LanguagePack`, `PosTag`) are under it, and so is `Report.estimated`, with
+  `provenance.schema_version` at `1.1`. The rest is listed as published but not yet
+  promised: `rules`, `rule_categories` and `failure_categories`; `Report.evidence` and
+  `Evidence`, planned for the promise in 0.4.0 with the rule ids; the `unique_answer`,
+  `hidden_material` and `hint_omits` flags; `prompt_hint` and `render_hint`, whose hint
+  wording is catalogue text; `golden_cases` and `GoldenCase`; `scope`, `scopes`,
+  `admits` and `witness`; `words` and `nouns`; `pack_provenance` and `PackProvenance`;
+  and `describe`'s `reading` with its `units`, `word_examples` and `vowels`. The API pages document every export from
+  `denckring` rather than from `denckring.core`, adding `apply`, `produce`, `Production`
+  and six error classes they had left out. A test fails an export the API pages do not
+  document from the top level, or the README does not classify.
+
+- `deterministic` is documented, on `Meta` and in the README: it is a catalogue claim
+  about the form's output (false where chance or the writer decides, as in a cut-up),
+  not about `check`, which is deterministic on every row, and not derived from `apply`,
+  so a generator that draws is found by its `seed` parameter rather than by the flag.
+
+- `consonantal_lipogram` is documented as the checker reads it: a lipogram over any set
+  of letters, vowels included. Its `forbidden` description and English hint say
+  "letters", a catalogue note says the form's consonant group is its case and not the
+  checker's limit, and two golden cases forbid `ae`. The checker is unchanged, and
+  narrowing it to consonants would now need a deprecation.
 
 - Reword 18 English prompt hints whose literal reading fails their own checker. The
   anaphora and epistrophe hints say where a clause ends (every comma, semicolon,
@@ -50,11 +359,69 @@ All notable changes to this project are documented here. The format follows
   for English hints.
   Checkers and fixtures are unchanged.
 
+- The hint audit extended to the transform rows, `quenina` and the prosodic rows:
+  30 English hints reworded to state the rule their checker applies. The transforms
+  say how to derive the one answer: `haikuization` takes each line's last word (it
+  said "rhyming words"), `every_nth_word` keeps the words numbered by multiples of `n`,
+  `boustrophedon` turns the even-numbered lines character by character,
+  `slenderizing` copies the source without the letter (it said "read what the
+  remaining letters now say"), `mathews_algorithm` rotates passages, not columns, and
+  `column_reading`, `text_folding`, `fold_in`, `n_plus_7` and `s_plus_7` state their
+  order and wrap-around; `quenina` gives the spiral order. Fixed forms state the line
+  count, scheme, metre and refrains their checker holds them to: `ottava_rima` and
+  `rhyme_royal` are one stanza, not several; `curtal_sonnet` has eleven full lines,
+  not ten and a half; `englyn` rhymes all four lines rather than "consonant
+  patterning"; `ballade`, `petrarchan_sonnet`, `shakespearean_sonnet`,
+  `spenserian_stanza`, `rondeau`, `triolet` and `villanelle` give their schemes and
+  refrain lines; `sapphic_stanza`, `alcaic_stanza`, `dactylic_hexameter`,
+  `elegiac_couplet` and `double_dactyl` their stress patterns; `haibun`, `renga` and
+  `ghazal` the order and the lines their checker reads. The word-counting transforms
+  say that a hyphenated word counts as two, as the tokenizer reads it. Checkers are
+  unchanged.
+
+- Twenty-three German and French hints, written where the checker runs in the
+  language and what it reads there is certain. German: `lipogram`,
+  `lipogrammatic_translation`, `tautogram`, `pangram`, `beau_present`, `boustrophedon`,
+  `column_reading`, `fold_in`, `haikuization`, `mathews_algorithm` and `text_folding`.
+  French: `lipogram`, `lipogrammatic_translation`, `consonantal_lipogram`, `liponym`,
+  `pangram`, `beau_present`, `column_reading`, `every_nth_word`, `haikuization`,
+  `mathews_algorithm`, `quenina` and `slenderizing`. The lipogram hints say how a
+  letter folds (`ä` as `a`, `ß` as `ss`, `é` and `ë` as `e`, `ç` as `c`), and the
+  French hints that count or pick words (`every_nth_word`, `column_reading`,
+  `haikuization`, `mathews_algorithm`, `quenina`) that an elided word counts with the
+  word it precedes. Counts are worded to read correctly at 1. Rows are left without a
+  hint where a translation would have to settle something open: `univocalic` (`y` is a
+  vowel in French and not in German), `heterogram` and the anagram rows (`ß` folds to
+  two letters), `palindrome`, `acrostic` and `telestich` (their `unit` renders as an
+  English word), the snowballs (what counts as a letter waits on the 0.4.0 reading),
+  `word_ladder`, the N+7 rows, and the rhyme and metre rows.
+
+- Every parameter defaulting to `None` says in its description what unset means:
+  `bivocalic.vowels`, `monoconsonantal.consonant`, `serial_lipogram.start` and
+  `snowball_sentence.start` are inferred, as their siblings already said; `seed` draws
+  afresh; `arca_musarithmica.tonus` checks no mode; `ideenwuerfeln.headword` takes any
+  entry; the `domain` and `splice_lang` fields and `word_ladder.target` say what they
+  fall back to. A test holds every field of every params model to it. The API docs
+  gain a section on how a checker reads text.
+
 - Correct S+7's English, German and French definitions to the noun-displacement
   procedure documented by Oulipo (#23). Cite its public account and distinguish
   the base form from configurable word-list and offset extensions in the notes.
   Both IDs and their shared behavior remain unchanged. Remove the wording guard
   that required the earlier, inaccurate generalisation.
+
+- English `graded_words()` and `is_word` are documented as differing on purpose. The
+  graded table is SCOWL's size classes (ADR 0028) and includes words that are not
+  in the membership oracle: verbs and adjectives such as `abjure`, and band-10 junk such as
+  `payed` and `numbest`. The oracle stays WordNet's nouns plus CMUdict's headwords
+  (ADR 0015). The pack docstrings and the pack API page say so, and a test holds the
+  rule that every graded word the oracle refuses is in neither of its sources. Verdicts
+  are unchanged.
+
+- ADR 0053 records why no pronunciation supplement ships for the five band-10 words
+  CMUdict lacks (`deeming`, `inclining`, `inputted`, `inputting`, `sophisticating`):
+  no licensed source holds them, and adding them would widen `is_word` and move
+  verdicts. Their syllable counts are already right, as estimates.
 
 ## [0.3.1] - 2026-09-22
 

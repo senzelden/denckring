@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
@@ -12,9 +13,15 @@ from denckring.core.text import word_spans
 
 class SnowballParams(BaseModel):
     start: int | None = Field(
-        default=None, description="Length of the first word; inferred if unset."
+        default=None,
+        description="Length of the first word; inferred if unset.",
+        json_schema_extra=param("inferred"),
     )
-    step: int = Field(default=1, description="Letters added per word; negative to shrink.")
+    step: int = Field(
+        default=1,
+        description="Letters added per word; negative to shrink.",
+        json_schema_extra=param("task"),
+    )
 
 
 def rhopalic_violations(
@@ -46,6 +53,7 @@ class Snowball(BaseProcedure[SnowballParams]):
     """Ausonius's rhopalic line, growing one letter at a time."""
 
     id = "snowball"
+    rules = ("wrong_word_length",)
 
     @classmethod
     def params_model(cls) -> type[SnowballParams]:

@@ -17,12 +17,16 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
 
 class KangarooWordParams(DiacriticParams):
-    synonym: str = Field(description="The synonym the word is claimed to carry.")
+    synonym: str = Field(
+        description="The synonym the word is claimed to carry.",
+        json_schema_extra=param("task", "word"),
+    )
 
 
 def _in_order(needle: str, haystack: str) -> bool:
@@ -35,6 +39,7 @@ class KangarooWord(BaseProcedure[KangarooWordParams]):
     """The decidable half of the form: a real word, hidden in order, not itself."""
 
     id = "kangaroo_word"
+    rules = ("not_a_word", "synonym_is_the_word", "synonym_not_in_order")
 
     @classmethod
     def params_model(cls) -> type[KangarooWordParams]:

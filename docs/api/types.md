@@ -1,19 +1,39 @@
 # Types
 
-The models `check` and `describe` return.
+The models `check`, `produce` and `describe` return, documented from `denckring`
+itself, the import path under the README's stability promise. Where they are defined,
+under `denckring.core`, is not.
 
 ## Checking
 
-::: denckring.core.protocol.Report
+::: denckring.Report
 
-::: denckring.core.protocol.Violation
+::: denckring.Violation
 
-::: denckring.core.protocol.Meta
+::: denckring.Evidence
+
+## Producing
+
+::: denckring.Production
 
 ## Describing
 
-::: denckring.core.describe.Description
+::: denckring.Meta
 
-::: denckring.core.describe.Summary
+::: denckring.Description
 
-::: denckring.core.describe.Scholarly
+::: denckring.Summary
+
+::: denckring.Scholarly
+
+::: denckring.Lang
+
+## Language data
+
+::: denckring.PackProvenance
+
+::: denckring.PosTag
+
+## The golden corpus
+
+::: denckring.GoldenCase

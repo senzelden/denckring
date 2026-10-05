@@ -7,21 +7,31 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import clause_spans, line_spans
 
 
 class EpistropheParams(BaseModel):
-    closing: str | None = Field(default=None, description="Shared closing; inferred if unset.")
+    closing: str | None = Field(
+        default=None,
+        description="Shared closing; inferred if unset.",
+        json_schema_extra=param("inferred", "phrase"),
+    )
     #: The figure's most quoted instance — "of the people, by the people, for the
     #: people" — is three clauses inside one line, so by lines there is nothing to
     #: compare. `line` stays the default because no existing verdict may move.
     unit: Literal["line", "clause"] = Field(
-        default="line", description="Whether the repetition is counted per line or per clause."
+        default="line",
+        description="Whether the repetition is counted per line or per clause.",
+        json_schema_extra=param("task"),
     )
     minimum: int | None = Field(
-        default=None, ge=1, description="How many units must share the closing; all, if unset."
+        default=None,
+        ge=1,
+        description="How many units must share the closing; all, if unset.",
+        json_schema_extra=param("leniency"),
     )
 
 
@@ -30,6 +40,7 @@ class Epistrophe(BaseProcedure[EpistropheParams]):
     """Anaphora read from the other end."""
 
     id = "epistrophe"
+    rules = ("wrong_closing",)
 
     @classmethod
     def params_model(cls) -> type[EpistropheParams]:

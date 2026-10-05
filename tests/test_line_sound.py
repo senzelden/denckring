@@ -1,5 +1,9 @@
 """Two form rows that constrain sound inside the line rather than across lines."""
 
+import os
+import subprocess
+import sys
+
 from denckring import check
 
 ALLITERATIVE = """in a summer season when soft was the sun
@@ -45,3 +49,38 @@ def test_assonance_skips_a_word_missing_from_the_pronouncing_dictionary() -> Non
     """
     report = check("assonance_constraint", "the rain in spain flurbish mainly plain")
     assert report.metrics["estimated_words"] >= 1
+
+
+# Two lines whose words each carry more than one vowel, so every vowel ties at one
+# word: a tie-break in set order named a different vowel under each hash seed.
+_TIED = "Sommer Blume\nweiter"
+_REPORT = (
+    "from denckring import check; "
+    f"print(check('assonance_constraint', {_TIED!r}, lang='de').model_dump_json())"
+)
+
+
+def test_assonance_breaks_a_tie_the_same_way_under_every_hash_seed() -> None:
+    """R-F2: `check` is deterministic across processes, as the README promises, not only
+    within one. Each run is a fresh interpreter with its own `PYTHONHASHSEED`."""
+    reports = [
+        subprocess.run(
+            [sys.executable, "-c", _REPORT],
+            # UTF-8 both ways: the report carries IPA (`ɔ`), which a Windows
+            # console's cp1252 cannot print.
+            env={**os.environ, "PYTHONHASHSEED": seed, "PYTHONIOENCODING": "utf-8"},
+            capture_output=True,
+            encoding="utf-8",
+            check=True,
+        ).stdout
+        for seed in ("0", "1")
+    ]
+    assert reports[0] == reports[1]
+
+
+def test_assonance_names_the_first_tied_vowel_of_the_line() -> None:
+    """The tie-break is reading order: of the vowels sharing the top count, the one the
+    line reaches first (`Sommer`'s, before `Blume`'s)."""
+    report = check("assonance_constraint", _TIED, lang="de")
+    found = [violation.found for violation in report.violations]
+    assert found == ["1 on 'ɔ'", "1 on 'a'"]

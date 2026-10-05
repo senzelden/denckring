@@ -65,6 +65,11 @@ class Violation(BaseModel):
     """One place where a text fails a procedure."""
 
     rule: str
+    #: Where in the checked text, as a character index. `len(text)` means "at the
+    #: end": something the text ran out before supplying (a missing tail in
+    #: `every_nth_word`, `slenderizing`, `column_reading`, `haikuization`), placed
+    #: where it would go, so `text[offset]` is not always a valid index. `None`
+    #: means the violation has no place in the text (`missing_part`).
     offset: int | None = None
     found: str
     expected: str
@@ -80,10 +85,12 @@ class Evidence(BaseModel):
     auditor deciding whether to trust the verdict, needs the second thing.
 
     `basis` is a closed set rather than a confidence score. The pack knows whether
-    a count came out of a dictionary or out of a spelling heuristic, and that is
-    the whole of what it knows; attaching `0.94` to it would invent a precision no
-    measurement here supports, which is what the review that asked for this
-    warned against in its own last paragraph.
+    a count came out of a dictionary or was estimated, and that is the whole of
+    what this field says. English has two estimates since 0.3.2, the spelling
+    heuristic and a reading through a dictionary stem (`awakes` from `awake`),
+    and both report `estimated` without saying which. Attaching `0.94` to either
+    would invent a precision no measurement here supports, which is what the
+    review that asked for this warned against in its own last paragraph.
 
     `scope` exists because the answer is not always about a word. French counts a
     *line* — a final mute e elides or counts depending on what follows, so summing
@@ -126,6 +133,34 @@ class Report(BaseModel):
     #: stamp is applied once in `BaseProcedure.check` rather than in each of the
     #: hundred and twenty-two places a report is constructed.
     provenance: Provenance | None = None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def estimated(self) -> bool:
+        """Whether the verdict rests on anything this install estimated or left unjudged.
+
+        The one signal a caller deciding to leave a verdict unscored should read (audit
+        B8). Until 0.3.2 it had two places to look and neither was enough alone:
+        `metrics["estimated_words"]` is not under the stability promise, and on some
+        rows counts what no `Evidence` records (`proteus_verse` and `spoonerism` count
+        words read from spelling, `definitional_expansion` words no gloss resolved);
+        `evidence` records what the metric does not (the rhyme endings of `clerihew`
+        and `rondeau`, which report no such metric). True when either says so. A word
+        left unjudged counts: `definitional_expansion` scores only the words its
+        glosses resolve, so its verdict covers less of the text than it reads as
+        covering, though `describe` calls its reading exact. `multiple_constraint`
+        carries its constraints' evidence and counts, so a composite is estimated
+        when any constraint inside it is.
+
+        Computed, not stored, so it cannot disagree with the report it describes,
+        and added beside the other fields rather than changing any of them. It reads
+        a metrics key the library owns; a caller reads this instead. N+7's
+        `ambiguous_words` is not an estimate: it counts words a reading policy
+        (`ambiguous_nouns`) decides, and the verdict states that policy.
+        """
+        return any(item.basis == "estimated" for item in self.evidence) or (
+            self.metrics.get("estimated_words", 0.0) > 0
+        )
 
     @model_validator(mode="after")
     def _satisfied_matches_score(self) -> Report:
@@ -262,14 +297,42 @@ class Meta(BaseModel):
     #: optional half, and this is the field that lets the optional half be
     #: honest about its own cost.
     apply_requires: tuple[str, ...] = Field(default_factory=tuple)
+    #: Whether the form, as catalogued, fixes its output: false where it leaves the
+    #: result to chance or to the writer (`cut_up`, `homophonic_translation`). A claim
+    #: about generation, read from the form's definition rather than derived from this
+    #: install's `apply`: most implemented rows marked false have no generator, and
+    #: rows whose `apply` draws from a `seed` are not all marked false
+    #: (`arca_musarithmica` and `denckring` are true). It says nothing about `check`,
+    #: which is deterministic on every row: the same text, language and parameters give
+    #: the same `Report` (`tests/test_invariants.py`). To know whether a generator
+    #: draws, look for `seed` among its apply params; the same seed repeats the draw.
     deterministic: bool = True
+    #: Whether `check` passes one text for a given source and parameters: the text
+    #: `apply` returns, as the checker reads it (case and spacing aside). True for the
+    #: rows that compute their answer from the source (`every_nth_word`,
+    #: `slenderizing`), false where the writer chooses (`anagram`, `cut_up`). A caller
+    #: grading a transform can then score against one answer (audit C4).
+    #: `n_plus_7` is false: its default `ambiguous_nouns="free"` accepts a listed word
+    #: left unchanged, so more than one text passes. `tests/test_suitability.py`
+    #: holds each row flagged true to failing every text that differs in its words.
+    unique_answer: bool = False
+    #: Material a verdict depends on that the reader of a prompt cannot see unless the
+    #: caller prints it: a parameter whose default is shipped data (`n_plus_7`'s
+    #: `dictionary`, the pack's whole noun list; `denckring`'s `device`), or a
+    #: required capability whose data decides the answer (`lexicon.glosses`). Each
+    #: entry names the parameter or the capability. A prompt asking for such a row
+    #: either supplies its own material and prints it, or is asking for an answer no
+    #: writer can derive (audit C4).
+    hidden_material: tuple[str, ...] = Field(default_factory=tuple)
     #: `str.format` templates over the row's parameters (ADR 0050). Read them
     #: through `denckring.prompt_hint`, or `describe`, never raw: a raw hint may
     #: still hold a `{placeholder}`.
     prompt_hints: dict[Lang, str] = Field(default_factory=dict)
-    #: Parameters this row's hints deliberately do not state, each with its
-    #: reason. Beside `core.hints.UNSTATED_PARAMS`, which holds the house-wide ones;
-    #: anything in neither must appear in every hint (ADR 0050).
+    #: Task parameters this row's hints deliberately do not state, each with its
+    #: reason. Every other unstated parameter is excused by its role
+    #: (`x-denckring-role`, `core.hints.unstated`), so this names only what a role
+    #: cannot explain; anything a role does not excuse and this does not name must
+    #: appear in every hint (ADR 0050).
     hint_omits: dict[str, str] = Field(default_factory=dict)
     #: Contested figures, reception history and caveats — anything true about the
     #: entry that is not part of what the procedure *is*. Keeping it out of

@@ -16,6 +16,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.fields import param
 from denckring.core.prosody import scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -29,7 +30,10 @@ LINES = 13 + len(RENTREMENT_LINES)
 
 class RondeauParams(RhymeParams):
     rentrement_words: int = Field(
-        default=3, ge=1, description="How many opening words the rentrement repeats."
+        default=3,
+        ge=1,
+        description="How many opening words the rentrement repeats.",
+        json_schema_extra=param("task", examples=[2, 3, 4]),
     )
 
 
@@ -38,6 +42,15 @@ class Rondeau(BaseProcedure[RondeauParams]):
     """Two rhymes across thirteen lines, plus two unrhymed rentrements."""
 
     id = "rondeau"
+    rules = (
+        "broken_rentrement",
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[RondeauParams]:
@@ -79,7 +92,7 @@ class Rondeau(BaseProcedure[RondeauParams]):
             line for index, line in enumerate(lines) if index not in RENTREMENT_LINES
         )
         found, matched, checks, _estimated, rhymes = scheme_violations(
-            rhyming, pack, SCHEME, allow_identical=False
+            rhyming, pack, SCHEME, allow_identical=False, unknown_rhyme=params.unknown_rhyme
         )
         return self._report(
             good=good + matched,

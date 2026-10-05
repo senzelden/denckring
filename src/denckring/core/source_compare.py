@@ -31,6 +31,68 @@ from denckring.core.text import letter_spans, word_spans
 LetterClass = Literal["consonants", "vowels"]
 
 
+def unchanged(
+    text: str,
+    source: str,
+    pack: LanguagePack,
+    *,
+    allow: bool,
+    alternative: Callable[[], bool],
+    fold: bool = True,
+) -> list[Violation]:
+    """`[unchanged]` when `allow` is false, `text` is `source` itself, and the
+    source admits a different correct answer; else `[]`.
+
+    `alternative` is each row's own answer to the last clause (ruling R-U2a). A
+    one-sentence `recombination` or a one-word `cut_up` has no answer but the
+    copy, and refusing it there would make the instance unsatisfiable rather than
+    catch a trivial pass. Called only when the rest already holds, so a row pays
+    for its predicate only on a refused copy. Required, not defaulted, so a new
+    caller has to say what its rule leaves open.
+
+    A copy is the source's letters in the source's order, so case, spacing and
+    punctuation do not make a text new — the comparison `antigram` makes. Its
+    rule name is kept, and its wording but for "rearrangement", which is
+    antigram's alone. A list, so a caller adds its length to the
+    total and the copy costs one unit of score: `_report` reads a score of 1.0 as
+    satisfied, and a violation must never sit beside one.
+
+    `fold` is the row's own `fold_diacritics` where it has one. A row without it
+    compares words casefolded only, and passes `fold=False` to match.
+    """
+    if allow:
+        return []
+    if [ch for _, ch in letter_spans(text, pack, fold=fold)] != [
+        ch for _, ch in letter_spans(source, pack, fold=fold)
+    ]:
+        return []
+    if not alternative():
+        return []
+    return [
+        Violation(
+            rule="unchanged",
+            offset=None,
+            found=text.strip(),
+            expected="a change to the source, not the source itself",
+        )
+    ]
+
+
+def several_words(source: str, pack: LanguagePack) -> bool:
+    """The `alternative` of the rows whose answer is a selection of the source's
+    words (`cut_up`, `melting_text`, `diastic`, `mesostic`).
+
+    One word of a passing copy, alone, is a different answer on each, and needs a
+    second word to leave out: any word for `cut_up` and `melting_text`; for
+    `diastic` the first, which carries the seed's first letter where the copy
+    did; for `mesostic` the word of the copy's first line that carries the
+    spine's first letter, as a line of its own (only as many lines as the text
+    has are checked). An empty text is no alternative: it is the
+    degenerate output `apply` refuses, whatever some checkers score it.
+    """
+    return len(word_spans(source, pack)) >= 2
+
+
 class ClassResult(NamedTuple):
     violations: list[Violation]
     good: int
@@ -186,8 +248,13 @@ def positional_report(
     *,
     rule: str,
     note: Callable[[int, str], str],
+    end: int,
 ) -> ClassResult:
     """Whether `chosen` is exactly the words the source's positional rule produces.
+
+    `end` is the checked text's length: a word the text runs out before is
+    placed there, at the end where it would go, as `every_nth_word` and
+    `slenderizing` place theirs (`Violation.offset`).
 
     The fourth shape, and a sibling of `selection_report` rather than a variant of
     it: that one asks only whether each chosen word occurs in the source in order,
@@ -215,7 +282,7 @@ def positional_report(
             violations.append(
                 Violation(
                     rule=rule,
-                    offset=chosen[index][0] if index < len(chosen) else None,
+                    offset=chosen[index][0] if index < len(chosen) else end,
                     found=chosen[index][1] if index < len(chosen) else "",
                     expected=word,
                     note=note(index, word),
@@ -230,4 +297,7 @@ def positional_report(
                 expected="",
             )
         )
-    return ClassResult(violations, good, len(expected))
+    # Each surplus word counts against the total. Counting only `expected` once let
+    # `column_reading` pass a text with source words appended, satisfied beside its own
+    # `extra_words` violation (R-F1).
+    return ClassResult(violations, good, max(len(expected), len(chosen)))

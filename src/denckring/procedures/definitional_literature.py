@@ -159,6 +159,7 @@ class DefinitionalLiterature(BaseProcedure[DefinitionalLiteratureParams]):
     rounds as the text turns out to have taken."""
 
     id = "definitional_literature"
+    rules = ("not_expanded",)
 
     @classmethod
     def params_model(cls) -> type[DefinitionalLiteratureParams]:

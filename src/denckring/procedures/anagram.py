@@ -14,15 +14,22 @@ from denckring.core.base import (
     ApplyParams,
     ConstructiveProcedure,
     DiacriticParams,
+    IdentityParams,
     SourceParams,
 )
 from denckring.core.errors import InputTooLong
+from denckring.core.fields import param
 from denckring.core.protocol import Candidate, LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import letter_spans
 
 
-class AnagramParams(SourceParams, DiacriticParams):
+class LetterRearrangementParams(SourceParams, DiacriticParams):
+    """What `anagram` and `antigram` share. `antigram` stops here: it refuses its
+    source unconditionally, so `allow_identity` there would be a switch that
+    does nothing."""
+
     # On the check model rather than the apply model so both halves see it: the
     # convention it names is what counts as a valid anagram, and a generator
     # working to one rule while the checker judged by another is exactly the
@@ -33,19 +40,26 @@ class AnagramParams(SourceParams, DiacriticParams):
             "Accept a transposal — a candidate built from some of the source's "
             "letters rather than all of them. Surplus letters are refused either way."
         ),
+        json_schema_extra=param("leniency"),
     )
 
 
-class AnagramApplyParams(AnagramParams, ApplyParams):
+class AnagramParams(LetterRearrangementParams, IdentityParams):
+    pass
+
+
+class AnagramApplyParams(ApplyParams, AnagramParams):
     max_words: int = Field(
         default=3,
         ge=1,
         description="How many words a cover may use.",
+        json_schema_extra=param("apply_only"),
     )
     min_word_length: int = Field(
         default=2,
         ge=1,
         description="Shortest word a cover may use, which is what keeps orphan letters out.",
+        json_schema_extra=param("apply_only"),
     )
     # `le=60` matches `MAX_BAND` in the build script: nothing above band 60 is
     # shipped, so without a ceiling `max_size=70` would silently mean 60 — a
@@ -60,6 +74,7 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
             "common words; 60 is the largest SCOWL states it is confident carries "
             "no misspellings, and the largest this package ships."
         ),
+        json_schema_extra=param("apply_only"),
     )
     # Measured against the shipped list at `max_words=3`, `min_word_length=2`:
     # `listen` exhausts in 2,994 nodes, `dormitory` in 7,958, `astronomer` in
@@ -77,6 +92,7 @@ class AnagramApplyParams(AnagramParams, ApplyParams):
         default=1_000_000,
         ge=1,
         description="Search nodes to visit before stopping and reporting truncation.",
+        json_schema_extra=param("budget"),
     )
 
 
@@ -141,6 +157,7 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
     """
 
     id = "anagram"
+    rules = ("empty_transposal", "missing_letter", "surplus_letter", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[AnagramParams]:
@@ -180,7 +197,21 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
         # Not guarded when the source is letterless too: two texts with no
         # letters agree vacuously, the same carve-out `displacement_report`
         # makes for a candidate and a source that are both wordless.
-        return self._report(good=shared, total=total, violations=violations, metrics=metrics)
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # Another order needs two different letters; a transposal may also
+            # leave one out, which needs two letters of any kind.
+            alternative=lambda: (
+                sum(source.values()) >= 2 if params.allow_subset else len(source) >= 2
+            ),
+            fold=fold,
+        )
+        return self._report(
+            good=shared, total=total + len(copy), violations=violations + copy, metrics=metrics
+        )
 
     #: The letter count past which the cover search is not worth starting. The
     #: candidate pool grows with the number of lexicon words that fit inside the

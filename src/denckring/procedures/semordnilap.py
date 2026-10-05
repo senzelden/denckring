@@ -19,6 +19,8 @@ class Semordnilap(BaseProcedure[SemordnilapParams]):
     """Unlike a palindrome, the reversal must be a *different* word."""
 
     id = "semordnilap"
+    rules = ("palindrome_not_semordnilap", "reversal_is_not_a_word")
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[SemordnilapParams]:

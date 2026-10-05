@@ -1,7 +1,8 @@
 # denckring-en-data
 
-English pronunciation data for [denckring](https://github.com/senzelden/denckring):
-exact syllable counts, and the phoneme tails that rhyme checking will need.
+English data for [denckring](https://github.com/senzelden/denckring): exact syllable
+counts and rhyme from a pronouncing dictionary, and the nouns, glosses, graded words and
+word frequencies the lexicon rows read.
 
 ```console
 pip install denckring[en]
@@ -35,6 +36,14 @@ installation nor use touches the network:
   band is the point: `room` at 10 and `tinsel` at 35 are equally words, and only one
   of them is a common one, which is what a word list built for membership alone
   cannot say. `scripts/build_graded_words.py` regenerates it.
+  `everyday_exclusions.txt` is this project's own: seven band-10 entries (`payed`,
+  `numbest`, `cs`, …) that `denckring.words()` leaves out of its everyday view, each
+  with its reason. The graded table itself keeps them (ADR 0051).
+- The Leipzig Corpora Collection's `eng_news_2023_1M`, under CC BY 4.0 — see
+  `LICENSE-LEIPZIG`. `frequencies.txt.gz` holds 49,631 of the graded words, each with
+  how often it occurs in lowercase in a million sentences of 2023 news: a frequency,
+  where SCOWL's bands are size classes. `scripts/build_frequencies.py` regenerates it
+  from a pinned download (ADR 0052).
 
 The code in this package is Apache-2.0, like denckring itself. The data is not — see
 `NOTICE` for which file carries which terms.

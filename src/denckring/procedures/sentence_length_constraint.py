@@ -7,6 +7,7 @@ import re
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 
@@ -14,8 +15,14 @@ SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
 class SentenceLengthConstraintParams(BaseModel):
-    words: int = Field(description="Words each sentence must contain.")
-    tolerance: int = Field(default=0, description="Permitted departure in either direction.")
+    words: int = Field(
+        description="Words each sentence must contain.", json_schema_extra=param("task")
+    )
+    tolerance: int = Field(
+        default=0,
+        description="Permitted departure in either direction.",
+        json_schema_extra=param("tolerance"),
+    )
 
 
 @register
@@ -23,6 +30,8 @@ class SentenceLengthConstraint(BaseProcedure[SentenceLengthConstraintParams]):
     """Every sentence within tolerance of the target word count."""
 
     id = "sentence_length_constraint"
+    rules = ("wrong_sentence_length",)
+    local_scope = "sentence"
 
     @classmethod
     def params_model(cls) -> type[SentenceLengthConstraintParams]:

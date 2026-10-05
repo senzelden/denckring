@@ -8,14 +8,21 @@ from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.errors import InvalidParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, line_spans, single_letter, word_spans
 
 
 class AbecedarianParams(DiacriticParams):
-    unit: Literal["line", "word"] = Field(default="line", description="What carries a letter.")
-    start: str | None = Field(default=None, description="First letter; inferred if unset.")
+    unit: Literal["line", "word"] = Field(
+        default="line", description="What carries a letter.", json_schema_extra=param("task")
+    )
+    start: str | None = Field(
+        default=None,
+        description="First letter; inferred if unset.",
+        json_schema_extra=param("inferred", "letter"),
+    )
 
     @field_validator("start")
     @classmethod
@@ -32,6 +39,7 @@ class Abecedarian(BaseProcedure[AbecedarianParams]):
     """The initials run A, B, C — the alphabet used as a spine."""
 
     id = "abecedarian"
+    rules = ("wrong_initial",)
 
     @classmethod
     def params_model(cls) -> type[AbecedarianParams]:

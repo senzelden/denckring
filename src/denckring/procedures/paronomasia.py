@@ -55,6 +55,7 @@ from pydantic import Field, model_validator
 from denckring.core import domain as domains
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import InvalidParams, MissingCapability, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.phonetics import (
     bare_phonemes,
     cannot_be_within,
@@ -166,12 +167,14 @@ class ParonomasiaParams(SourceParams):
         ge=0.0,
         le=1.0,
         description="The closest a displacement may sound to the word it replaces.",
+        json_schema_extra=param("tolerance"),
     )
     max_distance: float = Field(
         default=0.5,
         ge=0.0,
         le=1.0,
         description="The furthest a displacement may sound from the word it replaces.",
+        json_schema_extra=param("tolerance"),
     )
     max_displacements: int = Field(
         default=1,
@@ -180,6 +183,7 @@ class ParonomasiaParams(SourceParams):
             "How many words of the phrase may be displaced. Above one, the "
             "original grows harder to hear behind the pun."
         ),
+        json_schema_extra=param("task"),
     )
     unknown_word: Literal["undecidable", "free", "strict"] = Field(
         default="undecidable",
@@ -187,6 +191,7 @@ class ParonomasiaParams(SourceParams):
             "How to read a word absent from the pronouncing dictionary: report "
             "it, accept it unchecked, or refuse it."
         ),
+        json_schema_extra=param("policy"),
     )
 
     @model_validator(mode="after")
@@ -207,8 +212,10 @@ class ParonomasiaApplyParams(ParonomasiaParams, ApplyParams):
         default=None,
         description=(
             "A trade whose vocabulary should win: bakery, hair, optician. Its "
-            "words are offered before any others at the same distance."
+            "words are offered before any others at the same distance. Unset, no "
+            "trade is ranked first."
         ),
+        json_schema_extra=param("apply_only", "id"),
     )
     domain_words: list[str] = Field(
         default_factory=list,
@@ -216,6 +223,7 @@ class ParonomasiaApplyParams(ParonomasiaParams, ApplyParams):
             "A vocabulary of your own, ranked the same way. Use instead of "
             "`domain`, or alongside it to extend a shipped trade."
         ),
+        json_schema_extra=param("apply_only", "word"),
     )
 
     domain_only: bool = Field(
@@ -224,6 +232,7 @@ class ParonomasiaApplyParams(ParonomasiaParams, ApplyParams):
             "Offer only words of the trade, instead of ranking them first. For a "
             "caller who wants a shop sign and nothing else."
         ),
+        json_schema_extra=param("apply_only"),
     )
 
     def trade(self, lang: str) -> dict[str, str]:
@@ -262,6 +271,13 @@ class Paronomasia(ConstructiveProcedure[ParonomasiaParams, ParonomasiaApplyParam
     """Constructive: `apply` performs the displacement `check` verifies."""
 
     id = "paronomasia"
+    rules = (
+        "distance_out_of_band",
+        "length_mismatch",
+        "no_displacement",
+        "unrecoverable",
+        "unresolvable_pronunciation",
+    )
 
     @classmethod
     def params_model(cls) -> type[ParonomasiaParams]:

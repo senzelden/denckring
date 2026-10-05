@@ -15,14 +15,16 @@ from typing import Any
 
 import pytest
 
-from denckring import check, describe, prompt_hint
+from denckring import check, describe, prompt_hint, render_hint
 from denckring.core import catalogue
 from denckring.core.errors import InvalidParams, NoPromptHint, UnsetHintParameter
+from denckring.core.fields import ROLES, roles
 from denckring.core.hints import (
-    UNSTATED_PARAMS,
+    STATED_ROLES,
     default_values,
     placeholders,
     rendered_with_defaults,
+    unstated,
 )
 from denckring.core.protocol import Lang
 from denckring.core.registry import all_procedures
@@ -141,11 +143,13 @@ def test_an_unfixtured_slot_is_one_no_fixture_of_its_row_sets() -> None:
 def test_every_task_parameter_is_stated_or_declared_unstated(pid: str, lang: Lang) -> None:
     """The rule the feature exists for: a hint cannot quietly keep a default.
 
-    A parameter may stay out of a hint only for a recorded reason — house-wide in
-    `UNSTATED_PARAMS`, or for this row in its catalogue `hint_omits`.
+    A parameter may stay out of a hint only for a recorded reason: its role
+    (`x-denckring-role`) is not one a hint states, or, for a task parameter, this
+    row's catalogue `hint_omits` names it (audit C1).
     """
+    procedure = PROCEDURES[pid]
     stated = set(placeholders(ROWS[pid].prompt_hints[lang]))
-    exempt = set(UNSTATED_PARAMS) | set(ROWS[pid].hint_omits)
+    exempt = set(unstated(procedure.params_model(), ROWS[pid].hint_omits))
     silent = sorted(set(_properties(pid)) - stated - exempt)
     assert not silent, (
         f"{pid}:{lang} hint neither states {silent} as a placeholder nor declares it in hint_omits"
@@ -153,25 +157,130 @@ def test_every_task_parameter_is_stated_or_declared_unstated(pid: str, lang: Lan
 
 
 @pytest.mark.parametrize("pid", sorted(ROWS), ids=sorted(ROWS))
-def test_a_declared_omission_is_a_real_parameter_left_unstated_for_a_reason(pid: str) -> None:
-    """An omission naming nothing, or naming what the hint states, is stale."""
+def test_a_declared_omission_is_a_task_parameter_left_unstated_for_a_reason(pid: str) -> None:
+    """An omission naming nothing, naming what the hint states, or naming a parameter
+    its role already excuses, is stale: the role is the reason (audit C1)."""
     meta = ROWS[pid]
     for name, reason in meta.hint_omits.items():
         assert name in _properties(pid), f"{pid}: hint_omits names {name!r}, not a parameter"
-        assert name not in UNSTATED_PARAMS, f"{pid}: {name!r} is already exempt house-wide"
+        role = roles(PROCEDURES[pid].params_model()).get(name)
+        assert role in STATED_ROLES, f"{pid}: {name!r} is a {role} parameter, excused by its role"
         assert reason.strip(), f"{pid}: hint_omits gives {name!r} no reason"
         for lang, hint in meta.prompt_hints.items():
             assert name not in placeholders(hint), f"{pid}:{lang} states omitted {name!r}"
 
 
-def test_house_wide_exemptions_each_carry_a_reason() -> None:
-    assert all(reason.strip() for reason in UNSTATED_PARAMS.values())
+def test_an_excused_role_carries_its_reason() -> None:
+    """Every role a hint may leave unstated is one `unstated` can give a reason for."""
+    reasons = unstated(PROCEDURES["n_plus_7"].params_model(), {})
+    assert reasons["source"] == ROLES["material"]
+    assert reasons["ambiguous_nouns"] == ROLES["policy"]
+    assert "offset" not in reasons
+    assert all(ROLES[role].strip() for role in ROLES)
+
+
+def test_a_rows_own_omission_wins_over_its_roles() -> None:
+    """`hint_omits` speaks for the row; a role's reason is the fallback."""
+    reasons = unstated(PROCEDURES["n_plus_7"].params_model(), {"offset": "a reason"})
+    assert reasons["offset"] == "a reason"
 
 
 def test_a_minted_parameter_reaches_the_prompt() -> None:
     """The case the renderer exists for: a value other than the default."""
     assert '"q"' in prompt_hint("lipogram", forbidden="q")
     assert '"q"' not in prompt_hint("lipogram")
+
+
+def _setting(pid: str, name: str, value: str) -> str:
+    """The line a hint appends for a parameter it does not carry, set off its default."""
+    description = PROCEDURES[pid].params_model().model_fields[name].description
+    return f"- {name} = {value}: {description}"
+
+
+def test_a_threshold_the_template_does_not_carry_is_stated_when_set() -> None:
+    """R-F3: a switch or threshold set off its default changes what the checker
+    judges, so the prompt says so. Dropped, `dead` read as an answer the hint
+    allowed and the checker refused as `too_short`."""
+    default = prompt_hint("eodermdrome")
+    assert prompt_hint("eodermdrome", min_letters=12) == "\n".join(
+        [default, _setting("eodermdrome", "min_letters", "12")]
+    )
+    assert check("eodermdrome", "dead", min_letters=12).satisfied is False
+
+
+def test_each_set_parameter_gets_its_own_line_in_field_order() -> None:
+    lines = prompt_hint("word_ladder", target="warm", end_at_target=True, min_steps=3).split("\n")
+    assert lines == [
+        prompt_hint("word_ladder"),
+        _setting("word_ladder", "target", "warm"),
+        _setting("word_ladder", "min_steps", "3"),
+        _setting("word_ladder", "end_at_target", "True"),
+    ]
+
+
+def test_a_parameter_given_its_default_value_adds_nothing() -> None:
+    """Byte-identical: stating the default is not setting anything."""
+    assert prompt_hint("eodermdrome", min_letters=2) == prompt_hint("eodermdrome")
+    assert prompt_hint("word_ladder", end_at_target=False) == prompt_hint("word_ladder")
+
+
+def test_render_hint_states_what_the_callers_template_leaves_out() -> None:
+    template = "Write a ladder ending on {target}."
+    rendered = render_hint("word_ladder", template, target="warm", min_steps=3)
+    assert rendered == "\n".join(
+        ["Write a ladder ending on warm.", _setting("word_ladder", "min_steps", "3")]
+    )
+    assert render_hint("word_ladder", template, target="warm") == "Write a ladder ending on warm."
+
+
+def test_a_composite_states_its_constraints_parameters_once() -> None:
+    """`constraint_params` is stated by each constraint's own line, not again as a
+    setting; a constraint's own setting is indented under its line."""
+    composite: dict[str, Any] = {
+        "constraints": ["lipogram", "eodermdrome"],
+        "constraint_params": {"lipogram": {"forbidden": "q"}, "eodermdrome": {"min_letters": 9}},
+    }
+    lines = prompt_hint("multiple_constraint", **composite).split("\n")
+    assert lines[1:] == [
+        "- " + prompt_hint("lipogram", forbidden="q"),
+        "- " + prompt_hint("eodermdrome"),
+        "  " + _setting("eodermdrome", "min_letters", "9"),
+    ]
+
+
+#: Flips a row refuses without another parameter: `end_at_target` needs a `target`,
+#: and `test_each_set_parameter_gets_its_own_line_in_field_order` states it with one.
+REFUSED_ALONE = {("word_ladder", "end_at_target")}
+
+
+def _flippable() -> list[tuple[str, str]]:
+    """Each boolean parameter a hint does not carry, on rows whose hint renders bare."""
+    found: list[tuple[str, str]] = []
+    for pid, lang in IMPLEMENTED_HINTS:
+        if lang != "en" or PROCEDURES[pid].params_schema().get("required"):
+            continue
+        model = PROCEDURES[pid].params_model()
+        if set(placeholders(ROWS[pid].prompt_hints[lang])) - set(default_values(model)):
+            continue
+        stated = set(placeholders(ROWS[pid].prompt_hints[lang]))
+        for name, field in model.model_fields.items():
+            if name not in stated and isinstance(field.default, bool):
+                found.append((pid, name))
+    return found
+
+
+@pytest.mark.parametrize(("pid", "name"), _flippable(), ids=[f"{p}.{n}" for p, n in _flippable()])
+def test_no_parameter_set_off_its_default_is_dropped(pid: str, name: str) -> None:
+    """The rule, on every row it can be asked of without inventing a value: flip a
+    boolean the template does not carry, and the prompt names it."""
+    flipped = not PROCEDURES[pid].params_model().model_fields[name].default
+    params: dict[str, Any] = {name: flipped}
+    if (pid, name) in REFUSED_ALONE:
+        with pytest.raises(InvalidParams):
+            prompt_hint(pid, **params)
+        return
+    rendered = prompt_hint(pid, **params)
+    assert rendered.split("\n")[-1] == _setting(pid, name, str(flipped))
 
 
 def test_parameters_are_validated_as_check_validates_them() -> None:
@@ -193,7 +302,8 @@ def test_a_list_renders_as_its_items_joined_by_comma_and_space() -> None:
     # A non-default integer, so the assertion can tell a rendered value from the
     # default the template would otherwise print.
     rendered = prompt_hint("every_nth_word", source="a b c", n=3)
-    assert "every 3 " in rendered and "every 7 " not in rendered
+    assert rendered == ROWS["every_nth_word"].prompt_hints["en"].format(n=3)
+    assert rendered != ROWS["every_nth_word"].prompt_hints["en"].format(n=7)
 
 
 def test_a_placeholder_left_unset_is_refused_by_name() -> None:
@@ -280,9 +390,11 @@ def test_a_sub_constraint_without_a_hint_in_the_language_is_refused_by_name(
     monkeypatch.setitem(
         ROWS["multiple_constraint"].prompt_hints, "de", "Erfülle zugleich: {constraints}."
     )
+    unhinted = [pid for pid in COMPOSITE["constraints"] if "de" not in ROWS[pid].prompt_hints]
+    assert unhinted, "give the composite a constraint with no German hint"
     with pytest.raises(NoPromptHint) as raised:
         prompt_hint("multiple_constraint", lang="de", **COMPOSITE)
-    assert raised.value.detail() == {"procedure_id": "lipogram", "lang": "de"}
+    assert raised.value.detail() == {"procedure_id": unhinted[0], "lang": "de"}
 
 
 def _clause_unit_hints() -> list[str]:

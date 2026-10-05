@@ -12,15 +12,22 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
+from denckring.core.base import (
+    ApplyParams,
+    ConstructiveProcedure,
+    IdentityParams,
+    SourceParams,
+    plain,
+)
 from denckring.core.errors import NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import selection_report
+from denckring.core.source_compare import selection_report, several_words, unchanged
 from denckring.core.text import word_spans
 
 
-class DiasticParams(SourceParams):
+class DiasticParams(SourceParams, IdentityParams):
     # Named `seed_phrase`, not `seed`: `seed` used to be a keyword `apply()`
     # named explicitly on every procedure, reserved for an RNG draw, and Python
     # binds a keyword matching an explicit parameter name to that parameter
@@ -35,11 +42,13 @@ class DiasticParams(SourceParams):
     # same reason `every_nth_word.n` is: it lets `apply()` be called with no
     # extra keyword at all.
     seed_phrase: str = Field(
-        default="the", description="The seed phrase whose letters drive the selection."
+        default="the",
+        description="The seed phrase whose letters drive the selection.",
+        json_schema_extra=param("task", "phrase"),
     )
 
 
-class DiasticApplyParams(DiasticParams, ApplyParams):
+class DiasticApplyParams(ApplyParams, DiasticParams):
     pass
 
 
@@ -48,6 +57,7 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
     """Constructive: `apply` performs the reading-through that `check` verifies."""
 
     id = "diastic"
+    rules = ("not_in_source", "unchanged", "wrong_letter_at_position")
 
     @classmethod
     def params_model(cls) -> type[DiasticParams]:
@@ -81,10 +91,18 @@ class Diastic(ConstructiveProcedure[DiasticParams, DiasticApplyParams]):
                         note=f"position {index + 1} of {word!r}",
                     )
                 )
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            alternative=lambda: several_words(params.source, pack),
+            fold=False,
+        )
         return self._report(
             good=good,
-            total=max(total, 1),
-            violations=violations,
+            total=max(total, 1) + len(copy),
+            violations=violations + copy,
             metrics={"selected": float(len(chosen))},
         )
 

@@ -5,14 +5,23 @@ from __future__ import annotations
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
+from denckring.core.scope import Scope
 from denckring.core.text import letter_spans
 
 
 class BeauPresentParams(DiacriticParams):
-    name: str = Field(description="The dedicatee's name, whose letters are the alphabet.")
-    require_all: bool = Field(default=False, description="Every name letter must appear.")
+    name: str = Field(
+        description="The dedicatee's name, whose letters are the alphabet.",
+        json_schema_extra=param("task", "name"),
+    )
+    require_all: bool = Field(
+        default=False,
+        description="Every name letter must appear.",
+        json_schema_extra=param("switch"),
+    )
 
 
 @register
@@ -20,10 +29,16 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
     """Perec's dedication form: the name supplies the whole alphabet."""
 
     id = "beau_present"
+    rules = ("letter_outside_name", "unused_name_letter")
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[BeauPresentParams]:
         return BeauPresentParams
+
+    def scope(self, params: BeauPresentParams) -> Scope:
+        """`require_all` asks the text as a whole to use every name letter."""
+        return "text" if params.require_all else "word"
 
     def _check(self, text: str, pack: LanguagePack, params: BeauPresentParams) -> Report:
         allowed = {ch for _, ch in letter_spans(params.name, pack, fold=params.fold_diacritics)}

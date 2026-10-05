@@ -18,6 +18,7 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "blank_verse"
+    rules = ("unknown_rhyme", "unwanted_rhyme", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[BlankVerseParams]:
@@ -40,7 +41,20 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
         pairs = [(i, j) for i in range(len(keys)) for j in range(i + 1, len(keys))]
         for index, other in pairs:
             total += 1
-            if keys[index][2] & keys[other][2]:
+            unknown = [keys[i][1] for i in (other, index) if not keys[i][3]]
+            # Only `strict` reads an ending the dictionary lacks: an unknown key set
+            # rhymes with nothing, so it has always counted as unrhymed, and both
+            # other settings keep that reading, which keeps the default verdict.
+            if unknown and params.unknown_rhyme == "strict":
+                violations.append(
+                    Violation(
+                        rule="unknown_rhyme",
+                        offset=keys[other][0],
+                        found=unknown[0],
+                        expected="a word the pronouncing dictionary carries",
+                    )
+                )
+            elif keys[index][2] & keys[other][2]:
                 violations.append(
                     Violation(
                         rule="unwanted_rhyme",

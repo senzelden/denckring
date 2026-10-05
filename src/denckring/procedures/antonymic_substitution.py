@@ -9,6 +9,7 @@ from denckring.core.relations import relation_report
 @register
 class AntonymicSubstitution(BaseProcedure[SourceParams]):
     id = "antonymic_substitution"
+    rules = ("empty_source", "unknown_relation", "wrong_relation", "wrong_word_count")
 
     @classmethod
     def params_model(cls) -> type[SourceParams]:

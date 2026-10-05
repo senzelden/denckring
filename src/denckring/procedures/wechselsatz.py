@@ -59,6 +59,7 @@ class Wechselsatz(ConstructiveProcedure[WechselsatzParams, WechselsatzApplyParam
     """
 
     id = "wechselsatz"
+    rules = ("extra_word", "missing_word", "word_not_offered")
 
     @classmethod
     def params_model(cls) -> type[WechselsatzParams]:

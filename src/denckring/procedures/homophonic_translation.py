@@ -12,6 +12,7 @@ from denckring.lang import get_pack
 @register
 class HomophonicTranslation(BaseProcedure[PronunciationParams]):
     id = "homophonic_translation"
+    rules = ("empty_stream", "sound_distance", "unknown_pronunciation")
 
     @classmethod
     def params_model(cls) -> type[PronunciationParams]:

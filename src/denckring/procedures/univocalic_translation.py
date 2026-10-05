@@ -20,13 +20,14 @@ not just be writing.
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, SourceParams
+from denckring.core.base import BaseProcedure, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import get, register
+from denckring.core.source_compare import unchanged
 from denckring.procedures.univocalic import UnivocalicParams
 
 
-class UnivocalicTranslationParams(SourceParams, UnivocalicParams):
+class UnivocalicTranslationParams(SourceParams, UnivocalicParams, IdentityParams):
     pass
 
 
@@ -36,6 +37,7 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
     `params.source` is undecidable and unchecked."""
 
     id = "univocalic_translation"
+    rules = ("foreign_vowel", "unchanged")
 
     @classmethod
     def params_model(cls) -> type[UnivocalicTranslationParams]:
@@ -52,9 +54,19 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
         # `tests/test_constraint_translations.py`.
         total = int(delegate.metrics["vowel_count"])
         good = total - int(delegate.metrics["foreign"])
+        copy = unchanged(
+            text,
+            params.source,
+            pack,
+            allow=params.allow_identity,
+            # The check never reads the source, and consonants are free: the copy
+            # with one more consonant is always another answer.
+            alternative=lambda: True,
+            fold=params.fold_diacritics,
+        )
         return self._report(
             good=good,
-            total=total,
-            violations=delegate.violations,
+            total=total + len(copy),
+            violations=delegate.violations + copy,
             metrics=dict(delegate.metrics),
         )

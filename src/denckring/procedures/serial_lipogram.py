@@ -8,6 +8,7 @@ from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
 from denckring.core.errors import InvalidParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, line_spans, paragraph_spans, single_letter
@@ -15,9 +16,15 @@ from denckring.core.text import letter_spans, line_spans, paragraph_spans, singl
 
 class SerialLipogramParams(DiacriticParams):
     unit: Literal["paragraph", "line"] = Field(
-        default="paragraph", description="What carries one letter's constraint."
+        default="paragraph",
+        description="What carries one letter's constraint.",
+        json_schema_extra=param("task"),
     )
-    start: str | None = Field(default=None, description="The letter the first part omits.")
+    start: str | None = Field(
+        default=None,
+        description="The letter the first part omits; inferred if unset.",
+        json_schema_extra=param("inferred", "letter"),
+    )
 
     @field_validator("start")
     @classmethod
@@ -40,6 +47,7 @@ class SerialLipogram(BaseProcedure[SerialLipogramParams]):
     """
 
     id = "serial_lipogram"
+    rules = ("forbidden_letter", "wrong_part_count")
 
     @classmethod
     def params_model(cls) -> type[SerialLipogramParams]:

@@ -115,6 +115,7 @@ class Homosyntaxism(BaseProcedure[HomosyntaxismParams]):
     """The grammar is the constraint; the content words are the freedom."""
 
     id = "homosyntaxism"
+    rules = ("extra_words", "missing_word", "repeated_word", "wrong_pos")
 
     @classmethod
     def params_model(cls) -> type[HomosyntaxismParams]:

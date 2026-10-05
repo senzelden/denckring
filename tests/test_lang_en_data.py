@@ -97,3 +97,21 @@ def test_the_pack_method_hands_back_a_view_not_the_live_cache() -> None:
     finally:
         del table[sentinel]
     assert sentinel not in view
+
+
+def test_a_graded_word_the_oracle_refuses_is_outside_the_oracles_sources() -> None:
+    """The graded list and the membership oracle differ on purpose.
+
+    `graded_words()` is SCOWL's size classes (ADR 0028); `is_word` is WordNet's
+    nouns and CMUdict's headwords (ADR 0015). SCOWL holds verbs and adjectives
+    neither source has (`abjure`) and junk the oracle should not call a word
+    (`payed`, `numbest`), so the oracle is not widened to cover it. What must
+    hold is that every refusal is the sources' answer: a graded word refused by
+    `is_word` is in neither WordNet's noun list nor CMUdict, so a refusal never
+    comes from anything else.
+    """
+    pack = en_data.EnglishDataPack()
+    sources = frozenset(en_data.noun_list()) | frozenset(en_data.pronunciations())
+    refused = [word for word in en_data.graded_words() if not pack.is_word(word)]
+    assert refused, "the graded list no longer extends past the oracle; revisit the docs"
+    assert [word for word in refused if word in sources] == []

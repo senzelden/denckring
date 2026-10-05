@@ -39,6 +39,7 @@ class Haibun(BaseProcedure[HaibunParams]):
     """
 
     id = "haibun"
+    rules = ("missing_haiku", "missing_prose", "wrong_alternation", "wrong_ending")
 
     @classmethod
     def params_model(cls) -> type[HaibunParams]:

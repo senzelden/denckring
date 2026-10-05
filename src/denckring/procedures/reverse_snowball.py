@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.snowball import rhopalic_violations
@@ -12,9 +13,13 @@ from denckring.procedures.snowball import rhopalic_violations
 
 class ReverseSnowballParams(BaseModel):
     start: int | None = Field(
-        default=None, description="Length of the first word; inferred if unset."
+        default=None,
+        description="Length of the first word; inferred if unset.",
+        json_schema_extra=param("inferred"),
     )
-    step: int = Field(default=-1, description="Letters removed per word.")
+    step: int = Field(
+        default=-1, description="Letters removed per word.", json_schema_extra=param("task")
+    )
 
 
 @register
@@ -22,6 +27,7 @@ class ReverseSnowball(BaseProcedure[ReverseSnowballParams]):
     """The melting snowball: the same walk as `snowball`, stepping down."""
 
     id = "reverse_snowball"
+    rules = ("wrong_word_length",)
 
     @classmethod
     def params_model(cls) -> type[ReverseSnowballParams]:

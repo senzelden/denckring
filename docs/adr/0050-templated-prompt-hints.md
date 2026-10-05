@@ -132,3 +132,42 @@ costs are these:
 
 **Two error classes join the inventory**, 20 to 22, and `test_error_codes.py` pins
 the count.
+
+## Amendment, 0.3.2: the reason is the parameter's role
+
+The two lists above were written as prose, and a consumer that mints parameters
+copied them into a file of its own, one reason per parameter, because nothing
+machine-readable said what a parameter was (audit C1). Every params field now
+declares `x-denckring-role` in its JSON Schema, from a closed set
+(`core.fields.ROLES`): `task`, `inferred`, `policy`, `leniency`, `switch`,
+`material`, `tolerance`, `budget` and `apply_only`.
+
+The rule is derived from it. A hint states every `task` and `inferred` parameter;
+any other may stay out, for its role's reason (`core.hints.unstated`).
+`UNSTATED_PARAMS` is gone, since what it held is the `policy`, `leniency` and
+`material` roles of four mixins. `hint_omits` keeps only the task parameters a hint still leaves out
+(`multiple_constraint.constraint_params`, `word_ladder.target`), and a guard refuses
+an entry for a parameter its role already excuses.
+
+The cost is the row-specific wording the old entries carried. `heterogram.scope`
+said that word scope is the looser one; it now reads as any leniency does. A reason
+only one row needs can no longer be written for a parameter whose role already
+excuses it, though it can still go in the field's `description`.
+
+**An excuse holds at the default only.** As first written, the rule excused any
+`switch`, so the opt-in minimums this release added (`word_ladder.min_steps` and
+`end_at_target`, `eodermdrome` and `chronogram` `min_letters`, `require_displacement`)
+were validated and then dropped: `prompt_hint("eodermdrome", min_letters=12)` read as
+accepting `dead`, which the checker refuses. Now a parameter the template has no
+placeholder for, set off its default, follows the hint on its own line,
+`- name = value: ` and the field's description (`core.hints.settings`), in
+`prompt_hint` and `render_hint` alike. This also closes the gap "Switches are not
+stated" admits above: `pangram.perfect=True` now reaches the prompt. The costs:
+
+- The line is a parameter's name and value, not a sentence, and the description is
+  English in a German or French hint.
+- A required parameter has no default to differ from, so it is never listed:
+  `homophonic_translation.max_distance` is a tolerance every caller sets and no hint
+  states.
+- A consumer whose own templates leave out a parameter it sets, through
+  `render_hint`, gets the new lines on upgrade.

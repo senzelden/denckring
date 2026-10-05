@@ -104,7 +104,26 @@ ROOT = Path(__file__).resolve().parent.parent
 #: Raising it is safe *here* only because the archive grew with it: both numbers moved
 #: up together. Shrinking the archive later without lowering this in the same commit is
 #: what would make it decorative again.
-MAX_SDIST_BYTES = 1_050_000
+#:
+#: **Raised to 1,150,000 on 2026-10-04, by decision, in the same direction and for the
+#: same reason.** The branch for 0.3.2 spent the 96,313 of headroom: from bb2ef17 to
+#: f69a29a alone the archive grew 31,989 bytes, all of it code, tests and ADRs (the
+#: scope, rules and fields modules, their tests, ADRs 0051 to 0053 and the changelog).
+#: No data file entered: `/packages` stays excluded, and the additions were checked one
+#: by one.
+#:
+#: One fact above is now stale. **The smallest data file the bound exists to catch is
+#: `denckring-en-data`'s `frequencies.txt.gz` (ADR 0052), not `graded_words.txt.gz`.**
+#: Re-measured from `git archive HEAD` at f69a29a:
+#:
+#:   - clean build from `HEAD`:                                              1,060,716
+#:   - the smallest file the bound exists to catch, `frequencies.txt.gz`:      202,997
+#:   - so the failure this guards against now lands at:                      1,263,713
+#:
+#: The safe window is `(1,060,716, 1,263,713)`. **1,150,000** sits in it with 89,284 of
+#: headroom and 113,713 of margin under the catch figure. The data file being smaller
+#: narrows the window from above, so the next raise has less room than this one had.
+MAX_SDIST_BYTES = 1_150_000
 
 
 def _export_head(tmp_path_factory: pytest.TempPathFactory) -> Path | None:
@@ -190,10 +209,11 @@ def _members(sdist: Path) -> list[str]:
 
 def test_the_sdist_does_not_carry_the_workspace_members(sdist: Path) -> None:
     """`denckring-en-data` and `denckring-de-data` publish their own distributions under
-    their own licence expressions — `Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause` and
-    `Apache-2.0 AND CC0-1.0`. Shipping their data inside the core sdist duplicates
-    several megabytes and puts third-party data under a declaration that does not
-    describe it. The explorer is a development tool published nowhere."""
+    their own licence expressions — `Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause AND
+    HPND-sell-variant` and `Apache-2.0 AND CC0-1.0`. Shipping their data inside the
+    core sdist duplicates several megabytes and puts third-party data under a
+    declaration that does not describe it. The explorer is a development tool
+    published nowhere."""
     stowaways = [name for name in _members(sdist) if name.startswith(("packages/", "apps/"))]
     assert stowaways == []
 

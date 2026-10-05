@@ -10,12 +10,18 @@ from denckring.core.registry import register
 
 
 class ${class}Params(BaseModel):
+    #: FILL IN the parameters. Each field declares its role, and a string its kind:
+    #: `Field(..., json_schema_extra=param("task", "letter"))` (`core.fields`).
+    #: `tests/test_param_metadata.py` fails on a field without them.
     pass
 
 
 @register
 class $class(BaseProcedure[${class}Params]):
     id = "$id"
+    #: FILL IN every `violation.rule` this checker can emit, sorted. `denckring.rules`
+    #: publishes it; `tests/test_rules.py` fails until it is declared and reached.
+    rules = ()
 
     @classmethod
     def params_model(cls) -> type[${class}Params]:

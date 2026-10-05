@@ -21,6 +21,7 @@ from denckring.lang.base import (
     ALPHABET,
     ANTONYMS,
     FOLD_DIACRITICS,
+    FREQUENCY,
     GLOSSES,
     GRADED_WORDS,
     LETTER_SHAPES,
@@ -40,6 +41,11 @@ DICTIONARY_PATH = Path(str(files("denckring_en_data") / "data" / "cmudict.dict")
 NOUNS_PATH = Path(str(files("denckring_en_data") / "data" / "nouns.txt"))
 GLOSSES_PATH = Path(str(files("denckring_en_data") / "data" / "glosses.txt.gz"))
 GRADED_WORDS_PATH = Path(str(files("denckring_en_data") / "data" / "graded_words.txt.gz"))
+#: Word to corpus count, from Leipzig's English news corpus (ADR 0052).
+FREQUENCIES_PATH = Path(str(files("denckring_en_data") / "data" / "frequencies.txt.gz"))
+#: Graded words no reader would call everyday words: an editorial override of
+#: SCOWL's bands for `words()`, never read by a checker (ADR 0051).
+EXCLUSIONS_PATH = Path(str(files("denckring_en_data") / "data" / "everyday_exclusions.txt"))
 
 __version__ = "0.3.1"
 
@@ -111,6 +117,14 @@ def graded_words() -> Mapping[str, int]:
     commonness. `known_words()` stays exactly as it is — `semordnilap` and
     `charade` ask membership, and are right to keep asking the broad oracle ADR
     0015 describes.
+
+    The two differ on purpose, and a graded word is not always an `is_word`
+    word: SCOWL's size classes (ADR 0028) hold verbs and adjectives neither of
+    the oracle's sources has (`abjure`), and also junk (`payed`, `numbest` sit
+    in band 10). Widening the oracle to the graded list would make that junk a
+    word in every membership row. A caller wanting everyday words wants neither
+    view as it stands, but `denckring.words(max_band=...)`, which leaves out the
+    junk listed in `everyday_exclusions.txt` (ADR 0051).
     """
     table: dict[str, int] = {}
     with gzip.open(GRADED_WORDS_PATH, mode="rt", encoding="utf-8") as handle:
@@ -119,6 +133,30 @@ def graded_words() -> Mapping[str, int]:
             if band:
                 table[word] = int(band)
     return table
+
+
+@lru_cache(maxsize=1)
+def word_frequencies() -> Mapping[str, int]:
+    """Word to its count in the Leipzig Corpora Collection's `eng_news_2023_1M`.
+
+    Lowercase occurrences only, over the graded vocabulary (ADR 0052): a
+    frequency to rank everyday words by, where `graded_words()` holds SCOWL's
+    size classes, which ADR 0028 warns are none.
+    """
+    table: dict[str, int] = {}
+    with gzip.open(FREQUENCIES_PATH, mode="rt", encoding="utf-8") as handle:
+        for line in handle:
+            word, _, count = line.rstrip("\n").partition("\t")
+            if count:
+                table[word] = int(count)
+    return table
+
+
+@lru_cache(maxsize=1)
+def everyday_exclusions() -> frozenset[str]:
+    """The graded words `words()` leaves out, one per line, `#` starting a comment."""
+    lines = EXCLUSIONS_PATH.read_text(encoding="utf-8").splitlines()
+    return frozenset(word for line in lines if (word := line.partition("#")[0].strip()))
 
 
 @lru_cache(maxsize=1)
@@ -133,6 +171,11 @@ def known_words() -> frozenset[str]:
     about: CMUdict lists `tac`, so `cat` reverses into something this oracle
     calls a word. It answers "could this be a word" rather than "is this in a
     dictionary of standard English", and procedures resting on it inherit that.
+
+    It does not include `graded_words()`, and refuses about 24,600 of its
+    entries, on purpose: see that function. Every refusal is this union's own
+    answer — a graded word refused here is in neither source — and a test holds
+    that rule rather than the count.
     """
     return frozenset(noun_list()) | frozenset(pronunciations())
 
@@ -191,16 +234,25 @@ class EnglishDataPack(EnglishPack):
             WORDS,
             GLOSSES,
             GRADED_WORDS,
+            FREQUENCY,
         }
     )
 
     def syllable_count(self, word: str) -> tuple[int, bool]:
-        """Exact when the dictionary knows the word, estimated otherwise."""
+        """Exact when the dictionary knows the word, estimated otherwise.
+
+        Estimated from the stem when the dictionary knows that (`awakes` from
+        `awake`), and from the spelling only when it knows neither. The stem
+        reading is still an estimate, so it says so: `estimated_words` counts it.
+        """
         letters = "".join(ch for ch in self.fold_diacritics(word) if ch.isalpha())
         phones = pronunciations().get(letters)
         if phones is None:
+            from_stem = _inflected_syllables(letters)
+            if from_stem is not None:
+                return from_stem, False
             return super().syllable_count(word)
-        return sum(1 for phone in phones if phone[-1].isdigit()), True
+        return _syllables_of(phones), True
 
     def is_word(self, word: str) -> bool:
         return self._lemma(word) in known_words()
@@ -210,6 +262,13 @@ class EnglishDataPack(EnglishPack):
 
     def noun_index(self, word: str) -> int | None:
         return noun_positions().get(self._lemma(word))
+
+    def word_exclusions(self) -> frozenset[str]:
+        return everyday_exclusions()
+
+    def word_frequencies(self) -> Mapping[str, int]:
+        """A read-only view over the cached table, as `graded_words` gives."""
+        return MappingProxyType(word_frequencies())
 
     def graded_words(self) -> Mapping[str, int]:
         """A read-only view over the cached table.
@@ -290,6 +349,37 @@ def _inflections(lemma: str) -> tuple[str, ...]:
     return tuple(candidates)
 
 
+#: Phones after which the plural `-s` is a syllable of its own: horse-s, judge-s.
+_SIBILANTS = frozenset({"S", "Z", "SH", "ZH", "CH", "JH"})
+
+
+def _syllables_of(phones: list[str]) -> int:
+    return sum(1 for phone in phones if phone[-1].isdigit())
+
+
+def _inflected_syllables(letters: str) -> int | None:
+    """Syllables of an `-s`/`-es` form CMUdict lacks, read through the stem it has.
+
+    Any such form, plural or verb (`awakes`). The stems are `_inflections'`
+    (`s`/`es` only, for the reasons recorded there), and the suffix adds a
+    syllable exactly when the stem ends in a sibilant. `-ss` words are not
+    inflections (`boss` is not `bos` + `s`). This only ever runs on words
+    CMUdict lacks, so its accuracy cannot be measured there; it is measured on
+    the 13,973 `-s`/`-es` words CMUdict *does* hold whose stem it also holds,
+    reading each through its stem as if the word were missing: 98.9%
+    agreement, 97.9% before the `-ss` exclusion. The spelling heuristic agrees
+    on 87% of all words.
+    """
+    if letters.endswith("ss"):
+        return None
+    table = pronunciations()
+    for stem in _inflections(letters):
+        phones = table.get(stem)
+        if phones is not None:
+            return _syllables_of(phones) + (phones[-1] in _SIBILANTS)
+    return None
+
+
 def _forms_or_raise(pack: EnglishDataPack, word: str) -> list[list[str]]:
     from denckring.core.errors import MissingCapability
 
@@ -350,10 +440,13 @@ def pack() -> EnglishDataPack:
 
 __all__ = [
     "DICTIONARY_PATH",
+    "EXCLUSIONS_PATH",
+    "FREQUENCIES_PATH",
     "GLOSSES_PATH",
     "GRADED_WORDS_PATH",
     "NOUNS_PATH",
     "EnglishDataPack",
+    "everyday_exclusions",
     "gloss_table",
     "graded_words",
     "known_words",
@@ -361,4 +454,5 @@ __all__ = [
     "pack",
     "pronunciations",
     "variants",
+    "word_frequencies",
 ]

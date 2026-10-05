@@ -77,6 +77,17 @@ class Ballade(BaseProcedure[BalladeParams]):
     """Twenty-eight lines, four of them the same line."""
 
     id = "ballade"
+    rules = (
+        "broken_refrain",
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[BalladeParams]:
@@ -98,7 +109,7 @@ class Ballade(BaseProcedure[BalladeParams]):
 
         if len(line_spans(text)) == LINES:
             found, matched, checks, _estimated, rhymes = scheme_violations(
-                text, pack, SCHEME, allow_identical=False
+                text, pack, SCHEME, allow_identical=False, unknown_rhyme=params.unknown_rhyme
             )
             keys = rhyme_keys(text, pack)
             found, exempted = _exempt_refrain_identicals(found, keys)

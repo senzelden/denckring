@@ -12,12 +12,16 @@ from pydantic import Field
 
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams, plain
 from denckring.core.errors import MissingCapability, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
 
 
 class PerverbParams(SourceParams):
-    donor: str = Field(description="A different saying from the pack's proverb corpus.")
+    donor: str = Field(
+        description="A different saying from the pack's proverb corpus.",
+        json_schema_extra=param("task", "phrase"),
+    )
 
 
 class PerverbApplyParams(PerverbParams, ApplyParams):
@@ -62,6 +66,7 @@ class Perverb(ConstructiveProcedure[PerverbParams, PerverbApplyParams]):
     """The source supplies the prefix; the donor supplies the suffix."""
 
     id = "perverb"
+    rules = ("not_the_graft", "unresolved_proverb_pair")
 
     @classmethod
     def params_model(cls) -> type[PerverbParams]:

@@ -11,11 +11,14 @@ from denckring.core.base import (
     ApplyParams,
     BaseProcedure,
     ConstructiveProcedure,
+    IdentityParams,
     SourceParams,
     plain,
 )
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
+from denckring.core.source_compare import unchanged
 from denckring.core.text import split_elision, word_spans
 
 
@@ -78,15 +81,20 @@ def displace(
     return "".join(pieces)
 
 
-class NPlus7Params(SourceParams):
-    offset: int = Field(default=7, description="How many nouns to count forward.")
+class NPlus7Params(SourceParams, IdentityParams):
+    offset: int = Field(
+        default=7, description="How many nouns to count forward.", json_schema_extra=param("task")
+    )
     dictionary: list[str] | None = Field(
         default=None,
         description=(
             "The ordered word list to displace within. Defaults to the pack's "
-            "nouns. Order is the contract: N+7 walks the seventh entry after a "
+            "nouns, which a reader is not shown: `denckring.nouns(lang)` lists "
+            "them, and `nouns(lang, max_band=...)` the everyday ones, for a prompt "
+            "to print. Order is the contract: N+7 walks the seventh entry after a "
             "word, so a supplied list's order is the caller's editorial choice."
         ),
+        json_schema_extra=param("material", "word"),
     )
     # A supplied dictionary works wherever the pack already has a noun list; it
     # does not unlock N+7 for a language whose pack has none, because the spine
@@ -106,6 +114,19 @@ class NPlus7Params(SourceParams):
             "position unscored (undecidable), accept it (free), or fail it "
             "(strict)."
         ),
+        json_schema_extra=param("policy"),
+    )
+    # Opt-in, so 0.3.2 moves no verdict. Under `free` or `undecidable` a text in
+    # which every listed word was left alone passes, each one plausibly another
+    # part of speech; taken together that is not an N+7 however each word reads.
+    # The rule name is `paronomasia`'s, for the same failure.
+    require_displacement: bool = Field(
+        default=False,
+        description=(
+            "Fail a text in which no word the dictionary lists was displaced, as "
+            "`no_displacement`, whatever `ambiguous_nouns` makes of each one."
+        ),
+        json_schema_extra=param("switch"),
     )
 
     @field_validator("dictionary")
@@ -124,7 +145,20 @@ class NPlus7Params(SourceParams):
         return value
 
 
-class NPlus7ApplyParams(NPlus7Params, ApplyParams):
+def _moves(
+    word: str,
+    nouns: Sequence[str],
+    noun_index: Callable[[str], int | None],
+    offset: int,
+) -> bool:
+    """Whether displacing `word` changes it: it is listed, and the walk does not
+    come back round to it (an offset that is a multiple of the list's length)."""
+    _, tail = split_elision(word)
+    index = noun_index(tail)
+    return index is not None and nouns[(index + offset) % len(nouns)].casefold() != tail.casefold()
+
+
+class NPlus7ApplyParams(ApplyParams, NPlus7Params):
     pass
 
 
@@ -167,6 +201,7 @@ def displacement_report(
 
     ambiguous = 0
     undecided = 0
+    displaced = 0
     good = 0
     for (offset, produced), (_, original) in zip(candidate, source, strict=True):
         # A leading proclitic glued on by elision (`l'`, `d'`, `qu'`) is
@@ -220,6 +255,7 @@ def displacement_report(
                 )
             )
             continue
+        displaced += 1
         expected_tail = nouns[(index + params.offset) % len(nouns)]
         # The noun list preserves each language's own capitalisation — German
         # nouns are capitalised, English ones are not — so `expected` must be
@@ -239,6 +275,26 @@ def displacement_report(
             )
     decided = len(candidate) - undecided
     metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
+    # Each refusal is one more unit, failed, on top of whatever was weighed.
+    refused = unchanged(
+        text,
+        params.source,
+        pack,
+        allow=params.allow_identity,
+        alternative=lambda: any(
+            _moves(original, nouns, noun_index, params.offset) for _, original in source
+        ),
+        fold=False,
+    )
+    if params.require_displacement and displaced == 0:
+        refused.append(
+            Violation(
+                rule="no_displacement",
+                offset=None,
+                found="no listed word displaced",
+                expected=f"at least one listed word moved {params.offset} places on",
+            )
+        )
     if decided == 0 and undecided > 0:
         # `_report` scores total == 0 as 1.0 — right for the wordless case the
         # comment below still guards, wrong here: this text has words, every
@@ -250,14 +306,15 @@ def displacement_report(
         # is not.
         return procedure._report(
             good=0,
-            total=1,
+            total=1 + len(refused),
             violations=[
                 Violation(
                     rule="ambiguous_nouns_undecidable",
                     offset=None,
                     found=f"{undecided} word(s) the reading left undecided",
                     expected="at least one position this reading can decide",
-                )
+                ),
+                *refused,
             ],
             metrics=metrics,
         )
@@ -272,8 +329,8 @@ def displacement_report(
         # `total`: under `ambiguous_nouns="undecidable"` they were never
         # weighed, and counting them would silently discount the score
         # instead of leaving it computed over what was actually judged.
-        total=decided,
-        violations=violations,
+        total=decided + len(refused),
+        violations=violations + refused,
         metrics=metrics,
     )
 
@@ -283,6 +340,16 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
     """Lescure's procedure: walk the dictionary seven nouns on."""
 
     id = "n_plus_7"
+    rules = (
+        "ambiguous_noun_unchanged",
+        "ambiguous_nouns_undecidable",
+        "changed_a_non_noun",
+        "changed_proclitic",
+        "no_displacement",
+        "unchanged",
+        "wrong_displacement",
+        "wrong_word_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[NPlus7Params]:

@@ -32,6 +32,7 @@ class ElegiacCouplet(BaseProcedure[ElegiacCoupletParams]):
     """
 
     id = "elegiac_couplet"
+    rules = ("wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[ElegiacCoupletParams]:

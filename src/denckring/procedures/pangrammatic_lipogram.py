@@ -5,13 +5,18 @@ from __future__ import annotations
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import letter_spans, single_letter
 
 
 class PangrammaticLipogramParams(DiacriticParams):
-    forbidden: str = Field(default="e", description="The one letter that must not appear.")
+    forbidden: str = Field(
+        default="e",
+        description="The one letter that must not appear.",
+        json_schema_extra=param("task", "letter"),
+    )
 
     @field_validator("forbidden")
     @classmethod
@@ -30,6 +35,7 @@ class PangrammaticLipogram(BaseProcedure[PangrammaticLipogramParams]):
     """
 
     id = "pangrammatic_lipogram"
+    rules = ("forbidden_letter", "missing_letter")
 
     @classmethod
     def params_model(cls) -> type[PangrammaticLipogramParams]:

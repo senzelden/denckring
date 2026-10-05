@@ -58,6 +58,7 @@ from pydantic import Field, model_validator
 from denckring.core import domain as domains
 from denckring.core.base import ApplyParams, ConstructiveProcedure, SourceParams
 from denckring.core.errors import InvalidParams, MissingCapability, NoCandidateWord
+from denckring.core.fields import param
 from denckring.core.phonetics import across_languages, bare_phonemes, phoneme_distance
 from denckring.core.protocol import (
     Candidate,
@@ -164,25 +165,31 @@ def _orthographic_distance(a: str, b: str) -> float:
 class PortmanteauParams(SourceParams):
     """The host word, the word spliced into it, and how far each may travel."""
 
-    splice: str = Field(description="The word made visible inside the coinage.")
+    splice: str = Field(
+        description="The word made visible inside the coinage.",
+        json_schema_extra=param("task", "word"),
+    )
     min_distance: float = Field(
         default=0.0,
         ge=0.0,
         le=1.0,
         description="The closest the spliced word may sound to the stretch it covers.",
+        json_schema_extra=param("tolerance"),
     )
     max_distance: float = Field(
         default=0.7,
         ge=0.0,
         le=1.0,
         description="The furthest the spliced word may sound from the stretch it covers.",
+        json_schema_extra=param("tolerance"),
     )
     splice_lang: Lang | None = Field(
         default=None,
         description=(
             "The language the spliced word belongs to, when it is not the host's. "
-            "`Imagin'hair` is English inside French."
+            "`Imagin'hair` is English inside French. Unset, the host's language."
         ),
+        json_schema_extra=param("policy"),
     )
     max_host_distance: float = Field(
         default=0.5,
@@ -192,6 +199,7 @@ class PortmanteauParams(SourceParams):
             "How far the coinage may travel from its host in spelling before the "
             "host stops being recoverable behind it."
         ),
+        json_schema_extra=param("tolerance"),
     )
     unknown_word: Literal["undecidable", "free", "strict"] = Field(
         default="undecidable",
@@ -199,6 +207,7 @@ class PortmanteauParams(SourceParams):
             "How to read a word absent from the pronouncing dictionary: report "
             "it, accept it unchecked, or refuse it."
         ),
+        json_schema_extra=param("policy"),
     )
 
     @model_validator(mode="after")
@@ -249,15 +258,29 @@ class PortmanteauApplyParams(SourceParams, ApplyParams):
 
     domain: str | None = Field(
         default=None,
-        description="A trade whose vocabulary to splice from: bakery, hair, optician.",
+        description=(
+            "A trade whose vocabulary to splice from: bakery, hair, optician. Unset, "
+            "only `domain_words` is spliced from."
+        ),
+        json_schema_extra=param("apply_only", "id"),
     )
     domain_words: list[str] = Field(
         default_factory=list,
         description="A vocabulary of your own to splice from.",
+        json_schema_extra=param("apply_only", "word"),
     )
-    max_distance: float = Field(default=0.7, ge=0.0, le=1.0)
-    max_host_distance: float = Field(default=0.5, ge=0.0, le=1.0)
-    splice_lang: Lang | None = Field(default=None)
+    max_distance: float = Field(default=0.7, ge=0.0, le=1.0, json_schema_extra=param("tolerance"))
+    max_host_distance: float = Field(
+        default=0.5, ge=0.0, le=1.0, json_schema_extra=param("tolerance")
+    )
+    splice_lang: Lang | None = Field(
+        default=None,
+        description=(
+            "The language the spliced word belongs to, when it is not the host's. "
+            "Unset, the host's language."
+        ),
+        json_schema_extra=param("policy"),
+    )
 
     def trade(self, lang: str) -> tuple[str, ...]:
         """The vocabulary to splice from, in the order it was written."""
@@ -276,6 +299,14 @@ class Portmanteau(ConstructiveProcedure[PortmanteauParams, PortmanteauApplyParam
     """Constructive: `apply` proposes splices and `check` disposes of them."""
 
     id = "portmanteau"
+    rules = (
+        "host_unrecoverable",
+        "identical_to_host",
+        "sound_out_of_band",
+        "splice_not_a_word",
+        "splice_not_present",
+        "unresolvable_pronunciation",
+    )
 
     @classmethod
     def params_model(cls) -> type[PortmanteauParams]:

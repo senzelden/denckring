@@ -17,6 +17,16 @@ class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "rhyme_royal"
+    rules = (
+        "does_not_rhyme",
+        "identical_rhyme",
+        "rhyme_undecidable",
+        "unknown_rhyme",
+        "unwanted_rhyme",
+        "wrong_line_count",
+        "wrong_line_length",
+        "wrong_stress",
+    )
 
     @classmethod
     def params_model(cls) -> type[RhymeRoyalParams]:
@@ -29,6 +39,7 @@ class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
             scheme="ABABBCC",
             metre="01" * 5,
             feminine_ending=params.feminine_ending,
+            unknown_rhyme=params.unknown_rhyme,
         )
 
         return self._report(

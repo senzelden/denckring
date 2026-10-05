@@ -21,7 +21,8 @@ from denckring.procedures.n_plus_7 import (
 
 
 class SPlus7Params(NPlus7Params):
-    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns` — and no field of its own.
+    """N+7's fields — `offset`, `dictionary`, `ambiguous_nouns`, `allow_identity`,
+    `require_displacement` — and no field of its own.
 
     Inherits rather than duplicates: a second `offset` field here, kept in sync
     by hand, is exactly how `dictionary` would have stayed n_plus_7-only despite
@@ -29,7 +30,7 @@ class SPlus7Params(NPlus7Params):
     """
 
 
-class SPlus7ApplyParams(SPlus7Params, ApplyParams):
+class SPlus7ApplyParams(ApplyParams, SPlus7Params):
     pass
 
 
@@ -38,6 +39,16 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
     """The same walk as N+7, over the word list and step the caller supplies."""
 
     id = "s_plus_7"
+    rules = (
+        "ambiguous_noun_unchanged",
+        "ambiguous_nouns_undecidable",
+        "changed_a_non_noun",
+        "changed_proclitic",
+        "no_displacement",
+        "unchanged",
+        "wrong_displacement",
+        "wrong_word_count",
+    )
 
     @classmethod
     def params_model(cls) -> type[SPlus7Params]:

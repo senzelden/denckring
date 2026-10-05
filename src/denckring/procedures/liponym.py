@@ -5,13 +5,16 @@ from __future__ import annotations
 from pydantic import BaseModel, Field, field_validator
 
 from denckring.core.base import BaseProcedure
+from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
 
 
 class LiponymParams(BaseModel):
-    forbidden: str = Field(description="The word the text must never use.")
+    forbidden: str = Field(
+        description="The word the text must never use.", json_schema_extra=param("task", "word")
+    )
 
     @field_validator("forbidden")
     @classmethod
@@ -26,6 +29,8 @@ class Liponym(BaseProcedure[LiponymParams]):
     """The lipogram raised from the letter to the word."""
 
     id = "liponym"
+    rules = ("forbidden_word",)
+    local_scope = "word"
 
     @classmethod
     def params_model(cls) -> type[LiponymParams]:

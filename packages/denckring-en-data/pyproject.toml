@@ -1,7 +1,7 @@
 [project]
 name = "denckring-en-data"
 version = "0.3.1"
-description = "English pronunciation data for denckring: exact syllable counts and rhyme"
+description = "English data for denckring: pronunciation, nouns, glosses, graded words, frequency"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0 AND CC-BY-4.0 AND BSD-2-Clause AND HPND-sell-variant"
@@ -11,6 +11,7 @@ license-files = [
     "LICENSE-CMUDICT",
     "LICENSE-WORDNET",
     "LICENSE-SCOWL",
+    "LICENSE-LEIPZIG",
 ]
 authors = [{ name = "Dennis Senzel", email = "dennis.senzel@posteo.com" }]
 classifiers = [

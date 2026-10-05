@@ -30,6 +30,7 @@ class AlcaicStanza(BaseProcedure[AlcaicStanzaParams]):
     """
 
     id = "alcaic_stanza"
+    rules = ("wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod
     def params_model(cls) -> type[AlcaicStanzaParams]:
