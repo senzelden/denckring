@@ -2181,6 +2181,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0054-syllable-counts-read-every-pronunciation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    54. Syllable counts read every listed pronunciation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0055-stricter-defaults-for-source-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    55. Stricter defaults for source rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0056-aligned-scoring-for-positional-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    56. Aligned scoring for positional rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0057-rhyme-readings-in-the-writers-favour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    57. Rhyme readings in the writer's favour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0058-a-word-is-as-long-as-its-letters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    58. A word is as long as its letters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0059-composites-and-the-promise-of-rules-and-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    59. A composite is a list of constraints, and rules and evidence are promised
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2513,7 +2681,9 @@ It makes one of the 42 German canonical lines — Gryphius, "Es ist alles eitel"
 <code>line_syllables</code> reads the same line correctly at 13. Parked rather than fixed:
 <code>sonnet/gryphius-eitel-sonett</code>'s golden case carries a <code>min_score</code> floor rather than
 an exact score for exactly this reason, so a later fix to the pronunciation data
-raises the score instead of breaking the fixture.</p>
+raises the score instead of breaking the fixture. (Resolved in 0.4.0 by ADR 0057. The
+cause was not case: Wiktionary files <em>deiner</em>'s <code>ˈdaɪ̯nɐ</code> under <code>du</code>, and German stress
+now reads the first transcription only.)</p>
 <p><strong>A scoring artefact, parked.</strong> <code>metre_violations</code> returns <code>total=1</code> from its
 wrong-length branch and <code>total=len(words)</code> from the branch where a line matches a
 candidate's length, so turning <code>feminine_ending</code> on changes the score's denominator as

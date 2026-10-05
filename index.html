@@ -2281,6 +2281,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0054-syllable-counts-read-every-pronunciation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    54. Syllable counts read every listed pronunciation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0055-stricter-defaults-for-source-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    55. Stricter defaults for source rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0056-aligned-scoring-for-positional-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    56. Aligned scoring for positional rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0057-rhyme-readings-in-the-writers-favour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    57. Rhyme readings in the writer's favour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0058-a-word-is-as-long-as-its-letters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    58. A word is as long as its letters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0059-composites-and-the-promise-of-rules-and-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    59. A composite is a list of constraints, and rules and evidence are promised
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2695,12 +2863,13 @@ because a written <code>ß</code> carries an ascender.</p>
 <h2 id="reports-and-productions">Reports and Productions<a class="headerlink" href="#reports-and-productions" title="Permanent link">&para;</a></h2>
 <p><code>check</code> returns a <code>Report</code>: <code>satisfied</code>, a continuous <code>score</code> in <code>[0, 1]</code>, a list of
 <code>violations</code> with character offsets, free-form <code>metrics</code>, and <code>evidence</code> — the
-measurements the verdict rests on, each saying whether it came from a dictionary or a
+measurements the verdict rests on, each saying whether it came from a dictionary, from
+a dictionary listing several readings the checker accepted any of (<code>ambiguous</code>), or from a
 spelling heuristic. A haiku that misses names the words it counted and what it made them;
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
-<code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 87
-of the 133 and <code>heuristic</code> for 46. The score is monotone in
+<code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 85
+of the 133 and <code>heuristic</code> for 48. The score is monotone in
 violation count and <code>satisfied</code> is exactly <code>score == 1.0</code>, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.</p>
 <p><code>produce</code> returns a <code>Production</code> — the procedure's id, its <code>texts</code> (best first, never
@@ -2732,7 +2901,7 @@ forms belong in an honest survey, and <code>denckring status</code> counts them 
 than reporting a gap that can never close.</p>
 <h2 id="what-is-stable">What is stable<a class="headerlink" href="#what-is-stable" title="Permanent link">&para;</a></h2>
 <p><code>0.x</code> means the API can change in a minor release, and the changelog says when it does.
-Seven surfaces are treated as contracts regardless, because things outside this repository
+Eight surfaces are treated as contracts regardless, because things outside this repository
 are built on them:</p>
 <ul>
 <li><strong>Procedure ids.</strong> An id that has shipped does not change meaning. When a row is
@@ -2740,22 +2909,32 @@ are built on them:</p>
   <code>get</code> resolves ids only, and raises <code>UnknownProcedure</code> naming the replacement.
   <code>multiple_constraint</code>, which replaced <code>univocalic_lipogram_pair</code>, is the precedent.</li>
 <li><strong>The names <code>denckring</code> exports</strong>, imported from <code>denckring</code> itself. <code>check</code>, <code>apply</code>,
-  <code>produce</code>, <code>describe</code>, <code>get</code>, <code>list_procedures</code>, <code>summaries</code> and <code>all_procedures</code> keep
-  their signatures and meaning; a new parameter arrives as a keyword whose default keeps
-  today's answer. <code>Report</code>, <code>Violation</code>, <code>Production</code>, <code>Description</code>, <code>Summary</code>,
-  <code>Scholarly</code>, <code>Meta</code> and <code>Lang</code> keep the type and meaning of every field they have,
+  <code>produce</code>, <code>describe</code>, <code>get</code>, <code>list_procedures</code>, <code>summaries</code>, <code>all_procedures</code> and
+  <code>rules</code> keep their signatures and meaning; a new parameter arrives as a keyword whose
+  default keeps today's answer. <code>Report</code>, <code>Violation</code>, <code>Evidence</code>, <code>Production</code>,
+  <code>Description</code>, <code>Summary</code>, <code>Scholarly</code>, <code>Meta</code> and <code>Lang</code> keep the type and meaning of
+  every field they have,
   except the fields listed below as not yet promised. <code>DenckringError</code> and every
   subclass keep their names, their place under <code>DenckringError</code> and their <code>code</code>. The
   same objects reached through <code>denckring.core</code> are not covered: the path is part of
   the promise. The rest of <code>__all__</code> is published but not yet promised, as listed below.</li>
 <li><strong><code>Report</code> as JSON</strong> — <code>procedure</code>, <code>satisfied</code>, <code>score</code>, <code>violations</code>, <code>metrics</code>,
-  <code>provenance</code>, <code>estimated</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and <code>describe</code>
-  that carries it. Fields may be added; the ones already there do not change type or
-  meaning. <code>estimated</code> says whether the verdict rests on anything estimated or left
-  unjudged, and is what to read in place of <code>metrics["estimated_words"]</code>.
-  <code>describe</code>'s <code>Description</code> carries <code>runs_in</code> under the same promise. <code>provenance</code>
+  <code>evidence</code>, <code>provenance</code>, <code>estimated</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and
+  <code>describe</code> that carries it. Fields may be added; the ones already there do not change
+  type or meaning. <code>estimated</code> says whether the verdict rests on anything estimated or left
+  unjudged, and is what to read in place of <code>metrics["estimated_words"]</code>. Each <code>evidence</code>
+  entry is one measurement the verdict rests on: <code>subject</code> (the word or line), <code>scope</code>
+  (<code>word</code> or <code>line</code>), <code>offset</code>, <code>value</code> and <code>basis</code>, which is one of <code>dictionary</code> (looked
+  up, read one way), <code>ambiguous</code> (looked up, more than one listed reading, and the checker
+  accepted any; not an estimate) and <code>estimated</code> (no listing, so a heuristic answered). A
+  caller deciding to leave a verdict unscored reads <code>estimated</code>, or <code>basis</code> per entry,
+  and needs no metrics key. A new basis would arrive with a new <code>schema_version</code>.
+  <code>describe</code>'s <code>Description</code> carries <code>runs_in</code> under the same promise, and <code>rules</code>, the
+  row's <code>denckring.rules</code> in the same sorted order, which <code>describe --json</code>, <code>show --json</code>
+  and the MCP server's <code>describe_procedure</code> carry too. <code>provenance</code>
   carries its own <code>schema_version</code>, which moves when the <em>shape</em> of these objects does
-  and not when the package is released: <code>1.1</code> since <code>estimated</code> was added.</li>
+  and not when the package is released: <code>1.2</code> since <code>Evidence.basis</code> gained <code>ambiguous</code>
+  (1.1 added <code>estimated</code>).</li>
 <li><strong><code>Production</code> as JSON</strong> — <code>procedure</code>, <code>candidates</code>, <code>texts</code>, <code>truncated</code>, <code>metrics</code>,
   <code>provenance</code> — and the <code>--json</code> output of <code>apply</code>. Covered by the same promise in the
   same words. Both <code>candidates</code> and <code>texts</code> are ordered, best first, because <code>apply</code>
@@ -2773,22 +2952,19 @@ are built on them:</p>
   replacing or extending the data behind English, German or French (ADR
   0044) — <code>Lang</code> itself is a closed three-member type, so a pack cannot
   register a new language through this mechanism.</li>
+<li><strong>Violation <code>rule</code> strings</strong> (ADR 0059). A rule published through
+  <code>denckring.rules(procedure_id)</code> keeps its name and meaning, so a caller can map
+  rules to its own classes once. A row may add rules. Removing or renaming one is a
+  breaking change, and the changelog names it.</li>
 </ul>
-<p>Not stable, and expected to move: violation <code>rule</code> strings, <code>metrics</code> keys, message
-wording, the wording of prompt hints, and everything under <code>denckring.core</code>. Each row's
-rule strings are published, through <code>denckring.rules(procedure_id)</code>, so they can be
-mapped without reading checker source; a rename is still allowed in a minor release,
-and the changelog names it. A check's <em>verdict</em> is a contract; the reason it gives for
-a failure is not one yet.</p>
+<p>Not stable, and expected to move: <code>metrics</code> keys, message wording, the wording of prompt
+hints, and everything under <code>denckring.core</code>. A check's <em>verdict</em> and the rule it names
+for a failure are contracts; the wording that explains the failure is not.</p>
 <p><strong>Published, not yet promised.</strong> These are exported and documented, so nothing has to
 reach into <code>denckring.core</code> for them, but they may still change in a minor release, with
-a changelog line when they do. All but <code>Report.evidence</code> and <code>Description.reading</code> are
-new in 0.3.2:</p>
+a changelog line when they do. All but <code>Description.reading</code> are new in 0.3.2:</p>
 <ul>
-<li><code>rules</code>, <code>rule_categories</code> and <code>failure_categories</code>: the rule ids and the kind of
-  failure each names;</li>
-<li><code>Report.evidence</code> and its type, <code>Evidence</code>; that field, like the rule ids, is planned
-  for the promise in 0.4.0;</li>
+<li><code>rule_categories</code> and <code>failure_categories</code>: the kind of failure each rule names;</li>
 <li>the catalogue flags <code>Meta.unique_answer</code> and <code>Meta.hidden_material</code>, which
   <code>Description</code> carries too, and <code>Meta.hint_omits</code>;</li>
 <li><code>prompt_hint</code> and <code>render_hint</code>, which render the catalogue's hint templates;</li>
@@ -2797,7 +2973,7 @@ new in 0.3.2:</p>
 <li><code>words</code> and <code>nouns</code>;</li>
 <li><code>pack_provenance</code> and <code>PackProvenance</code>, the record <code>Report.provenance.pack</code> carries;</li>
 <li><code>Description.reading</code>, including its new <code>reading.units</code>, <code>reading.word_examples</code>
-  and <code>reading.vowels</code>.</li>
+  and <code>reading.vowels</code>, and <code>reading.rhyme</code>, new in 0.4.0.</li>
 </ul>
 <h2 id="the-catalogue-as-data">The catalogue as data<a class="headerlink" href="#the-catalogue-as-data" title="Permanent link">&para;</a></h2>
 <p>The catalogue is 158 sourced procedures and is a contribution in its own right — useful

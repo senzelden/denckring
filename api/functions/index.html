@@ -2351,6 +2351,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0054-syllable-counts-read-every-pronunciation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    54. Syllable counts read every listed pronunciation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0055-stricter-defaults-for-source-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    55. Stricter defaults for source rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0056-aligned-scoring-for-positional-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    56. Aligned scoring for positional rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0057-rhyme-readings-in-the-writers-favour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    57. Rhyme readings in the writer's favour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0058-a-word-is-as-long-as-its-letters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    58. A word is as long as its letters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0059-composites-and-the-promise-of-rules-and-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    59. A composite is a list of constraints, and rules and evidence are promised
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2848,8 +3016,8 @@ English, which <code>describe</code> does and discloses in <code>untranslated</c
 string cannot — and <code>UnsetHintParameter</code> when the hint states a parameter
 whose value is <code>None</code> ("inferred" to a checker, nothing to a sentence).</p>
 <p>A composite (<code>multiple_constraint</code>) is followed by one line per named
-constraint, <code>-</code> and that constraint's own hint rendered from its
-<code>constraint_params</code> entry by this same function, in <code>constraints</code> order, any
+constraint, <code>-</code> and that constraint's own hint rendered from its entry's
+<code>params</code> by this same function, in <code>constraints</code> order, any
 lines of its own indented under it. So each sub-hint validates and refuses as
 it would if asked for directly, and the error names the sub-constraint.</p>
 
@@ -2889,9 +3057,11 @@ it. A placeholder naming no parameter of the row
 raises <code>InvalidParams</code>; one whose value is <code>None</code> raises <code>UnsetHintParameter</code>.
 A parameter the template has no placeholder for, set off its default, is
 appended on its own line as <code>prompt_hint</code> appends it, so a template written
-without a threshold cannot drop one a caller sets. Unlike <code>prompt_hint</code>, no
-line is appended per composite constraint, so a non-default
-<code>constraint_params</code> is stated as a setting like any other parameter.</p>
+without a threshold cannot drop one a caller sets. A composite is followed by
+one line per constraint, as in <code>prompt_hint</code>, each that constraint's catalogue
+hint rendered from its entry's <code>params</code>: the caller's template states the
+composite, and the entries' parameters are stated whether it names them or not
+(ADR 0059).</p>
 
 
     </div>
@@ -2916,8 +3086,9 @@ line is appended per composite constraint, so a non-default
 rules to its own classes without reading checker source. <code>multiple_constraint</code>
 passes its constraints' violations through unchanged, and any registered row
 can be one of them, so it answers with every other row's vocabulary.</p>
-<p>Published from 0.3.2 but not yet under the README's stability promise: a rule
-may still be renamed in a minor release, and the changelog will say so.</p>
+<p>Under the README's stability promise since 0.4.0 (ADR 0059): a published rule
+keeps its name and meaning, a row may add rules, and removing or renaming one is
+a breaking change the changelog names.</p>
 
 
     </div>
@@ -2940,11 +3111,14 @@ may still be renamed in a minor release, and the changelog will say so.</p>
         <p>Each rule <code>rules(procedure_id)</code> returns, mapped to the kind of failure it names.</p>
 <p>The categories are a closed set, defined in <code>failure_categories()</code>: a forbidden
 letter is <code>excluded_letter</code>, a missing line <code>count</code>, a broken rhyme <code>sound</code>. A rule
-string has the same category on every row that emits it, but one:
+string has the same category on every row that emits it, but two:
 <code>slenderizing</code>'s <code>wrong_letter</code> is <code>transcription</code>, where the spine rows'
-is <code>position</code>. So a caller counting failures across rows counts by kind without
-a map of its own (audit C3), provided it asks each row rather than keying by the
-rule alone. <code>multiple_constraint</code> answers with each rule's usual category.
+is <code>position</code>, and <code>missing_letter</code> is <code>transcription</code> on the rows that align
+a text's letters with its source's (<code>slenderizing</code>, <code>homoconsonantism</code>,
+<code>homovocalism</code>), where the inventory rows' is <code>inventory</code>. So a caller counting
+failures across rows counts by kind without a map of its own (audit C3),
+provided it asks each row rather than keying by the rule alone.
+<code>multiple_constraint</code> answers with each rule's usual category.
 Published with the rules themselves, and under the same terms: a rule's category
 may move in a minor release, and the changelog will say so.</p>
 
