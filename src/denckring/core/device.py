@@ -117,6 +117,11 @@ def _locate(directory: Path, item_id: str) -> Path | None:
         return None
     candidate = directory / f"{item_id}.yaml"
     try:
+        # The name as listed, not as the filesystem resolves it: on a
+        # case-insensitive one (macOS, Windows) `LLULL_TERNARY` would find
+        # `llull_ternary.yaml`, so an id's validity would depend on the OS.
+        if candidate.name not in {path.name for path in directory.iterdir()}:
+            return None
         if not candidate.is_file():
             return None
         resolved_dir = directory.resolve()

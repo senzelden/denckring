@@ -402,6 +402,11 @@ evidence or descriptions only, or add something.
 
 ### Fixed
 
+- A device or figure id is read in its own case on every OS. On a case-insensitive
+  filesystem (macOS, Windows) `LLULL_TERNARY` found `llull_ternary.yaml`, so
+  `llull_figure` accepted an id that Linux refused; the lookup now matches the file's
+  listed name exactly.
+
 - `quenina` with `n` below 1 now fails. A negative size used to return `satisfied`
   true with a score of 1.0 alongside an `invalid_size` violation, because the empty
   spiral checked no stanza and the size was counted as matched lines. `n=0` already

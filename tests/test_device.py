@@ -443,3 +443,22 @@ def test_the_search_path_honours_a_separator_that_is_not_a_colon(
     found = devices._device_search_path()
     assert first in found
     assert second in found
+
+
+def test_an_id_is_read_in_its_own_case_on_a_case_insensitive_filesystem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """macOS and Windows resolve `LLULL_TERNARY.yaml` to `llull_ternary.yaml`; the id must
+    still be refused, as it is on Linux, so a figure's validity does not depend on the OS.
+    The filesystem is simulated by answering `is_file` without regard to case."""
+    real_is_file = Path.is_file
+
+    def is_file_ignoring_case(path: Path) -> bool:
+        return real_is_file(path) or any(
+            sibling.name.casefold() == path.name.casefold() for sibling in path.parent.iterdir()
+        )
+
+    monkeypatch.setattr(Path, "is_file", is_file_ignoring_case)
+    with pytest.raises(UnknownFigure):
+        devices.load_figure("LLULL_TERNARY")
+    assert devices.load_figure("llull_ternary")

@@ -66,9 +66,11 @@ def test_assonance_breaks_a_tie_the_same_way_under_every_hash_seed() -> None:
     reports = [
         subprocess.run(
             [sys.executable, "-c", _REPORT],
-            env={**os.environ, "PYTHONHASHSEED": seed},
+            # UTF-8 both ways: the report carries IPA (`ɔ`), which a Windows
+            # console's cp1252 cannot print.
+            env={**os.environ, "PYTHONHASHSEED": seed, "PYTHONIOENCODING": "utf-8"},
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             check=True,
         ).stdout
         for seed in ("0", "1")
