@@ -29,8 +29,8 @@ def test_a_wrong_word_is_placed_at_the_text_word() -> None:
 def test_a_missing_tail_is_placed_at_the_end_of_the_text() -> None:
     report = check("every_nth_word", "two four", source=SOURCE, n=2)
     assert [(v.rule, v.offset) for v in report.violations] == [
-        ("wrong_word", 8),
-        ("wrong_word", 8),
+        ("missing_word", 8),
+        ("missing_word", 8),
     ]
 
 

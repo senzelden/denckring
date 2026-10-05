@@ -1,6 +1,8 @@
+import re
 from pathlib import Path
+from typing import get_args
 
-from denckring import check, list_procedures, produce
+from denckring import Evidence, check, list_procedures, produce
 from denckring.eval import harness
 
 README = Path(__file__).resolve().parents[1] / "README.md"
@@ -128,6 +130,39 @@ def test_readme_states_what_is_stable() -> None:
     surfaces = ("Procedure ids", "`Report` as JSON", "catalogue export schema", "denckring.lang")
     for surface in surfaces:
         assert surface in text, f"the stability section does not name {surface}"
+
+
+def _stable_section() -> str:
+    text = README.read_text(encoding="utf-8")
+    return text.split("## What is stable", 1)[1].split("\n## ", 1)[0]
+
+
+def _bullet(section: str, opening: str) -> str:
+    found = [b for b in section.split("\n- ") if b.startswith(opening)]
+    assert len(found) == 1, f"the stability section has no single bullet opening {opening!r}"
+    return found[0].split("\n\n", 1)[0]
+
+
+def test_the_report_promise_names_every_report_field_and_every_basis() -> None:
+    """Every field `Report` serialises is under the promise (ADR 0059), and so is the
+    `Evidence` an entry of `evidence` carries, with each basis it can take, so a caller
+    can decide "unscored" from `basis` without a metrics key (audit B8)."""
+    bullet = _bullet(_stable_section(), "**`Report` as JSON**")
+    named = set(re.findall(r"`([^`]+)`", bullet))
+    report = check("lipogram", "the cat", forbidden="z").model_dump(mode="json")
+    assert sorted(set(report) - named) == []
+    assert sorted(set(Evidence.model_fields) - named) == []
+    basis = get_args(Evidence.model_fields["basis"].annotation)
+    assert sorted(set(basis) - named) == []
+
+
+def test_rule_strings_are_promised_and_not_listed_as_unstable() -> None:
+    """ADR 0059 moved the rule ids from "expected to move" into the promise."""
+    section = _stable_section()
+    bullet = _bullet(section, "**Violation `rule` strings**")
+    assert "denckring.rules(procedure_id)" in bullet
+    unstable = section.split("Not stable, and expected to move:", 1)[1].split(". ", 1)[0]
+    assert "rule" not in unstable
 
 
 def test_readme_says_what_the_name_may_be_used_for() -> None:

@@ -9,7 +9,11 @@ from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import paragraph_spans
-from denckring.procedures.syllable_count import line_syllables, syllable_evidence
+from denckring.procedures.syllable_count import (
+    line_syllable_counts,
+    syllable_evidence,
+    syllables_text,
+)
 
 HOKKU = [5, 7, 5]
 WAKIKU = [7, 7]
@@ -64,7 +68,7 @@ class Renga(BaseProcedure[RengaParams]):
 
         for index, (offset, stanza) in enumerate(stanzas):
             wanted = HOKKU if index % 2 == 0 else WAKIKU
-            measured = line_syllables(stanza, pack)
+            measured = line_syllable_counts(stanza, pack)
             estimated += sum(count for _, _, count in measured)
             total += 1
             if len(measured) != len(wanted):
@@ -81,11 +85,12 @@ class Renga(BaseProcedure[RengaParams]):
                 Violation(
                     rule="wrong_syllable_count",
                     offset=offset + line_offset,
-                    found=f"{syllables} syllables",
+                    found=syllables_text(totals),
                     expected=f"{expected} syllables",
                 )
-                for (line_offset, syllables, _), expected in zip(measured, wanted, strict=True)
-                if syllables != expected
+                for (line_offset, totals, _), expected in zip(measured, wanted, strict=True)
+                # Any reading of the line meets it (ADR 0054).
+                if expected not in totals
             ]
             violations += faults
             if not faults:

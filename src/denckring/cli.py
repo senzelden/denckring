@@ -11,7 +11,7 @@ from typing import Annotated, Any, cast, get_args
 
 import typer
 
-from denckring import __version__
+from denckring import __version__, rules
 from denckring.core import catalogue
 from denckring.core.describe import describe, summaries
 from denckring.core.errors import DenckringError, NotConstructive, UnknownLanguage
@@ -63,7 +63,28 @@ def _read(source: str | None) -> str:
     return Path(source).read_text(encoding="utf-8")
 
 
-def _coerce(value: str) -> Any:
+def _structured(*schemas: dict[str, Any]) -> set[str]:
+    """The parameters whose schema `type` is an array or an object, in any branch."""
+    found: set[str] = set()
+    for schema in schemas:
+        for name, spec in schema.get("properties", {}).items():
+            branches = [spec, *spec.get("anyOf", [])]
+            if any(branch.get("type") in ("array", "object") for branch in branches):
+                found.add(name)
+    return found
+
+
+def _coerce(value: str, structured: bool = False) -> Any:
+    # JSON for a field the schema types as an array or an object, so a structured
+    # parameter can be given on the command line: `multiple_constraint`'s
+    # `constraints` is a list of {"id", "params"} (ADR 0059). Only there, so a string
+    # parameter whose value happens to be JSON (`source='[1]'`) stays a string; and a
+    # value that does not parse stays the string it was.
+    if structured and value[:1] in ("[", "{"):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return value
     lowered = value.lower()
     if lowered in {"true", "false"}:
         return lowered == "true"
@@ -73,13 +94,13 @@ def _coerce(value: str) -> Any:
         return value
 
 
-def _parse_params(pairs: list[str]) -> dict[str, Any]:
+def _parse_params(pairs: list[str], structured: set[str] | None = None) -> dict[str, Any]:
     params: dict[str, Any] = {}
     for pair in pairs:
         key, separator, value = pair.partition("=")
         if not separator:
             raise typer.BadParameter(f"--param expects key=value, got {pair!r}")
-        params[key] = _coerce(value)
+        params[key] = _coerce(value, key in (structured or set()))
     return params
 
 
@@ -102,7 +123,7 @@ def check_command(
     """Validate a text. Exits 1 when the text does not satisfy the procedure."""
     try:
         procedure = get(procedure_id)
-        params = _parse_params(param or [])
+        params = _parse_params(param or [], _structured(procedure.params_schema()))
         if source is not None:
             params["source"] = _read(source)
         report = procedure.check(_read(file), lang=_lang(lang), **params)
@@ -146,9 +167,14 @@ def apply_command(
     # `None` to a procedure that takes no seed would be an `InvalidParams` on
     # every invocation; sending a real one is a caller error worth reporting.
     drawn = {"seed": seed} if seed is not None else {}
+    # `Constructive` (the protocol) does not carry `apply_params_model`; every class
+    # that implements it does, through `ConstructiveProcedure`.
+    apply_model = getattr(procedure, "apply_params_model", None)
+    applied: dict[str, Any] = apply_model().model_json_schema() if apply_model else {}
+    structured = _structured(procedure.params_schema(), applied)
     try:
         produced = procedure.produce(
-            _read(file), lang=_lang(lang), **drawn, **_parse_params(param or [])
+            _read(file), lang=_lang(lang), **drawn, **_parse_params(param or [], structured)
         )
     except DenckringError as exc:
         _fail(exc)
@@ -178,6 +204,7 @@ def describe_command(
         typer.echo(f"\nHint: {described.prompt_hints}")
     if not described.runnable:
         typer.echo(f"\nNot runnable here — missing: {', '.join(described.missing)}")
+    typer.echo(f"\nRules: {', '.join(described.rules) or '—'}")
 
 
 @app.command("list")
@@ -259,12 +286,20 @@ def show_command(
         return
     examples = [c.model_dump() for c in harness.golden_cases() if c.procedure == procedure_id]
     schema: dict[str, Any] = {}
+    # The rules its checker can emit (`denckring.rules`); none for a row with no checker.
+    published: list[str] = []
     if procedure_id in all_procedures():
         schema = get(procedure_id).params_schema()
+        published = list(rules(procedure_id))
     if as_json:
         typer.echo(
             json.dumps(
-                {"meta": meta.model_dump(), "params_schema": schema, "examples": examples},
+                {
+                    "meta": meta.model_dump(),
+                    "params_schema": schema,
+                    "rules": published,
+                    "examples": examples,
+                },
                 indent=2,
                 ensure_ascii=False,
             )
@@ -275,6 +310,7 @@ def show_command(
     typer.echo(f"  source: {meta.source}")
     typer.echo(f"  kind: {meta.kind}   languages: {', '.join(meta.languages)}")
     typer.echo(f"  requires: {', '.join(meta.requires) or '—'}")
+    typer.echo(f"  rules: {', '.join(published) or '—'}")
     for example in examples:
         typer.echo(f"  example [{example['name']}] satisfied={example['satisfied']}")
 

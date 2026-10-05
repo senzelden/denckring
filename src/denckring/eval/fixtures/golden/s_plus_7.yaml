@@ -66,7 +66,9 @@ cases:
     source: >-
       constructed counterexample; île is a listed noun left unchanged, which
       ambiguous_nouns="strict" exists to flag — the proclitic must not hide
-      that behind an unfolded lookup
+      that behind an unfolded lookup. allow_identity is set so the copy is
+      not also refused as `unchanged` (the 0.4.0 default, ADR 0055), which
+      would fail this text whatever the strict reading did
     text: l'île
-    params: { source: l'île, offset: 3, ambiguous_nouns: strict }
+    params: { source: l'île, offset: 3, ambiguous_nouns: strict, allow_identity: true }
     satisfied: false

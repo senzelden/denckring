@@ -446,6 +446,15 @@ witnesses:
   params: {}
   text: ''
 - procedure: column_reading
+  rule: missing_word
+  lang: en
+  params:
+    source: |-
+      a
+      b
+    column: 1
+  text: b
+- procedure: column_reading
   rule: not_in_source
   lang: en
   params:
@@ -688,6 +697,13 @@ witnesses:
     source: a a a a
     n: 2
   text: a a a a
+- procedure: every_nth_word
+  rule: missing_word
+  lang: en
+  params:
+    source: a b c d
+    n: 1
+  text: a c d
 - procedure: ghazal
   rule: broken_qafia
   lang: en
@@ -743,6 +759,14 @@ witnesses:
   params:
     source: Silent night
   text: Silent night
+- procedure: haikuization
+  rule: missing_word
+  lang: en
+  params:
+    source: |-
+      the cat sat down
+      a dog ran fast
+  text: fast
 - procedure: haikuization
   rule: not_in_source
   lang: en
@@ -866,6 +890,12 @@ witnesses:
     source: a
   text: a zzzz
 - procedure: homoconsonantism
+  rule: missing_letter
+  lang: en
+  params:
+    source: bcd
+  text: bd
+- procedure: homoconsonantism
   rule: unchanged
   lang: en
   params:
@@ -898,6 +928,12 @@ witnesses:
   params:
     source: ''
   text: The girl read the book.
+- procedure: homovocalism
+  rule: missing_letter
+  lang: en
+  params:
+    source: the cat sat on a mat
+  text: th cat sat on a mat
 - procedure: homovocalism
   rule: unchanged
   lang: en
@@ -1083,6 +1119,18 @@ witnesses:
     source: l'ami
   text: zxqvkt
 - procedure: n_plus_7
+  rule: extra_words
+  lang: en
+  params:
+    source: the cat
+  text: the very catacomb
+- procedure: n_plus_7
+  rule: missing_word
+  lang: en
+  params:
+    source: the cat
+  text: ''
+- procedure: n_plus_7
   rule: no_displacement
   lang: en
   params:
@@ -1107,12 +1155,6 @@ witnesses:
     source: aster
     offset: 1
   text: bramble
-- procedure: n_plus_7
-  rule: wrong_word_count
-  lang: en
-  params:
-    source: the cat
-  text: ''
 - procedure: ottava_rima
   rule: identical_rhyme
   lang: en
@@ -1616,6 +1658,22 @@ witnesses:
     ambiguous_nouns: strict
   text: d'îlot
 - procedure: s_plus_7
+  rule: extra_words
+  lang: en
+  params:
+    source: the cat sat on the table
+    offset: 3
+  text: |-
+    the catacala satanism on the tablefork
+    the catacala satanism on the tablefork
+- procedure: s_plus_7
+  rule: missing_word
+  lang: en
+  params:
+    source: the cat sat on the table
+    offset: 3
+  text: the catacala satanism on the
+- procedure: s_plus_7
   rule: no_displacement
   lang: en
   params:
@@ -1632,15 +1690,6 @@ witnesses:
     offset: 3
     ambiguous_nouns: strict
   text: l'île
-- procedure: s_plus_7
-  rule: wrong_word_count
-  lang: en
-  params:
-    source: the cat sat on the table
-    offset: 3
-  text: |-
-    the catacala satanism on the tablefork
-    the catacala satanism on the tablefork
 - procedure: sapphic_stanza
   rule: wrong_stress
   lang: en
@@ -1763,6 +1812,13 @@ witnesses:
     the mouse will hide behind the open till
     the clock will mark the passing of the time
     the bell will ring and slowly start to chime
+- procedure: slenderizing
+  rule: wrong_letter
+  lang: en
+  params:
+    source: brat
+    deleted: r
+  text: bot
 - procedure: sonnet
   rule: identical_rhyme
   lang: en
@@ -1835,6 +1891,27 @@ witnesses:
     metre: '0101010101'
   text: |-
     the cat can see the moon above the day
+    the dog will run across the field today
+    a kestrel flies around the house at three
+    the sun will set behind the hill in may
+    the fox will hide beneath the fallen stone
+    the fish will swim beneath the frozen lake
+    the owl will call across the dark alone
+    the deer will wake before the morning break
+    the moon will rise and fill the sky with light
+    the horse will stand beside the gate so still
+    the stars will burn until the end of night
+    the mouse will hide behind the open till
+    the clock will mark the passing of the time
+    the bell will ring and slowly start to chime
+- procedure: sonnet
+  rule: wrong_line_length
+  lang: en
+  params:
+    scheme: ABABCDCDEFEFGG
+    metre: '0101010101'
+  text: |-
+    and the cat can see the moon above the tree
     the dog will run across the field today
     a kestrel flies around the house at three
     the sun will set behind the hill in may

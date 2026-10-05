@@ -36,13 +36,12 @@ STATED = {"letter": "s", "vowel": "a", "vowels": "ae", "consonant": "t"}
 
 #: Composites, whose scope is the coarsest their constraints keep.
 COMPOSITES: list[dict[str, Any]] = [
+    {"constraints": [{"id": "lipogram"}, {"id": "tautogram", "params": {"initial": "s"}}]},
     {
-        "constraints": ["lipogram", "tautogram"],
-        "constraint_params": {"tautogram": {"initial": "s"}},
-    },
-    {
-        "constraints": ["prisoners_constraint", "liponym"],
-        "constraint_params": {"liponym": {"forbidden": "a"}},
+        "constraints": [
+            {"id": "prisoners_constraint"},
+            {"id": "liponym", "params": {"forbidden": "a"}},
+        ]
     },
 ]
 
@@ -203,7 +202,8 @@ def test_the_scopes_the_rows_were_measured_at() -> None:
 
 def test_a_composite_keeps_the_coarsest_scope() -> None:
     def composite(*pids: str, **params: dict[str, Any]) -> str:
-        return scope("multiple_constraint", constraints=list(pids), constraint_params=params)
+        entries = [{"id": pid, "params": params.get(pid, {})} for pid in pids]
+        return scope("multiple_constraint", constraints=entries)
 
     assert composite("lipogram", "tautogram", tautogram={"initial": "s"}) == "word"
     assert composite("lipogram", "tautogram") == "text"

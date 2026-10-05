@@ -6,6 +6,168 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+An entry marked **Breaking:** changes, for a call that is itself unchanged, a verdict,
+a parameter's default (in the schema too) or a published rule. The others change scores,
+evidence or descriptions only, or add something.
+
+- **Breaking:** **A line meets a syllable count when some reading of its words does** (ADR 0054,
+  audit A3). The line-count rows read each word's first CMUdict pronunciation, while
+  metre and rhyme read every one, so `every family sings` failed a haiku's five as seven
+  syllables with nothing estimated. `syllable_count`, `haiku`, `tanka`, `senryu`,
+  `cinquain`, `englyn`, `hendecasyllable`, `alexandrine`, `renga`, `haibun` and
+  `arca_musarithmica` now accept a line when any combination of listed readings meets
+  the count. `monosyllabic_prose` accepts a word with a one-syllable reading (`fire`),
+  and `double_dactyl` accepts a word with a six-syllable reading (`paradoxically`).
+  Packs gain `syllable_counts(word)` and `line_syllable_counts(line)`, and English's
+  reads every CMUdict variant. Both are optional, are not on the `LanguagePack`
+  protocol, and are read with `getattr`. German keeps its first transcription, because
+  Wiktionary's list carries inflected forms (`du` lists *deiner*). French returns its one
+  line total. A violation no reading meets names every reading: `found` is
+  `4, 5 or 6 syllables`.
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves. Texts like
+  the audit's move from failing to passing. 92 of the 3,966 band-10 words have listed
+  readings with different counts.
+
+- `Evidence.basis` gains `ambiguous` (ADR 0054): the dictionary lists more than one reading and the
+  checker accepted any of them. It is used on syllable, stress and rhyme evidence. It is
+  not an estimate, so `Report.estimated` stays false. `dictionary` now means one reading.
+  Metre evidence names the stress form the scan fitted (`every` as `10`, was its first
+  form `100`), or every form tried, joined by `/`, when the line does not scan.
+  In the golden corpus, 51 evidence entries in 27 English cases (sonnet, stanza and
+  rhyme rows) go from `dictionary` to `ambiguous`, and three English metre entries change
+  `value`. German entries stay `dictionary` (ADR 0057, below).
+  `provenance.schema_version` is `1.2` (was `1.1`), and the schema test now ties each
+  version to its basis values as well as its keys.
+
+- `describe().reading.determinacy` is `heuristic` for `definitional_expansion` and
+  `definitional_literature` (was `exact`; ADR 0054): a word no gloss resolves is left unjudged,
+  and their reports could already be `estimated`. It is `heuristic` for `multiple_constraint`
+  too (was `exact`): its entries may name a row that estimates, and a description of the row
+  cannot know which a call composes, so a composite of exact rows is described more
+  cautiously than it runs. The split is 84 exact and 49 heuristic (was 87 and 46). An
+  `exact` row never reports `estimated`, with no exceptions.
+
+- **Breaking:** **Source rows refuse a copy of their source by default** (ADR 0055, audit A5).
+  `allow_identity` now defaults to `false` on the 14 rows that take it, so a text whose
+  letters are the source's, in order, fails as `unchanged`. Pass `allow_identity=true`
+  for the old reading. A copy still passes where the source admits no other answer (a
+  one-sentence `recombination`, a one-word `cut_up`, an N+7 source with no listed noun),
+  because refusing it there would fail every text. A refused copy costs one unit of
+  score, so `satisfied` and the `unchanged` rule are what mark it. `apply` on these rows
+  refuses a copy in the same sense, so `cut_up` no longer returns `a a` for `a.a`: it
+  raises `degenerate_output` with a new `observed` shape, `the input's letters in the
+  input's order` (`DegenerateOutput.COPY`), where the text was not identical.
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves. One
+  `s_plus_7` case retypes its source to show `ambiguous_nouns="strict"`, and it now sets
+  `allow_identity: true` so that it fails for that reason alone.
+
+- **Breaking:** **N+7 reads a supplied dictionary strictly** (ADR 0055, audit A5). On `n_plus_7`
+  and `s_plus_7`, `ambiguous_nouns` defaults to `None`, which resolves to `strict` when
+  `dictionary` is supplied and to `free` with the pack's nouns, as before. An explicit
+  value still wins. With a supplied list, a listed word left unchanged fails as
+  `ambiguous_noun_unchanged`. The schema's default for the field is now `null` (was
+  `"free"`). A listed word whose displacement is itself (an offset that is a multiple
+  of the list's length) now passes under every reading, `strict` included, and is not
+  counted in `ambiguous_words`. Golden corpus: nothing moves, since no case supplies
+  `dictionary`.
+
+- **Breaking:** **Positional rows score over an alignment** (ADR 0056, audit A6). `column_reading`,
+  `haikuization`, `every_nth_word`, `slenderizing`, `homoconsonantism`,
+  `homovocalism`, `n_plus_7` and `s_plus_7` compared a text with what their rule
+  expects index by index, so one dropped unit made every later unit wrong, and N+7
+  scored any word-count mismatch 0/1. They now align the two by minimal
+  edits (Levenshtein; a tie prefers a substitution, then a deletion, then an
+  insertion; `source_compare.align`, `aligned_report`): `good` is the matched count and the
+  denominator the alignment's length, so one dropped unit costs one unit. Only an exact
+  match scores 1.0. Scores and violation lists change. A
+  substitution keeps the row's rule. An inserted run is `extra_words` or
+  `extra_letters` at its first unit, mid-text as well as at the end. A missing unit is
+  `missing_word` or `missing_letter`, placed where it would go. `n_plus_7` and
+  `s_plus_7` declare `extra_words` and `missing_word` and no longer emit
+  `wrong_word_count`. Their mismatched texts are judged word by word around the gaps.
+  `missing_letter` is `transcription` on `slenderizing`, `homoconsonantism` and
+  `homovocalism` (`rule_categories`). A lone substitution still costs one unit, as
+  before. Golden corpus, re-measured over all 687 cases: no verdict moves. Three
+  `slenderizing` scores rise (0.25 to 0.75, 0.412 to 0.765, 0.167 to 0.833).
+
+- **Breaking:** **A pair kept apart fails only when every reader rhymes it** (ADR 0057, audit A8).
+  `unwanted_rhyme`, on every rhyme-scheme row and on `blank_verse`, fired when any pair
+  of the two words' keys matched, so `gone` and `on` (`AA1 N` or `AO1 N`) failed `AB`.
+  It now fires only when every pairing matches, or when the two words have the same set
+  of keys: `fog` and `bog` (each `AA1 G` or `AO1 G`) still fail, and so does `wind`
+  against `wind`. A wanted rhyme still needs one matching pairing. Each pair is decided on
+  its own, not the scheme jointly, so one reading of a word may keep one pair apart while
+  another makes a second pair rhyme. `prosody.may_rhyme` and `prosody.must_rhyme` name
+  the two tests. `describe().reading.rhyme` is new: on the 20 rows that judge a rhyme it
+  says what the key is (from the last primary-stressed vowel in English and German, so
+  `someday` does not rhyme with `day`, or the last vowel in a word with no primary
+  stress; the last vowel in French) and how a scheme reads
+  several keys; on every other row it is `None`.
+
+- **Breaking:** **German stress and rhyme read the first transcription only** (ADR 0057). Wiktionary's
+  list for a headword carries its inflected forms' transcriptions, and the vendored
+  table does not say which are which: `du` rhymed with `mich` through *dich* and scanned
+  as two syllables through *deiner*. `stress_patterns` and `rhyme_keys` on the German
+  Wiktionary pack now return the first transcription's alone, as syllable counts already
+  did (ADR 0054). Real variants are lost with them: `gehen` is no longer offered as one
+  syllable, and `hierher` no longer as `01`. German evidence is never `ambiguous`.
+  Golden corpus, re-measured over all 687 cases: no verdict moves. Two German metre
+  scores move, both on cases that already failed: Goethe's *Iphigenie* blank verse
+  0.9947 to 0.9895 (`hierher`), and its `min_score` floor drops from 0.99 to 0.98;
+  Gryphius's sonnet 0.9873 to 0.9879 (`du`), which resolves the defect ADR 0040 parked.
+  Seven evidence entries in three German cases change `value` as the other
+  transcriptions drop out (`hierher`'s rhyme is `eː ɐ̯`, was `eː ɐ̯/iː ɐ̯ h eː ɐ̯`).
+
+- **Breaking:** **A snowball counts letters, not characters** (ADR 0058, audit A10). `snowball` and
+  `reverse_snowball` measured each word with `len`, and the word pattern keeps an
+  apostrophe inside a word, so `I'm` was three letters long. They now count the word's
+  letters (`letter_spans`, unfolded, so `ß` is one): `A I'm the` passes and `be I'm`
+  fails. No other checker measures a word's length that way. The hyphen and `y`
+  readings are unchanged and stated in `describe().reading`: a hyphen splits a word
+  (`word_examples`, `well-known` is two words in `sentence_length_constraint` and
+  `snowball_sentence` too), and `y` is no vowel in English or German (`vowels`).
+  Golden corpus, re-measured over all 687 cases: no verdict or score moves.
+
+- **Breaking:** **`multiple_constraint` takes a list of `{"id", "params"}` entries** (ADR
+  0059, audit B10). `constraints: [{"id": "univocalic", "params": {"vowel": "e"}},
+  {"id": "lipogram", "params": {"forbidden": "a"}}]` replaces `constraints` as a list
+  of ids plus `constraint_params` keyed by id, so the same procedure may appear twice
+  (two lipograms, two acrostics). The old shape raises `InvalidParams`, whose message
+  is the caller's own call rewritten in the new shape; it is never re-read. The score is
+  the mean of the constraints' own scores (was one unit per satisfied constraint, so 0,
+  0.5 or 1), and `satisfied` still needs every constraint. `metrics` carries
+  `delegates.<i>.satisfied` and `delegates.<i>.score` in constraint order, replacing
+  `<id>_score`. A violation's `note`, and a constraint's `InvalidParams`, name the entry's
+  position when its id repeats (`lipogram (constraints[1])`; the error always does).
+  `prompt_hint` and now `render_hint` follow the composite's hint with one line per
+  entry, each that constraint's own hint from its `params` (`render_hint` stated
+  `constraint_params` as one setting line before). The CLI reads a
+  `--param` value as JSON when the field's schema type is an array or an object, so
+  `-p 'constraints=[...]'` works, and any other value is read as before. The MCP
+  server's length cap counts every string nested in the parameters, keys included. The
+  explorer's bench renders and reads the field as JSON, and reports a malformed value
+  as `That value could not be read: constraints is not valid JSON: ...` (the notice
+  for every unreadable field, which said `That is not a number`). Golden corpus, re-measured over all 687
+  cases: the six fixtures move to the new shape, no verdict moves, and three failing
+  cases' scores rise (0.5 to 0.667 in English and French, 0.5 to 0.6875 in German).
+
+- **Rule ids and `Report.evidence` are under the stability promise** (ADR 0059, audits
+  B1 and B8). A rule published through `denckring.rules(procedure_id)` keeps its name
+  and meaning; a row may add rules, and removing or renaming one is a breaking change
+  the changelog names. `evidence` joins the `Report` JSON fields the README promises,
+  with `Evidence`'s fields and its basis values (`dictionary`, `ambiguous`,
+  `estimated`), so a caller can leave a verdict unscored from `basis` alone. `rules` and
+  `Evidence` move into the promised exports. `rule_categories`, `failure_categories`,
+  `metrics` keys and the wording of messages and hints stay unpromised.
+
+- **`describe()` carries each row's rules** (ADR 0059). `Description.rules` is
+  `denckring.rules(procedure_id)`, sorted, so a caller of the CLI or the MCP server reads
+  the promised vocabulary without Python: `describe` and `show` print it, their `--json`
+  output carries it as `rules`, and so does the MCP `describe_procedure` tool.
+  `multiple_constraint`'s is every other row's vocabulary, as `denckring.rules` answers.
+
 ## [0.3.2] - 2026-10-05
 
 ### Added

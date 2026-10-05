@@ -85,6 +85,29 @@ def test_check_text_tool_refuses_an_oversized_source_param() -> None:
     assert result["code"] == "text_too_long"
 
 
+def test_check_text_tool_refuses_an_oversized_source_inside_a_composite() -> None:
+    """A composite carries each constraint's parameters in its `constraints` entries
+    (ADR 0059), so a source row's document arrives nested two levels down."""
+    from denckring.mcp import server
+
+    huge_source = "a " * server.MAX_TEXT_CHARS
+    constraints = [
+        {"id": "lipogram", "params": {"forbidden": "z"}},
+        {"id": "n_plus_7", "params": {"source": huge_source}},
+    ]
+    result = check_text_tool("multiple_constraint", "short text", {"constraints": constraints})
+    assert result["code"] == "text_too_long"
+
+
+def test_check_text_tool_counts_a_huge_key_nested_in_a_composite() -> None:
+    from denckring.mcp import server
+
+    huge_key = "k" * (server.MAX_TEXT_CHARS + 1)
+    constraints = [{"id": "lipogram", "params": {huge_key: 1}}, {"id": "univocalic"}]
+    result = check_text_tool("multiple_constraint", "short", {"constraints": constraints})
+    assert result["code"] == "text_too_long"
+
+
 def test_check_text_tool_still_runs_an_ordinary_text() -> None:
     """The previous assertion — `"code" not in result or result.get("satisfied")
     is not None` — is a disjunction almost any dict satisfies, including an
@@ -242,3 +265,11 @@ def test_parse_max_text_chars_handles_valid_and_malformed_inputs(
     monkeypatch.setenv("DENCKRING_MCP_MAX_CHARS", "-50")
     with pytest.warns(RuntimeWarning, match="DENCKRING_MCP_MAX_CHARS.*-50"):
         assert _parse_max_text_chars() == DEFAULT_MAX_TEXT_CHARS
+
+
+def test_describe_carries_the_rows_published_rules() -> None:
+    """The MCP surface states the promised rule vocabulary too (ruling R-F6)."""
+    import denckring
+
+    for pid in ("lipogram", "multiple_constraint"):
+        assert describe_procedure_tool(pid)["rules"] == list(denckring.rules(pid))

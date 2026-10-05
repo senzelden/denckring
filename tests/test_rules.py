@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -151,8 +152,7 @@ def test_a_composite_passes_its_constraints_rules_through() -> None:
     report = denckring.check(
         "multiple_constraint",
         "the cat",
-        constraints=["lipogram", "univocalic"],
-        constraint_params={"lipogram": {"forbidden": "t"}},
+        constraints=[{"id": "lipogram", "params": {"forbidden": "t"}}, {"id": "univocalic"}],
     )
     rules = {violation.rule for violation in report.violations}
     assert "forbidden_letter" in rules
@@ -188,3 +188,24 @@ def test_a_row_without_rules_is_named_even_through_the_composite(
         denckring.rules("multiple_constraint")
     with pytest.raises(TypeError, match="'lipogram' declares no `rules`"):
         denckring.rules("lipogram")
+
+
+#: Every published rule, per row, as of the release that promised them (ADR 0059).
+PUBLISHED = Path(__file__).parent / "data" / "published-rules.json"
+
+
+def test_no_published_rule_is_removed_or_renamed() -> None:
+    """The README promises that a rule `denckring.rules` publishes keeps its name and
+    meaning (ADR 0059). A row may add rules, so only a snapshot rule that has gone
+    fails; a new one needs no change here, though adding it keeps the guard current."""
+    snapshot: dict[str, list[str]] = json.loads(PUBLISHED.read_text(encoding="utf-8"))
+    rows = all_procedures()
+    gone = {
+        pid: sorted(set(published) - set(denckring.rules(pid) if pid in rows else ()))
+        for pid, published in snapshot.items()
+    }
+    gone = {pid: missing for pid, missing in gone.items() if missing}
+    assert not gone, (
+        f"published rules removed or renamed: {gone}. That is a breaking change: name it "
+        f"under **Breaking:** in CHANGELOG.md, then update {PUBLISHED.name}"
+    )

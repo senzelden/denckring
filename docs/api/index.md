@@ -65,7 +65,10 @@ Each entry in `violations` is where and how the text failed: `rule` names which 
 tripped, `offset` is the character position in the original text (or `null` when a
 violation is not localisable, such as a form-wide count), `found` is what was there,
 and `expected` is what the rule required. `note` carries anything else worth saying
-and is usually `null`.
+and is usually `null`. Every `rule` a row can emit is listed, sorted, by
+`denckring.rules(procedure_id)` and by `describe(procedure_id).rules`, which
+`denckring describe --json`, `denckring show --json` and the MCP `describe_procedure`
+tool carry as `rules`. A published rule keeps its name and meaning (ADR 0059).
 
 `metrics` is free-form and procedure-specific, but one key recurs across the
 syllable-counting forms — sonnets, ballades, iambic pentameter and the rest —
@@ -80,7 +83,15 @@ number is small enough to trust.
 To decide whether to trust a verdict at all, read `Report.estimated` rather than this
 metric: it is true whenever the verdict rests on anything estimated or left unjudged,
 including what `estimated_words` misses on some rows (rhyme endings, for one), and it
-is under the README's stability promise, which `metrics` keys are not.
+is under the README's stability promise, which `metrics` keys are not. So is
+`evidence` itself, since 0.4.0: a caller can decide per entry from its `basis`
+(`dictionary`, `ambiguous` or `estimated`) without reading a metric (ADR 0059).
+
+A word the dictionary lists more than one way is looked up, not guessed, so it does not
+make a verdict estimated. Its `evidence` entry has basis `ambiguous` and names every
+reading (`every`: `2 or 3 syllables`), because the checker accepted any of them. A haiku
+line passes when some reading of its words gives the count, as a metrical line scans
+when some reading of its stresses fits (ADR 0054, ADR 0014).
 
 ## How a checker reads text
 
@@ -89,13 +100,16 @@ judged, so a caller can write a prompt or a guard that agrees with the checker:
 
 - `tokenization` is the word pattern, and `word_examples` shows what it does with the
   cases a count turns on. An apostrophe between letters stays inside a word (`don't`,
-  `l’âme`), so a word's length counts it; a hyphen splits a word in two (`well-known`
-  is two words); a digit is no part of a word.
+  `l’âme`), but a word's length counts its letters only, so `snowball` reads `I'm` as
+  two (ADR 0058); a hyphen splits a word in two (`well-known` is two words, in a
+  sentence's word count as anywhere); a digit is no part of a word.
 - `units` lists the characters that end a line, a clause and a sentence.
 - `vowels` lists the letters the vowel rows (`univocalic`, `bivocalic`,
   `monoconsonantal`, `homovocalism`) read as vowels. `y` is one in French and not in
   English or German.
 - `normalization` says how letters fold before they are compared, and `determinacy`
-  whether the verdict can rest on an estimate.
+  whether the verdict can rest on an estimate or on words left unjudged. A row read
+  `exact` never reports `estimated`, with no exceptions: `multiple_constraint` reads
+  `heuristic`, since its entries may name a row that estimates.
 
 `reading` is published but not yet under the stability promise.

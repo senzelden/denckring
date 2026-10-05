@@ -127,16 +127,19 @@ def test_folding_off_refuses_where_it_used_to_delete_through_the_fold() -> None:
 
 # Every violation is placed. The letter spans carry offsets, and dropping them
 # left a caller nothing to point at but the rule name. A letter missing from
-# the end of the text is placed at the end, where it would go.
+# the end of the text is placed at the end, where it would go. The letters are
+# aligned (ADR 0056), so an inserted `x` is one extra letter, not a cascade of
+# wrong ones.
 def test_a_wrong_letter_is_placed_at_the_text_letter() -> None:
+    report = check("slenderizing", "b xt", source="brat", deleted="r")
+    assert [(v.rule, v.offset, v.found) for v in report.violations] == [("wrong_letter", 2, "x")]
+
+
+def test_an_inserted_letter_is_placed_at_the_text_letter() -> None:
     report = check("slenderizing", "b xat", source="brat", deleted="r")
-    assert [(v.rule, v.offset, v.found) for v in report.violations] == [
-        ("wrong_letter", 2, "x"),
-        ("wrong_letter", 3, "a"),
-        ("extra_letters", 4, "t"),
-    ]
+    assert [(v.rule, v.offset, v.found) for v in report.violations] == [("extra_letters", 2, "x")]
 
 
 def test_a_missing_tail_is_placed_at_the_end_of_the_text() -> None:
     report = check("slenderizing", "b a ", source="brat", deleted="r")
-    assert [(v.rule, v.offset, v.found) for v in report.violations] == [("wrong_letter", 4, "")]
+    assert [(v.rule, v.offset, v.found) for v in report.violations] == [("missing_letter", 4, "")]

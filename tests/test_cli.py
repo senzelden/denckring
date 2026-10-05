@@ -4,6 +4,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from denckring.cli import app
+from denckring.core.registry import get
 from denckring.eval import harness
 
 runner = CliRunner()
@@ -151,3 +152,41 @@ def test_apply_without_json_still_prints_one_text() -> None:
     )
     assert result.exit_code == 0
     assert result.stdout.strip() == "two four"
+
+
+def test_a_json_param_is_read_as_json(tmp_path: Path) -> None:
+    """`multiple_constraint`'s `constraints` is a list of objects (ADR 0059), which
+    `key=value` can only carry as JSON."""
+    path = tmp_path / "t.txt"
+    path.write_text("the letters were her tender ferments", encoding="utf-8")
+    constraints = json.dumps(
+        [
+            {"id": "univocalic", "params": {"vowel": "e"}},
+            {"id": "lipogram", "params": {"forbidden": "a"}},
+        ]
+    )
+    args = ["check", "multiple_constraint", str(path), "-p", f"constraints={constraints}"]
+    assert runner.invoke(app, args).exit_code == 0
+    path.write_text("the cat sat", encoding="utf-8")
+    assert runner.invoke(app, args).exit_code == 1
+
+
+def test_a_bracketed_value_that_is_not_json_stays_a_string() -> None:
+    from denckring.cli import _coerce
+
+    assert _coerce("[ab", structured=True) == "[ab"
+    assert _coerce('{"a": 1}', structured=True) == {"a": 1}
+
+
+def test_json_is_decoded_only_for_a_field_typed_array_or_object() -> None:
+    """A string parameter whose value happens to be JSON stays the string it was
+    (ruling R-U10f): `source='[1]'` is a one-line source text, not a list."""
+    from denckring.cli import _parse_params, _structured
+
+    structured = _structured(get("n_plus_7").params_schema())
+    assert "source" not in structured
+    assert _parse_params(["source=[1]"], structured) == {"source": "[1]"}
+    composite = _structured(get("multiple_constraint").params_schema())
+    assert _parse_params(['constraints=[{"id": "lipogram"}]'], composite) == {
+        "constraints": [{"id": "lipogram"}]
+    }

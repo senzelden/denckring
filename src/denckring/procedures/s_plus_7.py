@@ -44,10 +44,11 @@ class SPlus7(ConstructiveProcedure[SPlus7Params, SPlus7ApplyParams]):
         "ambiguous_nouns_undecidable",
         "changed_a_non_noun",
         "changed_proclitic",
+        "extra_words",
+        "missing_word",
         "no_displacement",
         "unchanged",
         "wrong_displacement",
-        "wrong_word_count",
     )
 
     @classmethod

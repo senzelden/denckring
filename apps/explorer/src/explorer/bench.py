@@ -8,6 +8,7 @@ Python; this is the first thing to actually consume it.
 from __future__ import annotations
 
 import html
+import json
 from dataclasses import dataclass, field
 from typing import Any, cast, get_args
 
@@ -37,9 +38,10 @@ class Field:
     #: For `kind == "array"`, the type of one entry. Everything else ignores it.
     #: It exists because `coerce` cast every array entry with `int`, which was
     #: right for the only array field there was when it was written
-    #: (`syllable_count.pattern`) and wrong for all three that have arrived
-    #: since — `multiple_constraint.constraints` and `n_plus_7`/`s_plus_7`'s
-    #: `dictionary` are lists of words, and a word is not a number.
+    #: (`syllable_count.pattern`) and wrong for those that arrived since:
+    #: `n_plus_7`/`s_plus_7`'s `dictionary` is a list of words, and a word is not a
+    #: number. `object` is an entry the schema defines by reference, read as JSON:
+    #: `multiple_constraint.constraints` is a list of `{"id", "params"}` since 0.4.0.
     item_kind: str = "string"
 
     @property
@@ -88,6 +90,8 @@ def _item_kind(spec: dict[str, Any]) -> str:
         items = branch.get("items")
         if isinstance(items, dict) and "type" in items:
             return str(items["type"])
+        if isinstance(items, dict) and "$ref" in items:
+            return "object"
     return "string"
 
 
@@ -131,6 +135,14 @@ def coerce(fields: list[Field], form: dict[str, str]) -> dict[str, Any]:
             continue
         if spec.kind == "integer":
             params[spec.name] = int(raw)
+        elif spec.kind == "array" and spec.item_kind == "object":
+            # A list of objects has no comma-separated spelling; the form holds JSON.
+            # A malformed value is a `ValueError` naming the field, which the routes
+            # turn into a notice rather than a 500.
+            try:
+                params[spec.name] = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{spec.name} is not valid JSON: {exc.msg}") from exc
         elif spec.kind == "array":
             parts = raw.replace(",", " ").split()
             if spec.item_kind == "integer":

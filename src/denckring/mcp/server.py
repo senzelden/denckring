@@ -60,22 +60,30 @@ def _parse_max_text_chars() -> int:
 MAX_TEXT_CHARS = _parse_max_text_chars()
 
 
+def _strings_length(value: Any) -> int:
+    """The length of every string in `value`, however deeply nested in lists and dicts,
+    keys included: a delegate's refusal of an unknown parameter echoes its name back."""
+    if isinstance(value, str):
+        return len(value)
+    if isinstance(value, dict):
+        return sum(_strings_length(key) + _strings_length(item) for key, item in value.items())
+    if isinstance(value, list):
+        return sum(_strings_length(item) for item in value)
+    return 0
+
+
 def _total_length(text: str, params: dict[str, Any] | None) -> int:
-    """`text` plus every string (or list-of-string) value in `params`.
+    """`text` plus every string anywhere in `params`.
 
     Several `checkability: source` procedures carry a second, unbounded
     document in `params["source"]` (`SourceParams`), and `paronomasia`'s
     `domain_words` is a list of them — both are the same remote boundary
     `MAX_TEXT_CHARS` exists to close, and `text` alone did not cover them
-    (whole-branch review finding on P2-06).
+    (whole-branch review finding on P2-06). Nested, because `multiple_constraint`
+    carries each constraint's parameters inside its `constraints` entries (ADR
+    0059), so a source row's document can sit two levels down.
     """
-    total = len(text)
-    for value in (params or {}).values():
-        if isinstance(value, str):
-            total += len(value)
-        elif isinstance(value, list):
-            total += sum(len(v) for v in value if isinstance(v, str))
-    return total
+    return len(text) + _strings_length(params or {})
 
 
 def _check_text_length(text: str, params: dict[str, Any] | None = None) -> dict[str, Any] | None:
@@ -112,9 +120,10 @@ def describe_procedure_tool(
     `apply_params` is the separate schema `apply_procedure` takes, empty for a
     row with no generator; it is where `seed` is declared, which `params` does
     not carry. Both may carry `allow_identity`, with different meanings: in
-    `apply_params`, permit output identical to the input or empty (default
-    false); in `params`, on the source rows that have it, accept the source back
-    unchanged as an answer (default true for now). Set `scholarly` for the
+    `apply_params`, permit output that is the input again (on a source row,
+    its letters in order) or empty (default false); in `params`, on the source
+    rows that have it, accept the source back unchanged as an answer (default
+    false, so a copy fails where another answer exists). Set `scholarly` for the
     form's source, attribution and history.
     """
     try:

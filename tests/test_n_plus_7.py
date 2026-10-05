@@ -18,8 +18,9 @@ def test_a_correct_displacement_is_satisfied() -> None:
 
 
 def test_leaving_a_noun_alone_is_readable_as_another_part_of_speech() -> None:
-    """A word list cannot rule it out, so it is tolerated and counted."""
-    report = check("n_plus_7", SOURCE, source=SOURCE)
+    """A word list cannot rule it out, so it is tolerated and counted. One noun
+    displaced, so the text is not a copy, which `allow_identity` refuses."""
+    report = check("n_plus_7", "the catacomb sat on the table", source=SOURCE)
     assert report.satisfied
     assert report.metrics["ambiguous_words"] > 0
 
@@ -117,7 +118,20 @@ def test_the_three_readings_diverge_when_a_real_mistake_sits_beside_an_ambiguity
 
 def test_a_different_word_count_is_a_violation() -> None:
     report = check("n_plus_7", "too short", source=SOURCE)
-    assert report.violations[0].rule == "wrong_word_count"
+    assert not report.satisfied
+    assert "missing_word" in {v.rule for v in report.violations}
+
+
+def test_a_dropped_word_is_judged_around_not_counted_as_zero() -> None:
+    """ADR 0056: a word-count mismatch scored the whole text 0/1 as
+    `wrong_word_count`. Aligned against the correct N+7, the words either side
+    of a gap are still judged as displacements, so a wrong one is still named."""
+    report = check("n_plus_7", "the zebra on the tablespoonful", source="the cat sat on the table")
+    assert [(v.rule, v.found, v.expected) for v in report.violations] == [
+        ("wrong_displacement", "zebra", "catacomb"),
+        ("missing_word", "", "satchmo"),
+    ]
+    assert report.score == 4 / 6
 
 
 def test_a_supplied_dictionary_is_the_one_that_gets_walked() -> None:
@@ -167,9 +181,12 @@ def test_requiring_a_displacement_fails_a_text_that_displaces_nothing(
     pid: str, reading: str
 ) -> None:
     """Every listed word left alone is readable, one by one, as another part of
-    speech; all of them together is not an N+7. Opt-in: the default still passes."""
-    assert check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading).satisfied
-    report = check(pid, SOURCE, source=SOURCE, ambiguous_nouns=reading, require_displacement=True)
+    speech; all of them together is not an N+7. Opt-in: without it the text passes.
+    A text that displaces nothing is a copy, so `allow_identity` is set to keep
+    `unchanged` (ADR 0055) out of what this test reads."""
+    lenient: dict[str, Any] = {"ambiguous_nouns": reading, "allow_identity": True}
+    assert check(pid, SOURCE, source=SOURCE, **lenient).satisfied
+    report = check(pid, SOURCE, source=SOURCE, require_displacement=True, **lenient)
     assert not report.satisfied
     assert report.score < 1.0
     assert [v.rule for v in report.violations] == ["no_displacement"]
@@ -201,3 +218,55 @@ def test_a_wholly_undecidable_copy_reports_both_failures() -> None:
         "no_displacement",
     ]
     assert report.score == 0.0
+
+
+#: One listed word displaced (`aster`, seven on in `GARDEN`, is `hazel`) and one
+#: left alone, so the text is no copy and only the reading decides.
+HALF = ("the hazel and the crocus", "the aster and the crocus")
+
+
+@pytest.mark.parametrize("pid", ["n_plus_7", "s_plus_7"])
+def test_a_supplied_dictionary_reads_an_unchanged_listed_word_strictly(pid: str) -> None:
+    """ADR 0055: a supplied list is the caller saying which words are nouns here,
+    so by default a listed word left alone is a missed displacement."""
+    text, source = HALF
+    unset = check(pid, text, source=source, dictionary=GARDEN)
+    assert unset == check(pid, text, source=source, dictionary=GARDEN, ambiguous_nouns="strict")
+    assert [v.rule for v in unset.violations] == ["ambiguous_noun_unchanged"]
+    assert check(pid, text, source=source, dictionary=GARDEN, ambiguous_nouns="free").satisfied
+
+
+@pytest.mark.parametrize("pid", ["n_plus_7", "s_plus_7"])
+def test_the_packs_nouns_still_read_an_unchanged_listed_word_freely(pid: str) -> None:
+    """The pack's list cannot say which words are nouns in this text, so `free`
+    stays its default, and no golden verdict moved."""
+    text = "the catacomb sat on the table"
+    unset = check(pid, text, source=SOURCE)
+    assert unset == check(pid, text, source=SOURCE, ambiguous_nouns="free")
+    assert unset.satisfied
+    assert not check(pid, text, source=SOURCE, ambiguous_nouns="strict").satisfied
+
+
+def test_the_reading_defaults_to_none_resolved_by_the_checker() -> None:
+    """Ruling R-U7a: `None` in the schema, so an explicit reading always wins."""
+    field = NPlus7.params_model().model_fields["ambiguous_nouns"]
+    assert field.default is None
+    assert "Unset: strict with a supplied dictionary, free with the pack's" in (
+        field.description or ""
+    )
+
+
+def test_a_word_that_walks_back_to_itself_passes_even_strictly() -> None:
+    """Eight nouns, eight places on: `aster` displaces to `aster`, so leaving it
+    is the right answer, not an ambiguous one."""
+    report = check(
+        "n_plus_7",
+        "the aster",
+        source="the aster",
+        dictionary=GARDEN,
+        offset=8,
+        ambiguous_nouns="strict",
+        allow_identity=True,
+    )
+    assert report.satisfied
+    assert report.metrics["ambiguous_words"] == 0

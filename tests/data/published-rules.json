@@ -1,0 +1,703 @@
+{
+  "abecedarian": [
+    "wrong_initial"
+  ],
+  "acrostic": [
+    "extra_unit",
+    "missing_unit",
+    "wrong_letter"
+  ],
+  "alcaic_stanza": [
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "alexandrine": [
+    "wrong_syllable_count"
+  ],
+  "alliterative_verse": [
+    "too_few_alliterating"
+  ],
+  "alphabetical_sentence": [
+    "out_of_order"
+  ],
+  "anagram": [
+    "empty_transposal",
+    "missing_letter",
+    "surplus_letter",
+    "unchanged"
+  ],
+  "anaphora": [
+    "wrong_opening"
+  ],
+  "antigram": [
+    "missing_letter",
+    "surplus_letter",
+    "unchanged"
+  ],
+  "antonymic_substitution": [
+    "empty_source",
+    "unknown_relation",
+    "wrong_relation",
+    "wrong_word_count"
+  ],
+  "antonymic_translation": [
+    "empty_source",
+    "unknown_relation",
+    "wrong_relation",
+    "wrong_word_count"
+  ],
+  "arca_musarithmica": [
+    "no_tablet_for_length",
+    "pattern_not_on_the_tablet",
+    "pattern_without_phrase",
+    "phrase_not_set",
+    "unknown_tone"
+  ],
+  "assonance_constraint": [
+    "no_repeated_vowel"
+  ],
+  "ballade": [
+    "broken_refrain",
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "beau_present": [
+    "letter_outside_name",
+    "unused_name_letter"
+  ],
+  "belle_absente": [
+    "forbidden_letter",
+    "missing_letter",
+    "wrong_line_count"
+  ],
+  "bivocalic": [
+    "foreign_vowel"
+  ],
+  "blank_verse": [
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "boustrophedon": [
+    "invented_part",
+    "line_not_turned",
+    "missing_part"
+  ],
+  "buchstabwechsel": [
+    "missing_letter",
+    "surplus_letter",
+    "unchanged"
+  ],
+  "calculator_word": [
+    "not_a_word",
+    "undisplayable_letter",
+    "wrong_digits",
+    "wrong_word_count"
+  ],
+  "cent_mille_milliards": [
+    "extra_line",
+    "line_not_offered",
+    "missing_line"
+  ],
+  "charade": [
+    "does_not_divide"
+  ],
+  "chimera": [
+    "extra_words",
+    "frame_word_changed",
+    "missing_word",
+    "not_from_donor",
+    "wrong_pos"
+  ],
+  "chronogram": [
+    "too_short",
+    "wrong_total"
+  ],
+  "cinquain": [
+    "extra_line",
+    "missing_line",
+    "wrong_syllable_count"
+  ],
+  "clerihew": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "column_reading": [
+    "extra_words",
+    "missing_word",
+    "not_in_source",
+    "wrong_column_word"
+  ],
+  "consonantal_lipogram": [
+    "forbidden_letter"
+  ],
+  "curtal_sonnet": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "cut_up": [
+    "unchanged",
+    "word_not_in_source"
+  ],
+  "dactylic_hexameter": [
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "definitional_expansion": [
+    "not_expanded"
+  ],
+  "definitional_literature": [
+    "not_expanded"
+  ],
+  "definitional_translation": [
+    "empty_source",
+    "not_the_gloss_sequence",
+    "unknown_gloss"
+  ],
+  "denckring": [
+    "not_on_the_rings",
+    "ring_skipped"
+  ],
+  "diastic": [
+    "not_in_source",
+    "unchanged",
+    "wrong_letter_at_position"
+  ],
+  "double_acrostic": [
+    "extra_line",
+    "missing_line",
+    "wrong_final",
+    "wrong_initial"
+  ],
+  "double_dactyl": [
+    "no_double_dactylic_word",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "elegiac_couplet": [
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "englyn": [
+    "does_not_rhyme",
+    "extra_line",
+    "identical_rhyme",
+    "missing_line",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "wrong_line_count",
+    "wrong_syllable_count"
+  ],
+  "eodermdrome": [
+    "not_closed",
+    "repeated_edge",
+    "too_short"
+  ],
+  "epistrophe": [
+    "wrong_closing"
+  ],
+  "every_nth_word": [
+    "extra_words",
+    "missing_word",
+    "wrong_word"
+  ],
+  "fold_in": [
+    "not_the_fold"
+  ],
+  "ghazal": [
+    "broken_qafia",
+    "missing_radif",
+    "unknown_rhyme",
+    "wrong_line_count"
+  ],
+  "haibun": [
+    "missing_haiku",
+    "missing_prose",
+    "wrong_alternation",
+    "wrong_ending"
+  ],
+  "haiku": [
+    "extra_line",
+    "missing_line",
+    "wrong_syllable_count"
+  ],
+  "haikuization": [
+    "extra_words",
+    "missing_word",
+    "not_in_source",
+    "wrong_line_end"
+  ],
+  "hemeling": [
+    "does_not_rhyme",
+    "empty_anagram",
+    "identical_rhyme",
+    "missing_letter",
+    "rhyme_undecidable",
+    "surplus_letter",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "hendecasyllable": [
+    "wrong_syllable_count"
+  ],
+  "heroic_couplet": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "heterogram": [
+    "repeated_letter"
+  ],
+  "homoconsonantism": [
+    "extra_letters",
+    "missing_letter",
+    "unchanged",
+    "wrong_consonant"
+  ],
+  "homophonic_translation": [
+    "empty_stream",
+    "sound_distance",
+    "unknown_pronunciation"
+  ],
+  "homosyntaxism": [
+    "extra_words",
+    "missing_word",
+    "repeated_word",
+    "wrong_pos"
+  ],
+  "homoteleuton": [
+    "wrong_final"
+  ],
+  "homovocalism": [
+    "extra_letters",
+    "missing_letter",
+    "unchanged",
+    "wrong_vowel"
+  ],
+  "iambic_pentameter": [
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "ideenwuerfeln": [
+    "domain_repeated",
+    "domain_unknown",
+    "not_in_the_corpus",
+    "wrong_headword",
+    "wrong_number_of_excerpts"
+  ],
+  "kangaroo_word": [
+    "not_a_word",
+    "synonym_is_the_word",
+    "synonym_not_in_order"
+  ],
+  "larding": [
+    "missing_intercalated_sentence",
+    "source_sentence_out_of_place",
+    "wrong_sentence_count"
+  ],
+  "letter_bank": [
+    "letter_outside_bank",
+    "unused_bank_letter"
+  ],
+  "limerick": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "lipogram": [
+    "forbidden_letter"
+  ],
+  "lipogrammatic_translation": [
+    "forbidden_letter",
+    "unchanged"
+  ],
+  "liponym": [
+    "forbidden_word"
+  ],
+  "llull_figure": [
+    "not_a_chamber",
+    "repeated_principle",
+    "wrong_arity"
+  ],
+  "mathews_algorithm": [
+    "invented_part",
+    "missing_part",
+    "word_out_of_rotation"
+  ],
+  "melting_text": [
+    "unchanged",
+    "word_not_in_source"
+  ],
+  "mesostic": [
+    "not_in_source",
+    "spine_letter_missing",
+    "unchanged"
+  ],
+  "monoconsonantal": [
+    "foreign_consonant"
+  ],
+  "monosyllabic_prose": [
+    "polysyllabic_word"
+  ],
+  "n_plus_7": [
+    "ambiguous_noun_unchanged",
+    "ambiguous_nouns_undecidable",
+    "changed_a_non_noun",
+    "changed_proclitic",
+    "extra_words",
+    "missing_word",
+    "no_displacement",
+    "unchanged",
+    "wrong_displacement"
+  ],
+  "ottava_rima": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "palindrome": [
+    "mirror_mismatch"
+  ],
+  "pangram": [
+    "missing_letter",
+    "repeated_letter"
+  ],
+  "pangrammatic_lipogram": [
+    "forbidden_letter",
+    "missing_letter"
+  ],
+  "pangrammatic_window": [
+    "missing_letter",
+    "window_too_long"
+  ],
+  "pantoum": [
+    "broken_interlock",
+    "incomplete_quatrain"
+  ],
+  "paragram": [
+    "no_paragram"
+  ],
+  "paronomasia": [
+    "distance_out_of_band",
+    "length_mismatch",
+    "no_displacement",
+    "unrecoverable",
+    "unresolvable_pronunciation"
+  ],
+  "pasigraphy": [
+    "extra_words",
+    "no_number_for_word",
+    "no_word_at_number",
+    "wrong_rendering"
+  ],
+  "perverb": [
+    "not_the_graft",
+    "unresolved_proverb_pair"
+  ],
+  "petrarchan_sonnet": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "poesie_automat": [
+    "extra_line",
+    "missing_line",
+    "module_not_on_the_board"
+  ],
+  "portmanteau": [
+    "host_unrecoverable",
+    "identical_to_host",
+    "sound_out_of_band",
+    "splice_not_a_word",
+    "splice_not_present",
+    "unresolvable_pronunciation"
+  ],
+  "prisoners_constraint": [
+    "tall_or_deep_letter"
+  ],
+  "proteus_verse": [
+    "does_not_scan",
+    "too_few_variants",
+    "wrong_line_count"
+  ],
+  "quenina": [
+    "invalid_size",
+    "missing_line",
+    "wrong_end_word"
+  ],
+  "recombination": [
+    "sentence_dropped",
+    "sentence_not_in_source",
+    "unchanged"
+  ],
+  "renga": [
+    "too_few_links",
+    "wrong_stanza_shape",
+    "wrong_syllable_count"
+  ],
+  "reverse_snowball": [
+    "wrong_word_length"
+  ],
+  "rhyme_royal": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "rhyme_scheme": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "rondeau": [
+    "broken_rentrement",
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "s_plus_7": [
+    "ambiguous_noun_unchanged",
+    "ambiguous_nouns_undecidable",
+    "changed_a_non_noun",
+    "changed_proclitic",
+    "extra_words",
+    "missing_word",
+    "no_displacement",
+    "unchanged",
+    "wrong_displacement"
+  ],
+  "sapphic_stanza": [
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "sator_square": [
+    "empty_grid",
+    "not_horizontally_palindromic",
+    "not_vertically_palindromic",
+    "row_column_mismatch",
+    "wrong_row_length"
+  ],
+  "semordnilap": [
+    "palindrome_not_semordnilap",
+    "reversal_is_not_a_word"
+  ],
+  "senryu": [
+    "extra_line",
+    "missing_line",
+    "wrong_syllable_count"
+  ],
+  "sentence_length_constraint": [
+    "wrong_sentence_length"
+  ],
+  "serial_lipogram": [
+    "forbidden_letter",
+    "wrong_part_count"
+  ],
+  "sestina": [
+    "missing_line",
+    "wrong_end_word"
+  ],
+  "shakespearean_sonnet": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "single_sentence": [
+    "interior_terminator"
+  ],
+  "slenderizing": [
+    "extra_letters",
+    "missing_letter",
+    "wrong_letter"
+  ],
+  "snowball": [
+    "wrong_word_length"
+  ],
+  "snowball_sentence": [
+    "wrong_sentence_length"
+  ],
+  "sonnet": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "spenserian_stanza": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count",
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "spoonerism": [
+    "onsets_not_distinct",
+    "too_few_words",
+    "unresolved_phonemes"
+  ],
+  "supervocalic": [
+    "missing_vowel",
+    "repeated_vowel"
+  ],
+  "syllable_count": [
+    "extra_line",
+    "missing_line",
+    "wrong_syllable_count"
+  ],
+  "synonymic_substitution": [
+    "empty_source",
+    "unknown_relation",
+    "wrong_relation",
+    "wrong_word_count"
+  ],
+  "tanka": [
+    "extra_line",
+    "missing_line",
+    "wrong_syllable_count"
+  ],
+  "tautogram": [
+    "wrong_initial"
+  ],
+  "tautonym": [
+    "not_doubled"
+  ],
+  "telestich": [
+    "extra_unit",
+    "missing_unit",
+    "wrong_letter"
+  ],
+  "terza_rima": [
+    "does_not_rhyme",
+    "identical_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "text_folding": [
+    "invented_part",
+    "line_out_of_fold",
+    "missing_part"
+  ],
+  "tmesis": [
+    "halves_do_not_rejoin",
+    "no_material_inserted",
+    "too_few_splits"
+  ],
+  "transposal": [
+    "extra_word",
+    "missing_word",
+    "not_a_transposal",
+    "unchanged"
+  ],
+  "triolet": [
+    "broken_refrain",
+    "does_not_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "trochaic_tetrameter": [
+    "wrong_line_length",
+    "wrong_stress"
+  ],
+  "univocalic": [
+    "foreign_vowel"
+  ],
+  "univocalic_translation": [
+    "foreign_vowel",
+    "unchanged"
+  ],
+  "verbless_prose": [
+    "finite_verb"
+  ],
+  "villanelle": [
+    "broken_refrain",
+    "does_not_rhyme",
+    "rhyme_undecidable",
+    "unknown_rhyme",
+    "unwanted_rhyme",
+    "wrong_line_count"
+  ],
+  "wechselsatz": [
+    "extra_word",
+    "missing_word",
+    "word_not_offered"
+  ],
+  "word_ladder": [
+    "different_length",
+    "not_a_word",
+    "step_too_large",
+    "too_few_steps",
+    "wrong_end"
+  ],
+  "word_square": [
+    "empty_grid",
+    "not_a_word",
+    "row_column_mismatch",
+    "wrong_row_length"
+  ]
+}

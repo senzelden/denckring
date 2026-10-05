@@ -30,7 +30,7 @@ class Homoconsonantism(BaseProcedure[HomoconsonantismParams]):
     """The consonant skeleton is the constraint; the vowels are the freedom."""
 
     id = "homoconsonantism"
-    rules = ("extra_letters", "unchanged", "wrong_consonant")
+    rules = ("extra_letters", "missing_letter", "unchanged", "wrong_consonant")
 
     @classmethod
     def params_model(cls) -> type[HomoconsonantismParams]:

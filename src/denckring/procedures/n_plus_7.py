@@ -18,8 +18,11 @@ from denckring.core.base import (
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Produced, Report, Violation
 from denckring.core.registry import register
-from denckring.core.source_compare import unchanged
+from denckring.core.source_compare import align, gaps, unchanged
 from denckring.core.text import split_elision, word_spans
+
+#: The three readings of an unchanged listed word (`NPlus7Params.ambiguous_nouns`).
+AmbiguousNouns = Literal["undecidable", "free", "strict"]
 
 
 def resolve_dictionary(
@@ -107,12 +110,18 @@ class NPlus7Params(SourceParams, IdentityParams):
     # alone because it is a noun that survived, or because it is a verb here.
     # Same three readings, same names, for the same reason: a caller who has
     # met one has met both.
-    ambiguous_nouns: Literal["undecidable", "free", "strict"] = Field(
-        default="free",
+    #
+    # `None` resolves in the checker (`ambiguous_reading`), the house convention
+    # for a value read off the call. A supplied list is the caller saying which
+    # words are nouns here, so a listed word left alone is a missed displacement
+    # (`strict`); the pack's list cannot say that, so it keeps `free`. ADR 0055.
+    ambiguous_nouns: AmbiguousNouns | None = Field(
+        default=None,
         description=(
             "What an unchanged word that the dictionary lists means: leave the "
             "position unscored (undecidable), accept it (free), or fail it "
-            "(strict)."
+            "(strict). Unset: strict with a supplied dictionary, free with the "
+            "pack's nouns."
         ),
         json_schema_extra=param("policy"),
     )
@@ -145,6 +154,14 @@ class NPlus7Params(SourceParams, IdentityParams):
         return value
 
 
+def ambiguous_reading(params: NPlus7Params) -> AmbiguousNouns:
+    """The reading `ambiguous_nouns` names, with `None` resolved (ADR 0055):
+    `strict` when the caller supplied `dictionary`, `free` with the pack's."""
+    if params.ambiguous_nouns is not None:
+        return params.ambiguous_nouns
+    return "strict" if params.dictionary is not None else "free"
+
+
 def _moves(
     word: str,
     nouns: Sequence[str],
@@ -162,6 +179,62 @@ class NPlus7ApplyParams(ApplyParams, NPlus7Params):
     pass
 
 
+Pair = tuple[tuple[int, str], tuple[int, str]]
+
+
+def _pairing(
+    candidate: list[tuple[int, str]],
+    source: list[tuple[int, str]],
+    nouns: Sequence[str],
+    noun_index: Callable[[str], int | None],
+    offset: int,
+    *,
+    end: int,
+) -> tuple[list[Pair | None], dict[int, Violation]]:
+    """Which candidate word answers which source word, one entry per unit.
+
+    With as many words as the source, word for word, as it always was. With a
+    different count, the old report scored the whole text 0/1 as
+    `wrong_word_count`, so one dropped article cost every displacement after it
+    (audit A6). The two are aligned instead (ADR 0056), against the text a
+    correct N+7 would be: each listed word displaced, every other word as it
+    stands. The pairs are then judged as before, and each word inserted or
+    missing is an entry of its own, `None`, with its violation in the dict
+    (`source_compare.gaps`). A listed word left alone aligns as a substitution,
+    which pairs it with its source word all the same, so the reading in
+    `ambiguous_nouns` still decides it. The equal-count path is left word for
+    word on purpose: an alignment could pair a word with a later word of the
+    same spelling, and only a dropped or added word is what A6 is about.
+    """
+    if len(candidate) == len(source):
+        return list(zip(candidate, source, strict=True)), {}
+
+    def correct(word: str) -> str:
+        prefix, tail = split_elision(word)
+        index = noun_index(tail)
+        if index is None:
+            return word
+        return f"{prefix}{nouns[(index + offset) % len(nouns)]}"
+
+    expected = [correct(word) for _, word in source]
+    steps = align(
+        [word.casefold() for word in expected], [word.casefold() for _, word in candidate]
+    )
+    unpaired = gaps(
+        steps,
+        expected,
+        candidate,
+        inserted="extra_words",
+        deleted="missing_word",
+        joiner=" ",
+        end=end,
+    )
+    pairs: list[Pair | None] = [
+        (candidate[j], source[i]) if i is not None and j is not None else None for _, i, j in steps
+    ]
+    return pairs, unpaired
+
+
 def displacement_report(
     procedure: BaseProcedure[NPlus7Params],
     text: str,
@@ -173,37 +246,31 @@ def displacement_report(
     A word list cannot tell you that *run* is a verb in this sentence. So an
     unchanged word that happens to be in the noun list is never automatically a
     mistake; what it counts as instead is `params.ambiguous_nouns`'s call —
-    accepted (`free`, the default, and what shipped before this parameter
-    existed), left out of the score entirely (`undecidable`), or failed
-    (`strict`). Every reading reports the same `ambiguous_words` count, in the
+    accepted (`free`, the default with the pack's nouns, and what shipped before
+    this parameter existed), left out of the score entirely (`undecidable`), or
+    failed (`strict`, the default with a supplied dictionary since ADR 0055).
+    Every reading reports the same `ambiguous_words` count, in the
     same way `estimated_words` keeps the syllable heuristic honest — only what
     the count does to the score changes.
     """
     candidate = word_spans(text, pack)
     source = word_spans(params.source, pack)
     nouns, noun_index = resolve_dictionary(pack, params.dictionary)
+    reading = ambiguous_reading(params)
     violations: list[Violation] = []
 
-    if len(candidate) != len(source):
-        return procedure._report(
-            good=0,
-            total=1,
-            violations=[
-                Violation(
-                    rule="wrong_word_count",
-                    offset=None,
-                    found=f"{len(candidate)} words",
-                    expected=f"{len(source)} words",
-                )
-            ],
-            metrics={"words": float(len(candidate)), "ambiguous_words": 0.0},
-        )
-
+    steps, unpaired = _pairing(candidate, source, nouns, noun_index, params.offset, end=len(text))
     ambiguous = 0
     undecided = 0
     displaced = 0
     good = 0
-    for (offset, produced), (_, original) in zip(candidate, source, strict=True):
+    for position, pair in enumerate(steps):
+        if pair is None:
+            # A run of inserted words is one violation, keyed at its first step.
+            if position in unpaired:
+                violations.append(unpaired[position])
+            continue
+        (offset, produced), (_, original) = pair
         # A leading proclitic glued on by elision (`l'`, `d'`, `qu'`) is
         # never itself a noun, so it is compared separately and must not
         # change; the noun index and every reading below runs on the tail
@@ -222,7 +289,13 @@ def displacement_report(
             continue
         index = noun_index(original_tail)
         if produced_tail.casefold() == original_tail.casefold():
-            if index is None:
+            # A listed word whose walk comes back round to it (an offset that
+            # is a multiple of the list's length) is displaced correctly by
+            # being left alone, so no reading has anything to judge. Under
+            # `strict`, now the default with a supplied list (ADR 0055), it
+            # was failed, which left a copy of such a source, its only answer,
+            # unsatisfiable (ruling R-U2a).
+            if index is None or not _moves(original, nouns, noun_index, params.offset):
                 good += 1
             else:
                 # Listed as a noun but left alone: readable as another part of
@@ -231,9 +304,9 @@ def displacement_report(
                 # depends on which one was chosen; `ambiguous_nouns` decides
                 # only what the position does to the score.
                 ambiguous += 1
-                if params.ambiguous_nouns == "free":
+                if reading == "free":
                     good += 1
-                elif params.ambiguous_nouns == "strict":
+                elif reading == "strict":
                     violations.append(
                         Violation(
                             rule="ambiguous_noun_unchanged",
@@ -273,7 +346,9 @@ def displacement_report(
                     expected=f"{original_prefix}{expected_tail}",
                 )
             )
-    decided = len(candidate) - undecided
+    # Every step of the alignment is a unit: each word inserted or missing
+    # counts once, beside the pairs judged above.
+    decided = len(steps) - undecided
     metrics = {"words": float(len(candidate)), "ambiguous_words": float(ambiguous)}
     # Each refusal is one more unit, failed, on top of whatever was weighed.
     refused = unchanged(
@@ -345,10 +420,11 @@ class NPlus7(ConstructiveProcedure[NPlus7Params, NPlus7ApplyParams]):
         "ambiguous_nouns_undecidable",
         "changed_a_non_noun",
         "changed_proclitic",
+        "extra_words",
+        "missing_word",
         "no_displacement",
         "unchanged",
         "wrong_displacement",
-        "wrong_word_count",
     )
 
     @classmethod

@@ -98,7 +98,14 @@ class Ghazal(BaseProcedure[GhazalParams]):
                 Evidence(
                     subject=words[-2],
                     value="/".join(sorted(candidate)) if candidate else "no rhyme key",
-                    basis="dictionary" if candidate_exact else "estimated",
+                    # As `rhyme_evidence` marks it: any key may carry the qafia (ADR 0054).
+                    basis=(
+                        "estimated"
+                        if not candidate_exact
+                        else "ambiguous"
+                        if len(candidate) > 1
+                        else "dictionary"
+                    ),
                 )
             )
             if not (base_exact and candidate_exact):

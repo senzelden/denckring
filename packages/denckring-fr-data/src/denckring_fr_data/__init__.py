@@ -246,6 +246,16 @@ class FrenchDataPack(FrenchPack):
         """French counts a line, not a bag of words. Spec D3, ADR 0034."""
         return count_line(line, syllable_table(), h_aspire())
 
+    def line_syllable_counts(self, line: str) -> tuple[frozenset[int], int]:
+        """The one line total, because that is what French counts (ADR 0034, ADR 0054).
+
+        The inherited default sums per-word counts, which is the undercount
+        `line_syllables` exists to avoid; without this override a syllabic row would
+        read French through it.
+        """
+        total, estimated = self.line_syllables(line)
+        return frozenset({total}), estimated
+
     def syllable_evidence(self, line: str) -> list[tuple[str, str, int | None, int, bool]]:
         """One entry for the whole line, because that is the unit French counts.
 

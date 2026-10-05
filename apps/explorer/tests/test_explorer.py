@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import html
+import json
+import re
+
 import pytest
 from explorer import bench, catalogue_view
 from explorer.app import app
@@ -200,7 +204,29 @@ def test_a_number_list_parameter_is_still_read_as_numbers() -> None:
     )
     assert "Satisfied" in good.text
     bad = client.post("/p/syllable_count/check", data={"text": "a b", "lang": "en", "pattern": "x"})
-    assert "That is not a number" in bad.text
+    assert "That value could not be read" in bad.text
+    assert "invalid literal for int()" in bad.text
+
+
+def test_a_list_of_objects_round_trips_through_the_form_as_json() -> None:
+    """`multiple_constraint.constraints` is a list of `{"id", "params"}` (ADR 0059).
+    A recorded example has to fill the field with JSON the form can post back, and
+    the post has to reach the checker as that list, not as split words."""
+    loaded = client.post("/p/multiple_constraint/example", data={"index": "0"})
+    match = re.search(r'name="constraints"\s+value="([^"]*)"', loaded.text)
+    assert match, "the constraints field was not rendered as a text input"
+    posted = html.unescape(match.group(1))
+    assert json.loads(posted)[0]["id"] == "univocalic"
+    response = client.post(
+        "/p/multiple_constraint/check",
+        data={"text": "the letters were her tender ferments", "lang": "en", "constraints": posted},
+    )
+    assert "Satisfied" in response.text
+    malformed = client.post(
+        "/p/multiple_constraint/check",
+        data={"text": "the cat", "lang": "en", "constraints": posted.replace(",", "", 1)},
+    )
+    assert "That value could not be read: constraints is not valid JSON" in malformed.text
 
 
 def test_search_finds_by_alias() -> None:

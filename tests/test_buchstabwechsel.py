@@ -118,9 +118,10 @@ def test_unknown_output_words_never_fail_the_check() -> None:
 
 def test_known_words_metric_is_omitted_without_the_lexicon_capability() -> None:
     """Without `denckring-de-data`, the base `GermanPack` has no `lexicon.words`
-    — `check` must not raise, and must not claim a count it cannot demonstrate."""
+    — `check` must not raise, and must not claim a count it cannot demonstrate.
+    The text is its source, so `allow_identity` keeps `unchanged` (ADR 0055) out."""
     procedure = Buchstabwechsel()
-    params = procedure.parse_params({"source": "hallo"})
+    params = procedure.parse_params({"source": "hallo", "allow_identity": True})
     report = procedure._check("hallo", GermanPack(), params)
     assert report.satisfied is True
     assert "known_words" not in report.metrics

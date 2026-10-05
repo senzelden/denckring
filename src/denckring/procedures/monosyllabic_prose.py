@@ -8,7 +8,7 @@ from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import word_spans
-from denckring.procedures.syllable_count import syllable_evidence
+from denckring.procedures.syllable_count import syllable_evidence, word_syllable_counts
 
 
 class MonosyllabicProseParams(BaseModel):
@@ -32,10 +32,12 @@ class MonosyllabicProse(BaseProcedure[MonosyllabicProseParams]):
         violations: list[Violation] = []
         estimated = 0
         for offset, word in words:
-            count, exact = pack.syllable_count(word)
+            counts, exact = word_syllable_counts(word, pack)
             if not exact:
                 estimated += 1
-            if count > 1:
+            # A word one of whose listed readings is a monosyllable passes: `fire`
+            # is one syllable as well as two (ADR 0054).
+            if 1 not in counts:
                 violations.append(
                     Violation(
                         rule="polysyllabic_word",

@@ -92,6 +92,16 @@ class Evidence(BaseModel):
     would invent a precision no measurement here supports, which is what the
     review that asked for this warned against in its own last paragraph.
 
+    `ambiguous` (0.4.0, ADR 0054) is the dictionary listing more than one reading of
+    the word, any one of which the checker would accept: `every` counted as 3 or 2
+    syllables, `bog` rhyming on either vowel. Looked up, not estimated, so it does
+    not make a report `estimated`; it says the verdict may rest on a variant rather
+    than the first form. `dictionary` now means the checker read the word one way.
+    German evidence is never `ambiguous`: Wiktionary's list for a headword carries
+    its inflected forms' transcriptions unmarked (`du` with *deiner*'s), so German
+    syllable counts, stress and rhyme read the first transcription only (ADR 0054,
+    ADR 0057).
+
     `scope` exists because the answer is not always about a word. French counts a
     *line* — a final mute e elides or counts depending on what follows, so summing
     citation forms undercounts systematically (ADR 0034) — and there is no
@@ -102,7 +112,7 @@ class Evidence(BaseModel):
     scope: Literal["word", "line"] = "word"
     offset: int | None = None
     value: str
-    basis: Literal["dictionary", "estimated"]
+    basis: Literal["dictionary", "ambiguous", "estimated"]
 
 
 class Report(BaseModel):
@@ -148,7 +158,8 @@ class Report(BaseModel):
         and `rondeau`, which report no such metric). True when either says so. A word
         left unjudged counts: `definitional_expansion` scores only the words its
         glosses resolve, so its verdict covers less of the text than it reads as
-        covering, though `describe` calls its reading exact. `multiple_constraint`
+        covering, and `describe` calls its reading heuristic (ADR 0054). An
+        `ambiguous` basis does not count: the word was looked up. `multiple_constraint`
         carries its constraints' evidence and counts, so a composite is estimated
         when any constraint inside it is.
 
@@ -312,9 +323,10 @@ class Meta(BaseModel):
     #: rows that compute their answer from the source (`every_nth_word`,
     #: `slenderizing`), false where the writer chooses (`anagram`, `cut_up`). A caller
     #: grading a transform can then score against one answer (audit C4).
-    #: `n_plus_7` is false: its default `ambiguous_nouns="free"` accepts a listed word
-    #: left unchanged, so more than one text passes. `tests/test_suitability.py`
-    #: holds each row flagged true to failing every text that differs in its words.
+    #: `n_plus_7` is false: with the pack's nouns its default `ambiguous_nouns` reading,
+    #: `free`, accepts a listed word left unchanged, so more than one text passes.
+    #: `tests/test_suitability.py` holds each row flagged true to failing every text
+    #: that differs in its words.
     unique_answer: bool = False
     #: Material a verdict depends on that the reader of a prompt cannot see unless the
     #: caller prints it: a parameter whose default is shipped data (`n_plus_7`'s

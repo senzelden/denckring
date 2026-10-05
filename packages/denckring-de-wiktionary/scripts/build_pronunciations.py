@@ -174,8 +174,10 @@ def entries(path: Path) -> Iterator[tuple[str, list[str], list[str]]]:
                 found = (_strip_markup(m) for m in _SENSE.findall(block.group(1)))
                 senses = [sense for sense in found if sense]
             # `dict.fromkeys` rather than a set: the order Wiktionary lists them
-            # in is the order the pack reports, and the first form is the one
-            # `rhyme_key` and `stress_pattern` answer with.
+            # in is the order the pack reports, and the first form is the only
+            # one any reading uses, syllables, stress and rhyme alike. The labels
+            # that mark an inflected form's transcription are not kept, so the
+            # rest cannot be told apart from the headword's variants (ADR 0057).
             yield title, list(dict.fromkeys(forms)), list(dict.fromkeys(senses))
 
 

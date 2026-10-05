@@ -12,7 +12,7 @@ from typing import Any, Literal, get_args
 from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
-from denckring.core.base import ConstructiveProcedure
+from denckring.core.base import ConstructiveProcedure, RhymeParams
 from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
@@ -53,8 +53,22 @@ class Summary(BaseModel):
 #: would be the overclaim this field exists to prevent — `describe()` would tell
 #: a caller that `verbless_prose`'s verdict is certain when its own ADR puts
 #: finite-verb recall at 0.9498.
+#:
+#: `lexicon.glosses` joined in 0.4.0 (ADR 0054). A gloss lookup guesses nothing, but
+#: a word no gloss resolves is left unjudged, and `Report.estimated` says so: the two
+#: `definitional_*` rows called themselves `exact` while their reports could say
+#: `estimated`. With `_reading`'s one other reason for `heuristic` (a row whose
+#: parameters name its capabilities), an `exact` row is never `estimated`.
 _SOFT = frozenset(
-    {"syllables", "syllables.heuristic", "syllables.dictionary", "stress", "phonemes", "pos"}
+    {
+        "syllables",
+        "syllables.heuristic",
+        "syllables.dictionary",
+        "stress",
+        "phonemes",
+        "pos",
+        "lexicon.glosses",
+    }
 )
 
 #: What folding does, stated once. `BasePack.fold_diacritics` case-folds and strips
@@ -67,6 +81,37 @@ _FOLD_POLICY = (
     "with fold_diacritics=false, which lowercases only."
 )
 _NO_FOLD_POLICY = "Case only. This procedure does not compare letters, so nothing folds."
+
+#: How each language's pack keys a rhyme, the half of `Reading.rhyme` that differs by
+#: language. Held to the packs by `tests/test_rhyme_variants.py`, since no one reads
+#: these sentences back out of the code they describe.
+_RHYME_KEYS: dict[Lang, str] = {
+    "en": (
+        "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
+        "end, one key per listed pronunciation. Secondary stress does not key a rhyme: "
+        "'someday' rhymes from its 'some', so it does not rhyme with 'day'. A word with no "
+        "primary stress keys from its last vowel ('the' keys 'AH0')."
+    ),
+    "de": (
+        "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
+        "end, read from the word's first transcription only: the dictionary's list mixes "
+        "in inflected forms ('du' lists 'dich'). Secondary stress does not key a rhyme. A "
+        "word with no primary stress keys from its last vowel."
+    ),
+    "fr": (
+        "A line ending's rhyme key is its sounds from the last vowel to the end; French has "
+        "no lexical stress, and the dictionary holds one transcription per spelling."
+    ),
+}
+#: How a scheme reads the keys, the half that is the same in every language (ADR 0057).
+_RHYME_PAIRS = (
+    " Lines the scheme pairs rhyme when some reading of each shares a key. Lines it keeps "
+    "apart fail when every reading of each shares the key, or when the two words have the "
+    "same keys, since then every reader rhymes them ('fog' and 'bog'). Otherwise a word "
+    "with two readings passes if one keeps the pair apart ('gone' and 'on'). Each pair is "
+    "judged on its own: one reading may keep one pair apart while another makes a second "
+    "pair rhyme."
+)
 
 #: Strings whose tokenization answers the questions a word count turns on: both
 #: apostrophes (an English contraction, a French elision), a hyphen, a digit.
@@ -81,14 +126,23 @@ class Reading(BaseModel):
     word, and whether the answer is exact or may rest on an estimate.
 
     `determinacy` is a property of the *row*, not of a run: `heuristic` means the
-    verdict can rest on a guess, not that it did. `Report.evidence` is what says
-    whether it actually did, word by word, on a given call.
+    verdict can rest on a guess, or on words left unjudged, not that it did.
+    `Report.estimated` is what says whether it actually did on a given call, and
+    `Report.evidence` which words. An `exact` row's report is never `estimated`.
+
+    A row is `heuristic` when its `requires` name a capability a pack may estimate,
+    or when its parameters rather than its `requires` decide what it needs
+    (`requires_from_params`): `multiple_constraint` may compose any row, so a
+    description of the row cannot know whether a call's entries estimate, and reads
+    it `heuristic` even though a composite of exact rows never is (ruling R-F5).
     """
 
     determinacy: Literal["exact", "heuristic"]
     normalization: str
     #: The pack's word pattern, for the language asked about. A caller comparing its
-    #: own tokenisation against a verdict needs to know what this one counted.
+    #: own tokenisation against a verdict needs to know what this one counted. Kept a
+    #: pattern rather than prose, so a caller can run it; what it makes of a hyphen is
+    #: `word_examples`, and whether `y` is a vowel is `vowels` (audit A10, ADR 0058).
     tokenization: str
     #: The characters that end a line, a clause and a sentence, as the checkers split
     #: them (`core.text.UNIT_ENDS`). The same for every row: a row that reads no clause
@@ -100,10 +154,11 @@ class Reading(BaseModel):
     units: dict[str, str] = Field(default_factory=lambda: dict(UNIT_ENDS))
     #: What `tokenization` makes of an apostrophe, a hyphen and a digit, shown by running
     #: it on `WORD_PROBES`: each probe maps to the words it yields. An apostrophe between
-    #: letters stays inside a word, so a length counts it (`snowball` reads `I'm` as
-    #: three); a hyphen splits a word in two; a digit is no part of one. Derived by
-    #: running the pattern rather than written down, so it cannot drift from it (audit
-    #: E6).
+    #: letters stays inside a word, though a word's length counts only its letters
+    #: (`snowball` reads `I'm` as two, ADR 0058); a hyphen splits a word in two, so a
+    #: sentence's word count reads `well-known` as two; a digit is no part of one.
+    #: Derived by running the pattern rather than written down, so it cannot drift from
+    #: it (audit E6).
     word_examples: dict[str, list[str]]
     #: The letters `univocalic`, `bivocalic`, `monoconsonantal` and `homovocalism` read
     #: as vowels in this language, as the pack lists them; the text's letters are folded
@@ -111,6 +166,11 @@ class Reading(BaseModel):
     #: German. `supervocalic` reads a narrower inventory, the five vowels, with `y` left
     #: out in every language (ADR 0035, D1).
     vowels: str
+    #: What makes two line endings rhyme, on a row that judges a rhyme (its parameters
+    #: take `RhymeParams`), and `None` on every other row. The key a pack reads and
+    #: how a scheme reads several of them, which a writer told two lines rhyme
+    #: against the scheme needs and the verdict alone does not say (ADR 0057).
+    rhyme: str | None = None
 
 
 class Description(BaseModel):
@@ -148,14 +208,20 @@ class Description(BaseModel):
     #: things. `params` is not merely a subset of this one: `source` is supplied
     #: by `apply` from the text it transforms, and passing it as a parameter is
     #: refused. Both may carry `allow_identity`, under one name with two
-    #: meanings: here, permit output identical to the input or empty (default
-    #: false); in `params`, on the source rows that declare it, accept the source
-    #: back unchanged as an answer (default true until that default flips).
+    #: meanings: here, permit output that is the input again (on a source row,
+    #: its letters in order) or empty (default false); in `params`, on the
+    #: source rows that declare it, accept the source back unchanged as an
+    #: answer (default false since 0.4.0, ADR 0055).
     apply_params: dict[str, Any]
     #: `Meta.unique_answer`: `check` passes only the text `apply` returns.
     unique_answer: bool = False
     #: `Meta.hidden_material`: what the verdict reads that a prompt does not show.
     hidden_material: list[str] = Field(default_factory=list)
+    #: Every `violation.rule` the row's checker can emit, sorted: `denckring.rules`,
+    #: carried here so a caller of the CLI or the MCP server reads the vocabulary the
+    #: README promises without Python (ruling R-F6). `multiple_constraint` answers with
+    #: every other row's rules, as `denckring.rules` does. Added in 0.4.0.
+    rules: list[str] = Field(default_factory=list)
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -247,16 +313,25 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
     folds = "fold_diacritics" in procedure.params_model().model_fields
     pack = get_pack(lang)
     return Reading(
-        determinacy="heuristic" if _SOFT & set(meta.requires) else "exact",
+        determinacy=(
+            "heuristic" if procedure.requires_from_params or _SOFT & set(meta.requires) else "exact"
+        ),
         normalization=_FOLD_POLICY if folds else _NO_FOLD_POLICY,
         tokenization=pack.word_re.pattern,
         word_examples={probe: pack.word_re.findall(probe) for probe in WORD_PROBES},
         vowels="".join(sorted(pack.vowels())),
+        rhyme=(
+            _RHYME_KEYS[lang] + _RHYME_PAIRS
+            if issubclass(procedure.params_model(), RhymeParams)
+            else None
+        ),
     )
 
 
 def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -> Description:
     """One procedure, in full. Raises `UnknownProcedure` for an unknown id."""
+    from denckring import rules
+
     meta = catalogue.get(procedure_id)
     procedure = get(procedure_id)
     is_constructive = isinstance(procedure, Constructive)
@@ -310,6 +385,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         ),
         unique_answer=meta.unique_answer,
         hidden_material=list(meta.hidden_material),
+        rules=list(rules(procedure_id)),
         scholarly=(
             Scholarly(
                 source=meta.source,

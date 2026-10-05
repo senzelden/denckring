@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
+from denckring.core.base import BaseProcedure
 from denckring.core.describe import Description, Scholarly, Summary, describe, summaries
 from denckring.core.errors import (
     DegenerateOutput,
@@ -114,8 +115,8 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     whose value is `None` ("inferred" to a checker, nothing to a sentence).
 
     A composite (`multiple_constraint`) is followed by one line per named
-    constraint, `- ` and that constraint's own hint rendered from its
-    `constraint_params` entry by this same function, in `constraints` order, any
+    constraint, `- ` and that constraint's own hint rendered from its entry's
+    `params` by this same function, in `constraints` order, any
     lines of its own indented under it. So each sub-hint validates and refuses as
     it would if asked for directly, and the error names the sub-constraint.
     """
@@ -130,11 +131,16 @@ def prompt_hint(procedure_id: str, *, lang: Lang = "en", **params: Any) -> str:
     carried = {*placeholders(template), *procedure.hint_delegated}
     lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
     lines += settings(model, values, shown, carried, lang)
-    lines += [
+    lines += _delegate_lines(procedure, parsed, lang)
+    return "\n".join(lines)
+
+
+def _delegate_lines(procedure: BaseProcedure[Any], parsed: Any, lang: Lang) -> list[str]:
+    """One `- ` line per delegate, its own hint rendered from its own params (ADR 0050)."""
+    return [
         "- " + prompt_hint(delegate, lang=lang, **delegate_params).replace("\n", "\n  ")
         for delegate, delegate_params in procedure.hint_delegates(parsed)
     ]
-    return "\n".join(lines)
 
 
 def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params: Any) -> str:
@@ -151,9 +157,11 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     raises `InvalidParams`; one whose value is `None` raises `UnsetHintParameter`.
     A parameter the template has no placeholder for, set off its default, is
     appended on its own line as `prompt_hint` appends it, so a template written
-    without a threshold cannot drop one a caller sets. Unlike `prompt_hint`, no
-    line is appended per composite constraint, so a non-default
-    `constraint_params` is stated as a setting like any other parameter.
+    without a threshold cannot drop one a caller sets. A composite is followed by
+    one line per constraint, as in `prompt_hint`, each that constraint's catalogue
+    hint rendered from its entry's `params`: the caller's template states the
+    composite, and the entries' parameters are stated whether it names them or not
+    (ADR 0059).
     """
     procedure = get(procedure_id)
     get_pack(lang)
@@ -168,8 +176,10 @@ def render_hint(procedure_id: str, template: str, *, lang: Lang = "en", **params
     parsed = procedure.parse_params(params)
     values = dict(parsed)
     shown = as_compared(values, model, get_pack(lang))
+    carried = {*placeholders(template), *procedure.hint_delegated}
     lines = [render(procedure_id, template, shown, show_kinds(model), lang)]
-    lines += settings(model, values, shown, set(placeholders(template)), lang)
+    lines += settings(model, values, shown, carried, lang)
+    lines += _delegate_lines(procedure, parsed, lang)
     return "\n".join(lines)
 
 
@@ -193,8 +203,9 @@ def rules(procedure_id: str) -> tuple[str, ...]:
     passes its constraints' violations through unchanged, and any registered row
     can be one of them, so it answers with every other row's vocabulary.
 
-    Published from 0.3.2 but not yet under the README's stability promise: a rule
-    may still be renamed in a minor release, and the changelog will say so.
+    Under the README's stability promise since 0.4.0 (ADR 0059): a published rule
+    keeps its name and meaning, a row may add rules, and removing or renaming one is
+    a breaking change the changelog names.
     """
     procedure = get(procedure_id)
     if not procedure.delegates_rules:
@@ -216,11 +227,14 @@ def rule_categories(procedure_id: str) -> dict[str, str]:
 
     The categories are a closed set, defined in `failure_categories()`: a forbidden
     letter is `excluded_letter`, a missing line `count`, a broken rhyme `sound`. A rule
-    string has the same category on every row that emits it, but one:
+    string has the same category on every row that emits it, but two:
     `slenderizing`'s `wrong_letter` is `transcription`, where the spine rows'
-    is `position`. So a caller counting failures across rows counts by kind without
-    a map of its own (audit C3), provided it asks each row rather than keying by the
-    rule alone. `multiple_constraint` answers with each rule's usual category.
+    is `position`, and `missing_letter` is `transcription` on the rows that align
+    a text's letters with its source's (`slenderizing`, `homoconsonantism`,
+    `homovocalism`), where the inventory rows' is `inventory`. So a caller counting
+    failures across rows counts by kind without a map of its own (audit C3),
+    provided it asks each row rather than keying by the rule alone.
+    `multiple_constraint` answers with each rule's usual category.
     Published with the rules themselves, and under the same terms: a rule's category
     may move in a minor release, and the changelog will say so.
     """

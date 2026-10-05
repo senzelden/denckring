@@ -19,6 +19,7 @@ from denckring.core.protocol import Lang
 from denckring.core.text import (
     UNIT_ENDS,
     clause_spans,
+    letter_spans,
     line_spans,
     sentence_spans,
     word_spans,
@@ -77,6 +78,27 @@ def test_the_word_examples_are_what_the_word_counting_rows_count(lang: Lang) -> 
         assert report.satisfied and report.metrics["kept"] == len(words)
 
 
+@pytest.mark.parametrize("lang", ["en", "de", "fr"])
+def test_the_word_examples_are_what_the_length_rows_count(lang: Lang) -> None:
+    """The rows that measure a length read the words `word_examples` publishes (audit
+    A10). `sentence_length_constraint` and `snowball_sentence` count them, so a hyphen
+    makes two; `snowball` and `reverse_snowball` measure each by its letters, so an
+    apostrophe is no part of a word's length (ADR 0058)."""
+    pack = denckring.get_pack(lang)
+    for probe in WORD_PROBES:
+        words = denckring.describe("snowball", lang=lang).reading.word_examples[probe]
+        count = len(words)
+        assert denckring.check(
+            "sentence_length_constraint", f"{probe}.", lang=lang, words=count
+        ).satisfied
+        assert denckring.check("snowball_sentence", f"{probe}.", lang=lang, start=count).satisfied
+        for word in words:
+            letters = len(letter_spans(word, pack, fold=False))
+            assert letters == sum(ch.isalpha() for ch in word)
+            for pid in ("snowball", "reverse_snowball"):
+                assert denckring.check(pid, word, lang=lang, start=letters).satisfied
+
+
 def _fails(pid: str, letter: str, lang: Lang, **params: object) -> bool:
     return not denckring.check(pid, letter, lang=lang, fold_diacritics=False, **params).satisfied
 
@@ -95,8 +117,11 @@ VOWEL_ROWS: dict[str, Callable[[str, Lang], bool]] = {
     "monoconsonantal": lambda letter, lang: (
         not _fails("monoconsonantal", letter, lang, consonant="c" if letter == "b" else "b")
     ),
-    # Against a source with no vowel, a vowel is one the source does not have.
-    "homovocalism": lambda letter, lang: _fails("homovocalism", letter, lang, source="b"),
+    # Against a source with no vowel, a vowel is one the source does not have. The
+    # letter `b` is that source's copy, which only `allow_identity` lets pass.
+    "homovocalism": lambda letter, lang: _fails(
+        "homovocalism", letter, lang, source="b", allow_identity=True
+    ),
 }
 
 

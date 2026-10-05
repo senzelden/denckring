@@ -46,12 +46,15 @@ def test_haikuization_rejects_a_word_that_was_not_a_line_end() -> None:
 
 def test_column_reading_and_haikuization_share_one_positional_check() -> None:
     """Same shape, same tail: a word out of place, then one violation for the
-    surplus. The two blocks were duplicated in full before `positional_report`."""
+    surplus. The two blocks were duplicated in full before `positional_report`.
+    Aligned (ADR 0056), a tie puts the gap last, so the surplus is still the tail
+    even on `haikuization`, where no word matches."""
     by_column = check("column_reading", "cat dog bird extra", source=PAGE, column=2)
     by_line_end = check("haikuization", "cat dog bird extra", source=PAGE)
     for report in (by_column, by_line_end):
         assert report.satisfied is False
         assert report.violations[-1].rule == "extra_words"
+        assert report.violations[-1].found == "extra"
 
 
 def test_haikuization_apply_round_trips() -> None:

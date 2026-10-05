@@ -140,22 +140,33 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
         forms, exact = word_stress(word, pack)
         if not exact:
             estimated += 1
+        combinations *= max(len(forms), 1)
+        tried = forms if combinations <= MAX_COMBINATIONS else forms[:1]
         evidence.append(
             Evidence(
                 subject=word,
                 offset=offset + at,
-                # The first reading, which is the one the violations below report
-                # against, so the account and the complaint agree.
-                value=forms[0] if forms else "",
-                basis="dictionary" if exact else "estimated",
+                # Every form the scan could take, first first. A fitted line replaces
+                # it below with the one form the scan read; a failed line keeps them
+                # all, since the violations name the first and the scan tried the rest
+                # (ADR 0054).
+                value="/".join(tried),
+                # `ambiguous` when the scan was free to take another listed form,
+                # and not when the cap held it to the first (ADR 0054).
+                basis="estimated" if not exact else "ambiguous" if len(tried) > 1 else "dictionary",
             )
         )
-        combinations *= max(len(forms), 1)
-        words.append((word, forms if combinations <= MAX_COMBINATIONS else forms[:1]))
+        words.append((word, tried))
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
-        return MetreResult([], len(words), max(len(words), 1), estimated, tuple(evidence))
+        # The stress the verdict rests on, as `MetreResult` promises: `every` as `10`
+        # in a line that scans only on that reading, not its first form `100`.
+        read = tuple(
+            entry.model_copy(update={"value": form})
+            for entry, form in zip(evidence, fitted, strict=True)
+        )
+        return MetreResult([], len(words), max(len(words), 1), estimated, read)
 
     violations: list[Violation] = []
     # No combination fits. Report against the first pronunciation of each word,
@@ -320,8 +331,10 @@ def word_rhyme_keys(word: str, pack: LanguagePack) -> tuple[frozenset[str], bool
 def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[str], bool]]:
     """Per line: offset, the final word, its rhyme keys, and whether they are known.
 
-    Two lines rhyme when their key sets intersect — the same satisfiability
-    reading applied to pronunciation that metre applies to stress. The fourth
+    Two lines may rhyme when their key sets intersect — the same satisfiability
+    reading applied to pronunciation that metre applies to stress — and must when
+    every pair of keys matches or the two sets are the same (`may_rhyme`,
+    `must_rhyme`, ADR 0057). The fourth
     element distinguishes "this word rhymes with nothing here" from "the
     dictionary does not carry this word", which are different claims.
     """
@@ -333,6 +346,36 @@ def rhyme_keys(text: str, pack: LanguagePack) -> list[tuple[int, str, frozenset[
         found, exact = word_rhyme_keys(words[-1], pack)
         keys.append((offset, words[-1], found, exact))
     return keys
+
+
+def may_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
+    """Whether some reading of each word makes the two rhyme: any pair of keys matches.
+
+    What a pair the scheme wants to rhyme needs, the satisfiability reading ADR 0014
+    gave metre.
+    """
+    return bool(first & second)
+
+
+def must_rhyme(first: frozenset[str], second: frozenset[str]) -> bool:
+    """Whether the two rhyme against a scheme that keeps them apart (ADR 0057).
+
+    Two ways, either of which fails the pair. Every pairing of the two words' readings
+    rhymes, so no choice keeps them apart. Or the two have the same set of keys, so
+    whichever accent a reader has, it reads both words alike: `fog` and `bog` are each
+    `AA1 G` or `AO1 G`, and a speaker who says one way says both. Reading one word in
+    one accent and the other in another models no speaker. A pair whose keys overlap
+    without being the same set passes, because some reader keeps it apart: `gone` is
+    `AO1 N`, and `on` may be `AA1 N`.
+
+    Keys are compared for equality, so the first way is a case of the second: both
+    words have the same single key. Decided per pair, like `may_rhyme`, and not for
+    the scheme jointly: one word's variant may keep one pair apart while its other
+    variant makes a second pair rhyme. An empty set, a word the dictionary lacks,
+    rhymes with nothing.
+    """
+    every_pairing = all(a == b for a in first for b in second)
+    return bool(first) and bool(second) and (every_pairing or first == second)
 
 
 def rhyme_evidence(
@@ -353,7 +396,9 @@ def rhyme_evidence(
             # line's ending; `Violation.offset` still locates the line.
             offset=None,
             value="/".join(sorted(found)) if found else "no rhyme key",
-            basis="dictionary" if exact else "estimated",
+            # Any key may make the pair rhyme, so several is a verdict that may rest
+            # on a variant (ADR 0054).
+            basis="estimated" if not exact else "ambiguous" if len(found) > 1 else "dictionary",
         )
         for _, word, found, exact in keys
     )
@@ -371,7 +416,10 @@ def scheme_violations(
 
     Both directions matter: lines sharing a letter must rhyme, and lines with
     different letters must not. A poem in which everything rhymes does not
-    satisfy `ABAB`.
+    satisfy `ABAB`. Each direction reads a word's several keys in the writer's
+    favour, as far as one reader could: a wanted pair rhymes when some reading of
+    each does, and an unwanted pair fails when every reading of each does or when
+    the two have the same keys, so that every reader rhymes them (ADR 0057).
 
     `unknown_rhyme` decides what a line ending the pronouncing dictionary does
     not carry means, which is an editorial question rather than a library
@@ -426,7 +474,9 @@ def scheme_violations(
                 continue
             checks += 1
             should_rhyme = letters[i] == letters[j]
-            does_rhyme = bool(keys[i][2] & keys[j][2])
+            # A wanted rhyme needs one pairing of readings to match. An unwanted one
+            # fails when every pairing does, or the key sets are the same (ADR 0057).
+            does_rhyme = (may_rhyme if should_rhyme else must_rhyme)(keys[i][2], keys[j][2])
             # Compared past any leading elided proclitic, or `l'amour` and
             # `amour` — the same rhyme word — read as two different ones:
             # `identical_rhyme` exists to catch French rime riche's commonest

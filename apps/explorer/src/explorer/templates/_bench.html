@@ -41,7 +41,7 @@
         <input type="number" id="{{ f.name }}" name="{{ f.name }}" value="{{ value }}">
       {% else %}
         <input type="text" id="{{ f.name }}" name="{{ f.name }}"
-               value="{% if value is iterable and value is not string %}{{ value | join(' ') }}{% else %}{{ value }}{% endif %}">
+               value="{% if f.item_kind == 'object' and value %}{{ value | tojson | forceescape }}{% elif value is iterable and value is not string %}{{ value | join(' ') }}{% else %}{{ value }}{% endif %}">
       {% endif %}
     {% endif %}
     {% if f.description %}<p class="hint">{{ f.description }}</p>{% endif %}
