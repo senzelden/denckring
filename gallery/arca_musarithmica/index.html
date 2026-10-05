@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2153,7 +2321,7 @@
 <p>Kircher advertises that an amusos — someone with no musical training — can produce correct four-part settings in any language, which is the claim that makes the box interesting. What is implemented here is the indexing, not the counterpoint: a phrase is measured and a pattern drawn from the tablet for its length, and the patterns themselves are never read. Put Kircher's pitch numbers in and you get his machine; put stress patterns or rhyme schemes in and the same bones carry those. No tablet ships. Kircher's own runs to many pages of Musurgia Universalis book VIII and has not been transcribed into anything this project could verify.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Count the syllables of the phrase, then take a pattern from the table indexed by that count.</p>
+<p>Count the syllables of the phrase, then take a pattern from syntagma 1 of the table, indexed by that count.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2188,7 +2356,7 @@
 <td><code>tonus</code></td>
 <td>—</td>
 <td><code>None</code></td>
-<td>The mode, if the table names any.</td>
+<td>The mode, if the table names any; unset, no mode is checked.</td>
 </tr>
 </tbody>
 </table>

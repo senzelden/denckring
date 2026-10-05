@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2198,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supplied-data-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        supplied-data-match
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supplied-data-mismatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        supplied-data-mismatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2048,8 +2266,8 @@
 
 
 <h1 id="homophonic-translation">Homophonic translation<a class="headerlink" href="#homophonic-translation" title="Permanent link">&para;</a></h1>
-<p><code>homophonic_translation</code> · translation · <strong>catalogued</strong></p>
-<p>A rendering that follows the sound of the source across a language barrier rather than its sense, producing meaning from mishearing.</p>
+<p><code>homophonic_translation</code> · translation · <strong>validated</strong></p>
+<p>Compare complete source and target symbol streams from supplied pronunciation data against an explicit normalized edit-distance limit. This checks declared symbols, not pronunciation accuracy or literary quality.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source:</strong> Louis Zukofsky and Celia Zukofsky, Catullus (1969)</li>
@@ -2061,17 +2279,61 @@
 <ul>
 <li><strong>Kind:</strong> both</li>
 <li><strong>Languages:</strong> en</li>
-<li><strong>Requires:</strong> <code>tokens</code>, <code>phonemes</code>, <code>phonemes.bilingual</code></li>
+<li><strong>Requires:</strong> <code>tokens</code></li>
 <li><strong>Deterministic:</strong> no</li>
 <li><strong>Also known as:</strong> sound translation</li>
 <li><strong>In other languages:</strong> Homophone Übersetzung (<em>de</em>), Traduction homophonique (<em>fr</em>)</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked: judging that the target sounds like the source across languages needs a <code>phonemes.bilingual</code> capability no pack provides.</p>
+<p>ADR 0049: <code>data</code> is versioned JSON with distinct language labels, provenance, a shared symbol alphabet and per-word source and target pronunciations. <code>lang</code> must match the source label. Every word must resolve; an unknown word or an empty stream fails even with max_distance=1. Comparison is Levenshtein distance divided by the longer stream length, without automatic stress removal or phonetic equivalence rules. <code>max_distance</code> is required in [0,1]. Symbol streams are limited to 4096 units each. Word boundaries are ignored after lookup. No pack claims a bilingual phoneme capability; the supplied data is not independently verified. This row provides checking only, not target-text search.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Render the source by its sound rather than its meaning, in the target language.</p>
+<p>Supply versioned bilingual JSON data and a source; unknown entries fail.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>Versioned JSON with two pronunciation tables and a shared symbol alphabet.</td>
+</tr>
+<tr>
+<td><code>max_distance</code></td>
+<td>number</td>
+<td><code>—</code></td>
+<td>Explicit maximum normalized symbol edit distance; no default.</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="supplied-data-match">supplied-data-match<a class="headerlink" href="#supplied-data-match" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>chat
+</code></pre></div>
+<p>Parameters: <code>source='cat'</code>, <code>data='{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance": "constructed test data; not a verified bilingual dictionary", "alphabet": ["a", "b", "c"], "source_pronunciations": {"cat": ["a", "b"]}, "target_pronunciations": {"chat": ["a", "b"], "mot": ["a", "c"]}}'</code>, <code>max_distance=0</code></p>
+<p>Source: constructed structural example; data is not independently verified</p>
+<h3 id="supplied-data-mismatch">supplied-data-mismatch<a class="headerlink" href="#supplied-data-mismatch" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>mot
+</code></pre></div>
+<p>Parameters: <code>source='cat'</code>, <code>data='{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance": "constructed test data; not a verified bilingual dictionary", "alphabet": ["a", "b", "c"], "source_pronunciations": {"cat": ["a", "b"]}, "target_pronunciations": {"chat": ["a", "b"], "mot": ["a", "c"]}}'</code>, <code>max_distance=0</code></p>
+<p>Source: constructed structural counterexample</p>
 
 
 

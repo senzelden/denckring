@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2198,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supplied-data-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        supplied-data-match
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supplied-data-mismatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        supplied-data-mismatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2048,8 +2266,8 @@
 
 
 <h1 id="definitional-translation">Definitional translation<a class="headerlink" href="#definitional-translation" title="Permanent link">&para;</a></h1>
-<p><code>definitional_translation</code> · translation · <strong>catalogued</strong></p>
-<p>A rendering in which each word of the source is replaced by its dictionary definition in the target language.</p>
+<p><code>definitional_translation</code> · translation · <strong>validated</strong></p>
+<p>Check an ordered expansion of every source token into one supplied target-language gloss. This verifies the supplied mapping, not its semantic accuracy.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source:</strong> Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)</li>
@@ -2061,15 +2279,53 @@
 <ul>
 <li><strong>Kind:</strong> both</li>
 <li><strong>Languages:</strong> en</li>
-<li><strong>Requires:</strong> <code>tokens</code>, <code>lexicon.glosses.bilingual</code></li>
+<li><strong>Requires:</strong> <code>tokens</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked: replacing each word by its definition <em>in the target language</em> needs glosses in two languages. English glosses do not serve it, and no pack ships non-English ones. Named alongside <code>homophonic_translation</code>'s <code>phonemes.bilingual</code> for the same reason.</p>
+<p>ADR 0049: <code>data</code> is versioned JSON with distinct source/target language labels, provenance and gloss alternatives. <code>lang</code> must match the source label. Case, punctuation and whitespace are ignored; word order and occurrence counts are preserved. Unknown source tokens, empty sources, omissions and extra candidate words fail. The target language label and definitions are caller declarations, not independently verified facts. This supplies a structural checker without claiming a bilingual lexicon capability on any pack. At most 4096 tokens per text; checking only.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Replace each word of the source with its definition in the target language.</p>
+<p>Supply versioned bilingual JSON data and a source; unknown entries fail.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>Versioned JSON containing source-token to target-gloss alternatives.</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="supplied-data-match">supplied-data-match<a class="headerlink" href="#supplied-data-match" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>petit animal animal fidèle
+</code></pre></div>
+<p>Parameters: <code>source='cat dog'</code>, <code>data='{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance": "constructed test data; not a verified bilingual dictionary", "glosses": {"cat": ["petit animal"], "dog": ["animal fidèle"]}}'</code></p>
+<p>Source: constructed structural example; data is not independently verified</p>
+<h3 id="supplied-data-mismatch">supplied-data-mismatch<a class="headerlink" href="#supplied-data-mismatch" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>animal fidèle petit animal
+</code></pre></div>
+<p>Parameters: <code>source='cat dog'</code>, <code>data='{"version": "supplied-bilingual-v1", "source_language": "en", "target_language": "fr", "provenance": "constructed test data; not a verified bilingual dictionary", "glosses": {"cat": ["petit animal"], "dog": ["animal fidèle"]}}'</code></p>
+<p>Source: constructed structural counterexample</p>
 
 
 

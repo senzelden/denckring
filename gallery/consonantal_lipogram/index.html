@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2009,6 +2177,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prompt-hint" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2065,6 +2244,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#avoids-a-set-with-vowels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        avoids-a-set-with-vowels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uses-a-vowel-of-the-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uses-a-vowel-of-the-set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#evite-le-groupe" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2080,6 +2281,17 @@
     <span class="md-ellipsis">
       
         emploie-le-groupe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cedille-repliee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cedille-repliee
       
     </span>
   </a>
@@ -2126,9 +2338,11 @@
 <li><strong>Deterministic:</strong> yes</li>
 <li><strong>In other languages:</strong> Lipogramme consonantique (<em>fr</em>)</li>
 </ul>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<p>The checker takes any set of letters, vowels included, and fails every letter of the set wherever it appears: a group of consonants is the form's case, not the checker's limit. <code>lipogram</code> forbids one letter; this row is the one to use for several, whichever they are.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write a passage avoiding every one of a named group of consonants.</p>
+<p>Write a passage avoiding every one of these letters: {forbidden}.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2151,7 +2365,7 @@
 <td><code>forbidden</code></td>
 <td>string</td>
 <td><code>—</code></td>
-<td>The consonants the text must avoid.</td>
+<td>The letters the text must avoid: any set, vowels included.</td>
 </tr>
 </tbody>
 </table>
@@ -2168,6 +2382,18 @@
 </code></pre></div>
 <p>Parameters: <code>forbidden='bcd'</code></p>
 <p>Source: constructed counterexample</p>
+<h3 id="avoids-a-set-with-vowels">avoids-a-set-with-vowels<a class="headerlink" href="#avoids-a-set-with-vowels" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>I hold strong words, now lost.
+</code></pre></div>
+<p>Parameters: <code>forbidden='ae'</code></p>
+<p>Source: constructed example; the set may hold vowels, which the lipogram suite of denckring-bench relies on (audit E3)</p>
+<h3 id="uses-a-vowel-of-the-set">uses-a-vowel-of-the-set<a class="headerlink" href="#uses-a-vowel-of-the-set" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>I hold strong words, now lost again.
+</code></pre></div>
+<p>Parameters: <code>forbidden='ae'</code></p>
+<p>Source: constructed counterexample; a vowel in the set fails like a consonant would</p>
 <h3 id="evite-le-groupe">evite-le-groupe<a class="headerlink" href="#evite-le-groupe" title="Permanent link">&para;</a></h3>
 <p><em>fr</em> — this text <strong>satisfies</strong> the procedure.</p>
 <div class="highlight"><pre><span></span><code>la lune se leva
@@ -2180,6 +2406,12 @@
 </code></pre></div>
 <p>Parameters: <code>forbidden='bcd'</code></p>
 <p>Source: constructed counterexample</p>
+<h3 id="cedille-repliee">cedille-repliee<a class="headerlink" href="#cedille-repliee" title="Permanent link">&para;</a></h3>
+<p><em>fr</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>un garçon
+</code></pre></div>
+<p>Parameters: <code>forbidden='ç'</code></p>
+<p>Source: constructed counterexample; <code>ç</code> folds to <code>c</code> like the text's letters, so the cedilla in "garçon" is forbidden (ADR 0035, D3)</p>
 
 
 

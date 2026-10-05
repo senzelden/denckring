@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://senzelden.github.io/denckring/contributing/">
       
       
-        <link rel="prev" href="../adr/0047-editorial-language-scope/">
+        <link rel="prev" href="../adr/0053-no-pronunciation-supplement-yet/">
       
       
         <link rel="next" href="../changelog/">
@@ -1903,6 +1903,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2205,8 +2373,17 @@ fixture and catalogue row — each marked <code>FILL IN</code>. Fill them in; in
 <li><strong>Catalogue row</strong> (<code>src/denckring/data/catalogue.yaml</code>) — names, definitions, a real
   source with a date, <code>kind</code>, <code>languages</code>, <code>requires</code>, and an English prompt hint. The
   catalogue is the single source of truth for metadata; the module loads it.</li>
-<li><strong>Module</strong> — a Pydantic <code>Params</code> model and <code>_check</code>. Language, capability and
-  parameter validation already happened in <code>BaseProcedure.check</code>; do not repeat them.
+<li><strong>Module</strong> — a Pydantic <code>Params</code> model, <code>_check</code>, and <code>rules</code>: every <code>violation.rule</code>
+  the checker can emit, sorted, declared in the class body (<code>denckring.rules</code> publishes
+  it). The tests fail on a rule emitted but not declared, and on one declared that no
+  golden case or witness in <code>tests/fixtures/rule_witnesses.yaml</code> emits. Language,
+  capability and parameter validation already happened in <code>BaseProcedure.check</code>; do
+  not repeat them. Each params field declares <code>json_schema_extra=param(role, kind)</code>
+  (<code>core.fields</code>): its role in the task, from a closed set, and for a string what kind
+  of string it holds. A hint must state every <code>task</code> and <code>inferred</code> parameter;
+  <code>prompt_hint</code> states any other a caller sets off its default after the hint.
+  If the checker judges each word, line or sentence alone, say so with <code>local_scope</code>
+  (<code>core/scope.py</code>); <code>tests/test_scope.py</code> then holds the claim to the checker.
   Build the <code>Report</code> with <code>self._report(...)</code> unless an empty text should be
   <em>unsatisfied</em> for your procedure, as it is for <code>pangram</code>.</li>
 <li><strong>Golden fixture</strong> — at least one authentic literary instance that must be satisfied

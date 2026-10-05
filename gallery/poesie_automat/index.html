@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2153,7 +2321,7 @@
 <p>Six lines, six modules, ten alternatives: 10^36, and all four numbers are stated by the German Wikipedia article on the Landsberger Poesieautomat. The figure is recomputed from the shipped modules rather than quoted, and it is an integer — <code>metrics["combinations"]</code> is a float and cannot hold it exactly. No lexicon of Enzensberger's ships here. He died in 2022, so his word lists are in copyright until 2092; the mechanism is not, and it is the mechanism this row catalogues. The 360 fillers in <code>data/devices/poesieautomat_2000.yaml</code> were written for this project without reference to his lists, on the same footing as the substitute strips the <code>cent_mille_milliards</code> fixture carries for Queneau. How they were made is what can be said; word-for-word non-overlap with a list this project has never read could not be checked, and is not claimed. Three design rules are what make every one of the 10^36 readings grammatical German rather than most of them: the article is folded into the noun so agreement never crosses a module boundary, everything after the subject is an adjunct, and every verb is intransitive third person singular present. Lines 2, 4 and 6 carry no predicate at all, which the sources give as the feature that made the automat programmable in the first place. Grammaticality is a property of the module design and is verified by reading generated poems, not by the checker: <code>check</code> asks only whether a poem is one the board admits.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write six lines of six blocks each; after the subject everything is an adjunct, and every verb is intransitive third person singular present.</p>
+<p>Write six lines of six blocks each from the poesieautomat_2000 device; after the subject everything is an adjunct, and every verb is intransitive third person singular present.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>

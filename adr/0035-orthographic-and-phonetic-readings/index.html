@@ -2007,6 +2007,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2437,6 +2605,12 @@ still not a letter of the row's own flat <code>alphabet()</code>, which is only 
 silently defaulting to index 0 as before. Ten golden cases were added, one per fixed row
 plus a negative for four of them, all in the language the original defect was reproduced
 in (<code>tests/test_folding_seam.py</code>, <code>eval --all</code> 498 → 508).</p>
+<p><strong>2026-10-03: a seventh row, <code>consonantal_lipogram</code>, had the same seam and was not
+listed.</strong> It built its forbidden set from the raw parameter, so <code>forbidden="ç"</code> in French
+never matched a folded letter and every text passed: <code>lipogram</code>'s inverted verdict, in the
+group row. Fixed for 0.3.2 with the same <code>single_letter</code> helper, one character at a time
+as <code>bivocalic</code> folds <code>vowels</code>; a letter that folds to two (<code>ß</code>) is refused by name under
+D4. One golden case added (<code>cedille-repliee</code>).</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <p><strong>German <code>supervocalic</code> is satisfiable for the first time, and its catalogue row still
 says <code>languages: ["en"]</code>.</strong> No editorial <code>languages</code> value moved here, deliberately —

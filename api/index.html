@@ -406,6 +406,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading a report
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -422,6 +440,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-checker-reads-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a checker reads text
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1915,6 +1963,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1995,6 +2211,25 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-checker-reads-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a checker reads text
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2078,6 +2313,26 @@ silently would let a caller believe every count was exact. <code>estimated_words
 the library discloses, instead, how many words in the checked text were guessed
 rather than looked up — so a caller who needs certainty can decide whether that
 number is small enough to trust.</p>
+<p>To decide whether to trust a verdict at all, read <code>Report.estimated</code> rather than this
+metric: it is true whenever the verdict rests on anything estimated or left unjudged,
+including what <code>estimated_words</code> misses on some rows (rhyme endings, for one), and it
+is under the README's stability promise, which <code>metrics</code> keys are not.</p>
+<h2 id="how-a-checker-reads-text">How a checker reads text<a class="headerlink" href="#how-a-checker-reads-text" title="Permanent link">&para;</a></h2>
+<p><code>describe(procedure_id, lang=...).reading</code> says how the text is cut up before it is
+judged, so a caller can write a prompt or a guard that agrees with the checker:</p>
+<ul>
+<li><code>tokenization</code> is the word pattern, and <code>word_examples</code> shows what it does with the
+  cases a count turns on. An apostrophe between letters stays inside a word (<code>don't</code>,
+  <code>l’âme</code>), so a word's length counts it; a hyphen splits a word in two (<code>well-known</code>
+  is two words); a digit is no part of a word.</li>
+<li><code>units</code> lists the characters that end a line, a clause and a sentence.</li>
+<li><code>vowels</code> lists the letters the vowel rows (<code>univocalic</code>, <code>bivocalic</code>,
+  <code>monoconsonantal</code>, <code>homovocalism</code>) read as vowels. <code>y</code> is one in French and not in
+  English or German.</li>
+<li><code>normalization</code> says how letters fold before they are compared, and <code>determinacy</code>
+  whether the verdict can rest on an estimate.</li>
+</ul>
+<p><code>reading</code> is published but not yet under the stability promise.</p>
 
 
 

@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2198,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        graft
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrong-donor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wrong-donor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unknown-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unknown-source
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2048,8 +2277,8 @@
 
 
 <h1 id="perverb">Perverb<a class="headerlink" href="#perverb" title="Permanent link">&para;</a></h1>
-<p><code>perverb</code> · word · <strong>catalogued</strong></p>
-<p>A proverb formed by grafting the first half of one saying onto the second half of another, and the writing that follows from it.</p>
+<p><code>perverb</code> · word · <strong>validated</strong></p>
+<p>A hybrid saying formed from the opening of one proverb and the ending of another. This implementation checks only the graft, within a small attested corpus; it does not judge writing inspired by the result.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source:</strong> Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)</li>
@@ -2062,14 +2291,58 @@
 <li><strong>Kind:</strong> both</li>
 <li><strong>Languages:</strong> en</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>corpus.proverbs</code></li>
-<li><strong>Deterministic:</strong> no</li>
+<li><strong>Deterministic:</strong> yes</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked: forming a perverb needs a <code>corpus.proverbs</code> capability no pack provides.</p>
+<p>Requires denckring[en]. <code>source</code> and <code>donor</code> must name distinct sayings in the pack's corpus. The corpus supplies editorial fragment boundaries, not arithmetic midpoints. Matching ignores case, punctuation and whitespace; the generator emits the canonical corpus spelling. Unknown sayings produce an unresolved verdict, not a claim that the saying is not a proverb. Only the two-fragment graft is checked; poems and semantic quality are outside this contract. See ADR 0048 and https://www.oulipo.net/fr/contraintes/perverbe.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Cross two proverbs at the midpoint and write the passage the hybrid implies.</p>
+<p>Join the source proverb’s opening to the ending of “{donor}”.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>donor</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>A different saying from the pack's proverb corpus.</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="graft">graft<a class="headerlink" href="#graft" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>A stitch in time flock together
+</code></pre></div>
+<p>Parameters: <code>source='A stitch in time saves nine'</code>, <code>donor='Birds of a feather flock together'</code></p>
+<p>Source: constructed from Preston proverb entries 1532 and 123; ADR 0048</p>
+<h3 id="wrong-donor">wrong-donor<a class="headerlink" href="#wrong-donor" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>A stitch in time gathers no moss
+</code></pre></div>
+<p>Parameters: <code>source='A stitch in time saves nine'</code>, <code>donor='Birds of a feather flock together'</code></p>
+<p>Source: constructed counterexample using the suffix of entry 1367</p>
+<h3 id="unknown-source">unknown-source<a class="headerlink" href="#unknown-source" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Invented words flock together
+</code></pre></div>
+<p>Parameters: <code>source='Invented words go here'</code>, <code>donor='Birds of a feather flock together'</code></p>
+<p>Source: constructed unknown saying</p>
 
 
 

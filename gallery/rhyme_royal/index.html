@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2138,7 +2306,7 @@
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write seven-line stanzas of iambic pentameter rhyming ABABBCC.</p>
+<p>Write seven lines of iambic pentameter, ten syllables alternating unstressed and stressed, rhyming ABABBCC.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2217,7 +2385,7 @@ My purpos is, er that I parte fro ye.
 Thesiphone, thow help me for t&#39;endite
 Thise woful vers, that wepen as I write.
 </code></pre></div>
-<p>Source: Geoffrey Chaucer, Troilus and Criseyde, Book I, lines 1-7 (c. 1385), following the Riverside Chaucer / Windeatt base of Corpus Christi College Cambridge MS 61 (ADR 0040 D5 — transcribed as edited, not modernised). Rejected: Middle English "ye" (thee/you) does not rhyme with "joie" under this package's model (<code>does_not_rhyme</code>, ADR 0040 D3), and three lines carry Middle English spelling ("Priamus", "lovynge", "t'endite") the pronouncing dictionary does not hold, reading 9 or 11 syllables instead of 10 (<code>wrong_line_length</code>). Measured on this HEAD: score 0.8974, 4 violations.</p>
+<p>Source: Geoffrey Chaucer, Troilus and Criseyde, Book I, lines 1-7 (c. 1385), following the Riverside Chaucer / Windeatt base of Corpus Christi College Cambridge MS 61 (ADR 0040 D5 — transcribed as edited, not modernised). Rejected: Middle English "ye" (thee/you) does not rhyme with "joie" under this package's model (<code>does_not_rhyme</code>, ADR 0040 D3), and two lines carry Middle English spelling ("Priamus", "t'endite") the pronouncing dictionary does not hold, reading 9 syllables instead of 10 (<code>wrong_line_length</code>). A third ("lovynge", "aventures") read 11 until the spelling heuristic learned the silent <code>e</code> of <code>-es</code> (0.3.2). Measured on this HEAD: score 0.9318, 3 violations.</p>
 
 
 

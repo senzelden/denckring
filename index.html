@@ -2113,6 +2113,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2392,10 +2560,9 @@ hundred and fifty more — where the validator is the eval.</strong></p>
 <p>Every procedure pairs a generator with a validator, and the acceptance criterion is
 intrinsic: a lipogram either contains the forbidden letter or it does not. Nothing has to
 be invented to test it, and nothing has to be believed. That is the whole design.</p>
-<p><img alt="The catalogue, the stage, and a local model checking and generating over MCP" src="showcase/denckring-overview.gif" /></p>
-<p><em>The board, nine machines on the stage, and <code>gemma4</code> running on the same laptop calling
-<code>check_text</code> and <code>apply_procedure</code> through this package's own MCP server. Nothing in it
-is staged — the verdicts are the library's own.</em></p>
+<p>https://github.com/user-attachments/assets/97dd9198-790c-4f82-a9ca-f5f35b155fc2</p>
+<p><em>A model is asked to write without <code>e</code>, says it has, and <code>check("lipogram", ...)</code> says
+otherwise. The same check then passes the corrected draft: the validator is the eval.</em></p>
 <h2 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="go">pip install denckring</span>
 </code></pre></div>
@@ -2409,7 +2576,7 @@ is staged — the verdicts are the library's own.</em></p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>denckring<span class="w"> </span>check<span class="w"> </span>lipogram<span class="w"> </span>gedicht.txt<span class="w"> </span>--lang<span class="w"> </span>de<span class="w">   </span><span class="c1"># exits 1 when unsatisfied</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>apply<span class="w"> </span>cut_up<span class="w"> </span>text.txt<span class="w"> </span>--json<span class="w">           </span><span class="c1"># emits a Production</span>
 <span class="gp">$ </span>denckring<span class="w"> </span>status
-<span class="go">158 catalogued · 133 implementable · 127 implemented · 127 validated · 25 not mechanically checkable</span>
+<span class="go">158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable</span>
 <span class="go">0 instruments catalogued</span>
 </code></pre></div>
 <p>Three interfaces over the same core functions, so they cannot disagree about what a
@@ -2432,10 +2599,10 @@ tools, because model performance degrades with tool count. Errors come back as d
 <a href="https://github.com/senzelden/denckring/blob/main/skills/denckring/SKILL.md"><code>skills/denckring/SKILL.md</code></a>
 shells out to the CLI instead, and needs no extra beyond the package itself.</p>
 <h2 id="whats-here">What's here<a class="headerlink" href="#whats-here" title="Permanent link">&para;</a></h2>
-<p>A hundred and twenty-seven of the 158 catalogued procedures are implemented, and every
+<p>A hundred and thirty-three of the 158 catalogued procedures are implemented, and every
 one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see <a href="#what-can-be-checked">What can be checked</a> —
-and the remaining 6 are sourced and awaiting implementation.</p>
+and all 133 implementable procedures are implemented.</p>
 <p>The <a href="https://senzelden.github.io/denckring/gallery/"><strong>gallery</strong></a> has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
 worked example on it is one the test suite enforces and none of it can drift. Locally,
@@ -2461,7 +2628,7 @@ distribution exists per licence rather than per language (ADR 0013).</p>
 </tr>
 <tr>
 <td><code>denckring[en]</code></td>
-<td>pronouncing dictionary, noun lexicon, SCOWL graded word list</td>
+<td>pronouncing dictionary, noun lexicon, SCOWL graded word list, relations and proverbs</td>
 <td>exact syllables instead of estimates; <code>apply anagram</code></td>
 </tr>
 <tr>
@@ -2472,7 +2639,7 @@ distribution exists per licence rather than per language (ADR 0013).</p>
 <tr>
 <td><code>denckring[de-wiktionary]</code></td>
 <td>pronunciations, stress, glosses (CC BY-SA)</td>
-<td><strong>every implemented row in German</strong></td>
+<td>German phonetic and gloss-based rows; no English-only relations or POS</td>
 </tr>
 <tr>
 <td><code>denckring[de-frequency]</code></td>
@@ -2482,7 +2649,7 @@ distribution exists per licence rather than per language (ADR 0013).</p>
 <tr>
 <td><code>denckring[fr]</code></td>
 <td>word list, nouns, frequency bands, glosses, syllables, phonemes (Lexique 3.82, fr.Wiktionary)</td>
-<td>French from 70 rows to <strong>106</strong></td>
+<td>French from 72 rows to <strong>108</strong></td>
 </tr>
 <tr>
 <td><code>denckring[mcp]</code></td>
@@ -2501,7 +2668,7 @@ Wieland, Goethe, Kafka and Mann.</p>
 <p>German and French ship in core because the procedures that need no lexicon work for them
 unchanged; both are built-in defaults exactly like English (ADR 0022), and their data
 distributions override those defaults rather than registering through a separate path.
-On core alone, 70 of the 127 implemented rows run in French.</p>
+On core alone, 72 of the 133 implemented rows run in French.</p>
 <p>Language packs declare capabilities; procedures declare what they require. Asking for a
 language whose pack is not installed, or a procedure whose requirements that pack does
 not meet, raises <code>MissingCapability</code> naming what is missing rather than quietly returning
@@ -2532,13 +2699,18 @@ measurements the verdict rests on, each saying whether it came from a dictionary
 spelling heuristic. A haiku that misses names the words it counted and what it made them;
 a line that does not scan names the stress it read each word as. It is empty on the rows
 that need no such account: a lipogram's violation already carries the offending character.
-<code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 81
-of the 127 and <code>heuristic</code> for 46. The score is monotone in
+<code>describe()</code> says in advance which kind a row is — <code>reading.determinacy</code> is <code>exact</code> for 87
+of the 133 and <code>heuristic</code> for 46. The score is monotone in
 violation count and <code>satisfied</code> is exactly <code>score == 1.0</code>, so a caller driving a retry
 loop can tell whether a text missed by one word or by fifty.</p>
 <p><code>produce</code> returns a <code>Production</code> — the procedure's id, its <code>texts</code> (best first, never
 empty), <code>truncated</code>, and <code>metrics</code> — and <code>apply</code> is defined as <code>produce(...).texts[0]</code>,
 the one-text surface for a caller who wants the best answer and not the search behind it.</p>
+<p>Every <code>check</code> is deterministic: the same text, language and parameters give the same
+<code>Report</code>, on every row. A row's catalogue flag <code>deterministic</code> is about the form, not the
+checker: it is false where the form leaves its output to chance or to the writer, as a
+cut-up or a homophonic translation does. A generator that draws takes a <code>seed</code>, which
+repeats the draw and which <code>provenance</code> echoes.</p>
 <p>Both carry <code>provenance</code>: the package version, a schema version that moves independently
 of it, which pack answered and which data distributions it was reading, the
 <code>fold_diacritics</code> policy in force, and the <code>seed</code> a drawing generator used. German names
@@ -2560,25 +2732,42 @@ forms belong in an honest survey, and <code>denckring status</code> counts them 
 than reporting a gap that can never close.</p>
 <h2 id="what-is-stable">What is stable<a class="headerlink" href="#what-is-stable" title="Permanent link">&para;</a></h2>
 <p><code>0.x</code> means the API can change in a minor release, and the changelog says when it does.
-Five surfaces are treated as contracts regardless, because things outside this repository
+Seven surfaces are treated as contracts regardless, because things outside this repository
 are built on them:</p>
 <ul>
 <li><strong>Procedure ids.</strong> An id that has shipped does not change meaning. When a row is
   replaced, the old id stays findable through <code>denckring search</code> as an alias — though
   <code>get</code> resolves ids only, and raises <code>UnknownProcedure</code> naming the replacement.
   <code>multiple_constraint</code>, which replaced <code>univocalic_lipogram_pair</code>, is the precedent.</li>
+<li><strong>The names <code>denckring</code> exports</strong>, imported from <code>denckring</code> itself. <code>check</code>, <code>apply</code>,
+  <code>produce</code>, <code>describe</code>, <code>get</code>, <code>list_procedures</code>, <code>summaries</code> and <code>all_procedures</code> keep
+  their signatures and meaning; a new parameter arrives as a keyword whose default keeps
+  today's answer. <code>Report</code>, <code>Violation</code>, <code>Production</code>, <code>Description</code>, <code>Summary</code>,
+  <code>Scholarly</code>, <code>Meta</code> and <code>Lang</code> keep the type and meaning of every field they have,
+  except the fields listed below as not yet promised. <code>DenckringError</code> and every
+  subclass keep their names, their place under <code>DenckringError</code> and their <code>code</code>. The
+  same objects reached through <code>denckring.core</code> are not covered: the path is part of
+  the promise. The rest of <code>__all__</code> is published but not yet promised, as listed below.</li>
 <li><strong><code>Report</code> as JSON</strong> — <code>procedure</code>, <code>satisfied</code>, <code>score</code>, <code>violations</code>, <code>metrics</code>,
-  <code>provenance</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and <code>describe</code> that carries
-  it. Fields may be added; the ones already there do not change type or meaning.
+  <code>provenance</code>, <code>estimated</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and <code>describe</code>
+  that carries it. Fields may be added; the ones already there do not change type or
+  meaning. <code>estimated</code> says whether the verdict rests on anything estimated or left
+  unjudged, and is what to read in place of <code>metrics["estimated_words"]</code>.
   <code>describe</code>'s <code>Description</code> carries <code>runs_in</code> under the same promise. <code>provenance</code>
   carries its own <code>schema_version</code>, which moves when the <em>shape</em> of these objects does
-  and not when the package is released.</li>
+  and not when the package is released: <code>1.1</code> since <code>estimated</code> was added.</li>
 <li><strong><code>Production</code> as JSON</strong> — <code>procedure</code>, <code>candidates</code>, <code>texts</code>, <code>truncated</code>, <code>metrics</code>,
   <code>provenance</code> — and the <code>--json</code> output of <code>apply</code>. Covered by the same promise in the
   same words. Both <code>candidates</code> and <code>texts</code> are ordered, best first, because <code>apply</code>
   returns <code>texts[0]</code>.</li>
 <li><strong>The catalogue export schema</strong> (<code>denckring catalogue export</code>), including the <code>licence</code>
   and <code>attribution</code> keys the CC BY terms are carried by.</li>
+<li><strong>The language-pack surface</strong>: <code>denckring.get_pack</code> (also <code>denckring.lang.get_pack</code>)
+  and the <code>LanguagePack</code> protocol it returns, with the <code>PosTag</code> its <code>pos_tags</code> answers,
+  all importable from <code>denckring</code>. A method on the protocol keeps its signature and
+  meaning. A new pack method arrives as an optional member, read with <code>getattr</code> and a
+  fallback, because the protocol is <code>runtime_checkable</code> and a required method added
+  later would make every pack written before it fail <code>isinstance</code>.</li>
 <li><strong>The <code>denckring.lang</code> entry-point group</strong> and the capability names a pack
   declares, so an installed third-party pack keeps working. This covers
   replacing or extending the data behind English, German or French (ADR
@@ -2586,8 +2775,30 @@ are built on them:</p>
   register a new language through this mechanism.</li>
 </ul>
 <p>Not stable, and expected to move: violation <code>rule</code> strings, <code>metrics</code> keys, message
-wording, and everything under <code>denckring.core</code>. A check's <em>verdict</em> is a contract; the
-reason it gives for a failure is not one yet.</p>
+wording, the wording of prompt hints, and everything under <code>denckring.core</code>. Each row's
+rule strings are published, through <code>denckring.rules(procedure_id)</code>, so they can be
+mapped without reading checker source; a rename is still allowed in a minor release,
+and the changelog names it. A check's <em>verdict</em> is a contract; the reason it gives for
+a failure is not one yet.</p>
+<p><strong>Published, not yet promised.</strong> These are exported and documented, so nothing has to
+reach into <code>denckring.core</code> for them, but they may still change in a minor release, with
+a changelog line when they do. All but <code>Report.evidence</code> and <code>Description.reading</code> are
+new in 0.3.2:</p>
+<ul>
+<li><code>rules</code>, <code>rule_categories</code> and <code>failure_categories</code>: the rule ids and the kind of
+  failure each names;</li>
+<li><code>Report.evidence</code> and its type, <code>Evidence</code>; that field, like the rule ids, is planned
+  for the promise in 0.4.0;</li>
+<li>the catalogue flags <code>Meta.unique_answer</code> and <code>Meta.hidden_material</code>, which
+  <code>Description</code> carries too, and <code>Meta.hint_omits</code>;</li>
+<li><code>prompt_hint</code> and <code>render_hint</code>, which render the catalogue's hint templates;</li>
+<li><code>golden_cases</code> and <code>GoldenCase</code>;</li>
+<li><code>scope</code>, <code>scopes</code>, <code>admits</code> and <code>witness</code>;</li>
+<li><code>words</code> and <code>nouns</code>;</li>
+<li><code>pack_provenance</code> and <code>PackProvenance</code>, the record <code>Report.provenance.pack</code> carries;</li>
+<li><code>Description.reading</code>, including its new <code>reading.units</code>, <code>reading.word_examples</code>
+  and <code>reading.vowels</code>.</li>
+</ul>
 <h2 id="the-catalogue-as-data">The catalogue as data<a class="headerlink" href="#the-catalogue-as-data" title="Permanent link">&para;</a></h2>
 <p>The catalogue is 158 sourced procedures and is a contribution in its own right — useful
 to someone who will never install the package.</p>

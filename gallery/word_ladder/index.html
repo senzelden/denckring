@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2186,7 +2354,7 @@
 <p>German and French are declared, and the checker takes a <code>fold_diacritics</code> parameter so both declarations hold. Folded — the house default — <code>schon</code> and <code>schön</code> are the same word and the step is rightly refused; unfolded, they differ in exactly one letter and the canonical German doublet is accepted. French raises the identical question with <code>cote</code>/<code>côte</code> and <code>sur</code>/<code>sûr</code>, and the same parameter answers it the same way. The generator substitutes over <code>alphabet()</code> widened by <code>vowels()</code>, which is how it reaches ä, ö and ü at all; ß is in neither, so <code>apply</code> cannot produce <em>Maße</em> from <em>Masse</em> although <code>check</code> accepts that step unfolded.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Move from the first word to the last, changing one letter at a time, each step a real word.</p>
+<p>Write a chain of real words and nothing else, each the same length as the one before it and differing from it in exactly one letter.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2200,16 +2368,28 @@
 </thead>
 <tbody>
 <tr>
+<td><code>end_at_target</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Fail a ladder whose last word is not <code>target</code>, compared as a step compares its words. Needs <code>target</code>.</td>
+</tr>
+<tr>
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
 <td>Treat accented letters as their base letter, and ß as ss.</td>
 </tr>
 <tr>
+<td><code>min_steps</code></td>
+<td>integer</td>
+<td><code>0</code></td>
+<td>Fewest steps the ladder must take, a step being each word after the first. 0 accepts a single word.</td>
+</tr>
+<tr>
 <td><code>target</code></td>
 <td>—</td>
 <td><code>None</code></td>
-<td>The word <code>apply</code> searches a ladder toward.</td>
+<td>The word <code>apply</code> searches a ladder toward. <code>check</code> reads it only under <code>end_at_target</code>. Unset, <code>check</code> reads no end and <code>apply</code> refuses.</td>
 </tr>
 </tbody>
 </table>

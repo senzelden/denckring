@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2149,7 +2317,7 @@
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write nine lines rhyming ABABBCBCC, closing with a six-foot line.</p>
+<p>Write nine lines rhyming ABABBCBCC: eight of iambic pentameter, ten syllables alternating unstressed and stressed, then one of iambic hexameter, twelve syllables in the same alternation.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2254,7 +2422,7 @@ As much disdayning to the curbe to yield:
 Full iolly knight he seemd, and faire did sitt,
 As one for knightly giusts and fierce encounters fitt.
 </code></pre></div>
-<p>Source: Edmund Spenser, The Faerie Queene, Book I, Canto i, stanza 1 (1590 edition); original spelling, i/j and u/v as in the early print (ADR 0040 D5 — transcribed as printed, not modernised). Rejected: two lines read the wrong syllable count for this package's pentameter model — "Y cladd in mightie armes and siluer shielde," (line 2) reads 9 syllables because the archaic "Y-" prefix is not read as adding a syllable, and "The cruell markes of many' a bloudy fielde;" (line 4) reads 11 because the elided "many' a" is not read as one syllable (<code>wrong_line_length</code>). The ninth-line alexandrine itself scans clean. Measured on this HEAD: score 0.9688, 2 violations.</p>
+<p>Source: Edmund Spenser, The Faerie Queene, Book I, Canto i, stanza 1 (1590 edition); original spelling, i/j and u/v as in the early print (ADR 0040 D5 — transcribed as printed, not modernised). Rejected: two lines fail this package's pentameter model. "Y cladd in mightie armes and siluer shielde," (line 2) reads 9 syllables because the archaic "Y-" prefix is not read as adding a syllable (<code>wrong_line_length</code>). "The cruell markes of many' a bloudy fielde;" (line 4) reads 10, but only because two errors cancel: the elided "many' a" is read as three syllables (one too many) and "cruell", estimated by the spelling heuristic, as one (one too few). Read as 10, it fails on stress instead, the dictionary's stress on "many" falling off the beat (<code>wrong_stress</code>). Until 0.3.2 the heuristic also read "markes" as two syllables, and the line failed on length at 11. The ninth-line alexandrine itself scans clean. Measured on this HEAD: score 0.9718, 2 violations.</p>
 
 
 

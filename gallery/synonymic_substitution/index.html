@@ -1899,6 +1899,174 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2030,6 +2198,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dictionary-relations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dictionary-relations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unchanged-is-not-a-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unchanged-is-not-a-substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unknown-is-not-waived" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unknown-is-not-waived
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2048,8 +2277,8 @@
 
 
 <h1 id="synonymic-substitution">Synonymic substitution<a class="headerlink" href="#synonymic-substitution" title="Permanent link">&para;</a></h1>
-<p><code>synonymic_substitution</code> · word · <strong>catalogued</strong></p>
-<p>A rewriting in which every substantive word is replaced by a synonym, repeated until the source is unrecognisable.</p>
+<p><code>synonymic_substitution</code> · word · <strong>validated</strong></p>
+<p>Check one replacement step: every source token must become a different dictionary-backed synonym in the same position. Unknown relations fail.</p>
 <h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source:</strong> Oulipo, Atlas de littérature potentielle (1981)</li>
@@ -2065,11 +2294,49 @@
 <li><strong>Deterministic:</strong> no</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
-<p>Blocked, and a larger thesaurus will not unblock it. WordNet synonymy is synset co-membership: of twelve substitutions a writer would naturally make, five are co-members, and only four of eleven content words in plain prose have any synonym at all. "Every substantive word replaced by a synonym" is not satisfiable by ordinary text.</p>
+<p>ADR 0049 implements a strict, single-step dictionary reading, not semantic judgment in context. Requires denckring[en] with OEWN 2024 relations. Every token, including function words, needs a supported synonym; no unknowns are waived. Matching ignores case and punctuation but preserves order and multiplicity. Only single-word lemmas are included; no morphology or sense disambiguation is inferred. Empty sources fail. The three relation rows provide checking only. Repeated synonym rewriting requires checking each step separately; unrecognisability is not judged.</p>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Replace each meaningful word with a synonym, then do it again to the result.</p>
+<p>Replace every source token with a supported dictionary relation, in order.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td><code>—</code></td>
+<td>The text this one was made from.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="dictionary-relations">dictionary-relations<a class="headerlink" href="#dictionary-relations" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>large little
+</code></pre></div>
+<p>Parameters: <code>source='big small'</code></p>
+<p>Source: constructed using OEWN 2024 direct relations; ADR 0049</p>
+<h3 id="unchanged-is-not-a-substitution">unchanged-is-not-a-substitution<a class="headerlink" href="#unchanged-is-not-a-substitution" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>big small
+</code></pre></div>
+<p>Parameters: <code>source='big small'</code></p>
+<p>Source: constructed counterexample</p>
+<h3 id="unknown-is-not-waived">unknown-is-not-waived<a class="headerlink" href="#unknown-is-not-waived" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>large little qzxq
+</code></pre></div>
+<p>Parameters: <code>source='big small qzxq'</code></p>
+<p>Source: constructed counterexample</p>
 
 
 
