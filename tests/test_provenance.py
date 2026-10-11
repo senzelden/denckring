@@ -10,6 +10,7 @@ printed an object that did not contain 7.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import get_args
@@ -17,10 +18,11 @@ from typing import get_args
 import pytest
 from typer.testing import CliRunner
 
+import denckring
 from denckring import __version__, check, produce
 from denckring.cli import app
 from denckring.core.protocol import Evidence
-from denckring.core.provenance import SCHEMA_VERSION, pack_provenance, provenance
+from denckring.core.provenance import SCHEMA_VERSION, pack_digests, pack_provenance, provenance
 from denckring.lang import get_pack
 
 
@@ -182,3 +184,50 @@ def test_the_readme_states_the_schema_version_in_force() -> None:
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     stated = re.findall(r"`(\d+\.\d+)` since", readme)
     assert stated == [SCHEMA_VERSION], stated
+
+
+def test_pack_provenance_carries_content_digests() -> None:
+    digests = denckring.pack_provenance("en").digests
+    assert {"graded_words", "files"} <= set(digests)
+    assert all(len(v) == 64 for v in digests.values())
+
+
+def test_the_graded_words_digest_is_the_documented_canonical_form() -> None:
+    """The promise is that a caller can recompute it (ADR 0060 D4)."""
+    words = denckring.get_pack("en").graded_words()
+    payload = json.dumps(sorted(words.items()), ensure_ascii=False, separators=(",", ":"))
+    expected = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    assert denckring.pack_provenance("en").digests["graded_words"] == expected
+
+
+def test_a_pack_lacking_a_surface_omits_its_digest() -> None:
+    class Bare:
+        data_distributions: tuple[str, ...] = ()
+
+    assert pack_digests(Bare()) == {}
+
+
+def test_a_check_does_not_pay_for_digests() -> None:
+    report = denckring.check("lipogram", "abc", forbidden="e")
+    assert report.provenance is not None and report.provenance.pack.digests == {}
+
+
+def test_a_surface_that_raises_a_capability_error_omits_its_digest() -> None:
+    from denckring.core.errors import MissingCapability
+
+    class Partial:
+        data_distributions: tuple[str, ...] = ()
+
+        def graded_words(self) -> dict[str, int]:
+            return {"a": 1}
+
+        def nouns(self) -> set[str]:
+            raise MissingCapability("p", "xx", "nouns")
+
+    assert set(pack_digests(Partial())) == {"graded_words"}
+
+
+def test_the_files_digest_is_stable_and_follows_the_data() -> None:
+    first = denckring.pack_provenance("en").digests["files"]
+    assert denckring.pack_provenance("en").digests["files"] == first
+    assert denckring.pack_provenance("fr").digests["files"] != first

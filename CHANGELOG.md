@@ -18,6 +18,11 @@ All notable changes to this project are documented here. The format follows
   `metrics` key to its meaning: `total` and `numerals` on `chronogram`, `letters` on
   eleven letter-counting rows. Parameter defaults, as `describe().params` publishes
   them, are now under the stability promise.
+- **`PackProvenance.digests`** (ADR 0060 D4). `denckring.pack_provenance(lang)` now
+  carries a SHA-256 per pack surface: `graded_words`, `nouns` and `files`, each omitted
+  when the pack lacks the surface. The digest changes exactly when that surface's content
+  does, which distribution versions (they move with every release) cannot say. A
+  `Report`'s own copy stays empty, so checks pay nothing.
 
 ## [0.4.0] - 2026-10-05
 

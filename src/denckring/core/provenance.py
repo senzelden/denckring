@@ -20,10 +20,19 @@ have to pick one and would be a lie about the other two.
 
 from __future__ import annotations
 
-from importlib.metadata import PackageNotFoundError, version
+import contextlib
+import hashlib
+import json
+import weakref
+from importlib.metadata import PackageNotFoundError, files, version
+from importlib.resources import files as resource_files
+from importlib.resources.abc import Traversable
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+from denckring.core.errors import MissingCapability
 
 #: The shape of `Report` and `Production`, versioned apart from the package.
 #: Bump the minor on an added field, the major on one that changes meaning —
@@ -63,6 +72,10 @@ class PackProvenance(BaseModel):
     pack: str
     #: Distribution name to version, empty for a built-in default.
     data: dict[str, str] = Field(default_factory=dict)
+    #: Content digests (ADR 0060 D4), keyed `graded_words`, `nouns`, `files`. Filled
+    #: by `denckring.pack_provenance` only: hashing a lexicon costs far more than a
+    #: check, so a `Report`'s copy is always empty rather than slowing every verdict.
+    digests: dict[str, str] = Field(default_factory=dict)
 
 
 class Provenance(BaseModel):
@@ -95,6 +108,123 @@ def pack_provenance(pack: object, lang: str) -> PackProvenance:
         pack=type(pack).__name__,
         data={name: _distribution_version(name) for name in distributions},
     )
+
+
+#: Files that differ between two installs of identical content.
+_VARIES_BY_INSTALL = frozenset({"RECORD", "INSTALLER", "REQUESTED", "direct_url.json"})
+
+#: Keyed weakly on the pack instance: `get_pack` returns the registered singleton,
+#: so one hash per process, and a pack replaced by `register_pack` takes its entry
+#: with it. Keying on class plus language would go stale when a pack is replaced by
+#: another instance of the same class.
+_DIGEST_CACHE: weakref.WeakKeyDictionary[object, dict[str, str]] = weakref.WeakKeyDictionary()
+
+
+def _sha256_json(value: object) -> str:
+    payload = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _is_bytecode(parts: tuple[str, ...]) -> bool:
+    return "__pycache__" in parts or parts[-1].endswith(".pyc")
+
+
+def _distribution_files(name: str) -> list[tuple[str, bytes]] | None:
+    """A distribution's (posix path, bytes) pairs, or `None` when it has none to read.
+
+    An installed wheel lists its package data. An editable install (this repo's dev
+    and CI venv) lists only dist-info metadata and a `.pth` whose content is an
+    absolute path of this machine, none of which describes the data. When no listed
+    file lies outside `*.dist-info`, the files under the distribution's import
+    package are hashed instead, with paths relative to the package's parent so they
+    read like the wheel's.
+    """
+    listed = files(name) or []
+    entries: list[tuple[str, bytes]] = []
+    has_package_data = False
+    for f in listed:
+        parts = f.parts
+        if f.name in _VARIES_BY_INSTALL or f.suffix == ".pth" or _is_bytecode(parts):
+            continue
+        in_metadata = parts[0].endswith(".dist-info")
+        has_package_data = has_package_data or not in_metadata
+        entries.append((f.as_posix(), Path(str(f.locate())).read_bytes()))
+    if has_package_data:
+        return entries
+    package = name.replace("-", "_")
+    try:
+        root = resource_files(package)
+    except ModuleNotFoundError:  # pragma: no cover - a data distribution that is not importable
+        return None
+    found: list[tuple[str, bytes]] = []
+    stack: list[tuple[Traversable, tuple[str, ...]]] = [(root, (package,))]
+    while stack:
+        node, path = stack.pop()
+        for child in node.iterdir():
+            child_path = (*path, child.name)
+            if child.is_dir():
+                stack.append((child, child_path))
+            elif not _is_bytecode(child_path):
+                found.append(("/".join(child_path), child.read_bytes()))
+    return found
+
+
+def _files_digest(distributions: tuple[str, ...]) -> str | None:
+    digest = hashlib.sha256()
+    for name in sorted(distributions):
+        entries = _distribution_files(name)
+        if entries is None:  # pragma: no cover - requires a broken install
+            return None
+        for path, content in sorted(entries):
+            digest.update(name.encode() + b"\0" + path.encode() + b"\0" + content + b"\0")
+    return digest.hexdigest()
+
+
+def pack_digests(pack: object) -> dict[str, str]:
+    """Content digests of what a pack serves, so a snapshot can key on content.
+
+    Distribution versions move in lockstep with every release, so they cannot say
+    whether the data changed. Each value is a lower-case hex SHA-256 and changes
+    exactly when its surface's content does:
+
+    - `graded_words`: over `json.dumps(sorted(pack.graded_words().items()),
+      ensure_ascii=False, separators=(",", ":"))`, UTF-8 encoded.
+    - `nouns`: the same over `sorted(pack.nouns())`.
+    - `files`: for each of `pack.data_distributions` sorted by name, each file of
+      `importlib.metadata.files(...)` sorted by POSIX path, minus `RECORD`,
+      `INSTALLER`, `REQUESTED`, `direct_url.json`, `.pth` files and bytecode (all
+      vary by install), feeds `name\0path\0bytes\0` into one hash. Where the
+      listing holds no package data (an editable install), the files under the
+      distribution's import package stand in. A wheel and an editable install of
+      the same data therefore differ. The key is omitted with no distributions.
+
+    A surface the pack lacks, or raises `MissingCapability` or `NotImplementedError`
+    for, omits its key. Cached per pack instance.
+    """
+    try:
+        cached = _DIGEST_CACHE.get(pack)
+    except TypeError:  # pragma: no cover - a pack that cannot be weakly referenced
+        cached = None
+    if cached is not None:
+        return dict(cached)
+    digests: dict[str, str] = {}
+    for key, method, shape in (
+        ("graded_words", "graded_words", lambda r: sorted(r.items())),
+        ("nouns", "nouns", sorted),
+    ):
+        reader = getattr(pack, method, None)
+        if reader is None:
+            continue
+        try:
+            digests[key] = _sha256_json(shape(reader()))
+        except (MissingCapability, NotImplementedError):
+            continue
+    distributions: tuple[str, ...] = getattr(pack, "data_distributions", NO_DATA)
+    if distributions and (file_digest := _files_digest(distributions)) is not None:
+        digests["files"] = file_digest
+    with contextlib.suppress(TypeError):  # a pack that cannot be weakly referenced
+        _DIGEST_CACHE[pack] = digests
+    return dict(digests)
 
 
 def provenance(pack: object, lang: str, params: Any = None) -> Provenance:

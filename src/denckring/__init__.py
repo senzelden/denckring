@@ -46,7 +46,7 @@ from denckring.core.protocol import (
     Report,
     Violation,
 )
-from denckring.core.provenance import PackProvenance
+from denckring.core.provenance import PackProvenance, pack_digests
 from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
 from denckring.core.rules import CATEGORIES
@@ -195,11 +195,14 @@ def pack_provenance(lang: Lang = "en") -> PackProvenance:
 
     The same record every `Report.provenance.pack` carries, without checking a text
     first: the pack's class, and each data distribution it reads mapped to its
-    installed version (empty for a built-in default). A caller recording a run, or
-    choosing what to draw from, reads it here rather than `getattr`ing the pack's
-    `data_distributions`, which is not part of the `LanguagePack` protocol.
+    installed version (empty for a built-in default). Unlike a report's copy it also
+    carries `digests`, content hashes of the pack's surfaces (ADR 0060 D4).
+    A caller recording a run, or choosing what to draw from, reads it here rather
+    than `getattr`ing the pack's `data_distributions`, which is not part of the
+    `LanguagePack` protocol.
     """
-    return _describe_pack(get_pack(lang), lang)
+    pack = get_pack(lang)
+    return _describe_pack(pack, lang).model_copy(update={"digests": pack_digests(pack)})
 
 
 def rules(procedure_id: str) -> tuple[str, ...]:

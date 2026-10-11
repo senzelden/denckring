@@ -42,6 +42,25 @@ for callers who left the parameter unset.
 
 The record is extended below by later decisions in this branch.
 
+### D4. Packs carry content digests
+
+`PackProvenance.data` maps distribution to version, and versions move in lockstep with
+every release, so a snapshot keyed on them is invalidated by releases that changed no
+word. `denckring.pack_provenance(lang)` now also fills `digests`: SHA-256 over canonical
+JSON of `graded_words()` and of `sorted(nouns())`, and over the bytes of each data
+distribution's files. The canonical forms are documented (README, `pack_digests`) so a
+caller can recompute them; the promise is that a digest changes exactly when that
+surface's content does. A `Report` carries none: hashing costs milliseconds to a
+tenth of a second per language, once per process, which is nothing beside a lexicon load
+but not nothing beside a check. `pack_digests` stays in `denckring.core.provenance`,
+not in `__all__`.
+
+Costs. `files` also moves when packaging metadata inside the distribution changes
+(`METADATA`, licences) though no word did; that is conservative, and stated. An editable
+install lists no package data, so its `files` hashes the import package's files instead
+and differs from a wheel's for identical data: digests compare within one install kind.
+A digest says the content changed, never what changed.
+
 ## Consequences
 
 These names can no longer change in a minor release without a **Breaking:** line. That
