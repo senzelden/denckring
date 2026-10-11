@@ -231,3 +231,24 @@ def test_the_files_digest_is_stable_and_follows_the_data() -> None:
     first = denckring.pack_provenance("en").digests["files"]
     assert denckring.pack_provenance("en").digests["files"] == first
     assert denckring.pack_provenance("fr").digests["files"] != first
+
+
+def test_the_files_digest_ignores_metadata_and_follows_data(tmp_path: Path) -> None:
+    """The rule: package bytes move it, dist-info (which carries the version) does not."""
+    from denckring.core.provenance import _trees_digest
+
+    pkg = tmp_path / "pkg_data"
+    (pkg / "data").mkdir(parents=True)
+    (pkg / "data" / "words.txt").write_text("alpha\n")
+    (pkg / "__pycache__").mkdir()
+    (pkg / "__pycache__" / "x.pyc").write_bytes(b"1")
+    dist = tmp_path / "pkg_data-1.0.dist-info"
+    dist.mkdir()
+    (dist / "METADATA").write_text("Version: 1.0\n")
+
+    before = _trees_digest({"pkg-data": pkg})
+    (dist / "METADATA").write_text("Version: 2.0\n")
+    (pkg / "__pycache__" / "x.pyc").write_bytes(b"2")
+    assert _trees_digest({"pkg-data": pkg}) == before
+    (pkg / "data" / "words.txt").write_text("beta\n")
+    assert _trees_digest({"pkg-data": pkg}) != before

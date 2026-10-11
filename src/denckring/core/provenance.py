@@ -24,10 +24,10 @@ import contextlib
 import hashlib
 import json
 import weakref
-from importlib.metadata import PackageNotFoundError, files, version
+from collections.abc import Mapping
+from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files as resource_files
 from importlib.resources.abc import Traversable
-from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -110,9 +110,6 @@ def pack_provenance(pack: object, lang: str) -> PackProvenance:
     )
 
 
-#: Files that differ between two installs of identical content.
-_VARIES_BY_INSTALL = frozenset({"RECORD", "INSTALLER", "REQUESTED", "direct_url.json"})
-
 #: Keyed weakly on the pack instance: `get_pack` returns the registered singleton,
 #: so one hash per process, and a pack replaced by `register_pack` takes its entry
 #: with it. Keying on class plus language would go stale when a pack is replaced by
@@ -129,35 +126,13 @@ def _is_bytecode(parts: tuple[str, ...]) -> bool:
     return "__pycache__" in parts or parts[-1].endswith(".pyc")
 
 
-def _distribution_files(name: str) -> list[tuple[str, bytes]] | None:
-    """A distribution's (posix path, bytes) pairs, or `None` when it has none to read.
+def _package_files(root: Traversable) -> list[tuple[str, bytes]]:
+    """Every file under an import package directory, as (relative POSIX path, bytes).
 
-    An installed wheel lists its package data. An editable install (this repo's dev
-    and CI venv) lists only dist-info metadata and a `.pth` whose content is an
-    absolute path of this machine, none of which describes the data. When no listed
-    file lies outside `*.dist-info`, the files under the distribution's import
-    package are hashed instead, with paths relative to the package's parent so they
-    read like the wheel's.
+    Bytecode is skipped; it is written by the interpreter, not shipped.
     """
-    listed = files(name) or []
-    entries: list[tuple[str, bytes]] = []
-    has_package_data = False
-    for f in listed:
-        parts = f.parts
-        if f.name in _VARIES_BY_INSTALL or f.suffix == ".pth" or _is_bytecode(parts):
-            continue
-        in_metadata = parts[0].endswith(".dist-info")
-        has_package_data = has_package_data or not in_metadata
-        entries.append((f.as_posix(), Path(str(f.locate())).read_bytes()))
-    if has_package_data:
-        return entries
-    package = name.replace("-", "_")
-    try:
-        root = resource_files(package)
-    except ModuleNotFoundError:  # pragma: no cover - a data distribution that is not importable
-        return None
     found: list[tuple[str, bytes]] = []
-    stack: list[tuple[Traversable, tuple[str, ...]]] = [(root, (package,))]
+    stack: list[tuple[Traversable, tuple[str, ...]]] = [(root, ())]
     while stack:
         node, path = stack.pop()
         for child in node.iterdir():
@@ -166,18 +141,31 @@ def _distribution_files(name: str) -> list[tuple[str, bytes]] | None:
                 stack.append((child, child_path))
             elif not _is_bytecode(child_path):
                 found.append(("/".join(child_path), child.read_bytes()))
-    return found
+    return sorted(found)
+
+
+def _trees_digest(trees: Mapping[str, Traversable]) -> str:
+    """Hash `name\0path\0bytes\0` over each named package tree, names then paths sorted.
+
+    Only the package directory is read, never `*.dist-info`: the metadata carries the
+    release version, which would move the digest on every release (ADR 0060 D4), and
+    its other files differ between a wheel and an editable install.
+    """
+    digest = hashlib.sha256()
+    for name in sorted(trees):
+        for path, content in _package_files(trees[name]):
+            digest.update(name.encode() + b"\0" + path.encode() + b"\0" + content + b"\0")
+    return digest.hexdigest()
 
 
 def _files_digest(distributions: tuple[str, ...]) -> str | None:
-    digest = hashlib.sha256()
-    for name in sorted(distributions):
-        entries = _distribution_files(name)
-        if entries is None:  # pragma: no cover - requires a broken install
+    trees: dict[str, Traversable] = {}
+    for name in distributions:
+        try:
+            trees[name] = resource_files(name.replace("-", "_"))
+        except ModuleNotFoundError:  # pragma: no cover - requires a broken install
             return None
-        for path, content in sorted(entries):
-            digest.update(name.encode() + b"\0" + path.encode() + b"\0" + content + b"\0")
-    return digest.hexdigest()
+    return _trees_digest(trees)
 
 
 def pack_digests(pack: object) -> dict[str, str]:
@@ -190,13 +178,12 @@ def pack_digests(pack: object) -> dict[str, str]:
     - `graded_words`: over `json.dumps(sorted(pack.graded_words().items()),
       ensure_ascii=False, separators=(",", ":"))`, UTF-8 encoded.
     - `nouns`: the same over `sorted(pack.nouns())`.
-    - `files`: for each of `pack.data_distributions` sorted by name, each file of
-      `importlib.metadata.files(...)` sorted by POSIX path, minus `RECORD`,
-      `INSTALLER`, `REQUESTED`, `direct_url.json`, `.pth` files and bytecode (all
-      vary by install), feeds `name\0path\0bytes\0` into one hash. Where the
-      listing holds no package data (an editable install), the files under the
-      distribution's import package stand in. A wheel and an editable install of
-      the same data therefore differ. The key is omitted with no distributions.
+    - `files`: for each of `pack.data_distributions` sorted by name, each file under
+      its import package directory (the distribution name with `-` as `_`), sorted by
+      POSIX path relative to that directory and excluding bytecode, feeds
+      `name\0path\0bytes\0` into one hash. Nothing in `*.dist-info` is read, so the
+      release version does not move it, and a wheel and an editable install of the
+      same data agree. The key is omitted with no distributions.
 
     A surface the pack lacks, or raises `MissingCapability` or `NotImplementedError`
     for, omits its key. Cached per pack instance.

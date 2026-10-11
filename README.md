@@ -215,9 +215,10 @@ are built on them:
   than on distribution versions, which move with every release. `graded_words` is
   `sha256(json.dumps(sorted(pack.graded_words().items()), ensure_ascii=False,
   separators=(",", ":")).encode("utf-8"))`; `nouns` is the same over `sorted(pack.nouns())`;
-  `files` hashes `name\0path\0bytes\0` for each file of each data distribution (sorted,
-  minus `RECORD`, `INSTALLER`, `REQUESTED`, `direct_url.json`; docstring of
-  `denckring.core.provenance.pack_digests` has the editable-install case). A surface the
+  `files` hashes `name\0path\0bytes\0` for each file under each data distribution's
+  import package directory (sorted, paths relative to it, bytecode excluded, nothing from
+  `*.dist-info`), so the release version does not move it and a wheel and an editable
+  install of the same data agree. A surface the
   pack lacks omits its key; `Description.reading`,
   including `reading.units`, `reading.word_examples`, `reading.vowels` and
   `reading.rhyme`; and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
