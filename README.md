@@ -252,8 +252,14 @@ are built on them:
   `denckring.rules(procedure_id)` keeps its name and meaning, so a caller can map
   rules to its own classes once. A row may add rules. Removing or renaming one is a
   breaking change, and the changelog names it.
+- **Promised metrics** (ADR 0060). A row may name `metrics` keys in
+  `describe().metrics`, key to meaning; each is a float in every report of that row,
+  and removing or renaming one is a breaking change.
+- **Parameter defaults.** A parameter's default, as the schema `default` in
+  `describe().params`, is part of the promise. Changing one moves verdicts for callers
+  who left it unset, so it is **Breaking:**.
 
-Not stable, and expected to move: `metrics` keys, message wording, the wording of prompt
+Not stable, and expected to move: `metrics` keys a row does not promise, message wording, the wording of prompt
 hints, and everything under `denckring.core`. A check's *verdict* and the rule it names
 for a failure are contracts; the wording that explains the failure is not.
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -26,6 +26,13 @@ class Heterogram(BaseProcedure[HeterogramParams]):
 
     id = "heterogram"
     rules = ("repeated_letter",)
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, summed over its words, each "
+            "word's letters counted once per occurrence."
+        )
+    }
     local_scope = "word"
 
     @classmethod

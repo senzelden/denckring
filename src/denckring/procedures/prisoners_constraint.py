@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import BaseModel
 
 from denckring.core.base import BaseProcedure
@@ -25,6 +27,13 @@ class PrisonersConstraint(BaseProcedure[PrisonersConstraintParams]):
 
     id = "prisoners_constraint"
     rules = ("tall_or_deep_letter",)
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted as grapheme clusters "
+            "led by a letter, so a mark stays with its base."
+        )
+    }
     local_scope = "word"
 
     @classmethod

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
@@ -32,6 +34,13 @@ class PangrammaticWindow(BaseProcedure[PangrammaticWindowParams]):
 
     id = "pangrammatic_window"
     rules = ("missing_letter", "window_too_long")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters of the language's alphabet the text has, "
+            "counted by letter_spans; other letters excluded."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[PangrammaticWindowParams]:

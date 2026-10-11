@@ -228,6 +228,10 @@ class BaseProcedure(ABC, Generic[P]):
     #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
     #: with every other row's vocabulary, since any of them can be composed.
     delegates_rules: ClassVar[bool] = False
+    #: `metrics` keys this row promises, key to meaning (ADR 0060 D3). Every golden
+    #: report must carry each as a float: `tests/test_published_surface.py`. Keys not
+    #: named here stay unstable and may move (README, "What is stable"). Empty by default.
+    promised_metrics: ClassVar[dict[str, str]] = {}
     #: Set on a row whose capabilities are named by its parameters rather than by
     #: `meta.requires`: `multiple_constraint`, whose entries may name any row. Its
     #: `meta.requires` covers only its own logic, so `describe` cannot read its

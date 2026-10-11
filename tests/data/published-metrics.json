@@ -1,0 +1,39 @@
+{
+  "anagram": [
+    "letters"
+  ],
+  "antigram": [
+    "letters"
+  ],
+  "beau_present": [
+    "letters"
+  ],
+  "buchstabwechsel": [
+    "letters"
+  ],
+  "chronogram": [
+    "numerals",
+    "total"
+  ],
+  "consonantal_lipogram": [
+    "letters"
+  ],
+  "heterogram": [
+    "letters"
+  ],
+  "letter_bank": [
+    "letters"
+  ],
+  "lipogram": [
+    "letters"
+  ],
+  "lipogrammatic_translation": [
+    "letters"
+  ],
+  "pangrammatic_window": [
+    "letters"
+  ],
+  "prisoners_constraint": [
+    "letters"
+  ]
+}

@@ -14,6 +14,10 @@ All notable changes to this project are documented here. The format follows
   function from `denckring.eval.harness`) and `denckring.PARAMETER_ROLES`, a read-only
   mapping of each `x-denckring-role` value to its meaning, are exported. A role may be
   added; none is removed or renamed without a **Breaking:** entry.
+- **Rows promise named metrics** (ADR 0060 D3). `Description.metrics` maps each promised
+  `metrics` key to its meaning: `total` and `numerals` on `chronogram`, `letters` on
+  eleven letter-counting rows. Parameter defaults, as `describe().params` publishes
+  them, are now under the stability promise.
 
 ## [0.4.0] - 2026-10-05
 

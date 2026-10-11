@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
@@ -24,6 +26,13 @@ class LetterBank(BaseProcedure[LetterBankParams]):
 
     id = "letter_bank"
     rules = ("letter_outside_bank", "unused_bank_letter")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted by letter_spans; "
+            "non-letters excluded, folded when fold_diacritics is set."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[LetterBankParams]:

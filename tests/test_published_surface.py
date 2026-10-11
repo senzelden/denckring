@@ -44,3 +44,34 @@ def test_no_published_role_is_removed() -> None:
     snapshot: list[str] = json.loads(PUBLISHED_ROLES.read_text(encoding="utf-8"))
     gone = sorted(set(snapshot) - set(denckring.PARAMETER_ROLES))
     assert not gone, f"published roles removed: {gone}; name it under **Breaking:**"
+
+
+PUBLISHED_METRICS = Path(__file__).parent / "data" / "published-metrics.json"
+
+
+def test_chronogram_promises_its_total() -> None:
+    assert {"total", "numerals"} <= set(denckring.describe("chronogram").metrics)
+
+
+def test_every_promised_metric_is_in_every_golden_report() -> None:
+    """A promise the checker does not keep is worse than none (ADR 0060 D3)."""
+    missing = []
+    for case in denckring.golden_cases():
+        promised = denckring.describe(case.procedure).metrics
+        if not promised:
+            continue
+        report = denckring.check(case.procedure, case.text, lang=case.lang, **case.params)
+        for key in promised:
+            if not isinstance(report.metrics.get(key), float):
+                missing.append(f"{case.procedure}/{case.name}: {key}")
+    assert not missing, missing
+
+
+def test_no_promised_metric_is_removed() -> None:
+    snapshot: dict[str, list[str]] = json.loads(PUBLISHED_METRICS.read_text(encoding="utf-8"))
+    gone = {
+        pid: sorted(set(keys) - set(denckring.describe(pid).metrics))
+        for pid, keys in snapshot.items()
+    }
+    gone = {pid: keys for pid, keys in gone.items() if keys}
+    assert not gone, f"promised metrics removed: {gone}; name it under **Breaking:**"

@@ -69,6 +69,7 @@ permits, the way `definitional_expansion`'s does, not what this row ships.
 from __future__ import annotations
 
 from collections import Counter
+from typing import ClassVar
 
 from denckring.core.base import BaseProcedure, DiacriticParams, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
@@ -101,6 +102,13 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
 
     id = "buchstabwechsel"
     rules = ("missing_letter", "surplus_letter", "unchanged")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has once the letter h is set "
+            "aside, as it is in the source; folded when fold_diacritics is set."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[BuchstabwechselParams]:

@@ -21,6 +21,8 @@ not just be writing.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from denckring.core.base import BaseProcedure, IdentityParams, SourceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import get, register
@@ -40,6 +42,13 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
 
     id = "lipogrammatic_translation"
     rules = ("forbidden_letter", "unchanged")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, as lipogram counts them; "
+            "non-letters excluded, folded when fold_diacritics is set."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[LipogrammaticTranslationParams]:

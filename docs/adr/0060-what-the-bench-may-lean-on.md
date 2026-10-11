@@ -29,6 +29,17 @@ the README's promised list, with the two names above. A role may be added to
 and every role a parameter schema names must be in it. Adding a role needs no change to
 the snapshot, as with `tests/data/published-rules.json`.
 
+**D3: rows promise named metrics, and defaults are under the promise.** A row declares
+`promised_metrics`, key to meaning, published as `Description.metrics`. The README's
+"not stable: `metrics` keys" now excepts them. `chronogram` promises `total` and
+`numerals`; the eleven rows whose every golden report carries `letters` promise it,
+each with the meaning true for that row (some count after folding, `heterogram` sums
+per word, `prisoners_constraint` counts grapheme clusters). A guard fails if any golden
+report lacks a promised key as a float, and a snapshot (`tests/data/published-metrics.json`)
+fails if a promised key is removed. The same promise now covers each parameter's
+`default` in `describe().params`: changing one is **Breaking:**, since it moves verdicts
+for callers who left the parameter unset.
+
 The record is extended below by later decisions in this branch.
 
 ## Consequences
@@ -48,3 +59,7 @@ README says meaning is promised, and only review holds it.
 
 `Description.reading` was published in 0.3.2 and grew fields in 0.4.0; promoting it fixes
 the fields it has, not ones it may still grow.
+
+A promised metric key cannot be renamed for convenience, and the guard checks golden
+cases only: a key absent on an input no golden case covers is not caught. The default
+promise is held by review and the changelog, not by a snapshot.

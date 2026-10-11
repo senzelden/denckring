@@ -222,6 +222,9 @@ class Description(BaseModel):
     #: README promises without Python (ruling R-F6). `multiple_constraint` answers with
     #: every other row's rules, as `denckring.rules` does. Added in 0.4.0.
     rules: list[str] = Field(default_factory=list)
+    #: The `metrics` keys the row promises, key to meaning (ADR 0060 D3); empty when
+    #: it promises none. Any other key in a report stays unstable.
+    metrics: dict[str, str] = Field(default_factory=dict)
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -386,6 +389,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         unique_answer=meta.unique_answer,
         hidden_material=list(meta.hidden_material),
         rules=list(rules(procedure_id)),
+        metrics=dict(procedure.promised_metrics),
         scholarly=(
             Scholarly(
                 source=meta.source,

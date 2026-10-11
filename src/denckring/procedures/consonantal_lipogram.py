@@ -9,6 +9,8 @@ change, made only with a deprecation (audit E3).
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, DiacriticParams
@@ -39,6 +41,13 @@ class ConsonantalLipogram(BaseProcedure[ConsonantalLipogramParams]):
 
     id = "consonantal_lipogram"
     rules = ("forbidden_letter",)
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted by letter_spans; "
+            "non-letters excluded, folded when fold_diacritics is set."
+        )
+    }
     local_scope = "word"
 
     @classmethod
