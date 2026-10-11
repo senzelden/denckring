@@ -1,0 +1,46 @@
+"""The surfaces denckring-bench reads, held to the promise the README makes (ADR 0060)."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+import denckring
+from denckring.core.fields import ROLE_KEY
+
+PUBLISHED_ROLES = Path(__file__).parent / "data" / "published-roles.json"
+
+
+def test_unmet_requirements_is_exported() -> None:
+    assert "unmet_requirements" in denckring.__all__
+    case = denckring.GoldenCase(
+        procedure="lipogram", name="x", text="x", satisfied=True, requires=["no.such.cap"]
+    )
+    assert denckring.unmet_requirements(case, denckring.get_pack("en")) == ["no.such.cap"]
+
+
+def test_parameter_roles_are_exported_read_only() -> None:
+    assert "PARAMETER_ROLES" in denckring.__all__
+    with pytest.raises(TypeError):
+        denckring.PARAMETER_ROLES["new"] = "x"  # type: ignore[index]
+
+
+def test_every_role_a_schema_names_is_published() -> None:
+    """A role in a schema that `PARAMETER_ROLES` does not define would be a word the
+    bench cannot look up."""
+    named = {
+        spec[ROLE_KEY]
+        for pid in denckring.all_procedures()
+        for spec in denckring.describe(pid).params.get("properties", {}).values()
+        if ROLE_KEY in spec
+    }
+    assert named <= set(denckring.PARAMETER_ROLES)
+
+
+def test_no_published_role_is_removed() -> None:
+    """Adding a role is allowed; removing or renaming one breaks the promise."""
+    snapshot: list[str] = json.loads(PUBLISHED_ROLES.read_text(encoding="utf-8"))
+    gone = sorted(set(snapshot) - set(denckring.PARAMETER_ROLES))
+    assert not gone, f"published roles removed: {gone}; name it under **Breaking:**"

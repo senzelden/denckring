@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **The surfaces `denckring-bench` reads are now promised** (ADR 0060). `golden_cases`,
+  `GoldenCase`, `Description.reading` and `pack_provenance`/`PackProvenance` move out of
+  "published, not yet promised". `denckring.unmet_requirements(case, pack)` (the
+  function from `denckring.eval.harness`) and `denckring.PARAMETER_ROLES`, a read-only
+  mapping of each `x-denckring-role` value to its meaning, are exported. A role may be
+  added; none is removed or renamed without a **Breaking:** entry.
+
 ## [0.4.0] - 2026-10-05
 
 ### Changed

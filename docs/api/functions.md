@@ -45,3 +45,7 @@ but not yet promised.
 ::: denckring.list_procedures
 
 ::: denckring.all_procedures
+
+::: denckring.unmet_requirements
+
+::: denckring.PARAMETER_ROLES

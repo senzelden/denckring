@@ -1,7 +1,8 @@
 """denckring — a library of experimental writing procedures."""
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from importlib.metadata import PackageNotFoundError, version
+from types import MappingProxyType
 from typing import Any
 
 from denckring.core.base import BaseProcedure
@@ -32,6 +33,7 @@ from denckring.core.errors import (
     UnsetHintParameter,
     UnsettablePhrase,
 )
+from denckring.core.fields import ROLES as _ROLES
 from denckring.core.hints import as_compared, placeholders, render, settings, show_kinds
 from denckring.core.protocol import (
     Constructive,
@@ -50,9 +52,14 @@ from denckring.core.registry import all_procedures, get
 from denckring.core.rules import CATEGORIES
 from denckring.core.rules import category as _category
 from denckring.core.scope import SCOPES
-from denckring.eval.harness import GoldenCase
+from denckring.eval.harness import GoldenCase, unmet_requirements
 from denckring.lang import get_pack
 from denckring.lang.base import WordOrder, graded_view
+
+#: Each `x-denckring-role` value a parameter schema can carry, and what it tells a
+#: caller writing a prompt. Read-only: a role may be added, never removed or renamed
+#: without a **Breaking:** changelog entry (ADR 0060).
+PARAMETER_ROLES: Mapping[str, str] = MappingProxyType(_ROLES)
 
 try:
     __version__ = version("denckring")
@@ -402,7 +409,6 @@ def golden_cases(lang: Lang | None = None, *, runnable: bool = True) -> list[Gol
     blocks it rather than scoring it. Pass `runnable=False` for the whole corpus.
     """
     from denckring.eval.harness import golden_cases as every_case
-    from denckring.eval.harness import unmet_requirements
 
     cases = [case for case in every_case() if lang is None or case.lang == lang]
     if not runnable:
@@ -424,6 +430,7 @@ def list_procedures() -> list[str]:
 
 
 __all__ = [
+    "PARAMETER_ROLES",
     "DegenerateOutput",
     "DenckringError",
     "Description",
@@ -482,6 +489,7 @@ __all__ = [
     "scope",
     "scopes",
     "summaries",
+    "unmet_requirements",
     "witness",
     "words",
 ]

@@ -205,6 +205,15 @@ are built on them:
   subclass keep their names, their place under `DenckringError` and their `code`. The
   same objects reached through `denckring.core` are not covered: the path is part of
   the promise. The rest of `__all__` is published but not yet promised, as listed below.
+  Also promised, because the sibling `denckring-bench` reads them (ADR 0060):
+  `golden_cases` and `GoldenCase`, the shipped examples with the verdict each must give;
+  `unmet_requirements`, which says, given a case and a pack, why the case cannot run (the
+  capabilities it needs that the pack lacks, or `[]`); `pack_provenance` and
+  `PackProvenance`, the record `Report.provenance.pack` carries; `Description.reading`,
+  including `reading.units`, `reading.word_examples`, `reading.vowels` and
+  `reading.rhyme`; and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
+  parameter schema carries and what it means. Roles may be added; none is removed or
+  renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
   `evidence`, `provenance`, `estimated` — and the `--json` output of `check`, `show` and
   `describe` that carries it. Fields may be added; the ones already there do not change
@@ -250,18 +259,14 @@ for a failure are contracts; the wording that explains the failure is not.
 
 **Published, not yet promised.** These are exported and documented, so nothing has to
 reach into `denckring.core` for them, but they may still change in a minor release, with
-a changelog line when they do. All but `Description.reading` are new in 0.3.2:
+a changelog line when they do. All are new in 0.3.2:
 
 - `rule_categories` and `failure_categories`: the kind of failure each rule names;
 - the catalogue flags `Meta.unique_answer` and `Meta.hidden_material`, which
   `Description` carries too, and `Meta.hint_omits`;
 - `prompt_hint` and `render_hint`, which render the catalogue's hint templates;
-- `golden_cases` and `GoldenCase`;
 - `scope`, `scopes`, `admits` and `witness`;
-- `words` and `nouns`;
-- `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
-- `Description.reading`, including its new `reading.units`, `reading.word_examples`
-  and `reading.vowels`, and `reading.rhyme`, new in 0.4.0.
+- `words` and `nouns`.
 
 ## The catalogue as data
 
