@@ -38,3 +38,28 @@ cases:
       der Regen fällt und niemand hat gelacht
     params: {}
     satisfied: true
+  - name: pope-essay-on-criticism-opening
+    provenance: external
+    source: >-
+      Alexander Pope, An Essay on Criticism (1711), lines 1-2, from The Works of Alexander
+      Pope, ed. Whitwell Elwin, vol. II (London: John Murray, 1871). Project Gutenberg
+      ebook #43271, https://www.gutenberg.org/cache/epub/43271/pg43271.txt, extracted
+      2026-10-12 by script, indentation removed. Pope died 1744, Elwin 1900.
+    text: |-
+      'Tis hard to say, if greater want of skill
+      Appear in writing or in judging ill;
+    params: {}
+    satisfied: true
+  - name: pope-a-little-learning
+    provenance: external
+    source: >-
+      Alexander Pope, An Essay on Criticism (1711), lines 215-216, from The Works of
+      Alexander Pope, ed. Whitwell Elwin, vol. II (London: John Murray, 1871). Project
+      Gutenberg ebook #43271, https://www.gutenberg.org/cache/epub/43271/pg43271.txt,
+      extracted 2026-10-12 by script; the editor's line number and footnote call, and the
+      indentation, are removed. Pope died 1744, Elwin 1900.
+    text: |-
+      A little learning is a dang'rous thing;
+      Drink deep, or taste not the Pierian spring:
+    params: {}
+    satisfied: true

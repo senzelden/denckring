@@ -38,7 +38,7 @@ $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
 158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable
 0 instruments catalogued
-58 rows externally evidenced · 75 explained · 0 unexplained
+60 rows externally evidenced · 73 explained · 0 unexplained
 ```
 
 Three interfaces over the same core functions, so they cannot disagree about what a

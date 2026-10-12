@@ -92,9 +92,6 @@ haibun:
 haikuization:
   reason: none_found
   note: "Catalogue cites only Oulipo, La Littérature potentielle (1973), as a reference; no search for an instance inside the public-domain cutoff has been made."
-heroic_couplet:
-  reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
 homoconsonantism:
   reason: after_cutoff
   note: "Catalogue source: Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)."
@@ -107,9 +104,6 @@ homosyntaxism:
 homovocalism:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
-iambic_pentameter:
-  reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
 ideenwuerfeln:
   reason: none_found
   note: "Batch 3: Jean Paul's Ideenwürfeln is a February 1795 notebook, and no pre-1929 print of its content is verifiable."
