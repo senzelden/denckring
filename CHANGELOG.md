@@ -74,6 +74,13 @@ All notable changes to this project are documented here. The format follows
   Each case's `source` says so. `alcaic_stanza`, `ballade` and `petrarchan_sonnet` found
   no passing public-domain instance; their gap notes record what was rejected and why,
   as checker findings pending a ruling.
+- **Four of Hilton's chronograms enter the golden corpus** (ADR 0062), transcribed from
+  the page images of *Chronograms, 5000 and More in Number* (1882) because the archive.org
+  OCR misreads small capitals. Three English lines from p. 9 pass at the dates Hilton
+  gives (1652, 1651, 1651). The German rifle-target couplet on p. 87, which Hilton calls
+  "full of such faults" for its superfluous letters, is rejected with `wrong_total`: its
+  capitals give his 1854, every numeral letter gives 5916. The floors rise to 102
+  external cases and a 0.144 share.
 
 ## [0.4.0] - 2026-10-05
 
