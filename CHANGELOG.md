@@ -81,6 +81,9 @@ All notable changes to this project are documented here. The format follows
   "full of such faults" for its superfluous letters, is rejected with `wrong_total`: its
   capitals give his 1854, every numeral letter gives 5916. The floors rise to 102
   external cases and a 0.144 share.
+- **`lear-beard` now quotes Lear verbatim** (ADR 0062): the text was lowercased, stripped
+  of punctuation and cited no edition. It is now extracted by script from Project
+  Gutenberg ebook #982, with its URL. Its verdict and score do not move.
 
 ## [0.4.0] - 2026-10-05
 
