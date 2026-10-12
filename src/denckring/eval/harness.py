@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from collections import Counter
+from functools import cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from denckring.core import catalogue
 from denckring.core.errors import DenckringError
@@ -17,6 +18,7 @@ from denckring.core.registry import all_procedures, get
 from denckring.lang import get_pack
 
 GOLDEN_DIR = Path(str(files("denckring") / "eval" / "fixtures" / "golden"))
+GAPS_FILE = Path(str(files("denckring") / "eval" / "fixtures" / "evidence-gaps.yaml"))
 
 
 #: Where a golden case's text came from, which is a different question from
@@ -89,6 +91,65 @@ class CaseResult(BaseModel):
     code: str | None = None
 
 
+#: Why an implemented row has no externally sourced golden case (ADR 0062). Shipped
+#: cases quote public-domain text only, so the first two say no case can be added
+#: while that policy stands, and the last two that one might be:
+#:
+#: `in_copyright`: exemplars exist, and none is public domain;
+#: `after_cutoff`: the form postdates 1930, so no public-domain exemplar can exist;
+#: `unsupported_language`: exemplars exist only in languages no pack covers;
+#: `none_found`: none located yet, and the note names what was searched.
+GapReason = Literal["in_copyright", "after_cutoff", "unsupported_language", "none_found"]
+
+
+class EvidenceGap(BaseModel):
+    """One entry of `evidence-gaps.yaml`: a row's reason, and what it rests on."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    reason: GapReason
+    note: str
+
+
+class CorpusShare(BaseModel):
+    """How a row's golden cases divide by where their text came from (ADR 0062).
+
+    `external_passing` and `external_failing` split the externally sourced cases by
+    the verdict each records, since a published near-miss is evidence about the
+    reading too. Counted over every shipped case, whatever this install can run, so
+    the answer is the same on every install. `gap` is the reason the evidence gap
+    registry gives for the row, or `None`; the corpus guards keep it `None` on every
+    row with an external case.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    external_passing: int
+    external_failing: int
+    constructed: int
+    self_generated: int
+    gap: GapReason | None
+
+
+class EvidenceCoverage(BaseModel):
+    """Implemented rows split by whether a published text stands behind their reading.
+
+    `unexplained` is held at 0 by `tests/test_corpus_provenance.py`, and printed
+    anyway: a line that only ever showed two numbers could not show the guard broken.
+    """
+
+    evidenced: int
+    explained: int
+    unexplained: int
+
+    def line(self) -> str:
+        return (
+            f"{self.evidenced} rows externally evidenced · "
+            f"{self.explained} explained · "
+            f"{self.unexplained} unexplained"
+        )
+
+
 class Coverage(BaseModel):
     """The project metric.
 
@@ -110,6 +171,9 @@ class Coverage(BaseModel):
     #: Reads 0 until the first instrument entry lands, which is the expected state
     #: after ADR 0033 rather than an unfinished migration.
     instruments: int
+    #: Printed on a line of its own, like `instruments`, so the five-part line keeps
+    #: the meaning every ADR before 0062 recorded for it.
+    evidence: EvidenceCoverage
 
     def line(self) -> str:
         return (
@@ -211,6 +275,66 @@ def implemented_ids() -> list[str]:
     return sorted(set(all_procedures()) & set(catalogue.ids("verfahren")))
 
 
+def implemented_rows() -> set[str]:
+    """`implemented_ids` as a set, the shape the evidence guards compare against."""
+    return set(implemented_ids())
+
+
+@cache
+def _gaps() -> dict[str, EvidenceGap]:
+    data = yaml.safe_load(GAPS_FILE.read_text(encoding="utf-8")) or {}
+    return {pid: EvidenceGap.model_validate(entry) for pid, entry in data.items()}
+
+
+def evidence_gaps() -> dict[str, EvidenceGap]:
+    """The registry of rows with no external case, and why (ADR 0062).
+
+    A copy, so a caller editing the result cannot change what the next caller reads.
+    """
+    return dict(_gaps())
+
+
+@cache
+def _shares() -> dict[str, Counter[str]]:
+    """Per row, its cases counted under the keys of `CorpusShare`. Cached because
+    `describe` asks once per row and the fixtures are package data, fixed at runtime."""
+    counted: dict[str, Counter[str]] = {}
+    for case in golden_cases():
+        key = case.provenance.replace("-", "_")
+        if case.provenance == "external":
+            key = "external_passing" if case.satisfied else "external_failing"
+        counted.setdefault(case.procedure, Counter())[key] += 1
+    return counted
+
+
+def corpus_share(procedure_id: str) -> CorpusShare:
+    """Count one row's golden cases by provenance and recorded verdict (ADR 0062)."""
+    counted = _shares().get(procedure_id, Counter())
+    gap = _gaps().get(procedure_id)
+    return CorpusShare(
+        external_passing=counted["external_passing"],
+        external_failing=counted["external_failing"],
+        constructed=counted["constructed"],
+        self_generated=counted["self_generated"],
+        gap=gap.reason if gap is not None else None,
+    )
+
+
+def evidence_coverage() -> EvidenceCoverage:
+    """How many implemented rows are evidenced, explained by a gap entry, or neither."""
+    shares = _shares()
+    evidenced = explained = unexplained = 0
+    for pid in implemented_ids():
+        counted = shares.get(pid, Counter())
+        if counted["external_passing"] + counted["external_failing"]:
+            evidenced += 1
+        elif pid in _gaps():
+            explained += 1
+        else:
+            unexplained += 1
+    return EvidenceCoverage(evidenced=evidenced, explained=explained, unexplained=unexplained)
+
+
 def validated_ids() -> list[str]:
     """Every implemented procedure that also has golden examples."""
     with_fixtures = {c.procedure for c in golden_cases()}
@@ -235,6 +359,7 @@ def status() -> Coverage:
         validated=len(validated_ids()),
         unreachable=len(catalogued) - len(implementable),
         instruments=len(catalogue.ids("instrument")),
+        evidence=evidence_coverage(),
     )
 
 

@@ -19,6 +19,7 @@ from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 from denckring.core.text import UNIT_ENDS
+from denckring.eval.harness import CorpusShare, corpus_share
 
 
 class Scholarly(BaseModel):
@@ -234,6 +235,10 @@ class Description(BaseModel):
     #: The row's `checker_version` (ADR 0061); `denckring.checker_history` says what
     #: each version changed.
     checker_version: int
+    #: The row's golden cases by where their text came from, and the reason it has no
+    #: external one where it has none (ADR 0062). How much of the row's agreement
+    #: with its examples is evidence about the reading, rather than about the code.
+    corpus: CorpusShare
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -403,6 +408,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         rules=list(rules(procedure_id)),
         metrics=dict(procedure.promised_metrics),
         checker_version=procedure.checker_version,
+        corpus=corpus_share(procedure_id),
         scholarly=(
             Scholarly(
                 source=meta.source,

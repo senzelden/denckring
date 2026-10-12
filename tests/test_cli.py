@@ -56,7 +56,26 @@ def test_status_prints_the_instrument_counter_on_its_own_line() -> None:
     instrument entry."""
     coverage = harness.status()
     result = runner.invoke(app, ["status"])
-    assert result.stdout.splitlines() == [coverage.line(), coverage.instrument_line()]
+    assert result.stdout.splitlines()[:2] == [coverage.line(), coverage.instrument_line()]
+
+
+def test_status_and_eval_print_the_evidence_line() -> None:
+    """ADR 0062: how many rows a published text stands behind, how many say why none
+    does, and how many do neither. The last is 0 by guard, and printed so that a broken
+    guard shows."""
+    line = harness.evidence_coverage().line()
+    assert line.endswith("0 unexplained")
+    assert line in runner.invoke(app, ["status"]).stdout.splitlines()
+    assert line in runner.invoke(app, ["eval", "--all"]).stdout.splitlines()
+
+
+def test_status_json_carries_the_evidence_counts() -> None:
+    payload = json.loads(runner.invoke(app, ["status", "--json"]).stdout)
+    evidence = harness.evidence_coverage()
+    assert payload["evidence"] == evidence.model_dump()
+    assert evidence.evidenced + evidence.explained + evidence.unexplained == payload["implemented"]
+    board = json.loads(runner.invoke(app, ["eval", "--all", "--json"]).stdout)
+    assert board["coverage"]["evidence"] == evidence.model_dump()
 
 
 def test_eval_all_is_green() -> None:

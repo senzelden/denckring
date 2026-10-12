@@ -324,8 +324,9 @@ def status_command(as_json: Annotated[bool, typer.Option("--json")] = False) -> 
         return
     typer.echo(coverage.line())
     typer.echo(coverage.instrument_line())
-    # ADR 0033 D3: two counters, and `eval` prints only the first. Its line summarises
-    # a run over golden cases, and an instrument has none to run.
+    typer.echo(coverage.evidence.line())
+    # ADR 0033 D3: `eval` prints the coverage line and not the instrument counter. Its
+    # lines summarise a run over golden cases, and an instrument has none to run.
 
 
 @app.command("eval")
@@ -354,6 +355,9 @@ def eval_command(
         # A third line, because the first two say how much agrees and none of it
         # said how much of that agreement is independent of the code being tested.
         typer.echo(board.provenance.line())
+        # ADR 0062: the share above per row, folded to the question a reader asks of
+        # one row: is any published text behind its reading, and if not, why not.
+        typer.echo(board.coverage.evidence.line())
     if not board.ok:
         raise typer.Exit(EXIT_UNSATISFIED)
 
@@ -364,7 +368,16 @@ def catalogue_export(
     output: Annotated[Path | None, typer.Option("--output")] = None,
 ) -> None:
     """Emit the catalogue as a standalone dataset."""
-    rows = [catalogue.get(pid).model_dump() for pid in catalogue.ids()]
+    implemented = harness.implemented_rows()
+    # `corpus` is additive (ADR 0062), and `null` on a row with no checker: it has no
+    # golden cases to count, and zeros would read as counted and found wanting.
+    rows = [
+        {
+            **catalogue.get(pid).model_dump(),
+            "corpus": harness.corpus_share(pid).model_dump() if pid in implemented else None,
+        }
+        for pid in catalogue.ids()
+    ]
     if export_format == "json":
         text = json.dumps(
             {

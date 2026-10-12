@@ -41,3 +41,5 @@ under `denckring.core`, is not.
 ## The golden corpus
 
 ::: denckring.GoldenCase
+
+::: denckring.CorpusShare

@@ -75,3 +75,33 @@ def test_no_promised_metric_is_removed() -> None:
     }
     gone = {pid: keys for pid, keys in gone.items() if keys}
     assert not gone, f"promised metrics removed: {gone}; name it under **Breaking:**"
+
+
+def test_corpus_share_is_exported_and_described() -> None:
+    """ADR 0062: the per-row share a caller weighs a row's verdicts by."""
+    assert "CorpusShare" in denckring.__all__
+    corpus = denckring.describe("acrostic").corpus
+    assert isinstance(corpus, denckring.CorpusShare)
+    assert corpus.external_passing + corpus.external_failing > 0
+    assert corpus.gap is None
+
+
+def test_describe_corpus_counts_the_rows_golden_cases() -> None:
+    """Counted over the whole corpus (`runnable=False`), by provenance and recorded
+    verdict, so the share does not depend on which packs this install has."""
+    for pid in ("acrostic", "n_plus_7", "chronogram"):
+        cases = denckring.golden_cases(runnable=False)
+        mine = [c for c in cases if c.procedure == pid]
+        corpus = denckring.describe(pid).corpus
+        assert corpus.external_passing == sum(
+            c.provenance == "external" and c.satisfied for c in mine
+        )
+        assert corpus.external_failing == sum(
+            c.provenance == "external" and not c.satisfied for c in mine
+        )
+        assert corpus.constructed == sum(c.provenance == "constructed" for c in mine)
+        assert corpus.self_generated == sum(c.provenance == "self-generated" for c in mine)
+
+
+def test_a_gap_row_names_its_reason() -> None:
+    assert denckring.describe("n_plus_7").corpus.gap == "after_cutoff"

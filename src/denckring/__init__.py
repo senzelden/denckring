@@ -53,7 +53,7 @@ from denckring.core.registry import all_procedures, get
 from denckring.core.rules import CATEGORIES
 from denckring.core.rules import category as _category
 from denckring.core.scope import SCOPES
-from denckring.eval.harness import GoldenCase, unmet_requirements
+from denckring.eval.harness import CorpusShare, GoldenCase, unmet_requirements
 from denckring.eval.history import CheckerChange
 from denckring.eval.history import load as _history_load
 from denckring.lang import get_pack
@@ -450,6 +450,7 @@ def list_procedures() -> list[str]:
 __all__ = [
     "PARAMETER_ROLES",
     "CheckerChange",
+    "CorpusShare",
     "Counting",
     "DegenerateOutput",
     "DenckringError",

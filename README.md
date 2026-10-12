@@ -38,6 +38,7 @@ $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
 158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable
 0 instruments catalogued
+56 rows externally evidenced · 77 explained · 0 unexplained
 ```
 
 Three interfaces over the same core functions, so they cannot disagree about what a
@@ -73,6 +74,17 @@ A hundred and thirty-three of the 158 catalogued procedures are implemented, and
 one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see [What can be checked](#what-can-be-checked) —
 and all 133 implementable procedures are implemented.
+
+Validated means a row agrees with its golden examples, and most of those were written
+for the suite, so they show the code does what its author meant, not that the author
+read the form right. Only an example quoted from a published text is evidence of that.
+Shipped examples quote public-domain text only (ADR 0062), and every implemented row
+either has one or records why not: the form postdates 1930, its exemplars are in
+copyright or in a language no pack covers, or none has been found yet, with what was
+searched. `describe(pid).corpus` gives a row's split, as a `CorpusShare` counting its
+examples by provenance and recorded verdict beside that reason; `denckring catalogue
+export` carries it per row as `corpus`, and `denckring status` totals it on its third
+line.
 
 The [**gallery**](https://senzelden.github.io/denckring/gallery/) has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
@@ -223,7 +235,10 @@ are built on them:
   pack lacks omits its key; `Description.reading`,
   including `reading.units`, `reading.word_examples`, `reading.vowels`,
   `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a row that totals
-  no letter values; ADR 0061 D4); and `PARAMETER_ROLES`, which names each
+  no letter values; ADR 0061 D4); `Description.corpus`, a `CorpusShare` (ADR 0062)
+  whose counts move as golden cases land and whose `gap` is `None` or one of
+  `in_copyright`, `after_cutoff`, `unsupported_language` and `none_found`, each keeping
+  its meaning; and `PARAMETER_ROLES`, which names each
   `x-denckring-role` value a parameter schema carries and what it means. Roles may be
   added; none is removed or renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
@@ -248,7 +263,8 @@ are built on them:
   same words. Both `candidates` and `texts` are ordered, best first, because `apply`
   returns `texts[0]`.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
-  and `attribution` keys the CC BY terms are carried by.
+  and `attribution` keys the CC BY terms are carried by, and each row's `corpus`: the
+  row's `CorpusShare`, or `null` on a row with no checker (ADR 0062).
 - **The language-pack surface**: `denckring.get_pack` (also `denckring.lang.get_pack`)
   and the `LanguagePack` protocol it returns, with the `PosTag` its `pos_tags` answers,
   all importable from `denckring`. A method on the protocol keeps its signature and
