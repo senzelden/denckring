@@ -59,3 +59,119 @@ cases:
       x six
     params: {}
     satisfied: false
+  - name: gosse-sestina-arnaut
+    provenance: external
+    source: >-
+      Edmund Gosse, "Sestina" ("In fair Provence, the land of lute and rose"), from New
+      Poems (1879), as printed in Gleeson White (ed.), Ballades and Rondeaus, Chants
+      Royal, Sestinas, Villanelles, &c. (London: Walter Scott; preface dated August 1887).
+      Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-12 by
+      script, indentation removed. Gosse died 1928, White 1898.
+    text: |-
+      In fair Provence, the land of lute and rose,
+      Arnaut, great master of the lore of love,
+      First wrought sestines to win his lady's heart;
+      For she was deaf when simpler staves he sang,
+      And for her sake he broke the bonds of rhyme,
+      And in this subtler measure hid his woe.
+
+      'Harsh be my lines,' cried Arnaut, 'harsh the woe,
+      My lady, that enthron'd and cruel rose,
+      Inflicts on him that made her live in rhyme!'
+      But through the metre spake the voice of Love,
+      And like a wild-wood nightingale he sang
+      Who thought in crabbed lays to ease his heart.
+
+      It is not told if her untoward heart
+      Was melted by her poet's lyric woe,
+      Or if in vain so amorously he sang.
+      Perchance through crowd of dark conceits he rose
+      To nobler heights of philosophic love,
+      And crowned his later years with sterner rhyme.
+
+      This thing alone we know: the triple rhyme,
+      Of him who bared his vast and passionate heart
+      To all the crossing flames of hate and love,
+      Wears in the midst of all its storm of woe,-
+      As some loud morn of March may bear a rose,-
+      The impress of a song that Arnaut sang.
+
+      'Smith of his mother-tongue,' the Frenchman sang
+      Of Lancelot and of Galahad, the rhyme
+      That beat so bloodlike at its core of rose,
+      It stirred the sweet Francesca's gentle heart
+      To take that kiss that brought her so much woe,
+      And sealed in fire her martyrdom of love.
+
+      And Dante, full of her immortal love,
+      Stayed his drear song, and softly, fondly sang
+      As though his voice broke with that weight of woe;
+      And to this day we think of Arnaut's rhyme
+      Whenever pity at the labouring heart
+      On fair Francesca's memory drops the rose.
+
+      Ah! sovereign Love, forgive this weaker rhyme!
+      The men of old who sang were great at heart,
+      Yet have we too known woe, and worn thy rose.
+    params: {}
+    satisfied: true
+  - name: kipling-tramp-royal
+    provenance: external
+    source: >-
+      Rudyard Kipling, "Sestina of the Tramp-Royal", The Seven Seas (New York: D.
+      Appleton, 1900; copyright 1896). Project Gutenberg ebook #27870,
+      https://www.gutenberg.org/cache/epub/27870/pg27870.txt, extracted 2026-10-12 by
+      script, indentation removed; "Therfore" is as the file prints it. Kipling died 1936.
+      Rejected: the fifth line of the second stanza and the first line of the fifth end on
+      "along" where the rotation calls for "long" (`wrong_end_word`). Kipling varies the
+      end-word; Gleeson White's rule (1887) is that "the six end-words must repeat
+      unchanged in sound and spelling throughout each succeeding verse".
+    text: |-
+      Speakin' in general, I 'ave tried 'em all,
+      The 'appy roads that take you o'er the world.
+      Speakin' in general, I 'ave found them good
+      For such as cannot use one bed too long,
+      But must get 'ence, the same as I 'ave done,
+      An' go observin' matters till they die.
+
+      What do it matter where or 'ow we die,
+      So long as we've our 'ealth to watch it all--
+      The different ways that different things are done,
+      An' men an' women lovin' in this world--
+      Takin' our chances as they come along,
+      An' when they ain't, pretendin' they are good?
+
+      In cash or credit--no, it ain't no good;
+      You 'ave to 'ave the 'abit or you'd die,
+      Unless you lived your life but one day long,
+      Nor didn't prophesy nor fret at all,
+      But drew your tucker some'ow from the world,
+      An' never bothered what you might ha' done.
+
+      But, Gawd, what things are they I 'aven't done?
+      I've turned my 'and to most, an' turned it good,
+      In various situations round the world--
+      For 'im that doth not work must surely die;
+      But that's no reason man should labour all
+      'Is life on one same shift; life's none so long.
+
+      Therfore, from job to job I've moved along.
+      Pay couldn't 'old me when my time was done,
+      For something in my 'ead upset me all,
+      Till I 'ad dropped whatever 'twas for good,
+      An', out at sea, be'eld the dock-lights die,
+      An' met my mate--the wind that tramps the world.
+
+      It's like a book, I think, this bloomin' world,
+      Which you can read and care for just so long,
+      But presently you feel that you will die
+      Unless you get the page you're readin' done,
+      An' turn another--likely not so good;
+      But what you're after is to turn 'em all.
+
+      Gawd bless this world! Whatever she 'ath done--
+      Excep' when awful long--I've found it good.
+      So write, before I die, "'E liked it all!"
+    params: {}
+    satisfied: false
