@@ -161,6 +161,14 @@ SERIALISED_KEYS: dict[str, dict[str, frozenset[str]]] = {
         "Production": _PRODUCTION_KEYS,
         "Evidence.basis": frozenset({"dictionary", "ambiguous", "estimated"}),
     },
+    # 1.3 (0.5.0, ADR 0061) added `Provenance.checkers`, which is nested, so the
+    # top-level keys are 1.2's. `PackProvenance.digests` (ADR 0060) also arrived inside
+    # `provenance`, and the nested shape is held by the tests below.
+    "1.3": {
+        "Report": _REPORT_KEYS,
+        "Production": _PRODUCTION_KEYS,
+        "Evidence.basis": frozenset({"dictionary", "ambiguous", "estimated"}),
+    },
 }
 
 
@@ -173,6 +181,16 @@ def test_the_schema_version_moves_with_the_serialised_shape() -> None:
     assert set(production.model_dump(mode="json")) == shapes["Production"]
     basis = Evidence.model_fields["basis"].annotation
     assert set(get_args(basis)) == shapes["Evidence.basis"]
+
+
+def test_each_schema_version_names_its_provenance_keys() -> None:
+    """`checkers` arrived with 1.3; the nested keys are shape too."""
+    report = check("lipogram", "a text", forbidden="e")
+    assert report.provenance is not None
+    keys = set(report.provenance.model_dump(mode="json"))
+    assert {"denckring", "schema_version", "pack", "fold_diacritics", "seed"} <= keys
+    if tuple(map(int, SCHEMA_VERSION.split("."))) >= (1, 3):
+        assert "checkers" in keys
 
 
 def test_the_readme_states_the_schema_version_in_force() -> None:

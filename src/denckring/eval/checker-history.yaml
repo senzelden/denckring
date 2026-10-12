@@ -1,0 +1,269 @@
+# One list per row, oldest first. Bump a row's checker_version and add an entry whenever
+# a change can move `satisfied`, `score` or the set of violation rules on some text
+# (ADR 0061). `since` is the release the change ships in.
+abecedarian:
+  - {version: 1, since: "0.5.0", reason: baseline}
+acrostic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+alcaic_stanza:
+  - {version: 1, since: "0.5.0", reason: baseline}
+alexandrine:
+  - {version: 1, since: "0.5.0", reason: baseline}
+alliterative_verse:
+  - {version: 1, since: "0.5.0", reason: baseline}
+alphabetical_sentence:
+  - {version: 1, since: "0.5.0", reason: baseline}
+anagram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+anaphora:
+  - {version: 1, since: "0.5.0", reason: baseline}
+antigram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+antonymic_substitution:
+  - {version: 1, since: "0.5.0", reason: baseline}
+antonymic_translation:
+  - {version: 1, since: "0.5.0", reason: baseline}
+arca_musarithmica:
+  - {version: 1, since: "0.5.0", reason: baseline}
+assonance_constraint:
+  - {version: 1, since: "0.5.0", reason: baseline}
+ballade:
+  - {version: 1, since: "0.5.0", reason: baseline}
+beau_present:
+  - {version: 1, since: "0.5.0", reason: baseline}
+belle_absente:
+  - {version: 1, since: "0.5.0", reason: baseline}
+bivocalic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+blank_verse:
+  - {version: 1, since: "0.5.0", reason: baseline}
+boustrophedon:
+  - {version: 1, since: "0.5.0", reason: baseline}
+buchstabwechsel:
+  - {version: 1, since: "0.5.0", reason: baseline}
+calculator_word:
+  - {version: 1, since: "0.5.0", reason: baseline}
+cent_mille_milliards:
+  - {version: 1, since: "0.5.0", reason: baseline}
+charade:
+  - {version: 1, since: "0.5.0", reason: baseline}
+chimera:
+  - {version: 1, since: "0.5.0", reason: baseline}
+chronogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+cinquain:
+  - {version: 1, since: "0.5.0", reason: baseline}
+clerihew:
+  - {version: 1, since: "0.5.0", reason: baseline}
+column_reading:
+  - {version: 1, since: "0.5.0", reason: baseline}
+consonantal_lipogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+curtal_sonnet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+cut_up:
+  - {version: 1, since: "0.5.0", reason: baseline}
+dactylic_hexameter:
+  - {version: 1, since: "0.5.0", reason: baseline}
+definitional_expansion:
+  - {version: 1, since: "0.5.0", reason: baseline}
+definitional_literature:
+  - {version: 1, since: "0.5.0", reason: baseline}
+definitional_translation:
+  - {version: 1, since: "0.5.0", reason: baseline}
+denckring:
+  - {version: 1, since: "0.5.0", reason: baseline}
+diastic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+double_acrostic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+double_dactyl:
+  - {version: 1, since: "0.5.0", reason: baseline}
+elegiac_couplet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+englyn:
+  - {version: 1, since: "0.5.0", reason: baseline}
+eodermdrome:
+  - {version: 1, since: "0.5.0", reason: baseline}
+epistrophe:
+  - {version: 1, since: "0.5.0", reason: baseline}
+every_nth_word:
+  - {version: 1, since: "0.5.0", reason: baseline}
+fold_in:
+  - {version: 1, since: "0.5.0", reason: baseline}
+ghazal:
+  - {version: 1, since: "0.5.0", reason: baseline}
+haibun:
+  - {version: 1, since: "0.5.0", reason: baseline}
+haiku:
+  - {version: 1, since: "0.5.0", reason: baseline}
+haikuization:
+  - {version: 1, since: "0.5.0", reason: baseline}
+hemeling:
+  - {version: 1, since: "0.5.0", reason: baseline}
+hendecasyllable:
+  - {version: 1, since: "0.5.0", reason: baseline}
+heroic_couplet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+heterogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+homoconsonantism:
+  - {version: 1, since: "0.5.0", reason: baseline}
+homophonic_translation:
+  - {version: 1, since: "0.5.0", reason: baseline}
+homosyntaxism:
+  - {version: 1, since: "0.5.0", reason: baseline}
+homoteleuton:
+  - {version: 1, since: "0.5.0", reason: baseline}
+homovocalism:
+  - {version: 1, since: "0.5.0", reason: baseline}
+iambic_pentameter:
+  - {version: 1, since: "0.5.0", reason: baseline}
+ideenwuerfeln:
+  - {version: 1, since: "0.5.0", reason: baseline}
+kangaroo_word:
+  - {version: 1, since: "0.5.0", reason: baseline}
+larding:
+  - {version: 1, since: "0.5.0", reason: baseline}
+letter_bank:
+  - {version: 1, since: "0.5.0", reason: baseline}
+limerick:
+  - {version: 1, since: "0.5.0", reason: baseline}
+lipogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+lipogrammatic_translation:
+  - {version: 1, since: "0.5.0", reason: baseline}
+liponym:
+  - {version: 1, since: "0.5.0", reason: baseline}
+llull_figure:
+  - {version: 1, since: "0.5.0", reason: baseline}
+mathews_algorithm:
+  - {version: 1, since: "0.5.0", reason: baseline}
+melting_text:
+  - {version: 1, since: "0.5.0", reason: baseline}
+mesostic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+monoconsonantal:
+  - {version: 1, since: "0.5.0", reason: baseline}
+monosyllabic_prose:
+  - {version: 1, since: "0.5.0", reason: baseline}
+multiple_constraint:
+  - {version: 1, since: "0.5.0", reason: baseline}
+n_plus_7:
+  - {version: 1, since: "0.5.0", reason: baseline}
+ottava_rima:
+  - {version: 1, since: "0.5.0", reason: baseline}
+palindrome:
+  - {version: 1, since: "0.5.0", reason: baseline}
+pangram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+pangrammatic_lipogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+pangrammatic_window:
+  - {version: 1, since: "0.5.0", reason: baseline}
+pantoum:
+  - {version: 1, since: "0.5.0", reason: baseline}
+paragram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+paronomasia:
+  - {version: 1, since: "0.5.0", reason: baseline}
+pasigraphy:
+  - {version: 1, since: "0.5.0", reason: baseline}
+perverb:
+  - {version: 1, since: "0.5.0", reason: baseline}
+petrarchan_sonnet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+poesie_automat:
+  - {version: 1, since: "0.5.0", reason: baseline}
+portmanteau:
+  - {version: 1, since: "0.5.0", reason: baseline}
+prisoners_constraint:
+  - {version: 1, since: "0.5.0", reason: baseline}
+proteus_verse:
+  - {version: 1, since: "0.5.0", reason: baseline}
+quenina:
+  - {version: 1, since: "0.5.0", reason: baseline}
+recombination:
+  - {version: 1, since: "0.5.0", reason: baseline}
+renga:
+  - {version: 1, since: "0.5.0", reason: baseline}
+reverse_snowball:
+  - {version: 1, since: "0.5.0", reason: baseline}
+rhyme_royal:
+  - {version: 1, since: "0.5.0", reason: baseline}
+rhyme_scheme:
+  - {version: 1, since: "0.5.0", reason: baseline}
+rondeau:
+  - {version: 1, since: "0.5.0", reason: baseline}
+s_plus_7:
+  - {version: 1, since: "0.5.0", reason: baseline}
+sapphic_stanza:
+  - {version: 1, since: "0.5.0", reason: baseline}
+sator_square:
+  - {version: 1, since: "0.5.0", reason: baseline}
+semordnilap:
+  - {version: 1, since: "0.5.0", reason: baseline}
+senryu:
+  - {version: 1, since: "0.5.0", reason: baseline}
+sentence_length_constraint:
+  - {version: 1, since: "0.5.0", reason: baseline}
+serial_lipogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+sestina:
+  - {version: 1, since: "0.5.0", reason: baseline}
+shakespearean_sonnet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+single_sentence:
+  - {version: 1, since: "0.5.0", reason: baseline}
+slenderizing:
+  - {version: 1, since: "0.5.0", reason: baseline}
+snowball:
+  - {version: 1, since: "0.5.0", reason: baseline}
+snowball_sentence:
+  - {version: 1, since: "0.5.0", reason: baseline}
+sonnet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+spenserian_stanza:
+  - {version: 1, since: "0.5.0", reason: baseline}
+spoonerism:
+  - {version: 1, since: "0.5.0", reason: baseline}
+supervocalic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+syllable_count:
+  - {version: 1, since: "0.5.0", reason: baseline}
+synonymic_substitution:
+  - {version: 1, since: "0.5.0", reason: baseline}
+tanka:
+  - {version: 1, since: "0.5.0", reason: baseline}
+tautogram:
+  - {version: 1, since: "0.5.0", reason: baseline}
+tautonym:
+  - {version: 1, since: "0.5.0", reason: baseline}
+telestich:
+  - {version: 1, since: "0.5.0", reason: baseline}
+terza_rima:
+  - {version: 1, since: "0.5.0", reason: baseline}
+text_folding:
+  - {version: 1, since: "0.5.0", reason: baseline}
+tmesis:
+  - {version: 1, since: "0.5.0", reason: baseline}
+transposal:
+  - {version: 1, since: "0.5.0", reason: baseline}
+triolet:
+  - {version: 1, since: "0.5.0", reason: baseline}
+trochaic_tetrameter:
+  - {version: 1, since: "0.5.0", reason: baseline}
+univocalic:
+  - {version: 1, since: "0.5.0", reason: baseline}
+univocalic_translation:
+  - {version: 1, since: "0.5.0", reason: baseline}
+verbless_prose:
+  - {version: 1, since: "0.5.0", reason: baseline}
+villanelle:
+  - {version: 1, since: "0.5.0", reason: baseline}
+wechselsatz:
+  - {version: 1, since: "0.5.0", reason: baseline}
+word_ladder:
+  - {version: 1, since: "0.5.0", reason: baseline}
+word_square:
+  - {version: 1, since: "0.5.0", reason: baseline}

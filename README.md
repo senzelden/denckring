@@ -197,7 +197,8 @@ are built on them:
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
 - **The names `denckring` exports**, imported from `denckring` itself. `check`, `apply`,
   `produce`, `describe`, `get`, `list_procedures`, `summaries`, `all_procedures` and
-  `rules` keep their signatures and meaning; a new parameter arrives as a keyword whose
+  `rules` keep their signatures and meaning, as do `checker_history` and `CheckerChange`
+  (ADR 0061); a new parameter arrives as a keyword whose
   default keeps today's answer. `Report`, `Violation`, `Evidence`, `Production`,
   `Description`, `Summary`, `Scholarly`, `Meta` and `Lang` keep the type and meaning of
   every field they have,
@@ -239,8 +240,8 @@ are built on them:
   row's `denckring.rules` in the same sorted order, which `describe --json`, `show --json`
   and the MCP server's `describe_procedure` carry too. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
-  and not when the package is released: `1.2` since `Evidence.basis` gained `ambiguous`
-  (1.1 added `estimated`).
+  and not when the package is released: `1.3` since `provenance.checkers` (1.2 added the
+  `ambiguous` value of `Evidence.basis`; 1.1 added `estimated`).
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`,
   `provenance` — and the `--json` output of `apply`. Covered by the same promise in the
   same words. Both `candidates` and `texts` are ordered, best first, because `apply`
@@ -262,6 +263,14 @@ are built on them:
   `denckring.rules(procedure_id)` keeps its name and meaning, so a caller can map
   rules to its own classes once. A row may add rules. Removing or renaming one is a
   breaking change, and the changelog names it.
+- **Checker versions** (ADR 0061). Each row has a `checker_version`, an integer in
+  `describe().checker_version`, bumped whenever a change can move `satisfied`, `score`
+  or the set of violation rules on some text; evidence and message wording do not bump
+  it. `report.provenance.checkers` maps the row, and each row a `multiple_constraint`
+  call composes, to the version that decided the verdict. `denckring.checker_history`
+  (returning `CheckerChange` entries `{version, since, reason}`) says what each version
+  changed and in which release. A caller compares results across releases per row by
+  comparing these. Versions only rise, and every row's history begins at 1 in 0.5.0.
 - **Promised metrics** (ADR 0060). A row may name `metrics` keys in
   `describe().metrics`, key to meaning; each is a float in every report of that row,
   and removing or renaming one is a breaking change.

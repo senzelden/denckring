@@ -225,6 +225,9 @@ class Description(BaseModel):
     #: The `metrics` keys the row promises, key to meaning (ADR 0060 D3); empty when
     #: it promises none. Any other key in a report stays unstable.
     metrics: dict[str, str] = Field(default_factory=dict)
+    #: The row's `checker_version` (ADR 0061); `denckring.checker_history` says what
+    #: each version changed.
+    checker_version: int
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -390,6 +393,7 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         hidden_material=list(meta.hidden_material),
         rules=list(rules(procedure_id)),
         metrics=dict(procedure.promised_metrics),
+        checker_version=procedure.checker_version,
         scholarly=(
             Scholarly(
                 source=meta.source,

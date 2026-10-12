@@ -246,6 +246,11 @@ class BaseProcedure(ABC, Generic[P]):
     #: default, claims nothing; `tests/test_scope.py` holds every other claim to
     #: the checker on texts built from units.
     local_scope: ClassVar[Scope] = "text"
+    #: The version of this row's checker, bumped whenever a change can move
+    #: `satisfied`, `score` or the set of violation rules on some text, and recorded in
+    #: `eval/checker-history.yaml` (ADR 0061). The package version is too coarse to say
+    #: which rows a release touched; `Report.provenance.checkers` stamps this per call.
+    checker_version: ClassVar[int] = 1
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)
@@ -303,6 +308,21 @@ class BaseProcedure(ABC, Generic[P]):
             if role == "inferred" and getattr(params, name) is None
         ]
 
+    def _composed_ids(self, parsed: P) -> tuple[str, ...]:
+        """Ids of other rows whose checkers decided part of this verdict.
+
+        Empty except for `multiple_constraint`: a composite's own `checker_version` does
+        not move when an entry's does, so its report must name them (ADR 0061).
+        """
+        return ()
+
+    def _checkers(self, parsed: Any) -> dict[str, int]:
+        from denckring.core.registry import get
+
+        return {self.id: self.checker_version} | {
+            i: get(i).checker_version for i in self._composed_ids(parsed)
+        }
+
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""
         from denckring.lang import get_pack
@@ -318,7 +338,9 @@ class BaseProcedure(ABC, Generic[P]):
         # and once rather than in each of the procedures that build a `Report`
         # themselves. `model_copy` because a procedure may return a report it
         # cached or shares, and provenance is about this call.
-        return report.model_copy(update={"provenance": provenance(pack, lang, parsed)})
+        return report.model_copy(
+            update={"provenance": provenance(pack, lang, parsed, self._checkers(parsed))}
+        )
 
     def _report(
         self,
@@ -517,7 +539,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             metrics={"found": float(len(found))},
             # `parsed` is where the seed is, which is the whole reason a
             # `Production` needs this: without it a draw cannot be repeated.
-            provenance=provenance(pack, lang, parsed),
+            provenance=provenance(pack, lang, parsed, self._checkers(parsed)),
         )
 
     def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:

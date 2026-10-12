@@ -18,6 +18,8 @@ but not yet promised.
 
 ::: denckring.render_hint
 
+::: denckring.checker_history
+
 ::: denckring.rules
 
 ::: denckring.rule_categories

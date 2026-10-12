@@ -26,6 +26,8 @@ under `denckring.core`, is not.
 
 ::: denckring.Scholarly
 
+::: denckring.CheckerChange
+
 ::: denckring.Lang
 
 ## Language data

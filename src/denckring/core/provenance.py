@@ -40,8 +40,10 @@ from denckring.core.errors import MissingCapability
 #: already shipped. 1.1 (0.3.2) added `Report.estimated`; 1.2 (0.4.0) added the
 #: `ambiguous` value to `Evidence.basis` (ADR 0054), since a parser holding the
 #: closed set would refuse it. `tests/test_provenance.py` holds each version to the
-#: keys it serialises and to the basis values, so neither can change without this.
-SCHEMA_VERSION = "1.2"
+#: keys it serialises and to the basis values, so neither can change without this. 1.3
+#: (0.5.0) added `Provenance.checkers`, each row that decided the verdict with its
+#: `checker_version` (ADR 0061).
+SCHEMA_VERSION = "1.3"
 
 #: What a pack reports when it reads no data files. The three built-in defaults
 #: are part of the library, so their content is pinned by the package version
@@ -90,6 +92,9 @@ class Provenance(BaseModel):
     #: The seed a drawing generator used. `None` on every check, and on the
     #: generators that do not draw.
     seed: int | None = None
+    #: Row id to `checker_version` for every row that decided this verdict: the row
+    #: itself, plus each entry of a composite (ADR 0061).
+    checkers: dict[str, int] = Field(default_factory=dict)
 
 
 def pack_provenance(pack: object, lang: str) -> PackProvenance:
@@ -214,7 +219,9 @@ def pack_digests(pack: object) -> dict[str, str]:
     return dict(digests)
 
 
-def provenance(pack: object, lang: str, params: Any = None) -> Provenance:
+def provenance(
+    pack: object, lang: str, params: Any = None, checkers: Mapping[str, int] | None = None
+) -> Provenance:
     """Everything reproducing this run needs, gathered at the one place that has it.
 
     `params` is the parsed parameter model, which is where the fold policy and
@@ -228,4 +235,5 @@ def provenance(pack: object, lang: str, params: Any = None) -> Provenance:
         pack=pack_provenance(pack, lang),
         fold_diacritics=getattr(params, "fold_diacritics", None),
         seed=getattr(params, "seed", None),
+        checkers=dict(checkers or {}),
     )

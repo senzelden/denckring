@@ -53,6 +53,8 @@ from denckring.core.rules import CATEGORIES
 from denckring.core.rules import category as _category
 from denckring.core.scope import SCOPES
 from denckring.eval.harness import GoldenCase, unmet_requirements
+from denckring.eval.history import CheckerChange
+from denckring.eval.history import load as _history_load
 from denckring.lang import get_pack
 from denckring.lang.base import WordOrder, graded_view
 
@@ -203,6 +205,18 @@ def pack_provenance(lang: Lang = "en") -> PackProvenance:
     """
     pack = get_pack(lang)
     return _describe_pack(pack, lang).model_copy(update={"digests": pack_digests(pack)})
+
+
+def checker_history(procedure_id: str) -> list[CheckerChange]:
+    """Every `checker_version` a row has had, oldest first, with the release and why.
+
+    The last entry's `version` is `describe(procedure_id).checker_version`. Compare it
+    with `report.provenance.checkers` to learn whether a result predates a change that
+    could have moved the row's verdicts (ADR 0061). Raises `UnknownProcedure` for an
+    id that is not registered.
+    """
+    get(procedure_id)
+    return _history_load().get(procedure_id, [])
 
 
 def rules(procedure_id: str) -> tuple[str, ...]:
@@ -434,6 +448,7 @@ def list_procedures() -> list[str]:
 
 __all__ = [
     "PARAMETER_ROLES",
+    "CheckerChange",
     "DegenerateOutput",
     "DenckringError",
     "Description",
@@ -476,6 +491,7 @@ __all__ = [
     "all_procedures",
     "apply",
     "check",
+    "checker_history",
     "describe",
     "failure_categories",
     "get",
