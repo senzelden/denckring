@@ -22,11 +22,13 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from denckring.core.protocol import Lang
 
 #: The checked-in snapshot, for a source checkout. The module is a development tool; an
 #: installed wheel has no `tests/`.
@@ -56,7 +58,7 @@ def checkers_digest(checkers: Mapping[str, int]) -> str:
 @dataclass(frozen=True)
 class Probe:
     procedure: str
-    lang: str
+    lang: Lang
     text: str
     params: dict[str, Any]
 
@@ -73,8 +75,8 @@ def probes() -> list[Probe]:
     """
     from denckring import golden_cases
 
-    texts: dict[tuple[str, str], dict[str, None]] = defaultdict(dict)
-    params: dict[tuple[str, str], dict[str, dict[str, Any]]] = defaultdict(dict)
+    texts: dict[tuple[str, Lang], dict[str, None]] = defaultdict(dict)
+    params: dict[tuple[str, Lang], dict[str, dict[str, Any]]] = defaultdict(dict)
     for case in golden_cases():
         group = (case.procedure, case.lang)
         texts[group][case.text] = None
@@ -87,13 +89,29 @@ def probes() -> list[Probe]:
     ]
 
 
+def missing_cases() -> list[str]:
+    """`row/lang: name` of each golden case this install cannot run, for want of a pack.
+
+    Probes are built from the runnable cases, so on such an install a row loses probes,
+    and a row that stays runnable loses parameter sets too. Neither is a verdict, and a
+    snapshot written then would drop them silently, so the guard skips and `--write`
+    refuses (ADR 0061).
+    """
+    from denckring import golden_cases
+
+    # A multiset difference, not a set one: the corpus holds exact duplicate cases.
+    every = Counter(f"{c.procedure}/{c.lang}: {c.name}" for c in golden_cases(runnable=False))
+    runnable = Counter(f"{c.procedure}/{c.lang}: {c.name}" for c in golden_cases())
+    return sorted((every - runnable).elements())
+
+
 def run_probe(probe: Probe) -> list[str]:
     from denckring import check
     from denckring.core.errors import DenckringError
     from denckring.core.registry import get
 
     try:
-        report = check(probe.procedure, probe.text, lang=probe.lang, **probe.params)  # type: ignore[arg-type]
+        report = check(probe.procedure, probe.text, lang=probe.lang, **probe.params)
     except DenckringError as error:
         # An error is an outcome like any other. No report carries the checkers, so take
         # the row's own version and its static delegates'.
@@ -177,6 +195,12 @@ def main(argv: Sequence[str] | None = None, *, path: Path = SNAPSHOT) -> None:
     write = args == ["--write"]
     if args and not write:
         raise SystemExit("usage: python -m denckring.eval.fingerprint [--write]")
+    if write and (missing := missing_cases()):
+        shown = ", ".join(missing[:5]) + (", …" if len(missing) > 5 else "")
+        raise SystemExit(
+            f"refusing to write: {len(missing)} golden cases cannot run on this install, "
+            f"so a data pack is missing ({shown}); install every extra first"
+        )
     snapshot = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     current = probe_outcomes()
     if write:

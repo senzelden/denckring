@@ -73,10 +73,14 @@ code did not change. That is why `checkers` lists every row, rather than leaving
 caller to infer it from the composite's version.
 
 The snapshot is 1,098 probes in a file of about 4,700 lines, and every bump or new
-golden case rewrites part of it. The probes are the golden cases' own texts and parameters, so a
-row with one parameter set is probed at that set alone, and probes come from the cases
-this install can run: an install without a data pack sees that pack's probes as gone.
-CI installs every pack.
+golden case rewrites part of it. The probes are the golden cases' own texts and
+parameters, so a row with one parameter set is probed at that set alone.
+
+Probes come from the cases this install can run. On an install missing a data pack, a
+row loses probes, and a row that stays runnable can lose parameter sets. So the guard
+skips there, and `--write` refuses, naming the cases it cannot run, rather than write a
+truncated snapshot. The guard therefore runs only where every pack is installed, which
+every CI test job does.
 
 The version is an integer that says "something moved", not what. The reason in the
 history is prose and unenforced beyond being present. The criterion is judgment: the

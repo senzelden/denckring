@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pytest
 
+from denckring import GoldenCase, Lang
 from denckring.eval.fingerprint import (
     Probe,
     checkers_digest,
     compare,
     main,
+    missing_cases,
     outcome_digest,
     probe_outcomes,
     run_probe,
@@ -21,6 +23,8 @@ SNAPSHOT = Path(__file__).parent / "data" / "verdict-fingerprints.json"
 
 
 def test_no_verdict_moved_without_a_bump() -> None:
+    if missing := missing_cases():
+        pytest.skip(f"{len(missing)} golden cases need a data pack that is not installed")
     problems = compare(json.loads(SNAPSHOT.read_text(encoding="utf-8")), probe_outcomes())
     assert not problems, "\n".join(problems)
 
@@ -123,3 +127,36 @@ def test_check_mode_exits_non_zero_on_a_problem(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as failed:
         main([], path=path)
     assert failed.value.code != 0
+
+
+def _drop_one_runnable_case(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stand in for an install missing a pack: one case stops being runnable."""
+    import denckring
+
+    real = denckring.golden_cases
+
+    def fewer(lang: Lang | None = None, *, runnable: bool = True) -> list[GoldenCase]:
+        cases = real(lang, runnable=runnable)
+        return cases[1:] if runnable else cases
+
+    monkeypatch.setattr(denckring, "golden_cases", fewer)
+
+
+def test_a_missing_pack_is_what_the_guard_skips_on(monkeypatch: pytest.MonkeyPatch) -> None:
+    before = len(missing_cases())
+    _drop_one_runnable_case(monkeypatch)
+    assert len(missing_cases()) == before + 1
+
+
+def test_write_refuses_on_an_install_missing_a_pack(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    path = tmp_path / "snapshot.json"
+    text = json.dumps(probe_outcomes())
+    path.write_text(text, encoding="utf-8")
+    _drop_one_runnable_case(monkeypatch)
+
+    with pytest.raises(SystemExit) as refused:
+        main(["--write"], path=path)
+    assert "data pack is missing" in str(refused.value.code)
+    assert path.read_text(encoding="utf-8") == text
