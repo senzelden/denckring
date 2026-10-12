@@ -31,6 +31,11 @@ All notable changes to this project are documented here. The format follows
   `schema_version` is `1.3`. `denckring.checker_history(procedure_id)` returns the row's
   `CheckerChange` entries, `{version, since, reason}`, shipped as
   `eval/checker-history.yaml`; every row begins at version 1 in 0.5.0.
+- **A verdict fingerprint holds every move to a bump** (ADR 0061 B3).
+  `tests/test_verdict_fingerprints.py` checks each row's golden texts against each
+  parameter set its golden cases use (1,098 probes) and fails an outcome that moved while
+  the probe's `provenance.checkers` did not. `uv run python -m denckring.eval.fingerprint
+  --write` refreshes the snapshot and refuses while such a move stands.
 
 ## [0.4.0] - 2026-10-05
 
