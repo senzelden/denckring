@@ -65,8 +65,8 @@ published values are the ones `_check` sums. The bench had to read the checker t
 that `IV` totals 6 and that a numeral letter is never passed over; it now reads them.
 `tests/test_counting.py` runs each claim against `check`, so a claim that the checker
 stops honouring fails. The golden case `chronogram-my-day-closed` now quotes Hilton's
-own verdict (*Chronograms*, 1882, p. 9) as archive.org OCR, unaltered, in place of a
-paraphrase; its text, parameters and verdict are unchanged, which the verdict
+own verdict (*Chronograms*, 1882, p. 9), transcribed from the page image because the
+archive.org OCR misreads it, in place of a paraphrase; its text, parameters and verdict are unchanged, which the verdict
 fingerprint confirms.
 
 ## Consequences

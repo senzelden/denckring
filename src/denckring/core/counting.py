@@ -18,8 +18,11 @@ class Counting(BaseModel):
     combine: Literal["sum"]
     #: False: `IV` totals 6, not 4. Chronograms are additive.
     subtractive: bool
-    #: True: no numeral letter may be "passed over to suit the convenience of the
-    #: composer" (Hilton, *Chronograms*, 1882, p. 9). Capitals mark nothing.
+    #: True: every numeral letter counts, and capitals mark nothing. Hilton calls a line
+    #: that reaches its date only by counting initials "a very bad one" for its
+    #: "superfluous numeral letters" (*Chronograms*, 1882, p. 9), and faults careless
+    #: makers for "little regard being paid to the necessity of avoiding superfluous
+    #: letters" (p. 87).
     every_occurrence: bool
     case_sensitive: bool
     #: The parameter that decides whether accented letters count as their base letter.
