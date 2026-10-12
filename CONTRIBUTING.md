@@ -74,6 +74,27 @@ edit them.
   input, including arbitrary Unicode.
 - Every capability the procedure uses appears in its catalogue `requires`.
 
+## Changing a checker's verdict
+
+Any change that can move `satisfied`, `score` or the set of violation rules on some text
+is a checker change (ADR 0061). Evidence and message wording are not. For one:
+
+1. Bump the row's `checker_version` class attribute.
+2. Append `{version, since, reason}` to the row's list in
+   `src/denckring/eval/checker-history.yaml`.
+3. Run `uv run python -m denckring.eval.fingerprint --write` to refresh
+   `tests/data/verdict-fingerprints.json`.
+4. Add a `CHANGELOG.md` line under `## [Unreleased]`.
+
+`tests/test_verdict_fingerprints.py` checks every golden text of a row against every
+parameter set its golden cases use, and stores per probe a digest of the outcome and one
+of `provenance.checkers`, the versions of every row that decided it. An outcome that
+moved while those versions did not fails as "verdict moved without a checker_version
+bump", and `--write` refuses to record it. Bump the row that changed, not the rows that
+compose it: `sestina`'s probes carry `quenina`'s version, so a `quenina` bump is seen
+there too. Adding a golden case only adds probes, which the guard reports as "golden
+probes changed"; `--write` records them.
+
 ## Before you open a pull request
 
 ```console

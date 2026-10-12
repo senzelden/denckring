@@ -13,11 +13,13 @@ from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
 from denckring.core.base import ConstructiveProcedure, RhymeParams
+from denckring.core.counting import Counting
 from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
 from denckring.core.registry import all_procedures, get
 from denckring.core.text import UNIT_ENDS
+from denckring.eval.harness import CorpusShare, corpus_share
 
 
 class Scholarly(BaseModel):
@@ -171,6 +173,11 @@ class Reading(BaseModel):
     #: how a scheme reads several of them, which a writer told two lines rhyme
     #: against the scheme needs and the verdict alone does not say (ADR 0057).
     rhyme: str | None = None
+    #: How a row that totals letter values counts them, and `None` on every row that
+    #: counts none (ADR 0061 D4). Declared by the row beside the values its checker
+    #: reads, so the claim and the behaviour share one source; `tests/test_counting.py`
+    #: runs each claim against the checker.
+    counting: Counting | None = None
 
 
 class Description(BaseModel):
@@ -222,6 +229,16 @@ class Description(BaseModel):
     #: README promises without Python (ruling R-F6). `multiple_constraint` answers with
     #: every other row's rules, as `denckring.rules` does. Added in 0.4.0.
     rules: list[str] = Field(default_factory=list)
+    #: The `metrics` keys the row promises, key to meaning (ADR 0060 D3); empty when
+    #: it promises none. Any other key in a report stays unstable.
+    metrics: dict[str, str] = Field(default_factory=dict)
+    #: The row's `checker_version` (ADR 0061); `denckring.checker_history` says what
+    #: each version changed.
+    checker_version: int
+    #: The row's golden cases by where their text came from, and the reason it has no
+    #: external one where it has none (ADR 0062). How much of the row's agreement
+    #: with its examples is evidence about the reading, rather than about the code.
+    corpus: CorpusShare
     #: Which of `name`, `definition` and `prompt_hints` are not in the language
     #: asked for but in a substitute. Localisation has always fallen back to
     #: English, silently and per field, so a French caller received English prose
@@ -325,6 +342,9 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
             if issubclass(procedure.params_model(), RhymeParams)
             else None
         ),
+        counting=(
+            procedure.counting.model_copy(deep=True) if procedure.counting is not None else None
+        ),
     )
 
 
@@ -386,6 +406,9 @@ def describe(procedure_id: str, *, lang: Lang = "en", scholarly: bool = False) -
         unique_answer=meta.unique_answer,
         hidden_material=list(meta.hidden_material),
         rules=list(rules(procedure_id)),
+        metrics=dict(procedure.promised_metrics),
+        checker_version=procedure.checker_version,
+        corpus=corpus_share(procedure_id),
         scholarly=(
             Scholarly(
                 source=meta.source,

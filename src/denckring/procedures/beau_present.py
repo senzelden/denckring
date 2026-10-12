@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
@@ -30,6 +32,13 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
 
     id = "beau_present"
     rules = ("letter_outside_name", "unused_name_letter")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted by letter_spans; "
+            "non-letters excluded, folded when fold_diacritics is set."
+        )
+    }
     local_scope = "word"
 
     @classmethod

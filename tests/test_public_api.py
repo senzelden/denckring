@@ -151,7 +151,10 @@ def test_pack_provenance_is_what_a_report_records(lang: Lang) -> None:
     """The bench `getattr`ed `data_distributions` itself (audit B9)."""
     report = denckring.check("lipogram", "a text", lang=lang, forbidden="z")
     assert report.provenance is not None
-    assert denckring.pack_provenance(lang) == report.provenance.pack
+    # A report omits `digests` on purpose (ADR 0060 D4); everything else is the same record.
+    recorded = denckring.pack_provenance(lang)
+    assert recorded.model_copy(update={"digests": {}}) == report.provenance.pack
+    assert recorded.digests
     assert {"pack_provenance", "PackProvenance"} <= set(denckring.__all__)
 
 

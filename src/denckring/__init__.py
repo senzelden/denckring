@@ -1,10 +1,12 @@
 """denckring — a library of experimental writing procedures."""
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from importlib.metadata import PackageNotFoundError, version
+from types import MappingProxyType
 from typing import Any
 
 from denckring.core.base import BaseProcedure
+from denckring.core.counting import Counting
 from denckring.core.describe import Description, Scholarly, Summary, describe, summaries
 from denckring.core.errors import (
     DegenerateOutput,
@@ -32,6 +34,7 @@ from denckring.core.errors import (
     UnsetHintParameter,
     UnsettablePhrase,
 )
+from denckring.core.fields import ROLES as _ROLES
 from denckring.core.hints import as_compared, placeholders, render, settings, show_kinds
 from denckring.core.protocol import (
     Constructive,
@@ -44,15 +47,27 @@ from denckring.core.protocol import (
     Report,
     Violation,
 )
-from denckring.core.provenance import PackProvenance
+from denckring.core.provenance import PackProvenance, pack_digests
 from denckring.core.provenance import pack_provenance as _describe_pack
 from denckring.core.registry import all_procedures, get
 from denckring.core.rules import CATEGORIES
 from denckring.core.rules import category as _category
 from denckring.core.scope import SCOPES
-from denckring.eval.harness import GoldenCase
+from denckring.eval.harness import CorpusShare, GoldenCase, unmet_requirements
+from denckring.eval.history import CheckerChange
+from denckring.eval.history import load as _history_load
 from denckring.lang import get_pack
 from denckring.lang.base import WordOrder, graded_view
+
+# Documented by the string below rather than a `#:` comment: the API reference reads
+# attribute docstrings, and a comment left this promised name's page blank.
+PARAMETER_ROLES: Mapping[str, str] = MappingProxyType(_ROLES)
+"""Each `x-denckring-role` value a parameter schema can carry, and what it tells a
+caller writing a prompt.
+
+Read-only: a role may be added, never removed or renamed without a **Breaking:**
+changelog entry (ADR 0060).
+"""
 
 try:
     __version__ = version("denckring")
@@ -188,11 +203,26 @@ def pack_provenance(lang: Lang = "en") -> PackProvenance:
 
     The same record every `Report.provenance.pack` carries, without checking a text
     first: the pack's class, and each data distribution it reads mapped to its
-    installed version (empty for a built-in default). A caller recording a run, or
-    choosing what to draw from, reads it here rather than `getattr`ing the pack's
-    `data_distributions`, which is not part of the `LanguagePack` protocol.
+    installed version (empty for a built-in default). Unlike a report's copy it also
+    carries `digests`, content hashes of the pack's surfaces (ADR 0060 D4).
+    A caller recording a run, or choosing what to draw from, reads it here rather
+    than `getattr`ing the pack's `data_distributions`, which is not part of the
+    `LanguagePack` protocol.
     """
-    return _describe_pack(get_pack(lang), lang)
+    pack = get_pack(lang)
+    return _describe_pack(pack, lang).model_copy(update={"digests": pack_digests(pack)})
+
+
+def checker_history(procedure_id: str) -> list[CheckerChange]:
+    """Every `checker_version` a row has had, oldest first, with the release and why.
+
+    The last entry's `version` is `describe(procedure_id).checker_version`. Compare it
+    with `report.provenance.checkers` to learn whether a result predates a change that
+    could have moved the row's verdicts (ADR 0061). Raises `UnknownProcedure` for an
+    id that is not registered.
+    """
+    get(procedure_id)
+    return _history_load().get(procedure_id, [])
 
 
 def rules(procedure_id: str) -> tuple[str, ...]:
@@ -402,7 +432,6 @@ def golden_cases(lang: Lang | None = None, *, runnable: bool = True) -> list[Gol
     blocks it rather than scoring it. Pass `runnable=False` for the whole corpus.
     """
     from denckring.eval.harness import golden_cases as every_case
-    from denckring.eval.harness import unmet_requirements
 
     cases = [case for case in every_case() if lang is None or case.lang == lang]
     if not runnable:
@@ -424,6 +453,10 @@ def list_procedures() -> list[str]:
 
 
 __all__ = [
+    "PARAMETER_ROLES",
+    "CheckerChange",
+    "CorpusShare",
+    "Counting",
     "DegenerateOutput",
     "DenckringError",
     "Description",
@@ -466,6 +499,7 @@ __all__ = [
     "all_procedures",
     "apply",
     "check",
+    "checker_history",
     "describe",
     "failure_categories",
     "get",
@@ -482,6 +516,7 @@ __all__ = [
     "scope",
     "scopes",
     "summaries",
+    "unmet_requirements",
     "witness",
     "words",
 ]

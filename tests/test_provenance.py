@@ -10,6 +10,7 @@ printed an object that did not contain 7.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import get_args
@@ -17,10 +18,11 @@ from typing import get_args
 import pytest
 from typer.testing import CliRunner
 
+import denckring
 from denckring import __version__, check, produce
 from denckring.cli import app
 from denckring.core.protocol import Evidence
-from denckring.core.provenance import SCHEMA_VERSION, pack_provenance, provenance
+from denckring.core.provenance import SCHEMA_VERSION, pack_digests, pack_provenance, provenance
 from denckring.lang import get_pack
 
 
@@ -159,6 +161,14 @@ SERIALISED_KEYS: dict[str, dict[str, frozenset[str]]] = {
         "Production": _PRODUCTION_KEYS,
         "Evidence.basis": frozenset({"dictionary", "ambiguous", "estimated"}),
     },
+    # 1.3 (0.5.0, ADR 0061) added `Provenance.checkers`, which is nested, so the
+    # top-level keys are 1.2's. `PackProvenance.digests` (ADR 0060) also arrived inside
+    # `provenance`, and the nested shape is held by the tests below.
+    "1.3": {
+        "Report": _REPORT_KEYS,
+        "Production": _PRODUCTION_KEYS,
+        "Evidence.basis": frozenset({"dictionary", "ambiguous", "estimated"}),
+    },
 }
 
 
@@ -173,6 +183,16 @@ def test_the_schema_version_moves_with_the_serialised_shape() -> None:
     assert set(get_args(basis)) == shapes["Evidence.basis"]
 
 
+def test_each_schema_version_names_its_provenance_keys() -> None:
+    """`checkers` arrived with 1.3; the nested keys are shape too."""
+    report = check("lipogram", "a text", forbidden="e")
+    assert report.provenance is not None
+    keys = set(report.provenance.model_dump(mode="json"))
+    assert {"denckring", "schema_version", "pack", "fold_diacritics", "seed"} <= keys
+    if tuple(map(int, SCHEMA_VERSION.split("."))) >= (1, 3):
+        assert "checkers" in keys
+
+
 def test_the_readme_states_the_schema_version_in_force() -> None:
     """The stability promise names the version a JSON consumer pins to. It said `1.1`
     after the bump to `1.2` (U6 review I1), and nothing noticed: a consumer pinning it
@@ -182,3 +202,71 @@ def test_the_readme_states_the_schema_version_in_force() -> None:
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     stated = re.findall(r"`(\d+\.\d+)` since", readme)
     assert stated == [SCHEMA_VERSION], stated
+
+
+def test_pack_provenance_carries_content_digests() -> None:
+    digests = denckring.pack_provenance("en").digests
+    assert {"graded_words", "files"} <= set(digests)
+    assert all(len(v) == 64 for v in digests.values())
+
+
+def test_the_graded_words_digest_is_the_documented_canonical_form() -> None:
+    """The promise is that a caller can recompute it (ADR 0060 D4)."""
+    words = denckring.get_pack("en").graded_words()
+    payload = json.dumps(sorted(words.items()), ensure_ascii=False, separators=(",", ":"))
+    expected = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    assert denckring.pack_provenance("en").digests["graded_words"] == expected
+
+
+def test_a_pack_lacking_a_surface_omits_its_digest() -> None:
+    class Bare:
+        data_distributions: tuple[str, ...] = ()
+
+    assert pack_digests(Bare()) == {}
+
+
+def test_a_check_does_not_pay_for_digests() -> None:
+    report = denckring.check("lipogram", "abc", forbidden="e")
+    assert report.provenance is not None and report.provenance.pack.digests == {}
+
+
+def test_a_surface_that_raises_a_capability_error_omits_its_digest() -> None:
+    from denckring.core.errors import MissingCapability
+
+    class Partial:
+        data_distributions: tuple[str, ...] = ()
+
+        def graded_words(self) -> dict[str, int]:
+            return {"a": 1}
+
+        def nouns(self) -> set[str]:
+            raise MissingCapability("p", "xx", "nouns")
+
+    assert set(pack_digests(Partial())) == {"graded_words"}
+
+
+def test_the_files_digest_is_stable_and_follows_the_data() -> None:
+    first = denckring.pack_provenance("en").digests["files"]
+    assert denckring.pack_provenance("en").digests["files"] == first
+    assert denckring.pack_provenance("fr").digests["files"] != first
+
+
+def test_the_files_digest_ignores_metadata_and_follows_data(tmp_path: Path) -> None:
+    """The rule: package bytes move it, dist-info (which carries the version) does not."""
+    from denckring.core.provenance import _trees_digest
+
+    pkg = tmp_path / "pkg_data"
+    (pkg / "data").mkdir(parents=True)
+    (pkg / "data" / "words.txt").write_text("alpha\n")
+    (pkg / "__pycache__").mkdir()
+    (pkg / "__pycache__" / "x.pyc").write_bytes(b"1")
+    dist = tmp_path / "pkg_data-1.0.dist-info"
+    dist.mkdir()
+    (dist / "METADATA").write_text("Version: 1.0\n")
+
+    before = _trees_digest({"pkg-data": pkg})
+    (dist / "METADATA").write_text("Version: 2.0\n")
+    (pkg / "__pycache__" / "x.pyc").write_bytes(b"2")
+    assert _trees_digest({"pkg-data": pkg}) == before
+    (pkg / "data" / "words.txt").write_text("beta\n")
+    assert _trees_digest({"pkg-data": pkg}) != before

@@ -22,9 +22,13 @@ under `denckring.core`, is not.
 
 ::: denckring.Description
 
+::: denckring.Counting
+
 ::: denckring.Summary
 
 ::: denckring.Scholarly
+
+::: denckring.CheckerChange
 
 ::: denckring.Lang
 
@@ -37,3 +41,5 @@ under `denckring.core`, is not.
 ## The golden corpus
 
 ::: denckring.GoldenCase
+
+::: denckring.CorpusShare

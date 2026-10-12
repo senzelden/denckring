@@ -123,7 +123,31 @@ ROOT = Path(__file__).resolve().parent.parent
 #: The safe window is `(1,060,716, 1,263,713)`. **1,150,000** sits in it with 89,284 of
 #: headroom and 113,713 of margin under the catch figure. The data file being smaller
 #: narrows the window from above, so the next raise has less room than this one had.
-MAX_SDIST_BYTES = 1_150_000
+#:
+#: **Raised to 1,250,000 on 2026-10-12, by decision, in the same direction and for the
+#: same reason.** The archive stood 1,888 bytes under the old bound before the verdict
+#: fingerprint (ADR 0061) landed, and that one change added 27,200: the snapshot
+#: `tests/data/verdict-fingerprints.json` (20,595 gzipped, random hex that does not
+#: compress), `denckring.eval.fingerprint` and its tests. No data file entered:
+#: `/packages` stays excluded, and the additions were checked one by one.
+#:
+#: The paragraph above was wrong when it was written. **The smallest data file the bound
+#: exists to catch is `denckring-fr-data`'s `nouns.txt.gz` (126,711), not
+#: `frequencies.txt.gz` (202,997).** It has been tracked since 2026-08-31. Re-measured from
+#: `git archive HEAD` at the commit before this one, and with each file copied under
+#: `src/denckring/data/` and the sdist rebuilt, since a stowaway adds a little more than
+#: its own size:
+#:
+#:   - clean build from `HEAD`:                                              1,176,084
+#:   - with `nouns.txt.gz` re-included:                                      1,304,733
+#:   - with `frequencies.txt.gz` re-included:                                1,381,441
+#:
+#: The safe window is `(1,176,084, 1,304,733)`. **1,250,000** sits in it with 73,916 of
+#: headroom and 54,733 of margin under the catch figure. The rest of this chapter (ADR
+#: 0062, the evidence-gap registry and new golden cases) is expected to spend some of that
+#: headroom. The margin is now the narrower half, so the next raise must re-measure the
+#: catch figure first, not just the clean build.
+MAX_SDIST_BYTES = 1_250_000
 
 
 def _export_head(tmp_path_factory: pytest.TempPathFactory) -> Path | None:

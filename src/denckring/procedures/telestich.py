@@ -15,4 +15,6 @@ class Telestich(Acrostic):
     id = "telestich"
     rules = ("extra_unit", "missing_unit", "wrong_letter")
 
+    # Inherits the acrostic checker whole, so a change to it moves this row too.
+    composes = ("acrostic",)
     letter_index: ClassVar[int] = -1

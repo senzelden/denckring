@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from denckring.core.base import BaseProcedure
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -28,6 +30,13 @@ class Antigram(BaseProcedure[AntigramParams]):
 
     id = "antigram"
     rules = ("missing_letter", "surplus_letter", "unchanged")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted as the source's "
+            "letters are (folded when fold_diacritics is set)."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[AntigramParams]:

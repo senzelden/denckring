@@ -30,3 +30,39 @@ cases:
       Ostermond Ostermond Wald Ostermond Ostermond Wald
     params: {}
     satisfied: true
+  - name: clough-amours-de-voyage-canto-i-close
+    provenance: external
+    source: >-
+      Arthur Hugh Clough, Amours de Voyage (first published 1858), the last three couplets
+      of the elegiacs that close Canto I, from Poems of Arthur Hugh Clough (London:
+      Macmillan, 1898; first printed for Macmillan 1891). Project Gutenberg ebook #66689,
+      https://www.gutenberg.org/cache/epub/66689/pg66689.txt, extracted 2026-10-12 by
+      script; the transcriber's underscores marking italic type and the indentation are
+      removed. Clough died 1861. Selected: the checker rejects 3 of the 7 couplets in this
+      closing passage (1 and 2 for stress, 4 for line length; see the CHANGELOG).
+    text: |-
+      Is it religion? I ask me; or is it a vain superstition?
+      Slavery abject and gross? service, too feeble, of truth?
+      Is it an idol I bow to, or is it a god that I worship?
+      Do I sink back on the old, or do I soar from the mean?
+      So through the city I wander and question, unsatisfied ever,
+      Reverent so I accept, doubtful because I revere.
+    params: {}
+    satisfied: true
+  - name: clough-amours-de-voyage-canto-iii-close
+    provenance: external
+    source: >-
+      Arthur Hugh Clough, Amours de Voyage (first published 1858), the first two couplets
+      of the elegiacs that close Canto III, from Poems of Arthur Hugh Clough (London:
+      Macmillan, 1898; first printed for Macmillan 1891). Project Gutenberg ebook #66689,
+      https://www.gutenberg.org/cache/epub/66689/pg66689.txt, extracted 2026-10-12 by
+      script; the transcriber's underscores marking italic type and the indentation are
+      removed. Clough died 1861. Selected: the checker rejects 2 of the 6 couplets in this
+      closing passage (4 and 5, for stress; see the CHANGELOG).
+    text: |-
+      Therefore farewell, ye hills, and ye, ye envineyarded ruins!
+      Therefore farewell, ye walls, palaces, pillars, and domes!
+      Therefore farewell, far seen, ye peaks of the mythic Albano,
+      Seen from Montorio’s height, Tibur and Æsula’s hills!
+    params: {}
+    satisfied: true

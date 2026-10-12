@@ -20,11 +20,13 @@ loader, so nothing could report it and nothing could stop it falling.
 from __future__ import annotations
 
 import collections
+import json
 import re
 from pathlib import Path
 
 from conftest import load_golden_cases
 from denckring import check
+from denckring.eval.harness import evidence_gaps, implemented_rows
 
 #: Matches a `rule="..."` or `rule='...'` literal, the shape every checker uses to
 #: construct a Violation. Scanning the source for these rather than copying them
@@ -49,8 +51,22 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: current answer fails on the change that is correct — adding a sourced case is
 #: exactly the improvement this file exists to encourage — so it asserts the
 #: number does not fall, not that it stays. Raised from 38 to 51 when ADR 0040's
-#: canonical corpus landed.
-EXTERNAL_FLOOR = 66
+#: canonical corpus landed, and from 66 to 85 when ADR 0062 added the per-row ratchet
+#: below: the floor had trailed the corpus by nineteen cases, so it could have fallen
+#: that far without a failure. Raised to 98 later on 2026-10-12, when the public-domain
+#: sourcing pass for the classical verse forms landed thirteen cases, and to 102 when four
+#: of Hilton's chronograms (1882) landed.
+EXTERNAL_FLOOR = 102
+
+#: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
+#: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
+#: places so the measured value itself passes; raised with the floor above, at 98 of 700
+#: (0.140), and at 102 of 704 (0.144).
+EXTERNAL_SHARE_FLOOR = 0.144
+
+#: Per-row external counts, a ratchet: a row may gain external cases, never lose one
+#: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.
+EXTERNAL_FLOOR_FILE = Path(__file__).parent / "data" / "external-floor.json"
 
 
 def test_every_case_says_where_it_came_from() -> None:
@@ -148,3 +164,51 @@ def test_a_stated_score_is_backed_by_a_min_score_floor() -> None:
         and case.min_score is None
     ]
     assert not unbacked, f"cases state a measured score with no min_score to guard it: {unbacked}"
+
+
+def _external_rows() -> set[str]:
+    return {c.procedure for c in load_golden_cases() if c.provenance == "external"}
+
+
+def test_every_implemented_row_is_evidenced_or_explained() -> None:
+    """ADR 0062: a row with no published text behind its reading says why, so the gap
+    is a recorded fact rather than an unnoticed one."""
+    gaps = evidence_gaps()
+    unexplained = sorted(implemented_rows() - _external_rows() - set(gaps))
+    assert not unexplained, f"rows with no external case and no gap entry: {unexplained}"
+
+
+def test_no_gap_entry_outlives_its_gap() -> None:
+    stale = sorted(set(evidence_gaps()) & _external_rows())
+    assert not stale, f"rows now externally evidenced; remove their gap entries: {stale}"
+
+
+def test_gap_entries_name_implemented_rows() -> None:
+    """An entry for a misspelt id, or for a catalogued row with no checker, explains a
+    gap nobody can have."""
+    unknown = sorted(set(evidence_gaps()) - implemented_rows())
+    assert not unknown, unknown
+
+
+def test_none_found_names_what_was_searched() -> None:
+    bare = [
+        row
+        for row, gap in evidence_gaps().items()
+        if gap.reason == "none_found" and not gap.note.strip()
+    ]
+    assert not bare, bare
+
+
+def test_no_row_loses_external_evidence() -> None:
+    floor: dict[str, int] = json.loads(EXTERNAL_FLOOR_FILE.read_text(encoding="utf-8"))
+    counts = collections.Counter(
+        c.procedure for c in load_golden_cases() if c.provenance == "external"
+    )
+    fell = {r: (counts[r], n) for r, n in floor.items() if counts[r] < n}
+    assert not fell, f"external cases fell (now, floor): {fell}"
+
+
+def test_the_external_share_does_not_fall() -> None:
+    cases = load_golden_cases()
+    share = sum(c.provenance == "external" for c in cases) / len(cases)
+    assert share >= EXTERNAL_SHARE_FLOOR, f"external share {share:.3f} < {EXTERNAL_SHARE_FLOOR}"

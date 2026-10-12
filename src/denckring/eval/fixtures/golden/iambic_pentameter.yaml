@@ -42,3 +42,22 @@ cases:
       die Katze schläft
     params: {}
     satisfied: false
+  - name: milton-paradise-lost-i-27-33
+    provenance: external
+    source: >-
+      John Milton, Paradise Lost (1667), Book I, lines 27-33, from The Poetical Works of
+      John Milton, ed. H. C. Beeching (Oxford; the file prints no year), which reprints
+      Paradise Lost from the edition of 1667 in its original spelling. Project Gutenberg
+      ebook #1745, https://www.gutenberg.org/cache/epub/1745/pg1745.txt, extracted
+      2026-10-12 by script; the editor's line number and the indentation are removed.
+      Milton died 1674, Beeching 1919.
+    text: |-
+      Say first, for Heav'n hides nothing from thy view
+      Nor the deep Tract of Hell, say first what cause
+      Mov'd our Grand Parents in that happy State,
+      Favour'd of Heav'n so highly, to fall off
+      From their Creator, and transgress his Will
+      For one restraint, Lords of the World besides?
+      Who first seduc'd them to that fowl revolt?
+    params: {}
+    satisfied: true

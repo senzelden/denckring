@@ -7,6 +7,7 @@ the candidate is built from *some* of them. Surplus letters are refused either w
 from __future__ import annotations
 
 from collections import Counter
+from typing import ClassVar
 
 from pydantic import Field
 
@@ -158,6 +159,13 @@ class Anagram(ConstructiveProcedure[AnagramParams, AnagramApplyParams]):
 
     id = "anagram"
     rules = ("empty_transposal", "missing_letter", "surplus_letter", "unchanged")
+    #: Promised: ADR 0060 D3. Every golden report carries it.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "letters": (
+            "How many letters the text has, counted as the source's "
+            "letters are (folded when fold_diacritics is set)."
+        )
+    }
 
     @classmethod
     def params_model(cls) -> type[AnagramParams]:

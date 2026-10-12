@@ -18,6 +18,8 @@ but not yet promised.
 
 ::: denckring.render_hint
 
+::: denckring.checker_history
+
 ::: denckring.rules
 
 ::: denckring.rule_categories
@@ -45,3 +47,7 @@ but not yet promised.
 ::: denckring.list_procedures
 
 ::: denckring.all_procedures
+
+::: denckring.unmet_requirements
+
+::: denckring.PARAMETER_ROLES

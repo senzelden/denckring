@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from pydantic import Field
 
 from denckring.core.base import BaseProcedure, DiacriticParams
+from denckring.core.counting import Counting
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -37,6 +40,23 @@ class Chronogram(BaseProcedure[ChronogramParams]):
 
     id = "chronogram"
     rules = ("too_short", "wrong_total")
+    #: Promised: ADR 0060 D3. Every golden report carries both.
+    promised_metrics: ClassVar[dict[str, str]] = {
+        "total": "The numeral letters' sum, every occurrence counted (Reading.counting).",
+        "numerals": "How many numeral letters were counted.",
+    }
+
+    #: Built from `VALUES` itself, so the published table cannot differ from the one
+    #: `_check` sums (ADR 0061 D4).
+    counting: ClassVar[Counting | None] = Counting(
+        values={letter.upper(): value for letter, value in VALUES.items()},
+        combine="sum",
+        subtractive=False,
+        every_occurrence=True,
+        case_sensitive=False,
+        folds="fold_diacritics",
+        skipped="every character that is not a letter: digits, punctuation, spaces",
+    )
 
     @classmethod
     def params_model(cls) -> type[ChronogramParams]:

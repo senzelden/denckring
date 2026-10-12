@@ -5,8 +5,10 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
+from denckring import describe
 from denckring.cli import app
 from denckring.core import catalogue
+from denckring.eval.harness import implemented_ids
 
 runner = CliRunner()
 
@@ -46,3 +48,18 @@ def test_export_writes_to_a_file_when_asked(tmp_path: Path) -> None:
 def test_unknown_format_is_rejected() -> None:
     result = runner.invoke(app, ["catalogue", "export", "--format", "xml"])
     assert result.exit_code == 2
+
+
+def test_json_export_rows_carry_their_corpus_share() -> None:
+    """ADR 0062: additive. An implemented row carries the same `corpus` as `describe`;
+    a catalogued row with no checker has no golden cases to count, and says so with
+    `null` rather than with zeros that would read as "counted, none found"."""
+    payload = json.loads(runner.invoke(app, ["catalogue", "export", "--format", "json"]).stdout)
+    implemented = set(implemented_ids())
+    for row in payload["procedures"]:
+        if row["id"] in implemented:
+            assert row["corpus"] == describe(row["id"]).corpus.model_dump(), row["id"]
+        else:
+            assert row["corpus"] is None, row["id"]
+    keys = set(next(r for r in payload["procedures"] if r["id"] == "acrostic")["corpus"])
+    assert keys == {"external_passing", "external_failing", "constructed", "self_generated", "gap"}

@@ -43,3 +43,37 @@ cases:
       Ostermond Garten
     params: {}
     satisfied: true
+  - name: swinburne-sapphics-stanza-1
+    provenance: external
+    source: >-
+      Algernon Charles Swinburne, "Sapphics", Poems and Ballads (first published 1866),
+      stanza 1, from the London: William Heinemann printing of 1917 (first printed by
+      Chatto, 1904). Project Gutenberg ebook #35402,
+      https://www.gutenberg.org/cache/epub/35402/pg35402.txt, extracted 2026-10-12 by
+      script, indentation removed. Swinburne died 1909. The poem's title names the form.
+      Selected: the checker rejects 6 of the poem's 20 stanzas (3, 4, 8, 10, 13 and 19),
+      each for a line read at the wrong number of syllables (see the CHANGELOG).
+    text: |-
+      All the night sleep came not upon my eyelids,
+      Shed not dew, nor shook nor unclosed a feather,
+      Yet with lips shut close and with eyes of iron
+      Stood and beheld me.
+    params: {}
+    satisfied: true
+  - name: swinburne-sapphics-stanza-2
+    provenance: external
+    source: >-
+      Algernon Charles Swinburne, "Sapphics", Poems and Ballads (first published 1866),
+      stanza 2, from the London: William Heinemann printing of 1917 (first printed by
+      Chatto, 1904). Project Gutenberg ebook #35402,
+      https://www.gutenberg.org/cache/epub/35402/pg35402.txt, extracted 2026-10-12 by
+      script, indentation removed. Swinburne died 1909. Selected: the checker rejects 6 of
+      the poem's 20 stanzas (3, 4, 8, 10, 13 and 19), each for a line read at the wrong
+      number of syllables (see the CHANGELOG).
+    text: |-
+      Then to me so lying awake a vision
+      Came without sleep over the seas and touched me,
+      Softly touched mine eyelids and lips; and I too,
+      Full of the vision,
+    params: {}
+    satisfied: true

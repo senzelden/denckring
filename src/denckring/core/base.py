@@ -15,6 +15,7 @@ from typing import Any, ClassVar, Generic, TypeVar, cast
 from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
+from denckring.core.counting import Counting
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.fields import param, roles
 from denckring.core.prosody import UnknownRhyme
@@ -210,6 +211,31 @@ class ApplyParams(BaseModel):
     )
 
 
+def delegate_versions(delegates: Iterable[str]) -> dict[str, int]:
+    """Each row in `delegates`, and each reachable from them through `composes`, with
+    its `checker_version`.
+
+    Transitive, because a delegate may itself delegate: a `multiple_constraint` entry
+    naming `telestich` is decided by `acrostic`, whose bump moves the verdict while
+    neither the composite's version nor `telestich`'s does. One level would drop exactly
+    the row that changed (ADR 0061). `multiple_constraint` refuses itself as an entry,
+    so the dynamic delegates sit only at the top and the static `composes` is enough
+    below it.
+    """
+    from denckring.core.registry import get
+
+    versions: dict[str, int] = {}
+    pending = list(delegates)
+    while pending:
+        current = pending.pop()
+        if current in versions:
+            continue
+        row = get(current)
+        versions[current] = row.checker_version
+        pending.extend(row.composes)
+    return versions
+
+
 class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
@@ -228,6 +254,10 @@ class BaseProcedure(ABC, Generic[P]):
     #: `multiple_constraint`. Its `rules` is empty and `denckring.rules` answers
     #: with every other row's vocabulary, since any of them can be composed.
     delegates_rules: ClassVar[bool] = False
+    #: `metrics` keys this row promises, key to meaning (ADR 0060 D3). Every golden
+    #: report must carry each as a float: `tests/test_published_surface.py`. Keys not
+    #: named here stay unstable and may move (README, "What is stable"). Empty by default.
+    promised_metrics: ClassVar[dict[str, str]] = {}
     #: Set on a row whose capabilities are named by its parameters rather than by
     #: `meta.requires`: `multiple_constraint`, whose entries may name any row. Its
     #: `meta.requires` covers only its own logic, so `describe` cannot read its
@@ -242,6 +272,19 @@ class BaseProcedure(ABC, Generic[P]):
     #: default, claims nothing; `tests/test_scope.py` holds every other claim to
     #: the checker on texts built from units.
     local_scope: ClassVar[Scope] = "text"
+    #: The version of this row's checker, bumped whenever a change can move
+    #: `satisfied`, `score` or the set of violation rules on some text, and recorded in
+    #: `eval/checker-history.yaml` (ADR 0061). The package version is too coarse to say
+    #: which rows a release touched; `Report.provenance.checkers` stamps this per call.
+    checker_version: ClassVar[int] = 1
+    #: Ids of other rows whose checkers this row always runs or inherits, so that its
+    #: report can name them in `provenance.checkers` (ADR 0061): its own version does
+    #: not move when theirs does. `tests/test_checker_version.py` scans the procedure
+    #: modules for such calls and subclassing and fails a row that omits one.
+    composes: ClassVar[tuple[str, ...]] = ()
+    #: How a row that totals letter values counts them, published as
+    #: `Description.reading.counting` (ADR 0061 D4); `None` for a row that counts none.
+    counting: ClassVar[Counting | None] = None
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)
@@ -299,6 +342,22 @@ class BaseProcedure(ABC, Generic[P]):
             if role == "inferred" and getattr(params, name) is None
         ]
 
+    def _composed_ids(self, parsed: P) -> tuple[str, ...]:
+        """Ids of the rows this one delegates to directly for this verdict.
+
+        `_checkers` closes them over `composes`, so a delegate's own delegates are
+        named without being listed here.
+
+        The static `composes` by default. `multiple_constraint` overrides it, because
+        which rows it runs depends on the call's parameters. Either way a delegating
+        row's own `checker_version` does not move when a delegate's does, so its report
+        must name them (ADR 0061).
+        """
+        return self.composes
+
+    def _checkers(self, parsed: Any) -> dict[str, int]:
+        return {self.id: self.checker_version} | delegate_versions(self._composed_ids(parsed))
+
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""
         from denckring.lang import get_pack
@@ -314,7 +373,9 @@ class BaseProcedure(ABC, Generic[P]):
         # and once rather than in each of the procedures that build a `Report`
         # themselves. `model_copy` because a procedure may return a report it
         # cached or shares, and provenance is about this call.
-        return report.model_copy(update={"provenance": provenance(pack, lang, parsed)})
+        return report.model_copy(
+            update={"provenance": provenance(pack, lang, parsed, self._checkers(parsed))}
+        )
 
     def _report(
         self,
@@ -513,7 +574,7 @@ class ConstructiveProcedure(BaseProcedure[P], Generic[P, A]):
             metrics={"found": float(len(found))},
             # `parsed` is where the seed is, which is the whole reason a
             # `Production` needs this: without it a draw cannot be repeated.
-            provenance=provenance(pack, lang, parsed),
+            provenance=provenance(pack, lang, parsed, self._checkers(parsed)),
         )
 
     def apply(self, text: str, *, lang: Lang = "en", **params: Any) -> str:

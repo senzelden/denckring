@@ -38,6 +38,7 @@ $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
 158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable
 0 instruments catalogued
+63 rows externally evidenced · 70 explained · 0 unexplained
 ```
 
 Three interfaces over the same core functions, so they cannot disagree about what a
@@ -73,6 +74,19 @@ A hundred and thirty-three of the 158 catalogued procedures are implemented, and
 one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see [What can be checked](#what-can-be-checked) —
 and all 133 implementable procedures are implemented.
+
+Validated means a row agrees with its golden examples, and most of those were written
+for the suite, so they show the code does what its author meant, not that the author
+read the form right. Only an example quoted from a published text is evidence of that.
+Golden cases added from 2026-10-12 quote public-domain text only and record the URL
+they were extracted from (ADR 0062); some earlier external cases predate that policy.
+Every implemented row either has an external case or records why not: the form
+postdates the public-domain cutoff, its exemplars are in copyright or in a language no
+pack covers, or none has been found yet, with what was searched or that no search has
+been made. `describe(pid).corpus` gives a row's split, as a `CorpusShare` counting its
+examples by provenance and recorded verdict beside that reason; `denckring catalogue
+export` carries it per row as `corpus`, and `denckring status` totals it on its third
+line.
 
 The [**gallery**](https://senzelden.github.io/denckring/gallery/) has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
@@ -197,14 +211,36 @@ are built on them:
   `multiple_constraint`, which replaced `univocalic_lipogram_pair`, is the precedent.
 - **The names `denckring` exports**, imported from `denckring` itself. `check`, `apply`,
   `produce`, `describe`, `get`, `list_procedures`, `summaries`, `all_procedures` and
-  `rules` keep their signatures and meaning; a new parameter arrives as a keyword whose
-  default keeps today's answer. `Report`, `Violation`, `Evidence`, `Production`,
-  `Description`, `Summary`, `Scholarly`, `Meta` and `Lang` keep the type and meaning of
-  every field they have,
+  `rules` keep their signatures and meaning, as do `checker_history` and `CheckerChange`
+  (ADR 0061); a new parameter arrives as a keyword whose default keeps today's answer.
+  `Report`, `Violation`, `Evidence`, `Production`, `Description`, `Summary`,
+  `Scholarly`, `Meta` and `Lang` keep the type and meaning of every field they have,
   except the fields listed below as not yet promised. `DenckringError` and every
   subclass keep their names, their place under `DenckringError` and their `code`. The
-  same objects reached through `denckring.core` are not covered: the path is part of
-  the promise. The rest of `__all__` is published but not yet promised, as listed below.
+  same objects reached through `denckring.core` are not covered: the path is part of the
+  promise. The rest of `__all__` is published but not yet promised, as listed below.
+  Also promised, because the sibling `denckring-bench` reads them (ADR 0060):
+  `golden_cases` and `GoldenCase`, the shipped examples with the verdict each must give;
+  `unmet_requirements`, which says, given a case and a pack, why the case cannot run
+  (the capabilities it needs that the pack lacks, or `[]`); `pack_provenance` and
+  `PackProvenance`, the record `Report.provenance.pack` carries, whose `digests` (from
+  `pack_provenance`, empty on a `Report`) hold a lower-case hex SHA-256 per surface,
+  changing exactly when that surface's content does, so a snapshot keys on them rather
+  than on distribution versions, which move with every release. `graded_words` is
+  `sha256(json.dumps(sorted(pack.graded_words().items()), ensure_ascii=False,
+  separators=(",", ":")).encode("utf-8"))`; `nouns` is the same over
+  `sorted(pack.nouns())`; `files` hashes `name\0path\0bytes\0` for each file under each
+  data distribution's import package directory (sorted, paths relative to it, bytecode
+  excluded, nothing from `*.dist-info`), so the release version does not move it and a
+  wheel and an editable install of the same data agree. A surface the pack lacks omits
+  its key; `Description.reading`, including `reading.units`, `reading.word_examples`,
+  `reading.vowels`, `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a
+  row that totals no letter values; ADR 0061 D4); `Description.corpus`, a `CorpusShare`
+  (ADR 0062) whose counts move as golden cases land and whose `gap` is `None` or one of
+  `in_copyright`, `after_cutoff`, `unsupported_language` and `none_found`, each keeping
+  its meaning; and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
+  parameter schema carries and what it means. Roles may be added; none is removed or
+  renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
   `evidence`, `provenance`, `estimated` — and the `--json` output of `check`, `show` and
   `describe` that carries it. Fields may be added; the ones already there do not change
@@ -220,14 +256,15 @@ are built on them:
   row's `denckring.rules` in the same sorted order, which `describe --json`, `show --json`
   and the MCP server's `describe_procedure` carry too. `provenance`
   carries its own `schema_version`, which moves when the *shape* of these objects does
-  and not when the package is released: `1.2` since `Evidence.basis` gained `ambiguous`
-  (1.1 added `estimated`).
+  and not when the package is released: `1.3` since `provenance.checkers` (1.2 added the
+  `ambiguous` value of `Evidence.basis`; 1.1 added `estimated`).
 - **`Production` as JSON** — `procedure`, `candidates`, `texts`, `truncated`, `metrics`,
   `provenance` — and the `--json` output of `apply`. Covered by the same promise in the
   same words. Both `candidates` and `texts` are ordered, best first, because `apply`
   returns `texts[0]`.
 - **The catalogue export schema** (`denckring catalogue export`), including the `licence`
-  and `attribution` keys the CC BY terms are carried by.
+  and `attribution` keys the CC BY terms are carried by, and each row's `corpus`: the
+  row's `CorpusShare`, or `null` on a row with no checker (ADR 0062).
 - **The language-pack surface**: `denckring.get_pack` (also `denckring.lang.get_pack`)
   and the `LanguagePack` protocol it returns, with the `PosTag` its `pos_tags` answers,
   all importable from `denckring`. A method on the protocol keeps its signature and
@@ -243,25 +280,37 @@ are built on them:
   `denckring.rules(procedure_id)` keeps its name and meaning, so a caller can map
   rules to its own classes once. A row may add rules. Removing or renaming one is a
   breaking change, and the changelog names it.
+- **Checker versions** (ADR 0061). Each row has a `checker_version`, an integer in
+  `describe().checker_version`, bumped whenever a change can move `satisfied`, `score`
+  or the set of violation rules on some text; evidence and message wording do not bump
+  it. `report.provenance.checkers` maps the row, and every row it delegates to (each
+  entry of a `multiple_constraint` call, and whatever those entries delegate to in
+  turn), to the version that decided the verdict. `denckring.checker_history`
+  (returning `CheckerChange` entries `{version, since, reason}`) says what each version
+  changed and in which release. A caller compares results across releases per row by
+  comparing these. Versions only rise, and every row's history begins at 1 in 0.5.0.
+- **Promised metrics** (ADR 0060). A row may name `metrics` keys in
+  `describe().metrics`, key to meaning; each is a float in every report of that row,
+  and removing or renaming one is a breaking change.
+- **Parameter defaults.** A parameter's default, as the schema `default` in
+  `describe().params`, is part of the promise. Changing one moves verdicts for callers
+  who left it unset, so it is **Breaking:**.
 
-Not stable, and expected to move: `metrics` keys, message wording, the wording of prompt
-hints, and everything under `denckring.core`. A check's *verdict* and the rule it names
-for a failure are contracts; the wording that explains the failure is not.
+Not stable, and expected to move: `metrics` keys a row does not promise, message
+wording, the wording of prompt hints, and everything under `denckring.core`. A check's
+*verdict* and the rule it names for a failure are contracts; the wording that explains
+the failure is not.
 
 **Published, not yet promised.** These are exported and documented, so nothing has to
 reach into `denckring.core` for them, but they may still change in a minor release, with
-a changelog line when they do. All but `Description.reading` are new in 0.3.2:
+a changelog line when they do. All are new in 0.3.2:
 
 - `rule_categories` and `failure_categories`: the kind of failure each rule names;
 - the catalogue flags `Meta.unique_answer` and `Meta.hidden_material`, which
   `Description` carries too, and `Meta.hint_omits`;
 - `prompt_hint` and `render_hint`, which render the catalogue's hint templates;
-- `golden_cases` and `GoldenCase`;
 - `scope`, `scopes`, `admits` and `witness`;
-- `words` and `nouns`;
-- `pack_provenance` and `PackProvenance`, the record `Report.provenance.pack` carries;
-- `Description.reading`, including its new `reading.units`, `reading.word_examples`
-  and `reading.vowels`, and `reading.rhyme`, new in 0.4.0.
+- `words` and `nouns`.
 
 ## The catalogue as data
 

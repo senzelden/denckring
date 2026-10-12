@@ -226,6 +226,12 @@ class MultipleConstraint(BaseProcedure[MultipleConstraintParams]):
                 scopes.append(delegate.scope(delegate.parse_params(entry.params)))
         return coarsest(scopes)
 
+    def _composed_ids(self, parsed: MultipleConstraintParams) -> tuple[str, ...]:
+        # Dynamic, unlike the static `composes` of the fixed delegators. Sorted so the
+        # stamped dict is stable. `check` has already refused unknown ids and
+        # self-reference, so `get` cannot raise here (ADR 0061).
+        return tuple(sorted({entry.id for entry in parsed.constraints}))
+
     def _check(self, text: str, pack: LanguagePack, params: MultipleConstraintParams) -> Report:
         violations: list[Violation] = []
         metrics: dict[str, float] = {"constraints": float(len(params.constraints))}

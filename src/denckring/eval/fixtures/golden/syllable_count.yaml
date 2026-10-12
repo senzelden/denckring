@@ -47,3 +47,37 @@ cases:
       la pluie tombe
     params: { pattern: [2, 3] }
     satisfied: false
+  - name: crapsey-triad
+    provenance: external
+    source: >-
+      Adelaide Crapsey, "Triad", Verse (first published 1915), from the New York: Alfred
+      A. Knopf printing of 1926 (copyright 1915, 1922). Project Gutenberg ebook #63010,
+      https://www.gutenberg.org/cache/epub/63010/pg63010.txt, extracted 2026-10-12 by
+      script. Crapsey died 1914. The edition prints it under "Cinquains", the form Crapsey
+      originated according to Jean Webster's note in the edition's preface (reprinted from
+      the Vassar Miscellany, March 1915; the foreword is Claude Bragdon's); the note
+      states no syllable counts, and the pattern is the 2-4-6-8-2 count these lines carry.
+    text: |-
+      These be
+      Three silent things:
+      The falling snow . . . the hour
+      Before the dawn . . . the mouth of one
+      Just dead.
+    params: { pattern: [2, 4, 6, 8, 2] }
+    satisfied: true
+  - name: crapsey-moon-shadows
+    provenance: external
+    source: >-
+      Adelaide Crapsey, "Moon-Shadows", Verse (first published 1915), from the New York:
+      Alfred A. Knopf printing of 1926 (copyright 1915, 1922). Project Gutenberg ebook
+      #63010, https://www.gutenberg.org/cache/epub/63010/pg63010.txt, extracted 2026-10-12
+      by script. Crapsey died 1914. Printed under "Cinquains"; the pattern is the
+      2-4-6-8-2 count these lines carry.
+    text: |-
+      Still as
+      On windless nights
+      The moon-cast shadows are,
+      So still will be my heart when I
+      Am dead.
+    params: { pattern: [2, 4, 6, 8, 2] }
+    satisfied: true
