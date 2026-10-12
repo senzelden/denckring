@@ -37,8 +37,8 @@ class PangrammaticWindow(BaseProcedure[PangrammaticWindowParams]):
     #: Promised: ADR 0060 D3. Every golden report carries it.
     promised_metrics: ClassVar[dict[str, str]] = {
         "letters": (
-            "How many letters of the language's alphabet the text has, "
-            "counted by letter_spans; other letters excluded."
+            "How many letters of the language's alphabet the text has, case "
+            "ignored and folded when fold_diacritics is set; other letters excluded."
         )
     }
 

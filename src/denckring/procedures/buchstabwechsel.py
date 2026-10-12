@@ -105,8 +105,8 @@ class Buchstabwechsel(BaseProcedure[BuchstabwechselParams]):
     #: Promised: ADR 0060 D3. Every golden report carries it.
     promised_metrics: ClassVar[dict[str, str]] = {
         "letters": (
-            "How many letters the text has once the letter h is set "
-            "aside, as it is in the source; folded when fold_diacritics is set."
+            "How many letters the text has, not counting h, which the rule "
+            "sets aside in both texts; folded when fold_diacritics is set."
         )
     }
 
