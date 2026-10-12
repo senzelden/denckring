@@ -53,13 +53,15 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: number does not fall, not that it stays. Raised from 38 to 51 when ADR 0040's
 #: canonical corpus landed, and from 66 to 85 when ADR 0062 added the per-row ratchet
 #: below: the floor had trailed the corpus by nineteen cases, so it could have fallen
-#: that far without a failure.
-EXTERNAL_FLOOR = 85
+#: that far without a failure. Raised to 98 later on 2026-10-12, when the public-domain
+#: sourcing pass for the classical verse forms landed thirteen cases.
+EXTERNAL_FLOOR = 98
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
-#: places so the measured value itself passes.
-EXTERNAL_SHARE_FLOOR = 0.123
+#: places so the measured value itself passes; raised with the floor above, at 98 of 700
+#: (0.140).
+EXTERNAL_SHARE_FLOOR = 0.14
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.

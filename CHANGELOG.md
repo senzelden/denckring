@@ -56,6 +56,18 @@ All notable changes to this project are documented here. The format follows
   `--json` carries the counts as `coverage.evidence`. The external-case floor rises from
   66 to 85, joined by a share floor (0.123) and a per-row ratchet,
   `tests/data/external-floor.json`.
+- **Thirteen external cases for seven verse rows, all public domain** (ADR 0062). Each
+  is extracted by script from the Project Gutenberg file its `source` names, with the
+  publication and death years that place it inside the cutoff: Swinburne's "Sapphics"
+  (two stanzas), Clough's Amours de Voyage (two elegiac passages), Pope's Essay on
+  Criticism (two couplets), Paradise Lost I.27-33, Don Juan I (two stanzas), Crapsey's
+  "Triad" and "Moon-Shadows" for `syllable_count`, Gosse's "Sestina", and Kipling's
+  "Sestina of the Tramp-Royal", which is rejected for ending two lines on "along" where
+  the rotation calls for "long". `sapphic_stanza`, `elegiac_couplet`, `heroic_couplet`,
+  `iambic_pentameter`, `ottava_rima`, `syllable_count` and `sestina` leave the gap
+  registry: `status` now prints `63 rows externally evidenced · 70 explained · 0
+  unexplained`, and the floors rise to 98 external cases and a 0.14 share. No verdict
+  moves.
 
 ## [0.4.0] - 2026-10-05
 
