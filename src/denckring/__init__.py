@@ -59,10 +59,15 @@ from denckring.eval.history import load as _history_load
 from denckring.lang import get_pack
 from denckring.lang.base import WordOrder, graded_view
 
-#: Each `x-denckring-role` value a parameter schema can carry, and what it tells a
-#: caller writing a prompt. Read-only: a role may be added, never removed or renamed
-#: without a **Breaking:** changelog entry (ADR 0060).
+# Documented by the string below rather than a `#:` comment: the API reference reads
+# attribute docstrings, and a comment left this promised name's page blank.
 PARAMETER_ROLES: Mapping[str, str] = MappingProxyType(_ROLES)
+"""Each `x-denckring-role` value a parameter schema can carry, and what it tells a
+caller writing a prompt.
+
+Read-only: a role may be added, never removed or renamed without a **Breaking:**
+changelog entry (ADR 0060).
+"""
 
 try:
     __version__ = version("denckring")

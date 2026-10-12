@@ -45,14 +45,20 @@ the date is the reference's, not the form's. Such a row is `none_found`, not
 `after_cutoff`, unless its `source` names a dated origin as well: `multiple_constraint`
 cites only the 1981 *Atlas*, yet the corpus's own Bombaugh univocalic (1867) satisfies a
 composition in its golden file. `s_plus_7` is the one `reference` row kept
-`after_cutoff`, because its source names Lescure, 1961. The first registry holds 21
-`after_cutoff` and 56 `none_found` entries. Guards in
-`tests/test_corpus_provenance.py` hold that every
-implemented row is evidenced or listed, no row is both, every entry names an implemented
-row, and no `none_found` note is empty.
+`after_cutoff`, because its source names Lescure, 1961. The registry was introduced with
+21 `after_cutoff` and 56 `none_found` entries. The public-domain sourcing pass for the
+classical verse forms evidenced seven of them the same day (`elegiac_couplet`,
+`heroic_couplet`, `iambic_pentameter`, `ottava_rima`, `sapphic_stanza`, `sestina`,
+`syllable_count`), leaving 70: 21 `after_cutoff` and 49 `none_found`. Guards in
+`tests/test_corpus_provenance.py` hold that every implemented row is evidenced or listed,
+no row is both, every entry names an implemented row, and no `none_found` note is
+empty.
 
-**Two floors.** `EXTERNAL_FLOOR` rises to 85, and `EXTERNAL_SHARE_FLOOR` (0.123, the
-measured share rounded down) stops constructed cases outpacing external ones unnoticed.
+**Two floors.** `EXTERNAL_FLOOR` rises to the measured 85, and `EXTERNAL_SHARE_FLOOR`
+(0.123, the measured share rounded down) stops constructed cases outpacing external ones
+unnoticed. Both were raised to the measured value again as public-domain cases landed,
+to 102 and 0.144 on 2026-10-12; the comments beside them in
+`tests/test_corpus_provenance.py` record each step.
 `tests/data/external-floor.json` holds each row's external count as a ratchet: a row may
 gain cases and never lose one.
 
@@ -110,13 +116,15 @@ stale the same way, and this ADR is the one place to correct them.
 A real poem of another form does not count, so a row whose only plausible negatives are
 real poems stays without an external near-miss.
 
-The 56 `none_found` entries mean three different things, and only the note tells them
+The 49 `none_found` entries mean four different things, and only the note tells them
 apart:
-- 35 record pending work: the batch 4 brief, or the public-domain sourcing pass for the
-  classical verse forms. Six of those also record a search that failed in batch 3
-  (`assonance_constraint`, `boustrophedon`, `double_acrostic`, `paragram`,
-  `serial_lipogram`, `telestich`). Three record a batch-3 find that was too incomplete to
-  land (`denckring`, `wechselsatz`, `sestina`).
+- 25 record pending work: the batch 4 brief. Six of those also record a search that
+  failed in batch 3 (`assonance_constraint`, `boustrophedon`, `double_acrostic`,
+  `paragram`, `serial_lipogram`, `telestich`). Two record a batch-3 find that was too
+  incomplete to land (`denckring`, `wechselsatz`).
+- 3 record checker findings pending a maintainer ruling (`alcaic_stanza`, `ballade`,
+  `petrarchan_sonnet`): the checker rejected every candidate the public-domain
+  sourcing pass found, and each note records why.
 - 3 record a search that failed, with nothing pending (`haibun`, `ideenwuerfeln`,
   `pasigraphy`).
 - 18 record that no search has been made and none is scheduled: the 16 Oulipo rows

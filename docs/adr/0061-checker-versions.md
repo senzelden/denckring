@@ -87,8 +87,8 @@ A composite's own version does not move when an entry's does, because the compos
 code did not change. That is why `checkers` lists every row, rather than leaving a
 caller to infer it from the composite's version.
 
-The snapshot is 1,098 probes in a file of about 4,700 lines, and every bump or new
-golden case rewrites part of it. The probes are the golden cases' own texts and
+The snapshot held 1,098 probes in a file of about 4,700 lines when it was introduced, and
+it grows with the corpus; every bump or new golden case rewrites part of it. The probes are the golden cases' own texts and
 parameters, so a row with one parameter set is probed at that set alone.
 
 Probes come from the cases this install can run. On an install missing a data pack, a

@@ -212,37 +212,35 @@ are built on them:
 - **The names `denckring` exports**, imported from `denckring` itself. `check`, `apply`,
   `produce`, `describe`, `get`, `list_procedures`, `summaries`, `all_procedures` and
   `rules` keep their signatures and meaning, as do `checker_history` and `CheckerChange`
-  (ADR 0061); a new parameter arrives as a keyword whose
-  default keeps today's answer. `Report`, `Violation`, `Evidence`, `Production`,
-  `Description`, `Summary`, `Scholarly`, `Meta` and `Lang` keep the type and meaning of
-  every field they have,
+  (ADR 0061); a new parameter arrives as a keyword whose default keeps today's answer.
+  `Report`, `Violation`, `Evidence`, `Production`, `Description`, `Summary`,
+  `Scholarly`, `Meta` and `Lang` keep the type and meaning of every field they have,
   except the fields listed below as not yet promised. `DenckringError` and every
   subclass keep their names, their place under `DenckringError` and their `code`. The
-  same objects reached through `denckring.core` are not covered: the path is part of
-  the promise. The rest of `__all__` is published but not yet promised, as listed below.
+  same objects reached through `denckring.core` are not covered: the path is part of the
+  promise. The rest of `__all__` is published but not yet promised, as listed below.
   Also promised, because the sibling `denckring-bench` reads them (ADR 0060):
   `golden_cases` and `GoldenCase`, the shipped examples with the verdict each must give;
-  `unmet_requirements`, which says, given a case and a pack, why the case cannot run (the
-  capabilities it needs that the pack lacks, or `[]`); `pack_provenance` and
+  `unmet_requirements`, which says, given a case and a pack, why the case cannot run
+  (the capabilities it needs that the pack lacks, or `[]`); `pack_provenance` and
   `PackProvenance`, the record `Report.provenance.pack` carries, whose `digests` (from
   `pack_provenance`, empty on a `Report`) hold a lower-case hex SHA-256 per surface,
   changing exactly when that surface's content does, so a snapshot keys on them rather
   than on distribution versions, which move with every release. `graded_words` is
   `sha256(json.dumps(sorted(pack.graded_words().items()), ensure_ascii=False,
-  separators=(",", ":")).encode("utf-8"))`; `nouns` is the same over `sorted(pack.nouns())`;
-  `files` hashes `name\0path\0bytes\0` for each file under each data distribution's
-  import package directory (sorted, paths relative to it, bytecode excluded, nothing from
-  `*.dist-info`), so the release version does not move it and a wheel and an editable
-  install of the same data agree. A surface the
-  pack lacks omits its key; `Description.reading`,
-  including `reading.units`, `reading.word_examples`, `reading.vowels`,
-  `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a row that totals
-  no letter values; ADR 0061 D4); `Description.corpus`, a `CorpusShare` (ADR 0062)
-  whose counts move as golden cases land and whose `gap` is `None` or one of
+  separators=(",", ":")).encode("utf-8"))`; `nouns` is the same over
+  `sorted(pack.nouns())`; `files` hashes `name\0path\0bytes\0` for each file under each
+  data distribution's import package directory (sorted, paths relative to it, bytecode
+  excluded, nothing from `*.dist-info`), so the release version does not move it and a
+  wheel and an editable install of the same data agree. A surface the pack lacks omits
+  its key; `Description.reading`, including `reading.units`, `reading.word_examples`,
+  `reading.vowels`, `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a
+  row that totals no letter values; ADR 0061 D4); `Description.corpus`, a `CorpusShare`
+  (ADR 0062) whose counts move as golden cases land and whose `gap` is `None` or one of
   `in_copyright`, `after_cutoff`, `unsupported_language` and `none_found`, each keeping
-  its meaning; and `PARAMETER_ROLES`, which names each
-  `x-denckring-role` value a parameter schema carries and what it means. Roles may be
-  added; none is removed or renamed without a **Breaking:** entry in the changelog.
+  its meaning; and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
+  parameter schema carries and what it means. Roles may be added; none is removed or
+  renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
   `evidence`, `provenance`, `estimated` — and the `--json` output of `check`, `show` and
   `describe` that carries it. Fields may be added; the ones already there do not change
@@ -298,9 +296,10 @@ are built on them:
   `describe().params`, is part of the promise. Changing one moves verdicts for callers
   who left it unset, so it is **Breaking:**.
 
-Not stable, and expected to move: `metrics` keys a row does not promise, message wording, the wording of prompt
-hints, and everything under `denckring.core`. A check's *verdict* and the rule it names
-for a failure are contracts; the wording that explains the failure is not.
+Not stable, and expected to move: `metrics` keys a row does not promise, message
+wording, the wording of prompt hints, and everything under `denckring.core`. A check's
+*verdict* and the rule it names for a failure are contracts; the wording that explains
+the failure is not.
 
 **Published, not yet promised.** These are exported and documented, so nothing has to
 reach into `denckring.core` for them, but they may still change in a minor release, with
