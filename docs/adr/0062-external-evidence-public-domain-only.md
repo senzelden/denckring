@@ -9,7 +9,7 @@ golden case quoted from a published text is evidence about the reading. On 2026-
 had none at all; `denckring-bench` scores 127 rows, and 86 of those had none.
 
 Nothing recorded which of the 77 were work not yet done and which could never be done.
-`n_plus_7`, which the catalogue traces to Lescure in 1961, cannot have a public-domain
+`s_plus_7`, which the catalogue traces to Lescure in 1961, cannot have a public-domain
 exemplar; a sapphic stanza has hundreds. The
 corpus floor (`EXTERNAL_FLOOR`, 66) trailed the corpus by nineteen cases, it counted the
 whole corpus only, and nothing stopped a row losing its one external case while another
@@ -46,7 +46,8 @@ the date is the reference's, not the form's. Such a row is `none_found`, not
 cites only the 1981 *Atlas*, yet the corpus's own Bombaugh univocalic (1867) satisfies a
 composition in its golden file. `s_plus_7` is the one `reference` row kept
 `after_cutoff`, because its source names Lescure, 1961. The first registry holds 21
-`after_cutoff` and 56 `none_found` entries. Guards in `tests/test_corpus_provenance.py` hold that every
+`after_cutoff` and 56 `none_found` entries. Guards in
+`tests/test_corpus_provenance.py` hold that every
 implemented row is evidenced or listed, no row is both, every entry names an implemented
 row, and no `none_found` note is empty.
 
@@ -109,7 +110,7 @@ stale the same way, and this ADR is the one place to correct them.
 A real poem of another form does not count, so a row whose only plausible negatives are
 real poems stays without an external near-miss.
 
-The 56 `none_found` entries mean four different things, and only the note tells them
+The 56 `none_found` entries mean three different things, and only the note tells them
 apart:
 - 35 record pending work: the batch 4 brief, or the public-domain sourcing pass for the
   classical verse forms. Six of those also record a search that failed in batch 3
