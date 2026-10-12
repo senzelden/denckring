@@ -22,6 +22,14 @@ For most rows that is the row itself. A `multiple_constraint` call also names ea
 composes, once, however many times an entry repeats it. `Provenance.schema_version` is
 `1.3`. A `Production` carries the same field for its generator's row.
 
+**Delegation is declared, not inferred.** A row that runs another row's checker, or
+subclasses it, lists it in `BaseProcedure.composes` (`sestina` runs `quenina`;
+`lipogrammatic_translation` and `univocalic_translation` take their verdict from
+`lipogram` and `univocalic`; `telestich` inherits `acrostic`). `multiple_constraint`
+overrides `_composed_ids` instead, since its delegates depend on the call. A guard scans
+the procedure modules for `get("<id>")`, an instantiated row class that is `check`ed, and
+registered base classes, and fails a row that omits one.
+
 **B2: a shipped history.** `eval/checker-history.yaml` lists, per row and oldest first,
 `{version, since, reason}`, `since` being the release the change ships in.
 `denckring.checker_history(procedure_id)` returns it as `CheckerChange` entries and
@@ -35,6 +43,12 @@ a bump.
 
 Every verdict-moving change now needs a bump, a history line and a snapshot refresh. That
 is the point and the cost: a fix that moves one score on one text is a three-file change.
+
+Helpers shared as plain functions (`form_report`, `pattern_result`, `letter_counts` and
+the like) are not rows and are not named: a change to one moves every row that calls it,
+and the guard cannot see which. Only a row that defers to another row is declared. The
+scan is syntactic, so a delegation through a variable or a helper in `core/` would pass
+it unnoticed.
 
 A composite's own version does not move when an entry's does, because the composite's
 code did not change. That is why `checkers` lists every row, rather than leaving a

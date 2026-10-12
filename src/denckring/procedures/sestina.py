@@ -23,6 +23,9 @@ class Sestina(BaseProcedure[SestinaParams]):
     id = "sestina"
     rules = ("missing_line", "wrong_end_word")
 
+    # Runs `Quenina._check` directly, so the report must name it.
+    composes = ("quenina",)
+
     @classmethod
     def params_model(cls) -> type[SestinaParams]:
         return SestinaParams

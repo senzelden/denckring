@@ -50,6 +50,8 @@ class LipogrammaticTranslation(BaseProcedure[LipogrammaticTranslationParams]):
         )
     }
 
+    composes = ("lipogram",)
+
     @classmethod
     def params_model(cls) -> type[LipogrammaticTranslationParams]:
         return LipogrammaticTranslationParams

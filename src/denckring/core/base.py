@@ -251,6 +251,11 @@ class BaseProcedure(ABC, Generic[P]):
     #: `eval/checker-history.yaml` (ADR 0061). The package version is too coarse to say
     #: which rows a release touched; `Report.provenance.checkers` stamps this per call.
     checker_version: ClassVar[int] = 1
+    #: Ids of other rows whose checkers this row always runs or inherits, so that its
+    #: report can name them in `provenance.checkers` (ADR 0061): its own version does
+    #: not move when theirs does. `tests/test_checker_version.py` scans the procedure
+    #: modules for such calls and subclassing and fails a row that omits one.
+    composes: ClassVar[tuple[str, ...]] = ()
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)
@@ -311,10 +316,12 @@ class BaseProcedure(ABC, Generic[P]):
     def _composed_ids(self, parsed: P) -> tuple[str, ...]:
         """Ids of other rows whose checkers decided part of this verdict.
 
-        Empty except for `multiple_constraint`: a composite's own `checker_version` does
-        not move when an entry's does, so its report must name them (ADR 0061).
+        The static `composes` by default. `multiple_constraint` overrides it, because
+        which rows it runs depends on the call's parameters. Either way a delegating
+        row's own `checker_version` does not move when a delegate's does, so its report
+        must name them (ADR 0061).
         """
-        return ()
+        return self.composes
 
     def _checkers(self, parsed: Any) -> dict[str, int]:
         from denckring.core.registry import get

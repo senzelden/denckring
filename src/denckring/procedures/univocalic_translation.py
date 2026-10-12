@@ -38,6 +38,7 @@ class UnivocalicTranslation(BaseProcedure[UnivocalicTranslationParams]):
 
     id = "univocalic_translation"
     rules = ("foreign_vowel", "unchanged")
+    composes = ("univocalic",)
 
     @classmethod
     def params_model(cls) -> type[UnivocalicTranslationParams]:
