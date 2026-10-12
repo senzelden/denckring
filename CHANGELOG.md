@@ -35,8 +35,9 @@ All notable changes to this project are documented here. The format follows
 - **A verdict fingerprint holds every move to a bump** (ADR 0061 B3).
   `tests/test_verdict_fingerprints.py` checks each row's golden texts against each
   parameter set its golden cases use (1,098 probes when it was introduced) and fails an
-  outcome that moved while the probe's `provenance.checkers` did not. `uv run python -m denckring.eval.fingerprint
-  --write` refreshes the snapshot and refuses while such a move stands.
+  outcome that moved while the probe's `provenance.checkers` did not. `uv run python -m
+  denckring.eval.fingerprint --write` refreshes the snapshot and refuses while such a
+  move stands.
 - **`Reading.counting` publishes how `chronogram` counts** (ADR 0061 D4). A new exported
   `denckring.Counting` carries the letter values, that they are summed (`IV` totals 6),
   that every occurrence counts, that case does not matter, and that `fold_diacritics`
@@ -53,10 +54,11 @@ All notable changes to this project are documented here. The format follows
   A new exported `denckring.CorpusShare` is published as `Description.corpus` (the row's
   cases by provenance and recorded verdict, and its gap reason) and as `corpus` per row
   in `catalogue export` (`null` on a row with no checker). `status` prints a third
-  line and `eval` a fourth, `56 rows externally evidenced · 77 explained · 0 unexplained`;
-  `status --json` carries the counts as `evidence`, `eval --json` as `coverage.evidence`.
-  The external-case floor rises from 66 to 85, joined by a share floor (0.123) and a
-  per-row ratchet, `tests/data/external-floor.json`.
+  line and `eval` a fourth, `56 rows externally evidenced · 77 explained · 0 unexplained`
+  when it was introduced (63 · 70 · 0 once the cases below landed); `status --json`
+  carries the counts as `evidence`, `eval --json` as `coverage.evidence`. The
+  external-case floor rose from 66 to 85, joined by a share floor (0.123) and a per-row
+  ratchet, `tests/data/external-floor.json`; both floors rise again below.
 - **Thirteen external cases for seven verse rows, all public domain** (ADR 0062). Each
   is extracted by script from the Project Gutenberg file its `source` names, with the
   publication and death years that place it inside the cutoff: Swinburne's "Sapphics"

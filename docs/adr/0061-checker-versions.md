@@ -43,16 +43,17 @@ versions `1..n` with `n` equal to the class attribute.
 `denckring.eval.fingerprint` builds probes per row and language: every distinct golden
 text crossed with every distinct parameter set of that row's golden cases in that
 language. Per probe, `tests/data/verdict-fingerprints.json` stores two 16-hex digests,
-`{"<row>": {"<probe key>": ["<outcome>", "<checkers>"]}}`. The probe key hashes
-`[lang, text, params]`. The outcome hashes `satisfied`, the score rounded to six places
-and the sorted set of violation rules, or is `error:<code>` for a probe that raises a
+`{"<row>": {"<probe key>": ["<outcome>", "<checkers>"]}}`. The probe key hashes `[lang,
+text, params]`. The outcome hashes `satisfied`, the score rounded to six places and the
+sorted set of violation rules, or is `error:<code>` for a probe that raises a
 `DenckringError`. The checkers digest hashes the sorted items of
 `report.provenance.checkers`; for an error, the row's own version and its static
-`composes`, closed the same way. For a probe in both snapshot and run, an outcome that moved under an
-unchanged checkers digest fails as "verdict moved without a checker_version bump"; a
-changed checkers digest fails as "checker_version bumped", asking for `--write`. A probe
-added or gone fails as "golden probes changed", never as a verdict move. `--write`
-refuses while any unbumped move stands, so the snapshot cannot launder one.
+`composes`, closed the same way. For a probe in both snapshot and run, an outcome that
+moved under an unchanged checkers digest fails as "verdict moved without a
+checker_version bump"; a changed checkers digest fails as "checker_version bumped",
+asking for `--write`. A probe added or gone fails as "golden probes changed", never as a
+verdict move. `--write` refuses while any unbumped move stands, so the snapshot cannot
+launder one.
 
 The digest is per probe rather than one version per row, because a single row version
 would make a delegating row (`sestina`, the two translations, `telestich`) bump its own
@@ -87,9 +88,10 @@ A composite's own version does not move when an entry's does, because the compos
 code did not change. That is why `checkers` lists every row, rather than leaving a
 caller to infer it from the composite's version.
 
-The snapshot held 1,098 probes in a file of about 4,700 lines when it was introduced, and
-it grows with the corpus; every bump or new golden case rewrites part of it. The probes are the golden cases' own texts and
-parameters, so a row with one parameter set is probed at that set alone.
+The snapshot held 1,098 probes in a file of about 4,700 lines when it was introduced,
+and it grows with the corpus; every bump or new golden case rewrites part of it. The
+probes are the golden cases' own texts and parameters, so a row with one parameter set
+is probed at that set alone.
 
 Probes come from the cases this install can run. On an install missing a data pack, a
 row loses probes, and a row that stays runnable can lose parameter sets. So the guard
