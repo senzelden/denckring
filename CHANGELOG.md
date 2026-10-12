@@ -27,7 +27,8 @@ All notable changes to this project are documented here. The format follows
 - **Per-row checker versions** (ADR 0061). `Description.checker_version` is an integer
   per row, bumped when a change can move `satisfied`, `score` or the set of violation
   rules on some text. `Report.provenance.checkers` (and a `Production`'s) maps the row,
-  and each row a `multiple_constraint` call composes, to its version, and
+  and every row it delegates to, transitively (a `multiple_constraint` entry naming
+  `telestich` brings `acrostic`), to its version, and
   `schema_version` is `1.3`. `denckring.checker_history(procedure_id)` returns the row's
   `CheckerChange` entries, `{version, since, reason}`, shipped as
   `eval/checker-history.yaml`; every row begins at version 1 in 0.5.0.

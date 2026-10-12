@@ -18,8 +18,11 @@ starts at 1 in the release that introduces the field (0.5.0); the earlier moves 
 the changelog and are not backfilled.
 
 **`Report.provenance.checkers`** maps each row that decided the verdict to its version.
-For most rows that is the row itself. A `multiple_constraint` call also names each row it
-composes, once, however many times an entry repeats it. `Provenance.schema_version` is
+For most rows that is the row itself. A delegating row also names each row it delegates
+to, and a `multiple_constraint` call each row it composes, once, however many times an
+entry repeats it. The closure is transitive: an entry naming `telestich` brings
+`acrostic` too, since an `acrostic` bump moves that verdict while neither the
+composite's version nor `telestich`'s does. `Provenance.schema_version` is
 `1.3`. A `Production` carries the same field for its generator's row.
 
 **Delegation is declared, not inferred.** A row that runs another row's checker, or
@@ -45,7 +48,7 @@ language. Per probe, `tests/data/verdict-fingerprints.json` stores two 16-hex di
 and the sorted set of violation rules, or is `error:<code>` for a probe that raises a
 `DenckringError`. The checkers digest hashes the sorted items of
 `report.provenance.checkers`; for an error, the row's own version and its static
-`composes`. For a probe in both snapshot and run, an outcome that moved under an
+`composes`, closed the same way. For a probe in both snapshot and run, an outcome that moved under an
 unchanged checkers digest fails as "verdict moved without a checker_version bump"; a
 changed checkers digest fails as "checker_version bumped", asking for `--write`. A probe
 added or gone fails as "golden probes changed", never as a verdict move. `--write`

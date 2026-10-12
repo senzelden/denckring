@@ -211,6 +211,31 @@ class ApplyParams(BaseModel):
     )
 
 
+def delegate_versions(delegates: Iterable[str]) -> dict[str, int]:
+    """Each row in `delegates`, and each reachable from them through `composes`, with
+    its `checker_version`.
+
+    Transitive, because a delegate may itself delegate: a `multiple_constraint` entry
+    naming `telestich` is decided by `acrostic`, whose bump moves the verdict while
+    neither the composite's version nor `telestich`'s does. One level would drop exactly
+    the row that changed (ADR 0061). `multiple_constraint` refuses itself as an entry,
+    so the dynamic delegates sit only at the top and the static `composes` is enough
+    below it.
+    """
+    from denckring.core.registry import get
+
+    versions: dict[str, int] = {}
+    pending = list(delegates)
+    while pending:
+        current = pending.pop()
+        if current in versions:
+            continue
+        row = get(current)
+        versions[current] = row.checker_version
+        pending.extend(row.composes)
+    return versions
+
+
 class BaseProcedure(ABC, Generic[P]):
     """A procedure. Subclasses live one per module and are registered by decorator."""
 
@@ -318,7 +343,10 @@ class BaseProcedure(ABC, Generic[P]):
         ]
 
     def _composed_ids(self, parsed: P) -> tuple[str, ...]:
-        """Ids of other rows whose checkers decided part of this verdict.
+        """Ids of the rows this one delegates to directly for this verdict.
+
+        `_checkers` closes them over `composes`, so a delegate's own delegates are
+        named without being listed here.
 
         The static `composes` by default. `multiple_constraint` overrides it, because
         which rows it runs depends on the call's parameters. Either way a delegating
@@ -328,11 +356,7 @@ class BaseProcedure(ABC, Generic[P]):
         return self.composes
 
     def _checkers(self, parsed: Any) -> dict[str, int]:
-        from denckring.core.registry import get
-
-        return {self.id: self.checker_version} | {
-            i: get(i).checker_version for i in self._composed_ids(parsed)
-        }
+        return {self.id: self.checker_version} | delegate_versions(self._composed_ids(parsed))
 
     def check(self, text: str, *, lang: Lang = "en", **params: Any) -> Report:
         """Validate a text against this procedure."""

@@ -93,7 +93,8 @@ class Provenance(BaseModel):
     #: generators that do not draw.
     seed: int | None = None
     #: Row id to `checker_version` for every row that decided this verdict: the row
-    #: itself, plus each entry of a composite (ADR 0061).
+    #: itself, plus each row it delegates to through `composes` or a composite's
+    #: entries, transitively (ADR 0061).
     checkers: dict[str, int] = Field(default_factory=dict)
 
 

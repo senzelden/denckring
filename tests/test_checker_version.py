@@ -55,6 +55,38 @@ def test_a_composite_names_each_row_once() -> None:
     assert set(report.provenance.checkers) == {"multiple_constraint", "lipogram"}
 
 
+def test_a_composite_names_the_rows_its_entries_delegate_to() -> None:
+    """`telestich` inherits `acrostic`, so an `acrostic` bump moves this verdict while
+    neither `telestich`'s nor the composite's own version moves: the closure over
+    `composes` is what keeps the report naming every row that decided it (ADR 0061)."""
+    report = denckring.check(
+        "multiple_constraint",
+        "abc",
+        constraints=[
+            {"id": "telestich", "params": {"target": "c"}},
+            {"id": "lipogram", "params": {"forbidden": "e"}},
+        ],
+    )
+    assert report.provenance is not None
+    assert "acrostic" in report.provenance.checkers
+    assert report.provenance.checkers["acrostic"] == get("acrostic").checker_version
+
+
+def test_a_composite_names_everything_its_entry_names_alone() -> None:
+    """`sestina` runs `quenina`: embedded in a composite, it must bring `quenina` with
+    it, as the bare `sestina` report does."""
+    alone = denckring.check("sestina", "abc")
+    composite = denckring.check(
+        "multiple_constraint",
+        "abc",
+        constraints=[{"id": "sestina"}, {"id": "lipogram", "params": {"forbidden": "e"}}],
+    )
+    assert alone.provenance is not None
+    assert composite.provenance is not None
+    assert "quenina" in alone.provenance.checkers
+    assert set(alone.provenance.checkers) <= set(composite.provenance.checkers)
+
+
 def test_a_production_names_the_generator_row() -> None:
     production = denckring.produce("anagram", "listen")
     assert production.provenance is not None

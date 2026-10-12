@@ -285,8 +285,9 @@ are built on them:
 - **Checker versions** (ADR 0061). Each row has a `checker_version`, an integer in
   `describe().checker_version`, bumped whenever a change can move `satisfied`, `score`
   or the set of violation rules on some text; evidence and message wording do not bump
-  it. `report.provenance.checkers` maps the row, and each row a `multiple_constraint`
-  call composes, to the version that decided the verdict. `denckring.checker_history`
+  it. `report.provenance.checkers` maps the row, and every row it delegates to (each
+  entry of a `multiple_constraint` call, and whatever those entries delegate to in
+  turn), to the version that decided the verdict. `denckring.checker_history`
   (returning `CheckerChange` entries `{version, since, reason}`) says what each version
   changed and in which release. A caller compares results across releases per row by
   comparing these. Versions only rise, and every row's history begins at 1 in 0.5.0.

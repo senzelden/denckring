@@ -107,6 +107,7 @@ def missing_cases() -> list[str]:
 
 def run_probe(probe: Probe) -> list[str]:
     from denckring import check
+    from denckring.core.base import delegate_versions
     from denckring.core.errors import DenckringError
     from denckring.core.registry import get
 
@@ -114,9 +115,10 @@ def run_probe(probe: Probe) -> list[str]:
         report = check(probe.procedure, probe.text, lang=probe.lang, **probe.params)
     except DenckringError as error:
         # An error is an outcome like any other. No report carries the checkers, so take
-        # the row's own version and its static delegates'.
+        # the row's own version and its static delegates', closed over `composes` as
+        # `BaseProcedure.check` closes them (ADR 0061).
         row = get(probe.procedure)
-        versions = {row.id: row.checker_version} | {i: get(i).checker_version for i in row.composes}
+        versions = {row.id: row.checker_version} | delegate_versions(row.composes)
         return [_digest(f"error:{error.code}"), checkers_digest(versions)]
     # `BaseProcedure.check` stamps provenance on every report it returns.
     assert report.provenance is not None
