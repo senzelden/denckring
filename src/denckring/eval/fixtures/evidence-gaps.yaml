@@ -140,9 +140,6 @@ multiple_constraint:
 n_plus_7:
   reason: after_cutoff
   note: "Catalogue source: Jean Lescure, in Oulipo, La Littérature potentielle (1973); the s_plus_7 row dates the method to 1961."
-ottava_rima:
-  reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
 pangrammatic_lipogram:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
@@ -197,9 +194,6 @@ slenderizing:
 snowball_sentence:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
-syllable_count:
-  reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
 synonymic_substitution:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
