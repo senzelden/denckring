@@ -66,8 +66,8 @@ that `IV` totals 6 and that a numeral letter is never passed over; it now reads 
 `tests/test_counting.py` runs each claim against `check`, so a claim that the checker
 stops honouring fails. The golden case `chronogram-my-day-closed` now quotes Hilton's
 own verdict (*Chronograms*, 1882, p. 9), transcribed from the page image because the
-archive.org OCR misreads it, in place of a paraphrase; its text, parameters and verdict are unchanged, which the verdict
-fingerprint confirms.
+archive.org OCR misreads it, in place of a paraphrase; its text, parameters and verdict
+are unchanged, which the verdict fingerprint confirms.
 
 ## Consequences
 
@@ -104,5 +104,5 @@ number, the baseline entries must be edited with it.
 
 `Counting` is a promised shape (README, "What is stable"), so a field removed from it is
 **Breaking:**. Only one row declares it; a second counting row must declare its own, and
-nothing yet finds one that forgot. The quoted source is OCR with visible misreadings
-(`1 he`, `JMy`, `MDCin`), kept as scanned rather than corrected from memory.
+nothing yet finds one that forgot. The quoted source is retyped from a page image, so it
+rests on a reading of the scan rather than on a file a script can compare it against.

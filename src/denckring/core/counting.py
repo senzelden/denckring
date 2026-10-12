@@ -8,11 +8,15 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Counting(BaseModel):
     """How a row that totals letter values counts them (ADR 0061 D4)."""
+
+    # Frozen because the row holds one instance as a class attribute; `describe` hands
+    # out a deep copy, so a caller editing `values` cannot change what the next one reads.
+    model_config = ConfigDict(frozen=True)
 
     values: dict[str, int]
     combine: Literal["sum"]

@@ -49,3 +49,16 @@ def test_folding_is_the_named_parameter() -> None:
 
 def test_rows_that_count_nothing_say_so() -> None:
     assert denckring.describe("lipogram").reading.counting is None
+
+
+def test_sums_without_subtraction() -> None:
+    assert total("II") == 2 and total("XI") == 11 and total("IX") == 11
+
+
+def test_a_caller_cannot_change_what_the_next_describe_reads() -> None:
+    first = denckring.describe("chronogram").reading.counting
+    assert first is not None
+    letter, value = next(iter(first.values.items()))
+    first.values[letter] = value + 1
+    again = denckring.describe("chronogram").reading.counting
+    assert again is not None and again.values[letter] == value

@@ -337,7 +337,9 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
             if issubclass(procedure.params_model(), RhymeParams)
             else None
         ),
-        counting=getattr(procedure, "counting", None),
+        counting=(
+            procedure.counting.model_copy(deep=True) if procedure.counting is not None else None
+        ),
     )
 
 

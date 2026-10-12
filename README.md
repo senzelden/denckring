@@ -223,9 +223,9 @@ are built on them:
   pack lacks omits its key; `Description.reading`,
   including `reading.units`, `reading.word_examples`, `reading.vowels`,
   `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a row that totals
-  no letter values; ADR 0061 D4); and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
-  parameter schema carries and what it means. Roles may be added; none is removed or
-  renamed without a **Breaking:** entry in the changelog.
+  no letter values; ADR 0061 D4); and `PARAMETER_ROLES`, which names each
+  `x-denckring-role` value a parameter schema carries and what it means. Roles may be
+  added; none is removed or renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,
   `evidence`, `provenance`, `estimated` — and the `--json` output of `check`, `show` and
   `describe` that carries it. Fields may be added; the ones already there do not change
