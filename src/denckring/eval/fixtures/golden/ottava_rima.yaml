@@ -73,7 +73,9 @@ cases:
       Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
       Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
       extracted 2026-10-12 by script, indentation removed. Byron died 1824, Coleridge
-      1920.
+      1920. Selected: the checker rejects 215 of the 219 stanzas of Canto I as this
+      edition prints them, and 191 of those have an eleven-syllable line, the length a
+      feminine ending gives, which ottava rima allows (see the CHANGELOG).
     text: |-
       The sun set, and up rose the yellow moon:
       The Devil's in the moon for mischief; they
@@ -92,7 +94,10 @@ cases:
       Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
       Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
       extracted 2026-10-12 by script; the editor's footnote call and the indentation are
-      removed. Byron died 1824, Coleridge 1920.
+      removed. Byron died 1824, Coleridge 1920. Selected: the checker rejects 215 of the
+      219 stanzas of Canto I as this edition prints them, and 191 of those have an
+      eleven-syllable line, the length a feminine ending gives, which ottava rima allows
+      (see the CHANGELOG).
     text: |-
       Oh Pleasure! you're indeed a pleasant thing,
       Although one must be damned for you, no doubt:

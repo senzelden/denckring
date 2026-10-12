@@ -10,7 +10,7 @@
 
 alcaic_stanza:
   reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
+  note: "Public-domain sourcing pass (2026-10-12): all four stanzas of Tennyson's 'Milton' (Enoch Arden, &c., Project Gutenberg ebook #1358), headed 'In quantity' and 'Alcaics', are rejected. The poem is quantitative and the checker scans stress; it also miscounts 'Abdiel', 'armouries' and 'ambrosial'. Checker findings, pending a maintainer ruling."
 alphabetical_sentence:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
@@ -31,7 +31,7 @@ assonance_constraint:
   note: "Batch 3: no assonance-bound unit in a supported language verified against a named pre-1929 edition (the native exemplar is the Old French laisse). Batch 4 brief pending (2026-10-12)."
 ballade:
   reason: none_found
-  note: "Batch 2 proposed two French Villon ballades; neither landed as a ballade case. Public-domain sourcing pass pending (2026-10-12)."
+  note: "Batch 2 proposed two French Villon ballades; neither landed as a ballade case. Public-domain sourcing pass (2026-10-12): all 67 ballades of 28 lines in Gleeson White's Ballades and Rondeaus (1887) are rejected, mostly for lines that are not octosyllables, a length White says real ballades vary; the nearest is rejected only because 'erewhile' is counted as three syllables. Checker findings, pending a maintainer ruling."
 beau_present:
   reason: after_cutoff
   note: "Catalogue source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)."
@@ -154,7 +154,7 @@ perverb:
   note: "Catalogue source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)."
 petrarchan_sonnet:
   reason: none_found
-  note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
+  note: "Public-domain sourcing pass (2026-10-12): every fourteen-line poem screened from Milton (Beeching's edition) and Wordsworth (Poems in Two Volumes, 1807) is rejected, on a mix of real metrical and rhyme variation and checker misreadings ('therewith' counted as three syllables, 'disapproves' and 'without' stressed against the line). Checker findings, pending a maintainer ruling."
 poesie_automat:
   reason: after_cutoff
   note: "Catalogue source: Hans Magnus Enzensberger, Einladung zu einem Poesie-Automaten (conceived 1974)."

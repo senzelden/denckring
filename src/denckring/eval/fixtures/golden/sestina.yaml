@@ -63,9 +63,9 @@ cases:
     provenance: external
     source: >-
       Edmund Gosse, "Sestina" ("In fair Provence, the land of lute and rose"), from New
-      Poems (1879), as printed in Gleeson White (ed.), Ballades and Rondeaus, Chants
-      Royal, Sestinas, Villanelles, &c. (London: Walter Scott; preface dated August 1887).
-      Project Gutenberg ebook #45736,
+      Poems (the source White's index names; it gives no year), as printed in Gleeson
+      White (ed.), Ballades and Rondeaus, Chants Royal, Sestinas, Villanelles, &c.
+      (London: Walter Scott; preface dated August 1887). Project Gutenberg ebook #45736,
       https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-12 by
       script, indentation removed. Gosse died 1928, White 1898.
     text: |-
@@ -125,8 +125,10 @@ cases:
       script, indentation removed; "Therfore" is as the file prints it. Kipling died 1936.
       Rejected: the fifth line of the second stanza and the first line of the fifth end on
       "along" where the rotation calls for "long" (`wrong_end_word`). Kipling varies the
-      end-word; Gleeson White's rule (1887) is that "the six end-words must repeat
-      unchanged in sound and spelling throughout each succeeding verse".
+      end-word; Gleeson White's rule, in Ballades and Rondeaus (preface dated August 1887;
+      Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt), is that "the six end-words
+      must repeat unchanged in sound and spelling throughout each succeeding verse".
     text: |-
       Speakin' in general, I 'ave tried 'em all,
       The 'appy roads that take you o'er the world.

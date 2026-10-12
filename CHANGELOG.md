@@ -67,7 +67,13 @@ All notable changes to this project are documented here. The format follows
   `iambic_pentameter`, `ottava_rima`, `syllable_count` and `sestina` leave the gap
   registry: `status` now prints `63 rows externally evidenced · 70 explained · 0
   unexplained`, and the floors rise to 98 external cases and a 0.14 share. No verdict
-  moves.
+  moves. The `ottava_rima`, `elegiac_couplet` and `sapphic_stanza` cases were selected
+  from passages the checker largely or partly rejects: 215 of the 219 stanzas of Don
+  Juan I (191 of them with an eleven-syllable line, as a feminine ending gives), 3 of 7
+  and 2 of 6 couplets in Clough's two closing passages, and 6 of Swinburne's 20 stanzas.
+  Each case's `source` says so. `alcaic_stanza`, `ballade` and `petrarchan_sonnet` found
+  no passing public-domain instance; their gap notes record what was rejected and why,
+  as checker findings pending a ruling.
 
 ## [0.4.0] - 2026-10-05
 
