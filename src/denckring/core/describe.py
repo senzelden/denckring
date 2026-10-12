@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 from denckring.core import catalogue
 from denckring.core.base import ConstructiveProcedure, RhymeParams
+from denckring.core.counting import Counting
 from denckring.core.errors import UnknownLanguage
 from denckring.core.hints import rendered_with_defaults
 from denckring.core.protocol import Constructive, Lang, LanguagePack, Meta
@@ -171,6 +172,11 @@ class Reading(BaseModel):
     #: how a scheme reads several of them, which a writer told two lines rhyme
     #: against the scheme needs and the verdict alone does not say (ADR 0057).
     rhyme: str | None = None
+    #: How a row that totals letter values counts them, and `None` on every row that
+    #: counts none (ADR 0061 D4). Declared by the row beside the values its checker
+    #: reads, so the claim and the behaviour share one source; `tests/test_counting.py`
+    #: runs each claim against the checker.
+    counting: Counting | None = None
 
 
 class Description(BaseModel):
@@ -331,6 +337,7 @@ def _reading(meta: Meta, procedure: Any, lang: Lang) -> Reading:
             if issubclass(procedure.params_model(), RhymeParams)
             else None
         ),
+        counting=getattr(procedure, "counting", None),
     )
 
 

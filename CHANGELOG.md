@@ -36,6 +36,12 @@ All notable changes to this project are documented here. The format follows
   parameter set its golden cases use (1,098 probes) and fails an outcome that moved while
   the probe's `provenance.checkers` did not. `uv run python -m denckring.eval.fingerprint
   --write` refreshes the snapshot and refuses while such a move stands.
+- **`Reading.counting` publishes how `chronogram` counts** (ADR 0061 D4). A new exported
+  `denckring.Counting` carries the letter values, that they are summed (`IV` totals 6),
+  that every occurrence counts, that case does not matter, and that `fold_diacritics`
+  decides accented letters; `None` on a row that counts nothing. The golden case
+  `chronogram-my-day-closed` now quotes Hilton, *Chronograms* (1882), p. 9, as its
+  source; no verdict moves.
 
 ## [0.4.0] - 2026-10-05
 

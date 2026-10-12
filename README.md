@@ -221,8 +221,9 @@ are built on them:
   `*.dist-info`), so the release version does not move it and a wheel and an editable
   install of the same data agree. A surface the
   pack lacks omits its key; `Description.reading`,
-  including `reading.units`, `reading.word_examples`, `reading.vowels` and
-  `reading.rhyme`; and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
+  including `reading.units`, `reading.word_examples`, `reading.vowels`,
+  `reading.rhyme` and `reading.counting` (a `Counting`, or `None` on a row that totals
+  no letter values; ADR 0061 D4); and `PARAMETER_ROLES`, which names each `x-denckring-role` value a
   parameter schema carries and what it means. Roles may be added; none is removed or
   renamed without a **Breaking:** entry in the changelog.
 - **`Report` as JSON** — `procedure`, `satisfied`, `score`, `violations`, `metrics`,

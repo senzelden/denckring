@@ -14,12 +14,7 @@ cases:
   - name: chronogram-my-day-closed
     lang: en
     provenance: external
-    source: >-
-      'My Day Closed Is In Immortality' (on the death of Queen Elizabeth I, 1603); attested
-      in James Hilton, Chronograms, 5000 and More in Number (London, 1882) and in Enquire
-      Within Upon Everything (Victorian eds.). Rejected: `wrong_total`. The Roman-numeral
-      letters read in order sum to 4204, not the 1603 the chronogram claims; the line is a
-      chronogram by intent and does not compute as one under this reading.
+    source: "'My Day Closed Is In Immortality' (on the death of Queen Elizabeth I, 1603). James Hilton, Chronograms, 5000 and More in Number (London: Elliot Stock, 1882), p. 9, archive.org chronograms5000m00hilt; the quotation is the archive.org OCR text (chronograms5000m00hilt_djvu.txt) as OCR'd, whitespace collapsed, with no correction of its misreadings ('1 he' for 'The', 'JMy' for 'My', 'MDCin' for 'MDCIII'; the page image was not consulted): “1 he following has often been quoted as an example of a clever chronogram on the death of Queen Elizabeth. It really is a very bad one, for although it gives the year 1603, it can also be made to give a variety of dates up to 4204, by using the superfluous numeral letters which represent the extra quantity 2601 — JMy Day Closed Is In Immortality. = 1603 The pretext it has for appearing as a chronogram is that only the initial letters of the words are counted, and they come in natural sequence to form the date 1603, expressed by the Roman numerals MDCin.” Rejected: `wrong_total`. Hilton's verdict is that the line is a bad chronogram: every numeral letter read in order sums to 4204, not 1603, and it reaches 1603 only by counting initial letters alone."
     text: |-
       My Day Closed Is In Immortality
     params: {fold_diacritics: True, year: 1603}

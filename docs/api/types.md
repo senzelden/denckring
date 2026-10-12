@@ -22,6 +22,8 @@ under `denckring.core`, is not.
 
 ::: denckring.Description
 
+::: denckring.Counting
+
 ::: denckring.Summary
 
 ::: denckring.Scholarly

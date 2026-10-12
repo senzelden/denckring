@@ -57,6 +57,18 @@ version whenever only its delegate changed, and cannot express `multiple_constra
 whose delegates depend on the call. Hashing `provenance.checkers` makes a `quenina` bump
 show on `sestina`'s probes as a bump, which is how it was red-proofed.
 
+**D4: a row that totals letter values publishes how it counts.**
+`Description.reading.counting` is a `Counting` (`values`, `combine`, `subtractive`,
+`every_occurrence`, `case_sensitive`, `folds`, `skipped`), `None` on a row that counts
+nothing. `chronogram` declares it beside `VALUES` and builds the table from it, so the
+published values are the ones `_check` sums. The bench had to read the checker to learn
+that `IV` totals 6 and that a numeral letter is never passed over; it now reads them.
+`tests/test_counting.py` runs each claim against `check`, so a claim that the checker
+stops honouring fails. The golden case `chronogram-my-day-closed` now quotes Hilton's
+own verdict (*Chronograms*, 1882, p. 9) as archive.org OCR, unaltered, in place of a
+paraphrase; its text, parameters and verdict are unchanged, which the verdict
+fingerprint confirms.
+
 ## Consequences
 
 Every verdict-moving change now needs a bump, a history line and a snapshot refresh. That
@@ -89,3 +101,8 @@ a text no golden case covers can still ship without a bump.
 
 `since: "0.5.0"` is the release this is planned to ship in. If it ships under another
 number, the baseline entries must be edited with it.
+
+`Counting` is a promised shape (README, "What is stable"), so a field removed from it is
+**Breaking:**. Only one row declares it; a second counting row must declare its own, and
+nothing yet finds one that forgot. The quoted source is OCR with visible misreadings
+(`1 he`, `JMy`, `MDCin`), kept as scanned rather than corrected from memory.

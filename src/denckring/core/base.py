@@ -15,6 +15,7 @@ from typing import Any, ClassVar, Generic, TypeVar, cast
 from pydantic import BaseModel, Field, ValidationError
 
 from denckring.core import catalogue
+from denckring.core.counting import Counting
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.fields import param, roles
 from denckring.core.prosody import UnknownRhyme
@@ -256,6 +257,9 @@ class BaseProcedure(ABC, Generic[P]):
     #: not move when theirs does. `tests/test_checker_version.py` scans the procedure
     #: modules for such calls and subclassing and fails a row that omits one.
     composes: ClassVar[tuple[str, ...]] = ()
+    #: How a row that totals letter values counts them, published as
+    #: `Description.reading.counting` (ADR 0061 D4); `None` for a row that counts none.
+    counting: ClassVar[Counting | None] = None
 
     def __init__(self) -> None:
         self.meta: Meta = catalogue.get(self.id)

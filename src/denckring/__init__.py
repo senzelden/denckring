@@ -6,6 +6,7 @@ from types import MappingProxyType
 from typing import Any
 
 from denckring.core.base import BaseProcedure
+from denckring.core.counting import Counting
 from denckring.core.describe import Description, Scholarly, Summary, describe, summaries
 from denckring.core.errors import (
     DegenerateOutput,
@@ -449,6 +450,7 @@ def list_procedures() -> list[str]:
 __all__ = [
     "PARAMETER_ROLES",
     "CheckerChange",
+    "Counting",
     "DegenerateOutput",
     "DenckringError",
     "Description",
