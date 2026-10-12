@@ -1,11 +1,12 @@
-# Rows with no externally sourced golden case, and why (ADR 0062). Public domain only:
-# published 1930 or earlier and author/translator dead by 1955. A row leaves this file
-# in the commit that lands its first external case.
+# Rows with no externally sourced golden case, and why (ADR 0062). Cases added from
+# 2026-10-12 quote public-domain text only, under the public-domain cutoff ADR 0062
+# states. A row leaves this file in the commit that lands its first external case.
 #
-# Every note states only what the catalogue row or the research batches record. A row
-# whose reason is `after_cutoff` cites the catalogue's own `source`; where that source
-# is a reference work rather than the form's origin, the note says no earlier source is
-# recorded, which is all the reason rests on.
+# Every note states only what the catalogue row or the research batches record.
+# `after_cutoff` is kept for rows whose catalogue `source` traces the form to a dated
+# origin after the cutoff. A row whose catalogue attribution is `reference` cites a
+# standard work, so its date says nothing about when the form began: unless its source
+# also names a dated origin (`s_plus_7`), it is `none_found`.
 
 alcaic_stanza:
   reason: none_found
@@ -17,11 +18,11 @@ antigram:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
 antonymic_substitution:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 antonymic_translation:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 arca_musarithmica:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Kircher, Musurgia Universalis (1650); batch 4 brief pending (2026-10-12)."
@@ -47,11 +48,11 @@ cent_mille_milliards:
   reason: after_cutoff
   note: "Catalogue source: Raymond Queneau, Cent mille milliards de poèmes (1961)."
 chimera:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 column_reading:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 consonantal_lipogram:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981); batch 4 brief pending (2026-10-12)."
@@ -83,8 +84,8 @@ englyn:
   reason: none_found
   note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
 every_nth_word:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 fold_in:
   reason: after_cutoff
   note: "Catalogue source: William S. Burroughs, The Third Mind (1978)."
@@ -92,8 +93,8 @@ haibun:
   reason: none_found
   note: "Batch 1: no pre-1929 English translation of Oku no Hosomichi renders a complete prose-plus-haiku unit; the first that does is Yuasa's (1966)."
 haikuization:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, La Littérature potentielle (1973), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, La Littérature potentielle (1973), as a reference; no search for an instance inside the public-domain cutoff has been made."
 heroic_couplet:
   reason: none_found
   note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
@@ -104,11 +105,11 @@ homophonic_translation:
   reason: after_cutoff
   note: "Catalogue source: Louis Zukofsky and Celia Zukofsky, Catullus (1969)."
 homosyntaxism:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 homovocalism:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 iambic_pentameter:
   reason: none_found
   note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
@@ -116,8 +117,8 @@ ideenwuerfeln:
   reason: none_found
   note: "Batch 3: Jean Paul's Ideenwürfeln is a February 1795 notebook, and no pre-1929 print of its content is verifiable."
 larding:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 letter_bank:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
@@ -131,8 +132,8 @@ mathews_algorithm:
   reason: after_cutoff
   note: "Catalogue source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)."
 melting_text:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 mesostic:
   reason: after_cutoff
   note: "Catalogue source: John Cage, Writing Through Finnegans Wake (1978)."
@@ -143,8 +144,8 @@ monosyllabic_prose:
   reason: none_found
   note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
 multiple_constraint:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 n_plus_7:
   reason: after_cutoff
   note: "Catalogue source: Jean Lescure, in Oulipo, La Littérature potentielle (1973); the s_plus_7 row dates the method to 1961."
@@ -176,8 +177,8 @@ quenina:
   reason: after_cutoff
   note: "Catalogue source: Raymond Queneau and Jacques Roubaud, in Oulipo, La Littérature potentielle (1973)."
 recombination:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 renga:
   reason: none_found
   note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
@@ -192,7 +193,7 @@ senryu:
   note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
 sentence_length_constraint:
   reason: none_found
-  note: "Not in research batches 1-3 or the batch 4 brief; the catalogue names style manuals and readability work, no exemplar."
+  note: "No search has been made: not in research batches 1-3 or the batch 4 brief. The catalogue names style manuals and readability work, no exemplar."
 serial_lipogram:
   reason: none_found
   note: "Batch 3: no supported-language work in alphabet-many parts each omitting a different letter (Burmann omits only R; Lope de Vega is Spanish). Batch 4 brief pending (2026-10-12)."
@@ -201,10 +202,10 @@ sestina:
   note: "Batch 3 proposed the first sestet of Kipling's 'Sestina of the Tramp-Royal' (1896), not collated against that edition; a case needs all six sestets and the envoi. Batch 4 brief and public-domain sourcing pass pending (2026-10-12)."
 single_sentence:
   reason: none_found
-  note: "Not in research batches 1-3 or the batch 4 brief; the catalogue names Gertrude Stein's and Thomas Bernhard's prose, not yet checked against the cutoff."
+  note: "No search has been made: not in research batches 1-3 or the batch 4 brief. The catalogue names Gertrude Stein's and Thomas Bernhard's prose, not checked against the cutoff."
 slenderizing:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 snowball_sentence:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
@@ -212,8 +213,8 @@ syllable_count:
   reason: none_found
   note: "Not in research batches 1-3; public-domain sourcing pass pending (2026-10-12)."
 synonymic_substitution:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 tanka:
   reason: none_found
   note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
@@ -230,11 +231,11 @@ transposal:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Borgmann, Language on Vacation (1965); batch 4 brief pending (2026-10-12)."
 univocalic_translation:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 verbless_prose:
-  reason: after_cutoff
-  note: "Catalogue source: Oulipo, Atlas de littérature potentielle (1981), a reference; no earlier source recorded."
+  reason: none_found
+  note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 wechselsatz:
   reason: none_found
   note: "Batch 3 verified the first line of Kuhlmann's 1671 sonnet; the body was only partly recovered, from a secondary transcription. Batch 4 brief pending (2026-10-12)."

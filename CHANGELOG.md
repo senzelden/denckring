@@ -42,11 +42,13 @@ All notable changes to this project are documented here. The format follows
   decides accented letters; `None` on a row that counts nothing. The golden case
   `chronogram-my-day-closed` now quotes Hilton, *Chronograms* (1882), p. 9, as its
   source; no verdict moves.
-- **Every implemented row is externally evidenced or says why not** (ADR 0062). Shipped
-  golden cases quote public-domain text only: published 1930 or earlier, by an author and
-  translator dead by 1955. `eval/fixtures/evidence-gaps.yaml` gives each of the 77 rows
-  with no externally sourced case a reason (`after_cutoff` 37, `none_found` 40, each with
-  a note on what it rests on), and guards keep every row evidenced or listed, never both.
+- **Every implemented row is externally evidenced or says why not** (ADR 0062). Golden
+  cases added from 2026-10-12 quote public-domain text only, under the cutoff ADR 0062
+  states, and record the URL they were extracted from; earlier external cases, some of
+  them post-cutoff publications, stay as they are. `eval/fixtures/evidence-gaps.yaml`
+  gives each of the 77 rows with no externally sourced case a reason (`after_cutoff` 21,
+  `none_found` 56, each with a note on what it rests on), and guards keep every row
+  evidenced or listed, never both.
   A new exported `denckring.CorpusShare` is published as `Description.corpus` (the row's
   cases by provenance and recorded verdict, and its gap reason) and as `corpus` per row
   in `catalogue export` (`null` on a row with no checker). `status` and `eval` print a

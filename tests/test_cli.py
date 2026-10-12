@@ -56,7 +56,11 @@ def test_status_prints_the_instrument_counter_on_its_own_line() -> None:
     instrument entry."""
     coverage = harness.status()
     result = runner.invoke(app, ["status"])
-    assert result.stdout.splitlines()[:2] == [coverage.line(), coverage.instrument_line()]
+    assert result.stdout.splitlines() == [
+        coverage.line(),
+        coverage.instrument_line(),
+        coverage.evidence.line(),
+    ]
 
 
 def test_status_and_eval_print_the_evidence_line() -> None:

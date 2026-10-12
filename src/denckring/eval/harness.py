@@ -91,14 +91,16 @@ class CaseResult(BaseModel):
     code: str | None = None
 
 
-#: Why an implemented row has no externally sourced golden case (ADR 0062). Shipped
-#: cases quote public-domain text only, so the first two say no case can be added
-#: while that policy stands, and the last two that one might be:
+#: Why an implemented row has no externally sourced golden case (ADR 0062). Golden
+#: cases added from 2026-10-12 quote public-domain text only, so the first two say no
+#: case can be added while that policy stands, and the last two that one might be:
 #:
 #: `in_copyright`: exemplars exist, and none is public domain;
-#: `after_cutoff`: the form postdates 1930, so no public-domain exemplar can exist;
+#: `after_cutoff`: the catalogue traces the form to an origin after the public-domain
+#: cutoff (ADR 0062), so no public-domain exemplar can exist;
 #: `unsupported_language`: exemplars exist only in languages no pack covers;
-#: `none_found`: none located yet, and the note names what was searched.
+#: `none_found`: none located yet; the note names what was searched, or says that
+#: no search has been made.
 GapReason = Literal["in_copyright", "after_cutoff", "unsupported_language", "none_found"]
 
 

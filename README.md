@@ -78,10 +78,12 @@ and all 133 implementable procedures are implemented.
 Validated means a row agrees with its golden examples, and most of those were written
 for the suite, so they show the code does what its author meant, not that the author
 read the form right. Only an example quoted from a published text is evidence of that.
-Shipped examples quote public-domain text only (ADR 0062), and every implemented row
-either has one or records why not: the form postdates 1930, its exemplars are in
-copyright or in a language no pack covers, or none has been found yet, with what was
-searched. `describe(pid).corpus` gives a row's split, as a `CorpusShare` counting its
+Golden cases added from 2026-10-12 quote public-domain text only and record the URL
+they were extracted from (ADR 0062); some earlier external cases predate that policy.
+Every implemented row either has an external case or records why not: the form
+postdates the public-domain cutoff, its exemplars are in copyright or in a language no
+pack covers, or none has been found yet, with what was searched or that no search has
+been made. `describe(pid).corpus` gives a row's split, as a `CorpusShare` counting its
 examples by provenance and recorded verdict beside that reason; `denckring catalogue
 export` carries it per row as `corpus`, and `denckring status` totals it on its third
 line.

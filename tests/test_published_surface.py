@@ -9,6 +9,7 @@ import pytest
 
 import denckring
 from denckring.core.fields import ROLE_KEY
+from denckring.eval.harness import evidence_gaps
 
 PUBLISHED_ROLES = Path(__file__).parent / "data" / "published-roles.json"
 
@@ -80,10 +81,7 @@ def test_no_promised_metric_is_removed() -> None:
 def test_corpus_share_is_exported_and_described() -> None:
     """ADR 0062: the per-row share a caller weighs a row's verdicts by."""
     assert "CorpusShare" in denckring.__all__
-    corpus = denckring.describe("acrostic").corpus
-    assert isinstance(corpus, denckring.CorpusShare)
-    assert corpus.external_passing + corpus.external_failing > 0
-    assert corpus.gap is None
+    assert isinstance(denckring.describe("acrostic").corpus, denckring.CorpusShare)
 
 
 def test_describe_corpus_counts_the_rows_golden_cases() -> None:
@@ -103,5 +101,13 @@ def test_describe_corpus_counts_the_rows_golden_cases() -> None:
         assert corpus.self_generated == sum(c.provenance == "self-generated" for c in mine)
 
 
-def test_a_gap_row_names_its_reason() -> None:
-    assert denckring.describe("n_plus_7").corpus.gap == "after_cutoff"
+def test_corpus_gap_is_the_registry_reason() -> None:
+    """`describe` publishes the registry's reason for every row, and `None` for a row
+    the registry does not list, whatever the reason or row (ADR 0062)."""
+    gaps = evidence_gaps()
+    wrong = {
+        pid: (denckring.describe(pid).corpus.gap, gaps[pid].reason if pid in gaps else None)
+        for pid in denckring.all_procedures()
+        if denckring.describe(pid).corpus.gap != (gaps[pid].reason if pid in gaps else None)
+    }
+    assert not wrong, f"describe's gap differs from the registry (described, registry): {wrong}"
