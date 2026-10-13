@@ -42,7 +42,7 @@ whatever they declare.
 
 **For a letter rule, declaring `de` claims that the rule is orthographic and has been run
 in German.** It does not claim that German literature attests the form. `eodermdrome` and
-`liponym` were named by English and French writers, and nothing here says a German writer
+`liponym` were named by English-language and French writers, and nothing here says a German writer
 ever practised either.
 
 The declaration carries what ADR 0047 made it carry. Fifteen of the twenty had no German
@@ -57,8 +57,10 @@ three of which turn on an umlaut or `ß`.
 lowercased, and since the German alphabet is the 26 plain letters, an unfolded `ä` counts
 as no letter of it. The cases are built to state which of the two they rely on. Every
 positive case whose row takes the switch holds with the fold on or off, so none of them
-passes because an umlaut was erased. The counterexamples rely on the fold on purpose: `Wölfe` breaks a line that must
-omit `o`, `großen` uses a forbidden `s`, and `Äpfel` sorts before `Birnen`.
+passes only because an umlaut was read as its plain letter. Three of the counterexamples
+turn on the fold on purpose, and each is satisfied with the fold off: `Wölfe` breaks a line
+that must omit `o`, `großen` uses a forbidden `s`, and `Äpfel` sorts before `Birnen`. The
+fourth, `liponym`'s, has no letters at issue.
 
 ## Consequences
 
@@ -82,12 +84,18 @@ external share fell from 14.5% (102 of 704) to 14.1% (102 of 722). ADR 0062's sh
 in `tests/test_corpus_provenance.py` caught the fall and was lowered from 0.144 to 0.141.
 The guard did its job. This decision chose to pay that cost.
 
-**Six of the rows had German cases already, and those cases were never meant as German
+**Six of the rows had German cases already, and most of them were never meant as German
 examples.** They test ADR 0035's handling of letters with diacritics. `bivocalic`'s is
-`Bähö`, `monoconsonantal`'s is `ßeiß` with the fold off, `pangrammatic_lipogram`'s is a bare
-alphabet, and `supervocalic`'s `Rätsel bloß im Duft` passes only because `ä` supplies its
-`a`. They satisfy the declaration's letter. A German reader would not take them for German
-writing.
+`Bähö`, `monoconsonantal`'s is `ßeiß` with the fold off, `pangrammatic_lipogram`'s and
+`serial_lipogram`'s are bare alphabets, `supervocalic`'s `Rätsel bloß im Duft` passes only
+because `ä` supplies its `a`, and `abecedarian`'s `umlaut-start` exists to show that a start
+of `ö` reads as `o`. They satisfy the declaration's letter, and a German reader would not
+take them for German writing. The exception is `abecedarian`'s second German case, which
+is external: Quirinus Kuhlmann's "Das güldne sterbens ABC" (1686). Among the twenty, it is
+the only external German case the checker accepts, and so the one place in the corpus where
+German literature attests a form this decision declares. `chronogram` also carries an
+external German case, the Tirol rifle-target lines Hilton prints, but the checker rejects it
+(`wrong_total`), so it attests the form in German without being an accepted example of it.
 
 **Fifteen German names are new, and most of them are coinages.** None is backed by a German
 source in this repository. They are listed by kind so that a reader who has a source can

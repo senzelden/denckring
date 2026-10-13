@@ -44,7 +44,7 @@ cases:
       potentielle (1981). Each line carries every letter but its own as a plain
       letter, so it holds with `fold_diacritics` on or off (ADR 0063)
     text: |-
-      Victor hetzt zwölf Boxkämpfer quer über den großen Sylter Damm.
+      Quirlige Boxer winken typisch zum Fuchs, Delfin und Vogel am Strand.
       Jürgen quält vierzehn kleine Schafe, Max pflegt bei Sylt Wild.
     params: { name: Jo }
     satisfied: true
@@ -54,7 +54,7 @@ cases:
       constructed counterexample; `ö` folds to `o`, so "Wölfe" breaks the line
       that must omit the `o` of "Jo"
     text: |-
-      Victor hetzt zwölf Boxkämpfer quer über den großen Sylter Damm.
+      Quirlige Boxer winken typisch zum Fuchs, Delfin und Vogel am Strand.
       Jürgen quält vierzehn kleine Schafe, Max pflegt bei Sylt Wölfe und Wild.
     params: { name: Jo }
     satisfied: false

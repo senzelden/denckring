@@ -833,8 +833,9 @@ procedures:
         A text whose first and last letters each spell out a word when read down
         the lines, so the poem is bounded by two hidden strings.
       de: >-
-        Ein Text, dessen erste und letzte Buchstaben, die Zeilen hinab gelesen, je ein
-        Wort ergeben, sodass das Gedicht von zwei verborgenen Zeichenfolgen gerahmt wird.
+        Ein Text, dessen Zeilenanfänge und Zeilenenden, von oben nach unten gelesen, je
+        ein Wort ergeben, sodass das Gedicht von zwei verborgenen Zeichenfolgen gerahmt
+        wird.
     source: Traditional; described in the Renaissance rhetorical handbooks
     family: letter
     attribution: traditional
@@ -982,7 +983,7 @@ procedures:
         A stretch of naturally occurring text, as short as possible, that happens
         to contain every letter of the alphabet.
       de: >-
-        Ein möglichst kurzer Abschnitt natürlich entstandenen Texts, der zufällig jeden
+        Ein möglichst kurzer Abschnitt natürlich entstandenen Textes, der zufällig jeden
         Buchstaben des Alphabets enthält.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
@@ -1400,9 +1401,9 @@ procedures:
         unrepeated edges, not the non-planarity of Borgmann's stricter reading.
       de: >-
         Ein Wort, dessen aufeinanderfolgende Buchstabenpaare, als Kanten eines Graphen
-        gelesen, eine geschlossene Figur bilden, die jede Kante genau einmal durchläuft. Geprüft werden der
-        geschlossene Weg und die unwiederholten Kanten, nicht die Nichtplanarität, die
-        Borgmanns strengere Lesart verlangt.
+        gelesen, einen geschlossenen Weg bilden, der jede Kante genau einmal durchläuft.
+        Geprüft werden der geschlossene Weg und die unwiederholten Kanten, nicht die
+        Nichtplanarität, die Borgmanns strengere Lesart verlangt.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference

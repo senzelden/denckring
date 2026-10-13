@@ -24,11 +24,11 @@ cases:
     params: { max_length: 100 }
     satisfied: false
     max_score: 0.0
-  - name: juergen-und-max
+  - name: jakob-der-boxer
     lang: de
     source: >-
-      constructed example; every letter occurs unaccented at least once, so the
-      window holds whether or not `ä` and `ü` fold
-    text: Jürgen quält vierzehn kleine Schafe, Max pflegt bei Sylt Wild am Hof.
+      constructed example; every letter occurs unaccented, so the window holds
+      with `fold_diacritics` on or off
+    text: Jakob, der quirlige Boxer, wandert typisch frech vom Zoo zum Fluss.
     params: { max_length: 80 }
     satisfied: true

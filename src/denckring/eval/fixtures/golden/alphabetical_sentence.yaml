@@ -23,7 +23,8 @@ cases:
     lang: de
     source: >-
       constructed counterexample; `Ä` folds to `a`, so "Äpfel" sorts before
-      "Birnen" and is out of order after it
-    text: Birnen, Äpfel, Chili.
+      "Birnen" and is out of order after it. With `fold_diacritics` off the same
+      text is in order, so the verdict turns on the fold
+    text: Birnen, Äpfel.
     params: {}
     satisfied: false

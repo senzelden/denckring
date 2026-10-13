@@ -14,8 +14,8 @@ cases:
   - name: liebe-wird-beile
     lang: de
     source: >-
-      constructed example; love rearranged into axes. The checker verifies the
-      anagram only; whether the sense is opposite is the reader's judgement
+      constructed example; love rearranged into axes. Anagram only: the
+      opposition is loose, and the checker does not judge it
     text: Beile
     params: { source: Liebe }
     satisfied: true
