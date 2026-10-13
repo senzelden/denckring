@@ -327,13 +327,19 @@ def test_a_realistic_long_document_checks_without_hanging() -> None:
     2.6s under the O(length^2) regression.
 
     The rule under test is that cost is linear in word length, so that is what
-    is asserted: halving the length should roughly halve the work. An absolute
+    is asserted: quartering the length should roughly quarter the work. An absolute
     wall-clock ceiling cannot express it, because the same correct code runs
     several times slower under the coverage job's instrumentation than it does
     on a bare local run — a 1.0s ceiling passed locally and failed CI at 1.69s
     while the implementation was right. A ratio is immune to that, because both
     measurements carry the same overhead; the generous ceiling below stays only
     to keep the literal promise in this test's name.
+
+    The two lengths sit 4x apart, not 2x. At 2x, linear (~2x) and quadratic
+    (~4x) were separated by a 3x threshold that left a 1.5x noise budget, and
+    a macOS runner spent it on correct code: 0.288s against 0.974s, 3.4x, on
+    2026-10-13 while every local run measured 1.93-2.00x. At 4x the expected
+    ratios are ~4x and ~16x, and an 8x threshold leaves 2x either side.
     """
     import random
 
@@ -354,10 +360,10 @@ def test_a_realistic_long_document_checks_without_hanging() -> None:
         _count_pairs(words)
         return time.monotonic() - start
 
-    half = _timed(1500)
+    quarter = _timed(750)
     full = _timed(3000)
-    assert full < half * 3, (
-        f"300 words of length 1500 took {half:.3f}s, length 3000 (2x longer) took "
-        f"{full:.3f}s — linear costs about 2x, quadratic about 4x, and this is neither"
+    assert full < quarter * 8, (
+        f"300 words of length 750 took {quarter:.3f}s, length 3000 (4x longer) took "
+        f"{full:.3f}s — linear costs about 4x, quadratic about 16x, and this is neither"
     )
     assert full < 30.0, f"took {full:.2f}s for 300 unique 3000-char words — that is a hang"
