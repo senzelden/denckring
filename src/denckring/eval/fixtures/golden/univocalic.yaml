@@ -37,12 +37,12 @@ cases:
     source: >-
       C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
       enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 32 (Bombaugh
-      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "A.—THE RUSSO-TURKISH WAR."
-      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
-      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
-      the Project Gutenberg text, where the page marker before the poem is 32; the page image
-      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
-      has other vowels, is left out.
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "A.—THE
+      RUSSO-TURKISH WAR." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project
+      Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed
+      by script from the Project Gutenberg text, where the page marker before the poem is 32;
+      the page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The
+      title, which has other vowels, is left out.
     text: |-
       Wars harm all ranks, all arts, all crafts appall:
       At Mars’ harsh blast, arch, rampart, altar, fall!
@@ -59,8 +59,8 @@ cases:
     source: >-
       C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
       enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
-      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "E.—THE FALL OF EVE."
-      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "E.—THE FALL OF
+      EVE." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
       https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
       the Project Gutenberg text, where the page marker before the poem is 33; the page image
       (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
@@ -81,12 +81,12 @@ cases:
     source: >-
       C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
       enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
-      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "I.—THE APPROACH OF EVENING."
-      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
-      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
-      the Project Gutenberg text, where the page marker before the poem is 33; the page image
-      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
-      has other vowels, is left out.
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "I.—THE APPROACH OF
+      EVENING." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg
+      #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script
+      from the Project Gutenberg text, where the page marker before the poem is 33; the page
+      image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title,
+      which has other vowels, is left out.
     text: |-
       Idling, I sit in this mild twilight dim,
       Whilst birds, in wild, swift vigils, circling skim.
@@ -99,12 +99,13 @@ cases:
     source: >-
       C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
       enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
-      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "O.—INCONTROVERTIBLE FACTS."
-      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
-      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
-      the Project Gutenberg text, where the page marker before the poem is 33; the page image
-      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
-      has other vowels, is left out. This row does not count y as a vowel ("school-boys").
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "O.—INCONTROVERTIBLE
+      FACTS." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg
+      #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script
+      from the Project Gutenberg text, where the page marker before the poem is 33; the page
+      image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title,
+      which has other vowels, is left out. This row does not count y as a vowel
+      ("school-boys").
     text: |-
       No monk too good to rob, or cog, or plot.
       No fool so gross to bolt Scotch collops hot.
@@ -129,15 +130,15 @@ cases:
     source: >-
       C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
       enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
-      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "U.—THE SAME SUBJECT,
-      CONTINUED." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg
-      #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script
-      from the Project Gutenberg text, where the page marker before the poem is 33; the page
-      image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title is
-      left out. Bombaugh presents it as a univocalic in u, but line 2, "Lucullus snuffs no
-      musk, mundungus shuns.", has the word "no", whose o is a second vowel. Rejected:
-      `foreign_vowel`, once, on that o. An external near-miss in ADR 0062's sense: the source
-      presents it as the form and the text fails it.
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "U.—THE SAME
+      SUBJECT, CONTINUED." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project
+      Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed
+      by script from the Project Gutenberg text, where the page marker before the poem is 33;
+      the page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The
+      title is left out. Bombaugh presents it as a univocalic in u, but line 2, "Lucullus
+      snuffs no musk, mundungus shuns.", has the word "no", whose o is a second vowel.
+      Rejected: `foreign_vowel`, once, on that o. An external near-miss in ADR 0062's sense:
+      the source presents it as the form and the text fails it.
     text: |-
       Dull humdrum murmurs lull, but hubbub stuns.
       Lucullus snuffs no musk, mundungus shuns.

@@ -47,9 +47,9 @@ cases:
       sentence, is 40; the page image (https://archive.org/details/gleaningsforcuri00bomb) was
       not checked. PG sets each line's initial and final letter in a cell of its own; the
       script rejoins them, collapses the justifying runs of spaces to one, and keeps the space
-      in "you and I" and the printed capitals of the final letters. Bombaugh's Telestich
-      names both columns; this case reads the final letters, U N T I E (the acrostic file
-      reads the initials).
+      in "you and I" and the printed capitals of the final letters. Bombaugh's Telestich names
+      both columns; this case reads the final letters, U N T I E (the acrostic file reads the
+      initials).
     text: |-
       Unite and untie are the same—so say yoU.
       Not in wedlock, I ween, has this unity beeN.
@@ -70,8 +70,9 @@ cases:
       lines, in the Telestich sentence above them, is 40; the page image
       (https://archive.org/details/gleaningsforcuri00bomb) was not checked. PG sets each
       line's initial and final letter in a cell of its own; the script rejoins them and
-      collapses the justifying runs of spaces to one. The final letters spell HHAATTHHEERRTTOONN, every
-      letter doubled; the acrostic file reads the same name down the initials.
+      collapses the justifying runs of spaces to one. The final letters spell
+      HHAATTHHEERRTTOONN, every letter doubled; the acrostic file reads the same name down the
+      initials.
     text: |-
       Hard was his final fight with ghastly Death,
       He bravely yielded his expiring breath.

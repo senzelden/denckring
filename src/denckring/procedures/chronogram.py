@@ -41,8 +41,7 @@ class ChronogramParams(DiacriticParams):
         # when set (ADR 0050), and the template defers to it ("Unless a line below...").
         description=(
             "Only numeral letters written as capitals count: write the date's numerals as "
-            "capitals; lower-case ones add nothing. Hilton calls this reading a pretext; "
-            "off, every numeral letter counts."
+            "capitals; lower-case ones add nothing."
         ),
         json_schema_extra=param("switch"),
     )

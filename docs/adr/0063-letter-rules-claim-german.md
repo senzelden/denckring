@@ -42,8 +42,8 @@ whatever they declare.
 
 **For a letter rule, declaring `de` claims that the rule is orthographic and has been run
 in German.** It does not claim that German literature attests the form. `eodermdrome` and
-`liponym` were named by English-language and French writers, and nothing here says a German writer
-ever practised either.
+`liponym` were named by English-language and French writers, and nothing here says a
+German writer ever practised either.
 
 The declaration carries what ADR 0047 made it carry. Fifteen of the twenty had no German
 name or definition, and each now has both. Fourteen had no satisfying German golden case

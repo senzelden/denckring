@@ -26,3 +26,28 @@ cases:
       Erst im Mai kommt wieder Sonne
     params: { first: öde, last: nie }
     satisfied: true
+  - name: bombaugh-unite-untie
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 40 (Bombaugh
+      1828–1906): "An ingenious variety called the Telestich, is that in which the letters
+      beginning the lines spell a word, while the letters ending the lines, when taken
+      together, form a word of an opposite meaning, as in this instance:—" Anonymous, printed
+      1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the lines, inside the framing
+      sentence, is 40; the page image (https://archive.org/details/gleaningsforcuri00bomb) was
+      not checked. PG sets each line's initial and final letter in a cell of its own; the
+      script rejoins them and collapses the justifying runs of spaces to one, and keeps the
+      space in "you and I" and the printed capitals of the final letters. Bombaugh calls the
+      form a Telestich; what he describes, one word down the initials and another down the
+      finals, is this row's form: U N I T E down the initials, U N T I E down the finals.
+    text: |-
+      Unite and untie are the same—so say yoU.
+      Not in wedlock, I ween, has this unity beeN.
+      In the drama of marriage each wandering gouT
+      To a new face would fly—all except you and I—
+      Each seeking to alter the spell in their scenE.
+    params: { first: UNITE, last: UNTIE }
+    satisfied: true

@@ -80,8 +80,11 @@ The row now models a reading its own authority rejects. Hilton's objection is th
 read off its capitals carries "superfluous numeral letters" that can be made to give
 other dates; under `capitals_only` the checker passes exactly such a line and says
 nothing about the superfluous letters. A caller can pass a text Hilton would fail, and the
-report will not tell them so. The description says "Hilton calls this reading a pretext",
-which is the only warning the switch carries.
+report will not tell them so. The field's description first said "Hilton calls this
+reading a pretext"; on 2026-10-13 that aside was dropped, because `prompt_hint` renders the
+description to the writer as an instruction, where a scholar's objection does not belong.
+The parameter itself now carries no warning; Hilton's objection survives here and in the
+comment beside the field.
 
 The switch's only external evidence is a compiler. Bombaugh collects curiosities across
 every kind of literary trick; he is not a chronogram specialist, and he prints the line

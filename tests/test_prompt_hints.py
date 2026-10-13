@@ -27,7 +27,7 @@ from denckring.core.hints import (
     unstated,
 )
 from denckring.core.protocol import Lang
-from denckring.core.registry import all_procedures
+from denckring.core.registry import all_procedures, get
 from denckring.core.text import _CLAUSE_BREAK
 from denckring.eval.harness import golden_cases
 
@@ -545,3 +545,23 @@ def test_no_example_in_a_hint_is_itself_a_passing_answer(pid: str) -> None:
         for params in _judged_params(pid, "en"):
             report = check(pid, example, lang="en", **params)
             assert not report.satisfied, f"{pid}: the hint's example {example!r} passes {params}"
+
+
+def test_a_default_true_switch_says_what_false_does() -> None:
+    """A boolean's description reaches the prompt only when the field is set off its
+    default (`core.hints.settings`), so a switch that defaults to True is only ever
+    read under `- name = False:`. A description that states only what True does then
+    tells the writer the opposite of the setting: `fold_diacritics = False` once
+    rendered "Treat accented letters as their base letter". The rule: such a
+    description names False and says what it does."""
+    silent = sorted(
+        {
+            f"{name}: {field.description!r}"
+            for pid in all_procedures()
+            for name, field in get(pid).params_model().model_fields.items()
+            if field.annotation is bool
+            and field.get_default(call_default_factory=True) is True
+            and "False" not in (field.description or "")
+        }
+    )
+    assert not silent, silent

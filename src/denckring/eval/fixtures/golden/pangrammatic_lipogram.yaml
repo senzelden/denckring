@@ -25,3 +25,53 @@ cases:
     text: abcdefghijklmnopqrstuvwxyz
     params: { forbidden: ä }
     satisfied: false
+  - name: bombaugh-jovial-swain
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), pp. 27–28 (Bombaugh
+      1828–1906): "The stanza subjoined is a specimen of both lipogrammatic and pangrammatic
+      ingenuity, containing every letter of the alphabet except e." Anonymous, printed 1890
+      (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the stanza's first line is 28;
+      the page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The
+      framing sentence is on p. 27.
+    text: |-
+      A jovial swain may rack his brain,
+      And tax his fancy’s might,
+      To quiz in vain, for ’tis most plain,
+      That what I say is right.
+    params: { forbidden: e }
+    satisfied: true
+  - name: bombaugh-fate-of-nassan
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 28 (Bombaugh
+      1828–1906): "The Fate of Nassan affords another example, each stanza containing the
+      entire alphabet except e, and composed, as the writer says, with ease without e’s."
+      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the framing sentence is 28; the
+      page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The
+      verses only; in the Project Gutenberg text the title appears only in the framing
+      sentence. Bombaugh's claim is per stanza, and each of the three stanzas, checked alone,
+      also satisfies the row.
+    text: |-
+      Bold Nassan quits his caravan,
+      A hazy mountain-grot to scan;
+      Climbs jaggy rocks to spy his way,
+      Doth tax his sight, but far doth stray.
+
+      Not work of man, nor sport of child,
+      Finds Nassan in that mazy wild;
+      Lax grow his joints, limbs toil in vain—
+      Poor wight! why didst thou quit that plain?
+
+      Vainly for succor Nassan calls.
+      Know, Zillah, that thy Nassan falls:
+      But prowling wolf and fox may joy
+      To quarry on thy Arab boy.
+    params: { forbidden: e }
+    satisfied: true
