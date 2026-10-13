@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
 ### Added
 
 - **The surfaces `denckring-bench` reads are now promised** (ADR 0060). `golden_cases`,
@@ -2499,7 +2501,8 @@ evidence or descriptions only, or add something.
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/senzelden/denckring/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/senzelden/denckring/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/senzelden/denckring/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/senzelden/denckring/compare/v0.3.0...v0.3.1
