@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-13
+
 ### Added
 
 - **The surfaces `denckring-bench` reads are now promised** (ADR 0060). `golden_cases`,
@@ -23,7 +25,6 @@ All notable changes to this project are documented here. The format follows
   when the pack lacks the surface. The digest changes exactly when that surface's content
   does, which distribution versions (they move with every release) cannot say. A
   `Report`'s own copy stays empty, so checks pay nothing.
-
 - **Per-row checker versions** (ADR 0061). `Description.checker_version` is an integer
   per row, bumped when a change can move `satisfied`, `score` or the set of violation
   rules on some text. `Report.provenance.checkers` (and a `Production`'s) maps the row,
@@ -34,7 +35,7 @@ All notable changes to this project are documented here. The format follows
   `eval/checker-history.yaml`; every row begins at version 1 in 0.5.0.
 - **A verdict fingerprint holds every move to a bump** (ADR 0061 B3).
   `tests/test_verdict_fingerprints.py` checks each row's golden texts against each
-  parameter set its golden cases use (1,098 probes when it was introduced) and fails an
+  parameter set its golden cases use (1,135 probes in this release) and fails an
   outcome that moved while the probe's `provenance.checkers` did not. `uv run python -m
   denckring.eval.fingerprint --write` refreshes the snapshot and refuses while such a
   move stands.
@@ -48,17 +49,17 @@ All notable changes to this project are documented here. The format follows
   cases added from 2026-10-12 quote public-domain text only, under the cutoff ADR 0062
   states, and record the URL they were extracted from; earlier external cases, some of
   them post-cutoff publications, stay as they are. `eval/fixtures/evidence-gaps.yaml`
-  gives each of the 77 rows with no externally sourced case a reason (`after_cutoff` 21,
-  `none_found` 56, each with a note on what it rests on), and guards keep every row
+  gives each of the 70 rows with no externally sourced case a reason (`after_cutoff` 21,
+  `none_found` 49, each with a note on what it rests on), and guards keep every row
   evidenced or listed, never both.
   A new exported `denckring.CorpusShare` is published as `Description.corpus` (the row's
   cases by provenance and recorded verdict, and its gap reason) and as `corpus` per row
   in `catalogue export` (`null` on a row with no checker). `status` prints a third
-  line and `eval` a fourth, `56 rows externally evidenced · 77 explained · 0 unexplained`
-  when it was introduced (63 · 70 · 0 once the cases below landed); `status --json`
-  carries the counts as `evidence`, `eval --json` as `coverage.evidence`. The
-  external-case floor rose from 66 to 85, joined by a share floor (0.123) and a per-row
-  ratchet, `tests/data/external-floor.json`; both floors rise again below.
+  line and `eval` a fourth, `63 rows externally evidenced · 70 explained · 0
+  unexplained`; `status --json` carries the counts as `evidence`, `eval --json` as
+  `coverage.evidence`. With the seventeen cases below, external cases go from 85 to 102
+  of 704 (14.5%). The external-case floor rises from 66 to 102, joined by a share floor
+  (0.144) and a per-row ratchet, `tests/data/external-floor.json`.
 - **Thirteen external cases for seven verse rows, all public domain** (ADR 0062). Each
   is extracted by script from the Project Gutenberg file its `source` names, with the
   publication and death years that place it inside the cutoff: Swinburne's "Sapphics"
@@ -68,9 +69,7 @@ All notable changes to this project are documented here. The format follows
   "Sestina of the Tramp-Royal", which is rejected for ending two lines on "along" where
   the rotation calls for "long". `sapphic_stanza`, `elegiac_couplet`, `heroic_couplet`,
   `iambic_pentameter`, `ottava_rima`, `syllable_count` and `sestina` leave the gap
-  registry: `status` now prints `63 rows externally evidenced · 70 explained · 0
-  unexplained`, and the floors rise to 98 external cases and a 0.14 share. No verdict
-  moves. The `ottava_rima`, `elegiac_couplet` and `sapphic_stanza` cases were selected
+  registry. No verdict moves. The `ottava_rima`, `elegiac_couplet` and `sapphic_stanza` cases were selected
   from passages the checker largely or partly rejects: 215 of the 219 stanzas of Don
   Juan I (191 of them with an eleven-syllable line, as a feminine ending gives), 3 of 7
   and 2 of 6 couplets in Clough's two closing passages, and 6 of Swinburne's 20 stanzas.
@@ -82,8 +81,7 @@ All notable changes to this project are documented here. The format follows
   OCR misreads small capitals. Three English lines from p. 9 pass at the dates Hilton
   gives (1652, 1651, 1651). The German rifle-target couplet on p. 87, which Hilton calls
   "full of such faults" for its superfluous letters, is rejected with `wrong_total`: its
-  capitals give his 1854, every numeral letter gives 5916. The floors rise to 102
-  external cases and a 0.144 share.
+  capitals give his 1854, every numeral letter gives 5916.
 - **`lear-beard` now quotes Lear verbatim** (ADR 0062): the text was lowercased, stripped
   of punctuation and cited no edition. It is now extracted by script from Project
   Gutenberg ebook #982, with its URL. Its verdict and score do not move.
@@ -2503,7 +2501,8 @@ evidence or descriptions only, or add something.
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/senzelden/denckring/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/senzelden/denckring/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/senzelden/denckring/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/senzelden/denckring/compare/v0.3.0...v0.3.1

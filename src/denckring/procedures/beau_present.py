@@ -35,8 +35,8 @@ class BeauPresent(BaseProcedure[BeauPresentParams]):
     #: Promised: ADR 0060 D3. Every golden report carries it.
     promised_metrics: ClassVar[dict[str, str]] = {
         "letters": (
-            "How many letters the text has, counted by letter_spans; "
-            "non-letters excluded, folded when fold_diacritics is set."
+            "How many alphabetic characters the text has, case ignored; with "
+            "fold_diacritics set, accents are stripped and ß counts as two."
         )
     }
     local_scope = "word"
