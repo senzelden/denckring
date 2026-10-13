@@ -32,3 +32,136 @@ cases:
     text: Bäh
     params: { vowel: "ä" }
     satisfied: true
+  - name: bombaugh-1890-a-russo-turkish-war
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 32 (Bombaugh
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "A.—THE RUSSO-TURKISH WAR."
+      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the poem is 32; the page image
+      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
+      has other vowels, is left out.
+    text: |-
+      Wars harm all ranks, all arts, all crafts appall:
+      At Mars’ harsh blast, arch, rampart, altar, fall!
+      Ah! hard as adamant, a braggart Czar
+      Arms vassal swarms, and fans a fatal war!
+      Rampant at that bad call, a Vandal band
+      Harass, and harm, and ransack Wallach-land.
+      A Tartar phalanx Balkan’s scarp hath past,
+      And Allah’s standard falls, alas! at last.
+    params: { vowel: a }
+    satisfied: true
+  - name: bombaugh-1890-e-fall-of-eve
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "E.—THE FALL OF EVE."
+      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the poem is 33; the page image
+      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
+      has other vowels, is left out. This row does not count y as a vowel ("Yet").
+    text: |-
+      Eve, Eden’s Empress, needs defended be;
+      The Serpent greets her when she seeks the tree.
+      Serene, she sees the speckled tempter creep;
+      Gentle he seems,—perversest schemer deep,—
+      Yet endless pretexts ever fresh prefers,
+      Perverts her senses, revels when she errs,
+      Sneers when she weeps, regrets, repents she fell;
+      Then, deep revenged, reseeks the nether hell!
+    params: { vowel: e }
+    satisfied: true
+  - name: bombaugh-1890-i-approach-of-evening
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "I.—THE APPROACH OF EVENING."
+      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the poem is 33; the page image
+      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
+      has other vowels, is left out.
+    text: |-
+      Idling, I sit in this mild twilight dim,
+      Whilst birds, in wild, swift vigils, circling skim.
+      Light winds in sighing sink, till, rising bright,
+      Night’s Virgin Pilgrim swims in vivid light!
+    params: { vowel: i }
+    satisfied: true
+  - name: bombaugh-1890-o-incontrovertible-facts
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "O.—INCONTROVERTIBLE FACTS."
+      Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the poem is 33; the page image
+      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title, which
+      has other vowels, is left out. This row does not count y as a vowel ("school-boys").
+    text: |-
+      No monk too good to rob, or cog, or plot.
+      No fool so gross to bolt Scotch collops hot.
+      From Donjon tops no Oronoko rolls.
+      Logwood, not Lotos, floods Oporto’s bowls.
+      Troops of old tosspots oft, to sot, consort.
+      Box tops, not bottoms, school-boys flog for sport.
+      No cool monsoons blow soft on Oxford dons,
+      Orthodox, jog-trot, book-worm Solomons!
+      Bold Ostrogoths, of ghosts no horror show.
+      On London shop-fronts no hop-blossoms grow.
+      To crocks of gold no dodo looks for food.
+      On soft cloth footstools no old fox doth brood.
+      Long storm-tost sloops forlorn, work on to port.
+      Rooks do not roost on spoons, nor woodcocks snort,
+      Nor dog on snow-drop or on coltsfoot rolls,
+      Nor common frogs concoct long protocols.
+    params: { vowel: o }
+    satisfied: true
+  - name: bombaugh-1890-u-has-no
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 33 (Bombaugh
+      1828–1906), under the heading "UNIVOCALIC VERSES.", the poem headed "U.—THE SAME SUBJECT,
+      CONTINUED." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg
+      #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script
+      from the Project Gutenberg text, where the page marker before the poem is 33; the page
+      image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The title is
+      left out. Bombaugh presents it as a univocalic in u, but line 2, "Lucullus snuffs no
+      musk, mundungus shuns.", has the word "no", whose o is a second vowel. Rejected:
+      `foreign_vowel`, once, on that o. An external near-miss in ADR 0062's sense: the source
+      presents it as the form and the text fails it.
+    text: |-
+      Dull humdrum murmurs lull, but hubbub stuns.
+      Lucullus snuffs no musk, mundungus shuns.
+      Puss purrs, buds burst, bucks butt, luck turns up trumps;
+      But full cups, hurtful, spur up unjust thumps.
+    params: { vowel: u }
+    satisfied: false
+  - name: holland-eves-legend
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 28 (Bombaugh
+      1828–1906): "Lord Holland, after reading the five Spanish novels already alluded to, in
+      1824, composed the following curious example, in which all the vowels except E are
+      omitted:—", headed "EVE’S LEGEND." Bombaugh names only "Lord Holland", taken here as
+      Henry Richard Vassall-Fox, 3rd Baron Holland (1773–1840; dates from Britannica, not
+      checked in this session). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the paragraph is 28; the page
+      image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The first
+      paragraph only. Bombaugh prints it under "LIPOGRAMMATA AND PANGRAMMATA.", but the
+      lipogram row takes one forbidden letter, so it is checked here as a univocalic in e.
+      This row does not count y as a vowel ("yet").
+    text: |-
+      Men were never perfect; yet the three brethren Veres were ever esteemed, respected, revered, even when the rest, whether the select few, whether the mere herd, were left neglected.
+    params: { vowel: e }
+    satisfied: true

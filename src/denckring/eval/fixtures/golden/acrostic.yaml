@@ -45,3 +45,62 @@ cases:
     text: "Sonne\nsehr\ntanzt"
     params: { target: "ßt", unit: line }
     satisfied: true
+  - name: bombaugh-unite-untie
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 40 (Bombaugh
+      1828–1906): "An ingenious variety called the Telestich, is that in which the letters
+      beginning the lines spell a word, while the letters ending the lines, when taken
+      together, form a word of an opposite meaning, as in this instance:—" Anonymous, printed
+      1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from
+      the Project Gutenberg text, where the page marker before the lines, inside the framing
+      sentence, is 40; the page image (https://archive.org/details/gleaningsforcuri00bomb) was
+      not checked. PG sets each line's initial and final letter in a cell of its own; the
+      script rejoins them, collapses the justifying runs of spaces to one, and keeps the space
+      in "you and I" and the printed capitals of the final letters. This case reads the
+      initials, U N I T E (the telestich file reads the final letters).
+    text: |-
+      Unite and untie are the same—so say yoU.
+      Not in wedlock, I ween, has this unity beeN.
+      In the drama of marriage each wandering gouT
+      To a new face would fly—all except you and I—
+      Each seeking to alter the spell in their scenE.
+    params: { target: UNITE }
+    satisfied: true
+  - name: bombaugh-hatherton-doubled
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 40 (Bombaugh
+      1828–1906): "In these lines, on the death of Lord Hatherton, (1863), the initial and
+      final letters are doubled:—" Anonymous, printed 1890 (ADR 0062, amended 2026-10-13).
+      Project Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm.
+      Transcribed by script from the Project Gutenberg text, where the page marker before the
+      lines, in the Telestich sentence above them, is 40; the page image
+      (https://archive.org/details/gleaningsforcuri00bomb) was not checked. PG sets each
+      line's initial and final letter in a cell of its own; the script rejoins them and
+      collapses the justifying runs of spaces to one. The initials spell HHAATTHHEERRTTOONN, every
+      letter doubled; the telestich file reads the same name down the final letters.
+    text: |-
+      Hard was his final fight with ghastly Death,
+      He bravely yielded his expiring breath.
+      As in the Senate fighting freedom’s plea,
+      And boundless in his wisdom as the sea.
+      The public welfare seeking to direct,
+      The weak and undefended to protect.
+      His steady course in noble life from birth,
+      Has shown his public and his private worth.
+      Evincing mind both lofty and sedate,
+      Endowments great and fitted for the State,
+      Receiving high and low with open door,
+      Rich in his bounty to the rude and poor.
+      The crown reposed in him the highest trust,
+      To show the world that he was wise and just.
+      On his ancestral banners long ago,
+      Ours willingly relied, and will do so.
+      Nor yet extinct is noble Hatherton,
+      Now still he lives in gracious Littleton.
+    params: { target: HHAATTHHEERRTTOONN }
+    satisfied: true

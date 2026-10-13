@@ -22,9 +22,10 @@ public-domain text only and record the URL they were extracted from. They are ex
 by script from a downloaded file, never retyped. The maintainer decided this on
 2026-10-12. The public-domain cutoff, as set that day, is: published in 1930 or earlier
 (the US rule) **and** by an author, and translator, who died in 1955 or earlier (the EU's
-seventy years). Everywhere else, the code and docs say "the public-domain cutoff (ADR
-0062)" rather than repeating these years, so that only this record needs correcting when
-they move. The policy is forward only: external cases shipped before it stay, including
+seventy years). A text whose author is unknown meets the death-year half through its
+publication date (amended 2026-10-13, below). Everywhere else, the code and docs say
+"the public-domain cutoff (ADR 0062)" rather than repeating these years, so that only
+this record needs correcting when they move. The policy is forward only: external cases shipped before it stay, including
 the post-cutoff ones listed under Consequences.
 
 **What counts as an external near-miss.** A published text its source presents as the
@@ -58,7 +59,10 @@ empty.
 (0.123, the measured share rounded down) stops constructed cases outpacing external ones
 unnoticed. Both were raised to the measured value again as public-domain cases landed,
 to 102 and 0.144 on 2026-10-12; the comments beside them in
-`tests/test_corpus_provenance.py` record each step.
+`tests/test_corpus_provenance.py` record each step. The share floor then fell, once and
+deliberately, to 0.141, when ADR 0063's German letter-rule cases landed, every one of them
+constructed; it was raised to 0.156 (115 of 736), with `EXTERNAL_FLOOR` at 115, on
+2026-10-13 when the Bombaugh 1890 cases landed under the amendment below.
 `tests/data/external-floor.json` holds each row's external count as a ratchet: a row may
 gain cases and never lose one.
 
@@ -94,11 +98,12 @@ pre-cutoff texts through post-cutoff editions: Kuhlmann's 1686 abecedarian in Be
 1971 edition, and Hemeling's 1653 exchange as transcribed by Althaus in 1996. Few of the
 85 record the URL their text was extracted from.
 
-Six rows count as externally evidenced only through grandfathered cases: `cut_up`,
-`eodermdrome`, `snowball`, `reverse_snowball`, `lipogram` and `calculator_word`. The
+Five rows count as externally evidenced only through grandfathered cases: `cut_up`,
+`eodermdrome`, `snowball`, `reverse_snowball` and `calculator_word`. There were six until
+2026-10-13, when `lipogram` gained two public-domain cases from Bombaugh (1890). The
 per-row ratchet holds those cases in place, because removing one fails it. Whether they
 should leave, and the rows become gap entries, is an open question for the maintainer.
-Until it is answered, "externally evidenced" on those six rows means something weaker
+Until it is answered, "externally evidenced" on those five rows means something weaker
 than the policy now requires.
 
 21 rows are `after_cutoff` and can never be evidenced while the policy stands: Perec,
@@ -116,12 +121,17 @@ stale the same way, and this ADR is the one place to correct them.
 A real poem of another form does not count, so a row whose only plausible negatives are
 real poems stays without an external near-miss.
 
-The 49 `none_found` entries mean four different things, and only the note tells them
-apart:
-- 25 record pending work: the batch 4 brief. Six of those also record a search that
-  failed in batch 3 (`assonance_constraint`, `boustrophedon`, `double_acrostic`,
-  `paragram`, `serial_lipogram`, `telestich`). Two record a batch-3 find that was too
-  incomplete to land (`denckring`, `wechselsatz`).
+The `none_found` entries mean different things, and only the note tells them apart.
+There were 49 when this was written, 25 of them recording pending work: the batch 4
+brief. Batch 4 reported on 2026-10-13, `telestich` left the registry, and of the 48 that
+remain:
+- 18 record that batch 4 did not search them. Three of those also record a search that
+  failed in batch 3 (`assonance_constraint`, `boustrophedon`, `paragram`), and two a
+  batch-3 find that was too incomplete to land (`denckring`, `wechselsatz`).
+- 6 record what batch 4 found: no English instance in Bombaugh's "Alphabetical Whims"
+  (`bivocalic`, `letter_bank`, `serial_lipogram`); leads located but not read
+  (`consonantal_lipogram`); and a public-domain candidate the batch proposed for another
+  row and not for this one (`double_acrostic`, `pangrammatic_lipogram`).
 - 3 record checker findings pending a maintainer ruling (`alcaic_stanza`, `ballade`,
   `petrarchan_sonnet`): the checker rejected every candidate the public-domain
   sourcing pass found, and each note records why.
@@ -134,3 +144,32 @@ apart:
 The per-row ratchet is a file a person rewrites by hand when a row gains a case. If
 nobody does, the floor for that row stays at its old value and protects less than it
 could.
+
+---
+
+## Amendment, 2026-10-13: anonymous texts
+
+The cutoff asks when the author died, and an anonymous text has no author to ask about.
+Most of what C. C. Bombaugh's *Gleanings for the Curious* (enlarged ed., 1890) presents
+as instances of a form names nobody: the UNITE/UNTIE telestich, the Hatherton
+acrostic-telestich, all five univocalic verses (one of them a near-miss) and both
+e-lipograms. Read as written, the rule shut all of them out, although the book was
+printed in 1890 and its compiler died in 1906.
+
+**Decision.** The maintainer decided on 2026-10-13 that a text published in 1930 or
+earlier whose author is unknown (anonymous, printed in a dated compilation) meets the
+cutoff. The US rule is publication-based, and the EU term for an anonymous work runs
+seventy years from publication, not from a death. The case's `source` says
+"anonymous, printed <year>" where a death year would go, and names the compilation's
+edition, year and compiler, whose own death year is still stated. A text the compilation
+attributes, such as Lord Holland's "Eve's Legend" in the same book, is judged by the
+original rule.
+
+**Consequences.** An anonymous text's true author could, in principle, have lived past
+1955, and the rule would then admit a text still in copyright under that author's term.
+Nobody checks, and for a text printed by 1890 it needs an author who wrote before 1890
+and died after 1955. "Printed 1890" dates the compilation, not the text, which can be
+older; a text cannot have been published later than the book that prints it, so the
+compilation's date settles the publication half on its own. A compiler can misattribute, abridge or tidy a text, and with no
+author there is no other edition to check it against: the Bombaugh cases are
+transcribed from the Project Gutenberg text, and the page images were not checked.

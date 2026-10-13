@@ -13,10 +13,10 @@ alcaic_stanza:
   note: "Public-domain sourcing pass (2026-10-12): all four stanzas of Tennyson's 'Milton' (Enoch Arden, &c., Project Gutenberg ebook #1358), headed 'In quantity' and 'Alcaics', are rejected. The poem is quantitative and the checker scans stress; it also miscounts 'Abdiel', 'armouries' and 'ambrosial'. Checker findings, pending a maintainer ruling."
 alphabetical_sentence:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); not searched in batch 4 (2026-10-13)."
 antigram:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); not searched in batch 4 (2026-10-13)."
 antonymic_substitution:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
@@ -25,10 +25,10 @@ antonymic_translation:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 arca_musarithmica:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Kircher, Musurgia Universalis (1650); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Kircher, Musurgia Universalis (1650); not searched in batch 4 (2026-10-13)."
 assonance_constraint:
   reason: none_found
-  note: "Batch 3: no assonance-bound unit in a supported language verified against a named pre-1929 edition (the native exemplar is the Old French laisse). Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3: no assonance-bound unit in a supported language verified against a named pre-1929 edition (the native exemplar is the Old French laisse). Not searched in batch 4 (2026-10-13)."
 ballade:
   reason: none_found
   note: "Batch 2 proposed two French Villon ballades; neither landed as a ballade case. Public-domain sourcing pass (2026-10-12): all 67 ballades of 28 lines in Gleeson White's Ballades and Rondeaus (1887) are rejected, mostly for lines that are not octosyllables, a length White says real ballades vary; the nearest is rejected only because 'erewhile' is counted as three syllables. Checker findings, pending a maintainer ruling."
@@ -40,10 +40,10 @@ belle_absente:
   note: "Catalogue source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)."
 bivocalic:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards). Batch 4 (2026-10-13) read Bombaugh, Gleanings for the Curious (1890), 'Alphabetical Whims', pp. 25-64, in full and found no English bivocalic; German was not searched."
 boustrophedon:
   reason: none_found
-  note: "Batch 3: no pre-1929 printed English, German or French boustrophedon text found. Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3: no pre-1929 printed English, German or French boustrophedon text found. Not searched in batch 4 (2026-10-13)."
 cent_mille_milliards:
   reason: after_cutoff
   note: "Catalogue source: Raymond Queneau, Cent mille milliards de poèmes (1961)."
@@ -55,7 +55,7 @@ column_reading:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 consonantal_lipogram:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981). Batch 4 (2026-10-13) located but did not read: an English lead, a poem without s by George Wakeman, 'Tormenting the Alphabet' ('Torturing the Alphabet' in the magazine's own 1870 obituary), The Galaxy (1866), known only secondhand; and German R-lipograms by Burmann (1788, 1796) and Rittler (1815, 1820), whose Fraktur scans were not opened."
 definitional_expansion:
   reason: after_cutoff
   note: "Catalogue source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)."
@@ -67,19 +67,19 @@ definitional_translation:
   note: "Catalogue source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)."
 denckring:
   reason: none_found
-  note: "Batch 3 transcribed Harsdörffer's binder's instruction (1651, p. 517) from a reproduction but not the ring contents a case needs. Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3 transcribed Harsdörffer's binder's instruction (1651, p. 517) from a reproduction but not the ring contents a case needs. Not searched in batch 4 (2026-10-13)."
 diastic:
   reason: after_cutoff
   note: "Catalogue source: Jackson Mac Low, Stanzas for Iris Lezak (1972)."
 double_acrostic:
   reason: none_found
-  note: "Batch 3: Carroll's double acrostics (Phantasmagoria, 1869) named but their text not verified, nor that each has both first- and last-letter words. Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3: Carroll's double acrostics (Phantasmagoria, 1869) named but their text not verified, nor that each has both first- and last-letter words. Batch 4 (2026-10-13): they are riddles, whose answer words carry the letters rather than the poem's lines. Batch 4 also notes that Bombaugh's 1890 'Telestich' (p. 40, UNITE down the initials, UNTIE down the finals) is by his definition a double acrostic, but proposed it for telestich and acrostic only."
 double_dactyl:
   reason: after_cutoff
   note: "Catalogue source: Anthony Hecht and Paul Pascal, Jiggery-Pokery (1966)."
 englyn:
   reason: none_found
-  note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; not searched in batch 4 (2026-10-13)."
 every_nth_word:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
@@ -112,13 +112,13 @@ larding:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 letter_bank:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards). Batch 4 (2026-10-13) read Bombaugh, Gleanings for the Curious (1890), 'Alphabetical Whims', pp. 25-64, in full and found no English instance; no letter-bank search was made beyond it."
 lipogrammatic_translation:
   reason: after_cutoff
   note: "Catalogue source: Gilbert Adair's A Void (1994), translating Perec's La Disparition."
 liponym:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981); not searched in batch 4 (2026-10-13)."
 mathews_algorithm:
   reason: after_cutoff
   note: "Catalogue source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)."
@@ -130,10 +130,10 @@ mesostic:
   note: "Catalogue source: John Cage, Writing Through Finnegans Wake (1978)."
 monoconsonantal:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); not searched in batch 4 (2026-10-13)."
 monosyllabic_prose:
   reason: none_found
-  note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; not searched in batch 4 (2026-10-13)."
 multiple_constraint:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
@@ -142,10 +142,10 @@ n_plus_7:
   note: "Catalogue source: Jean Lescure, in Oulipo, La Littérature potentielle (1973); the s_plus_7 row dates the method to 1961."
 pangrammatic_lipogram:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards). Batch 4 (2026-10-13) proposes Bombaugh 1890's 'A jovial swain' stanza (pp. 27-28, 'containing every letter of the alphabet except e') as a pangram-without-e case; it landed for lipogram only, and has not been landed here."
 paragram:
   reason: none_found
-  note: "Batch 3: no clean pre-1929 unit verified with both words present and one letter between them. Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3: no clean pre-1929 unit verified with both words present and one letter between them. Not searched in batch 4 (2026-10-13)."
 pasigraphy:
   reason: none_found
   note: "Batch 3: no verified transcription of the tables in Kircher's Polygraphia Nova (1663), or of a worked translation from them, located."
@@ -169,19 +169,19 @@ recombination:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 renga:
   reason: none_found
-  note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; not searched in batch 4 (2026-10-13)."
 s_plus_7:
   reason: after_cutoff
   note: "Catalogue source: Oulipo, S+7 (Jean Lescure, 1961)."
 senryu:
   reason: none_found
-  note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; not searched in batch 4 (2026-10-13)."
 sentence_length_constraint:
   reason: none_found
   note: "No search has been made: not in research batches 1-3 or the batch 4 brief. The catalogue names style manuals and readability work, no exemplar."
 serial_lipogram:
   reason: none_found
-  note: "Batch 3: no supported-language work in alphabet-many parts each omitting a different letter (Burmann omits only R; Lope de Vega is Spanish). Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3: no supported-language work in alphabet-many parts each omitting a different letter (Burmann omits only R; Lope de Vega is Spanish). Batch 4 (2026-10-13) read Bombaugh, Gleanings for the Curious (1890), 'Alphabetical Whims', pp. 25-64, in full and found no English instance: it names only Greek, Latin and Spanish serial lipograms."
 single_sentence:
   reason: none_found
   note: "No search has been made: not in research batches 1-3 or the batch 4 brief. The catalogue names Gertrude Stein's and Thomas Bernhard's prose, not checked against the cutoff."
@@ -190,25 +190,22 @@ slenderizing:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 snowball_sentence:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); not searched in batch 4 (2026-10-13)."
 synonymic_substitution:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 tanka:
   reason: none_found
-  note: "Not in research batches 1-3; batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; not searched in batch 4 (2026-10-13)."
 tautonym:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Borgmann, Language on Vacation (1965); batch 4 brief pending (2026-10-12)."
-telestich:
-  reason: none_found
-  note: "Batch 3: no pre-1929 telestich verified; Poe's 'A Valentine' is a diagonal acrostic, not a telestich. Batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Borgmann, Language on Vacation (1965); not searched in batch 4 (2026-10-13)."
 text_folding:
   reason: after_cutoff
   note: "Catalogue source: William S. Burroughs, The Third Mind (1978)."
 transposal:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Borgmann, Language on Vacation (1965); batch 4 brief pending (2026-10-12)."
+  note: "Not in research batches 1-3; catalogue cites Borgmann, Language on Vacation (1965); not searched in batch 4 (2026-10-13)."
 univocalic_translation:
   reason: none_found
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
@@ -217,4 +214,4 @@ verbless_prose:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 wechselsatz:
   reason: none_found
-  note: "Batch 3 verified the first line of Kuhlmann's 1671 sonnet; the body was only partly recovered, from a secondary transcription. Batch 4 brief pending (2026-10-12)."
+  note: "Batch 3 verified the first line of Kuhlmann's 1671 sonnet; the body was only partly recovered, from a secondary transcription. Not searched in batch 4 (2026-10-13)."

@@ -55,8 +55,9 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: below: the floor had trailed the corpus by nineteen cases, so it could have fallen
 #: that far without a failure. Raised to 98 later on 2026-10-12, when the public-domain
 #: sourcing pass for the classical verse forms landed thirteen cases, and to 102 when four
-#: of Hilton's chronograms (1882) landed.
-EXTERNAL_FLOOR = 102
+#: of Hilton's chronograms (1882) landed. Raised to 115 on 2026-10-13, when Bombaugh's 1890
+#: chronogram and twelve of his telestich, acrostic, univocalic and lipogram texts landed.
+EXTERNAL_FLOOR = 115
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
@@ -64,7 +65,9 @@ EXTERNAL_FLOOR = 102
 #: (0.140), and at 102 of 704 (0.144). Lowered once, deliberately, to 102 of 722 (0.141):
 #: ADR 0063 declares German on twenty letter rules and every one of the eighteen German
 #: cases it needed is constructed. The fall is the cost that ADR records, not drift.
-EXTERNAL_SHARE_FLOOR = 0.141
+#: Raised to 115 of 736 (0.156) when the Bombaugh 1890 cases landed, above the 0.144 the
+#: dip had given up.
+EXTERNAL_SHARE_FLOOR = 0.156
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.
