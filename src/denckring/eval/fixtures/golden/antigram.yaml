@@ -11,3 +11,11 @@ cases:
     text: listen
     params: { source: listen }
     satisfied: false
+  - name: liebe-wird-beile
+    lang: de
+    source: >-
+      constructed example; love rearranged into axes. The checker verifies the
+      anagram only; whether the sense is opposite is the reader's judgement
+    text: Beile
+    params: { source: Liebe }
+    satisfied: true

@@ -98,3 +98,11 @@ cases:
       sCharf avf dIe feInd am Donaustrand.
     params: {year: 1854}
     satisfied: false
+  - name: max-im-tor
+    lang: de
+    source: >-
+      constructed example; every numeral letter counts, capital or not — M, X, V,
+      X, I, M — and they total 2026. The `ß` reads as `ss` and adds nothing
+    text: Max saß vor Rex im Tor
+    params: { year: 2026 }
+    satisfied: true

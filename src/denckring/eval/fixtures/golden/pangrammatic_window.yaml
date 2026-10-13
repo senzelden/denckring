@@ -24,3 +24,11 @@ cases:
     params: { max_length: 100 }
     satisfied: false
     max_score: 0.0
+  - name: juergen-und-max
+    lang: de
+    source: >-
+      constructed example; every letter occurs unaccented at least once, so the
+      window holds whether or not `ä` and `ü` fold
+    text: Jürgen quält vierzehn kleine Schafe, Max pflegt bei Sylt Wild am Hof.
+    params: { max_length: 80 }
+    satisfied: true

@@ -11,3 +11,9 @@ cases:
     text: silent cat
     params: { source: listen rat }
     satisfied: false
+  - name: wort-fuer-wort
+    lang: de
+    source: constructed example; the term is Borgmann's
+    text: Lager Läuse
+    params: { source: Regal Säule }
+    satisfied: true

@@ -1,5 +1,9 @@
 # 47. Editorial language scope, and the thirty rows their own sources already claim
 
+> **Partly superseded by [ADR 0063](0063-letter-rules-claim-german.md) for letter rules.**
+> Rows whose checkers read letters and nothing else declare German on that ground alone.
+> For every other row this decision still stands.
+
 ## Context
 
 The request was to widen German and French support across the catalogue. The

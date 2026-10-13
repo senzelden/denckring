@@ -11,3 +11,11 @@ cases:
     text: meander zoo
     params: { bank: meander }
     satisfied: false
+  - name: aus-der-muehle
+    lang: de
+    source: >-
+      constructed example; the bank's `ü` is matched by an `ü` in the text, never
+      by a `u`, so the case does not lean on folding
+    text: Mühe, Hülle, Mühle
+    params: { bank: Mühle }
+    satisfied: true

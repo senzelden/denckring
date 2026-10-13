@@ -11,3 +11,19 @@ cases:
     text: all cats bad dance
     params: {}
     satisfied: false
+  - name: alphabetisch-geordnet
+    lang: de
+    source: >-
+      constructed example; the order holds whether or not `ü` folds to `u`
+      (ADR 0063)
+    text: Anna backt dünne Erdbeerkuchen für glückliche Hühner.
+    params: {}
+    satisfied: true
+  - name: aepfel-nach-birnen
+    lang: de
+    source: >-
+      constructed counterexample; `Ä` folds to `a`, so "Äpfel" sorts before
+      "Birnen" and is out of order after it
+    text: Birnen, Äpfel, Chili.
+    params: {}
+    satisfied: false

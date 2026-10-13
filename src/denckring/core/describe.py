@@ -198,7 +198,9 @@ class Description(BaseModel):
     #: Which languages this install can actually check the row in, computed from
     #: the packs' capabilities. `languages` above is authored editorial scope —
     #: `wechselsatz` is German by nature and not merely by capability — and the
-    #: two answer different questions. Derived rather than authored so it cannot
+    #: two answer different questions. For letter rules alone, ADR 0063 makes the
+    #: authored claim narrower: the rule is checked in that language, not that the
+    #: language's literature attests the form. Derived rather than authored so it cannot
     #: drift into the false claim a `[en]` row made once French began working.
     runs_in: list[str]
     requires: list[str]

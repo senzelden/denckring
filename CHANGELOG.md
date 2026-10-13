@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **Every letter rule now declares German** (ADR 0063, partly superseding ADR 0047). A
+  letter rule is a row of family `letter` whose `requires` is within `tokens`,
+  `alphabet` and `fold_diacritics`, so its checker reads letters and nothing else.
+  Twenty such rows lacked `de`, and they now declare it. German editorial scope goes
+  from 46 rows to 66, and `runs_in` does not move. For these rows the declaration claims
+  that the rule is checked in German, not that German literature attests the form.
+  Fifteen German names and fifteen definitions were written, and most of the names are
+  coinages, which the ADR lists. Eighteen constructed German golden cases were added:
+  one satisfying case for each of the fourteen rows that had none, and four
+  counterexamples. `kangaroo_word` needs a word list, so it stays outside the class, and
+  so do the syntax, word, visual and form rows the bench also asked about.
+- **The external share of the golden corpus falls from 14.5% to 14.1%** (102 of 722),
+  because every new German case is constructed. ADR 0062's share floor is lowered from
+  0.144 to 0.141 to match, and ADR 0063 records the fall as the cost of this change.
+
+### Added
+
+- **`tests/test_letter_rules_claim_german.py`**, which computes the class of letter
+  rules from the catalogue and fails on any registered letter rule that does not
+  declare `de`.
+
 ## [0.5.0] - 2026-10-13
 
 ### Added

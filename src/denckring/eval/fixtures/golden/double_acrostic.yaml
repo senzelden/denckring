@@ -15,3 +15,14 @@ cases:
       Berra
     params: { first: ab, last: ey }
     satisfied: false
+  - name: oede-und-nie
+    lang: de
+    source: >-
+      constructed example; the first letters spell "Öde", the last "nie". `Ö`
+      and the parameter's `ö` read alike with `fold_diacritics` on or off
+    text: |-
+      Öde ist das Land im Regen
+      Dort blüht kein Mohn und kein Salbei
+      Erst im Mai kommt wieder Sonne
+    params: { first: öde, last: nie }
+    satisfied: true

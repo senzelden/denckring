@@ -120,6 +120,7 @@ nav:
       - "60. What the bench may lean on": adr/0060-what-the-bench-may-lean-on.md
       - "61. Checker versions": adr/0061-checker-versions.md
       - "62. External evidence, public domain only": adr/0062-external-evidence-public-domain-only.md
+      - "63. Letter rules may claim German": adr/0063-letter-rules-claim-german.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

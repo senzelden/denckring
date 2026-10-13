@@ -23,3 +23,15 @@ cases:
     text: un chien dormait sur le tapis
     params: { forbidden: chien }
     satisfied: false
+  - name: ohne-das-wort
+    lang: de
+    source: constructed example
+    text: Der Dackel schläft vor der Tür.
+    params: { forbidden: Hund }
+    satisfied: true
+  - name: mit-dem-wort
+    lang: de
+    source: constructed counterexample
+    text: Der Hund schläft vor der Tür.
+    params: { forbidden: Hund }
+    satisfied: false
