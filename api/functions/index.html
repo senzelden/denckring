@@ -562,6 +562,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#denckring.checker_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checker_history
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#denckring.rules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -709,6 +720,28 @@
     <span class="md-ellipsis">
       
         all_procedures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denckring.unmet_requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unmet_requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denckring.PARAMETER_ROLES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PARAMETER_ROLES
       
     </span>
   </a>
@@ -2519,6 +2552,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0060-what-the-bench-may-lean-on/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    60. What the bench may lean on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0061-checker-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    61. Checker versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0062-external-evidence-public-domain-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    62. External evidence, public domain only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2684,6 +2801,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#denckring.checker_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        checker_history
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#denckring.rules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2831,6 +2959,28 @@
     <span class="md-ellipsis">
       
         all_procedures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denckring.unmet_requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unmet_requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denckring.PARAMETER_ROLES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PARAMETER_ROLES
       
     </span>
   </a>
@@ -3062,6 +3212,30 @@ one line per constraint, as in <code>prompt_hint</code>, each that constraint's 
 hint rendered from its entry's <code>params</code>: the caller's template states the
 composite, and the entries' parameters are stated whether it names them or not
 (ADR 0059).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="denckring.checker_history" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">denckring.checker_history</span>
+
+
+<a href="#denckring.checker_history" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">checker_history</span><span class="p">(</span><span class="n">procedure_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CheckerChange</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Every <code>checker_version</code> a row has had, oldest first, with the release and why.</p>
+<p>The last entry's <code>version</code> is <code>describe(procedure_id).checker_version</code>. Compare it
+with <code>report.provenance.checkers</code> to learn whether a result predates a change that
+could have moved the row's verdicts (ADR 0061). Raises <code>UnknownProcedure</code> for an
+id that is not registered.</p>
 
 
     </div>
@@ -3375,9 +3549,11 @@ blocks it rather than scoring it. Pass <code>runnable=False</code> for the whole
         <p>Which pack answers for <code>lang</code> on this install, and which data it reads.</p>
 <p>The same record every <code>Report.provenance.pack</code> carries, without checking a text
 first: the pack's class, and each data distribution it reads mapped to its
-installed version (empty for a built-in default). A caller recording a run, or
-choosing what to draw from, reads it here rather than <code>getattr</code>ing the pack's
-<code>data_distributions</code>, which is not part of the <code>LanguagePack</code> protocol.</p>
+installed version (empty for a built-in default). Unlike a report's copy it also
+carries <code>digests</code>, content hashes of the pack's surfaces (ADR 0060 D4).
+A caller recording a run, or choosing what to draw from, reads it here rather
+than <code>getattr</code>ing the pack's <code>data_distributions</code>, which is not part of the
+<code>LanguagePack</code> protocol.</p>
 
 
     </div>
@@ -3447,6 +3623,57 @@ so offering them would be offering something that cannot run.</p>
 
         <p>Every registered procedure, by id.</p>
 
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="denckring.unmet_requirements" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">denckring.unmet_requirements</span>
+
+
+<a href="#denckring.unmet_requirements" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">unmet_requirements</span><span class="p">(</span>
+    <span class="n">case</span><span class="p">:</span> <span class="n">GoldenCase</span><span class="p">,</span> <span class="n">pack</span><span class="p">:</span> <span class="n">LanguagePack</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Which of the case's own capability requirements this pack cannot meet.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="denckring.PARAMETER_ROLES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">denckring.PARAMETER_ROLES</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#denckring.PARAMETER_ROLES" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">PARAMETER_ROLES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">(</span>
+    <span class="n">_ROLES</span>
+<span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Each <code>x-denckring-role</code> value a parameter schema can carry, and what it tells a
+caller writing a prompt.</p>
+<p>Read-only: a role may be added, never removed or renamed without a <strong>Breaking:</strong>
+changelog entry (ADR 0060).</p>
 
     </div>
 

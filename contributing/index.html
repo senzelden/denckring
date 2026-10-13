@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://senzelden.github.io/denckring/contributing/">
       
       
-        <link rel="prev" href="../adr/0059-composites-and-the-promise-of-rules-and-evidence/">
+        <link rel="prev" href="../adr/0062-external-evidence-public-domain-only/">
       
       
         <link rel="next" href="../changelog/">
@@ -2239,6 +2239,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0060-what-the-bench-may-lean-on/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    60. What the bench may lean on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0061-checker-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    61. Checker versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0062-external-evidence-public-domain-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    62. External evidence, public domain only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2339,6 +2423,17 @@
     <span class="md-ellipsis">
       
         Invariants your procedure must hold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changing-a-checkers-verdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changing a checker's verdict
       
     </span>
   </a>
@@ -2473,6 +2568,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#changing-a-checkers-verdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changing a checker's verdict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#before-you-open-a-pull-request" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2586,6 +2692,25 @@ edit them.</p>
   input, including arbitrary Unicode.</li>
 <li>Every capability the procedure uses appears in its catalogue <code>requires</code>.</li>
 </ul>
+<h2 id="changing-a-checkers-verdict">Changing a checker's verdict<a class="headerlink" href="#changing-a-checkers-verdict" title="Permanent link">&para;</a></h2>
+<p>Any change that can move <code>satisfied</code>, <code>score</code> or the set of violation rules on some text
+is a checker change (ADR 0061). Evidence and message wording are not. For one:</p>
+<ol>
+<li>Bump the row's <code>checker_version</code> class attribute.</li>
+<li>Append <code>{version, since, reason}</code> to the row's list in
+   <code>src/denckring/eval/checker-history.yaml</code>.</li>
+<li>Run <code>uv run python -m denckring.eval.fingerprint --write</code> to refresh
+   <code>tests/data/verdict-fingerprints.json</code>.</li>
+<li>Add a <code>CHANGELOG.md</code> line under <code>## [Unreleased]</code>.</li>
+</ol>
+<p><code>tests/test_verdict_fingerprints.py</code> checks every golden text of a row against every
+parameter set its golden cases use, and stores per probe a digest of the outcome and one
+of <code>provenance.checkers</code>, the versions of every row that decided it. An outcome that
+moved while those versions did not fails as "verdict moved without a checker_version
+bump", and <code>--write</code> refuses to record it. Bump the row that changed, not the rows that
+compose it: <code>sestina</code>'s probes carry <code>quenina</code>'s version, so a <code>quenina</code> bump is seen
+there too. Adding a golden case only adds probes, which the guard reports as "golden
+probes changed"; <code>--write</code> records them.</p>
 <h2 id="before-you-open-a-pull-request">Before you open a pull request<a class="headerlink" href="#before-you-open-a-pull-request" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="go">uv run --with pre-commit pre-commit install</span>
 </code></pre></div>

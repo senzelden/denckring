@@ -2449,6 +2449,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0060-what-the-bench-may-lean-on/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    60. What the bench may lean on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0061-checker-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    61. Checker versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0062-external-evidence-public-domain-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    62. External evidence, public domain only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2746,6 +2830,7 @@ otherwise. The same check then passes the corrected draft: the validator is the 
 <span class="gp">$ </span>denckring<span class="w"> </span>status
 <span class="go">158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable</span>
 <span class="go">0 instruments catalogued</span>
+<span class="go">63 rows externally evidenced · 70 explained · 0 unexplained</span>
 </code></pre></div>
 <p>Three interfaces over the same core functions, so they cannot disagree about what a
 procedure is: the Python API, the CLI, and <code>--json</code> on <code>check</code>, <code>apply</code>, <code>show</code> and
@@ -2771,6 +2856,18 @@ shells out to the CLI instead, and needs no extra beyond the package itself.</p>
 one of them is validated. Of the rest, 25 have no mechanical acceptance criterion and are
 catalogued rather than implemented — see <a href="#what-can-be-checked">What can be checked</a> —
 and all 133 implementable procedures are implemented.</p>
+<p>Validated means a row agrees with its golden examples, and most of those were written
+for the suite, so they show the code does what its author meant, not that the author
+read the form right. Only an example quoted from a published text is evidence of that.
+Golden cases added from 2026-10-12 quote public-domain text only and record the URL
+they were extracted from (ADR 0062); some earlier external cases predate that policy.
+Every implemented row either has an external case or records why not: the form
+postdates the public-domain cutoff, its exemplars are in copyright or in a language no
+pack covers, or none has been found yet, with what was searched or that no search has
+been made. <code>describe(pid).corpus</code> gives a row's split, as a <code>CorpusShare</code> counting its
+examples by provenance and recorded verdict beside that reason; <code>denckring catalogue
+export</code> carries it per row as <code>corpus</code>, and <code>denckring status</code> totals it on its third
+line.</p>
 <p>The <a href="https://senzelden.github.io/denckring/gallery/"><strong>gallery</strong></a> has a page per
 catalogued procedure, generated from the catalogue and the golden fixtures, so every
 worked example on it is one the test suite enforces and none of it can drift. Locally,
@@ -2910,14 +3007,36 @@ are built on them:</p>
   <code>multiple_constraint</code>, which replaced <code>univocalic_lipogram_pair</code>, is the precedent.</li>
 <li><strong>The names <code>denckring</code> exports</strong>, imported from <code>denckring</code> itself. <code>check</code>, <code>apply</code>,
   <code>produce</code>, <code>describe</code>, <code>get</code>, <code>list_procedures</code>, <code>summaries</code>, <code>all_procedures</code> and
-  <code>rules</code> keep their signatures and meaning; a new parameter arrives as a keyword whose
-  default keeps today's answer. <code>Report</code>, <code>Violation</code>, <code>Evidence</code>, <code>Production</code>,
-  <code>Description</code>, <code>Summary</code>, <code>Scholarly</code>, <code>Meta</code> and <code>Lang</code> keep the type and meaning of
-  every field they have,
+  <code>rules</code> keep their signatures and meaning, as do <code>checker_history</code> and <code>CheckerChange</code>
+  (ADR 0061); a new parameter arrives as a keyword whose default keeps today's answer.
+  <code>Report</code>, <code>Violation</code>, <code>Evidence</code>, <code>Production</code>, <code>Description</code>, <code>Summary</code>,
+  <code>Scholarly</code>, <code>Meta</code> and <code>Lang</code> keep the type and meaning of every field they have,
   except the fields listed below as not yet promised. <code>DenckringError</code> and every
   subclass keep their names, their place under <code>DenckringError</code> and their <code>code</code>. The
-  same objects reached through <code>denckring.core</code> are not covered: the path is part of
-  the promise. The rest of <code>__all__</code> is published but not yet promised, as listed below.</li>
+  same objects reached through <code>denckring.core</code> are not covered: the path is part of the
+  promise. The rest of <code>__all__</code> is published but not yet promised, as listed below.
+  Also promised, because the sibling <code>denckring-bench</code> reads them (ADR 0060):
+  <code>golden_cases</code> and <code>GoldenCase</code>, the shipped examples with the verdict each must give;
+  <code>unmet_requirements</code>, which says, given a case and a pack, why the case cannot run
+  (the capabilities it needs that the pack lacks, or <code>[]</code>); <code>pack_provenance</code> and
+  <code>PackProvenance</code>, the record <code>Report.provenance.pack</code> carries, whose <code>digests</code> (from
+  <code>pack_provenance</code>, empty on a <code>Report</code>) hold a lower-case hex SHA-256 per surface,
+  changing exactly when that surface's content does, so a snapshot keys on them rather
+  than on distribution versions, which move with every release. <code>graded_words</code> is
+  <code>sha256(json.dumps(sorted(pack.graded_words().items()), ensure_ascii=False,
+  separators=(",", ":")).encode("utf-8"))</code>; <code>nouns</code> is the same over
+  <code>sorted(pack.nouns())</code>; <code>files</code> hashes <code>name\0path\0bytes\0</code> for each file under each
+  data distribution's import package directory (sorted, paths relative to it, bytecode
+  excluded, nothing from <code>*.dist-info</code>), so the release version does not move it and a
+  wheel and an editable install of the same data agree. A surface the pack lacks omits
+  its key; <code>Description.reading</code>, including <code>reading.units</code>, <code>reading.word_examples</code>,
+  <code>reading.vowels</code>, <code>reading.rhyme</code> and <code>reading.counting</code> (a <code>Counting</code>, or <code>None</code> on a
+  row that totals no letter values; ADR 0061 D4); <code>Description.corpus</code>, a <code>CorpusShare</code>
+  (ADR 0062) whose counts move as golden cases land and whose <code>gap</code> is <code>None</code> or one of
+  <code>in_copyright</code>, <code>after_cutoff</code>, <code>unsupported_language</code> and <code>none_found</code>, each keeping
+  its meaning; and <code>PARAMETER_ROLES</code>, which names each <code>x-denckring-role</code> value a
+  parameter schema carries and what it means. Roles may be added; none is removed or
+  renamed without a <strong>Breaking:</strong> entry in the changelog.</li>
 <li><strong><code>Report</code> as JSON</strong> — <code>procedure</code>, <code>satisfied</code>, <code>score</code>, <code>violations</code>, <code>metrics</code>,
   <code>evidence</code>, <code>provenance</code>, <code>estimated</code> — and the <code>--json</code> output of <code>check</code>, <code>show</code> and
   <code>describe</code> that carries it. Fields may be added; the ones already there do not change
@@ -2933,14 +3052,15 @@ are built on them:</p>
   row's <code>denckring.rules</code> in the same sorted order, which <code>describe --json</code>, <code>show --json</code>
   and the MCP server's <code>describe_procedure</code> carry too. <code>provenance</code>
   carries its own <code>schema_version</code>, which moves when the <em>shape</em> of these objects does
-  and not when the package is released: <code>1.2</code> since <code>Evidence.basis</code> gained <code>ambiguous</code>
-  (1.1 added <code>estimated</code>).</li>
+  and not when the package is released: <code>1.3</code> since <code>provenance.checkers</code> (1.2 added the
+  <code>ambiguous</code> value of <code>Evidence.basis</code>; 1.1 added <code>estimated</code>).</li>
 <li><strong><code>Production</code> as JSON</strong> — <code>procedure</code>, <code>candidates</code>, <code>texts</code>, <code>truncated</code>, <code>metrics</code>,
   <code>provenance</code> — and the <code>--json</code> output of <code>apply</code>. Covered by the same promise in the
   same words. Both <code>candidates</code> and <code>texts</code> are ordered, best first, because <code>apply</code>
   returns <code>texts[0]</code>.</li>
 <li><strong>The catalogue export schema</strong> (<code>denckring catalogue export</code>), including the <code>licence</code>
-  and <code>attribution</code> keys the CC BY terms are carried by.</li>
+  and <code>attribution</code> keys the CC BY terms are carried by, and each row's <code>corpus</code>: the
+  row's <code>CorpusShare</code>, or <code>null</code> on a row with no checker (ADR 0062).</li>
 <li><strong>The language-pack surface</strong>: <code>denckring.get_pack</code> (also <code>denckring.lang.get_pack</code>)
   and the <code>LanguagePack</code> protocol it returns, with the <code>PosTag</code> its <code>pos_tags</code> answers,
   all importable from <code>denckring</code>. A method on the protocol keeps its signature and
@@ -2956,24 +3076,36 @@ are built on them:</p>
   <code>denckring.rules(procedure_id)</code> keeps its name and meaning, so a caller can map
   rules to its own classes once. A row may add rules. Removing or renaming one is a
   breaking change, and the changelog names it.</li>
+<li><strong>Checker versions</strong> (ADR 0061). Each row has a <code>checker_version</code>, an integer in
+  <code>describe().checker_version</code>, bumped whenever a change can move <code>satisfied</code>, <code>score</code>
+  or the set of violation rules on some text; evidence and message wording do not bump
+  it. <code>report.provenance.checkers</code> maps the row, and every row it delegates to (each
+  entry of a <code>multiple_constraint</code> call, and whatever those entries delegate to in
+  turn), to the version that decided the verdict. <code>denckring.checker_history</code>
+  (returning <code>CheckerChange</code> entries <code>{version, since, reason}</code>) says what each version
+  changed and in which release. A caller compares results across releases per row by
+  comparing these. Versions only rise, and every row's history begins at 1 in 0.5.0.</li>
+<li><strong>Promised metrics</strong> (ADR 0060). A row may name <code>metrics</code> keys in
+  <code>describe().metrics</code>, key to meaning; each is a float in every report of that row,
+  and removing or renaming one is a breaking change.</li>
+<li><strong>Parameter defaults.</strong> A parameter's default, as the schema <code>default</code> in
+  <code>describe().params</code>, is part of the promise. Changing one moves verdicts for callers
+  who left it unset, so it is <strong>Breaking:</strong>.</li>
 </ul>
-<p>Not stable, and expected to move: <code>metrics</code> keys, message wording, the wording of prompt
-hints, and everything under <code>denckring.core</code>. A check's <em>verdict</em> and the rule it names
-for a failure are contracts; the wording that explains the failure is not.</p>
+<p>Not stable, and expected to move: <code>metrics</code> keys a row does not promise, message
+wording, the wording of prompt hints, and everything under <code>denckring.core</code>. A check's
+<em>verdict</em> and the rule it names for a failure are contracts; the wording that explains
+the failure is not.</p>
 <p><strong>Published, not yet promised.</strong> These are exported and documented, so nothing has to
 reach into <code>denckring.core</code> for them, but they may still change in a minor release, with
-a changelog line when they do. All but <code>Description.reading</code> are new in 0.3.2:</p>
+a changelog line when they do. All are new in 0.3.2:</p>
 <ul>
 <li><code>rule_categories</code> and <code>failure_categories</code>: the kind of failure each rule names;</li>
 <li>the catalogue flags <code>Meta.unique_answer</code> and <code>Meta.hidden_material</code>, which
   <code>Description</code> carries too, and <code>Meta.hint_omits</code>;</li>
 <li><code>prompt_hint</code> and <code>render_hint</code>, which render the catalogue's hint templates;</li>
-<li><code>golden_cases</code> and <code>GoldenCase</code>;</li>
 <li><code>scope</code>, <code>scopes</code>, <code>admits</code> and <code>witness</code>;</li>
-<li><code>words</code> and <code>nouns</code>;</li>
-<li><code>pack_provenance</code> and <code>PackProvenance</code>, the record <code>Report.provenance.pack</code> carries;</li>
-<li><code>Description.reading</code>, including its new <code>reading.units</code>, <code>reading.word_examples</code>
-  and <code>reading.vowels</code>, and <code>reading.rhyme</code>, new in 0.4.0.</li>
+<li><code>words</code> and <code>nouns</code>.</li>
 </ul>
 <h2 id="the-catalogue-as-data">The catalogue as data<a class="headerlink" href="#the-catalogue-as-data" title="Permanent link">&para;</a></h2>
 <p>The catalogue is 158 sourced procedures and is a contribution in its own right — useful
