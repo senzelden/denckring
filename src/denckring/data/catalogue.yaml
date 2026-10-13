@@ -18,15 +18,16 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a passage that never uses the letter "{forbidden}", in any case or
-        accented form.
+        Write a passage that never uses the letter "{forbidden}", in any case. Unless a
+        line below says otherwise, an accented form counts as the letter too.
       de: >-
         Schreibe einen Text, in dem der Buchstabe „{forbidden}“ nie vorkommt, auch nicht
-        als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü als u
-        und ß als ss.
+        als Großbuchstabe. Sofern keine Zeile darunter etwas anderes sagt, auch nicht mit
+        Akzent oder Umlaut: ä zählt als a, ö als o, ü als u und ß als ss.
       fr: >-
-        Écris un texte où la lettre « {forbidden} » n'apparaît jamais, ni en majuscule,
-        ni avec un accent, un tréma ou une cédille : é et ë comptent comme e, ç comme c.
+        Écris un texte où la lettre « {forbidden} » n'apparaît jamais, même en majuscule.
+        Sauf si une ligne ci-dessous dit autre chose, pas non plus avec un accent, un
+        tréma ou une cédille : é et ë comptent comme e, ç comme c.
 
   - id: univocalic
     names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
@@ -1724,12 +1725,14 @@ procedures:
     unique_answer: true
     prompt_hints:
       en: >-
-        Copy the source text with every letter "{deleted}" deleted, in any case or
-        accented form, and every other letter kept, in its order.
+        Copy the source text with every letter "{deleted}" deleted, in any case, and
+        every other letter kept, in its order. Unless a line below says otherwise, an
+        accented form of the letter is deleted too.
       fr: >-
         Recopie le texte source en supprimant toutes les lettres « {deleted} », en
-        majuscule ou en minuscule, avec ou sans accent, tréma ou cédille, et en gardant
-        toutes les autres lettres, dans leur ordre.
+        majuscule ou en minuscule, et en gardant toutes les autres lettres, dans leur
+        ordre. Sauf si une ligne ci-dessous dit autre chose, supprime-les aussi avec un
+        accent, un tréma ou une cédille.
 
   - id: haikuization
     names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
@@ -3560,12 +3563,12 @@ procedures:
       en: Translate the passage while never using the letter "{forbidden}".
       de: >-
         Übersetze den Text, ohne je den Buchstaben „{forbidden}“ zu verwenden, auch
-        nicht als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü
-        als u und ß als ss.
+        nicht als Großbuchstabe. Sofern keine Zeile darunter etwas anderes sagt, auch
+        nicht mit Akzent oder Umlaut: ä zählt als a, ö als o, ü als u und ß als ss.
       fr: >-
-        Traduis le texte sans jamais employer la lettre « {forbidden} », ni en
-        majuscule, ni avec un accent, un tréma ou une cédille : é et ë comptent comme e,
-        ç comme c.
+        Traduis le texte sans jamais employer la lettre « {forbidden} », même en
+        majuscule. Sauf si une ligne ci-dessous dit autre chose, pas non plus avec un
+        accent, un tréma ou une cédille : é et ë comptent comme e, ç comme c.
 
   - id: univocalic_translation
     names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }

@@ -81,8 +81,9 @@ without declaring it.
 rules can be met under this checker's reading of German, which is the reading the bench
 grades against. They do not show that the forms are met in German writing. The corpus's
 external share fell from 14.5% (102 of 704) to 14.1% (102 of 722). ADR 0062's share floor
-in `tests/test_corpus_provenance.py` caught the fall and was lowered from 0.144 to 0.141.
-The guard did its job. This decision chose to pay that cost.
+in `tests/test_corpus_provenance.py` caught the fall and was lowered from 0.144 to 0.141
+(raised to 0.159 the same day, when the Bombaugh 1890 cases landed; ADR 0062). The guard
+did its job. This decision chose to pay that cost.
 
 **Six of the rows had German cases already, and most of them were never meant as German
 examples.** They test ADR 0035's handling of letters with diacritics. `bivocalic`'s is

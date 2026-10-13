@@ -19,9 +19,6 @@ All notable changes to this project are documented here. The format follows
   one satisfying case for each of the fourteen rows that had none, and four
   counterexamples. `kangaroo_word` needs a word list, so it stays outside the class, and
   so do the syntax, word, visual and form rows the bench also asked about.
-- **The external share of the golden corpus falls from 14.5% to 14.1%** (102 of 722),
-  because every new German case is constructed. ADR 0062's share floor is lowered from
-  0.144 to 0.141 to match, and ADR 0063 records the fall as the cost of this change.
 - **ADR 0062 amended: an anonymous text published in 1930 or earlier meets the
   public-domain cutoff.** The US rule is publication-based and the EU term for an
   anonymous work runs seventy years from publication; such a case's `source` says
@@ -29,11 +26,12 @@ All notable changes to this project are documented here. The format follows
   The amendment admits its cost: an anonymous text's real author could have lived past
   1955, which for a text printed near 1930 is ordinary, and the EU term ends if the
   author becomes known.
-- **The external share rises to 16.0%** (118 of 739) with the Bombaugh cases below, and
-  ADR 0062's floors are raised to the measured values: `EXTERNAL_FLOOR` from 102 to 118,
-  `EXTERNAL_SHARE_FLOOR` from 0.141 to 0.159, above the 0.144 ADR 0063's dip gave up.
-  `status` and `eval` now report `66 rows externally evidenced · 67 explained · 0
-  unexplained`.
+- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.0% (118
+  of 739)**, and ADR 0062's floors are raised to the measured values:
+  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.159 and `EXTERNAL_FLOOR` from 102 to 118. ADR
+  0063's eighteen constructed German cases alone would have lowered the share to 14.1%;
+  ADR 0063 records that as the cost of its decision. `status` and `eval` now report `66
+  rows externally evidenced · 67 explained · 0 unexplained`.
 - **The evidence-gap notes report research batch 4.** 25 entries said "batch 4 brief
   pending". `telestich`, `double_acrostic` and `pangrammatic_lipogram` leave the registry
   with Bombaugh cases, and the other 22 now say what batch 4 found or that it did not
@@ -42,14 +40,20 @@ All notable changes to this project are documented here. The format follows
   (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820). `lipogram` is no
   longer evidenced only through a grandfathered case, so ADR 0062's list of such rows
   drops from six to five.
-- **A `fold_diacritics = False` line in a prompt hint now says what False does.** The
-  shared description read "Treat accented letters as their base letter", and
-  `prompt_hint` appends it only when the switch is set off its default, so it told the
-  writer the opposite of the setting. A guard in `tests/test_prompt_hints.py` requires
-  every switch that defaults to True to say what False does.
-- **`chronogram`'s `capitals_only` description is an instruction only.** It is rendered
-  to the writer, so the aside that Hilton calls the reading a pretext is dropped from it;
-  ADR 0064 keeps the history.
+- **A prompt hint under `fold_diacritics = False` no longer contradicts itself.** The
+  shared `fold_diacritics` description, published in every row's `params_schema` and
+  `describe()` (40 rows; `calculator_word` has its own), read "Treat accented letters as their base letter", and
+  `prompt_hint` appends it only when the parameter is set off its default, so it told
+  the writer the opposite of the setting. It now reads "Whether accented letters count
+  as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of
+  its own." The templates that said an accented form counts as the letter
+  unconditionally now defer to that line ("Unless a line below says otherwise",
+  "Sofern keine Zeile darunter etwas anderes sagt", "Sauf si une ligne ci-dessous dit
+  autre chose"): `lipogram` (en, de, fr), `lipogrammatic_translation` (de, fr) and
+  `slenderizing` (en, fr). Their default hints change wording, not meaning. Two guards
+  in `tests/test_prompt_hints.py`: a bool defaulting to True must name False in its
+  description, and on a row taking `fold_diacritics` every hint sentence about accents
+  must defer to a line below.
 
 ### Added
 
@@ -62,7 +66,9 @@ All notable changes to this project are documented here. The format follows
   totals 1 with `fold_diacritics` on and 0 with it off; a titlecase letter such as `ǅ`
   counts as a capital. The `prompt_hint` template now says every numeral counts in
   either case "unless a line below restricts it", and the switch's line tells the writer
-  to write the date's numerals as capitals. No `checker_version` bump: in
+  to write the date's numerals as capitals; the parameter's own description, rendered
+  to the writer, is that instruction alone and carries no warning, which ADR 0064 keeps.
+  No `checker_version` bump: in
   0.5.0 any call passing `capitals_only` was refused as an unknown parameter, and no
   existing probe of the verdict fingerprint moved.
 - **`Counting.case_switch`**, naming the parameter that makes case decide
@@ -75,18 +81,18 @@ All notable changes to this project are documented here. The format follows
   constructed counterexample in which lower-case numerals are ignored under the switch.
   The golden corpus goes from 722 cases to 724, 103 of them external.
 - **Fifteen external golden cases from C. C. Bombaugh, *Gleanings for the Curious*
-  (enlarged ed., 1890)**, transcribed by script from Project Gutenberg #56805 and each
-  run through its checker; the page images were not checked. The UNITE/UNTIE lines
-  (p. 40) as `telestich`, `acrostic` and `double_acrostic`, and the Lord Hatherton lines (p. 40), every
-  letter doubled, as telestich and acrostic: `telestich` and `double_acrostic` gain their
-  first external cases and leave the gap registry. Univocalic verses in A (p. 32), E, I and O (p. 33), and the U verse (p. 33),
-  which Bombaugh presents as univocalic and which fails on the o of "no", as an external
-  near-miss. Lord Holland's "Eve's Legend" (p. 28) as a univocalic in e, and two
-  e-lipograms (pp. 27–28), each also as a `pangrammatic_lipogram`, which Bombaugh says
-  they are; every stanza of "The Fate of Nassan" also passes alone, as he claims.
-  `pangrammatic_lipogram` leaves the gap registry. All but Holland's are anonymous, and
-  land under the ADR 0062 amendment above. The golden corpus goes from 724 cases to 739,
-  118 of them external.
+  (enlarged ed., 1890)**, transcribed by script from Project Gutenberg #56805 and each run
+  through its checker; the page images were not checked. The UNITE/UNTIE lines (p. 40) as
+  `telestich`, `acrostic` and `double_acrostic`, and the Lord Hatherton lines (p. 40),
+  every letter doubled, as telestich and acrostic: `telestich` and `double_acrostic` gain
+  their first external cases and leave the gap registry. Univocalic verses in A (p. 32),
+  E, I and O (p. 33), and the U verse (p. 33), which Bombaugh presents as univocalic and
+  which fails on the o of "no", as an external near-miss. Lord Holland's "Eve's Legend"
+  (p. 28) as a univocalic in e, and two e-lipograms (pp. 27–28), each also as a
+  `pangrammatic_lipogram`, which Bombaugh says they are; every stanza of "The Fate of
+  Nassan" also passes alone, as he claims. `pangrammatic_lipogram` leaves the gap
+  registry. All but Holland's are anonymous, and land under the ADR 0062 amendment above.
+  The golden corpus goes from 724 cases to 739, 118 of them external.
 
 ## [0.5.0] - 2026-10-13
 
