@@ -31,7 +31,10 @@ All notable changes to this project are documented here. The format follows
 - **`chronogram` takes `capitals_only`** (ADR 0064), off by default. Set, only numeral
   letters written as capitals count, which is the reading Hilton (1882, p. 9) calls a
   "pretext" and the default still rejects. Case is read from the text as given, so `Ïx`
-  totals 1 with `fold_diacritics` on and 0 with it off. No `checker_version` bump: in
+  totals 1 with `fold_diacritics` on and 0 with it off; a titlecase letter such as `ǅ`
+  counts as a capital. The `prompt_hint` template now says every numeral counts in
+  either case "unless a line below restricts it", and the switch's line tells the writer
+  to write the date's numerals as capitals. No `checker_version` bump: in
   0.5.0 any call passing `capitals_only` was refused as an unknown parameter, and no
   existing probe of the verdict fingerprint moved.
 - **`Counting.case_switch`**, naming the parameter that makes case decide

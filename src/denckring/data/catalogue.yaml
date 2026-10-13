@@ -925,8 +925,8 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a phrase whose Roman-numeral letters add up to {year}, counting every i,
-        v, x, l, c, d and m in either case.
+        Write a phrase whose Roman-numeral letters add up to {year}. Unless a line
+        below restricts it, every i, v, x, l, c, d and m counts, in either case.
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }

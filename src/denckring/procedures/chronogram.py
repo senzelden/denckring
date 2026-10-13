@@ -37,9 +37,12 @@ class ChronogramParams(DiacriticParams):
     # stays Hilton's and every 0.5.0 call keeps its verdict.
     capitals_only: bool = Field(
         default=False,
+        # Phrased as an instruction, because `prompt_hint` appends it under the template
+        # when set (ADR 0050), and the template defers to it ("Unless a line below...").
         description=(
-            "Count only numeral letters written as capitals, the reading Hilton calls a "
-            "pretext; off counts every numeral letter."
+            "Only numeral letters written as capitals count: write the date's numerals as "
+            "capitals; lower-case ones add nothing. Hilton calls this reading a pretext; "
+            "off, every numeral letter counts."
         ),
         json_schema_extra=param("switch"),
     )
@@ -87,7 +90,12 @@ class Chronogram(BaseProcedure[ChronogramParams]):
             # The case is read from the caller's text, not from `letters`, which are
             # lower-cased (and folded): `Ï` counts as I only because `text` has a capital
             # there. The offset is the base character's, so a decomposed capital works too.
-            numerals = [(offset, ch) for offset, ch in numerals if text[offset].isupper()]
+            # A titlecase digraph (`ǅ`, category Lt) begins with a capital, so it counts.
+            numerals = [
+                (offset, ch)
+                for offset, ch in numerals
+                if text[offset].isupper() or text[offset].istitle()
+            ]
         total = sum(VALUES[ch] for _, ch in numerals)
         metrics = {"total": float(total), "numerals": float(len(numerals))}
         violations: list[Violation] = []

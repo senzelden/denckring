@@ -22,7 +22,8 @@ class Counting(BaseModel):
     combine: Literal["sum"]
     #: False: `IV` totals 6, not 4. Chronograms are additive.
     subtractive: bool
-    #: True: every numeral letter counts; no occurrence is passed over as superfluous.
+    #: True: by default every numeral letter counts; no occurrence is passed over as
+    #: superfluous. Under `case_switch` that stops being true (below).
     #: Hilton calls a line that reaches its date only by counting initials "a very bad
     #: one" for its "superfluous numeral letters" (*Chronograms*, 1882, p. 9), and faults
     #: careless makers for "little regard being paid to the necessity of avoiding
@@ -31,7 +32,8 @@ class Counting(BaseModel):
     #: Whether case decides what counts by default: False, capitals mark nothing.
     case_sensitive: bool
     #: The parameter that, when set, makes case decide: only numeral letters written as
-    #: capitals count (ADR 0064). `None` when no parameter can. Optional with a default
+    #: capitals count, and lower-case numerals pass uncounted, so `every_occurrence` no
+    #: longer holds either (ADR 0064). `None` when no parameter can. Optional with a default
     #: because `Counting` is promised (ADR 0060): a consumer parsing a 0.5.0 `Counting`
     #: still validates.
     case_switch: str | None = None

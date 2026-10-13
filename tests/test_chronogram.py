@@ -2,7 +2,7 @@ import unicodedata
 
 import pytest
 
-from denckring import check
+from denckring import check, prompt_hint
 from denckring.core.errors import InvalidParams
 
 
@@ -108,3 +108,23 @@ def test_german_letters_are_never_numerals() -> None:
                 capitals_only=capitals_only,
             )
             assert report.metrics == {"total": 0.0, "numerals": 0.0}
+
+
+def test_a_titlecase_capital_counts_under_capitals_only() -> None:
+    """`ǅ` (category Lt) is not `isupper()`, but its D is written as a capital."""
+    assert check("chronogram", "ǅ", year=500, capitals_only=True).metrics["total"] == 500
+
+
+CASE_FREE = ("either case", "any case", "upper or lower", "capital or not")
+
+
+def test_the_hint_under_capitals_only_does_not_also_say_case_is_free() -> None:
+    """A hint that says case does not matter and then that only capitals count is
+    ill-posed (ADR 0064). Under the switch, every claim that case is free must defer
+    to a later line, and the switch's own line must tell the writer to use capitals."""
+    hint = prompt_hint("chronogram", year=1603, capitals_only=True)
+    rest = hint.splitlines()[1:]
+    assert any("capitals_only" in line and "capital" in line.lower() for line in rest)
+    for line in hint.splitlines():
+        if any(phrase in line.lower() for phrase in CASE_FREE):
+            assert "unless" in line.lower(), line
