@@ -121,6 +121,7 @@ nav:
       - "61. Checker versions": adr/0061-checker-versions.md
       - "62. External evidence, public domain only": adr/0062-external-evidence-public-domain-only.md
       - "63. Letter rules may claim German": adr/0063-letter-rules-claim-german.md
+      - "64. Chronograms read off their capitals, opt-in": adr/0064-chronogram-capitals-only.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 

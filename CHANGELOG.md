@@ -28,6 +28,21 @@ All notable changes to this project are documented here. The format follows
 - **`tests/test_letter_rules_claim_german.py`**, which computes the class of letter
   rules from the catalogue and fails on any registered letter rule that does not
   declare `de`.
+- **`chronogram` takes `capitals_only`** (ADR 0064), off by default. Set, only numeral
+  letters written as capitals count, which is the reading Hilton (1882, p. 9) calls a
+  "pretext" and the default still rejects. Case is read from the text as given, so `Ïx`
+  totals 1 with `fold_diacritics` on and 0 with it off. No `checker_version` bump: in
+  0.5.0 any call passing `capitals_only` was refused as an unknown parameter, and no
+  existing probe of the verdict fingerprint moved.
+- **`Counting.case_switch`**, naming the parameter that makes case decide
+  (`"capitals_only"` on `chronogram`); `case_sensitive` still describes the default.
+  Optional with a default of `None`, so a 0.5.0 `Counting` still parses. `skipped` now
+  also says that German ä, ö, ü and ß are never numerals, folded or not.
+- **Two chronogram golden cases.** Bombaugh's printing of the Queen Elizabeth line,
+  *Gleanings for the Curious* (1890), p. 58, external and satisfied under
+  `capitals_only`, beside Hilton's printing, which still fails under the default; and a
+  constructed counterexample in which lower-case numerals are ignored under the switch.
+  The golden corpus goes from 722 cases to 724, 103 of them external.
 
 ## [0.5.0] - 2026-10-13
 

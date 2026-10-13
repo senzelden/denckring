@@ -62,3 +62,18 @@ def test_a_caller_cannot_change_what_the_next_describe_reads() -> None:
     first.values[letter] = value + 1
     again = denckring.describe("chronogram").reading.counting
     assert again is not None and again.values[letter] == value
+
+
+def test_case_decides_only_under_the_named_switch() -> None:
+    """ADR 0064: `case_sensitive` is the default; `case_switch` names what changes it."""
+    assert COUNTING is not None and COUNTING.case_switch == "capitals_only"
+    switched = {COUNTING.case_switch: True}
+    assert total("Ix", **switched) != total("IX", **switched)
+    assert total("Ix", **{COUNTING.case_switch: False}) == total("IX")
+
+
+def test_a_counting_without_the_switch_still_parses() -> None:
+    """`Counting` is promised (ADR 0060): a 0.5.0 payload, which has no `case_switch`."""
+    assert COUNTING is not None
+    old = COUNTING.model_dump(exclude={"case_switch"})
+    assert denckring.Counting.model_validate(old).case_switch is None
