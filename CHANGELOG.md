@@ -26,13 +26,13 @@ All notable changes to this project are documented here. The format follows
   The amendment admits its cost: an anonymous text's real author could have lived past
   1955, which for a text printed near 1930 is ordinary, and the EU term ends if the
   author becomes known.
-- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.8% (125
-  of 746)**, and ADR 0062's floors are raised to the measured values:
-  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.167 and `EXTERNAL_FLOOR` from 102 to 125. The
+- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.9% (126
+  of 747)**, and ADR 0062's floors are raised to the measured values:
+  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.168 and `EXTERNAL_FLOOR` from 102 to 126. The
   entries below each name the cases they add. ADR 0063's eighteen constructed German
   cases alone would have lowered the share to 14.1%; ADR 0063 records that as the cost
-  of its decision. `eval --all` reports `133 procedures · 746 passed · 0 failed`, and
-  `status` and `eval` report `67 rows externally evidenced · 66 explained · 0
+  of its decision. `eval --all` reports `133 procedures · 747 passed · 0 failed`, and
+  `status` and `eval` report `68 rows externally evidenced · 65 explained · 0
   unexplained`.
 - **The evidence-gap notes report research batch 4.** 25 entries said "batch 4 brief
   pending". `telestich`, `double_acrostic` and `pangrammatic_lipogram` leave the registry
@@ -165,6 +165,32 @@ All notable changes to this project are documented here. The format follows
   without retyping, and no scan of Rittler's 1815 edition was found (Google Books and
   MDZ were not searched). One external case is added, and no
   row changes standing.
+- **Four metrical licences, each its own switch and off by default** (ADR 0065):
+  `initial_inversion` (a line may open on a reversed foot), `secondary_stress` (an
+  unstressed syllable of a word of three or more, not next to its main stress, may take
+  a beat: `disapproves` as `101`), `stress_shift` (a closed list of 25 two-syllable
+  prepositions and adverbs, `without` and `upon` among them, may be stressed on either
+  syllable) and `diaeresis` (a glide the dictionary runs into the next vowel may be
+  sounded as a syllable: `ambrosial` as four). They are on a new `ScansionParams` taken
+  by every row that scans stress: `blank_verse`, `curtal_sonnet`, `ottava_rima`,
+  `petrarchan_sonnet`, `rhyme_royal`, `shakespearean_sonnet`, `sonnet` and
+  `spenserian_stanza`. `petrarchan_sonnet` also gains `feminine_ending`, which it lacked.
+  `alexandrine` counts syllables without scanning stress and does not take them. The
+  last three read CMUdict or English spelling and admit nothing in another language.
+  The scan tries them only when the dictionary's readings fit nothing, and a word read
+  through one names it in its evidence (`10 (stress_shift)`). No `checker_version`
+  bump: 0.5.0 refused each as an unknown parameter, and no existing fingerprint probe
+  moved. The ADR measures the cost: on Paradise Lost, all four on let 1,614 more lines
+  scan, and the same lines with their words shuffled 1,286 more.
+- **`petrarchan_sonnet`'s first external case**: Milton's Sonnet XVI, "When I consider
+  how my light is spent", from Beeching's edition (Project Gutenberg #1745), extracted by
+  script and checked with `initial_inversion` and `stress_shift`. Re-screened against
+  the 97 fourteen-line blocks of that edition and of Wordsworth's *Poems in Two Volumes*
+  (1807), the checker admits none by default or with any one switch, and this one with
+  those two or with all four. "Cyriack, whose Grandsire" still fails: CMUdict stresses
+  `superfluous` on its first syllable, and no switch moves a primary stress.
+  `petrarchan_sonnet` leaves the gap registry, and ADR 0062's tally no longer has a row
+  pending a maintainer ruling.
 
 ### Fixed
 

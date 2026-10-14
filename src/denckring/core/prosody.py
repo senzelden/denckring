@@ -160,7 +160,7 @@ def _diaereses(word: str, pack: LanguagePack, forms: Sequence[str]) -> list[str]
     is free (`?`), as a monosyllable is. Kept at its dictionary mark, the new `0`
     nearly always stands next to another and fits no iambic or trochaic line:
     measured on Paradise Lost (ADR 0065), that reading rescued no line and this one
-    rescues ten, each a diaeresis Milton's metre asks for (`Celestial`,
+    rescues ten, each a diaeresis Milton's metre asks for (among them `Celestial`,
     `Ambrosial`, `impetuous`, `Union`, `Religious`).
 
     The phones rule reads only the first pronunciation, because `phonemes` is

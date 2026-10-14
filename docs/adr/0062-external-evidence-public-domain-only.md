@@ -132,7 +132,9 @@ There were 49 when this was written, 25 of them recording pending work: the batc
 brief. Batch 4 reported on 2026-10-13. Three rows left the registry with Bombaugh cases
 it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` left on
 2026-10-14 with four ballades from Gleeson White's anthology (1887), once the row took a
-`metre`. Of the 45 that remain:
+`metre`, and `petrarchan_sonnet` the same day with Milton's Sonnet XVI, once the
+stress-scanning rows took the opt-in metrical licences of ADR 0065. Of the 44 that
+remain:
 - 18 record that the batch-4 reports this registry relies on did not search them. Three
   of those also record a search that failed in batch 3 (`assonance_constraint`,
   `boustrophedon`, `paragram`), and two a batch-3 find that was too incomplete to land
@@ -148,9 +150,6 @@ it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` le
   correcting it would be retyping; no scan of Rittler's 1815 edition was found, and
   Google Books and MDZ were not searched for it. The note records where each was
   sought.
-- 1 records checker findings pending a maintainer ruling (`petrarchan_sonnet`): the
-  checker rejected every candidate the public-domain sourcing pass found, and the note
-  records why.
 - 1 records a ruling on why the checker rejects every candidate found (`alcaic_stanza`):
   on 2026-10-14 the maintainer ruled that the row reads alcaics accentually, so
   Tennyson's quantitative "Milton" falls outside its definition. Nothing is pending,
