@@ -58,8 +58,9 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: of Hilton's chronograms (1882) landed. Raised to 118 on 2026-10-13, when Bombaugh's 1890
 #: chronogram and fifteen cases from his telestich, acrostic, double acrostic, univocalic
 #: and lipogram texts landed. Raised to 119 on 2026-10-14, when Lear's "Ryde" limerick
-#: landed with the identical-rhyme fix it witnesses.
-EXTERNAL_FLOOR = 119
+#: landed with the identical-rhyme fix it witnesses, and to 121 when two Don Juan
+#: stanzas landed with `ottava_rima`'s new feminine_ending.
+EXTERNAL_FLOOR = 121
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
@@ -68,8 +69,9 @@ EXTERNAL_FLOOR = 119
 #: ADR 0063 declares German on twenty letter rules and every one of the eighteen German
 #: cases it needed is constructed. The fall is the cost that ADR records, not drift.
 #: Raised to 118 of 739 (0.159) when the Bombaugh 1890 cases landed, above the 0.144 the
-#: dip had given up. Raised to 119 of 740 (0.160) with Lear's "Ryde" limerick.
-EXTERNAL_SHARE_FLOOR = 0.160
+#: dip had given up. Raised to 119 of 740 (0.160) with Lear's "Ryde" limerick, and to
+#: 121 of 742 (0.163) with the two Don Juan stanzas.
+EXTERNAL_SHARE_FLOOR = 0.163
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.

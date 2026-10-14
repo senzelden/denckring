@@ -93,6 +93,24 @@ All notable changes to this project are documented here. The format follows
   Nassan" also passes alone, as he claims. `pangrammatic_lipogram` leaves the gap
   registry. All but Holland's are anonymous, and land under the ADR 0062 amendment above.
   The golden corpus goes from 724 cases to 739, 118 of them external.
+- **`ottava_rima` takes `feminine_ending`**, off by default, as `sonnet`, `blank_verse`,
+  `rhyme_royal` and `spenserian_stanza` already do: set, a line may close on one extra
+  unstressed syllable. No `checker_version` bump: in 0.5.0 any call passing it was
+  refused as an unknown parameter, and no existing probe of the verdict fingerprint
+  moved. Re-measured on Don Juan, Canto I, as Coleridge's edition (1903, Project
+  Gutenberg #18762) prints it, the checker rejects 219 of the 222 stanzas by default,
+  196 of them with an eleven-syllable line, and 217 with the switch, 185 of those on
+  stress and 148 on rhyme. Across the rejected stanzas `wrong_line_length` falls from
+  209 to 120 and `wrong_stress` rises from 129 to 185, because lines refused on length
+  are now scanned. The two stanzas the switch admits, LXXV and CXXXVIII, land as
+  external cases checked with it. LXXV passes because its last line reads "being" as
+  two syllables where Byron elides it, not because of a feminine close, and its
+  `source` says so. The 0.5.0 entry's "215 of the 219 stanzas" came from a screen that
+  was not recorded. A script taking every numbered stanza between the canto's heading
+  and the next finds 222, and 0.5.0's checker passes the same three of them, so the
+  old figure reflects a different extraction, not a verdict that moved. The golden
+  corpus goes to 742 cases, 121 of them external (16.3%), and ADR 0062's floors rise to
+  121 and 0.163.
 
 ### Fixed
 

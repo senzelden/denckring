@@ -73,9 +73,11 @@ cases:
       Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
       Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
       extracted 2026-10-12 by script, indentation removed. Byron died 1824, Coleridge
-      1920. Selected: the checker rejects 215 of the 219 stanzas of Canto I as this
-      edition prints them, and 191 of those have an eleven-syllable line, the length a
-      feminine ending gives, which ottava rima allows (see the CHANGELOG).
+      1920. Selected: re-measured 2026-10-14, the checker rejects 219 of the 222
+      stanzas of Canto I as this edition prints them, 196 of those with an
+      eleven-syllable line, the length a feminine ending gives; with feminine_ending,
+      which ottava rima allows, it still rejects 217, 185 of them on stress and 148 on
+      rhyme (see the CHANGELOG).
     text: |-
       The sun set, and up rose the yellow moon:
       The Devil's in the moon for mischief; they
@@ -94,10 +96,11 @@ cases:
       Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
       Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
       extracted 2026-10-12 by script; the editor's footnote call and the indentation are
-      removed. Byron died 1824, Coleridge 1920. Selected: the checker rejects 215 of the
-      219 stanzas of Canto I as this edition prints them, and 191 of those have an
-      eleven-syllable line, the length a feminine ending gives, which ottava rima allows
-      (see the CHANGELOG).
+      removed. Byron died 1824, Coleridge 1920. Selected: re-measured 2026-10-14, the
+      checker rejects 219 of the 222 stanzas of Canto I as this edition prints them, 196
+      of those with an eleven-syllable line, the length a feminine ending gives; with
+      feminine_ending, which ottava rima allows, it still rejects 217, 185 of them on
+      stress and 148 on rhyme (see the CHANGELOG).
     text: |-
       Oh Pleasure! you're indeed a pleasant thing,
       Although one must be damned for you, no doubt:
@@ -108,4 +111,51 @@ cases:
       I'm very sorry, very much ashamed,
       And mean, next winter, to be quite reclaimed.
     params: {}
+    satisfied: true
+  - name: byron-don-juan-i-lxxv
+    provenance: external
+    source: >-
+      Lord Byron, Don Juan, Canto I (1819), stanza LXXV, from The Works of Lord Byron,
+      Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
+      Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
+      extracted 2026-10-14 by script, indentation removed. Byron died 1824, Coleridge
+      1920. Checked with feminine_ending. Selected: the checker rejects 219 of the 222
+      stanzas of Canto I as this edition prints them by default and 217 with
+      feminine_ending; this stanza and CXXXVIII are the only two the switch admits, and
+      both are here. The switch is not why this one passes in Byron's terms: its last
+      line is read at eleven syllables with "being" as two, where the metre elides it
+      to one, and the switch accepts the eleventh syllable as a feminine close.
+    text: |-
+      Poor Julia's heart was in an awkward state;
+      She felt it going, and resolved to make
+      The noblest efforts for herself and mate,
+      For Honour's, Pride's, Religion's, Virtue's sake:
+      Her resolutions were most truly great,
+      And almost might have made a Tarquin quake:
+      She prayed the Virgin Mary for her grace,
+      As being the best judge of a lady's case.
+    params: {feminine_ending: true}
+    satisfied: true
+  - name: byron-don-juan-i-cxxxviii
+    provenance: external
+    source: >-
+      Lord Byron, Don Juan, Canto I (1819), stanza CXXXVIII, from The Works of Lord
+      Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903).
+      Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
+      extracted 2026-10-14 by script; the transcriber's underscores marking italic type
+      and the indentation are removed. Byron died 1824, Coleridge 1920. Checked with
+      feminine_ending: five of its lines close feminine (number, slumber, encumber,
+      contagious, outrageous). Selected: the checker rejects 219 of the 222 stanzas of
+      Canto I as this edition prints them by default and 217 with feminine_ending; this
+      stanza and LXXV are the only two the switch admits, and both are here.
+    text: |-
+      By this time Don Alfonso was arrived,
+      With torches, friends, and servants in great number;
+      The major part of them had long been wived,
+      And therefore paused not to disturb the slumber
+      Of any wicked woman, who contrived
+      By stealth her husband's temples to encumber:
+      Examples of this kind are so contagious,
+      Were one not punished, all would be outrageous.
+    params: {feminine_ending: true}
     satisfied: true

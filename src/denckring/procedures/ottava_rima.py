@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
 from denckring.core.prosody import repeat_to
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -12,7 +12,7 @@ SCHEME = "ABABABCC"
 LINES = 8
 
 
-class OttavaRimaParams(RhymeParams):
+class OttavaRimaParams(RhymeParams, MetreParams):
     pass
 
 
@@ -44,6 +44,7 @@ class OttavaRima(BaseProcedure[OttavaRimaParams]):
             scheme=SCHEME,
             metre=repeat_to("01", 5),
             lines=LINES,
+            feminine_ending=params.feminine_ending,
             unknown_rhyme=params.unknown_rhyme,
         )
         return self._report(
