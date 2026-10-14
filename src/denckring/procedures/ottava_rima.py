@@ -1,4 +1,8 @@
-"""Ottava rima — eight hendecasyllables rhyming ABABABCC."""
+"""Ottava rima — eight iambic pentameter lines rhyming ABABABCC.
+
+The Italian form's lines are hendecasyllables; in English that is the pentameter with a
+feminine ending, which `feminine_ending` admits as a second reading of each line.
+"""
 
 from __future__ import annotations
 

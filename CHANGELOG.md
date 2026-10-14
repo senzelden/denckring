@@ -102,15 +102,16 @@ All notable changes to this project are documented here. The format follows
   196 of them with an eleven-syllable line, and 217 with the switch, 185 of those on
   stress and 148 on rhyme. Across the rejected stanzas `wrong_line_length` falls from
   209 to 120 and `wrong_stress` rises from 129 to 185, because lines refused on length
-  are now scanned. The two stanzas the switch admits, LXXV and CXXXVIII, land as
-  external cases checked with it. LXXV passes because its last line reads "being" as
-  two syllables where Byron elides it, not because of a feminine close, and its
-  `source` says so. The 0.5.0 entry's "215 of the 219 stanzas" came from a screen that
+  are now scanned. Two stanzas pass only with the switch. CXXXVIII, whose five
+  feminine endings are what the switch is for, lands as an external case checked with
+  it. LXXV does not: it passes because its last line reads "being" as two syllables
+  where Byron elides it, and the switch takes the extra syllable for a feminine close.
+  The 0.5.0 entry's "215 of the 219 stanzas" came from a screen that
   was not recorded. A script taking every numbered stanza between the canto's heading
   and the next finds 222, and 0.5.0's checker passes the same three of them, so the
   old figure reflects a different extraction, not a verdict that moved. The golden
-  corpus goes to 742 cases, 121 of them external (16.3%), and ADR 0062's floors rise to
-  121 and 0.163.
+  corpus goes to 741 cases, 120 of them external (16.2%), and ADR 0062's floors rise to
+  120 and 0.161.
 
 ### Fixed
 

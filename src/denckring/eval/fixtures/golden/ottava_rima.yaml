@@ -112,30 +112,6 @@ cases:
       And mean, next winter, to be quite reclaimed.
     params: {}
     satisfied: true
-  - name: byron-don-juan-i-lxxv
-    provenance: external
-    source: >-
-      Lord Byron, Don Juan, Canto I (1819), stanza LXXV, from The Works of Lord Byron,
-      Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project
-      Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt,
-      extracted 2026-10-14 by script, indentation removed. Byron died 1824, Coleridge
-      1920. Checked with feminine_ending. Selected: the checker rejects 219 of the 222
-      stanzas of Canto I as this edition prints them by default and 217 with
-      feminine_ending; this stanza and CXXXVIII are the only two the switch admits, and
-      both are here. The switch is not why this one passes in Byron's terms: its last
-      line is read at eleven syllables with "being" as two, where the metre elides it
-      to one, and the switch accepts the eleventh syllable as a feminine close.
-    text: |-
-      Poor Julia's heart was in an awkward state;
-      She felt it going, and resolved to make
-      The noblest efforts for herself and mate,
-      For Honour's, Pride's, Religion's, Virtue's sake:
-      Her resolutions were most truly great,
-      And almost might have made a Tarquin quake:
-      She prayed the Virgin Mary for her grace,
-      As being the best judge of a lady's case.
-    params: {feminine_ending: true}
-    satisfied: true
   - name: byron-don-juan-i-cxxxviii
     provenance: external
     source: >-
@@ -147,7 +123,9 @@ cases:
       feminine_ending: five of its lines close feminine (number, slumber, encumber,
       contagious, outrageous). Selected: the checker rejects 219 of the 222 stanzas of
       Canto I as this edition prints them by default and 217 with feminine_ending; this
-      stanza and LXXV are the only two the switch admits, and both are here.
+      stanza and LXXV are the only two the switch admits. LXXV is not landed: it passes
+      only because its last line is read at eleven syllables with "being" as two, where
+      the metre elides it to one, so the switch admits it as a feminine close it is not.
     text: |-
       By this time Don Alfonso was arrived,
       With torches, friends, and servants in great number;
