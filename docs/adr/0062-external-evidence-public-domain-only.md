@@ -64,7 +64,9 @@ deliberately, to 0.141, when ADR 0063's German letter-rule cases landed, every o
 constructed; it was raised to 0.159 (118 of 739), with `EXTERNAL_FLOOR` at 118, on
 2026-10-13 when the Bombaugh 1890 cases landed under the amendment below. On 2026-10-14
 the public-domain cases of the pre-release pass raised them again, to 0.167 and
-`EXTERNAL_FLOOR` 125 (125 of 746).
+`EXTERNAL_FLOOR` 125 (125 of 746). Later cases raised them further; with the Burmann and
+Rittler cases of the 2026-10-14 amendment below they stood at 0.174 and 131 (131 of 752)
+on 2026-10-15.
 `tests/data/external-floor.json` holds each row's external count as a ratchet: a row may
 gain cases and never lose one.
 
@@ -144,11 +146,14 @@ remain:
   would evidence a group (`consonantal_lipogram`). On 2026-10-14 one of them, the
   anonymous song without s that George Wakeman quotes in "Tormenting the Alphabet" (*The
   Galaxy*, 1866), landed as a `lipogram` case, extracted by script from archive.org's
-  text layer and checked against the page image. The German R-lipograms of Burmann
-  (1788, 1796) and Rittler (1820) did not land: the 1788 scan has no text layer, and the
-  OCR of the 1796 and 1820 editions disagrees with the print often enough that
-  correcting it would be retyping; no scan of Rittler's 1815 edition was found, and
-  Google Books and MDZ were not searched for it. The note records where each was
+  text layer and checked against the page image. Of the German R-lipograms, Burmann's
+  1788 edition did not land, because its scan has no text layer. The OCR of his 1796
+  edition and of Rittler's 1820 edition disagrees with the print often enough that
+  correcting it is retyping, which this policy forbade; on 2026-10-14 the maintainer
+  granted an exception for those two texts (amendment below), and one poem and one
+  passage landed as `lipogram` cases. No scan of Rittler's 1815 edition was found, and
+  Google Books and MDZ were not searched for it. Every one of them bans r alone, so
+  `consonantal_lipogram` stays in the registry. The note records where each was
   sought.
 - 1 records a ruling on why the checker rejects every candidate found (`alcaic_stanza`):
   on 2026-10-14 the maintainer ruled that the row reads alcaics accentually, so
@@ -199,3 +204,44 @@ cases are transcribed from the Project Gutenberg text, and the page images were 
 checked. Read literally, the amendment covers an unknown author, not an unknown
 translator of a named author; the original rule names translators too, and no case so
 far has needed that question answered.
+
+---
+
+## Amendment, 2026-10-14: hand-corrected OCR of Burmann and Rittler
+
+Two German R-lipograms have a text layer that cannot be used as it stands. The SBB's OCR
+of Gottlob Wilhelm Burmann's *Einige Gedichte ohne den Buchstaben R* (Berlin: Decker,
+1796) differs from the page images in 17 places in the 24 lines of "I. An Gott", and loses
+two words outright. The ÖNB's OCR of Franz Rittler's *Die Zwillinge … Roman ohne R*, 3rd
+ed. (Wien: Härter, 1820) needs 27 corrections in pp. 17–18, and four of its errors are r's
+the print does not have, so a lipogram checker run on the raw OCR fails a text that is in
+fact without r. The rule above admits only text extracted by script, checked against the
+page image; correcting this much is retyping, and neither text could land.
+
+**Decision.** The maintainer granted an exception on 2026-10-14 for these two texts only.
+The case text is the script's extraction of the downloaded OCR with corrections made
+against the page image. The case's `source` lists every correction, as the OCR's reading
+and the print's, and states the normalisation applied to the Fraktur and Antiqua of the
+print: long s (ſ) to s, which is how the checker already reads it; ꝛ to r and a superscript
+e over a vowel to ä, ö or ü where they occur (neither occurs in the two landed passages,
+whose umlauts are printed as such); the print's double hyphen (=) to a hyphen, and dropped
+at a line break; spaces before punctuation closed up. Every other rule of this record
+applies: both texts are inside the cutoff (Burmann died in 1805; Rittler, born 1782, is
+given death dates from 1830 to "after 1837"), and each `source` names its edition,
+library, scan and OCR URLs and why the passage was chosen. Each correction is a literal
+pair applied by the extraction script, which fails if the OCR's reading does not occur
+exactly once on its page, so a correction cannot quietly miss.
+
+**Consequences.** The two case texts are no longer pure script extractions. Every
+correction is a reading of the page image by whoever made it, and an error in one is a
+retyping error of exactly the kind the rule exists to prevent; the correction list makes
+each one checkable, but nothing checks them. The Rittler page images are a Google
+digitisation at modest resolution, and the Burmann passage is Antiqua with long s, so a
+misread letter is plausible in both. The normalisation also makes the text unlike the
+print: a reader comparing the case with the page sees s for ſ and joined hyphenations,
+and must take the `source`'s word that nothing else moved. The exception does not extend
+to other texts, nor to other passages of these two books: the next text whose OCR needs
+correcting needs its own decision, and so does a further poem of Burmann's or a later
+chapter of Rittler's. Both cases ban r alone, so neither evidences
+`consonantal_lipogram`; they add German external evidence to `lipogram`, a row already
+externally evidenced.

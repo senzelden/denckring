@@ -162,9 +162,9 @@ All notable changes to this project are documented here. The format follows
   so and records where the German R-lipograms were sought: Burmann's *Gedichte ohne den
   Buchstaben R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and
   of Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
-  without retyping, and no scan of Rittler's 1815 edition was found (Google Books and
-  MDZ were not searched). One external case is added, and no
-  row changes standing.
+  without retyping (both later landed under an exception, below), and no scan of
+  Rittler's 1815 edition was found (Google Books and MDZ were not searched). One
+  external case is added, and no row changes standing.
 - **Four metrical licences, each its own switch and off by default** (ADR 0065):
   `initial_inversion` (a line may open on a reversed foot), `secondary_stress` (an
   unstressed syllable of a word of three or more, not next to its main stress, may take
@@ -203,6 +203,18 @@ All notable changes to this project are documented here. The format follows
   by default and 32 with the switch on, all for `does_not_rhyme`. Three of them land as
   external passing cases under `allow_identical` (limericks 1, 13 and 88). A new
   parameter moves no existing verdict, so `checker_version` stays at 2 (ADR 0061).
+- **`lipogram` gains two German R-lipograms, under a new exception to ADR 0062.** The
+  maintainer granted hand-corrected OCR for two texts only, recorded as ADR 0062's
+  2026-10-14 amendment: Gottlob Wilhelm Burmann's "I. An Gott", from *Einige Gedichte
+  ohne den Buchstaben R* (Berlin: Decker, 1796), and the first four paragraphs of Franz
+  Rittler's *Die Zwillinge … Roman ohne R*, 3rd ed. (Wien: Härter, 1820), pp. 17–18.
+  Each is the library's OCR extracted by script and corrected against the page images,
+  17 corrections for Burmann and 27 for Rittler, every one listed in the case's
+  `source` with the normalisation (long s to s, the print's double hyphen, spacing
+  before punctuation). Both pass with `forbidden: r` in German. They ban one letter, so
+  `consonantal_lipogram` stays in the gap registry, and its note now says they landed
+  under `lipogram`. The amendment admits its cost: each correction is a reading of the
+  page image, and an error in one is a retyping error.
 
 ### Fixed
 
