@@ -196,6 +196,13 @@ All notable changes to this project are documented here. The format follows
   `superfluous` on its first syllable, and no switch moves a primary stress.
   `petrarchan_sonnet` leaves the gap registry, and ADR 0062's tally no longer has a row
   pending a maintainer ruling.
+- **`limerick` takes `allow_identical`**, off by default, as `hemeling` does. Lear closes
+  most of his limericks on the first line's word, which the default reports as
+  `identical_rhyme`; set, a repeated end word is permitted and the other rhyme checks
+  run as before. Of the 112 limericks in Project Gutenberg #982 the checker rejects 109
+  by default and 32 with the switch on, all for `does_not_rhyme`. Three of them land as
+  external passing cases under `allow_identical` (limericks 1, 13 and 88). A new
+  parameter moves no existing verdict, so `checker_version` stays at 2 (ADR 0061).
 
 ### Fixed
 

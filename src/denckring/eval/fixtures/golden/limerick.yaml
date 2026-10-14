@@ -11,7 +11,8 @@ cases:
       'beard', which strict practice counts a fault.
       Selected: of the 112 numbered limericks in this file, the checker rejects 109, 107
       of them for `identical_rhyme` (measured 2026-10-14); 99 of the 112 end the last
-      line on the first line's word.
+      line on the first line's word. With `allow_identical` on it rejects 32, all for a
+      line pair that does not rhyme (measured 2026-10-15).
     text: |-
       There was an Old Man with a beard,
       Who said, "It is just as I feared!--
@@ -31,7 +32,8 @@ cases:
       carry the place name, so the repeat is judged by spelling.
       Selected: of the 112 numbered limericks in this file, the checker rejects 109, 107
       of them for `identical_rhyme` (measured 2026-10-14); 99 of the 112 end the last
-      line on the first line's word.
+      line on the first line's word. With `allow_identical` on it rejects 32, all for a
+      line pair that does not rhyme (measured 2026-10-15).
     text: |-
       There was a Young Lady of Ryde,
       Whose shoe-strings were seldom untied;
@@ -40,6 +42,63 @@ cases:
       And frequently walked about Ryde.
     params: {}
     satisfied: false
+  - name: lear-beard-identical-allowed
+    provenance: external
+    source: >-
+      Edward Lear (d. 1888), The Book of Nonsense, limerick 1; Project Gutenberg ebook #982,
+      https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15
+      (the file names no edition or year; Lear first published A Book of Nonsense in 1846).
+      Passes only with `allow_identical`: Lear ends the first and last lines on the same
+      word, 'beard', which the default reports as `identical_rhyme`.
+      Selected: of the 112 numbered limericks in this file, the checker rejects 109 by
+      default and 32 with `allow_identical` on, all 32 for `does_not_rhyme` (measured
+      2026-10-15); this case is one of the 80 that pass with the switch.
+    text: |-
+      There was an Old Man with a beard,
+      Who said, "It is just as I feared!--
+      Two Owls and a Hen,
+      Four Larks and a Wren,
+      Have all built their nests in my beard!"
+    params: { allow_identical: true }
+    satisfied: true
+  - name: lear-kilkenny
+    provenance: external
+    source: >-
+      Edward Lear (d. 1888), The Book of Nonsense, limerick 13; Project Gutenberg ebook #982,
+      https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15
+      (the file names no edition or year; Lear first published A Book of Nonsense in 1846).
+      Passes only with `allow_identical`: Lear ends the first and last lines on the same
+      word, 'Kilkenny', which the default reports as `identical_rhyme`.
+      Selected: of the 112 numbered limericks in this file, the checker rejects 109 by
+      default and 32 with `allow_identical` on, all 32 for `does_not_rhyme` (measured
+      2026-10-15); this case is one of the 80 that pass with the switch.
+    text: |-
+      There was an Old Man of Kilkenny,
+      Who never had more than a penny;
+      He spent all that money,
+      In onions and honey,
+      That wayward Old Man of Kilkenny.
+    params: { allow_identical: true }
+    satisfied: true
+  - name: lear-troy
+    provenance: external
+    source: >-
+      Edward Lear (d. 1888), The Book of Nonsense, limerick 88; Project Gutenberg ebook #982,
+      https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15
+      (the file names no edition or year; Lear first published A Book of Nonsense in 1846).
+      Passes only with `allow_identical`: Lear ends the first and last lines on the same
+      word, 'Troy', which the default reports as `identical_rhyme`.
+      Selected: of the 112 numbered limericks in this file, the checker rejects 109 by
+      default and 32 with `allow_identical` on, all 32 for `does_not_rhyme` (measured
+      2026-10-15); this case is one of the 80 that pass with the switch.
+    text: |-
+      There was a Young Lady of Troy,
+      Whom several large flies did annoy;
+      Some she killed with a thump,
+      Some she drowned at the pump,
+      And some she took with her to Troy.
+    params: { allow_identical: true }
+    satisfied: true
   - name: distinct-rhymes
     source: constructed example
     text: |-

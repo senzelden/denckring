@@ -63,8 +63,9 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: Gleeson White's anthology (1887) landed with `ballade`'s new `metre`, and to 125 when
 #: the anonymous s-less song quoted in The Galaxy (1866) landed as a `lipogram` case.
 #: Raised to 126 when Milton's "When I consider" landed as `petrarchan_sonnet`'s first
-#: external case, with the metrical licences of ADR 0065.
-EXTERNAL_FLOOR = 126
+#: external case, with the metrical licences of ADR 0065. Raised to 129 on 2026-10-15,
+#: when three Lear limericks landed with `limerick`'s new `allow_identical`.
+EXTERNAL_FLOOR = 129
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
@@ -76,8 +77,9 @@ EXTERNAL_FLOOR = 126
 #: dip had given up. Raised to 119 of 740 (0.160) with Lear's "Ryde" limerick, and to
 #: 120 of 741 (0.161) with the Don Juan stanza, and to 124 of 745 (0.166) with White's
 #: four ballades, and to 125 of 746 (0.167) with the Galaxy's s-less song, and to 126
-#: of 747 (0.168) with Milton's "When I consider" (2026-10-14).
-EXTERNAL_SHARE_FLOOR = 0.168
+#: of 747 (0.168) with Milton's "When I consider" (2026-10-14), and to 129 of 750 (0.172)
+#: with three Lear limericks under `allow_identical` (2026-10-15).
+EXTERNAL_SHARE_FLOOR = 0.172
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.
