@@ -40,6 +40,18 @@ All notable changes to this project are documented here. The format follows
   (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820). `lipogram` is no
   longer evidenced only through a grandfathered case, so ADR 0062's list of such rows
   drops from six to five.
+- **`alcaic_stanza`'s English definition says the row reads alcaics accentually.** It
+  called the stanza "quantitative", which the checker has never scanned: it reads
+  stress, as the row's `notes` already said. The definition, shown by `describe()`, now
+  says stressed syllables stand where the classical stanza has long ones, so a
+  quantitative imitation such as Tennyson's "Milton" falls outside it. The maintainer
+  ruled this on 2026-10-14, and the row's evidence-gap note records the ruling in place
+  of "pending a maintainer ruling". No verdict moves, so no `checker_version` bump.
+- **ADR 0062 records the ruling on its grandfathered cases.** On 2026-10-14 the
+  maintainer ruled that the post-cutoff cases stay and `cut_up`, `eodermdrome`,
+  `snowball`, `reverse_snowball` and `calculator_word` remain externally evidenced. The
+  ADR states the cost: on those rows the claim rests on short post-cutoff quotations,
+  weaker than the policy requires of a new case.
 - **A prompt hint under `fold_diacritics = False` no longer contradicts itself.** The
   shared `fold_diacritics` description, published in every row's `params_schema` and
   `describe()` (40 rows; `calculator_word` has its own), read "Treat accented letters as their base letter", and

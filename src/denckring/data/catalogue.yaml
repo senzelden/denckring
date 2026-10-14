@@ -2833,7 +2833,11 @@ procedures:
   - id: alcaic_stanza
     names: { en: Alcaic stanza, de: Alkäische Strophe, fr: Strophe alcaïque }
     definitions:
-      en: A four-line quantitative stanza of two hendecasyllables, an enneasyllable and a decasyllable.
+      en: >-
+        A four-line stanza of two hendecasyllables, an enneasyllable and a
+        decasyllable, read accentually: stressed syllables stand where the classical
+        stanza has long ones, so a quantitative imitation such as Tennyson's "Milton"
+        falls outside it.
       de: Eine vierzeilige Strophe aus zwei Elfsilblern, einem Neun- und einem Zehnsilbler.
       fr: Une strophe de deux hendécasyllabes, un ennéasyllabe et un décasyllabe.
     source: Traditional; the stanza of Alcaeus, 6th century BC

@@ -101,10 +101,14 @@ pre-cutoff texts through post-cutoff editions: Kuhlmann's 1686 abecedarian in Be
 Five rows count as externally evidenced only through grandfathered cases: `cut_up`,
 `eodermdrome`, `snowball`, `reverse_snowball` and `calculator_word`. There were six until
 2026-10-13, when `lipogram` gained two public-domain cases from Bombaugh (1890). The
-per-row ratchet holds those cases in place, because removing one fails it. Whether they
-should leave, and the rows become gap entries, is an open question for the maintainer.
-Until it is answered, "externally evidenced" on those five rows means something weaker
-than the policy now requires.
+per-row ratchet holds those cases in place, because removing one fails it. The
+maintainer ruled on 2026-10-14 that the cases stay and the five rows remain externally
+evidenced. The cost is recorded rather than removed: on those five rows "externally
+evidenced" rests on short quotations from publications after the cutoff, which is weaker
+than the policy now requires of any new case, and `status` prints them in the same count
+as rows evidenced by public-domain text. Nothing marks the difference except this
+paragraph. The ratchet keeps them in place, so a row leaves this list only by gaining a
+public-domain case, as `lipogram` did.
 
 21 rows are `after_cutoff` and can never be evidenced while the policy stands: Perec,
 Queneau, Roubaud, Mathews, Lescure, Bénabou, Cage, Burroughs, Mac Low, Enzensberger,
@@ -134,9 +138,13 @@ it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` le
 - 4 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (`bivocalic`,
   `letter_bank`, `serial_lipogram`), and leads located but not read
   (`consonantal_lipogram`).
-- 2 record checker findings pending a maintainer ruling (`alcaic_stanza`,
-  `petrarchan_sonnet`): the checker rejected every candidate the public-domain
-  sourcing pass found, and each note records why.
+- 1 records checker findings pending a maintainer ruling (`petrarchan_sonnet`): the
+  checker rejected every candidate the public-domain sourcing pass found, and the note
+  records why.
+- 1 records a ruling on why the checker rejects every candidate found (`alcaic_stanza`):
+  on 2026-10-14 the maintainer ruled that the row reads alcaics accentually, so
+  Tennyson's quantitative "Milton" falls outside its definition. Nothing is pending,
+  and the row still has no external case.
 - 3 record a search that failed, with nothing pending (`haibun`, `ideenwuerfeln`,
   `pasigraphy`).
 - 18 record that no search has been made and none is scheduled: the 16 Oulipo rows
