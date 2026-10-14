@@ -26,12 +26,14 @@ All notable changes to this project are documented here. The format follows
   The amendment admits its cost: an anonymous text's real author could have lived past
   1955, which for a text printed near 1930 is ordinary, and the EU term ends if the
   author becomes known.
-- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.0% (118
-  of 739)**, and ADR 0062's floors are raised to the measured values:
-  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.159 and `EXTERNAL_FLOOR` from 102 to 118. ADR
-  0063's eighteen constructed German cases alone would have lowered the share to 14.1%;
-  ADR 0063 records that as the cost of its decision. `status` and `eval` now report `66
-  rows externally evidenced · 67 explained · 0 unexplained`.
+- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.8% (125
+  of 746)**, and ADR 0062's floors are raised to the measured values:
+  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.167 and `EXTERNAL_FLOOR` from 102 to 125. The
+  entries below each name the cases they add. ADR 0063's eighteen constructed German
+  cases alone would have lowered the share to 14.1%; ADR 0063 records that as the cost
+  of its decision. `eval --all` reports `133 procedures · 746 passed · 0 failed`, and
+  `status` and `eval` report `67 rows externally evidenced · 66 explained · 0
+  unexplained`.
 - **The evidence-gap notes report research batch 4.** 25 entries said "batch 4 brief
   pending". `telestich`, `double_acrostic` and `pangrammatic_lipogram` leave the registry
   with Bombaugh cases, and the other 22 now say what batch 4 found or that it did not
@@ -121,9 +123,8 @@ All notable changes to this project are documented here. The format follows
   The 0.5.0 entry's "215 of the 219 stanzas" came from a screen that
   was not recorded. A script taking every numbered stanza between the canto's heading
   and the next finds 222, and 0.5.0's checker passes the same three of them, so the
-  old figure reflects a different extraction, not a verdict that moved. The golden
-  corpus goes to 741 cases, 120 of them external (16.2%), and ADR 0062's floors rise to
-  120 and 0.161.
+  old figure reflects a different extraction, not a verdict that moved. One external case is
+  added.
 - **`ballade` takes `metre`**, the stress pattern every line is scanned against, with
   the name and meaning `sonnet` gives it: its length is the syllable count. The default,
   `01010101`, is the iambic tetrameter the row always scanned; `0101010101` asks for
@@ -148,9 +149,7 @@ All notable changes to this project are documented here. The format follows
   the page image of the 1887 printing: Tomson's "Ballade of Asphodel" at the default
   (its "too wel" is the print's), Adams's "Where Are the Pipes of Pan?" with `metre`
   `010101`, and Matthews's "The Ballade of Tobacco" and Sherman's "Ballade of Rhyme"
-  with `metre` unset. `ballade` leaves the gap registry. The golden corpus goes to 745
-  cases, 124 of them external (16.6%); ADR 0062's floors rise to 124 and 0.166, and
-  `status` reports `67 rows externally evidenced · 66 explained · 0 unexplained`.
+  with `metre` unset. `ballade` leaves the gap registry, with four external cases.
 - **`lipogram` gains the Galaxy's song without s**: the anonymous song George Wakeman
   quotes in "Tormenting the Alphabet", *The Galaxy*, 1 July 1866, p. 441 (anonymous,
   printed 1866, under ADR 0062's 2026-10-13 amendment). It is extracted by script from
@@ -163,9 +162,8 @@ All notable changes to this project are documented here. The format follows
   Buchstaben R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and
   of Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
   without retyping, and no scan of Rittler's 1815 edition was found (Google Books and
-  MDZ were not searched). The golden corpus goes to 746 cases, 125 of them external
-  (16.8%); ADR 0062's floors rise to 125 and 0.167, and `status` still reports `67 rows externally evidenced · 66 explained · 0
-  unexplained`.
+  MDZ were not searched). One external case is added, and no
+  row changes standing.
 
 ### Fixed
 
@@ -184,8 +182,7 @@ All notable changes to this project are documented here. The format follows
   `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`,
   `shakespearean_sonnet`, `sonnet`, `spenserian_stanza` and `terza_rima`. No golden
   verdict moves. Lear's "Ryde" limerick (Project Gutenberg #982) lands as an external
-  `limerick` case rejected for `identical_rhyme`. The golden corpus goes to 740 cases,
-  119 of them external (16.1%), and ADR 0062's floors rise to 119 and 0.160.
+  `limerick` case rejected for `identical_rhyme`. One external case is added.
 - **The English spelling heuristic no longer counts the silent `e` of a "there-with"
   compound.** A leading `there`, `where`, `here` or `ere` before an adverbial element
   (`erewhile`, `therewith`, `wherefore`, `heretofore`) read a syllable long. The rule
