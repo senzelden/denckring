@@ -148,7 +148,7 @@ perverb:
   note: "Catalogue source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)."
 petrarchan_sonnet:
   reason: none_found
-  note: "Public-domain sourcing pass (2026-10-12): every fourteen-line poem screened from Milton (Beeching's edition) and Wordsworth (Poems in Two Volumes, 1807) is rejected, on a mix of real metrical and rhyme variation and checker misreadings ('therewith' counted as three syllables, 'disapproves' and 'without' stressed against the line). Checker findings, pending a maintainer ruling."
+  note: "Public-domain sourcing pass (2026-10-12): every fourteen-line poem screened from Milton (Beeching's edition) and Wordsworth (Poems in Two Volumes, 1807) is rejected, on a mix of real metrical and rhyme variation and checker misreadings ('therewith' counted as three syllables, 'disapproves' and 'without' stressed against the line). Checker findings, pending a maintainer ruling. Re-screened 2026-10-14 after the spelling heuristic stopped counting the medial e of 'therewith' (R3): the same 97 fourteen-line blocks (Project Gutenberg ebooks #1745, #8774, #8824), none passes. Milton's 'When I consider' now fails only on 'Either' (an inverted first foot, genuine) and 'without' (the dictionary's 01 against the line's 10); 'Cyriack, whose Grandsire' still only on 'disapproves' and 'superfluous'. Those dictionary stress readings are what remains pending."
 poesie_automat:
   reason: after_cutoff
   note: "Catalogue source: Hans Magnus Enzensberger, Einladung zu einem Poesie-Automaten (conceived 1974)."
