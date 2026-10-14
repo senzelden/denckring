@@ -104,3 +104,58 @@ cases:
       To quarry on thy Arab boy.
     params: { forbidden: e }
     satisfied: true
+  - name: galaxy-1866-song-without-s
+    provenance: external
+    source: >-
+      Anonymous song quoted in George Wakeman, "Tormenting the Alphabet", The Galaxy
+      (New York: W. C. & F. P. Church), vol. 1, 1 July 1866, pp. 437-445, the song on
+      p. 441. Wakeman introduces it as a "beautiful song, in which the obnoxious letter
+      has no place", the letter being s, and names no author; on p. 438 he says many of
+      the essay's examples "have been in print before". Anonymous, printed 1866 (ADR 0062,
+      amended 2026-10-13); Wakeman died in March 1870, per the obituary "George Wakeman"
+      in The Galaxy, May 1870 (archive.org sim_galaxy_1870-05_9_5). Archive.org
+      sim_galaxy_1866-07-01_1, text layer
+      https://archive.org/download/sim_galaxy_1866-07-01_1/sim_galaxy_1866-07-01_1_djvu.txt,
+      extracted 2026-10-14 by script: the lines from "Oh! come to-night" through the third
+      "Then come, love, come", blank lines dropped and whitespace collapsed, a space
+      before ; ! : , closed up (the print sets a thin space there, which the OCR kept in
+      "come ;"), and so is one after an opening quotation mark ("“ To-night");
+      Wakeman's quotation marks (an opening one on each stanza, a closing one at the end)
+      dropped as his quoting rather than the song's; a blank line after each refrain but
+      the last, where the print breaks stanzas; curly apostrophes and the em dash as the
+      text layer has them. Checked word for word against the page image,
+      https://archive.org/download/sim_galaxy_1866-07-01_1/page/n68.jpg. Selected: the
+      essay's one quoted lipogram (Fulgentius's lipogrammatic prose and the poem Jami
+      criticised are described, not quoted), and the checker accepts it, 1 of 1 screened.
+    text: |-
+      Oh! come to-night; for naught can charm
+      The weary time when thou’rt away.
+      Oh! come; the gentle moon hath thrown
+      O’er bower and hall her quivering ray.
+      The heather-bell hath mildly flung,
+      From off her fairy leaf, the bright
+      And diamond dew-drop that had hung
+      Upon that leaf—a gem of light.
+      Then come, love, come!
+
+      To-night the liquid wave hath not—
+      Illumined by the moonlit beam
+      Playing upon the lake beneath,
+      Like frolic in an Autumn dream—
+      The liquid wave hath not, to-night,
+      In all her moonlit pride, a fair
+      Gift like to them that on thy lip
+      Do breathe and laugh, and home it there.
+      Then come, love, come!
+
+      To-night! to-night! my gentle one,
+      The flower-bearing Amra tree
+      Doth long, with fragrant moan, to meet
+      The love-lip of the honey-bee.
+      But not the Amra tree can long
+      To greet the bee, at evening light,
+      With half the deep, fond love I long
+      To meet my Nama here to-night.
+      Then come, love, come!
+    params: { forbidden: s }
+    satisfied: true

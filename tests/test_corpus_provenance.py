@@ -61,7 +61,7 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: landed with the identical-rhyme fix it witnesses, and to 120 when a Don Juan stanza
 #: landed with `ottava_rima`'s new feminine_ending. Raised to 124 when four ballades from
 #: Gleeson White's anthology (1887) landed with `ballade`'s new `metre`, and to 125 when
-#: the anonymous s-less song quoted in The Galaxy (1866) landed for `consonantal_lipogram`.
+#: the anonymous s-less song quoted in The Galaxy (1866) landed as a `lipogram` case.
 EXTERNAL_FLOOR = 125
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases

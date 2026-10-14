@@ -130,20 +130,21 @@ There were 49 when this was written, 25 of them recording pending work: the batc
 brief. Batch 4 reported on 2026-10-13. Three rows left the registry with Bombaugh cases
 it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` left on
 2026-10-14 with four ballades from Gleeson White's anthology (1887), once the row took a
-`metre`. `consonantal_lipogram` left the same day with the anonymous song without s
-that George Wakeman quotes in "Tormenting the Alphabet" (*The Galaxy*, 1866), extracted
-by script from archive.org's text layer and checked against the page image. Its German
-leads, the R-lipograms of Burmann (1788, 1796) and Rittler (1820), did not land: the
-1788 scan has no text layer, and the OCR of the 1796 and 1820 editions disagrees with
-the print often enough that correcting it would be retyping; no scan of Rittler's 1815
-edition was found. The golden file records where each was sought, and the row has no
-German external case. Of the 44 that remain:
+`metre`. Of the 45 that remain:
 - 18 record that the batch-4 reports this registry relies on did not search them. Three
   of those also record a search that failed in batch 3 (`assonance_constraint`,
   `boustrophedon`, `paragram`), and two a batch-3 find that was too incomplete to land
   (`denckring`, `wechselsatz`).
-- 3 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (`bivocalic`,
-  `letter_bank`, `serial_lipogram`).
+- 4 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (`bivocalic`,
+  `letter_bank`, `serial_lipogram`), and leads that each ban a single letter, so none
+  would evidence a group (`consonantal_lipogram`). On 2026-10-14 one of them, the
+  anonymous song without s that George Wakeman quotes in "Tormenting the Alphabet" (*The
+  Galaxy*, 1866), landed as a `lipogram` case, extracted by script from archive.org's
+  text layer and checked against the page image. The German R-lipograms of Burmann
+  (1788, 1796) and Rittler (1820) did not land: the 1788 scan has no text layer, and the
+  OCR of the 1796 and 1820 editions disagrees with the print often enough that
+  correcting it would be retyping; no scan of Rittler's 1815 edition was found. The note
+  records where each was sought.
 - 1 records checker findings pending a maintainer ruling (`petrarchan_sonnet`): the
   checker rejected every candidate the public-domain sourcing pass found, and the note
   records why.

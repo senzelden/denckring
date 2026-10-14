@@ -151,19 +151,20 @@ All notable changes to this project are documented here. The format follows
   with `metre` unset. `ballade` leaves the gap registry. The golden corpus goes to 745
   cases, 124 of them external (16.6%); ADR 0062's floors rise to 124 and 0.166, and
   `status` reports `67 rows externally evidenced · 66 explained · 0 unexplained`.
-- **`consonantal_lipogram` has its first external case**: the anonymous song without
-  s that George Wakeman quotes in "Tormenting the Alphabet", *The Galaxy*, 1 July 1866,
-  p. 441 (anonymous, printed 1866, under ADR 0062's 2026-10-13 amendment). It is
-  extracted by script from archive.org's text layer (`sim_galaxy_1866-07-01_1`) and
-  checked word for word against the page image; the case's `source` states the
-  normalisation. The set is one letter, so the song is equally a single-letter
-  lipogram. The row leaves the gap registry. Its German leads did not land, and the
-  golden file records where they were sought: Burmann's *Gedichte ohne den Buchstaben
-  R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and of
-  Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
+- **`lipogram` gains the Galaxy's song without s**: the anonymous song George Wakeman
+  quotes in "Tormenting the Alphabet", *The Galaxy*, 1 July 1866, p. 441 (anonymous,
+  printed 1866, under ADR 0062's 2026-10-13 amendment). It is extracted by script from
+  archive.org's text layer (`sim_galaxy_1866-07-01_1`) and checked word for word against
+  the page image; the case's `source` states the normalisation. Batch 4 had filed it as
+  a lead for `consonantal_lipogram`, but that row's form bans a group of letters and the
+  song bans one, so it evidences `lipogram` and `consonantal_lipogram` stays in the gap
+  registry. Every batch-4 lead for that row bans a single letter, and its note now says
+  so and records where the German R-lipograms were sought: Burmann's *Gedichte ohne den
+  Buchstaben R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and
+  of Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
   without retyping, and no scan of Rittler's 1815 edition was found. The golden corpus
   goes to 746 cases, 125 of them external (16.8%); ADR 0062's floors rise to 125 and
-  0.167, and `status` reports `68 rows externally evidenced · 65 explained · 0
+  0.167, and `status` still reports `67 rows externally evidenced · 66 explained · 0
   unexplained`.
 
 ### Fixed
