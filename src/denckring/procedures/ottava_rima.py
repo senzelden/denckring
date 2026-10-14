@@ -21,6 +21,7 @@ class OttavaRima(BaseProcedure[OttavaRimaParams]):
     """Assembled from the shared rhyme and metre checks."""
 
     id = "ottava_rima"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

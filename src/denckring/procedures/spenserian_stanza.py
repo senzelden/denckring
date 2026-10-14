@@ -38,6 +38,7 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
     """Nine lines, the ninth one foot longer than the rest."""
 
     id = "spenserian_stanza"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

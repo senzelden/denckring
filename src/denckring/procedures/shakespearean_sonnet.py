@@ -17,6 +17,7 @@ class ShakespeareanSonnet(BaseProcedure[ShakespeareanSonnetParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "shakespearean_sonnet"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

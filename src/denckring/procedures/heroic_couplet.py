@@ -32,6 +32,7 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "heroic_couplet"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

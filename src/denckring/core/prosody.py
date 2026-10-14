@@ -431,6 +431,10 @@ def scheme_violations(
       takes for an unscannable word;
     - `strict` fails the pair, naming the word the dictionary lacks.
 
+    None of the three reaches a wanted pair ending on the same word twice: that is
+    `identical_rhyme` (unless `allow_identical`) whatever the dictionary carries,
+    because identity is a fact about spelling, not pronunciation.
+
     Under `undecidable` a text whose every pair is unknown would score nothing
     over nothing, which `_report` reads as vacuously satisfied. That case is
     reported as a single `rhyme_undecidable` violation instead: a partial
@@ -451,10 +455,39 @@ def scheme_violations(
         )
         return SchemeResult(violations, 0, 1, estimated, rhyme_evidence(keys))
 
+    # The spelling each ending is compared on to decide whether two are the
+    # same word. In French it is read past any leading elided proclitic, or
+    # `l'amour` and `amour` — the same rhyme word — read as two different ones:
+    # `identical_rhyme` exists to catch French rime riche's commonest
+    # orthographic shape, and a `l'` in front of it defeated the check that
+    # `hemeling`'s own `allow_identical` names it for (ADR 0036). Only in French:
+    # an English apostrophe elides inside or at the end of a word, and splitting
+    # there made Shakespeare's `dimm'd` and `vntrim'd` the same word `d`.
+    forms = [
+        (split_elision(word)[1] if pack.lang == "fr" else word).casefold() for _, word, _, _ in keys
+    ]
     checks = 0
     matched = 0
     for i in range(len(keys)):
         for j in range(i + 1, len(keys)):
+            should_rhyme = letters[i] == letters[j]
+            identical = forms[i] == forms[j]
+            # Identity is read off the spelling, so it is decided before the
+            # dictionary is consulted: a word the dictionary lacks rhymes with
+            # itself no better than one it carries. Tested after the unknown-word
+            # branch, Lear's limerick ending twice on "Ryde" passed while his
+            # "beard" one failed.
+            if should_rhyme and identical and not allow_identical:
+                checks += 1
+                violations.append(
+                    Violation(
+                        rule="identical_rhyme",
+                        offset=keys[j][0],
+                        found=keys[j][1],
+                        expected=f"a word other than {keys[i][1]!r}",
+                    )
+                )
+                continue
             if not (keys[i][3] and keys[j][3]):
                 if unknown_rhyme == "undecidable":
                     continue
@@ -473,28 +506,10 @@ def scheme_violations(
                     )
                 continue
             checks += 1
-            should_rhyme = letters[i] == letters[j]
             # A wanted rhyme needs one pairing of readings to match. An unwanted one
             # fails when every pairing does, or the key sets are the same (ADR 0057).
             does_rhyme = (may_rhyme if should_rhyme else must_rhyme)(keys[i][2], keys[j][2])
-            # Compared past any leading elided proclitic, or `l'amour` and
-            # `amour` — the same rhyme word — read as two different ones:
-            # `identical_rhyme` exists to catch French rime riche's commonest
-            # orthographic shape, and a `l'` in front of it defeated the
-            # check that `hemeling`'s own `allow_identical` names it for.
-            identical = (
-                split_elision(keys[i][1])[1].casefold() == split_elision(keys[j][1])[1].casefold()
-            )
-            if should_rhyme and identical and not allow_identical:
-                violations.append(
-                    Violation(
-                        rule="identical_rhyme",
-                        offset=keys[j][0],
-                        found=keys[j][1],
-                        expected=f"a word other than {keys[i][1]!r}",
-                    )
-                )
-            elif should_rhyme and not does_rhyme:
+            if should_rhyme and not does_rhyme:
                 violations.append(
                     Violation(
                         rule="does_not_rhyme",

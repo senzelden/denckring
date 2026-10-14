@@ -32,6 +32,7 @@ class Englyn(BaseProcedure[EnglynParams]):
     """
 
     id = "englyn"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "extra_line",

@@ -17,6 +17,7 @@ class Limerick(BaseProcedure[LimerickParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "limerick"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

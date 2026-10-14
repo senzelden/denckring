@@ -22,6 +22,7 @@ class CurtalSonnet(BaseProcedure[CurtalSonnetParams]):
     """A sonnet shrunk by a consistent fraction, not a sonnet cut short."""
 
     id = "curtal_sonnet"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

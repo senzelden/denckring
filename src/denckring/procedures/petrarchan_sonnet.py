@@ -17,6 +17,7 @@ class PetrarchanSonnet(BaseProcedure[PetrarchanSonnetParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "petrarchan_sonnet"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

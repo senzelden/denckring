@@ -77,6 +77,7 @@ class Ballade(BaseProcedure[BalladeParams]):
     """Twenty-eight lines, four of them the same line."""
 
     id = "ballade"
+    checker_version = 2
     rules = (
         "broken_refrain",
         "does_not_rhyme",

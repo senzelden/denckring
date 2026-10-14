@@ -15,8 +15,10 @@ import pytest
 from denckring import check
 from denckring.core.errors import DenckringError, MissingCapability
 
-#: `flurbish` is not a word; no pronouncing dictionary carries it.
-UNKNOWN = "the cat sat on the flurbish\nthe dog ran to the flurbish"
+#: `flurbish` and `glorbish` are not words; no pronouncing dictionary carries
+#: them. Two different words, not one twice: a word repeated as its own rhyme is
+#: `identical_rhyme`, decided by spelling whether the dictionary carries it or not.
+UNKNOWN = "the cat sat on the flurbish\nthe dog ran to the glorbish"
 
 
 #: Lines 1-2 rhyme on words the dictionary knows; lines 3-4 end on a word it
@@ -25,7 +27,7 @@ UNKNOWN = "the cat sat on the flurbish\nthe dog ran to the flurbish"
 MIXED = """the sun will set behind the hill in may
 the fox will hide beneath the fallen way
 the owl will call across the flurbish
-the mice will creep beside the flurbish"""
+the mice will creep beside the glorbish"""
 
 
 def test_an_unknown_line_ending_reports_rather_than_raising() -> None:

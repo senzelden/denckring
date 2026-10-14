@@ -94,6 +94,26 @@ All notable changes to this project are documented here. The format follows
   registry. All but Holland's are anonymous, and land under the ADR 0062 amendment above.
   The golden corpus goes from 724 cases to 739, 118 of them external.
 
+### Fixed
+
+- **A word the dictionary lacks no longer rhymes with itself.** `scheme_violations`
+  tested for an unknown line ending before it tested whether two endings were the same
+  word, so Lear's limerick ending twice on "Ryde" was satisfied under the default
+  `unknown_rhyme`, matched under `free` and reported as `unknown_rhyme` under `strict`,
+  while his "beard" limerick, the same fault on a word the dictionary carries, failed.
+  Identity is read off the spelling, so a pair the scheme wants to rhyme on the same word
+  is now `identical_rhyme` (unless `allow_identical`) under every `unknown_rhyme`
+  reading. The comparison now reads past an elided proclitic (`l'amour`, ADR 0036) only
+  in French: in English the split took Shakespeare's `dimm'd` and `vntrim'd` to the same
+  word `d`, and the fix would have exposed that on Sonnet 18. A `ballade` refrain ending
+  on an unknown word stays exempt. Sixteen rows move to `checker_version` 2: `ballade`,
+  `clerihew`, `curtal_sonnet`, `englyn`, `hemeling`, `heroic_couplet`, `limerick`,
+  `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`,
+  `shakespearean_sonnet`, `sonnet`, `spenserian_stanza` and `terza_rima`. No golden
+  verdict moves. Lear's "Ryde" limerick (Project Gutenberg #982) lands as an external
+  `limerick` case rejected for `identical_rhyme`. The golden corpus goes to 740 cases,
+  119 of them external (16.1%), and ADR 0062's floors rise to 119 and 0.160.
+
 ## [0.5.0] - 2026-10-13
 
 ### Added

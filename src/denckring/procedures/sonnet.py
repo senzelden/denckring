@@ -52,6 +52,7 @@ class Sonnet(BaseProcedure[SonnetParams]):
     """Fourteen lines, plus whatever scheme and metre the caller names."""
 
     id = "sonnet"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

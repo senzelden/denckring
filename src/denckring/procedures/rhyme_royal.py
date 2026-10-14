@@ -17,6 +17,7 @@ class RhymeRoyal(BaseProcedure[RhymeRoyalParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "rhyme_royal"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

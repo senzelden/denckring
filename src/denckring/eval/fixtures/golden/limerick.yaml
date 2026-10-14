@@ -17,6 +17,23 @@ cases:
       Have all built their nests in my beard!"
     params: {}
     satisfied: false
+  - name: lear-ryde
+    provenance: external
+    source: >-
+      Edward Lear (d. 1888), The Book of Nonsense, limerick 2; Project Gutenberg ebook #982,
+      https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-14
+      (the file names no edition or year; Lear first published A Book of Nonsense in 1846).
+      Rejected: `identical_rhyme`. Lear ends the first and last lines on the same word,
+      'Ryde', which strict practice counts a fault; the pronouncing dictionary does not
+      carry the place name, so the repeat is judged by spelling.
+    text: |-
+      There was a Young Lady of Ryde,
+      Whose shoe-strings were seldom untied;
+      She purchased some clogs,
+      And some small spotty dogs,
+      And frequently walked about Ryde.
+    params: {}
+    satisfied: false
   - name: distinct-rhymes
     source: constructed example
     text: |-

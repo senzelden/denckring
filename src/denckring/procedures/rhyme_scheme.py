@@ -151,6 +151,7 @@ class RhymeScheme(BaseProcedure[RhymeSchemeParams]):
     """Lines sharing a letter must rhyme; lines with different letters must not."""
 
     id = "rhyme_scheme"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",

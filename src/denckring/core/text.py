@@ -349,13 +349,16 @@ def split_elision(word: str) -> tuple[str, str]:
     a word handed to `noun_index` is always an elision boundary; `identical_rhyme`
     (`core/prosody.py`) only ever compares the segment split here against
     another segment split the same way, so a genuine apostrophe-word
-    compared with itself still comes out identical. Neither caller needs the
-    try-whole-first step `_table_entry` needs, because neither is looking a
-    word up in a table that itself holds apostrophe-bearing entries.
+    compared with itself still comes out identical; it splits only in French.
+    Neither caller needs the try-whole-first step `_table_entry` needs,
+    because neither is looking a word up in a table that itself holds
+    apostrophe-bearing entries.
 
     Splits at the LAST mark, the same as `_table_entry`, for a chained
-    elision. Language-blind: no English or German word carries an
-    apostrophe, so this is a silent no-op there.
+    elision. Language-blind, but not a no-op outside French: English verse
+    elides inside a word (`dimm'd`, `ow'st`), and splitting there leaves only
+    the ending (`d`, `st`), which is why `identical_rhyme` splits only in
+    French.
     """
     for mark in _ELISION_MARKS:
         if mark in word:
