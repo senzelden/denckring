@@ -121,8 +121,8 @@ All notable changes to this project are documented here. The format follows
   agrees with the dictionary. Dictionary-backed packs change only for words they lack,
   which fall back to this heuristic: `erewhile` and `therewith` are two syllables with
   `denckring[en]` installed too. `Abdiel` and four-syllable `ambrosial` stay as they
-  are. Twenty-nine rows that read English syllable counts or stress move:
-  `alcaic_stanza`, `alexandrine`, `arca_musarithmica`, `blank_verse`, `cinquain`,
+  are. The checker versions of twenty-nine rows that read English syllable counts or
+  stress are bumped: `alcaic_stanza`, `alexandrine`, `arca_musarithmica`, `blank_verse`, `cinquain`,
   `dactylic_hexameter`, `double_dactyl`, `elegiac_couplet`, `haibun`, `haiku`,
   `hendecasyllable`, `iambic_pentameter`, `proteus_verse`, `renga`, `sapphic_stanza`,
   `senryu`, `syllable_count`, `tanka` and `trochaic_tetrameter` to `checker_version` 2,

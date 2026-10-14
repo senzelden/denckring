@@ -168,7 +168,7 @@ def test_the_haiku_probe_line_counts_ten() -> None:
 
 
 # A leading `there`/`where`/`here`/`ere` keeps its silent `e` when an adverbial
-# element follows (`there-with`, `ere-while`): one syllable, not two (R3). Only the
+# element follows (`there-with`, `ere-while`): one syllable, not two. Only the
 # closed set of second elements: `hereditary`, `heresy`, `heretic`, `wherever` and
 # `herepath` start the same way and are not such compounds, and an element that
 # opens on a vowel (`herein`, `whereupon`) already merges the `e` into its group.

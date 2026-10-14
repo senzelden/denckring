@@ -36,7 +36,7 @@ _SILENT_E_SUFFIX = re.compile(r"(?:[^aeiouyszxcgh]es|[^aeiouytd]ed)$")
 _SYLLABIC_LIQUID_SUFFIX = re.compile(r"[^aeiouy][lr]e[sd]$")
 #: A leading "there", "where", "here" or "ere" keeps its `e` silent inside an
 #: adverbial compound (there-with, ere-while, here-to-fore), which read a syllable
-#: long (R3). A closed list of second elements, not "any consonant follows": that
+#: long. A closed list of second elements, not "any consonant follows": that
 #: reading takes `hereditary`, `heresy`, `heretic` and `wherever` a syllable
 #: short, and `herepath`, which is no such compound. An element opening on a
 #: vowel (`herein`, `whereupon`) needs no rule: its vowel already shares a group
@@ -74,9 +74,9 @@ class EnglishPack(BasePack):
         Count vowel groups, drop a silent terminal "e" (also when an "-s" or
         "-d" follows it) and the medial one of a "there-with" compound, add
         back a syllabic "-le", and never return less than one. This is the
-        standard spelling heuristic and it is wrong for a measurable share of English, which is
-        why the second element of the pair is always False and why installing
-        `denckring[en]` replaces it with dictionary lookups.
+        standard spelling heuristic and it is wrong for a measurable share of
+        English, which is why the second element of the pair is always False and
+        why installing `denckring[en]` replaces it with dictionary lookups.
         """
         letters = "".join(ch for ch in self.fold_diacritics(word) if ch.isalpha())
         if not letters:
