@@ -82,7 +82,8 @@ def _exempt_refrain_identicals(
 
 class BalladeParams(RhymeParams):
     # Defaults to the tetrameter the row scanned before the field existed, so a
-    # caller who never sets it keeps every verdict (ADR 0061: no version bump).
+    # caller who never sets it keeps every verdict (ADR 0061: the parameter needs no bump
+    # of its own).
     metre: str | None = Field(
         default=repeat_to("01", 4),
         pattern=r"^[01]+$",

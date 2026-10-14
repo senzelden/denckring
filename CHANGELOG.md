@@ -38,8 +38,9 @@ All notable changes to this project are documented here. The format follows
   pending". `telestich`, `double_acrostic` and `pangrammatic_lipogram` leave the registry
   with Bombaugh cases, and the other 22 now say what batch 4 found or that it did not
   search them: no English instance in Bombaugh's pp. 25–64 for `bivocalic`, `letter_bank`
-  and `serial_lipogram`, and leads located but not read for `consonantal_lipogram`
-  (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820). `lipogram` is no
+  and `serial_lipogram`, and leads located for `consonantal_lipogram`
+  (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820; read on 2026-10-14,
+  see the `lipogram` entry below). `lipogram` is no
   longer evidenced only through a grandfathered case, so ADR 0062's list of such rows
   drops from six to five.
 - **`alcaic_stanza`'s English definition says the row reads alcaics accentually.** It
@@ -109,7 +110,7 @@ All notable changes to this project are documented here. The format follows
   The golden corpus goes from 724 cases to 739, 118 of them external.
 - **`ottava_rima` takes `feminine_ending`**, off by default, as `sonnet`, `blank_verse`,
   `rhyme_royal` and `spenserian_stanza` already do: set, a line may close on one extra
-  unstressed syllable. No `checker_version` bump: in 0.5.0 any call passing it was
+  unstressed syllable. The parameter needs no `checker_version` bump of its own: in 0.5.0 any call passing it was
   refused as an unknown parameter, and no existing probe of the verdict fingerprint
   moved. Re-measured on Don Juan, Canto I, as Coleridge's edition (1903, Project
   Gutenberg #18762) prints it, the checker rejects 219 of the 222 stanzas by default,
@@ -133,7 +134,7 @@ All notable changes to this project are documented here. The format follows
   The `prompt_hint` template now states the pattern set (`each in the stress pattern
   {metre}`) instead of always asking for "iambic tetrameter, eight syllables"; under
   `metre = null` it is refused with `UnsetHintParameter`, since there is no line to ask
-  for. No `checker_version` bump: in 0.5.0 any call passing `metre` was refused as an
+  for. The parameter needs no `checker_version` bump of its own: in 0.5.0 any call passing `metre` was refused as an
   unknown parameter, and no existing probe of the verdict fingerprint moved. Re-measured
   on Gleeson White's *Ballades and Rondeaus* (1887, Project Gutenberg #45736), screened
   by this rule: between PG's START and END lines, a title is a line in column 0 with an

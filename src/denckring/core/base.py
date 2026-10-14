@@ -107,7 +107,8 @@ class RhymeParams(BaseModel):
         description=(
             "What a line ending absent from the pronouncing dictionary means: "
             "leave the pair unscored (undecidable), let it satisfy the scheme "
-            "(free), or fail it (strict)."
+            "(free), or fail it (strict). "
+            "A word repeated as its own rhyme is still identical_rhyme under every setting."
         ),
         json_schema_extra=param("policy"),
     )

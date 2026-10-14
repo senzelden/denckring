@@ -61,8 +61,9 @@ def test_the_spenserian_alexandrine_may_also_close_feminine() -> None:
 
 
 #: A constructed ottava rima whose couplet closes feminine, as Byron's do: eleven
-#: syllables, the eleventh unstressed. `billow`, not `willow`: the dictionary gives
-#: willow's last vowel a secondary stress, and the rhyme key keeps it.
+#: syllables, the eleventh unstressed. `billow` was chosen before 0.6.0, when the
+#: rhyme key kept the secondary stress the dictionary gives willow's last vowel; the key
+#: now folds it (ADR 0057), so `willow` would rhyme here too.
 FEMININE_COUPLET = """the cat can see the moon above the tree
 the dog will run across the field today
 a kestrel flies around the house at three

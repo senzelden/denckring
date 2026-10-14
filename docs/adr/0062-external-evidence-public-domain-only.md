@@ -62,7 +62,9 @@ to 102 and 0.144 on 2026-10-12; the comments beside them in
 `tests/test_corpus_provenance.py` record each step. The share floor then fell, once and
 deliberately, to 0.141, when ADR 0063's German letter-rule cases landed, every one of them
 constructed; it was raised to 0.159 (118 of 739), with `EXTERNAL_FLOOR` at 118, on
-2026-10-13 when the Bombaugh 1890 cases landed under the amendment below.
+2026-10-13 when the Bombaugh 1890 cases landed under the amendment below. On 2026-10-14
+the public-domain cases of the pre-release pass raised them again, to 0.167 and
+`EXTERNAL_FLOOR` 125 (125 of 746).
 `tests/data/external-floor.json` holds each row's external count as a ratchet: a row may
 gain cases and never lose one.
 
@@ -107,8 +109,8 @@ evidenced. The cost is recorded rather than removed: on those five rows "externa
 evidenced" rests on short quotations from publications after the cutoff, which is weaker
 than the policy now requires of any new case, and `status` prints them in the same count
 as rows evidenced by public-domain text. Only the cases' `source` strings, which name each
-publication and its year, and this paragraph tell them apart. The ratchet keeps them in place, so a row leaves this list only by gaining a
-public-domain case, as `lipogram` did.
+publication and its year, and this paragraph tell them apart. The ratchet keeps them in
+place, so a row leaves this list only by gaining a public-domain case, as `lipogram` did.
 
 21 rows are `after_cutoff` and can never be evidenced while the policy stands: Perec,
 Queneau, Roubaud, Mathews, Lescure, Bénabou, Cage, Burroughs, Mac Low, Enzensberger,
