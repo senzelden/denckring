@@ -12,3 +12,11 @@ cases:
     text: abc
     params: {}
     satisfied: false
+  - name: einoede
+    lang: de
+    source: >-
+      constructed example; "Einöde" walks e-i-n-ö-d-e, closed and with no edge
+      repeated, whether `ö` folds to `o` or stays itself
+    text: Einöde
+    params: {}
+    satisfied: true

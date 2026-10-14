@@ -55,14 +55,20 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: below: the floor had trailed the corpus by nineteen cases, so it could have fallen
 #: that far without a failure. Raised to 98 later on 2026-10-12, when the public-domain
 #: sourcing pass for the classical verse forms landed thirteen cases, and to 102 when four
-#: of Hilton's chronograms (1882) landed.
-EXTERNAL_FLOOR = 102
+#: of Hilton's chronograms (1882) landed. Raised to 118 on 2026-10-13, when Bombaugh's 1890
+#: chronogram and fifteen cases from his telestich, acrostic, double acrostic, univocalic
+#: and lipogram texts landed.
+EXTERNAL_FLOOR = 118
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
 #: places so the measured value itself passes; raised with the floor above, at 98 of 700
-#: (0.140), and at 102 of 704 (0.144).
-EXTERNAL_SHARE_FLOOR = 0.144
+#: (0.140), and at 102 of 704 (0.144). Lowered once, deliberately, to 102 of 722 (0.141):
+#: ADR 0063 declares German on twenty letter rules and every one of the eighteen German
+#: cases it needed is constructed. The fall is the cost that ADR records, not drift.
+#: Raised to 118 of 739 (0.159) when the Bombaugh 1890 cases landed, above the 0.144 the
+#: dip had given up.
+EXTERNAL_SHARE_FLOOR = 0.159
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.
@@ -71,7 +77,7 @@ EXTERNAL_FLOOR_FILE = Path(__file__).parent / "data" / "external-floor.json"
 
 def test_every_case_says_where_it_came_from() -> None:
     """A case with no source cannot be audited by anyone, including its author a
-    year later. All 532 have one today; this is what keeps the next one honest."""
+    year later. Every case must name one, so a new case cannot land without a source."""
     unsourced = [str(case) for case in load_golden_cases() if not (case.source or "").strip()]
     assert not unsourced, f"{len(unsourced)} golden cases name no source: {unsourced[:5]}"
 

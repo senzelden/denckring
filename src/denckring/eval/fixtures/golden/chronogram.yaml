@@ -33,6 +33,33 @@ cases:
     params: {fold_diacritics: True, year: 1603}
     satisfied: false
     min_score: 0.37
+  - name: bombaugh-my-day-is-closed-capitals
+    lang: en
+    provenance: external
+    source: >-
+      C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature,
+      enlarged ed. (Philadelphia: J. B. Lippincott, 1890), p. 58 (Bombaugh 1828–1906):
+      "The following commemorates the death of Queen Elizabeth:— My Day Is Closed In
+      Immortality. (1603.)"; Project Gutenberg #56805,
+      https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script
+      from the Project Gutenberg text, where the page marker before the line is 58; the
+      page image was not checked. Bombaugh's word order ("Is Closed") differs from
+      Hilton's ("Closed Is", case chronogram-my-day-closed), and Hilton rejects exactly
+      this reading of the line as a "pretext" (ADR 0064). Read under `capitals_only`, the
+      capitals M D I C I I total 1603; every numeral letter totals 4204, which is the
+      verdict chronogram-my-day-closed records.
+    text: |-
+      My Day Is Closed In Immortality.
+    params: {year: 1603, capitals_only: true}
+    satisfied: true
+  - name: lowercase-numerals-do-not-count-under-capitals-only
+    source: >-
+      constructed counterexample; every numeral letter totals 1567 (m i l d v i x), but
+      under `capitals_only` only the capital M counts, so the total is 1000. Rejected:
+      `wrong_total`
+    text: Mild vixen
+    params: { year: 1567, capitals_only: true }
+    satisfied: false
   - name: hilton-francis-goldsmith
     lang: en
     provenance: external
@@ -98,3 +125,11 @@ cases:
       sCharf avf dIe feInd am Donaustrand.
     params: {year: 1854}
     satisfied: false
+  - name: max-im-tor
+    lang: de
+    source: >-
+      constructed example; every numeral letter counts, capital or not — M, X, V,
+      X, I, M — and they total 2026. The `ß` reads as `ss` and adds nothing
+    text: Max saß vor Rex im Tor
+    params: { year: 2026 }
+    satisfied: true

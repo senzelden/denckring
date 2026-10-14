@@ -32,6 +32,19 @@ class ChronogramParams(DiacriticParams):
         ),
         json_schema_extra=param("switch"),
     )
+    # ADR 0064: Bombaugh (1890, p. 58) prints a line whose date comes from its capitals
+    # alone; Hilton (1882, p. 9) calls that reading a "pretext". Opt-in, so the default
+    # stays Hilton's and every 0.5.0 call keeps its verdict.
+    capitals_only: bool = Field(
+        default=False,
+        # Phrased as an instruction, because `prompt_hint` appends it under the template
+        # when set (ADR 0050), and the template defers to it ("Unless a line below...").
+        description=(
+            "Only numeral letters written as capitals count: write the date's numerals as "
+            "capitals; lower-case ones add nothing."
+        ),
+        json_schema_extra=param("switch"),
+    )
 
 
 @register
@@ -42,7 +55,10 @@ class Chronogram(BaseProcedure[ChronogramParams]):
     rules = ("too_short", "wrong_total")
     #: Promised: ADR 0060 D3. Every golden report carries both.
     promised_metrics: ClassVar[dict[str, str]] = {
-        "total": "The numeral letters' sum, every occurrence counted (Reading.counting).",
+        "total": (
+            "The numeral letters' sum, every occurrence counted, or every capital one "
+            "under `capitals_only` (Reading.counting)."
+        ),
         "numerals": "How many numeral letters were counted.",
     }
 
@@ -54,8 +70,12 @@ class Chronogram(BaseProcedure[ChronogramParams]):
         subtractive=False,
         every_occurrence=True,
         case_sensitive=False,
+        case_switch="capitals_only",
         folds="fold_diacritics",
-        skipped="every character that is not a letter: digits, punctuation, spaces",
+        skipped=(
+            "every character that is not a letter: digits, punctuation, spaces; and every "
+            "letter that is not a numeral, among them German ä, ö, ü and ß, folded or not"
+        ),
     )
 
     @classmethod
@@ -65,6 +85,16 @@ class Chronogram(BaseProcedure[ChronogramParams]):
     def _check(self, text: str, pack: LanguagePack, params: ChronogramParams) -> Report:
         letters = letter_spans(text, pack, fold=params.fold_diacritics)
         numerals = [(offset, ch) for offset, ch in letters if ch in VALUES]
+        if params.capitals_only:
+            # The case is read from the caller's text, not from `letters`, which are
+            # lower-cased (and folded): `Ï` counts as I only because `text` has a capital
+            # there. The offset is the base character's, so a decomposed capital works too.
+            # A titlecase digraph (`ǅ`, category Lt) begins with a capital, so it counts.
+            numerals = [
+                (offset, ch)
+                for offset, ch in numerals
+                if text[offset].isupper() or text[offset].istitle()
+            ]
         total = sum(VALUES[ch] for _, ch in numerals)
         metrics = {"total": float(total), "numerals": float(len(numerals))}
         violations: list[Violation] = []

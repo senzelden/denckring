@@ -44,3 +44,17 @@ cases:
     text: un garçon
     params: { forbidden: ç }
     satisfied: false
+  - name: ohne-s-und-t
+    lang: de
+    source: constructed example
+    text: Die Kühe weiden am grünen Hang
+    params: { forbidden: st }
+    satisfied: true
+  - name: eszett-ist-ein-s
+    lang: de
+    source: >-
+      constructed counterexample; `ß` folds to `ss`, so "großen" uses the
+      forbidden `s` twice
+    text: Die Kühe weiden am großen Hang
+    params: { forbidden: st }
+    satisfied: false

@@ -18,15 +18,16 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write a passage that never uses the letter "{forbidden}", in any case or
-        accented form.
+        Write a passage that never uses the letter "{forbidden}", in any case. Unless a
+        line below says otherwise, an accented form counts as the letter too.
       de: >-
         Schreibe einen Text, in dem der Buchstabe „{forbidden}“ nie vorkommt, auch nicht
-        als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü als u
-        und ß als ss.
+        als Großbuchstabe. Sofern keine Zeile darunter etwas anderes sagt, auch nicht mit
+        Akzent oder Umlaut: ä zählt als a, ö als o, ü als u und ß als ss.
       fr: >-
-        Écris un texte où la lettre « {forbidden} » n'apparaît jamais, ni en majuscule,
-        ni avec un accent, un tréma ou une cédille : é et ë comptent comme e, ç comme c.
+        Écris un texte où la lettre « {forbidden} » n'apparaît jamais, même en majuscule.
+        Sauf si une ligne ci-dessous dit autre chose, pas non plus avec un accent, un
+        tréma ou une cédille : é et ë comptent comme e, ç comme c.
 
   - id: univocalic
     names: { en: Univocalic, de: Univokalisch, fr: Univocalisme }
@@ -778,11 +779,15 @@ procedures:
   # ---------------------------------------------------------------------------
 
   - id: belle_absente
-    names: { en: Belle absente, fr: Belle absente }
+    names: { en: Belle absente, de: Belle absente, fr: Belle absente }
     definitions:
       en: >-
         A poem with one line per letter of a dedicatee's name, each line omitting
         exactly that letter while using every other letter of the alphabet.
+      de: >-
+        Ein Gedicht mit einer Zeile je Buchstabe im Namen der Person, der es gewidmet ist;
+        jede Zeile lässt genau diesen Buchstaben aus und verwendet alle übrigen Buchstaben
+        des Alphabets.
       fr: Un poème dont chaque vers omet une lettre du nom du dédicataire.
     source: Georges Perec, in Oulipo, Atlas de littérature potentielle (1981)
     family: letter
@@ -791,7 +796,7 @@ procedures:
     attested: author-stated
     aliases: [beautiful absent]
     kind: restrictive
-    languages: [en, fr]
+    languages: [en, de, fr]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -814,7 +819,7 @@ procedures:
     attested: codified
     aliases: [abecedarius]
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -823,11 +828,15 @@ procedures:
         then the next, and so on.
 
   - id: double_acrostic
-    names: { en: Double acrostic }
+    names: { en: Double acrostic, de: Doppelakrostichon }
     definitions:
       en: >-
         A text whose first and last letters each spell out a word when read down
         the lines, so the poem is bounded by two hidden strings.
+      de: >-
+        Ein Text, dessen Zeilenanfänge und Zeilenenden, von oben nach unten gelesen, je
+        ein Wort ergeben, sodass das Gedicht von zwei verborgenen Zeichenfolgen gerahmt
+        wird.
     source: Traditional; described in the Renaissance rhetorical handbooks
     family: letter
     attribution: traditional
@@ -835,7 +844,7 @@ procedures:
     attested: codified
     aliases: [acrostic-telestich]
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -912,13 +921,13 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
       en: >-
-        Write a phrase whose Roman-numeral letters add up to {year}, counting every i,
-        v, x, l, c, d and m in either case.
+        Write a phrase whose Roman-numeral letters add up to {year}. Unless a line
+        below restricts it, every i, v, x, l, c, d and m counts, in either case.
 
   - id: semordnilap
     names: { en: Semordnilap, de: Semordnilap, fr: Semordnilap }
@@ -969,18 +978,21 @@ procedures:
       en: Build a square of words that reads the same across each row as down each column.
 
   - id: pangrammatic_window
-    names: { en: Pangrammatic window }
+    names: { en: Pangrammatic window, de: Pangrammatisches Fenster }
     definitions:
       en: >-
         A stretch of naturally occurring text, as short as possible, that happens
         to contain every letter of the alphabet.
+      de: >-
+        Ein möglichst kurzer Abschnitt natürlich entstandenen Textes, der zufällig jeden
+        Buchstaben des Alphabets enthält.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -989,18 +1001,21 @@ procedures:
         every letter of the alphabet.
 
   - id: supervocalic
-    names: { en: Supervocalic }
+    names: { en: Supervocalic, de: Supervokalisch }
     definitions:
       en: >-
         A word or text containing each of the five vowels exactly once, in any
         order.
+      de: >-
+        Ein Wort oder Text, der jeden der fünf Vokale genau einmal enthält, in beliebiger
+        Reihenfolge.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1009,18 +1024,21 @@ procedures:
         in the whole text.
 
   - id: monoconsonantal
-    names: { en: Monoconsonantal }
+    names: { en: Monoconsonantal, de: Monokonsonantisch }
     definitions:
       en: >-
         A text using only one consonant throughout, the vowels being left
         unconstrained — the mirror image of the univocalic.
+      de: >-
+        Ein Text, der durchgehend nur einen einzigen Konsonanten verwendet, während die
+        Vokale frei bleiben — das Spiegelbild des Univokalischen.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
@@ -1028,11 +1046,14 @@ procedures:
         Write a passage in which the only consonant that appears is "{consonant}".
 
   - id: consonantal_lipogram
-    names: { en: Consonantal lipogram, fr: Lipogramme consonantique }
+    names: { en: Consonantal lipogram, de: Konsonantisches Lipogramm, fr: Lipogramme consonantique }
     definitions:
       en: >-
         A lipogram whose forbidden set is a group of consonants rather than a
         single letter.
+      de: >-
+        Ein Lipogramm, dessen verbotene Menge eine Gruppe von Konsonanten ist statt eines
+        einzelnen Buchstabens.
       fr: Un lipogramme dont l'ensemble interdit est un groupe de consonnes plutôt qu'une seule lettre.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
@@ -1040,7 +1061,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, fr]
+    languages: [en, de, fr]
     notes: >-
       The checker takes any set of letters, vowels included, and fails every letter of
       the set wherever it appears: a group of consonants is the form's case, not the
@@ -1055,11 +1076,14 @@ procedures:
         Écris un texte qui n'emploie aucune de ces lettres : {forbidden}.
 
   - id: liponym
-    names: { en: Liponym, fr: Liponyme }
+    names: { en: Liponym, de: Liponym, fr: Liponyme }
     definitions:
       en: >-
         A text that omits a chosen word entirely, especially one the subject makes
         almost unavoidable.
+      de: >-
+        Ein Text, der ein gewähltes Wort vollständig auslässt, besonders eines, das sein
+        Gegenstand nahezu unvermeidlich macht.
       fr: Un texte qui omet entièrement un mot choisi, surtout celui que son sujet rend presque inévitable.
     source: Oulipo, Atlas de littérature potentielle (1981)
     family: letter
@@ -1067,7 +1091,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en, fr]
+    languages: [en, de, fr]
     requires: [tokens]
     deterministic: true
     prompt_hints:
@@ -1127,18 +1151,21 @@ procedures:
         order.
 
   - id: tautonym
-    names: { en: Tautonym }
+    names: { en: Tautonym, de: Tautonym }
     definitions:
       en: >-
         A word made of the same sequence of letters repeated twice, such as
         tartar or couscous.
+      de: >-
+        Ein Wort aus derselben Buchstabenfolge, zweimal hintereinander geschrieben, etwa
+        Bonbon oder Tamtam.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1160,7 +1187,7 @@ procedures:
     checkability: self
     attested: codified
     kind: both
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     apply_requires:
       - lexicon.words
@@ -1178,18 +1205,21 @@ procedures:
       it, while `check` keeps working on the core pack alone.
 
   - id: pangrammatic_lipogram
-    names: { en: Pangrammatic lipogram }
+    names: { en: Pangrammatic lipogram, de: Pangrammatisches Lipogramm }
     definitions:
       en: >-
         A text using every letter of the alphabet except one, which is omitted
         entirely — a pangram and a lipogram at once.
+      de: >-
+        Ein Text, der jeden Buchstaben des Alphabets bis auf einen verwendet, der ganz
+        ausgelassen wird — Pangramm und Lipogramm zugleich.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1198,16 +1228,19 @@ procedures:
         must not appear at all.
 
   - id: bivocalic
-    names: { en: Bivocalic }
+    names: { en: Bivocalic, de: Bivokalisch }
     definitions:
       en: A text restricted to two of the vowels, the rest being excluded throughout.
+      de: >-
+        Ein Text, der auf zwei der Vokale beschränkt ist; alle übrigen bleiben durchgehend
+        ausgeschlossen.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics, alphabet]
     deterministic: true
     prompt_hints:
@@ -1215,20 +1248,25 @@ procedures:
         Write a passage using no vowels but these two: {vowels}.
 
   - id: antigram
-    names: { en: Antigram }
+    names: { en: Antigram, de: Antigramm }
     definitions:
       en: >-
         An anagram whose rearrangement means the opposite of its source, so the
         letters contradict themselves. The checker verifies the anagram and that
         the text differs from its source; whether the sense is genuinely opposite
         is a judgement no program makes.
+      de: >-
+        Ein Anagramm, dessen Umstellung das Gegenteil seiner Vorlage bedeutet, sodass die
+        Buchstaben sich selbst widersprechen. Geprüft werden das Anagramm und dass der
+        Text von der Vorlage abweicht; ob der Sinn wirklich entgegengesetzt ist,
+        entscheidet kein Programm.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: source
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1313,18 +1351,21 @@ procedures:
       Llull's own).
 
   - id: letter_bank
-    names: { en: Letter bank }
+    names: { en: Letter bank, de: Buchstabenbank }
     definitions:
       en: >-
         A text drawing only on the letters of a chosen source word, each of which
         must appear at least once and may repeat freely.
+      de: >-
+        Ein Text, der nur aus den Buchstaben eines gewählten Ausgangsworts schöpft; jeder
+        davon muss mindestens einmal vorkommen und darf sich beliebig wiederholen.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1332,37 +1373,45 @@ procedures:
         Write using only the letters of "{bank}", using every one of them at least once.
 
   - id: transposal
-    names: { en: Transposal }
+    names: { en: Transposal, de: Anagrammpaar }
     definitions:
       en: >-
         A pair of words using exactly the same letters in a different order,
         treated as a unit of composition rather than a puzzle.
+      de: >-
+        Ein Wortpaar aus genau denselben Buchstaben in anderer Reihenfolge, als Baustein
+        des Schreibens statt als Rätsel behandelt.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
     checkability: source
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
       en: Pair each word with another built from exactly its letters, reordered.
 
   - id: eodermdrome
-    names: { en: Eodermdrome }
+    names: { en: Eodermdrome, de: Eodermdrom }
     definitions:
       en: >-
         A word whose letters, read as the edges of a graph, trace a closed figure
         crossing every edge once. The checker verifies the closed walk and the
         unrepeated edges, not the non-planarity of Borgmann's stricter reading.
+      de: >-
+        Ein Wort, dessen aufeinanderfolgende Buchstabenpaare, als Kanten eines Graphen
+        gelesen, einen geschlossenen Weg bilden, der jede Kante genau einmal durchläuft.
+        Geprüft werden der geschlossene Weg und die unwiederholten Kanten, nicht die
+        Nichtplanarität, die Borgmanns strengere Lesart verlangt.
     source: Dmitri A. Borgmann, Language on Vacation (1965)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1390,7 +1439,7 @@ procedures:
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1398,18 +1447,21 @@ procedures:
         Write a passage in which every word ends with the letter "{final}".
 
   - id: alphabetical_sentence
-    names: { en: Alphabetical sentence }
+    names: { en: Alphabetical sentence, de: Alphabetischer Satz }
     definitions:
       en: >-
         A sentence whose words appear in alphabetical order from first to last,
         without rearrangement.
+      de: >-
+        Ein Satz, dessen Wörter vom ersten bis zum letzten in alphabetischer Reihenfolge
+        stehen, ohne Umstellung.
     source: Word Ways, the Journal of Recreational Linguistics (1968 onwards)
     family: letter
     attribution: reference
     checkability: self
     attested: codified
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [tokens, fold_diacritics]
     deterministic: true
     prompt_hints:
@@ -1673,12 +1725,14 @@ procedures:
     unique_answer: true
     prompt_hints:
       en: >-
-        Copy the source text with every letter "{deleted}" deleted, in any case or
-        accented form, and every other letter kept, in its order.
+        Copy the source text with every letter "{deleted}" deleted, in any case, and
+        every other letter kept, in its order. Unless a line below says otherwise, an
+        accented form of the letter is deleted too.
       fr: >-
         Recopie le texte source en supprimant toutes les lettres « {deleted} », en
-        majuscule ou en minuscule, avec ou sans accent, tréma ou cédille, et en gardant
-        toutes les autres lettres, dans leur ordre.
+        majuscule ou en minuscule, et en gardant toutes les autres lettres, dans leur
+        ordre. Sauf si une ligne ci-dessous dit autre chose, supprime-les aussi avec un
+        accent, un tréma ou une cédille.
 
   - id: haikuization
     names: { en: Haikuization, de: Haikuisierung, fr: Haïkuisation }
@@ -3509,12 +3563,12 @@ procedures:
       en: Translate the passage while never using the letter "{forbidden}".
       de: >-
         Übersetze den Text, ohne je den Buchstaben „{forbidden}“ zu verwenden, auch
-        nicht als Großbuchstabe oder mit Akzent oder Umlaut: ä zählt als a, ö als o, ü
-        als u und ß als ss.
+        nicht als Großbuchstabe. Sofern keine Zeile darunter etwas anderes sagt, auch
+        nicht mit Akzent oder Umlaut: ä zählt als a, ö als o, ü als u und ß als ss.
       fr: >-
-        Traduis le texte sans jamais employer la lettre « {forbidden} », ni en
-        majuscule, ni avec un accent, un tréma ou une cédille : é et ë comptent comme e,
-        ç comme c.
+        Traduis le texte sans jamais employer la lettre « {forbidden} », même en
+        majuscule. Sauf si une ligne ci-dessous dit autre chose, pas non plus avec un
+        accent, un tréma ou une cédille : é et ë comptent comme e, ç comme c.
 
   - id: univocalic_translation
     names: { en: Univocalic translation, de: Univokalische Übersetzung, fr: Traduction univocalique }
@@ -3877,7 +3931,7 @@ procedures:
     attested: codified
     aliases: [lipogrammatic cycle]
     kind: restrictive
-    languages: [en]
+    languages: [en, de]
     requires: [alphabet, fold_diacritics]
     deterministic: true
     prompt_hints:

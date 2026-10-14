@@ -38,7 +38,7 @@ $ denckring apply cut_up text.txt --json           # emits a Production
 $ denckring status
 158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable
 0 instruments catalogued
-63 rows externally evidenced · 70 explained · 0 unexplained
+66 rows externally evidenced · 67 explained · 0 unexplained
 ```
 
 Three interfaces over the same core functions, so they cannot disagree about what a
@@ -137,7 +137,10 @@ form being English by nature, and `runs_in` all three.
 The two move independently, and the editorial half is the one that lags: 174 (row,
 language) pairs ran unclaimed when it was last measured. ADR 0047 closed the thirty
 French rows whose own `source:` field is the evidence — `lipogram` is Perec's *La
-Disparition* — and records why the rest stay open rather than being swept.
+Disparition* — and records why the rest stay open rather than being swept. ADR 0063 adds
+one narrower ground for one class of row: the letter rules, whose checkers read letters
+and nothing else, all declare German, which there means the rule is checked in German,
+not that German literature attests the form.
 
 **18 French rows will never close.** They are accentual metres, French has no lexical
 stress, and they are not French forms; declaring the capability to reach a bigger number

@@ -27,7 +27,7 @@ from denckring.core.hints import (
     unstated,
 )
 from denckring.core.protocol import Lang
-from denckring.core.registry import all_procedures
+from denckring.core.registry import all_procedures, get
 from denckring.core.text import _CLAUSE_BREAK
 from denckring.eval.harness import golden_cases
 
@@ -545,3 +545,53 @@ def test_no_example_in_a_hint_is_itself_a_passing_answer(pid: str) -> None:
         for params in _judged_params(pid, "en"):
             report = check(pid, example, lang="en", **params)
             assert not report.satisfied, f"{pid}: the hint's example {example!r} passes {params}"
+
+
+def test_a_bool_defaulting_to_true_says_what_false_does() -> None:
+    """A boolean's description reaches the prompt only when the field is set off its
+    default (`core.hints.settings`), so a bool that defaults to True, whatever its
+    role, is only ever read under `- name = False:`. A description that states only
+    what True does then tells the writer the opposite of the setting:
+    `fold_diacritics = False` once rendered "Treat accented letters as their base
+    letter". The rule: such a description names False. Whether it then says what
+    False does is left to review."""
+    silent = sorted(
+        {
+            f"{name}: {field.description!r}"
+            for pid in all_procedures()
+            for name, field in get(pid).params_model().model_fields.items()
+            if field.annotation is bool
+            and field.get_default(call_default_factory=True) is True
+            and "False" not in (field.description or "")
+        }
+    )
+    assert not silent, silent
+
+
+#: Per hint language: words that claim an accented form counts as its base letter, and
+#: the phrase by which a template defers that claim to the `fold_diacritics` line.
+_ACCENT_CLAIM = {
+    "en": (re.compile(r"accent", re.I), "unless a line below"),
+    "de": (re.compile(r"akzent|umlaut", re.I), "sofern keine zeile darunter"),
+    "fr": (re.compile(r"accent|tréma|cédille", re.I), "sauf si une ligne ci-dessous"),
+}
+
+
+def test_a_hint_claiming_accents_count_defers_to_the_fold_line() -> None:
+    """Under `fold_diacritics = False` the hint is followed by a line saying an
+    accented letter is a letter of its own (`core.hints.settings`). A template that
+    states, unconditionally, that an accented form counts as the letter then
+    contradicts it: the lipogram hint did, until 2026-10-13. The rule, as for
+    chronogram's case claim (ADR 0064): on a row that takes `fold_diacritics`, every
+    sentence of a hint that speaks of accents defers to a line below."""
+    unhedged = []
+    for pid in all_procedures():
+        if "fold_diacritics" not in get(pid).params_model().model_fields:
+            continue
+        for lang, hint in (catalogue.get(pid).prompt_hints or {}).items():
+            assert lang in _ACCENT_CLAIM, f"{pid}: no accent words listed for {lang}"
+            claim, defer = _ACCENT_CLAIM[lang]
+            for sentence in re.split(r"(?<=[.!?])\s+", hint):
+                if claim.search(sentence) and defer not in sentence.lower():
+                    unhedged.append(f"{pid} [{lang}]: {sentence}")
+    assert not unhedged, "\n".join(unhedged)

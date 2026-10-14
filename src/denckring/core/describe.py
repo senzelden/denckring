@@ -194,6 +194,9 @@ class Description(BaseModel):
     #: honestly have no `apply` here, and a single field could not say both.
     constructive: bool
     checkability: str
+    #: Authored editorial scope (ADR 0047). For letter rules alone, ADR 0063 makes the
+    #: claim narrower: the rule is checked in that language, not that the language's
+    #: literature attests the form.
     languages: list[str]
     #: Which languages this install can actually check the row in, computed from
     #: the packs' capabilities. `languages` above is authored editorial scope —

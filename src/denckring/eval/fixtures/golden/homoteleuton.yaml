@@ -40,3 +40,9 @@ cases:
     params: {fold_diacritics: True, final: "y"}
     satisfied: false
     min_score: 0.32
+  - name: gleiches-ende
+    lang: de
+    source: constructed example
+    text: Liebe, Treue, Güte, Ehre.
+    params: { final: e }
+    satisfied: true

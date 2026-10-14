@@ -48,7 +48,12 @@ class DiacriticParams(BaseModel):
 
     fold_diacritics: bool = Field(
         default=True,
-        description="Treat accented letters as their base letter, and ß as ss.",
+        # Phrased for either value: `prompt_hint` appends this line only when the
+        # field is set off its default (ADR 0050), so it is read under `False`.
+        description=(
+            "Whether accented letters count as their base letter, and ß as ss. False keeps "
+            "each accented letter, and ß, a letter of its own."
+        ),
         json_schema_extra=param("policy"),
     )
 

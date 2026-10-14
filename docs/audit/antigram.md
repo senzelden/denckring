@@ -9,7 +9,7 @@
 | checkability | `source` |
 | generator | no |
 | requires | `fold_diacritics`, `tokens` |
-| declares | en |
+| declares | en, de |
 | runs in | en, de, fr |
 
 **Verdict: clean.**

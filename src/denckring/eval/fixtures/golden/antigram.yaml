@@ -11,3 +11,11 @@ cases:
     text: listen
     params: { source: listen }
     satisfied: false
+  - name: liebe-wird-beile
+    lang: de
+    source: >-
+      constructed example; love rearranged into axes. Anagram only: the
+      opposition is loose, and the checker does not judge it
+    text: Beile
+    params: { source: Liebe }
+    satisfied: true
