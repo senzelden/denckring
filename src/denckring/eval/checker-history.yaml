@@ -7,8 +7,10 @@ acrostic:
   - {version: 1, since: "0.5.0", reason: baseline}
 alcaic_stanza:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 alexandrine:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 alliterative_verse:
   - {version: 1, since: "0.5.0", reason: baseline}
 alphabetical_sentence:
@@ -25,11 +27,12 @@ antonymic_translation:
   - {version: 1, since: "0.5.0", reason: baseline}
 arca_musarithmica:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 assonance_constraint:
   - {version: 1, since: "0.5.0", reason: baseline}
 ballade:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 beau_present:
   - {version: 1, since: "0.5.0", reason: baseline}
 belle_absente:
@@ -38,6 +41,7 @@ bivocalic:
   - {version: 1, since: "0.5.0", reason: baseline}
 blank_verse:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 boustrophedon:
   - {version: 1, since: "0.5.0", reason: baseline}
 buchstabwechsel:
@@ -54,6 +58,7 @@ chronogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 cinquain:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 clerihew:
   - {version: 1, since: "0.5.0", reason: baseline}
   - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
@@ -63,11 +68,12 @@ consonantal_lipogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 curtal_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 cut_up:
   - {version: 1, since: "0.5.0", reason: baseline}
 dactylic_hexameter:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 definitional_expansion:
   - {version: 1, since: "0.5.0", reason: baseline}
 definitional_literature:
@@ -82,11 +88,13 @@ double_acrostic:
   - {version: 1, since: "0.5.0", reason: baseline}
 double_dactyl:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 elegiac_couplet:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 englyn:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 eodermdrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 epistrophe:
@@ -99,8 +107,10 @@ ghazal:
   - {version: 1, since: "0.5.0", reason: baseline}
 haibun:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 haiku:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 haikuization:
   - {version: 1, since: "0.5.0", reason: baseline}
 hemeling:
@@ -108,9 +118,10 @@ hemeling:
   - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 hendecasyllable:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 heroic_couplet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 heterogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 homoconsonantism:
@@ -125,6 +136,7 @@ homovocalism:
   - {version: 1, since: "0.5.0", reason: baseline}
 iambic_pentameter:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 ideenwuerfeln:
   - {version: 1, since: "0.5.0", reason: baseline}
 kangaroo_word:
@@ -160,7 +172,7 @@ n_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 ottava_rima:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 palindrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 pangram:
@@ -181,7 +193,7 @@ perverb:
   - {version: 1, since: "0.5.0", reason: baseline}
 petrarchan_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 poesie_automat:
   - {version: 1, since: "0.5.0", reason: baseline}
 portmanteau:
@@ -190,17 +202,19 @@ prisoners_constraint:
   - {version: 1, since: "0.5.0", reason: baseline}
 proteus_verse:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 quenina:
   - {version: 1, since: "0.5.0", reason: baseline}
 recombination:
   - {version: 1, since: "0.5.0", reason: baseline}
 renga:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 reverse_snowball:
   - {version: 1, since: "0.5.0", reason: baseline}
 rhyme_royal:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 rhyme_scheme:
   - {version: 1, since: "0.5.0", reason: baseline}
   - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
@@ -211,12 +225,14 @@ s_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 sapphic_stanza:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 sator_square:
   - {version: 1, since: "0.5.0", reason: baseline}
 semordnilap:
   - {version: 1, since: "0.5.0", reason: baseline}
 senryu:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 sentence_length_constraint:
   - {version: 1, since: "0.5.0", reason: baseline}
 serial_lipogram:
@@ -225,7 +241,7 @@ sestina:
   - {version: 1, since: "0.5.0", reason: baseline}
 shakespearean_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 single_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 slenderizing:
@@ -236,20 +252,22 @@ snowball_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 spenserian_stanza:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 spoonerism:
   - {version: 1, since: "0.5.0", reason: baseline}
 supervocalic:
   - {version: 1, since: "0.5.0", reason: baseline}
 syllable_count:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 synonymic_substitution:
   - {version: 1, since: "0.5.0", reason: baseline}
 tanka:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 tautogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 tautonym:
@@ -269,6 +287,7 @@ triolet:
   - {version: 1, since: "0.5.0", reason: baseline}
 trochaic_tetrameter:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 univocalic:
   - {version: 1, since: "0.5.0", reason: baseline}
 univocalic_translation:

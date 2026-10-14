@@ -18,6 +18,8 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "blank_verse"
+
+    checker_version = 2
     rules = ("unknown_rhyme", "unwanted_rhyme", "wrong_line_length", "wrong_stress")
 
     @classmethod

@@ -34,6 +34,18 @@ _SYLLABIC_LE = re.compile(r"[^aeiouy]le$")
 #: core-only install, or a word the dictionary and its stems both lack, sees it.
 _SILENT_E_SUFFIX = re.compile(r"(?:[^aeiouyszxcgh]es|[^aeiouytd]ed)$")
 _SYLLABIC_LIQUID_SUFFIX = re.compile(r"[^aeiouy][lr]e[sd]$")
+#: A leading "there", "where", "here" or "ere" keeps its `e` silent inside an
+#: adverbial compound (there-with, ere-while, here-to-fore), which read a syllable
+#: long (R3). A closed list of second elements, not "any consonant follows": that
+#: reading takes `hereditary`, `heresy`, `heretic` and `wherever` a syllable
+#: short, and `herepath`, which is no such compound. An element opening on a
+#: vowel (`herein`, `whereupon`) needs no rule: its vowel already shares a group
+#: with the `e`. Measured on CMUdict 2026-10-14: every word this reaches (hereby,
+#: herewith, heretofore, thereby, therefore, thereto, whereby, wherefore,
+#: wherewithal) read a syllable long before and agrees now.
+_ERE_COMPOUND = re.compile(
+    r"^(?:th|wh|h)?ere(?:by|fore?|from|to(?:fore)?|with(?:al)?|while|long|now|so|through)$"
+)
 
 
 class EnglishPack(BasePack):
@@ -60,9 +72,9 @@ class EnglishPack(BasePack):
         """Estimate syllables from spelling. Never reports itself as exact.
 
         Count vowel groups, drop a silent terminal "e" (also when an "-s" or
-        "-d" follows it), add back a syllabic "-le", and never return less than
-        one. This is the standard spelling
-        heuristic and it is wrong for a measurable share of English, which is
+        "-d" follows it) and the medial one of a "there-with" compound, add
+        back a syllabic "-le", and never return less than one. This is the
+        standard spelling heuristic and it is wrong for a measurable share of English, which is
         why the second element of the pair is always False and why installing
         `denckring[en]` replaces it with dictionary lookups.
         """
@@ -76,6 +88,8 @@ class EnglishPack(BasePack):
             letters
         )
         if (final_e or suffixed_e) and count > 1:
+            count -= 1
+        if _ERE_COMPOUND.match(letters):
             count -= 1
         if _SYLLABIC_LE.search(letters):
             count = max(count, len(_VOWEL_GROUP.findall(letters[:-2])) + 1)

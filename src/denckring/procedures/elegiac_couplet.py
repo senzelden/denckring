@@ -32,6 +32,8 @@ class ElegiacCouplet(BaseProcedure[ElegiacCoupletParams]):
     """
 
     id = "elegiac_couplet"
+
+    checker_version = 2
     rules = ("wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod

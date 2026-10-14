@@ -113,6 +113,24 @@ All notable changes to this project are documented here. The format follows
   verdict moves. Lear's "Ryde" limerick (Project Gutenberg #982) lands as an external
   `limerick` case rejected for `identical_rhyme`. The golden corpus goes to 740 cases,
   119 of them external (16.1%), and ADR 0062's floors rise to 119 and 0.160.
+- **The English spelling heuristic no longer counts the silent `e` of a "there-with"
+  compound.** A leading `there`, `where`, `here` or `ere` before an adverbial element
+  (`erewhile`, `therewith`, `wherefore`, `heretofore`) read a syllable long. The rule
+  takes a closed list of second elements, so `hereditary`, `heresy`, `heretic`,
+  `wherever` and `herepath` keep their counts, and every CMUdict word it reaches now
+  agrees with the dictionary. Dictionary-backed packs change only for words they lack,
+  which fall back to this heuristic: `erewhile` and `therewith` are two syllables with
+  `denckring[en]` installed too. `Abdiel` and four-syllable `ambrosial` stay as they
+  are. Twenty-nine rows that read English syllable counts or stress move:
+  `alcaic_stanza`, `alexandrine`, `arca_musarithmica`, `blank_verse`, `cinquain`,
+  `dactylic_hexameter`, `double_dactyl`, `elegiac_couplet`, `haibun`, `haiku`,
+  `hendecasyllable`, `iambic_pentameter`, `proteus_verse`, `renga`, `sapphic_stanza`,
+  `senryu`, `syllable_count`, `tanka` and `trochaic_tetrameter` to `checker_version` 2,
+  and the ten already at 2 for this release (`ballade`, `curtal_sonnet`, `englyn`,
+  `heroic_couplet`, `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`,
+  `shakespearean_sonnet`, `sonnet`, `spenserian_stanza`) extend that entry's reason.
+  `monosyllabic_prose` reads the count too but cannot move, since no word the rule
+  reaches has fewer than two syllables. No golden verdict moves.
 
 ## [0.5.0] - 2026-10-13
 

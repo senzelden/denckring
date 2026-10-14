@@ -39,6 +39,8 @@ class DoubleDactyl(BaseProcedure[DoubleDactylParams]):
     """
 
     id = "double_dactyl"
+
+    checker_version = 2
     rules = ("no_double_dactylic_word", "wrong_line_count", "wrong_line_length", "wrong_stress")
 
     @classmethod

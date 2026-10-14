@@ -165,3 +165,74 @@ def test_the_haiku_probe_line_counts_ten() -> None:
         "syllable_count", "The owl awakes and calls across the glen", pattern=[10], lang="en"
     )
     assert report.satisfied, report.violations
+
+
+# A leading `there`/`where`/`here`/`ere` keeps its silent `e` when an adverbial
+# element follows (`there-with`, `ere-while`): one syllable, not two (R3). Only the
+# closed set of second elements: `hereditary`, `heresy`, `heretic`, `wherever` and
+# `herepath` start the same way and are not such compounds, and an element that
+# opens on a vowel (`herein`, `whereupon`) already merges the `e` into its group.
+@pytest.mark.parametrize(
+    ("word", "count"),
+    [
+        ("therewith", 2),
+        ("wherefore", 2),
+        ("hereby", 2),
+        ("erewhile", 2),
+        ("erelong", 2),
+        ("therefrom", 2),
+        ("thereto", 2),
+        ("wherewithal", 3),
+        ("whereupon", 3),
+        ("heretofore", 3),
+        ("here", 1),
+        ("there", 1),
+        ("where", 1),
+        ("ere", 1),
+        ("herein", 2),
+        ("hereafter", 3),
+        ("wherever", 3),
+        ("thereof", 2),
+        ("sheriff", 2),
+        ("therapy", 3),
+        ("hereditary", 5),
+        ("heresy", 3),
+        ("heretic", 3),
+        ("ceremony", 4),
+        ("herepath", 3),
+    ],
+)
+def test_the_heuristic_reads_a_compound_s_medial_silent_e(word: str, count: int) -> None:
+    assert CORE.syllable_count(word) == (count, False)
+
+
+def test_the_compound_rule_agrees_with_the_dictionary_wherever_it_fires() -> None:
+    """Every CMUdict word the rule reaches reads as the dictionary does."""
+    data = pytest.importorskip("denckring_en_data")
+    from denckring.lang.en import _ERE_COMPOUND
+
+    entries = data.pronunciations()
+    reached = [w for w in entries if _ERE_COMPOUND.match(w)]
+    assert reached, "the rule reaches no dictionary word, so this test proves nothing"
+    wrong = {
+        w: CORE.syllable_count(w)[0]
+        for w in reached
+        if CORE.syllable_count(w)[0] != sum(1 for p in entries[w] if p[-1].isdigit())
+    }
+    assert not wrong
+
+
+def test_the_dictionary_pack_s_fallback_reads_the_compound_too() -> None:
+    """The full pack falls back to this heuristic for words CMUdict lacks."""
+    pytest.importorskip("denckring_en_data")
+    from denckring.lang import get_pack
+
+    pack = get_pack("en")
+    assert pack.syllable_count("erewhile") == (2, False)
+    assert pack.syllable_count("therewith") == (2, False)
+
+
+def test_a_line_holding_the_compound_counts_it_as_two() -> None:
+    """The verdict the checker_version bump is for (ADR 0061): a counted line moves."""
+    report = check("syllable_count", "erewhile the moon", pattern=[4], lang="en")
+    assert report.satisfied, report.violations

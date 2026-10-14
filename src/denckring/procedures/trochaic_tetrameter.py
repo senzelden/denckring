@@ -19,6 +19,8 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "trochaic_tetrameter"
+
+    checker_version = 2
     rules = ("wrong_line_length", "wrong_stress")
     local_scope = "line"
 
