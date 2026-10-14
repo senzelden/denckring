@@ -20,10 +20,11 @@ is a genuine duplicate outside the refrain, not a refrain pair, and stays report
 The line is iambic tetrameter unless `metre` says otherwise. White's *Ballades and
 Rondeaus* (1887) gives the strict rule, the refrain's length governing every line's,
 and calls variations from it "perfectly allowable"; screened at the default, 76 of the
-77 ballades his anthology prints in 8-8-8-4 stanzas are rejected. `metre` takes
+77 poems his anthology prints in 8-8-8-4 stanzas are rejected (the screen is stated as
+a rule in the `tomson-ballade-of-asphodel` golden case). `metre` takes
 the name and meaning `sonnet` already gives it — the stress pattern every line is
 scanned against, so its length is the syllable count — and `None` drops the scan,
-leaving the rhyme scheme and refrain.
+leaving the line count, rhyme scheme and refrain.
 """
 
 from __future__ import annotations
@@ -89,7 +90,7 @@ class BalladeParams(RhymeParams):
             "Stress pattern every line is scanned against, 0 unstressed and 1 stressed; "
             "its length is the syllable count. 01010101 is iambic tetrameter, "
             "0101010101 pentameter. Unset (null), no line is scanned for length or "
-            "stress, and only the rhyme scheme and refrain are checked."
+            "stress, and only the line count, rhyme scheme and refrain are checked."
         ),
         json_schema_extra=param("task", "metre", examples=["01010101", "0101010101"]),
     )

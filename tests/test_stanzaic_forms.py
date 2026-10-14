@@ -129,8 +129,10 @@ def test_ballade_metre_names_the_line_the_checker_scans() -> None:
 
 
 def test_ballade_without_a_metre_still_checks_rhyme_and_refrain() -> None:
-    """`metre=None` drops the line scan alone; the form's other two rules stand."""
+    """`metre=None` drops the line scan alone; line count, rhyme and refrain stand."""
     assert check("ballade", "\n".join(BALLADE_PENTAMETER), metre=None).satisfied is True
+    short = check("ballade", "\n".join(BALLADE_PENTAMETER[:27]), metre=None)
+    assert {v.rule for v in short.violations} == {"wrong_line_count"}
     broken = [*BALLADE_PENTAMETER[:27], "and so until the southern wind has blown"]
     assert {v.rule for v in check("ballade", "\n".join(broken), metre=None).violations} == {
         "broken_refrain"

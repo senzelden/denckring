@@ -174,14 +174,21 @@ cases:
       (ed.), Ballades and Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter
       Scott, 1887), p. 68. Project Gutenberg ebook #45736,
       https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
-      script: indentation and the Envoy heading removed, PG's italic underscores dropped,
-      dashes as PG prints them. Checked word for word against the page image of the 1887
-      printing, https://archive.org/details/balladesrondeau00whit/page/n151. Rosamund
-      Marriott Watson died 1911, White 1898. Selected: re-measured 2026-10-14, the checker
-      rejects 76 of the 77 poems the edition prints in three eight-line stanzas and a
-      four-line envoi at the default metre, 77 at pentameter (0101010101), 76 at trimeter
-      (010101), and 61 with metre unset, all 61 on rhyme or refrain. The only one of the 77
-      that passes at the default metre; it prints 'too wel', as the page image confirms.
+      script: indentation, the envoy heading and the signature removed, and the Greek
+      epigraph under the title dropped, PG's italic underscores dropped, dashes as PG prints
+      them. Checked word for word against the page image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n151. Rosamund Marriott Watson
+      died 1911, White 1898. The screen, as a rule: in the PG text between its START and END
+      lines, a title is a line beginning in column 0 that contains an ASCII capital and no
+      lower-case letter, and starts a poem; within a poem a blank line ends a stanza; a line
+      indented 12 or more spaces (envoy heading, signature, centred dedication), any other
+      non-blank line in column 0, and a line beginning '~' (a Greek epigraph) are dropped
+      without ending a stanza; every other line is verse; a poem is screened when its verse
+      falls in stanzas of exactly 8, 8, 8 and 4 lines. It selects 77. Selected: re-measured
+      2026-10-14, the checker rejects 76 of the 77 poems the screen above selects at the
+      default metre, 77 at pentameter (0101010101), 76 at trimeter (010101), and 61 with
+      metre unset, all 61 on rhyme or refrain. The only one of the 77 that passes at the
+      default metre; it prints 'too wel', as the page image confirms.
     text: |-
       Now who will thread the winding way,
       Afar from fervid summer heat,
@@ -220,14 +227,15 @@ cases:
       Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p. 3.
       Project Gutenberg ebook #45736,
       https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
-      script: indentation and the Envoy heading removed, PG's italic underscores dropped,
-      dashes as PG prints them. Checked word for word against the page image of the 1887
-      printing, https://archive.org/details/balladesrondeau00whit/page/n86. Oscar Fay Adams
-      died 1919, White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the
-      77 poems the edition prints in three eight-line stanzas and a four-line envoi at the
-      default metre, 77 at pentameter (0101010101), 76 at trimeter (010101), and 61 with
-      metre unset, all 61 on rhyme or refrain. Checked with metre 010101: its lines are
-      trimeter, and it is the one poem of the 77 that passes at that length.
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n86. Oscar Fay Adams died 1919,
+      White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the 77 poems
+      the screen stated in tomson-ballade-of-asphodel selects at the default metre, 77 at
+      pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all 61 on
+      rhyme or refrain. Checked with metre 010101: its lines are trimeter, and it is the one
+      poem of the 77 that passes at that length.
     text: |-
       In these prosaic days
       Of politics and trade,
@@ -266,15 +274,15 @@ cases:
       Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p.
       37. Project Gutenberg ebook #45736,
       https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
-      script: indentation and the Envoy heading removed, PG's italic underscores dropped,
-      dashes as PG prints them. Checked word for word against the page image of the 1887
-      printing, https://archive.org/details/balladesrondeau00whit/page/n120. Brander
-      Matthews died 1929, White 1898. Selected: re-measured 2026-10-14, the checker rejects
-      76 of the 77 poems the edition prints in three eight-line stanzas and a four-line
-      envoi at the default metre, 77 at pentameter (0101010101), 76 at trimeter (010101),
-      and 61 with metre unset, all 61 on rhyme or refrain. Checked with metre unset: at the
-      default it fails on one seven-syllable line and the stress of 'delicate' and
-      'Smokers'.
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n120. Brander Matthews died
+      1929, White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the 77
+      poems the screen stated in tomson-ballade-of-asphodel selects at the default metre, 77
+      at pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all 61
+      on rhyme or refrain. Checked with metre unset: at the default it fails on one
+      seven-syllable line and the stress of 'delicate' and 'Smokers'.
     text: |-
       When verdant youth sees life afar,
       And first sets out wild oats to sow,
@@ -313,15 +321,15 @@ cases:
       Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p.
       64. Project Gutenberg ebook #45736,
       https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
-      script: indentation and the Envoy heading removed, PG's italic underscores dropped,
-      dashes as PG prints them. Checked word for word against the page image of the 1887
-      printing, https://archive.org/details/balladesrondeau00whit/page/n147. Frank Dempster
-      Sherman died 1916, White 1898. Selected: re-measured 2026-10-14, the checker rejects
-      76 of the 77 poems the edition prints in three eight-line stanzas and a four-line
-      envoi at the default metre, 77 at pentameter (0101010101), 76 at trimeter (010101),
-      and 61 with metre unset, all 61 on rhyme or refrain. Checked with metre unset: at the
-      default it fails on one seven-syllable line and on 'Willing' and 'Reader' opening a
-      line on a stress.
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n147. Frank Dempster Sherman
+      died 1916, White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the
+      77 poems the screen stated in tomson-ballade-of-asphodel selects at the default metre,
+      77 at pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all
+      61 on rhyme or refrain. Checked with metre unset: at the default it fails on one
+      seven-syllable line and on 'Willing' and 'Reader' opening a line on a stress.
     text: |-
       When blossoms born of balmy spring
       Breathe fragrance in the pleasant shade
