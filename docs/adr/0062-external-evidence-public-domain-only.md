@@ -106,8 +106,8 @@ maintainer ruled on 2026-10-14 that the cases stay and the five rows remain exte
 evidenced. The cost is recorded rather than removed: on those five rows "externally
 evidenced" rests on short quotations from publications after the cutoff, which is weaker
 than the policy now requires of any new case, and `status` prints them in the same count
-as rows evidenced by public-domain text. Nothing marks the difference except this
-paragraph. The ratchet keeps them in place, so a row leaves this list only by gaining a
+as rows evidenced by public-domain text. Only the cases' `source` strings, which name each
+publication and its year, and this paragraph tell them apart. The ratchet keeps them in place, so a row leaves this list only by gaining a
 public-domain case, as `lipogram` did.
 
 21 rows are `after_cutoff` and can never be evidenced while the policy stands: Perec,
