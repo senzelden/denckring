@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
@@ -23,7 +23,7 @@ def _terza_scheme(lines: int) -> str:
     return "".join(letters)
 
 
-class HeroicCoupletParams(RhymeParams):
+class HeroicCoupletParams(RhymeParams, ScansionParams):
     pass
 
 
@@ -54,6 +54,8 @@ class HeroicCouplet(BaseProcedure[HeroicCoupletParams]):
             pack,
             scheme="".join(chr(65 + i // 2) for i in range(_line_count(text))),
             metre="01" * 5,
+            feminine_ending=params.feminine_ending,
+            licences=params.licences(),
             unknown_rhyme=params.unknown_rhyme,
         )
 

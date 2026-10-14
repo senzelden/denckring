@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, LicenceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
 
 
-class TrochaicTetrameterParams(BaseModel):
+class TrochaicTetrameterParams(LicenceParams):
     pass
 
 
@@ -33,6 +31,7 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
             text,
             pack,
             metre="10" * 4,
+            licences=params.licences(),
         )
 
         return self._report(

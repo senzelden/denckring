@@ -134,11 +134,15 @@ class MetreParams(BaseModel):
     )
 
 
-class ScansionParams(MetreParams):
-    """Mixed into every procedure that scans stress, for the licences verse takes.
+class LicenceParams(BaseModel):
+    """The metrical licences verse takes, for a row that scans a line's stress.
 
-    Four standard licences of English pentameter, each its own switch and each off,
-    so a caller states which their text takes and 0.5.0's verdicts stand (ADR 0065).
+    Four standard licences of English accentual-syllabic verse, each its own switch
+    and each off, so a caller states which their text takes and 0.5.0's verdicts
+    stand (ADR 0065). Taken alone by `trochaic_tetrameter`, whose lines close on an
+    unstressed syllable already, so `feminine_ending` would describe a dactylic close
+    no one asked for; every other row that takes them takes `ScansionParams`.
+
     Not on `MetreParams` itself, because `alexandrine` mixes that in and counts
     syllables without scanning stress: three of the four would do nothing there,
     and a parameter that does nothing describes a checker that is not there.
@@ -147,8 +151,9 @@ class ScansionParams(MetreParams):
     initial_inversion: bool = Field(
         default=False,
         description=(
-            "Whether a line may open on a reversed foot, stressed then unstressed "
-            "('Either the'). Off, the first two syllables must scan as the metre gives them."
+            "Whether a line may open on a reversed foot, its first two syllables in the "
+            "other order ('Either the' opening an iambic line). Off, they must scan as "
+            "the metre gives them."
         ),
         json_schema_extra=param("leniency"),
     )
@@ -187,6 +192,14 @@ class ScansionParams(MetreParams):
             stress_shift=self.stress_shift,
             diaeresis=self.diaeresis,
         )
+
+
+class ScansionParams(LicenceParams, MetreParams):
+    """`MetreParams` and the four licences, for a row whose lines may close feminine.
+
+    `LicenceParams` is listed first so that pydantic, which collects fields from the
+    bases in reverse order, keeps `feminine_ending` first in `params_schema()`.
+    """
 
 
 class SourceParams(BaseModel):

@@ -31,7 +31,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
 from denckring.core.fields import param
 from denckring.core.prosody import repeat_to, rhyme_keys, scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
@@ -80,7 +80,7 @@ def _exempt_refrain_identicals(
     return kept, exempted
 
 
-class BalladeParams(RhymeParams):
+class BalladeParams(RhymeParams, ScansionParams):
     # Defaults to the tetrameter the row scanned before the field existed, so a
     # caller who never sets it keeps every verdict (ADR 0061: the parameter needs no bump
     # of its own).
@@ -124,6 +124,8 @@ class Ballade(BaseProcedure[BalladeParams]):
             text,
             pack,
             metre=params.metre,
+            feminine_ending=params.feminine_ending,
+            licences=params.licences(),
             refrains=REFRAINS,
             lines=LINES,
         )

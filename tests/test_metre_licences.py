@@ -9,7 +9,7 @@ import pytest
 from conftest import load_golden_cases
 from denckring import check
 from denckring.core import prosody
-from denckring.core.base import MetreParams, ScansionParams
+from denckring.core.base import LicenceParams
 from denckring.core.prosody import NO_LICENCES, SHIFTABLE, Licences, licensed_forms, line_metre
 from denckring.core.registry import all_procedures
 from denckring.lang import get_pack
@@ -159,28 +159,66 @@ def test_a_german_text_is_read_the_same_with_the_english_switches_on() -> None:
     assert on.model_dump() == off.model_dump()
 
 
-def _scansion_rows() -> list[str]:
+#: Rows that scan stress and take no licences, each for a stated reason. The four
+#: switches are licences of English accentual-syllabic verse (ADR 0065); these rows scan
+#: classical or dactylic patterns as sets of feet with substitutions and anceps already,
+#: where a reversed first foot or a promoted syllable is not the licence the form takes.
+OUTSIDE_THE_LICENCES = {
+    "alcaic_stanza": "classical stanza, read accentually as fixed patterns",
+    "dactylic_hexameter": "dactyl-or-spondee feet, enumerated as pattern sets",
+    "double_dactyl": "dactylic dimeter, fixed patterns",
+    "elegiac_couplet": "hexameter and pentameter as dactylic pattern sets",
+    "sapphic_stanza": "classical stanza, fixed patterns with anceps",
+}
+
+
+def _licensed_rows() -> list[str]:
     return sorted(
         pid
         for pid, procedure in all_procedures().items()
-        if issubclass(procedure.params_model(), ScansionParams)
+        if issubclass(procedure.params_model(), LicenceParams)
     )
 
 
-def test_a_metre_row_without_the_licences_scans_no_stress() -> None:
-    """The switches go wherever stress is scanned. `alexandrine` takes `MetreParams`
-    for `feminine_ending` and counts syllables only, so it is the shape this allows."""
+def test_every_row_that_can_fault_stress_takes_the_licences() -> None:
+    """Found by behaviour, not by params: a row whose checker can raise `wrong_stress`
+    scans stress, and a row that scans stress takes the four switches unless it is
+    listed above with its reason. `alexandrine` counts syllables only and raises no
+    `wrong_stress`, so it needs no entry."""
     missing = [
         pid
         for pid, procedure in all_procedures().items()
-        if issubclass(procedure.params_model(), MetreParams)
-        and not issubclass(procedure.params_model(), ScansionParams)
-        and "wrong_stress" in procedure.rules
+        if "wrong_stress" in procedure.rules
+        and pid not in OUTSIDE_THE_LICENCES
+        and not set(SWITCHES) <= set(procedure.params_model().model_fields)
     ]
     assert not missing, missing
 
 
-@pytest.mark.parametrize("procedure", _scansion_rows())
+def test_the_rows_outside_the_licences_are_still_rows_that_scan_stress() -> None:
+    """An entry for a row that gained the switches, or stopped scanning stress, is an
+    exemption nobody needs."""
+    procedures = all_procedures()
+    stale = [
+        pid
+        for pid in OUTSIDE_THE_LICENCES
+        if "wrong_stress" not in procedures[pid].rules
+        or issubclass(procedures[pid].params_model(), LicenceParams)
+    ]
+    assert not stale, stale
+
+
+def test_a_trochaic_line_may_open_on_an_iamb() -> None:
+    """The reversal is of the first foot, whatever the metre: 10 becomes 01 here."""
+    line = "beneath the dark silver water"
+    assert not check("trochaic_tetrameter", line).satisfied
+    assert check("trochaic_tetrameter", line, initial_inversion=True).satisfied
+    assert prosody.inverted("10101010") == "01101010"
+    assert prosody.inverted("0101010101") == "1001010101"
+    assert prosody.inverted("?101") is None
+
+
+@pytest.mark.parametrize("procedure", _licensed_rows())
 def test_every_row_passes_its_switches_to_the_scan(
     procedure: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -198,7 +236,11 @@ def test_every_row_passes_its_switches_to_the_scan(
     case = next(
         c
         for c in load_golden_cases()
-        if c.procedure == procedure and c.satisfied and c.lang == "en"
+        if c.procedure == procedure
+        and c.satisfied
+        and c.lang == "en"
+        # A ballade with `metre` unset scans nothing, so it cannot reach the scan.
+        and c.params.get("metre", "") is not None
     )
     lines = case.text.split("\n")
     text = "\n".join([LINES["initial_inversion"], *lines[1:]])

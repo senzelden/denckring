@@ -40,6 +40,9 @@ def test_german_blank_verse_scans_far_better_with_it() -> None:
         "sonnet",
         "ottava_rima",
         "petrarchan_sonnet",
+        "iambic_pentameter",
+        "heroic_couplet",
+        "ballade",
     ],
 )
 def test_every_wired_row_accepts_the_parameter(procedure: str) -> None:

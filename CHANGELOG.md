@@ -171,12 +171,17 @@ All notable changes to this project are documented here. The format follows
   a beat: `disapproves` as `101`), `stress_shift` (a closed list of 25 two-syllable
   prepositions and adverbs, `without` and `upon` among them, may be stressed on either
   syllable) and `diaeresis` (a glide the dictionary runs into the next vowel may be
-  sounded as a syllable: `ambrosial` as four). They are on a new `ScansionParams` taken
-  by every row that scans stress: `blank_verse`, `curtal_sonnet`, `ottava_rima`,
-  `petrarchan_sonnet`, `rhyme_royal`, `shakespearean_sonnet`, `sonnet` and
-  `spenserian_stanza`. `petrarchan_sonnet` also gains `feminine_ending`, which it lacked.
-  `alexandrine` counts syllables without scanning stress and does not take them. The
-  last three read CMUdict or English spelling and admit nothing in another language.
+  sounded as a syllable: `ambrosial` as four). Every row that scans an iambic or
+  trochaic line takes them: `ballade`, `blank_verse`, `curtal_sonnet`, `heroic_couplet`,
+  `iambic_pentameter`, `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`,
+  `shakespearean_sonnet`, `sonnet` and `spenserian_stanza` on a new `ScansionParams`,
+  and `trochaic_tetrameter` alone on `LicenceParams`, where `initial_inversion` reads the
+  first foot as an iamb. `ballade`, `heroic_couplet`, `iambic_pentameter` and
+  `petrarchan_sonnet` also gain `feminine_ending`, which they lacked. `alexandrine`
+  counts syllables without scanning stress, and the five rows that scan classical or
+  dactylic patterns (`alcaic_stanza`, `dactylic_hexameter`, `double_dactyl`,
+  `elegiac_couplet`, `sapphic_stanza`) do not take them. The last three switches read
+  CMUdict or English spelling and admit nothing in another language.
   The scan tries them only when the dictionary's readings fit nothing, and a word read
   through one names it in its evidence (`10 (stress_shift)`). No `checker_version`
   bump: 0.5.0 refused each as an unknown parameter, and no existing fingerprint probe

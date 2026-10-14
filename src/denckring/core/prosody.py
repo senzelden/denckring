@@ -232,12 +232,16 @@ def licensed_forms(
 
 
 def inverted(pattern: str) -> str | None:
-    """The pattern with its first foot reversed, if it opens on an iamb.
+    """The pattern with its first two positions swapped, if they differ.
 
-    `initial_inversion`: the commonest licence in English pentameter, a trochee
-    for the first iamb ("*Ei*ther the"). Line-initial only (ADR 0065).
+    `initial_inversion`: the first foot reversed, whatever the metre. In an iambic
+    line that is the commonest licence in English verse, a trochee for the first
+    iamb ("*Ei*ther the"); in a trochaic line, an iamb for the first trochee.
+    Line-initial only, and never on an anceps (`?`), which already takes either
+    (ADR 0065).
     """
-    return "10" + pattern[2:] if pattern.startswith("01") else None
+    head = pattern[:2]
+    return head[::-1] + pattern[2:] if head in ("01", "10") else None
 
 
 class SchemeResult(NamedTuple):

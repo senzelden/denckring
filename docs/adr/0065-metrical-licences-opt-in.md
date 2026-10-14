@@ -26,22 +26,31 @@ for the syllable licence.
 ## Decision
 
 **Four `bool` parameters, each off by default:** `initial_inversion`, `secondary_stress`,
-`stress_shift` and `diaeresis`. They sit on `ScansionParams`, which is `MetreParams` plus
-the four, and it is mixed into every row that scans stress: `blank_verse`,
-`curtal_sonnet`, `ottava_rima`, `rhyme_royal`, `shakespearean_sonnet`, `sonnet`,
-`spenserian_stanza` and `petrarchan_sonnet`. `petrarchan_sonnet` took no metre
-parameters before, so it also gains `feminine_ending`. `alexandrine` keeps plain
-`MetreParams`. It counts syllables and scans no stress, so three of the four switches
-would be parameters that do nothing there. `ballade` is out of scope too: its `metre` is
-a pattern string and it takes no `MetreParams`. The rows that scan fixed classical
-patterns (`alcaic_stanza`, `sapphic_stanza`, `dactylic_hexameter`, `elegiac_couplet`,
-`double_dactyl`) take none of these parameters and are unchanged.
+`stress_shift` and `diaeresis`. They sit on `LicenceParams`, and every row that scans an
+iambic or trochaic line, which is every row that can raise `wrong_stress` except the five
+named below, takes them. Eleven rows take `ScansionParams`, which is `MetreParams` plus
+the four: `ballade`, `blank_verse`, `curtal_sonnet`, `heroic_couplet`,
+`iambic_pentameter`, `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`,
+`shakespearean_sonnet`, `sonnet` and `spenserian_stanza`. `ballade`, `heroic_couplet`,
+`iambic_pentameter` and `petrarchan_sonnet` took no `MetreParams` before, so they also
+gain `feminine_ending`. `trochaic_tetrameter` takes `LicenceParams` alone: its line
+already closes on an unstressed syllable, and one more would be a dactylic close, which is
+not what `feminine_ending` describes. `alexandrine` keeps plain `MetreParams`. It counts
+syllables and scans no stress, so three of the four switches would be parameters that do
+nothing there. The rows that scan dactylic or classical patterns (`alcaic_stanza`,
+`sapphic_stanza`, `dactylic_hexameter`, `elegiac_couplet`, `double_dactyl`) take none of
+these parameters and are unchanged. Their patterns are already sets of feet with
+substitutions or an anceps, and a reversed first foot or a promoted syllable is not the
+licence those forms take. `tests/test_metre_licences.py` finds the rows by behaviour: any
+row whose rules include `wrong_stress` must take the four, unless it is one of these five,
+listed there with its reason.
 
 What each switch admits:
 
-- **`initial_inversion`.** A line whose pattern opens `01` may also be read with `10` in
-  its place. This applies to the first foot only, and is added as an alternative
-  pattern, the way `with_feminine` adds a feminine one.
+- **`initial_inversion`.** A line may also be read with the first two positions of its
+  pattern swapped, when they differ: `01` read as `10` in an iambic line, `10` as `01` in
+  a trochaic one. This applies to the first foot only, never to an anceps (`?`), and is
+  added as an alternative pattern, the way `with_feminine` adds a feminine one.
 - **`secondary_stress`.** In a word of three or more syllables, an unstressed syllable
   (`0`) that is not next to a `1` may take a beat, so `disapproves` (`001`) may also be
   `101`. Several such syllables may be promoted at once, provided no two of them are
@@ -81,10 +90,23 @@ dictionary's forms only, never from another switch's, so a switch admits its own
 and no combination of two. A test checks the full four-by-four table.
 
 **Evidence names the licence.** A word read through a licence shows it in its evidence
-value, `10 (stress_shift)` or `10 (initial_inversion)`. `basis` still says where the
-word's own readings came from (`dictionary`, `ambiguous`, `estimated`). Adding a fourth
-basis value would widen a closed set that every consumer of `Evidence` matches on, to say
-something the value can say for itself.
+value, `10 (stress_shift)` or `10 (initial_inversion)`. A word licence tags the word whose
+reading it supplied. A line licence tags every word with a syllable on the reversed foot,
+and that does not mean the word's own reading changed: in "And disapproves that care",
+read on the inverted pattern, `disapproves` shows `001 (initial_inversion)`, its
+dictionary form, because its first syllable stands on the reversed foot. `basis` still
+says where the word's own readings came from (`dictionary`, `ambiguous`, `estimated`).
+Adding a fourth basis value would widen a closed set that every consumer of `Evidence`
+matches on, to say something the value can say for itself.
+
+**Licensed forms count towards `MAX_COMBINATIONS`.** The cap holds a line's combinations
+of readings to 4,096 and, past it, scans only each later word's first form. A licensed
+reading is one more combination, so in principle a line could be capped on the licensed
+pass where the dictionary pass was not, and a switch could then lose a reading another
+switch alone had found. It stays counted, because the cap exists to bound the work and the
+licences are where the work grows. Measured on the 10,611 lines of Paradise Lost below and
+on the same lines shuffled, no line is newly capped with all four on, and no line passes
+with one switch and fails with all four.
 
 **No `checker_version` bump** (ADR 0061). A parameter 0.5.0 would have rejected as
 unknown cannot move a verdict 0.5.0 gave, and the verdict fingerprints are unchanged on
@@ -116,8 +138,9 @@ None of the four switches moves a primary stress, and that is deliberate.
 **Every switch admits misfits, and the measured share is large.** The test is Paradise
 Lost as Beeching prints it: 10,611 lines, extracted by script as the indented lines of
 four words or more, so a few editorial lines may be among them. Each was scanned as
-pentameter with or without a feminine ending. The same lines were then scanned with their words shuffled (seed 0).
-Each shuffled line keeps its syllables but is metrical only by accident.
+pentameter with or without a feminine ending. The same lines were then scanned with their
+words shuffled (seed 0). Each shuffled line keeps its syllables but is metrical only by
+accident.
 
 | switch | real lines that now scan | shuffled lines that now scan |
 |---|---|---|
@@ -150,9 +173,9 @@ spelling together, fires on 56 of the 5,000. By the author's reading, 6 of those
 false: `population`, `populations`, `reputation`, `ammunition`, `genuine` and
 `genuinely`. The spelling check is made on the whole word, not at the glide, so in the
 first four a `-tion` elsewhere in the word lets a `Y` through. In `genuine` the
-dictionary's first reading already gives the `u` a syllable of its own after the `Y`. The other 50 are the classical cases,
-such as `so-ci-al`, `re-li-gi-ous`, `mil-li-on` and `un-i-on`. No reader would split all
-of them in one poem.
+dictionary's first reading already gives the `u` a syllable of its own after the `Y`.
+The other 50 are the classical cases, such as `so-ci-al`, `re-li-gi-ous`, `mil-li-on` and
+`un-i-on`. No reader would split all of them in one poem.
 
 **The freed vowel is a choice, and it is measured.** In the brief's version the new
 syllable was a `0` and every other mark stayed as the dictionary had it. Then the new
@@ -177,6 +200,21 @@ by any of this, and it is now the larger obstacle. No further stanzas are landed
 licences were not written for Byron, and a Don Juan case passing only under all five
 switches would be evidence about the switches, not about ottava rima.
 
-**`ballade` was not re-measured with the licences.** It takes no `MetreParams`, so the
-switches cannot reach it. White's ballades (1887) stay as ADR 0062's entries describe
-them.
+**White's ballades (1887), re-measured with every switch.** The 77 poems the row's
+screen selects (stated in the `tomson-ballade-of-asphodel` case) give:
+
+| setting | admitted | rejected | of those, on stress |
+|---|---|---|---|
+| default | 1 | 76 | 49 |
+| all four | 1 | 76 | 30 |
+| all four + `feminine_ending` | 2 | 75 | 53 |
+| `metre` `0101010101` | 0 | 77 | 31 |
+| the same, all four + `feminine_ending` | 0 | 77 | 31 |
+| `metre` `010101` | 1 | 76 | 4 |
+| the same, all four + `feminine_ending` | 1 | 76 | 14 |
+
+The one ballade the switches add is "Ballade of Might-Be", with all four and a feminine
+ending. Nothing is landed from this: as with Byron, a case passing only under five
+switches would be evidence about the switches. The stress count can rise with the
+switches on, because `feminine_ending` admits eleven-syllable lines that were refused on
+length and are now scanned for stress.
