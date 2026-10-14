@@ -143,8 +143,9 @@ it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` le
   text layer and checked against the page image. The German R-lipograms of Burmann
   (1788, 1796) and Rittler (1820) did not land: the 1788 scan has no text layer, and the
   OCR of the 1796 and 1820 editions disagrees with the print often enough that
-  correcting it would be retyping; no scan of Rittler's 1815 edition was found. The note
-  records where each was sought.
+  correcting it would be retyping; no scan of Rittler's 1815 edition was found, and
+  Google Books and MDZ were not searched for it. The note records where each was
+  sought.
 - 1 records checker findings pending a maintainer ruling (`petrarchan_sonnet`): the
   checker rejected every candidate the public-domain sourcing pass found, and the note
   records why.

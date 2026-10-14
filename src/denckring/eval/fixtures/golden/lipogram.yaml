@@ -112,8 +112,9 @@ cases:
       p. 441. Wakeman introduces it as a "beautiful song, in which the obnoxious letter
       has no place", the letter being s, and names no author; on p. 438 he says many of
       the essay's examples "have been in print before". Anonymous, printed 1866 (ADR 0062,
-      amended 2026-10-13); Wakeman died in March 1870, per the obituary "George Wakeman"
-      in The Galaxy, May 1870 (archive.org sim_galaxy_1870-05_9_5). Archive.org
+      amended 2026-10-13); Wakeman died in 1870: the obituary "George Wakeman" in The
+      Galaxy, May 1870 (archive.org sim_galaxy_1870-05_9_5), places his death in "the
+      closing days of March", the year being the issue's. Archive.org
       sim_galaxy_1866-07-01_1, text layer
       https://archive.org/download/sim_galaxy_1866-07-01_1/sim_galaxy_1866-07-01_1_djvu.txt,
       extracted 2026-10-14 by script: the lines from "Oh! come to-night" through the third
@@ -125,8 +126,15 @@ cases:
       the last, where the print breaks stanzas; curly apostrophes and the em dash as the
       text layer has them. Checked word for word against the page image,
       https://archive.org/download/sim_galaxy_1866-07-01_1/page/n68.jpg. Selected: the
-      essay's one quoted lipogram (Fulgentius's lipogrammatic prose and the poem Jami
-      criticised are described, not quoted), and the checker accepts it, 1 of 1 screened.
+      essay's one quoted text it presents as written without s, and the checker accepts
+      it. Fulgentius's lipogrammatic prose and the poem Jami criticised are described, not
+      quoted. Not screened: on p. 440 the essay quotes the opening quatrain of a poem from
+      Punch's announced "Lispings from Low Latitudes", which spells s as th ("Tho’
+      thplendid the Thummer thun"); the essay presents it as lisping, not as a text
+      without s, so it is not an instance of the form (ADR 0062). It is not s-free
+      either: "th’yines" keeps one s, in the text layer and the page image
+      (https://archive.org/download/sim_galaxy_1866-07-01_1/page/n67.jpg), and the checker
+      rejects it.
     text: |-
       Oh! come to-night; for naught can charm
       The weary time when thou’rt away.

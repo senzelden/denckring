@@ -162,9 +162,9 @@ All notable changes to this project are documented here. The format follows
   so and records where the German R-lipograms were sought: Burmann's *Gedichte ohne den
   Buchstaben R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and
   of Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
-  without retyping, and no scan of Rittler's 1815 edition was found. The golden corpus
-  goes to 746 cases, 125 of them external (16.8%); ADR 0062's floors rise to 125 and
-  0.167, and `status` still reports `67 rows externally evidenced · 66 explained · 0
+  without retyping, and no scan of Rittler's 1815 edition was found (Google Books and
+  MDZ were not searched). The golden corpus goes to 746 cases, 125 of them external
+  (16.8%); ADR 0062's floors rise to 125 and 0.167, and `status` still reports `67 rows externally evidenced · 66 explained · 0
   unexplained`.
 
 ### Fixed
