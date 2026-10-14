@@ -18,7 +18,7 @@ from denckring.core import catalogue
 from denckring.core.counting import Counting
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.fields import param, roles
-from denckring.core.prosody import UnknownRhyme
+from denckring.core.prosody import Licences, UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
     Evidence,
@@ -132,6 +132,61 @@ class MetreParams(BaseModel):
         ),
         json_schema_extra=param("leniency"),
     )
+
+
+class ScansionParams(MetreParams):
+    """Mixed into every procedure that scans stress, for the licences verse takes.
+
+    Four standard licences of English pentameter, each its own switch and each off,
+    so a caller states which their text takes and 0.5.0's verdicts stand (ADR 0065).
+    Not on `MetreParams` itself, because `alexandrine` mixes that in and counts
+    syllables without scanning stress: three of the four would do nothing there,
+    and a parameter that does nothing describes a checker that is not there.
+    """
+
+    initial_inversion: bool = Field(
+        default=False,
+        description=(
+            "Whether a line may open on a reversed foot, stressed then unstressed "
+            "('Either the'). Off, the first two syllables must scan as the metre gives them."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    secondary_stress: bool = Field(
+        default=False,
+        description=(
+            "Whether an unstressed syllable of a word of three or more, not next to its "
+            "main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. "
+            "Off, a word scans only as the pronouncing dictionary stresses it."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    stress_shift: bool = Field(
+        default=False,
+        description=(
+            "Whether a closed list of two-syllable prepositions and adverbs ('without', "
+            "'upon', 'into') may be stressed on either syllable. English only. Off, they "
+            "take the dictionary's stress."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    diaeresis: bool = Field(
+        default=False,
+        description=(
+            "Whether a glide the dictionary runs into the next vowel may be sounded as an "
+            "unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). "
+            "English only. Off, a word has the dictionary's syllables."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+
+    def licences(self) -> Licences:
+        return Licences(
+            initial_inversion=self.initial_inversion,
+            secondary_stress=self.secondary_stress,
+            stress_shift=self.stress_shift,
+            diaeresis=self.diaeresis,
+        )
 
 
 class SourceParams(BaseModel):

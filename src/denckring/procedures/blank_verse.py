@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
 from denckring.core.prosody import must_rhyme, rhyme_evidence, rhyme_keys
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
 
 
-class BlankVerseParams(RhymeParams, MetreParams):
+class BlankVerseParams(RhymeParams, ScansionParams):
     pass
 
 
@@ -32,6 +32,7 @@ class BlankVerse(BaseProcedure[BlankVerseParams]):
             pack,
             metre="01" * 5,
             feminine_ending=params.feminine_ending,
+            licences=params.licences(),
         )
         violations = result.violations
         good = result.good

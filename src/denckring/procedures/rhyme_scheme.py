@@ -8,7 +8,14 @@ from pydantic import Field, field_validator
 
 from denckring.core.base import BaseProcedure, RhymeParams
 from denckring.core.fields import param
-from denckring.core.prosody import UnknownRhyme, line_metre, scheme_violations, with_feminine
+from denckring.core.prosody import (
+    NO_LICENCES,
+    Licences,
+    UnknownRhyme,
+    line_metre,
+    scheme_violations,
+    with_feminine,
+)
 from denckring.core.protocol import Evidence, LanguagePack, Report, Violation
 from denckring.core.registry import register
 from denckring.core.text import line_identity, line_spans
@@ -56,6 +63,7 @@ def form_report(
     scheme: str | None = None,
     metre: str | None = None,
     feminine_ending: bool = False,
+    licences: Licences = NO_LICENCES,
     refrains: list[tuple[int, int]] | None = None,
     allow_identical: bool = False,
     lines: int | None = None,
@@ -114,7 +122,7 @@ def form_report(
         # extra candidate rather than a replacement (ADR 0040 D1).
         options = with_feminine(metre, feminine_ending)
         for offset, line in line_spans(text):
-            result = line_metre(line, pack, options, offset)
+            result = line_metre(line, pack, options, offset, licences=licences)
             violations += result.violations
             good += result.good
             total += result.total

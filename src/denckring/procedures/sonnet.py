@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import Field, field_validator
 
-from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
 from denckring.core.fields import param
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -19,7 +19,7 @@ from denckring.procedures.rhyme_scheme import form_report
 LINES = 14
 
 
-class SonnetParams(RhymeParams, MetreParams):
+class SonnetParams(RhymeParams, ScansionParams):
     scheme: str = Field(
         default="ABABCDCDEFEFGG",
         description="Rhyme pattern, one letter per line. Must be fourteen letters.",
@@ -76,6 +76,7 @@ class Sonnet(BaseProcedure[SonnetParams]):
             metre=params.metre,
             lines=LINES,
             feminine_ending=params.feminine_ending,
+            licences=params.licences(),
             unknown_rhyme=params.unknown_rhyme,
         )
         return self._report(
