@@ -150,6 +150,20 @@ All notable changes to this project are documented here. The format follows
   `shakespearean_sonnet`, `sonnet`, `spenserian_stanza`) extend that entry's reason.
   `monosyllabic_prose` reads the count too but cannot move, since no word the rule
   reaches has fewer than two syllables. No golden verdict moves.
+- **`willow` rhymes with `pillow`.** ADR 0057 says secondary stress does not key an
+  English rhyme, but the key kept the stress digit of every vowel after the rhyme
+  vowel, so `willow` (`IH1 L OW2`) and `pillow` (`IH1 L OW0`) did not rhyme. The key now
+  reads a secondary stress after the rhyme vowel as unstressed, and the rhyme vowel keeps
+  its own digit, so `someday` still does not rhyme with `day`. The change is in
+  `denckring-en-data`; 18,289 of CMUdict's 117,493 alphabetic headwords have a key that
+  changes, and German and French keys do not change. A pair a scheme wants rhymed may
+  now rhyme, and a pair it keeps apart may now fail `unwanted_rhyme`. Three rows that read
+  English rhyme keys move to `checker_version` 2: `ghazal`, `triolet` and `villanelle`.
+  The seventeen already at 2 for this release (`ballade`, `blank_verse`, `clerihew`,
+  `curtal_sonnet`, `englyn`, `hemeling`, `heroic_couplet`, `limerick`, `ottava_rima`,
+  `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`, `shakespearean_sonnet`,
+  `sonnet`, `spenserian_stanza`, `terza_rima`) extend that entry's reason. No golden
+  verdict moves, and the Don Juan and Lear selection figures do not change.
 
 ## [0.5.0] - 2026-10-13
 

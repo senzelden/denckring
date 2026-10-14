@@ -60,6 +60,16 @@ and in German. For German, it also says the first transcription only. For French
 one transcription per spelling. `tests/test_rhyme_variants.py` holds each sentence to
 its pack.
 
+**Correction, 2026-10-14.** The English key did not fully keep that promise. It began
+at the right vowel but kept the stress digit of every vowel after it, so `willow`
+(`IH1 L OW2`) and `pillow` (`IH1 L OW0`) did not rhyme, on a secondary stress no reader
+hears at a line's end. From 0.6.0 the key reads a later `2` as `0`, and the rhyme vowel
+keeps its own digit. `someday` is now keyed `AH1 M D EY0` and still does not rhyme with
+`day`. Of CMUdict's 117,493 alphabetic headwords, 18,289 have a key that changes.
+German and French keys carry no stress digit and do not change. No golden verdict
+moves. The cost falls on the other direction: a pair kept apart only by that digit now
+fails `unwanted_rhyme`, so `blank_verse` rejects lines ending on `willow` and `pillow`.
+
 **German stress and rhyme read the first transcription only** (ruling R-U9b). The
 ruling asked first whether the German data marks which transcriptions belong to
 inflected forms. The source does. Wiktionary's `du` page writes

@@ -29,6 +29,7 @@ class Ghazal(BaseProcedure[GhazalParams]):
     """Every second line ends on the word both lines of the first couplet end on."""
 
     id = "ghazal"
+    checker_version = 2
     rules = ("broken_qafia", "missing_radif", "unknown_rhyme", "wrong_line_count")
 
     @classmethod

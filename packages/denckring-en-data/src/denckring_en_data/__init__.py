@@ -427,12 +427,21 @@ def _stress_of(phones: list[str]) -> str:
 
 
 def _rhyme_of(phones: list[str]) -> str:
+    """Phonemes from the last primary-stressed vowel, every later vowel read unstressed.
+
+    Secondary stress does not key a rhyme (ADR 0057), and that holds after the rhyme
+    vowel as well as before it: CMUdict ends `willow` on `OW2` and `pillow` on `OW0`,
+    and no reader hears the difference at a line's end. So a later `2` is folded to `0`.
+    The rhyme vowel keeps its own digit, which a word with no primary stress takes from
+    its last vowel. A later `1` cannot occur, since the key starts at the last one.
+    """
     primary = [i for i, p in enumerate(phones) if p.endswith("1")]
     if not primary:
         primary = [i for i, p in enumerate(phones) if p[-1].isdigit()]
     if not primary:
         return " ".join(phones)
-    return " ".join(phones[primary[-1] :])
+    vowel, *rest = phones[primary[-1] :]
+    return " ".join([vowel, *(p[:-1] + "0" if p.endswith("2") else p for p in rest)])
 
 
 def pack() -> EnglishDataPack:

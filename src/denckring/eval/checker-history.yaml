@@ -32,7 +32,7 @@ assonance_constraint:
   - {version: 1, since: "0.5.0", reason: baseline}
 ballade:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 beau_present:
   - {version: 1, since: "0.5.0", reason: baseline}
 belle_absente:
@@ -41,7 +41,7 @@ bivocalic:
   - {version: 1, since: "0.5.0", reason: baseline}
 blank_verse:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 boustrophedon:
   - {version: 1, since: "0.5.0", reason: baseline}
 buchstabwechsel:
@@ -61,14 +61,14 @@ cinquain:
   - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 clerihew:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 column_reading:
   - {version: 1, since: "0.5.0", reason: baseline}
 consonantal_lipogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 curtal_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 cut_up:
   - {version: 1, since: "0.5.0", reason: baseline}
 dactylic_hexameter:
@@ -94,7 +94,7 @@ elegiac_couplet:
   - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 englyn:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 eodermdrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 epistrophe:
@@ -105,6 +105,7 @@ fold_in:
   - {version: 1, since: "0.5.0", reason: baseline}
 ghazal:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a qafia on that difference alone is no longer broken_qafia"}
 haibun:
   - {version: 1, since: "0.5.0", reason: baseline}
   - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
@@ -115,13 +116,13 @@ haikuization:
   - {version: 1, since: "0.5.0", reason: baseline}
 hemeling:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 hendecasyllable:
   - {version: 1, since: "0.5.0", reason: baseline}
   - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
 heroic_couplet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 heterogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 homoconsonantism:
@@ -147,7 +148,7 @@ letter_bank:
   - {version: 1, since: "0.5.0", reason: baseline}
 limerick:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 lipogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 lipogrammatic_translation:
@@ -172,7 +173,7 @@ n_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 ottava_rima:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 palindrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 pangram:
@@ -193,7 +194,7 @@ perverb:
   - {version: 1, since: "0.5.0", reason: baseline}
 petrarchan_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 poesie_automat:
   - {version: 1, since: "0.5.0", reason: baseline}
 portmanteau:
@@ -214,13 +215,13 @@ reverse_snowball:
   - {version: 1, since: "0.5.0", reason: baseline}
 rhyme_royal:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 rhyme_scheme:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 rondeau:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 s_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 sapphic_stanza:
@@ -241,7 +242,7 @@ sestina:
   - {version: 1, since: "0.5.0", reason: baseline}
 shakespearean_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 single_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 slenderizing:
@@ -252,10 +253,10 @@ snowball_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 spenserian_stanza:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 spoonerism:
   - {version: 1, since: "0.5.0", reason: baseline}
 supervocalic:
@@ -276,7 +277,7 @@ telestich:
   - {version: 1, since: "0.5.0", reason: baseline}
 terza_rima:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French; and the English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 text_folding:
   - {version: 1, since: "0.5.0", reason: baseline}
 tmesis:
@@ -285,6 +286,7 @@ transposal:
   - {version: 1, since: "0.5.0", reason: baseline}
 triolet:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 trochaic_tetrameter:
   - {version: 1, since: "0.5.0", reason: baseline}
   - {version: 2, since: "0.6.0", reason: "The English spelling heuristic reads a leading there, where, here or ere with its silent e inside an adverbial compound (erewhile, therewith, wherefore) a syllable shorter, which moves a line's count or scan wherever the dictionary lacks the word"}
@@ -296,6 +298,7 @@ verbless_prose:
   - {version: 1, since: "0.5.0", reason: baseline}
 villanelle:
   - {version: 1, since: "0.5.0", reason: baseline}
+  - {version: 2, since: "0.6.0", reason: "The English rhyme key reads a secondary stress after the rhyme vowel as unstressed (ADR 0057), so willow (IH1 L OW2) and pillow (IH1 L OW0) rhyme where they did not, and a pair kept apart on that difference alone is now unwanted_rhyme"}
 wechselsatz:
   - {version: 1, since: "0.5.0", reason: baseline}
 word_ladder:

@@ -91,8 +91,9 @@ _RHYME_KEYS: dict[Lang, str] = {
     "en": (
         "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
         "end, one key per listed pronunciation. Secondary stress does not key a rhyme: "
-        "'someday' rhymes from its 'some', so it does not rhyme with 'day'. A word with no "
-        "primary stress keys from its last vowel ('the' keys 'AH0')."
+        "'someday' rhymes from its 'some', so it does not rhyme with 'day'. After that "
+        "vowel, a secondary stress reads as unstressed: 'willow' rhymes with 'pillow'. A "
+        "word with no primary stress keys from its last vowel ('the' keys 'AH0')."
     ),
     "de": (
         "A line ending's rhyme key is its sounds from the last primary-stressed vowel to the "
