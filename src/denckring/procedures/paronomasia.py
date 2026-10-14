@@ -271,6 +271,7 @@ class Paronomasia(ConstructiveProcedure[ParonomasiaParams, ParonomasiaApplyParam
     """Constructive: `apply` performs the displacement `check` verifies."""
 
     id = "paronomasia"
+    checker_version = 2
     rules = (
         "distance_out_of_band",
         "length_mismatch",

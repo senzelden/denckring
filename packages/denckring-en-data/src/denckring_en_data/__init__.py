@@ -57,6 +57,10 @@ def variants() -> dict[str, list[list[str]]]:
     Variants are written `word(2)`, `word(3)` and so on. They matter: Shakespeare
     needs the three-syllable `tem-per-ate`, which CMUdict lists second because the
     compressed modern form comes first.
+
+    CMUdict ends 22 lines with a comment (`aalto AA1 L T OW2 # name, finnish`,
+    `hiv EY1 CH AY1 V IY1 # abbrev`). It is cut at the `#`, or its words would be
+    read as phones: they entered `aalto`'s rhyme key and `hiv`'s phonemes.
     """
     entries: dict[str, list[list[str]]] = {}
     for line in DICTIONARY_PATH.read_text(encoding="utf-8").splitlines():
@@ -64,7 +68,7 @@ def variants() -> dict[str, list[list[str]]]:
         if not rest:
             continue
         word = head.split("(")[0].lower()
-        entries.setdefault(word, []).append(rest.split())
+        entries.setdefault(word, []).append(rest.partition("#")[0].split())
     return entries
 
 

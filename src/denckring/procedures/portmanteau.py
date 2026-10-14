@@ -299,6 +299,7 @@ class Portmanteau(ConstructiveProcedure[PortmanteauParams, PortmanteauApplyParam
     """Constructive: `apply` proposes splices and `check` disposes of them."""
 
     id = "portmanteau"
+    checker_version = 2
     rules = (
         "host_unrecoverable",
         "identical_to_host",

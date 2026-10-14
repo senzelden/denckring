@@ -164,6 +164,18 @@ All notable changes to this project are documented here. The format follows
   `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`, `shakespearean_sonnet`,
   `sonnet`, `spenserian_stanza`, `terza_rima`) extend that entry's reason. No golden
   verdict moves, and the Don Juan and Lear selection figures do not change.
+- **CMUdict's inline comments are no longer read as phonemes.** 22 lines of the
+  dictionary end with a comment (`aalto AA1 L T OW2 # name, finnish`), and the English
+  pack kept `#`, `name,` and `finnish` as three more phonemes. 21 headwords were affected:
+  `aalborg`, `aalburg`, `aalen`, `aalsmeer`, `aalto`, `achill`, `d'artagnan`, `dail`,
+  `danglar`, `danglars`, `fine`, `gdp`, `hiv`, `mcavinchey`, `porthos`, `sinn`, `spieth`,
+  `taoiseach`, `tiernan`, `tierney` and `tubbercurry`. For `dail`, `fine`, `sinn`,
+  `tiernan` and `tierney` only a second reading carried a comment. Their rhyme keys and
+  phonemes now end at the last phone. Syllable counts and stress do not change, because
+  no comment word carries a stress digit. `paronomasia` and `portmanteau` read whole
+  phoneme strings and move to `checker_version` 2. The twenty rhyme rows already at 2
+  extend their reason. `assonance_constraint` and `spoonerism` read only vowels and
+  onsets, which no comment reaches, so they cannot move. No golden verdict moves.
 
 ## [0.5.0] - 2026-10-13
 
