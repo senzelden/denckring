@@ -166,16 +166,24 @@ All notable changes to this project are documented here. The format follows
   verdict moves, and the Don Juan and Lear selection figures do not change.
 - **CMUdict's inline comments are no longer read as phonemes.** 22 lines of the
   dictionary end with a comment (`aalto AA1 L T OW2 # name, finnish`), and the English
-  pack kept `#`, `name,` and `finnish` as three more phonemes. 21 headwords were affected:
-  `aalborg`, `aalburg`, `aalen`, `aalsmeer`, `aalto`, `achill`, `d'artagnan`, `dail`,
-  `danglar`, `danglars`, `fine`, `gdp`, `hiv`, `mcavinchey`, `porthos`, `sinn`, `spieth`,
-  `taoiseach`, `tiernan`, `tierney` and `tubbercurry`. For `dail`, `fine`, `sinn`,
-  `tiernan` and `tierney` only a second reading carried a comment. Their rhyme keys and
-  phonemes now end at the last phone. Syllable counts and stress do not change, because
-  no comment word carries a stress digit. `paronomasia` and `portmanteau` read whole
-  phoneme strings and move to `checker_version` 2. The twenty rhyme rows already at 2
-  extend their reason. `assonance_constraint` and `spoonerism` read only vowels and
-  onsets, which no comment reaches, so they cannot move. No golden verdict moves.
+  pack kept `#`, `name,` and `finnish` as three more phonemes. The lines belong to 21
+  headwords: `aalborg`, `aalburg`, `aalen`, `aalsmeer`, `aalto`, `achill`, `d'artagnan`,
+  `dail`, `danglar`, `danglars`, `fine`, `gdp`, `hiv`, `mcavinchey`, `porthos`, `sinn`,
+  `spieth`, `taoiseach`, `tiernan`, `tierney` and `tubbercurry`. The pack cannot reach
+  `d'artagnan`, since its lookup reads `dartagnan`, so 20 headwords change. For `dail`,
+  `fine`, `sinn`, `tiernan` and `tierney` only a second reading carried a comment, so
+  their rhyme keys change and their phonemes do not. The other 15 change in both. The
+  headwords' syllable counts and stress do not change, because no comment word carries a
+  stress digit. One corner does: an `-s`/`-es` form the dictionary lacks is read through
+  its stem, and gains a syllable when the stem ends in a sibilant. `porthos` and
+  `danglars` used to end on a comment word, and now end on `S` and `Z`, so `porthoses`
+  and `danglarses` go from 2 syllables to 3. Every row that reads syllable counts or
+  scans metre is already at `checker_version` 2 for this release, except
+  `monosyllabic_prose`, which cannot move on these words because both counts are above
+  one. `paronomasia` and `portmanteau` read whole phoneme strings and move to
+  `checker_version` 2. The twenty rhyme rows already at 2 extend their reason.
+  `assonance_constraint` and `spoonerism` read only vowels and onsets, which no comment
+  reaches, so they cannot move. No golden verdict moves.
 
 ## [0.5.0] - 2026-10-13
 
