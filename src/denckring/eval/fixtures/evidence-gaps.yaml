@@ -29,9 +29,6 @@ arca_musarithmica:
 assonance_constraint:
   reason: none_found
   note: "Batch 3: no assonance-bound unit in a supported language verified against a named pre-1929 edition (the native exemplar is the Old French laisse). Not searched in batch 4 (2026-10-13)."
-ballade:
-  reason: none_found
-  note: "Batch 2 proposed two French Villon ballades; neither landed as a ballade case. Public-domain sourcing pass (2026-10-12): all 67 ballades of 28 lines in Gleeson White's Ballades and Rondeaus (1887) are rejected, mostly for lines that are not octosyllables, a length White says real ballades vary; the nearest is rejected only because 'erewhile' is counted as three syllables. Checker findings, pending a maintainer ruling."
 beau_present:
   reason: after_cutoff
   note: "Catalogue source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)."

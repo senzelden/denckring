@@ -112,6 +112,28 @@ All notable changes to this project are documented here. The format follows
   old figure reflects a different extraction, not a verdict that moved. The golden
   corpus goes to 741 cases, 120 of them external (16.2%), and ADR 0062's floors rise to
   120 and 0.161.
+- **`ballade` takes `metre`**, the stress pattern every line is scanned against, with
+  the name and meaning `sonnet` gives it: its length is the syllable count. The default,
+  `01010101`, is the iambic tetrameter the row always scanned; `0101010101` asks for
+  pentameter; unset (`null`), no line is scanned for length or stress and only the rhyme
+  scheme and refrain are checked. A value that is not a string of 0s and 1s is refused.
+  The `prompt_hint` template now states the pattern set (`each in the stress pattern
+  {metre}`) instead of always asking for "iambic tetrameter, eight syllables"; under
+  `metre = null` it is refused with `UnsetHintParameter`, since there is no line to ask
+  for. No `checker_version` bump: in 0.5.0 any call passing `metre` was refused as an
+  unknown parameter, and no existing probe of the verdict fingerprint moved. Re-measured
+  on Gleeson White's *Ballades and Rondeaus* (1887, Project Gutenberg #45736): a script
+  taking every poem printed in three eight-line stanzas and a four-line envoi finds 77,
+  and the checker rejects 76 of them at the default, 77 at pentameter, 76 at trimeter
+  (`010101`) and 61 with `metre` unset, all 61 on rhyme or refrain. The gap note's "all
+  67 ballades of 28 lines" came from a screen that was not recorded; the count reflects
+  a different extraction. Four land as external cases, each checked word for word against
+  the page image of the 1887 printing: Tomson's "Ballade of Asphodel" at the default
+  (its "too wel" is the print's), Adams's "Where Are the Pipes of Pan?" with `metre`
+  `010101`, and Matthews's "The Ballade of Tobacco" and Sherman's "Ballade of Rhyme"
+  with `metre` unset. `ballade` leaves the gap registry. The golden corpus goes to 745
+  cases, 124 of them external (16.6%); ADR 0062's floors rise to 124 and 0.166, and
+  `status` reports `67 rows externally evidenced · 66 explained · 0 unexplained`.
 
 ### Fixed
 

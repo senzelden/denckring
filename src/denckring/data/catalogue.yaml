@@ -2462,10 +2462,10 @@ procedures:
     deterministic: true
     prompt_hints:
       en: >-
-        Write twenty-eight lines of iambic tetrameter, eight syllables alternating
-        unstressed and stressed: three eight-line stanzas rhyming ababbcbc and a
-        four-line envoi rhyming bcbc, all on the same three rhymes. Line 8 is the
-        refrain: repeat it as the last line of each later stanza and of the envoi.
+        Write twenty-eight lines, each in the stress pattern {metre} (0 unstressed,
+        1 stressed): three eight-line stanzas rhyming ababbcbc and a four-line envoi
+        rhyming bcbc, all on the same three rhymes. Line 8 is the refrain: repeat it
+        as the last line of each later stanza and of the envoi.
 
   - id: limerick
     names: { en: Limerick, de: Limerick, fr: Limerick }

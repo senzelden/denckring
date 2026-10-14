@@ -124,8 +124,9 @@ real poems stays without an external near-miss.
 The `none_found` entries mean different things, and only the note tells them apart.
 There were 49 when this was written, 25 of them recording pending work: the batch 4
 brief. Batch 4 reported on 2026-10-13. Three rows left the registry with Bombaugh cases
-it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`), and of the 46 that
-remain:
+it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` left on
+2026-10-14 with four ballades from Gleeson White's anthology (1887), once the row took a
+`metre`. Of the 45 that remain:
 - 18 record that the batch-4 reports this registry relies on did not search them. Three
   of those also record a search that failed in batch 3 (`assonance_constraint`,
   `boustrophedon`, `paragram`), and two a batch-3 find that was too incomplete to land
@@ -133,7 +134,7 @@ remain:
 - 4 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (`bivocalic`,
   `letter_bank`, `serial_lipogram`), and leads located but not read
   (`consonantal_lipogram`).
-- 3 record checker findings pending a maintainer ruling (`alcaic_stanza`, `ballade`,
+- 2 record checker findings pending a maintainer ruling (`alcaic_stanza`,
   `petrarchan_sonnet`): the checker rejected every candidate the public-domain
   sourcing pass found, and each note records why.
 - 3 record a search that failed, with nothing pending (`haibun`, `ideenwuerfeln`,
