@@ -148,3 +148,18 @@ def test_an_english_contraction_repeated_is_still_identical() -> None:
         allow_identical=False,
     )
     assert [v.rule for v in result.violations] == ["identical_rhyme"]
+
+
+@pytest.mark.parametrize("reading", READINGS)
+def test_a_french_unknown_word_is_identical_past_its_elision(reading: UnknownRhyme) -> None:
+    """French is the one language read past an elided proclitic (ADR 0036), and
+    the identity test now comes before the dictionary there too: `ozorbaque`
+    and `l'ozorbaque` are one word the dictionary lacks, rhymed with itself."""
+    pytest.importorskip("denckring_fr_data")
+    pack = get_pack("fr")
+    text = "Il marche vers ozorbaque\nIl pense à l'ozorbaque"
+    assert [
+        e.value for e in scheme_violations(text, pack, "AA", allow_identical=True).evidence
+    ] == ["no rhyme key"] * 2
+    result = scheme_violations(text, pack, "AA", allow_identical=False, unknown_rhyme=reading)
+    assert [v.rule for v in result.violations] == ["identical_rhyme"]

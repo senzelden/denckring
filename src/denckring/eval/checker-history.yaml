@@ -29,7 +29,7 @@ assonance_constraint:
   - {version: 1, since: "0.5.0", reason: baseline}
 ballade:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 beau_present:
   - {version: 1, since: "0.5.0", reason: baseline}
 belle_absente:
@@ -56,14 +56,14 @@ cinquain:
   - {version: 1, since: "0.5.0", reason: baseline}
 clerihew:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 column_reading:
   - {version: 1, since: "0.5.0", reason: baseline}
 consonantal_lipogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 curtal_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 cut_up:
   - {version: 1, since: "0.5.0", reason: baseline}
 dactylic_hexameter:
@@ -86,7 +86,7 @@ elegiac_couplet:
   - {version: 1, since: "0.5.0", reason: baseline}
 englyn:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 eodermdrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 epistrophe:
@@ -105,12 +105,12 @@ haikuization:
   - {version: 1, since: "0.5.0", reason: baseline}
 hemeling:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 hendecasyllable:
   - {version: 1, since: "0.5.0", reason: baseline}
 heroic_couplet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 heterogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 homoconsonantism:
@@ -135,7 +135,7 @@ letter_bank:
   - {version: 1, since: "0.5.0", reason: baseline}
 limerick:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 lipogram:
   - {version: 1, since: "0.5.0", reason: baseline}
 lipogrammatic_translation:
@@ -160,7 +160,7 @@ n_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 ottava_rima:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 palindrome:
   - {version: 1, since: "0.5.0", reason: baseline}
 pangram:
@@ -181,7 +181,7 @@ perverb:
   - {version: 1, since: "0.5.0", reason: baseline}
 petrarchan_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 poesie_automat:
   - {version: 1, since: "0.5.0", reason: baseline}
 portmanteau:
@@ -200,13 +200,13 @@ reverse_snowball:
   - {version: 1, since: "0.5.0", reason: baseline}
 rhyme_royal:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 rhyme_scheme:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 rondeau:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 s_plus_7:
   - {version: 1, since: "0.5.0", reason: baseline}
 sapphic_stanza:
@@ -225,7 +225,7 @@ sestina:
   - {version: 1, since: "0.5.0", reason: baseline}
 shakespearean_sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 single_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 slenderizing:
@@ -236,10 +236,10 @@ snowball_sentence:
   - {version: 1, since: "0.5.0", reason: baseline}
 sonnet:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 spenserian_stanza:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 spoonerism:
   - {version: 1, since: "0.5.0", reason: baseline}
 supervocalic:
@@ -258,7 +258,7 @@ telestich:
   - {version: 1, since: "0.5.0", reason: baseline}
 terza_rima:
   - {version: 1, since: "0.5.0", reason: baseline}
-  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; the comparison reads past an elided proclitic only in French, so English contractions such as dimm'd and vntrim'd are no longer the same word"}
+  - {version: 2, since: "0.6.0", reason: "identical_rhyme is decided by spelling before the dictionary, so a wanted pair ending twice on a word it lacks (Lear's 'Ryde') is identical_rhyme under every unknown_rhyme reading instead of unscored, matched or unknown_rhyme; to keep English contractions such as dimm'd and vntrim'd from comparing as the same word d, the comparison reads past an elided proclitic only in French"}
 text_folding:
   - {version: 1, since: "0.5.0", reason: baseline}
 tmesis:
