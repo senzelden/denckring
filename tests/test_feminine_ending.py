@@ -46,10 +46,53 @@ def test_german_blank_verse_scans_far_better_with_it() -> None:
     ],
 )
 def test_every_wired_row_accepts_the_parameter(procedure: str) -> None:
-    """A row that silently ignored it would look wired and not be."""
+    """The parameter is in the schema. Whether the row passes it on is the next test's
+    question: a row that took it and dropped it would pass this one."""
     from denckring.core.registry import get
 
     assert "feminine_ending" in get(procedure).params_model().model_fields
+
+
+#: One iambic line per length, each closing on one extra unstressed syllable
+#: (`water`, 10). Only the metre is asserted on below, so the rhyme it breaks is beside
+#: the point.
+FEMININE_LINES = {
+    "0101010101": "the cat can see the moon above the water",
+    "01010101": "the cat can see above the water",
+}
+METRE_RULES = {"wrong_line_length", "wrong_stress"}
+
+
+@pytest.mark.parametrize(
+    "procedure", ["iambic_pentameter", "heroic_couplet", "ballade", "petrarchan_sonnet"]
+)
+def test_every_row_new_to_the_parameter_passes_it_to_the_scan(procedure: str) -> None:
+    """The four rows ADR 0065 gave `feminine_ending`, by behaviour: a satisfied golden
+    case with its first line made feminine fails on metre with the switch off and
+    carries no metre fault with it on. A row that took the parameter and never handed
+    it to the scan fails the second half."""
+    from conftest import load_golden_cases
+
+    case = next(
+        c
+        for c in load_golden_cases()
+        if c.procedure == procedure
+        and c.satisfied
+        and c.lang == "en"
+        # A ballade with `metre` unset scans nothing, so it cannot fail on metre.
+        and c.params.get("metre", "") is not None
+    )
+    metre = case.params.get("metre") or ("01010101" if procedure == "ballade" else "0101010101")
+    lines = case.text.split("\n")
+    text = "\n".join([FEMININE_LINES[metre], *lines[1:]])
+    params = {k: v for k, v in case.params.items() if k != "feminine_ending"}
+
+    def metre_faults(on: bool) -> set[str]:
+        report = check(procedure, text, lang="en", **params, feminine_ending=on)
+        return {v.rule for v in report.violations} & METRE_RULES
+
+    assert metre_faults(False)
+    assert not metre_faults(True)
 
 
 def test_the_spenserian_alexandrine_may_also_close_feminine() -> None:

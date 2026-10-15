@@ -108,14 +108,22 @@ class RhymeParams(BaseModel):
             "What a line ending absent from the pronouncing dictionary means: "
             "leave the pair unscored (undecidable), let it satisfy the scheme "
             "(free), or fail it (strict). "
-            "A word repeated as its own rhyme is still identical_rhyme under every setting."
+            "A word repeated as its own rhyme is identical_rhyme under every setting of "
+            "this parameter, unless the row's allow_identical is set."
         ),
         json_schema_extra=param("policy"),
     )
 
 
 class MetreParams(BaseModel):
-    """Mixed into every procedure that scans a fixed metre.
+    """Whether a line may close feminine, for a row that counts a fixed metre.
+
+    Taken on its own by `alexandrine`, and through `ScansionParams` by eleven
+    rows. Of the other rows that scan stress, `trochaic_tetrameter` takes
+    `LicenceParams` only, its line already closing on an unstressed syllable, and the
+    five classical rows (`alcaic_stanza`, `sapphic_stanza`, `dactylic_hexameter`,
+    `elegiac_couplet`, `double_dactyl`) take neither, their patterns already carrying
+    their own substitutions (ADR 0065).
 
     Whether a line may close on an unstressed syllable is a property of a verse
     tradition, not of a library — German blank verse and the alexandriner take the

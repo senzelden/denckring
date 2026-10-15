@@ -91,7 +91,8 @@ class BalladeParams(RhymeParams, ScansionParams):
             "Stress pattern every line is scanned against, 0 unstressed and 1 stressed; "
             "its length is the syllable count. 01010101 is iambic tetrameter, "
             "0101010101 pentameter. Unset (null), no line is scanned for length or "
-            "stress, and only the line count, rhyme scheme and refrain are checked."
+            "stress, and only the line count, rhyme scheme and refrain are checked; "
+            "feminine_ending and the four licences then do nothing."
         ),
         json_schema_extra=param("task", "metre", examples=["01010101", "0101010101"]),
     )

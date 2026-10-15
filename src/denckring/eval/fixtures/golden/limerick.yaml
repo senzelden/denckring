@@ -53,6 +53,9 @@ cases:
       Selected: of the 112 numbered limericks in this file, the checker rejects 109 by
       default and 32 with `allow_identical` on, all 32 for `does_not_rhyme` (measured
       2026-10-15); this case is one of the 80 that pass with the switch.
+      Same text as `lear-beard`, landed as the switch-on half of an off/on pair. One
+      text is therefore counted twice: this is a second external case of it in the
+      external-case total and in limerick's external floor.
     text: |-
       There was an Old Man with a beard,
       Who said, "It is just as I feared!--

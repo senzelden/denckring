@@ -1,5 +1,11 @@
 # 14. Metre is a satisfiability question, not a comparison
 
+> **Partly superseded, 2026-10-14, by [ADR 0065](0065-metrical-licences-opt-in.md)**,
+> and only when a caller sets one of its switches. Four opt-in licences
+> (`initial_inversion`, `secondary_stress`, `stress_shift`, `diaeresis`) now admit the
+> inverted first foot, the weak ending and two more. Off, which is the default, this
+> decision stands as written: strict stress, no substitutions.
+
 ## Context
 
 CMUdict records lexical stress, not metrical stress. On "Shall I compare thee to a

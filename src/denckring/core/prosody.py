@@ -384,8 +384,11 @@ def metre_violations(
         forms, exact = word_stress(word, pack)
         if not exact:
             estimated += 1
-        # A word the dictionary lacks already takes any stress, so no licence
-        # has a reading of it to widen.
+        # A word the dictionary lacks already takes any stress, so the two stress
+        # licences have no reading of it to widen. `diaeresis` adds a syllable, not
+        # a stress, so that reason does not cover it: it is withheld here as a scope
+        # choice (ADR 0065), because both its rules start from the dictionary's
+        # forms. An unknown word keeps its heuristic syllable count.
         added = licensed_forms(word, pack, forms, licences) if exact else []
         combinations *= max(len(forms) + len(added), 1)
         capped = combinations > MAX_COMBINATIONS
@@ -725,8 +728,10 @@ def scheme_violations(
     - `strict` fails the pair, naming the word the dictionary lacks.
 
     None of the three reaches a wanted pair ending on the same word twice: that is
-    `identical_rhyme` (unless `allow_identical`) whatever the dictionary carries,
-    because identity is a fact about spelling, not pronunciation.
+    `identical_rhyme` whatever the dictionary carries, because identity is a fact
+    about spelling, not pronunciation. The exception is a row's `allow_identical`:
+    with it set, such a pair is read like any other, so an unknown word repeated is
+    left to these three readings.
 
     Under `undecidable` a text whose every pair is unknown would score nothing
     over nothing, which `_report` reads as vacuously satisfied. That case is

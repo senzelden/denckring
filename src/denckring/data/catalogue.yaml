@@ -586,17 +586,24 @@ procedures:
       en: >-
         Verse in unrhymed iambic pentameter, holding the metre while dispensing
         with the rhyme that would otherwise mark the line ends. As in
-        `iambic_pentameter`, the checker verifies strict stress: the
+        `iambic_pentameter`, the checker verifies strict stress by default: the
         substitutions real verse uses — an inverted first foot, a weak final
-        syllable — are not accepted.
+        syllable — are not accepted unless asked for. `initial_inversion` admits
+        the inverted first foot and `secondary_stress` the weak final syllable
+        (ADR 0065).
       de: >-
         Reimloser fünfhebiger Jambus, der das Metrum ohne Reim trägt. Wie bei
-        `iambic_pentameter` wird streng alternierend geprüft; die üblichen
-        Tonbeugungen werden nicht zugelassen.
+        `iambic_pentameter` wird standardmäßig streng alternierend geprüft; die
+        üblichen Tonbeugungen werden nur auf Wunsch zugelassen:
+        `initial_inversion` erlaubt den umgekehrten ersten Fuß,
+        `secondary_stress` (nur für Englisch) die schwache Schlusssilbe
+        (ADR 0065).
       fr: >-
         Vers en pentamètre iambique sans rime. Comme pour `iambic_pentameter`, le
-        vérificateur exige une alternance stricte et refuse les substitutions
-        usuelles.
+        vérificateur exige par défaut une alternance stricte et refuse les
+        substitutions usuelles, sauf sur demande : `initial_inversion` admet le
+        premier pied inversé, `secondary_stress` (en anglais seulement) la
+        syllabe finale faible (ADR 0065).
     source: Henry Howard, Earl of Surrey, translation of the Aeneid (1554)
     family: form
     attribution: primary
@@ -2911,9 +2918,12 @@ procedures:
     names: { en: Iambic pentameter }
     definitions:
       en: >-
-        Lines of five iambic feet, the commonest measure of English verse. The
-        checker verifies strict stress; the substitutions real verse uses — an
-        inverted first foot, a weak final syllable — are not accepted.
+        Lines of five iambic feet, the commonest measure of English verse. By
+        default the checker verifies strict stress: the substitutions real verse
+        uses — an inverted first foot, a weak final syllable — are not accepted.
+        Each is admitted on request, the inverted first foot by
+        `initial_inversion` and the weak final syllable by `secondary_stress`
+        (ADR 0065).
     source: Traditional; the dominant English metre since Chaucer
     family: form
     attribution: traditional

@@ -1,5 +1,12 @@
 # 65. Metrical licences, one switch each, opt-in
 
+> **Partly supersedes [ADR 0014](0014-metre-as-satisfiability.md)**, and only when a
+> switch is set. ADR 0014 checks strict stress and admits no substitution, and its
+> Consequences call encoding scansion's licences a research problem that it would be
+> overclaiming to say was solved. This decision admits four licences, each by name and
+> each off by default, so ADR 0014 still describes every check made with the switches
+> off. It does not claim to encode scansion: four licences are not all of them.
+
 ## Context
 
 The stress-scanning rows read each word as the pronouncing dictionary stresses it and
@@ -79,7 +86,11 @@ What each switch admits:
 German included. The other three read CMUdict's stress or phones, or English spelling,
 and they are stated for English only. With any of them on, a German or French text is
 read exactly as with it off, and a test holds this for Goethe's *Iphigenie*. No rule has
-been stated for another language's pack.
+been stated for another language's pack. The three word-level switches apply only to
+words the dictionary carries. For `secondary_stress` and `stress_shift` that costs
+nothing, since an unknown word already takes any stress. For `diaeresis` it is a choice:
+both its rules start from the dictionary's forms, so a word the dictionary lacks keeps
+its heuristic syllable count, and a diaeresis in such a word is not found.
 
 **A second pass, not a wider first one.** `line_metre` scans every option with the
 dictionary's readings first, exactly as before. The licences are tried only when nothing
@@ -216,5 +227,8 @@ screen selects (stated in the `tomson-ballade-of-asphodel` case) give:
 The one ballade the switches add is "Ballade of Might-Be", with all four and a feminine
 ending. Nothing is landed from this: as with Byron, a case passing only under five
 switches would be evidence about the switches. The stress count can rise with the
-switches on, because `feminine_ending` admits eleven-syllable lines that were refused on
-length and are now scanned for stress.
+switches on, because `feminine_ending` admits lines one syllable longer than the metre
+that were refused on length and are now scanned for stress. The table shows it at the
+default `01010101` (30 to 53, on nine-syllable lines) and at `010101` (4 to 14, on
+seven-syllable lines). At pentameter, where such a line has eleven syllables, the count
+stays at 31.
