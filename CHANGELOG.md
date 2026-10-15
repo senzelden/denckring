@@ -26,12 +26,12 @@ All notable changes to this project are documented here. The format follows
   The amendment admits its cost: an anonymous text's real author could have lived past
   1955, which for a text printed near 1930 is ordinary, and the EU term ends if the
   author becomes known.
-- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.9% (126
-  of 747)**, and ADR 0062's floors are raised to the measured values:
-  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.168 and `EXTERNAL_FLOOR` from 102 to 126. The
+- **The external share of the golden corpus rises from 14.5% (102 of 704) to 17.4% (131
+  of 752)**, and ADR 0062's floors are raised to the measured values:
+  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.174 and `EXTERNAL_FLOOR` from 102 to 131. The
   entries below each name the cases they add. ADR 0063's eighteen constructed German
   cases alone would have lowered the share to 14.1%; ADR 0063 records that as the cost
-  of its decision. `eval --all` reports `133 procedures · 747 passed · 0 failed`, and
+  of its decision. `eval --all` reports `133 procedures · 752 passed · 0 failed`, and
   `status` and `eval` report `68 rows externally evidenced · 65 explained · 0
   unexplained`.
 - **The evidence-gap notes report research batch 4.** 25 entries said "batch 4 brief
