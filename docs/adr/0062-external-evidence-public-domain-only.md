@@ -213,8 +213,8 @@ Two German R-lipograms have a text layer that cannot be used as it stands. The S
 of Gottlob Wilhelm Burmann's *Einige Gedichte ohne den Buchstaben R* (Berlin: Decker,
 1796) differs from the page images in 17 places in the 24 lines of "I. An Gott", and loses
 two words outright. The ÖNB's OCR of Franz Rittler's *Die Zwillinge … Roman ohne R*, 3rd
-ed. (Wien: Härter, 1820) needs 27 corrections in pp. 17–18, and four of its errors are r's
-the print does not have, so a lipogram checker run on the raw OCR fails a text that is in
+ed. (Wien: Härter, 1820) needs 27 corrections in the four paragraphs of pp. 17–18 that
+land, and its errors on those two pages include four r's the print does not have, so a lipogram checker run on the raw OCR fails a text that is in
 fact without r. The rule above admits only text extracted by script, checked against the
 page image; correcting this much is retyping, and neither text could land.
 
@@ -230,7 +230,10 @@ applies: both texts are inside the cutoff (Burmann died in 1805; Rittler, born 1
 given death dates from 1830 to "after 1837"), and each `source` names its edition,
 library, scan and OCR URLs and why the passage was chosen. Each correction is a literal
 pair applied by the extraction script, which fails if the OCR's reading does not occur
-exactly once on its page, so a correction cannot quietly miss.
+exactly once on its page, so a correction cannot quietly miss. That script, like the
+other extraction scripts this record names, is not shipped with the repository: the
+safeguard ran when the cases were made, and a reader can check its result only against
+the correction list and the page images.
 
 **Consequences.** The two case texts are no longer pure script extractions. Every
 correction is a reading of the page image by whoever made it, and an error in one is a
