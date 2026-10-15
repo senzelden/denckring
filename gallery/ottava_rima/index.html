@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2539,6 +2623,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#byron-don-juan-i-cxxxviii" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        byron-don-juan-i-cxxxviii
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2595,10 +2690,40 @@
 </thead>
 <tbody>
 <tr>
+<td><code>diaeresis</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a glide the dictionary runs into the next vowel may be sounded as an unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). English only. Off, a word has the dictionary's syllables.</td>
+</tr>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
+<tr>
+<td><code>initial_inversion</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may open on a reversed foot, its first two syllables in the other order ('Either the' opening an iambic line). Off, they must scan as the metre gives them.</td>
+</tr>
+<tr>
+<td><code>secondary_stress</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether an unstressed syllable of a word of three or more, not next to its main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. Off, a word scans only as the pronouncing dictionary stresses it.</td>
+</tr>
+<tr>
+<td><code>stress_shift</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a closed list of two-syllable prepositions and adverbs ('without', 'upon', 'into') may be stressed on either syllable. English only. Off, they take the dictionary's stress.</td>
+</tr>
+<tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
 <td><code>undecidable</code></td>
-<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict).</td>
+<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict). A word repeated as its own rhyme is identical_rhyme under every setting of this parameter, unless the row's allow_identical is set.</td>
 </tr>
 </tbody>
 </table>
@@ -2673,7 +2798,7 @@ Sees half the business in a wicked way,
 On which three single hours of moonshine smile--
 And then she looks so modest all the while!
 </code></pre></div>
-<p>Source: Lord Byron, Don Juan, Canto I (1819), stanza CXIII, from The Works of Lord Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt, extracted 2026-10-12 by script, indentation removed. Byron died 1824, Coleridge 1920. Selected: the checker rejects 215 of the 219 stanzas of Canto I as this edition prints them, and 191 of those have an eleven-syllable line, the length a feminine ending gives, which ottava rima allows (see the CHANGELOG).</p>
+<p>Source: Lord Byron, Don Juan, Canto I (1819), stanza CXIII, from The Works of Lord Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt, extracted 2026-10-12 by script, indentation removed. Byron died 1824, Coleridge 1920. Selected: re-measured 2026-10-14, the checker rejects 219 of the 222 stanzas of Canto I as this edition prints them, 196 of those with an eleven-syllable line, the length a feminine ending gives; with feminine_ending, which ottava rima allows, it still rejects 217, 185 of them on stress and 148 on rhyme (see the CHANGELOG).</p>
 <h3 id="byron-don-juan-i-cxix">byron-don-juan-i-cxix<a class="headerlink" href="#byron-don-juan-i-cxix" title="Permanent link">&para;</a></h3>
 <p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
 <div class="highlight"><pre><span></span><code>Oh Pleasure! you&#39;re indeed a pleasant thing,
@@ -2685,7 +2810,20 @@ Yet still, I trust, it may be kept throughout:
 I&#39;m very sorry, very much ashamed,
 And mean, next winter, to be quite reclaimed.
 </code></pre></div>
-<p>Source: Lord Byron, Don Juan, Canto I (1819), stanza CXIX, from The Works of Lord Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt, extracted 2026-10-12 by script; the editor's footnote call and the indentation are removed. Byron died 1824, Coleridge 1920. Selected: the checker rejects 215 of the 219 stanzas of Canto I as this edition prints them, and 191 of those have an eleven-syllable line, the length a feminine ending gives, which ottava rima allows (see the CHANGELOG).</p>
+<p>Source: Lord Byron, Don Juan, Canto I (1819), stanza CXIX, from The Works of Lord Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt, extracted 2026-10-12 by script; the editor's footnote call and the indentation are removed. Byron died 1824, Coleridge 1920. Selected: re-measured 2026-10-14, the checker rejects 219 of the 222 stanzas of Canto I as this edition prints them, 196 of those with an eleven-syllable line, the length a feminine ending gives; with feminine_ending, which ottava rima allows, it still rejects 217, 185 of them on stress and 148 on rhyme (see the CHANGELOG).</p>
+<h3 id="byron-don-juan-i-cxxxviii">byron-don-juan-i-cxxxviii<a class="headerlink" href="#byron-don-juan-i-cxxxviii" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>By this time Don Alfonso was arrived,
+With torches, friends, and servants in great number;
+The major part of them had long been wived,
+And therefore paused not to disturb the slumber
+Of any wicked woman, who contrived
+By stealth her husband&#39;s temples to encumber:
+Examples of this kind are so contagious,
+Were one not punished, all would be outrageous.
+</code></pre></div>
+<p>Parameters: <code>feminine_ending=True</code></p>
+<p>Source: Lord Byron, Don Juan, Canto I (1819), stanza CXXXVIII, from The Works of Lord Byron, Poetry vol. VI, ed. Ernest Hartley Coleridge (London: John Murray, 1903). Project Gutenberg ebook #18762, https://www.gutenberg.org/cache/epub/18762/pg18762.txt, extracted 2026-10-14 by script; the transcriber's underscores marking italic type and the indentation are removed. Byron died 1824, Coleridge 1920. Checked with feminine_ending: five of its lines close feminine (number, slumber, encumber, contagious, outrageous). Selected: the checker rejects 219 of the 222 stanzas of Canto I as this edition prints them by default and 217 with feminine_ending; this stanza and LXXV are the only two the switch admits. LXXV is not landed: it passes only because its last line is read at eleven syllables with "being" as two, where the metre elides it to one, so the switch admits it as a feminine close it is not.</p>
 
 
 

@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2496,6 +2580,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#bombaugh-my-day-is-closed-capitals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bombaugh-my-day-is-closed-capitals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lowercase-numerals-do-not-count-under-capitals-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lowercase-numerals-do-not-count-under-capitals-only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#hilton-francis-goldsmith" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2539,6 +2645,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#max-im-tor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max-im-tor
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2574,14 +2691,14 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> restrictive</li>
-<li><strong>Languages:</strong> en</li>
+<li><strong>Languages:</strong> en, de</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>fold_diacritics</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 <li><strong>In other languages:</strong> Chronogramm (<em>de</em>), Chronogramme (<em>fr</em>)</li>
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write a phrase whose Roman-numeral letters add up to {year}, counting every i, v, x, l, c, d and m in either case.</p>
+<p>Write a phrase whose Roman-numeral letters add up to {year}. Unless a line below restricts it, every i, v, x, l, c, d and m counts, in either case.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2595,10 +2712,16 @@
 </thead>
 <tbody>
 <tr>
+<td><code>capitals_only</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Only numeral letters written as capitals count: write the date's numerals as capitals; lower-case ones add nothing.</td>
+</tr>
+<tr>
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
-<td>Treat accented letters as their base letter, and ß as ss.</td>
+<td>Whether accented letters count as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of its own.</td>
 </tr>
 <tr>
 <td><code>min_letters</code></td>
@@ -2633,6 +2756,18 @@
 </code></pre></div>
 <p>Parameters: <code>fold_diacritics=True</code>, <code>year=1603</code></p>
 <p>Source: 'My Day Closed Is In Immortality' (on the death of Queen Elizabeth I, 1603). James Hilton, Chronograms, 5000 and More in Number (London: Elliot Stock, 1882), p. 9, archive.org chronograms5000m00hilt; transcribed from the page image (leaf n34), which corrects the archive.org OCR's misreadings ('1 he', 'JMy', 'MDCin'). The line is printed in small capitals with its date letters as full capitals: “The following has often been quoted as an example of a clever chronogram on the death of Queen Elizabeth. It really is a very bad one, for although it gives the year 1603, it can also be made to give a variety of dates up to 4204, by using the superfluous numeral letters which represent the extra quantity 2601— My Day Closed Is In Immortality. = 1603 The pretext it has for appearing as a chronogram is that only the initial letters of the words are counted, and they come in natural sequence to form the date 1603, expressed by the Roman numerals MDCIII.” Rejected: <code>wrong_total</code>. Every numeral letter counts, the superfluous ones included, and they total 4204, not 1603.</p>
+<h3 id="bombaugh-my-day-is-closed-capitals">bombaugh-my-day-is-closed-capitals<a class="headerlink" href="#bombaugh-my-day-is-closed-capitals" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>My Day Is Closed In Immortality.
+</code></pre></div>
+<p>Parameters: <code>year=1603</code>, <code>capitals_only=True</code></p>
+<p>Source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature, enlarged ed. (Philadelphia: J. B. Lippincott, 1890), p. 58 (Bombaugh 1828–1906): "The following commemorates the death of Queen Elizabeth:— My Day Is Closed In Immortality. (1603.)"; Project Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from the Project Gutenberg text, where the page marker before the line is 58; the page image was not checked. Bombaugh's word order ("Is Closed") differs from Hilton's ("Closed Is", case chronogram-my-day-closed), and Hilton rejects exactly this reading of the line as a "pretext" (ADR 0064). Read under <code>capitals_only</code>, the capitals M D I C I I total 1603; every numeral letter totals 4204, which is the verdict chronogram-my-day-closed records.</p>
+<h3 id="lowercase-numerals-do-not-count-under-capitals-only">lowercase-numerals-do-not-count-under-capitals-only<a class="headerlink" href="#lowercase-numerals-do-not-count-under-capitals-only" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Mild vixen
+</code></pre></div>
+<p>Parameters: <code>year=1567</code>, <code>capitals_only=True</code></p>
+<p>Source: constructed counterexample; every numeral letter totals 1567 (m i l d v i x), but under <code>capitals_only</code> only the capital M counts, so the total is 1000. Rejected: <code>wrong_total</code></p>
 <h3 id="hilton-francis-goldsmith">hilton-francis-goldsmith<a class="headerlink" href="#hilton-francis-goldsmith" title="Permanent link">&para;</a></h3>
 <p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
 <div class="highlight"><pre><span></span><code>franCIs goLDsMIth.
@@ -2658,6 +2793,12 @@ sCharf avf dIe feInd am Donaustrand.
 </code></pre></div>
 <p>Parameters: <code>year=1854</code></p>
 <p>Source: Inscribed on a rifle target in a Tirol parish, procured by Oskar Frankfurter. Hilton prints it with others from that parish and says "Their composition, however, is frequently careless, little regard being paid to the necessity of avoiding superfluous letters. These, full of such faults, are inscribed on a rifle target". James Hilton, Chronograms, 5000 and More in Number (London: Elliot Stock, 1882), p. 87, dated there "= 1854"; https://archive.org/details/chronograms5000m00hilt/page/n112 (Hilton d. 1907). Transcribed from the page image 2026-10-12; small capitals are written lowercase. Hilton's 1854 is the full capitals alone. Rejected: <code>wrong_total</code>. Every numeral letter counts, the superfluous ones included, and they total 5916, not 1854.</p>
+<h3 id="max-im-tor">max-im-tor<a class="headerlink" href="#max-im-tor" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Max saß vor Rex im Tor
+</code></pre></div>
+<p>Parameters: <code>year=2026</code></p>
+<p>Source: constructed example; every numeral letter counts, capital or not — M, X, V, X, I, M — and they total 2026. The <code>ß</code> reads as <code>ss</code> and adds nothing</p>
 
 
 

@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2530,7 +2614,7 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> restrictive</li>
-<li><strong>Languages:</strong> en</li>
+<li><strong>Languages:</strong> en, de</li>
 <li><strong>Requires:</strong> <code>alphabet</code>, <code>fold_diacritics</code></li>
 <li><strong>Deterministic:</strong> yes</li>
 <li><strong>Also known as:</strong> lipogrammatic cycle</li>
@@ -2555,7 +2639,7 @@
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
-<td>Treat accented letters as their base letter, and ß as ss.</td>
+<td>Whether accented letters count as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of its own.</td>
 </tr>
 <tr>
 <td><code>start</code></td>

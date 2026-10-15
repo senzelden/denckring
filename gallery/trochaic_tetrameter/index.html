@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2440,6 +2524,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2538,6 +2633,43 @@
 <blockquote>
 <p>Write lines of four trochees, each foot stressed then unstressed.</p>
 </blockquote>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>diaeresis</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a glide the dictionary runs into the next vowel may be sounded as an unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). English only. Off, a word has the dictionary's syllables.</td>
+</tr>
+<tr>
+<td><code>initial_inversion</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may open on a reversed foot, its first two syllables in the other order ('Either the' opening an iambic line). Off, they must scan as the metre gives them.</td>
+</tr>
+<tr>
+<td><code>secondary_stress</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether an unstressed syllable of a word of three or more, not next to its main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. Off, a word scans only as the pronouncing dictionary stresses it.</td>
+</tr>
+<tr>
+<td><code>stress_shift</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a closed list of two-syllable prepositions and adverbs ('without', 'upon', 'into') may be stressed on either syllable. English only. Off, they take the dictionary's stress.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="falling-metre">falling-metre<a class="headerlink" href="#falling-metre" title="Permanent link">&para;</a></h3>
 <p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>

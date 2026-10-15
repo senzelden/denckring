@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2550,6 +2634,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#ohne-s-und-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ohne-s-und-t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eszett-ist-ein-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eszett-ist-ein-s
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2585,10 +2691,10 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> restrictive</li>
-<li><strong>Languages:</strong> en, fr</li>
+<li><strong>Languages:</strong> en, de, fr</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>fold_diacritics</code></li>
 <li><strong>Deterministic:</strong> yes</li>
-<li><strong>In other languages:</strong> Lipogramme consonantique (<em>fr</em>)</li>
+<li><strong>In other languages:</strong> Konsonantisches Lipogramm (<em>de</em>), Lipogramme consonantique (<em>fr</em>)</li>
 </ul>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <p>The checker takes any set of letters, vowels included, and fails every letter of the set wherever it appears: a group of consonants is the form's case, not the checker's limit. <code>lipogram</code> forbids one letter; this row is the one to use for several, whichever they are.</p>
@@ -2611,7 +2717,7 @@
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
-<td>Treat accented letters as their base letter, and ß as ss.</td>
+<td>Whether accented letters count as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of its own.</td>
 </tr>
 <tr>
 <td><code>forbidden</code></td>
@@ -2664,6 +2770,18 @@
 </code></pre></div>
 <p>Parameters: <code>forbidden='ç'</code></p>
 <p>Source: constructed counterexample; <code>ç</code> folds to <code>c</code> like the text's letters, so the cedilla in "garçon" is forbidden (ADR 0035, D3)</p>
+<h3 id="ohne-s-und-t">ohne-s-und-t<a class="headerlink" href="#ohne-s-und-t" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Die Kühe weiden am grünen Hang
+</code></pre></div>
+<p>Parameters: <code>forbidden='st'</code></p>
+<p>Source: constructed example</p>
+<h3 id="eszett-ist-ein-s">eszett-ist-ein-s<a class="headerlink" href="#eszett-ist-ein-s" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Die Kühe weiden am großen Hang
+</code></pre></div>
+<p>Parameters: <code>forbidden='st'</code></p>
+<p>Source: constructed counterexample; <code>ß</code> folds to <code>ss</code>, so "großen" uses the forbidden <code>s</code> twice</p>
 
 
 

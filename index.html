@@ -2533,6 +2533,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2830,7 +2914,7 @@ otherwise. The same check then passes the corrected draft: the validator is the 
 <span class="gp">$ </span>denckring<span class="w"> </span>status
 <span class="go">158 catalogued · 133 implementable · 133 implemented · 133 validated · 25 not mechanically checkable</span>
 <span class="go">0 instruments catalogued</span>
-<span class="go">63 rows externally evidenced · 70 explained · 0 unexplained</span>
+<span class="go">68 rows externally evidenced · 65 explained · 0 unexplained</span>
 </code></pre></div>
 <p>Three interfaces over the same core functions, so they cannot disagree about what a
 procedure is: the Python API, the CLI, and <code>--json</code> on <code>check</code>, <code>apply</code>, <code>show</code> and
@@ -2945,7 +3029,10 @@ form being English by nature, and <code>runs_in</code> all three.</p>
 <p>The two move independently, and the editorial half is the one that lags: 174 (row,
 language) pairs ran unclaimed when it was last measured. ADR 0047 closed the thirty
 French rows whose own <code>source:</code> field is the evidence — <code>lipogram</code> is Perec's <em>La
-Disparition</em> — and records why the rest stay open rather than being swept.</p>
+Disparition</em> — and records why the rest stay open rather than being swept. ADR 0063 adds
+one narrower ground for one class of row: the letter rules, whose checkers read letters
+and nothing else, all declare German, which there means the rule is checked in German,
+not that German literature attests the form.</p>
 <p><strong>18 French rows will never close.</strong> They are accentual metres, French has no lexical
 stress, and they are not French forms; declaring the capability to reach a bigger number
 would be a promise the data cannot keep. ADR 0032 records why Wikidata Lexemes could not

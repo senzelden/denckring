@@ -16,7 +16,7 @@
         <link rel="prev" href="../0061-checker-versions/">
       
       
-        <link rel="next" href="../../contributing/">
+        <link rel="next" href="../0063-letter-rules-claim-german/">
       
       
         
@@ -2396,10 +2396,116 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amendment-2026-10-13-anonymous-texts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amendment, 2026-10-13: anonymous texts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amendment-2026-10-14-hand-corrected-ocr-of-burmann-and-rittler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amendment, 2026-10-14: hand-corrected OCR of Burmann and Rittler
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2525,6 +2631,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amendment-2026-10-13-anonymous-texts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amendment, 2026-10-13: anonymous texts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amendment-2026-10-14-hand-corrected-ocr-of-burmann-and-rittler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amendment, 2026-10-14: hand-corrected OCR of Burmann and Rittler
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2561,10 +2689,11 @@ public-domain text only and record the URL they were extracted from. They are ex
 by script from a downloaded file, never retyped. The maintainer decided this on
 2026-10-12. The public-domain cutoff, as set that day, is: published in 1930 or earlier
 (the US rule) <strong>and</strong> by an author, and translator, who died in 1955 or earlier (the EU's
-seventy years). Everywhere else, the code and docs say "the public-domain cutoff (ADR
-0062)" rather than repeating these years, so that only this record needs correcting when
-they move. The policy is forward only: external cases shipped before it stay, including
-the post-cutoff ones listed under Consequences.</p>
+seventy years). A text whose author is unknown meets the death-year half through its
+publication date (amended 2026-10-13, below). Everywhere else, the code and docs say
+"the public-domain cutoff (ADR 0062)" rather than repeating these years, so that only
+this record needs correcting when they move. The policy is forward only: external cases
+shipped before it stay, including the post-cutoff ones listed under Consequences.</p>
 <p><strong>What counts as an external near-miss.</strong> A published text its source presents as the
 form, or explicitly as a failed or impure instance of it: Hilton's verdict on "My Day
 Closed Is In Immortality" (ADR 0061 D4) is the model. A real poem of another form,
@@ -2594,7 +2723,14 @@ empty.</p>
 (0.123, the measured share rounded down) stops constructed cases outpacing external ones
 unnoticed. Both were raised to the measured value again as public-domain cases landed,
 to 102 and 0.144 on 2026-10-12; the comments beside them in
-<code>tests/test_corpus_provenance.py</code> record each step.
+<code>tests/test_corpus_provenance.py</code> record each step. The share floor then fell, once and
+deliberately, to 0.141, when ADR 0063's German letter-rule cases landed, every one of them
+constructed; it was raised to 0.159 (118 of 739), with <code>EXTERNAL_FLOOR</code> at 118, on
+2026-10-13 when the Bombaugh 1890 cases landed under the amendment below. On 2026-10-14
+the public-domain cases of the pre-release pass raised them again, to 0.167 and
+<code>EXTERNAL_FLOOR</code> 125 (125 of 746). Later cases raised them further; with the Burmann and
+Rittler cases of the 2026-10-14 amendment below they stood at 0.174 and 131 (131 of 752)
+on 2026-10-15.
 <code>tests/data/external-floor.json</code> holds each row's external count as a ratchet: a row may
 gain cases and never lose one.</p>
 <p><strong>Reported.</strong> <code>Description.corpus</code> is a <code>CorpusShare</code>: <code>external_passing</code>,
@@ -2626,12 +2762,17 @@ and tif.hair (<code>portmanteau</code>: <code>imaginhair</code>, <code>atmosphai
 pre-cutoff texts through post-cutoff editions: Kuhlmann's 1686 abecedarian in Beare's
 1971 edition, and Hemeling's 1653 exchange as transcribed by Althaus in 1996. Few of the
 85 record the URL their text was extracted from.</p>
-<p>Six rows count as externally evidenced only through grandfathered cases: <code>cut_up</code>,
-<code>eodermdrome</code>, <code>snowball</code>, <code>reverse_snowball</code>, <code>lipogram</code> and <code>calculator_word</code>. The
-per-row ratchet holds those cases in place, because removing one fails it. Whether they
-should leave, and the rows become gap entries, is an open question for the maintainer.
-Until it is answered, "externally evidenced" on those six rows means something weaker
-than the policy now requires.</p>
+<p>Five rows count as externally evidenced only through grandfathered cases: <code>cut_up</code>,
+<code>eodermdrome</code>, <code>snowball</code>, <code>reverse_snowball</code> and <code>calculator_word</code>. There were six until
+2026-10-13, when <code>lipogram</code> gained two public-domain cases from Bombaugh (1890). The
+per-row ratchet holds those cases in place, because removing one fails it. The
+maintainer ruled on 2026-10-14 that the cases stay and the five rows remain externally
+evidenced. The cost is recorded rather than removed: on those five rows "externally
+evidenced" rests on short quotations from publications after the cutoff, which is weaker
+than the policy now requires of any new case, and <code>status</code> prints them in the same count
+as rows evidenced by public-domain text. Only the cases' <code>source</code> strings, which name each
+publication and its year, and this paragraph tell them apart. The ratchet keeps them in
+place, so a row leaves this list only by gaining a public-domain case, as <code>lipogram</code> did.</p>
 <p>21 rows are <code>after_cutoff</code> and can never be evidenced while the policy stands: Perec,
 Queneau, Roubaud, Mathews, Lescure, Bénabou, Cage, Burroughs, Mac Low, Enzensberger,
 Zukofsky, Adair, Hecht and Pascal. Their checkers are as much one author's reading as any
@@ -2644,15 +2785,36 @@ An <code>in_copyright</code> or <code>none_found</code> entry can outlive its re
 stale the same way, and this ADR is the one place to correct them.</p>
 <p>A real poem of another form does not count, so a row whose only plausible negatives are
 real poems stays without an external near-miss.</p>
-<p>The 49 <code>none_found</code> entries mean four different things, and only the note tells them
-apart:
-- 25 record pending work: the batch 4 brief. Six of those also record a search that
-  failed in batch 3 (<code>assonance_constraint</code>, <code>boustrophedon</code>, <code>double_acrostic</code>,
-  <code>paragram</code>, <code>serial_lipogram</code>, <code>telestich</code>). Two record a batch-3 find that was too
-  incomplete to land (<code>denckring</code>, <code>wechselsatz</code>).
-- 3 record checker findings pending a maintainer ruling (<code>alcaic_stanza</code>, <code>ballade</code>,
-  <code>petrarchan_sonnet</code>): the checker rejected every candidate the public-domain
-  sourcing pass found, and each note records why.
+<p>The <code>none_found</code> entries mean different things, and only the note tells them apart.
+There were 49 when this was written, 25 of them recording pending work: the batch 4
+brief. Batch 4 reported on 2026-10-13. Three rows left the registry with Bombaugh cases
+it found (<code>telestich</code>, <code>double_acrostic</code>, <code>pangrammatic_lipogram</code>). <code>ballade</code> left on
+2026-10-14 with four ballades from Gleeson White's anthology (1887), once the row took a
+<code>metre</code>, and <code>petrarchan_sonnet</code> the same day with Milton's Sonnet XVI, once the
+stress-scanning rows took the opt-in metrical licences of ADR 0065. Of the 44 that
+remain:
+- 18 record that the batch-4 reports this registry relies on did not search them. Three
+  of those also record a search that failed in batch 3 (<code>assonance_constraint</code>,
+  <code>boustrophedon</code>, <code>paragram</code>), and two a batch-3 find that was too incomplete to land
+  (<code>denckring</code>, <code>wechselsatz</code>).
+- 4 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (<code>bivocalic</code>,
+  <code>letter_bank</code>, <code>serial_lipogram</code>), and leads that each ban a single letter, so none
+  would evidence a group (<code>consonantal_lipogram</code>). On 2026-10-14 one of them, the
+  anonymous song without s that George Wakeman quotes in "Tormenting the Alphabet" (<em>The
+  Galaxy</em>, 1866), landed as a <code>lipogram</code> case, extracted by script from archive.org's
+  text layer and checked against the page image. Of the German R-lipograms, Burmann's
+  1788 edition did not land, because its scan has no text layer. The OCR of his 1796
+  edition and of Rittler's 1820 edition disagrees with the print often enough that
+  correcting it is retyping, which this policy forbade; on 2026-10-14 the maintainer
+  granted an exception for those two texts (amendment below), and one poem and one
+  passage landed as <code>lipogram</code> cases. No scan of Rittler's 1815 edition was found, and
+  Google Books and MDZ were not searched for it. Every one of them bans r alone, so
+  <code>consonantal_lipogram</code> stays in the registry. The note records where each was
+  sought.
+- 1 records a ruling on why the checker rejects every candidate found (<code>alcaic_stanza</code>):
+  on 2026-10-14 the maintainer ruled that the row reads alcaics accentually, so
+  Tennyson's quantitative "Milton" falls outside its definition. Nothing is pending,
+  and the row still has no external case.
 - 3 record a search that failed, with nothing pending (<code>haibun</code>, <code>ideenwuerfeln</code>,
   <code>pasigraphy</code>).
 - 18 record that no search has been made and none is scheduled: the 16 Oulipo rows
@@ -2661,6 +2823,76 @@ apart:
 <p>The per-row ratchet is a file a person rewrites by hand when a row gains a case. If
 nobody does, the floor for that row stays at its old value and protects less than it
 could.</p>
+<hr />
+<h2 id="amendment-2026-10-13-anonymous-texts">Amendment, 2026-10-13: anonymous texts<a class="headerlink" href="#amendment-2026-10-13-anonymous-texts" title="Permanent link">&para;</a></h2>
+<p>The cutoff asks when the author died, and an anonymous text has no author to ask about.
+Most of what C. C. Bombaugh's <em>Gleanings for the Curious</em> (enlarged ed., 1890) presents
+as instances of a form names nobody: the UNITE/UNTIE telestich (also a double
+acrostic), the Hatherton acrostic-telestich, all five univocalic verses (one of them a
+near-miss) and both e-lipograms (also pangrammatic). Read as written, the rule shut all
+of them out, although the book was printed in 1890 and its compiler died in 1906.</p>
+<p><strong>Decision.</strong> The maintainer decided on 2026-10-13 that a text published in 1930 or
+earlier whose author is unknown (anonymous, printed in a dated compilation) meets the
+cutoff. The US rule is publication-based, and the EU term for an anonymous work runs
+seventy years from publication, not from a death. The case's <code>source</code> says
+"anonymous, printed <year>" where a death year would go, and names the compilation's
+edition, year and compiler, whose own death year is still stated. A text the compilation
+attributes, such as Lord Holland's "Eve's Legend" in the same book, is judged by the
+original rule.</p>
+<p><strong>Consequences.</strong> The rule admits texts whose author may have outlived the cutoff. A text
+printed anonymously near 1930 plausibly has an author who died after 1955: someone who
+wrote it at 25 in 1930 was 50 in 1955. The EU's publication-based term for an anonymous
+work also ends if the author becomes known, and the author's own term then applies, so a
+text admitted today can fall outside the cutoff when a scholar identifies its author.
+Nobody checks for either. The case that prompted the amendment is the low-risk end: for
+a text printed by 1890, the author must have written before 1890 and died after 1955.
+"Printed 1890" dates the compilation, not the text, which can be older; a text cannot
+have been published later than the book that prints it, so the compilation's date
+settles the publication half on its own. A compiler can misattribute, abridge or tidy a
+text, and with no author there is no other edition to check it against: the Bombaugh
+cases are transcribed from the Project Gutenberg text, and the page images were not
+checked. Read literally, the amendment covers an unknown author, not an unknown
+translator of a named author; the original rule names translators too, and no case so
+far has needed that question answered.</p>
+<hr />
+<h2 id="amendment-2026-10-14-hand-corrected-ocr-of-burmann-and-rittler">Amendment, 2026-10-14: hand-corrected OCR of Burmann and Rittler<a class="headerlink" href="#amendment-2026-10-14-hand-corrected-ocr-of-burmann-and-rittler" title="Permanent link">&para;</a></h2>
+<p>Two German R-lipograms have a text layer that cannot be used as it stands. The SBB's OCR
+of Gottlob Wilhelm Burmann's <em>Einige Gedichte ohne den Buchstaben R</em> (Berlin: Decker,
+1796) differs from the page images in 17 places in the 24 lines of "I. An Gott", and loses
+two words outright. The ÖNB's OCR of Franz Rittler's <em>Die Zwillinge … Roman ohne R</em>, 3rd
+ed. (Wien: Härter, 1820) needs 27 corrections in the four paragraphs of pp. 17–18 that
+land, and its errors on those two pages include four r's the print does not have, so a lipogram checker run on the raw OCR fails a text that is in
+fact without r. The rule above admits only text extracted by script, checked against the
+page image; correcting this much is retyping, and neither text could land.</p>
+<p><strong>Decision.</strong> The maintainer granted an exception on 2026-10-14 for these two texts only.
+The case text is the script's extraction of the downloaded OCR with corrections made
+against the page image. The case's <code>source</code> lists every correction, as the OCR's reading
+and the print's, and states the normalisation applied to the Fraktur and Antiqua of the
+print: long s (ſ) to s, which is how the checker already reads it; ꝛ to r and a superscript
+e over a vowel to ä, ö or ü where they occur (neither occurs in the two landed passages,
+whose umlauts are printed as such); the print's double hyphen (=) to a hyphen, and dropped
+at a line break; spaces before punctuation closed up. Every other rule of this record
+applies: both texts are inside the cutoff (Burmann died in 1805; Rittler, born 1782, is
+given death dates from 1830 to "after 1837"), and each <code>source</code> names its edition,
+library, scan and OCR URLs and why the passage was chosen. Each correction is a literal
+pair applied by the extraction script, which fails if the OCR's reading does not occur
+exactly once on its page, so a correction cannot quietly miss. That script, like the
+other extraction scripts this record names, is not shipped with the repository: the
+safeguard ran when the cases were made, and a reader can check its result only against
+the correction list and the page images.</p>
+<p><strong>Consequences.</strong> The two case texts are no longer pure script extractions. Every
+correction is a reading of the page image by whoever made it, and an error in one is a
+retyping error of exactly the kind the rule exists to prevent; the correction list makes
+each one checkable, but nothing checks them. The Rittler page images are a Google
+digitisation at modest resolution, and the Burmann passage is Antiqua with long s, so a
+misread letter is plausible in both. The normalisation also makes the text unlike the
+print: a reader comparing the case with the page sees s for ſ and joined hyphenations,
+and must take the <code>source</code>'s word that nothing else moved. The exception does not extend
+to other texts, nor to other passages of these two books: the next text whose OCR needs
+correcting needs its own decision, and so does a further poem of Burmann's or a later
+chapter of Rittler's. Both cases ban r alone, so neither evidences
+<code>consonantal_lipogram</code>; they add German external evidence to <code>lipogram</code>, a row already
+externally evidenced.</p>
 
 
 

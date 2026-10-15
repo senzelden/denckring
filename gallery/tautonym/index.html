@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2484,6 +2568,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#verdoppelte-woerter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        verdoppelte-woerter
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2519,9 +2614,10 @@
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Kind:</strong> restrictive</li>
-<li><strong>Languages:</strong> en</li>
+<li><strong>Languages:</strong> en, de</li>
 <li><strong>Requires:</strong> <code>tokens</code>, <code>fold_diacritics</code></li>
 <li><strong>Deterministic:</strong> yes</li>
+<li><strong>In other languages:</strong> Tautonym (<em>de</em>)</li>
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
@@ -2542,7 +2638,7 @@
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
-<td>Treat accented letters as their base letter, and ß as ss.</td>
+<td>Whether accented letters count as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of its own.</td>
 </tr>
 </tbody>
 </table>
@@ -2557,6 +2653,11 @@
 <div class="highlight"><pre><span></span><code>couscous cat
 </code></pre></div>
 <p>Source: constructed counterexample</p>
+<h3 id="verdoppelte-woerter">verdoppelte-woerter<a class="headerlink" href="#verdoppelte-woerter" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Wauwau, Tütü, Bonbon, Kerker
+</code></pre></div>
+<p>Source: constructed example; the term is Borgmann's</p>
 
 
 

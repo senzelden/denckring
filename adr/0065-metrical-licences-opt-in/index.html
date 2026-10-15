@@ -1,0 +1,3004 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A library of experimental writing procedures, where the validator is the eval">
+      
+      
+      
+        <link rel="canonical" href="https://senzelden.github.io/denckring/adr/0065-metrical-licences-opt-in/">
+      
+      
+        <link rel="prev" href="../0064-chronogram-capitals-only/">
+      
+      
+        <link rel="next" href="../../contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>65. Metrical licences, one switch each, opt-in - denckring</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#65-metrical-licences-one-switch-each-opt-in" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="denckring" class="md-header__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            denckring
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              65. Metrical licences, one switch each, opt-in
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="denckring" class="md-nav__button md-logo" aria-label="denckring" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    denckring
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/senzelden/denckring" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    senzelden/denckring
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../showcase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Showcase
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading a report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/packs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language packs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design decisions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0001-english-api-multilingual-content/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. English API, multilingual content
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0002-check-mandatory-apply-optional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. `check` mandatory, `apply` optional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-catalogue-yaml-not-sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Catalogue in YAML, not SQLite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0004-language-packs-as-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Language packs as capability-declaring plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0005-continuous-score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Continuous `score`, not a boolean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0006-dual-licence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Dual licence: MIT code, CC BY catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0007-one-module-per-procedure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. One module per procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0008-catalogue-inside-package/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The catalogue lives inside the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0009-folding-is-a-parameter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Diacritic folding is a parameter, not a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0010-packs-via-entry-points/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Language packs are discovered through an entry-point group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-checkability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Checkability is a property of the procedure, not of its capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0012-syllable-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Two syllable capabilities, with the weaker one as the floor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0013-data-as-a-separate-distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Linguistic data ships as separate distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0014-metre-as-satisfiability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Metre is a satisfiability question, not a comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-lexicon-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. One capability per question the lexicon is asked
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0016-one-pack-per-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. One data pack per language, and a collision is an error
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0017-devices-ship-with-their-procedures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. A device's own data ships with its procedure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0018-attestation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Whether the author stated the rule is its own field
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0019-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Figures are alphabets read at several levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0020-corpora-are-not-shipped/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. A corpus is supplied by the reader, never by the package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0021-the-transferable-part/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Implement the transferable part, not the artefact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0022-german-moves-to-a-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. German is a built-in default, not an entry point
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0023-the-german-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. The German lexicon is Wikidata Lexemes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0024-apache-two-for-the-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Apache-2.0 for the code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0025-the-apply-spine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. `apply` gets the spine `check` has
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0026-the-production-surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. `_produce -> list[str]` is the primitive; `apply` returns its first result
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0027-candidates-carry-their-scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. `_produce` returns `Produced`, so a candidate can carry its score
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0028-the-graded-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. A word list graded by commonness, because a membership oracle cannot rank
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0029-the-choices-the-catalogue-promised/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. Where the catalogue already offered a choice, the parameter now exists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0030-german-pronunciations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. German pronunciations come from Wiktionary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0031-devices-are-address-spaces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. A device is an address space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0032-the-french-lexicon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. The French lexicon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0033-the-layer-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33. The catalogue has two layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0034-french-prosody/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34. French verse is counted a line at a time
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0035-orthographic-and-phonetic-readings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35. A letter has two readings, and `requires` says which
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0036-the-elision-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36. A leading proclitic is not a noun
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0037-the-calculator-word/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37. The calculator word
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0038-german-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38. German frequency, and a source whose case survives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0039-mutation-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39. Mutation testing is a worklist, not a gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0040-reading-canonical-verse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40. Reading canonical verse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0041-the-pun-as-a-relation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    41. A pun is a relation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0042-the-blend-needs-no-g2p/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    42. The blend needs no g2p
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0043-the-notation-bridge-and-the-third-shape/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    43. The notation bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0044-language-packs-are-upgrade-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44. Third-party language packs are upgrade-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0045-the-part-of-speech-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45. The part-of-speech capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0046-the-chimeras-three-donors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46. The chimera's three donors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0047-editorial-language-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47. Editorial language scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0048-a-bounded-proverb-corpus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48. A bounded proverb corpus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0049-strict-relations-and-supplied-bilingual-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    49. Strict relations and supplied bilingual data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0050-templated-prompt-hints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    50. Prompt hints are templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0051-an-everyday-words-view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    51. An everyday-words view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0052-english-word-frequency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    52. English word frequency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0053-no-pronunciation-supplement-yet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    53. No pronunciation supplement yet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0054-syllable-counts-read-every-pronunciation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    54. Syllable counts read every listed pronunciation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0055-stricter-defaults-for-source-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    55. Stricter defaults for source rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0056-aligned-scoring-for-positional-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    56. Aligned scoring for positional rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0057-rhyme-readings-in-the-writers-favour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    57. Rhyme readings in the writer's favour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0058-a-word-is-as-long-as-its-letters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    58. A word is as long as its letters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0059-composites-and-the-promise-of-rules-and-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    59. A composite is a list of constraints, and rules and evidence are promised
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0060-what-the-bench-may-lean-on/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    60. What the bench may lean on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0061-checker-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    61. Checker versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0062-external-evidence-public-domain-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    62. External evidence, public domain only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="65-metrical-licences-one-switch-each-opt-in">65. Metrical licences, one switch each, opt-in<a class="headerlink" href="#65-metrical-licences-one-switch-each-opt-in" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Partly supersedes <a href="../0014-metre-as-satisfiability/">ADR 0014</a></strong>, and only when a
+switch is set. ADR 0014 checks strict stress and admits no substitution, and its
+Consequences call encoding scansion's licences a research problem that it would be
+overclaiming to say was solved. This decision admits four licences, each by name and
+each off by default, so ADR 0014 still describes every check made with the switches
+off. It does not claim to encode scansion: four licences are not all of them.</p>
+</blockquote>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>The stress-scanning rows read each word as the pronouncing dictionary stresses it and
+ask whether some combination of its listed readings fits the line's pattern (ADR 0014,
+ADR 0054). Canonical English verse does not scan that way, and the gap is not the
+dictionary's fault. Poets take a small set of standard licences, and the checker
+admitted none of them.</p>
+<p>The public-domain sourcing pass for <code>petrarchan_sonnet</code> (ADR 0062) made this concrete.
+It screened 97 fourteen-line blocks from Milton's poems in Beeching's edition (Project
+Gutenberg #1745) and Wordsworth's <em>Poems in Two Volumes</em> (1807; #8774, #8824), and the
+row rejected every one. Two of Milton's sonnets came closest. "When I consider how my
+light is spent" failed on two words only. Line 10 opens "Either man's work", a reversed
+first foot, which is the commonest licence in English pentameter. Line 13 reads "Ocean
+<em>with</em>out rest", where the dictionary has only <code>01</code>. "Cyriack, whose Grandsire" failed on
+<code>disapproves</code>, which the dictionary gives as <code>001</code> and the line wants as <code>101</code>, and on
+<code>superfluous</code>. Every one of these is a reading a prosodist would accept, and the row was
+left with no external case.</p>
+<p>The maintainer decided on 2026-10-14 to model these licences as an opt-in, off by
+default, with one switch per licence, a closed list for stress shift and a diaeresis rule
+for the syllable licence.</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p><strong>Four <code>bool</code> parameters, each off by default:</strong> <code>initial_inversion</code>, <code>secondary_stress</code>,
+<code>stress_shift</code> and <code>diaeresis</code>. They sit on <code>LicenceParams</code>, and every row that scans an
+iambic or trochaic line, which is every row that can raise <code>wrong_stress</code> except the five
+named below, takes them. Eleven rows take <code>ScansionParams</code>, which is <code>MetreParams</code> plus
+the four: <code>ballade</code>, <code>blank_verse</code>, <code>curtal_sonnet</code>, <code>heroic_couplet</code>,
+<code>iambic_pentameter</code>, <code>ottava_rima</code>, <code>petrarchan_sonnet</code>, <code>rhyme_royal</code>,
+<code>shakespearean_sonnet</code>, <code>sonnet</code> and <code>spenserian_stanza</code>. <code>ballade</code>, <code>heroic_couplet</code>,
+<code>iambic_pentameter</code> and <code>petrarchan_sonnet</code> took no <code>MetreParams</code> before, so they also
+gain <code>feminine_ending</code>. <code>trochaic_tetrameter</code> takes <code>LicenceParams</code> alone: its line
+already closes on an unstressed syllable, and one more would be a dactylic close, which is
+not what <code>feminine_ending</code> describes. <code>alexandrine</code> keeps plain <code>MetreParams</code>. It counts
+syllables and scans no stress, so three of the four switches would be parameters that do
+nothing there. The rows that scan dactylic or classical patterns (<code>alcaic_stanza</code>,
+<code>sapphic_stanza</code>, <code>dactylic_hexameter</code>, <code>elegiac_couplet</code>, <code>double_dactyl</code>) take none of
+these parameters and are unchanged. Their patterns are already sets of feet with
+substitutions or an anceps, and a reversed first foot or a promoted syllable is not the
+licence those forms take. <code>tests/test_metre_licences.py</code> finds the rows by behaviour: any
+row whose rules include <code>wrong_stress</code> must take the four, unless it is one of these five,
+listed there with its reason.</p>
+<p>What each switch admits:</p>
+<ul>
+<li><strong><code>initial_inversion</code>.</strong> A line may also be read with the first two positions of its
+  pattern swapped, when they differ: <code>01</code> read as <code>10</code> in an iambic line, <code>10</code> as <code>01</code> in
+  a trochaic one. This applies to the first foot only, never to an anceps (<code>?</code>), and is
+  added as an alternative pattern, the way <code>with_feminine</code> adds a feminine one.</li>
+<li><strong><code>secondary_stress</code>.</strong> In a word of three or more syllables, an unstressed syllable
+  (<code>0</code>) that is not next to a <code>1</code> may take a beat, so <code>disapproves</code> (<code>001</code>) may also be
+  <code>101</code>. Several such syllables may be promoted at once, provided no two of them are
+  adjacent. Words of one or two syllables are unaffected.</li>
+<li><strong><code>stress_shift</code>.</strong> The words on a closed list may be read <code>10</code> or <code>01</code> whatever the
+  dictionary says. The list is <code>prosody.SHIFTABLE</code>: without, within, upon, into, unto,
+  beyond, before, toward, towards, across, among, beneath, below, above, about, against,
+  along, around, behind, between, despite, throughout, therein, thereon, wherein. The
+  brief that proposed it also named <code>whereon</code>. CMUdict does not carry that word, and an
+  unknown word already takes any stress, so it was dropped. A test holds that every word
+  on the list is a disyllable in the dictionary.</li>
+<li><strong><code>diaeresis</code>.</strong> A word may have one syllable more than the dictionary gives it. The
+  new syllable is unstressed, and the vowel after it is free (<code>?</code>), as a monosyllable's
+  is. Two rules decide where:</li>
+<li><em>Phones.</em> In the dictionary's first pronunciation, a <code>W</code> or <code>Y</code> counts when it
+    follows a consonant other than <code>K</code> or <code>G</code> and precedes a vowel with stress <code>0</code> or <code>2</code>.
+    For <code>Y</code>, that vowel must not be <code>UW</code> or <code>UH</code>. The word's spelling must also contain an
+    <code>i</code> or <code>u</code> before another vowel letter. Under this rule <code>million</code>, <code>M IH1 L Y AH0 N</code>,
+    may be <code>10?</code>.</li>
+<li><em>Spelling.</em> The rule applies to a word ending in <code>-ious</code>, <code>-uous</code>, <code>-ial(s)</code> or
+    <code>-ian(s)</code> when none of its dictionary forms has as many syllables as the vowel-letter
+    groups before the ending plus two. Each form that has one syllable fewer, and does not
+    end on a stress, gains one. Under this rule <code>ambrosial</code>, <code>010</code>, may be <code>010?</code>.</li>
+</ul>
+<p><strong>Scope.</strong> <code>initial_inversion</code> reads no dictionary, so it applies in every language,
+German included. The other three read CMUdict's stress or phones, or English spelling,
+and they are stated for English only. With any of them on, a German or French text is
+read exactly as with it off, and a test holds this for Goethe's <em>Iphigenie</em>. No rule has
+been stated for another language's pack. The three word-level switches apply only to
+words the dictionary carries. For <code>secondary_stress</code> and <code>stress_shift</code> that costs
+nothing, since an unknown word already takes any stress. For <code>diaeresis</code> it is a choice:
+both its rules start from the dictionary's forms, so a word the dictionary lacks keeps
+its heuristic syllable count, and a diaeresis in such a word is not found.</p>
+<p><strong>A second pass, not a wider first one.</strong> <code>line_metre</code> scans every option with the
+dictionary's readings first, exactly as before. The licences are tried only when nothing
+fits. A licensed reading of a word is offered after the word's own readings. So a line
+that scans without a licence is never reported as needing one, and with every switch off
+the scan is byte for byte what it was. Each switch derives its readings from the
+dictionary's forms only, never from another switch's, so a switch admits its own licence
+and no combination of two. A test checks the full four-by-four table.</p>
+<p><strong>Evidence names the licence.</strong> A word read through a licence shows it in its evidence
+value, <code>10 (stress_shift)</code> or <code>10 (initial_inversion)</code>. A word licence tags the word whose
+reading it supplied. A line licence tags every word with a syllable on the reversed foot,
+and that does not mean the word's own reading changed: in "And disapproves that care",
+read on the inverted pattern, <code>disapproves</code> shows <code>001 (initial_inversion)</code>, its
+dictionary form, because its first syllable stands on the reversed foot. <code>basis</code> still
+says where the word's own readings came from (<code>dictionary</code>, <code>ambiguous</code>, <code>estimated</code>).
+Adding a fourth basis value would widen a closed set that every consumer of <code>Evidence</code>
+matches on, to say something the value can say for itself.</p>
+<p><strong>Licensed forms count towards <code>MAX_COMBINATIONS</code>.</strong> The cap holds a line's combinations
+of readings to 4,096 and, past it, scans only each later word's first form. A licensed
+reading is one more combination, so in principle a line could be capped on the licensed
+pass where the dictionary pass was not, and a switch could then lose a reading another
+switch alone had found. It stays counted, because the cap exists to bound the work and the
+licences are where the work grows. Measured on the 10,611 lines of Paradise Lost below and
+on the same lines shuffled, no line is newly capped with all four on, and no line passes
+with one switch and fails with all four.</p>
+<p><strong>No <code>checker_version</code> bump</strong> (ADR 0061). A parameter 0.5.0 would have rejected as
+unknown cannot move a verdict 0.5.0 gave, and the verdict fingerprints are unchanged on
+every existing probe.</p>
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<p><code>petrarchan_sonnet</code> has its first external case: Milton's Sonnet XVI, checked with
+<code>initial_inversion</code> and <code>stress_shift</code> and passing under nothing less. It leaves the gap
+registry. The re-screen of the same 97 blocks, measured on 2026-10-14:</p>
+<table>
+<thead>
+<tr>
+<th>setting</th>
+<th>blocks the checker admits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>default</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>feminine_ending</code> alone</td>
+<td>0</td>
+</tr>
+<tr>
+<td>each of the four alone</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>initial_inversion</code> + <code>stress_shift</code></td>
+<td>1 ("When I consider")</td>
+</tr>
+<tr>
+<td>all four</td>
+<td>1</td>
+</tr>
+<tr>
+<td>all four + <code>feminine_ending</code></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The licences do not rescue "Cyriack, whose Grandsire".</strong> <code>secondary_stress</code> reads
+<code>disapproves</code> as Milton does. The line "That with superfluous burden loads the day" still
+fails, because CMUdict puts the primary stress of <code>superfluous</code> on its first syllable
+(<code>S UW1 P ER0 F L W AH2 S</code>, <code>10?</code>) where Milton's line has it on the second. That is a
+dictionary stress, not a missing syllable. <code>diaeresis</code> gives the word a fourth syllable
+(<code>100?</code>), which makes the line eleven syllables and leaves its stress where it was.
+None of the four switches moves a primary stress, and that is deliberate.</p>
+<p><strong>Every switch admits misfits, and the measured share is large.</strong> The test is Paradise
+Lost as Beeching prints it: 10,611 lines, extracted by script as the indented lines of
+four words or more, so a few editorial lines may be among them. Each was scanned as
+pentameter with or without a feminine ending. The same lines were then scanned with their
+words shuffled (seed 0). Each shuffled line keeps its syllables but is metrical only by
+accident.</p>
+<table>
+<thead>
+<tr>
+<th>switch</th>
+<th>real lines that now scan</th>
+<th>shuffled lines that now scan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>none (baseline)</td>
+<td>6,747</td>
+<td>3,476</td>
+</tr>
+<tr>
+<td><code>initial_inversion</code></td>
+<td>+515</td>
+<td>+615</td>
+</tr>
+<tr>
+<td><code>secondary_stress</code></td>
+<td>+942</td>
+<td>+450</td>
+</tr>
+<tr>
+<td><code>stress_shift</code></td>
+<td>+69</td>
+<td>+128</td>
+</tr>
+<tr>
+<td><code>diaeresis</code></td>
+<td>+10</td>
+<td>+13</td>
+</tr>
+<tr>
+<td>all four</td>
+<td>+1,614</td>
+<td>+1,286</td>
+</tr>
+</tbody>
+</table>
+<p><code>initial_inversion</code> admits more shuffled lines than real ones. A reversed first foot is
+too common a shape to tell verse from a word salad. With all four on, the checker admits
+about four shuffled lines for every five real ones it gains. A caller who switches the
+licences on is asking a weaker question, and this table is how much weaker.</p>
+<p><strong>The list is editorial.</strong> <code>SHIFTABLE</code> encodes a judgement about which words verse moves
+freely. Someone else's list would differ, and a word left off it fails where a reader
+would let it pass. The list is closed so that the judgement is visible and can be
+argued with, not so that it is right.</p>
+<p><strong>The diaeresis rule has false positives, and the brief's simpler rule had many more.</strong>
+The sample was the 5,000 most frequent words that CMUdict carries. As first proposed,
+the phones rule (any <code>W</code> or <code>Y</code> after a consonant and before a <code>0</code> or <code>2</code> vowel) fires on
+135 of them. Most are not diaereses: <code>figure</code> and <code>regular</code> (the <code>y</code> of a <code>cu</code> or <code>gu</code>),
+<code>equal</code> and <code>language</code> (the rounding of <code>qu</code> and <code>gu</code>), <code>value</code> and <code>continue</code> (the vowel
+<code>u</code> itself), <code>forward</code> and <code>railway</code> (a <code>W</code> no vowel letter spells). Applied in that
+order, the three exclusions above remove 53 (after <code>K</code> or <code>G</code>), 32 (<code>Y</code> before <code>UW</code> or
+<code>UH</code>) and 23 (no <code>i</code> or <code>u</code> before a vowel letter). The rule as shipped, phones and
+spelling together, fires on 56 of the 5,000. By the author's reading, 6 of those 56 are
+false: <code>population</code>, <code>populations</code>, <code>reputation</code>, <code>ammunition</code>, <code>genuine</code> and
+<code>genuinely</code>. The spelling check is made on the whole word, not at the glide, so in the
+first four a <code>-tion</code> elsewhere in the word lets a <code>Y</code> through. In <code>genuine</code> the
+dictionary's first reading already gives the <code>u</code> a syllable of its own after the <code>Y</code>.
+The other 50 are the classical cases, such as <code>so-ci-al</code>, <code>re-li-gi-ous</code>, <code>mil-li-on</code> and
+<code>un-i-on</code>. No reader would split all of them in one poem.</p>
+<p><strong>The freed vowel is a choice, and it is measured.</strong> In the brief's version the new
+syllable was a <code>0</code> and every other mark stayed as the dictionary had it. Then the new
+syllable nearly always stands next to another <code>0</code>, and no iambic or trochaic line fits:
+on Paradise Lost that reading rescued no line, and on the 1,358 lines of the petrarchan
+screen none either. With the vowel after the glide free, it rescues ten lines of Paradise
+Lost (<code>celestial</code> three times, <code>Ambrosial</code>, <code>impetuous</code>, <code>Union</code>, <code>Communion</code>, <code>nuptial</code>,
+<code>Pernicious</code>, <code>Religious</code>), each a diaeresis Milton's metre asks for. The cost is that
+the freed vowel may also take a beat, which is a small promotion folded into this
+licence. That is what Milton's <code>Re-li-gi-ous</code> does, and a caller who has <code>diaeresis</code> on
+has accepted it.</p>
+<p><strong>The phones rule reads the first pronunciation only.</strong> <code>phonemes</code> is the pack's one
+view of a word's phones, so a diaeresis in a second listed pronunciation is not found.</p>
+<p><strong>Don Juan I, re-measured with every switch</strong> (<code>ottava_rima</code>, the 222 stanzas of Canto I
+in Coleridge's edition, extracted as for the existing cases). By default the checker
+admits 3. With <code>feminine_ending</code> it admits 5. With all four licences it admits 5, and
+with all four and <code>feminine_ending</code>, 18. That still rejects 204: 113 on stress, 148 on
+rhyme and 115 on line length, and a stanza may fail on more than one. Rhyme is untouched
+by any of this, and it is now the larger obstacle. No further stanzas are landed. The
+licences were not written for Byron, and a Don Juan case passing only under all five
+switches would be evidence about the switches, not about ottava rima.</p>
+<p><strong>White's ballades (1887), re-measured with every switch.</strong> The 77 poems the row's
+screen selects (stated in the <code>tomson-ballade-of-asphodel</code> case) give:</p>
+<table>
+<thead>
+<tr>
+<th>setting</th>
+<th>admitted</th>
+<th>rejected</th>
+<th>of those, on stress</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>default</td>
+<td>1</td>
+<td>76</td>
+<td>49</td>
+</tr>
+<tr>
+<td>all four</td>
+<td>1</td>
+<td>76</td>
+<td>30</td>
+</tr>
+<tr>
+<td>all four + <code>feminine_ending</code></td>
+<td>2</td>
+<td>75</td>
+<td>53</td>
+</tr>
+<tr>
+<td><code>metre</code> <code>0101010101</code></td>
+<td>0</td>
+<td>77</td>
+<td>31</td>
+</tr>
+<tr>
+<td>the same, all four + <code>feminine_ending</code></td>
+<td>0</td>
+<td>77</td>
+<td>31</td>
+</tr>
+<tr>
+<td><code>metre</code> <code>010101</code></td>
+<td>1</td>
+<td>76</td>
+<td>4</td>
+</tr>
+<tr>
+<td>the same, all four + <code>feminine_ending</code></td>
+<td>1</td>
+<td>76</td>
+<td>14</td>
+</tr>
+</tbody>
+</table>
+<p>The one ballade the switches add is "Ballade of Might-Be", with all four and a feminine
+ending. Nothing is landed from this: as with Byron, a case passing only under five
+switches would be evidence about the switches. The stress count can rise with the
+switches on, because <code>feminine_ending</code> admits lines one syllable longer than the metre
+that were refused on length and are now scanned for stress. The table shows it at the
+default <code>01010101</code> (30 to 53, on nine-syllable lines) and at <code>010101</code> (4 to 14, on
+seven-syllable lines). At pentameter, where such a line has eleven syllables, the count
+stays at 31.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "navigation.sections", "content.code.copy", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

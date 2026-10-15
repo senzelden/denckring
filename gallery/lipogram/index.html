@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2550,6 +2634,61 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#bombaugh-jovial-swain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bombaugh-jovial-swain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bombaugh-fate-of-nassan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bombaugh-fate-of-nassan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#galaxy-1866-song-without-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        galaxy-1866-song-without-s
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#burmann-1796-an-gott" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        burmann-1796-an-gott
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rittler-1820-zwillinge-opening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rittler-1820-zwillinge-opening
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2592,7 +2731,7 @@
 </ul>
 <h2 id="prompt-hint">Prompt hint<a class="headerlink" href="#prompt-hint" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Write a passage that never uses the letter "e", in any case or accented form.</p>
+<p>Write a passage that never uses the letter "e", in any case. Unless a line below says otherwise, an accented form counts as the letter too.</p>
 </blockquote>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -2609,7 +2748,7 @@
 <td><code>fold_diacritics</code></td>
 <td>boolean</td>
 <td><code>True</code></td>
-<td>Treat accented letters as their base letter, and ß as ss.</td>
+<td>Whether accented letters count as their base letter, and ß as ss. False keeps each accented letter, and ß, a letter of its own.</td>
 </tr>
 <tr>
 <td><code>forbidden</code></td>
@@ -2668,6 +2807,114 @@
 </code></pre></div>
 <p>Parameters: <code>forbidden='e'</code></p>
 <p>Source: constructed counterexample</p>
+<h3 id="bombaugh-jovial-swain">bombaugh-jovial-swain<a class="headerlink" href="#bombaugh-jovial-swain" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>A jovial swain may rack his brain,
+And tax his fancy’s might,
+To quiz in vain, for ’tis most plain,
+That what I say is right.
+</code></pre></div>
+<p>Parameters: <code>forbidden='e'</code></p>
+<p>Source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature, enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), pp. 27–28 (Bombaugh 1828–1906): "The stanza subjoined is a specimen of both lipogrammatic and pangrammatic ingenuity, containing every letter of the alphabet except e." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from the Project Gutenberg text, where the page marker before the stanza's first line is 28; the page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The framing sentence is on p. 27.</p>
+<h3 id="bombaugh-fate-of-nassan">bombaugh-fate-of-nassan<a class="headerlink" href="#bombaugh-fate-of-nassan" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Bold Nassan quits his caravan,
+A hazy mountain-grot to scan;
+Climbs jaggy rocks to spy his way,
+Doth tax his sight, but far doth stray.
+
+Not work of man, nor sport of child,
+Finds Nassan in that mazy wild;
+Lax grow his joints, limbs toil in vain—
+Poor wight! why didst thou quit that plain?
+
+Vainly for succor Nassan calls.
+Know, Zillah, that thy Nassan falls:
+But prowling wolf and fox may joy
+To quarry on thy Arab boy.
+</code></pre></div>
+<p>Parameters: <code>forbidden='e'</code></p>
+<p>Source: C. C. Bombaugh, Gleanings for the Curious from the Harvest-Fields of Literature, enlarged ed. (Philadelphia: J. B. Lippincott, 1890; copyright 1874), p. 28 (Bombaugh 1828–1906): "The Fate of Nassan affords another example, each stanza containing the entire alphabet except e, and composed, as the writer says, with ease without e’s." Anonymous, printed 1890 (ADR 0062, amended 2026-10-13). Project Gutenberg #56805, https://www.gutenberg.org/files/56805/56805-h/56805-h.htm. Transcribed by script from the Project Gutenberg text, where the page marker before the framing sentence is 28; the page image (https://archive.org/details/gleaningsforcuri00bomb) was not checked. The verses only: in the Project Gutenberg text, the title "The Fate of Nassan", which has e, appears only in the framing sentence.</p>
+<h3 id="galaxy-1866-song-without-s">galaxy-1866-song-without-s<a class="headerlink" href="#galaxy-1866-song-without-s" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Oh! come to-night; for naught can charm
+The weary time when thou’rt away.
+Oh! come; the gentle moon hath thrown
+O’er bower and hall her quivering ray.
+The heather-bell hath mildly flung,
+From off her fairy leaf, the bright
+And diamond dew-drop that had hung
+Upon that leaf—a gem of light.
+Then come, love, come!
+
+To-night the liquid wave hath not—
+Illumined by the moonlit beam
+Playing upon the lake beneath,
+Like frolic in an Autumn dream—
+The liquid wave hath not, to-night,
+In all her moonlit pride, a fair
+Gift like to them that on thy lip
+Do breathe and laugh, and home it there.
+Then come, love, come!
+
+To-night! to-night! my gentle one,
+The flower-bearing Amra tree
+Doth long, with fragrant moan, to meet
+The love-lip of the honey-bee.
+But not the Amra tree can long
+To greet the bee, at evening light,
+With half the deep, fond love I long
+To meet my Nama here to-night.
+Then come, love, come!
+</code></pre></div>
+<p>Parameters: <code>forbidden='s'</code></p>
+<p>Source: Anonymous song quoted in George Wakeman, "Tormenting the Alphabet", The Galaxy (New York: W. C. &amp; F. P. Church), vol. 1, 1 July 1866, pp. 437-445, the song on p. 441. Wakeman introduces it as a "beautiful song, in which the obnoxious letter has no place", the letter being s, and names no author; on p. 438 he says many of the essay's examples "have been in print before". Anonymous, printed 1866 (ADR 0062, amended 2026-10-13); Wakeman died in 1870: the obituary "George Wakeman" in The Galaxy, May 1870 (archive.org sim_galaxy_1870-05_9_5), places his death in "the closing days of March", the year being the issue's. Archive.org sim_galaxy_1866-07-01_1, text layer https://archive.org/download/sim_galaxy_1866-07-01_1/sim_galaxy_1866-07-01_1_djvu.txt, extracted 2026-10-14 by script: the lines from "Oh! come to-night" through the third "Then come, love, come", blank lines dropped and whitespace collapsed, a space before ; ! : , closed up (the print sets a thin space there, which the OCR kept in "come ;"), and so is one after an opening quotation mark ("“ To-night"); Wakeman's quotation marks (an opening one on each stanza, a closing one at the end) dropped as his quoting rather than the song's; a blank line after each refrain but the last, where the print breaks stanzas; curly apostrophes and the em dash as the text layer has them. Checked word for word against the page image, https://archive.org/download/sim_galaxy_1866-07-01_1/page/n68.jpg. Selected: the essay's one quoted text it presents as written without s, and the checker accepts it. Fulgentius's lipogrammatic prose and the poem Jami criticised are described, not quoted. Not screened: on p. 440 the essay quotes the opening quatrain of a poem from Punch's announced "Lispings from Low Latitudes", which spells s as th ("Tho’ thplendid the Thummer thun"); the essay presents it as lisping, not as a text without s, so it is not an instance of the form (ADR 0062). It is not s-free either: "th’yines" keeps one s, in the text layer and the page image (https://archive.org/download/sim_galaxy_1866-07-01_1/page/n67.jpg), and the checker rejects it.</p>
+<h3 id="burmann-1796-an-gott">burmann-1796-an-gott<a class="headerlink" href="#burmann-1796-an-gott" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>Du bist! Du bist!
+O Du, bey Dem kein Anfang, und kein Ende ist! —
+Dich fasst kein Staubgedank, Dich fassen Engel kaum;
+Die Schöpffung schwimmt um Deinen Saum.
+
+Licht ist Dein Kleid!
+Und Lieb&#39; und Huld Dein Blick, weit wie Dein Himmel weit! —
+Vom staubigten Insekt bis zu dem Bohemoth:
+Bist Du die Allmacht, bist Du Gott.
+
+Was ist — ist Dein!
+Du winkst: und es ist Nacht, und es ist Sonnenschein;
+Den blauen Himmels-Saal hat Deine Allmachtshand
+Wie einen Teppich ausgespannt.
+
+Und Ich bin Dein!
+Und meine Seele, Die Du hauchtest, die ist Mein!
+Und Ewig soll sie sich einst Deinem Antlitz nah&#39;n,
+und seelig seyn nach Deinem Plan!
+
+Gott, welch ein Plan —
+Aus Liebe legtest Du ihn Ewig Gott schon an;
+Du wogst mein Loos Allein — Du, Dessen Maiestät
+Vom Osten bis zum Westen geht.
+
+Ich bin beglückt!
+Weil auch Dein Aug&#39; auf mich wie auf die Schöpffung blickt!
+Und wenn mein Todestag die müden Augen schliesst:
+Thut sich mein Himmel auf — Du bist! —
+</code></pre></div>
+<p>Parameters: <code>forbidden='r'</code></p>
+<p>Source: Gottlob Wilhelm Burmann, "I. An Gott", in Einige Gedichte ohne den Buchstaben R., "Neuste nochmals genau durchgesehne, und mit einigen neuen Stücken vermehrte Ausgabe" (Berlin: Georg Decker, 1796), pp. 1–2. Burmann died in 1805: Hermann Palm, "Burmann, Gottlob Wilhelm", Allgemeine Deutsche Biographie 3 (1876), pp. 627 f. ("1805 in großer Armuth starb", read on de.wikisource), and GND 117174521, which gives 5 January 1805; de.wikipedia cites Jördens, Lexikon deutscher Dichter und Prosaisten 1 (1806), pp. 273 f., which was not opened. Staatsbibliothek zu Berlin, 19 ZZ 2703, PPN663105609, http://resolver.staatsbibliothek-berlin.de/SBB0000538300000000; page images https://content.staatsbibliothek-berlin.de/dc/PPN663105609-00000021/full/max/0/default.jpg and https://content.staatsbibliothek-berlin.de/dc/PPN663105609-00000022/full/max/0/default.jpg; OCR (ALTO, tesseract deu_latf) https://content.staatsbibliothek-berlin.de/dc/PPN663105609-00000021.ocr.xml and https://content.staatsbibliothek-berlin.de/dc/PPN663105609-00000022.ocr.xml. OCR extracted 2026-10-14 by script, corrected by hand against the page images under ADR 0062's 2026-10-14 exception. The 17 corrections, OCR then print: seven dashes ("ist! ==", "weit! -", "Was ist -", "Plan =", "Allein --", "auf --", "bist! --", each an em dash in the print); six capitals the print sets lower-case ("Soll Sie Sich" for "soll sie sich", "Seelig Seyn" for "seelig seyn", "Thut Sich" for "Thut sich"); "Iist" for "ist"; a stray apostrophe before "Thut"; "kaum" for "kaum;"; and "e legtest" for "Aus Liebe legtest". Normalisation, by script: long s (ſ) to s, the checker's own reading of it; the poem number, title, page header and the printer's signature A dropped; a space before ; : ! , . closed up (the print sets one); "Himmels - Saal" closed up to "Himmels-Saal"; the two turnover lines joined to their verse lines, "Schöpf-fung" without the line-break hyphen; a blank line between the print's six quatrains; apostrophes straight, as the text layer has them, where the print has ’. The print's umlauts are ä, ö, ü, kept. Read on both page images, the poem has no r or R. Selected: the book's first poem, and the only one corrected. The preface (p. XII) says "Die fünf oder sechs R, die man auch in dieser Auflage finden wird, befinden sich in Nahmen"; the OCR of the other poem pages has r-tokens on 18 pages, among them the name Hertefeld (scans 66-67), a Latin Horace motto (scan 69) and misreadings such as Sollr' and Gartin, none checked against the images.</p>
+<h3 id="rittler-1820-zwillinge-opening">rittler-1820-zwillinge-opening<a class="headerlink" href="#rittler-1820-zwillinge-opening" title="Permanent link">&para;</a></h3>
+<p><em>de</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>An einem schönen Juni-Abende saß Valentin Ewald, Schultheiß zu Buchenthal — ein Mann, dessen Andenken heut noch unzählige Menschen segnen — auf dem Bänkchen an seinem Hause, das zwei eben blühende Linden beschatteten, und schmauchte genügsam sein Pfeifchen.
+
+Bald fanden sich auch heut einige um ihn wohnende gute Bekannte ein, die mit dem Schultheiß gewöhnlich in diesen Stunden von häuslichen und ökonomischen Angelegenheiten zu schwatzen pflegten, in welchem Fache Ewald die ausgedehntesten Kenntnisse besaß, und dieselben Jedem wohlwollend mittheilte, indeß sich um sein gutes Weib, die Mädchen und Gattinnen des Fleckens aus ähnlichen Absichten sammelten.
+
+Sie hatten dieß Mahl noch nicht lange beisammen gesessen, als ein Wagen, von zehn bis zwölf Soldaten begleitet, ankam, auf dem sich ein an Händen und Füßen gefesseltes Weib, in Gesellschaft eines noch kleinen Knaben befand. — Man hielt an Ewalds Hause.
+
+Um noch nach Lilienstein — dem Städtchen, in welchem das Justiz-Amt seinen Sitz hatte — zu gelangen, sagten die Soldaten, sey es schon zu spät, die Nacht auch keinem Menschen hold, deßhalb wollten sie in diesem Flecken bleiben, und bäthen den Schultheiß, den Gefangenen ein festes Behältniß im Stockhause bis zum kommenden Tage anzuweisen.
+</code></pre></div>
+<p>Parameters: <code>forbidden='r'</code></p>
+<p>Source: Franz Rittler, Die Zwillinge. Ein Versuch aus sechszig aufgegebenen Worten einen Roman ohne R zu schreiben, 3rd ed. (Wien: Franz Härter, 1820), pp. 17-18, the first four paragraphs of the story. Rittler was born in 1782 (GND 13035371X, 1782-1837); his death year is not settled: GND gives 1837, de.wikipedia "nach 1837" and lists a calendar of 1847, and Wurzbach, Biographisches Lexikon des Kaiserthums Oesterreich 26 (1874), p. 200, "gest. zu Simmering bei Wien im Mai 1830?", which pp. 201-202 doubt. No source puts it later than 1847, and he was born in 1782, so the death-year half of the cutoff (ADR 0062) holds whichever year is right. The book says "NB. Die Weglassung des R beginnt erst mit dem Anfange der Geschichte"; the story begins on p. 17. ÖNB 44.D.40 ALT PRUNK, digitised by Google, https://viewer.onb.ac.at/106CFAF7/ (IIIF manifest https://api.onb.ac.at/iiif/presentation/v3/manifest/106CFAF7); page images https://api.onb.ac.at/iiif/image/v3/106CFAF7/uk4nGb4kRHQPvrdX/full/max/0/default.jpg and https://api.onb.ac.at/iiif/image/v3/106CFAF7/uk4nGb4kRHWwTgmo/full/max/0/default.jpg; OCR https://api.onb.ac.at/rest/v1/ie/106CFAF7/file/51o5gooMYeBQG9mW4j?format=text and https://api.onb.ac.at/rest/v1/ie/106CFAF7/file/51o5gooMYeBu9KqzbM?format=text. OCR extracted 2026-10-14 by script, corrected by hand against the page images under ADR 0062's 2026-10-14 exception. The corrections, OCR then print, p. 17: "Juni- Abende" for "Juni=Abende"; "Shultheiß" for "Schultheiß"; "Buchenthal-" for "Buchenthal —"; "beut" twice for "heut"; "Tegnen-" for "ſegnen —"; "Hauſer" for "Hauſe,"; "idmauchte" for "ſchmauchte"; "Sculto / beiß" for "Schult= / heiß"; "häusli:-" for "häusli="; "ſchwa: / Ben" for "ſchwa= / tzen"; "aus:" and "Je:" for "aus=" and "Je="; "befaß" for "beſaß"; "Gattinnent" for "Gattinnen". P. 18: "befand.-" for "befand. —"; "bielt" for "hielt"; "nodh" for "noch"; "Lilienſtein—" spaced as "Lilienſtein —"; "Juſtiz- Amt" for "Juſtiz=Amt"; "Siß" for "Sitz"; "hatte–" for "hatte —"; "fu" for "zu"; "fagten" for "ſagten"; "ſen" for "ſey"; "wolten" for "wollten"; "Stoch a uſe" for the letterspaced "Stockhauſe". The uncorrected OCR has four r's the print lacks ("Hauſer" here, and in the rest of p. 18 "ro", "bard", "Gar-"). Normalisation, by script: long s (ſ) to s, the checker's own reading of it; the print's double hyphen (=) as - inside a word, and dropped with the line break at a line end, the halves joined; the virgule and the comma both as a comma, as the text layer has them; each dash an em dash with a space either side; the section heading (five of the sixty set words) and the page header dropped; lines joined into paragraphs, a blank line between. ß and the tz ligature as ß and tz; the print's umlauts are ä, ö, ü, kept. Read on both page images, the passage has no r or R. Selected: the opening of the story, where the book says the omission begins, up to the last paragraph that ends on p. 18; it is the only passage corrected.</p>
 
 
 

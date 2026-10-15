@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2506,6 +2590,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#milton-sonnet-xvi-when-i-consider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        milton-sonnet-xvi-when-i-consider
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2563,10 +2658,40 @@
 </thead>
 <tbody>
 <tr>
+<td><code>diaeresis</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a glide the dictionary runs into the next vowel may be sounded as an unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). English only. Off, a word has the dictionary's syllables.</td>
+</tr>
+<tr>
+<td><code>feminine_ending</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
+</tr>
+<tr>
+<td><code>initial_inversion</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may open on a reversed foot, its first two syllables in the other order ('Either the' opening an iambic line). Off, they must scan as the metre gives them.</td>
+</tr>
+<tr>
+<td><code>secondary_stress</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether an unstressed syllable of a word of three or more, not next to its main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. Off, a word scans only as the pronouncing dictionary stresses it.</td>
+</tr>
+<tr>
+<td><code>stress_shift</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a closed list of two-syllable prepositions and adverbs ('without', 'upon', 'into') may be stressed on either syllable. English only. Off, they take the dictionary's stress.</td>
+</tr>
+<tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
 <td><code>undecidable</code></td>
-<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict).</td>
+<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict). A word repeated as its own rhyme is identical_rhyme under every setting of this parameter, unless the row's allow_identical is set.</td>
 </tr>
 </tbody>
 </table>
@@ -2635,6 +2760,25 @@ der Bote kommt, doch bringt er Botschaft nicht
 die Sonne sinkt und lässt den Himmel rein
 </code></pre></div>
 <p>Source: constructed example</p>
+<h3 id="milton-sonnet-xvi-when-i-consider">milton-sonnet-xvi-when-i-consider<a class="headerlink" href="#milton-sonnet-xvi-when-i-consider" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>When I consider how my light is spent,
+E&#39;re half my days, in this dark world and wide,
+And that one Talent which is death to hide,
+Lodg&#39;d with me useless, though my Soul more bent
+To serve therewith my Maker, and present
+My true account, least he returning chide,
+Doth God exact day-labour, light deny&#39;d,
+I fondly ask; But patience to prevent
+That murmur, soon replies, God doth not need
+Either man&#39;s work or his own gifts, who best
+Bear his milde yoak, they serve him best, his State
+Is Kingly.  Thousands at his bidding speed
+And post o&#39;re Land and Ocean without rest:
+They also serve who only stand and waite.
+</code></pre></div>
+<p>Parameters: <code>initial_inversion=True</code>, <code>stress_shift=True</code></p>
+<p>Source: John Milton, Sonnet XVI ("When I consider how my light is spent"), one of the poems added in the 1673 edition, from The Poetical Works of John Milton, ed. H. C. Beeching (Oxford; preface dated 8 November 1899), which prints them in their original spelling. Project Gutenberg ebook #1745, https://www.gutenberg.org/cache/epub/1745/pg1745.txt, extracted 2026-10-14 by script; the editor's line number and the indentation are removed. Milton died 1674, Beeching 1919. Checked with initial_inversion and stress_shift (ADR 0065): line 10 opens on a reversed foot ("Either"), and line 13 stresses "without" on its first syllable. Selected: the checker rejects all 97 fourteen-line blocks of this edition and of Wordsworth's Poems in Two Volumes (1807; ebooks #8774 and #8824) by default, and all 97 with any one switch alone; with initial_inversion and stress_shift together, or with all four, it rejects 96, and this sonnet is the one it admits. "Cyriack, whose Grandsire" still fails on "superfluous", which the dictionary stresses on its first syllable and no switch moves.</p>
 
 
 

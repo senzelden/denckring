@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2583,16 +2667,40 @@
 </thead>
 <tbody>
 <tr>
+<td><code>diaeresis</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a glide the dictionary runs into the next vowel may be sounded as an unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). English only. Off, a word has the dictionary's syllables.</td>
+</tr>
+<tr>
 <td><code>feminine_ending</code></td>
 <td>boolean</td>
 <td><code>False</code></td>
 <td>Whether a line may close on one extra unstressed syllable (a feminine or klingende ending) as well as on the bare metre.</td>
 </tr>
 <tr>
+<td><code>initial_inversion</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a line may open on a reversed foot, its first two syllables in the other order ('Either the' opening an iambic line). Off, they must scan as the metre gives them.</td>
+</tr>
+<tr>
+<td><code>secondary_stress</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether an unstressed syllable of a word of three or more, not next to its main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. Off, a word scans only as the pronouncing dictionary stresses it.</td>
+</tr>
+<tr>
+<td><code>stress_shift</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Whether a closed list of two-syllable prepositions and adverbs ('without', 'upon', 'into') may be stressed on either syllable. English only. Off, they take the dictionary's stress.</td>
+</tr>
+<tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
 <td><code>undecidable</code></td>
-<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict).</td>
+<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict). A word repeated as its own rhyme is identical_rhyme under every setting of this parameter, unless the row's allow_identical is set.</td>
 </tr>
 </tbody>
 </table>

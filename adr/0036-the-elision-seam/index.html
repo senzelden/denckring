@@ -2416,6 +2416,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2640,6 +2724,16 @@ orthographic fact in the language. This caller does not need the try-whole-first
 either, for a different reason than <code>noun_index</code>'s: it only ever compares one split
 segment against another split the same way, so even a genuine apostrophe-word compared
 with itself still comes out correctly identical.</p>
+<p><strong>Correction, 2026-10-14.</strong> The premise above, "no English or German word carries an
+apostrophe", is false. English verse elides inside a word (<code>dimm'd</code>, <code>ow'st</code>), and
+splitting there leaves only the ending, so <code>dimm'd</code> and <code>vntrim'd</code> compare as the same
+word <code>d</code>. The safety argument covers a word compared with itself, not two words that
+share a tail. It cost nothing in 0.5.0 only because <code>identical_rhyme</code> was never reached
+for a word without a rhyme key, and the English contractions probed (<code>dimm'd</code>,
+<code>vntrim'd</code>, <code>o'er</code>, <code>e'er</code>, <code>we've</code>, <code>I've</code>) have none. Once identity was decided before
+the dictionary (CHANGELOG <code>[Unreleased]</code>, Lear's "Ryde"), <code>identical_rhyme</code> reads past an
+elision in French only. <code>n_plus_7</code> still splits in every language; that cost is
+unmeasured.</p>
 <p><strong>Also fixed the same day: <code>kangaroo_word</code>'s own lookup, a different root cause under the
 same MCP sweep finding.</strong> <code>synonym: "école"</code> failed <code>not_a_word</code> under default
 <code>fold_diacritics</code>, because <code>is_word</code> is not fold-aware — French keeps its accents on

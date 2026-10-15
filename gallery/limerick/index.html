@@ -2319,6 +2319,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2485,6 +2569,50 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#lear-ryde" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lear-ryde
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lear-beard-identical-allowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lear-beard-identical-allowed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lear-kilkenny" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lear-kilkenny
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lear-troy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lear-troy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#distinct-rhymes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2586,10 +2714,16 @@
 </thead>
 <tbody>
 <tr>
+<td><code>allow_identical</code></td>
+<td>boolean</td>
+<td><code>False</code></td>
+<td>Permit a word to rhyme with itself, as Lear's limericks do; False reports a repeated end word as identical_rhyme.</td>
+</tr>
+<tr>
 <td><code>unknown_rhyme</code></td>
 <td>string</td>
 <td><code>undecidable</code></td>
-<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict).</td>
+<td>What a line ending absent from the pronouncing dictionary means: leave the pair unscored (undecidable), let it satisfy the scheme (free), or fail it (strict). A word repeated as its own rhyme is identical_rhyme under every setting of this parameter, unless the row's allow_identical is set.</td>
 </tr>
 </tbody>
 </table>
@@ -2602,7 +2736,46 @@ Two Owls and a Hen,
 Four Larks and a Wren,
 Have all built their nests in my beard!&quot;
 </code></pre></div>
-<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 1; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-12 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Rejected: <code>identical_rhyme</code>. Lear ends the first and last lines on the same word, 'beard', which strict practice counts a fault.</p>
+<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 1; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-12 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Rejected: <code>identical_rhyme</code>. Lear ends the first and last lines on the same word, 'beard', which strict practice counts a fault. Selected: of the 112 numbered limericks in this file, the checker rejects 109, 107 of them for <code>identical_rhyme</code> (measured 2026-10-14); 99 of the 112 end the last line on the first line's word. With <code>allow_identical</code> on it rejects 32, all for a line pair that does not rhyme (measured 2026-10-15).</p>
+<h3 id="lear-ryde">lear-ryde<a class="headerlink" href="#lear-ryde" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>does not satisfy</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>There was a Young Lady of Ryde,
+Whose shoe-strings were seldom untied;
+She purchased some clogs,
+And some small spotty dogs,
+And frequently walked about Ryde.
+</code></pre></div>
+<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 2; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-14 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Rejected: <code>identical_rhyme</code>. Lear ends the first and last lines on the same word, 'Ryde', which strict practice counts a fault; the pronouncing dictionary does not carry the place name, so the repeat is judged by spelling. Selected: of the 112 numbered limericks in this file, the checker rejects 109, 107 of them for <code>identical_rhyme</code> (measured 2026-10-14); 99 of the 112 end the last line on the first line's word. With <code>allow_identical</code> on it rejects 32, all for a line pair that does not rhyme (measured 2026-10-15).</p>
+<h3 id="lear-beard-identical-allowed">lear-beard-identical-allowed<a class="headerlink" href="#lear-beard-identical-allowed" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>There was an Old Man with a beard,
+Who said, &quot;It is just as I feared!--
+Two Owls and a Hen,
+Four Larks and a Wren,
+Have all built their nests in my beard!&quot;
+</code></pre></div>
+<p>Parameters: <code>allow_identical=True</code></p>
+<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 1; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Passes only with <code>allow_identical</code>: Lear ends the first and last lines on the same word, 'beard', which the default reports as <code>identical_rhyme</code>. Selected: of the 112 numbered limericks in this file, the checker rejects 109 by default and 32 with <code>allow_identical</code> on, all 32 for <code>does_not_rhyme</code> (measured 2026-10-15); this case is one of the 80 that pass with the switch. Same text as <code>lear-beard</code>, landed as the switch-on half of an off/on pair. One text is therefore counted twice: this is a second external case of it in the external-case total and in limerick's external floor.</p>
+<h3 id="lear-kilkenny">lear-kilkenny<a class="headerlink" href="#lear-kilkenny" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>There was an Old Man of Kilkenny,
+Who never had more than a penny;
+He spent all that money,
+In onions and honey,
+That wayward Old Man of Kilkenny.
+</code></pre></div>
+<p>Parameters: <code>allow_identical=True</code></p>
+<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 13; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Passes only with <code>allow_identical</code>: Lear ends the first and last lines on the same word, 'Kilkenny', which the default reports as <code>identical_rhyme</code>. Selected: of the 112 numbered limericks in this file, the checker rejects 109 by default and 32 with <code>allow_identical</code> on, all 32 for <code>does_not_rhyme</code> (measured 2026-10-15); this case is one of the 80 that pass with the switch.</p>
+<h3 id="lear-troy">lear-troy<a class="headerlink" href="#lear-troy" title="Permanent link">&para;</a></h3>
+<p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
+<div class="highlight"><pre><span></span><code>There was a Young Lady of Troy,
+Whom several large flies did annoy;
+Some she killed with a thump,
+Some she drowned at the pump,
+And some she took with her to Troy.
+</code></pre></div>
+<p>Parameters: <code>allow_identical=True</code></p>
+<p>Source: Edward Lear (d. 1888), The Book of Nonsense, limerick 88; Project Gutenberg ebook #982, https://www.gutenberg.org/cache/epub/982/pg982.txt, extracted by script 2026-10-15 (the file names no edition or year; Lear first published A Book of Nonsense in 1846). Passes only with <code>allow_identical</code>: Lear ends the first and last lines on the same word, 'Troy', which the default reports as <code>identical_rhyme</code>. Selected: of the 112 numbered limericks in this file, the checker rejects 109 by default and 32 with <code>allow_identical</code> on, all 32 for <code>does_not_rhyme</code> (measured 2026-10-15); this case is one of the 80 that pass with the switch.</p>
 <h3 id="distinct-rhymes">distinct-rhymes<a class="headerlink" href="#distinct-rhymes" title="Permanent link">&para;</a></h3>
 <p><em>en</em> — this text <strong>satisfies</strong> the procedure.</p>
 <div class="highlight"><pre><span></span><code>there was an old man with a beard

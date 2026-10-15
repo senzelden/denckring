@@ -2405,6 +2405,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0063-letter-rules-claim-german/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    63. Letter rules may claim German
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0064-chronogram-capitals-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    64. Chronograms read off their capitals, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0065-metrical-licences-opt-in/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    65. Metrical licences, one switch each, opt-in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2594,6 +2678,17 @@ A word with no primary stress keys from its last vowel (<code>the</code> keys <c
 and in German. For German, it also says the first transcription only. For French, it says the last vowel,
 one transcription per spelling. <code>tests/test_rhyme_variants.py</code> holds each sentence to
 its pack.</p>
+<p><strong>Correction, 2026-10-14.</strong> The English key did not fully keep that promise. It began
+at the right vowel but kept the stress digit of every vowel after it, so <code>willow</code>
+(<code>IH1 L OW2</code>) and <code>pillow</code> (<code>IH1 L OW0</code>) did not rhyme, on a secondary stress no reader
+hears at a line's end. From 0.6.0 the key reads a later <code>2</code> as <code>0</code>, and the rhyme vowel
+keeps its own digit. <code>someday</code> is now keyed <code>AH1 M D EY0</code> and still does not rhyme with
+<code>day</code>. The Context's <code>AH1 M D EY2</code> above is its key before 0.6.0. Of CMUdict's 117,493
+alphabetic headwords, 18,289 have a key that changes. German and French keys carry no
+stress digit and do not change. No golden verdict moves. The cost falls on the other
+direction: a pair kept apart only by that digit now
+fails <code>unwanted_rhyme</code>, so <code>blank_verse</code> rejects lines ending on <code>willow</code> and
+<code>pillow</code>.</p>
 <p><strong>German stress and rhyme read the first transcription only</strong> (ruling R-U9b). The
 ruling asked first whether the German data marks which transcriptions belong to
 inflected forms. The source does. Wiktionary's <code>du</code> page writes
