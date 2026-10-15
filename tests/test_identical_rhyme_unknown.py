@@ -57,6 +57,28 @@ def test_lears_ryde_limerick_fails_on_its_repeated_word(reading: UnknownRhyme) -
     assert [v.found for v in identical] == ["Ryde"]
 
 
+# Lear's own ending: line 5 closes on line 1's word, which the dictionary carries.
+BEARD = """There was an Old Man with a beard,
+Who said, 'It is just as I feared!
+Two Owls and a Hen,
+Four Larks and a Wren,
+Have all built their nests in my beard!'"""
+
+
+def test_limerick_allow_identical_admits_lears_repeated_ending() -> None:
+    """Off, the repeat is `identical_rhyme`; on, the same text satisfies."""
+    off = check("limerick", BEARD)
+    assert "identical_rhyme" in {v.rule for v in off.violations}
+    on = check("limerick", BEARD, allow_identical=True)
+    assert on.satisfied, on.violations
+
+
+def test_limerick_allow_identical_does_not_excuse_a_missing_rhyme() -> None:
+    text = BEARD.replace("feared", "said")
+    report = check("limerick", text, allow_identical=True)
+    assert "does_not_rhyme" in {v.rule for v in report.violations}
+
+
 def test_allow_identical_still_leaves_an_unknown_pair_to_the_reading() -> None:
     """The fix reaches only the identity test: a permitted repeat of an unknown
     word is still a pair the dictionary cannot decide."""
