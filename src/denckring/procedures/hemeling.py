@@ -58,6 +58,7 @@ class Hemeling(BaseProcedure[HemelingParams]):
     """
 
     id = "hemeling"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "empty_anagram",

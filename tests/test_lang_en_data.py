@@ -115,3 +115,66 @@ def test_a_graded_word_the_oracle_refuses_is_outside_the_oracles_sources() -> No
     refused = [word for word in en_data.graded_words() if not pack.is_word(word)]
     assert refused, "the graded list no longer extends past the oracle; revisit the docs"
     assert [word for word in refused if word in sources] == []
+
+
+#: CMUdict's 39 phones. A vowel carries a stress digit, a consonant none.
+_ARPABET_VOWELS = frozenset(
+    ["AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OY", "UH", "UW"]
+)
+_ARPABET_CONSONANTS = frozenset(
+    [
+        "B",
+        "CH",
+        "D",
+        "DH",
+        "F",
+        "G",
+        "HH",
+        "JH",
+        "K",
+        "L",
+        "M",
+        "N",
+        "NG",
+        "P",
+        "R",
+        "S",
+        "SH",
+        "T",
+        "TH",
+        "V",
+        "W",
+        "Y",
+        "Z",
+        "ZH",
+    ]
+)
+
+
+def _is_phone(token: str) -> bool:
+    if token[-1:] in ("0", "1", "2"):
+        return token[:-1] in _ARPABET_VOWELS
+    return token in _ARPABET_CONSONANTS
+
+
+def test_every_pronunciation_is_phones_and_nothing_else() -> None:
+    """CMUdict ends 22 lines with a comment (`aalto AA1 L T OW2 # name, finnish`).
+
+    The loader used to keep it as three more phones, so `aalto` keyed a rhyme on
+    `# name, finnish` and `hiv`'s phonemes ended `# abbrev`.
+    """
+    stray = {
+        word: form
+        for word, forms in en_data.variants().items()
+        for form in forms
+        if not all(_is_phone(token) for token in form)
+    }
+    assert not stray, sorted(stray.items())[:5]
+
+
+def test_a_commented_entry_reads_as_its_phones() -> None:
+    pack = en_data.pack()
+    assert pack.phonemes("hiv") == ["EY1", "CH", "AY1", "V", "IY1"]
+    assert pack.rhyme_keys("aalto") == ["AA1 L T OW0"]
+    # `fine(2)` is the commented one; the first reading is untouched.
+    assert pack.rhyme_keys("fine") == ["AY1 N", "IH1 N AH0"]

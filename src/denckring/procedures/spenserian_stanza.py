@@ -7,7 +7,7 @@ whose single `metre=` string cannot say "all but the last".
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, MetreParams, RhymeParams
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
 from denckring.core.prosody import repeat_to, scheme_violations, stanza_violations, with_feminine
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
@@ -29,7 +29,7 @@ def patterns(feminine_ending: bool) -> list[list[str]]:
     ]
 
 
-class SpenserianStanzaParams(RhymeParams, MetreParams):
+class SpenserianStanzaParams(RhymeParams, ScansionParams):
     pass
 
 
@@ -38,6 +38,7 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
     """Nine lines, the ninth one foot longer than the rest."""
 
     id = "spenserian_stanza"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",
@@ -54,7 +55,9 @@ class SpenserianStanza(BaseProcedure[SpenserianStanzaParams]):
         return SpenserianStanzaParams
 
     def _check(self, text: str, pack: LanguagePack, params: SpenserianStanzaParams) -> Report:
-        metre = stanza_violations(text, pack, patterns(params.feminine_ending))
+        metre = stanza_violations(
+            text, pack, patterns(params.feminine_ending), licences=params.licences()
+        )
         # `stanza_violations` and `scheme_violations` each short-circuit on a
         # wrong line count, independently, so running both on a text of the wrong
         # length reported the same fault twice — one text, one length, two

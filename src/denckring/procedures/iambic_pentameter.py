@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, ScansionParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
 
 
-class IambicPentameterParams(BaseModel):
+class IambicPentameterParams(ScansionParams):
     pass
 
 
@@ -19,6 +17,8 @@ class IambicPentameter(BaseProcedure[IambicPentameterParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "iambic_pentameter"
+
+    checker_version = 2
     rules = ("wrong_line_length", "wrong_stress")
     local_scope = "line"
 
@@ -31,6 +31,8 @@ class IambicPentameter(BaseProcedure[IambicPentameterParams]):
             text,
             pack,
             metre="01" * 5,
+            feminine_ending=params.feminine_ending,
+            licences=params.licences(),
         )
 
         return self._report(

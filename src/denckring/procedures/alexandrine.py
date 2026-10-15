@@ -19,6 +19,8 @@ class Alexandrine(BaseProcedure[AlexandrineParams]):
     """Checks the syllable measure only, not the caesura or the stress pattern."""
 
     id = "alexandrine"
+
+    checker_version = 2
     rules = ("wrong_syllable_count",)
     local_scope = "line"
 

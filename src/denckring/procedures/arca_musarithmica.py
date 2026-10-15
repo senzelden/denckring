@@ -58,6 +58,8 @@ class ArcaMusarithmica(ConstructiveProcedure[ArcaMusarithmicaParams, ArcaMusarit
     """
 
     id = "arca_musarithmica"
+
+    checker_version = 2
     rules = (
         "no_tablet_for_length",
         "pattern_not_on_the_tablet",

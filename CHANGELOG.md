@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-15
+
 ### Changed
 
 - **Every letter rule now declares German** (ADR 0063, partly superseding ADR 0047). A
@@ -26,20 +28,35 @@ All notable changes to this project are documented here. The format follows
   The amendment admits its cost: an anonymous text's real author could have lived past
   1955, which for a text printed near 1930 is ordinary, and the EU term ends if the
   author becomes known.
-- **The external share of the golden corpus rises from 14.5% (102 of 704) to 16.0% (118
-  of 739)**, and ADR 0062's floors are raised to the measured values:
-  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.159 and `EXTERNAL_FLOOR` from 102 to 118. ADR
-  0063's eighteen constructed German cases alone would have lowered the share to 14.1%;
-  ADR 0063 records that as the cost of its decision. `status` and `eval` now report `66
-  rows externally evidenced · 67 explained · 0 unexplained`.
+- **The external share of the golden corpus rises from 14.5% (102 of 704) to 17.4% (131
+  of 752)**, and ADR 0062's floors are raised to the measured values:
+  `EXTERNAL_SHARE_FLOOR` from 0.144 to 0.174 and `EXTERNAL_FLOOR` from 102 to 131. The
+  entries below each name the cases they add. ADR 0063's eighteen constructed German
+  cases alone would have lowered the share to 14.1%; ADR 0063 records that as the cost
+  of its decision. `eval --all` reports `133 procedures · 752 passed · 0 failed`, and
+  `status` and `eval` report `68 rows externally evidenced · 65 explained · 0
+  unexplained`.
 - **The evidence-gap notes report research batch 4.** 25 entries said "batch 4 brief
   pending". `telestich`, `double_acrostic` and `pangrammatic_lipogram` leave the registry
   with Bombaugh cases, and the other 22 now say what batch 4 found or that it did not
   search them: no English instance in Bombaugh's pp. 25–64 for `bivocalic`, `letter_bank`
-  and `serial_lipogram`, and leads located but not read for `consonantal_lipogram`
-  (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820). `lipogram` is no
+  and `serial_lipogram`, and leads located for `consonantal_lipogram`
+  (Wakeman, 1866; Burmann, 1788 and 1796; Rittler, 1815 and 1820; read on 2026-10-14,
+  see the `lipogram` entry below). `lipogram` is no
   longer evidenced only through a grandfathered case, so ADR 0062's list of such rows
   drops from six to five.
+- **`alcaic_stanza`'s English definition says the row reads alcaics accentually.** It
+  called the stanza "quantitative", which the checker has never scanned: it reads
+  stress, as the row's `notes` already said. The definition, shown by `describe()`, now
+  says stressed syllables stand where the classical stanza has long ones, so a
+  quantitative imitation such as Tennyson's "Milton" falls outside it. The maintainer
+  ruled this on 2026-10-14, and the row's evidence-gap note records the ruling in place
+  of "pending a maintainer ruling". No verdict moves, so no `checker_version` bump.
+- **ADR 0062 records the ruling on its grandfathered cases.** On 2026-10-14 the
+  maintainer ruled that the post-cutoff cases stay and `cut_up`, `eodermdrome`,
+  `snowball`, `reverse_snowball` and `calculator_word` remain externally evidenced. The
+  ADR states the cost: on those rows the claim rests on short post-cutoff quotations,
+  weaker than the policy requires of a new case.
 - **A prompt hint under `fold_diacritics = False` no longer contradicts itself.** The
   shared `fold_diacritics` description, published in every row's `params_schema` and
   `describe()` (40 rows; `calculator_word` has its own), read "Treat accented letters as their base letter", and
@@ -93,6 +110,184 @@ All notable changes to this project are documented here. The format follows
   Nassan" also passes alone, as he claims. `pangrammatic_lipogram` leaves the gap
   registry. All but Holland's are anonymous, and land under the ADR 0062 amendment above.
   The golden corpus goes from 724 cases to 739, 118 of them external.
+- **`ottava_rima` takes `feminine_ending`**, off by default, as `sonnet`, `blank_verse`,
+  `rhyme_royal` and `spenserian_stanza` already do: set, a line may close on one extra
+  unstressed syllable. The parameter needs no `checker_version` bump of its own: in 0.5.0 any call passing it was
+  refused as an unknown parameter, and no existing probe of the verdict fingerprint
+  moved. Re-measured on Don Juan, Canto I, as Coleridge's edition (1903, Project
+  Gutenberg #18762) prints it, the checker rejects 219 of the 222 stanzas by default,
+  196 of them with an eleven-syllable line, and 217 with the switch, 185 of those on
+  stress and 148 on rhyme. Across the rejected stanzas `wrong_line_length` falls from
+  209 to 120 and `wrong_stress` rises from 129 to 185, because lines refused on length
+  are now scanned. Two stanzas pass only with the switch. CXXXVIII, whose five
+  feminine endings are what the switch is for, lands as an external case checked with
+  it. LXXV does not: it passes because its last line reads "being" as two syllables
+  where Byron elides it, and the switch takes the extra syllable for a feminine close.
+  The 0.5.0 entry's "215 of the 219 stanzas" came from a screen that
+  was not recorded. A script taking every numbered stanza between the canto's heading
+  and the next finds 222, and 0.5.0's checker passes the same three of them, so the
+  old figure reflects a different extraction, not a verdict that moved. One external case is
+  added.
+- **`ballade` takes `metre`**, the stress pattern every line is scanned against, with
+  the name and meaning `sonnet` gives it: its length is the syllable count. The default,
+  `01010101`, is the iambic tetrameter the row always scanned; `0101010101` asks for
+  pentameter; unset (`null`), no line is scanned for length or stress and only the line
+  count, rhyme scheme and refrain are checked. A value that is not a string of 0s and 1s is refused.
+  The `prompt_hint` template now states the pattern set (`each in the stress pattern
+  {metre}`) instead of always asking for "iambic tetrameter, eight syllables"; under
+  `metre = null` it is refused with `UnsetHintParameter`, since there is no line to ask
+  for. The parameter needs no `checker_version` bump of its own: in 0.5.0 any call passing `metre` was refused as an
+  unknown parameter, and no existing probe of the verdict fingerprint moved. Re-measured
+  on Gleeson White's *Ballades and Rondeaus* (1887, Project Gutenberg #45736), screened
+  by this rule: between PG's START and END lines, a title is a line in column 0 with an
+  ASCII capital and no lower-case letter, and starts a poem; a blank line ends a stanza;
+  a line indented 12 or more spaces (envoy heading, signature, centred dedication), any
+  other non-blank line in column 0, and a line beginning `~` (a Greek epigraph) are
+  dropped without ending a stanza; every other line is verse; a poem whose verse falls
+  in stanzas of exactly 8, 8, 8 and 4 lines is screened. That selects 77, and the
+  checker rejects 76 of them at the default, 77 at pentameter, 76 at trimeter
+  (`010101`) and 61 with `metre` unset, all 61 on rhyme or refrain. The gap note's "all
+  67 ballades of 28 lines" came from a screen that was not recorded; the count reflects
+  a different extraction. Four land as external cases, each checked word for word against
+  the page image of the 1887 printing: Tomson's "Ballade of Asphodel" at the default
+  (its "too wel" is the print's), Adams's "Where Are the Pipes of Pan?" with `metre`
+  `010101`, and Matthews's "The Ballade of Tobacco" and Sherman's "Ballade of Rhyme"
+  with `metre` unset. `ballade` leaves the gap registry, with four external cases.
+- **`lipogram` gains the Galaxy's song without s**: the anonymous song George Wakeman
+  quotes in "Tormenting the Alphabet", *The Galaxy*, 1 July 1866, p. 441 (anonymous,
+  printed 1866, under ADR 0062's 2026-10-13 amendment). It is extracted by script from
+  archive.org's text layer (`sim_galaxy_1866-07-01_1`) and checked word for word against
+  the page image; the case's `source` states the normalisation. Batch 4 had filed it as
+  a lead for `consonantal_lipogram`, but that row's form bans a group of letters and the
+  song bans one, so it evidences `lipogram` and `consonantal_lipogram` stays in the gap
+  registry. Every batch-4 lead for that row bans a single letter, and its note now says
+  so and records where the German R-lipograms were sought: Burmann's *Gedichte ohne den
+  Buchstaben R.* (1788) is scanned without a text layer, the OCR of his 1796 edition and
+  of Rittler's *Die Zwillinge* (3rd ed., 1820) disagrees with the print too often to use
+  without retyping (both later landed under an exception, below), and no scan of
+  Rittler's 1815 edition was found (Google Books and MDZ were not searched). One
+  external case is added, and no row changes standing.
+- **Four metrical licences, each its own switch and off by default** (ADR 0065):
+  `initial_inversion` (a line may open on a reversed foot), `secondary_stress` (an
+  unstressed syllable of a word of three or more, not next to its main stress, may take
+  a beat: `disapproves` as `101`), `stress_shift` (a closed list of 25 two-syllable
+  prepositions and adverbs, `without` and `upon` among them, may be stressed on either
+  syllable) and `diaeresis` (a glide the dictionary runs into the next vowel may be
+  sounded as a syllable: `ambrosial` as four). Every row that scans an iambic or
+  trochaic line takes them: `ballade`, `blank_verse`, `curtal_sonnet`, `heroic_couplet`,
+  `iambic_pentameter`, `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`,
+  `shakespearean_sonnet`, `sonnet` and `spenserian_stanza` on a new `ScansionParams`,
+  and `trochaic_tetrameter` alone on `LicenceParams`, where `initial_inversion` reads the
+  first foot as an iamb. `ballade`, `heroic_couplet`, `iambic_pentameter` and
+  `petrarchan_sonnet` also gain `feminine_ending`, which they lacked. `alexandrine`
+  counts syllables without scanning stress, and the five rows that scan classical or
+  dactylic patterns (`alcaic_stanza`, `dactylic_hexameter`, `double_dactyl`,
+  `elegiac_couplet`, `sapphic_stanza`) do not take them. The last three switches read
+  CMUdict or English spelling and admit nothing in another language.
+  The scan tries them only when the dictionary's readings fit nothing, and a word read
+  through one names it in its evidence (`10 (stress_shift)`). No `checker_version`
+  bump: 0.5.0 refused each as an unknown parameter, and no existing fingerprint probe
+  moved. The ADR measures the cost: on Paradise Lost, all four on let 1,614 more lines
+  scan, and the same lines with their words shuffled 1,286 more.
+- **`petrarchan_sonnet`'s first external case**: Milton's Sonnet XVI, "When I consider
+  how my light is spent", from Beeching's edition (Project Gutenberg #1745), extracted by
+  script and checked with `initial_inversion` and `stress_shift`. Re-screened against
+  the 97 fourteen-line blocks of that edition and of Wordsworth's *Poems in Two Volumes*
+  (1807), the checker admits none by default or with any one switch, and this one with
+  those two or with all four. "Cyriack, whose Grandsire" still fails: CMUdict stresses
+  `superfluous` on its first syllable, and no switch moves a primary stress.
+  `petrarchan_sonnet` leaves the gap registry, and ADR 0062's tally no longer has a row
+  pending a maintainer ruling.
+- **`limerick` takes `allow_identical`**, off by default, as `hemeling` does. Lear closes
+  most of his limericks on the first line's word, which the default reports as
+  `identical_rhyme`; set, a repeated end word is permitted and the other rhyme checks
+  run as before. Of the 112 limericks in Project Gutenberg #982 the checker rejects 109
+  by default and 32 with the switch on, all for `does_not_rhyme`. Three of them land as
+  external passing cases under `allow_identical` (limericks 1, 13 and 88). A new
+  parameter moves no existing verdict, so `checker_version` stays at 2 (ADR 0061).
+- **`lipogram` gains two German R-lipograms, under a new exception to ADR 0062.** The
+  maintainer granted hand-corrected OCR for two texts only, recorded as ADR 0062's
+  2026-10-14 amendment: Gottlob Wilhelm Burmann's "I. An Gott", from *Einige Gedichte
+  ohne den Buchstaben R* (Berlin: Decker, 1796), and the first four paragraphs of Franz
+  Rittler's *Die Zwillinge … Roman ohne R*, 3rd ed. (Wien: Härter, 1820), pp. 17–18.
+  Each is the library's OCR extracted by script and corrected against the page images,
+  17 corrections for Burmann and 27 for Rittler, every one listed in the case's
+  `source` with the normalisation (long s to s, the print's double hyphen, spacing
+  before punctuation). Both pass with `forbidden: r` in German. They ban one letter, so
+  `consonantal_lipogram` stays in the gap registry, and its note now says they landed
+  under `lipogram`. The amendment admits its cost: each correction is a reading of the
+  page image, and an error in one is a retyping error.
+
+### Fixed
+
+- **A word the dictionary lacks no longer rhymes with itself.** `scheme_violations`
+  tested for an unknown line ending before it tested whether two endings were the same
+  word, so Lear's limerick ending twice on "Ryde" was satisfied under the default
+  `unknown_rhyme`, matched under `free` and reported as `unknown_rhyme` under `strict`,
+  while his "beard" limerick, the same fault on a word the dictionary carries, failed.
+  Identity is read off the spelling, so a pair the scheme wants to rhyme on the same word
+  is now `identical_rhyme` (unless `allow_identical`) under every `unknown_rhyme`
+  reading. The comparison now reads past an elided proclitic (`l'amour`, ADR 0036) only
+  in French: in English the split took Shakespeare's `dimm'd` and `vntrim'd` to the same
+  word `d`, and the fix would have exposed that on Sonnet 18. A `ballade` refrain ending
+  on an unknown word stays exempt. Sixteen rows move to `checker_version` 2: `ballade`,
+  `clerihew`, `curtal_sonnet`, `englyn`, `hemeling`, `heroic_couplet`, `limerick`,
+  `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`,
+  `shakespearean_sonnet`, `sonnet`, `spenserian_stanza` and `terza_rima`. No golden
+  verdict moves. Lear's "Ryde" limerick (Project Gutenberg #982) lands as an external
+  `limerick` case rejected for `identical_rhyme`. One external case is added.
+- **The English spelling heuristic no longer counts the silent `e` of a "there-with"
+  compound.** A leading `there`, `where`, `here` or `ere` before an adverbial element
+  (`erewhile`, `therewith`, `wherefore`, `heretofore`) read a syllable long. The rule
+  takes a closed list of second elements, so `hereditary`, `heresy`, `heretic`,
+  `wherever` and `herepath` keep their counts, and every CMUdict word it reaches now
+  agrees with the dictionary. Dictionary-backed packs change only for words they lack,
+  which fall back to this heuristic: `erewhile` and `therewith` are two syllables with
+  `denckring[en]` installed too. `Abdiel` and four-syllable `ambrosial` stay as they
+  are. The checker versions of twenty-nine rows that read English syllable counts or
+  stress are bumped: `alcaic_stanza`, `alexandrine`, `arca_musarithmica`, `blank_verse`, `cinquain`,
+  `dactylic_hexameter`, `double_dactyl`, `elegiac_couplet`, `haibun`, `haiku`,
+  `hendecasyllable`, `iambic_pentameter`, `proteus_verse`, `renga`, `sapphic_stanza`,
+  `senryu`, `syllable_count`, `tanka` and `trochaic_tetrameter` to `checker_version` 2,
+  and the ten already at 2 for this release (`ballade`, `curtal_sonnet`, `englyn`,
+  `heroic_couplet`, `ottava_rima`, `petrarchan_sonnet`, `rhyme_royal`,
+  `shakespearean_sonnet`, `sonnet`, `spenserian_stanza`) extend that entry's reason.
+  `monosyllabic_prose` reads the count too but cannot move, since no word the rule
+  reaches has fewer than two syllables. No golden verdict moves.
+- **`willow` rhymes with `pillow`.** ADR 0057 says secondary stress does not key an
+  English rhyme, but the key kept the stress digit of every vowel after the rhyme
+  vowel, so `willow` (`IH1 L OW2`) and `pillow` (`IH1 L OW0`) did not rhyme. The key now
+  reads a secondary stress after the rhyme vowel as unstressed, and the rhyme vowel keeps
+  its own digit, so `someday` still does not rhyme with `day`. The change is in
+  `denckring-en-data`; 18,289 of CMUdict's 117,493 alphabetic headwords have a key that
+  changes, and German and French keys do not change. A pair a scheme wants rhymed may
+  now rhyme, and a pair it keeps apart may now fail `unwanted_rhyme`. Three rows that read
+  English rhyme keys move to `checker_version` 2: `ghazal`, `triolet` and `villanelle`.
+  The seventeen already at 2 for this release (`ballade`, `blank_verse`, `clerihew`,
+  `curtal_sonnet`, `englyn`, `hemeling`, `heroic_couplet`, `limerick`, `ottava_rima`,
+  `petrarchan_sonnet`, `rhyme_royal`, `rhyme_scheme`, `rondeau`, `shakespearean_sonnet`,
+  `sonnet`, `spenserian_stanza`, `terza_rima`) extend that entry's reason. No golden
+  verdict moves, and the Don Juan and Lear selection figures do not change.
+- **CMUdict's inline comments are no longer read as phonemes.** 22 lines of the
+  dictionary end with a comment (`aalto AA1 L T OW2 # name, finnish`), and the English
+  pack kept `#`, `name,` and `finnish` as three more phonemes. The lines belong to 21
+  headwords: `aalborg`, `aalburg`, `aalen`, `aalsmeer`, `aalto`, `achill`, `d'artagnan`,
+  `dail`, `danglar`, `danglars`, `fine`, `gdp`, `hiv`, `mcavinchey`, `porthos`, `sinn`,
+  `spieth`, `taoiseach`, `tiernan`, `tierney` and `tubbercurry`. The pack cannot reach
+  `d'artagnan`, since its lookup reads `dartagnan`, so 20 headwords change. For `dail`,
+  `fine`, `sinn`, `tiernan` and `tierney` only a second reading carried a comment, so
+  their rhyme keys change and their phonemes do not. The other 15 change in both. The
+  headwords' syllable counts and stress do not change, because no comment word carries a
+  stress digit. One corner does: an `-s`/`-es` form the dictionary lacks is read through
+  its stem, and gains a syllable when the stem ends in a sibilant. `porthos` and
+  `danglars` used to end on a comment word, and now end on `S` and `Z`, so `porthoses`
+  and `danglarses` go from 2 syllables to 3. Every row that reads syllable counts or
+  scans metre is already at `checker_version` 2 for this release, except
+  `monosyllabic_prose`, which cannot move on these words because both counts are above
+  one. `paronomasia` and `portmanteau` read whole phoneme strings and move to
+  `checker_version` 2. The twenty rhyme rows already at 2 extend their reason.
+  `assonance_constraint` and `spoonerism` read only vowels and onsets, which no comment
+  reaches, so they cannot move. No golden verdict moves.
 
 ## [0.5.0] - 2026-10-13
 
@@ -2589,7 +2784,8 @@ evidence or descriptions only, or add something.
   violated once rather than per row: a verdict on folded input with folding on must agree
   with the verdict on pre-folded input with folding off.
 
-[Unreleased]: https://github.com/senzelden/denckring/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/senzelden/denckring/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/senzelden/denckring/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/senzelden/denckring/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/senzelden/denckring/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/senzelden/denckring/compare/v0.3.1...v0.3.2

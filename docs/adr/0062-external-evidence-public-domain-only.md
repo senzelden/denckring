@@ -62,7 +62,11 @@ to 102 and 0.144 on 2026-10-12; the comments beside them in
 `tests/test_corpus_provenance.py` record each step. The share floor then fell, once and
 deliberately, to 0.141, when ADR 0063's German letter-rule cases landed, every one of them
 constructed; it was raised to 0.159 (118 of 739), with `EXTERNAL_FLOOR` at 118, on
-2026-10-13 when the Bombaugh 1890 cases landed under the amendment below.
+2026-10-13 when the Bombaugh 1890 cases landed under the amendment below. On 2026-10-14
+the public-domain cases of the pre-release pass raised them again, to 0.167 and
+`EXTERNAL_FLOOR` 125 (125 of 746). Later cases raised them further; with the Burmann and
+Rittler cases of the 2026-10-14 amendment below they stood at 0.174 and 131 (131 of 752)
+on 2026-10-15.
 `tests/data/external-floor.json` holds each row's external count as a ratchet: a row may
 gain cases and never lose one.
 
@@ -101,10 +105,14 @@ pre-cutoff texts through post-cutoff editions: Kuhlmann's 1686 abecedarian in Be
 Five rows count as externally evidenced only through grandfathered cases: `cut_up`,
 `eodermdrome`, `snowball`, `reverse_snowball` and `calculator_word`. There were six until
 2026-10-13, when `lipogram` gained two public-domain cases from Bombaugh (1890). The
-per-row ratchet holds those cases in place, because removing one fails it. Whether they
-should leave, and the rows become gap entries, is an open question for the maintainer.
-Until it is answered, "externally evidenced" on those five rows means something weaker
-than the policy now requires.
+per-row ratchet holds those cases in place, because removing one fails it. The
+maintainer ruled on 2026-10-14 that the cases stay and the five rows remain externally
+evidenced. The cost is recorded rather than removed: on those five rows "externally
+evidenced" rests on short quotations from publications after the cutoff, which is weaker
+than the policy now requires of any new case, and `status` prints them in the same count
+as rows evidenced by public-domain text. Only the cases' `source` strings, which name each
+publication and its year, and this paragraph tell them apart. The ratchet keeps them in
+place, so a row leaves this list only by gaining a public-domain case, as `lipogram` did.
 
 21 rows are `after_cutoff` and can never be evidenced while the policy stands: Perec,
 Queneau, Roubaud, Mathews, Lescure, Bénabou, Cage, Burroughs, Mac Low, Enzensberger,
@@ -124,18 +132,33 @@ real poems stays without an external near-miss.
 The `none_found` entries mean different things, and only the note tells them apart.
 There were 49 when this was written, 25 of them recording pending work: the batch 4
 brief. Batch 4 reported on 2026-10-13. Three rows left the registry with Bombaugh cases
-it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`), and of the 46 that
+it found (`telestich`, `double_acrostic`, `pangrammatic_lipogram`). `ballade` left on
+2026-10-14 with four ballades from Gleeson White's anthology (1887), once the row took a
+`metre`, and `petrarchan_sonnet` the same day with Milton's Sonnet XVI, once the
+stress-scanning rows took the opt-in metrical licences of ADR 0065. Of the 44 that
 remain:
 - 18 record that the batch-4 reports this registry relies on did not search them. Three
   of those also record a search that failed in batch 3 (`assonance_constraint`,
   `boustrophedon`, `paragram`), and two a batch-3 find that was too incomplete to land
   (`denckring`, `wechselsatz`).
 - 4 record what batch 4 found: no English instance in Bombaugh's pp. 25–64 (`bivocalic`,
-  `letter_bank`, `serial_lipogram`), and leads located but not read
-  (`consonantal_lipogram`).
-- 3 record checker findings pending a maintainer ruling (`alcaic_stanza`, `ballade`,
-  `petrarchan_sonnet`): the checker rejected every candidate the public-domain
-  sourcing pass found, and each note records why.
+  `letter_bank`, `serial_lipogram`), and leads that each ban a single letter, so none
+  would evidence a group (`consonantal_lipogram`). On 2026-10-14 one of them, the
+  anonymous song without s that George Wakeman quotes in "Tormenting the Alphabet" (*The
+  Galaxy*, 1866), landed as a `lipogram` case, extracted by script from archive.org's
+  text layer and checked against the page image. Of the German R-lipograms, Burmann's
+  1788 edition did not land, because its scan has no text layer. The OCR of his 1796
+  edition and of Rittler's 1820 edition disagrees with the print often enough that
+  correcting it is retyping, which this policy forbade; on 2026-10-14 the maintainer
+  granted an exception for those two texts (amendment below), and one poem and one
+  passage landed as `lipogram` cases. No scan of Rittler's 1815 edition was found, and
+  Google Books and MDZ were not searched for it. Every one of them bans r alone, so
+  `consonantal_lipogram` stays in the registry. The note records where each was
+  sought.
+- 1 records a ruling on why the checker rejects every candidate found (`alcaic_stanza`):
+  on 2026-10-14 the maintainer ruled that the row reads alcaics accentually, so
+  Tennyson's quantitative "Milton" falls outside its definition. Nothing is pending,
+  and the row still has no external case.
 - 3 record a search that failed, with nothing pending (`haibun`, `ideenwuerfeln`,
   `pasigraphy`).
 - 18 record that no search has been made and none is scheduled: the 16 Oulipo rows
@@ -181,3 +204,47 @@ cases are transcribed from the Project Gutenberg text, and the page images were 
 checked. Read literally, the amendment covers an unknown author, not an unknown
 translator of a named author; the original rule names translators too, and no case so
 far has needed that question answered.
+
+---
+
+## Amendment, 2026-10-14: hand-corrected OCR of Burmann and Rittler
+
+Two German R-lipograms have a text layer that cannot be used as it stands. The SBB's OCR
+of Gottlob Wilhelm Burmann's *Einige Gedichte ohne den Buchstaben R* (Berlin: Decker,
+1796) differs from the page images in 17 places in the 24 lines of "I. An Gott", and loses
+two words outright. The ÖNB's OCR of Franz Rittler's *Die Zwillinge … Roman ohne R*, 3rd
+ed. (Wien: Härter, 1820) needs 27 corrections in the four paragraphs of pp. 17–18 that
+land, and its errors on those two pages include four r's the print does not have, so a lipogram checker run on the raw OCR fails a text that is in
+fact without r. The rule above admits only text extracted by script, checked against the
+page image; correcting this much is retyping, and neither text could land.
+
+**Decision.** The maintainer granted an exception on 2026-10-14 for these two texts only.
+The case text is the script's extraction of the downloaded OCR with corrections made
+against the page image. The case's `source` lists every correction, as the OCR's reading
+and the print's, and states the normalisation applied to the Fraktur and Antiqua of the
+print: long s (ſ) to s, which is how the checker already reads it; ꝛ to r and a superscript
+e over a vowel to ä, ö or ü where they occur (neither occurs in the two landed passages,
+whose umlauts are printed as such); the print's double hyphen (=) to a hyphen, and dropped
+at a line break; spaces before punctuation closed up. Every other rule of this record
+applies: both texts are inside the cutoff (Burmann died in 1805; Rittler, born 1782, is
+given death dates from 1830 to "after 1837"), and each `source` names its edition,
+library, scan and OCR URLs and why the passage was chosen. Each correction is a literal
+pair applied by the extraction script, which fails if the OCR's reading does not occur
+exactly once on its page, so a correction cannot quietly miss. That script, like the
+other extraction scripts this record names, is not shipped with the repository: the
+safeguard ran when the cases were made, and a reader can check its result only against
+the correction list and the page images.
+
+**Consequences.** The two case texts are no longer pure script extractions. Every
+correction is a reading of the page image by whoever made it, and an error in one is a
+retyping error of exactly the kind the rule exists to prevent; the correction list makes
+each one checkable, but nothing checks them. The Rittler page images are a Google
+digitisation at modest resolution, and the Burmann passage is Antiqua with long s, so a
+misread letter is plausible in both. The normalisation also makes the text unlike the
+print: a reader comparing the case with the page sees s for ſ and joined hyphenations,
+and must take the `source`'s word that nothing else moved. The exception does not extend
+to other texts, nor to other passages of these two books: the next text whose OCR needs
+correcting needs its own decision, and so does a further poem of Burmann's or a later
+chapter of Rittler's. Both cases ban r alone, so neither evidences
+`consonantal_lipogram`; they add German external evidence to `lipogram`, a row already
+externally evidenced.

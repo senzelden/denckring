@@ -40,6 +40,8 @@ class Haibun(BaseProcedure[HaibunParams]):
     """
 
     id = "haibun"
+
+    checker_version = 2
     rules = ("missing_haiku", "missing_prose", "wrong_alternation", "wrong_ending")
 
     @classmethod

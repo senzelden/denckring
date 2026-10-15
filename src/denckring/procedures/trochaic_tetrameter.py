@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
-
-from denckring.core.base import BaseProcedure
+from denckring.core.base import BaseProcedure, LicenceParams
 from denckring.core.protocol import LanguagePack, Report
 from denckring.core.registry import register
 from denckring.procedures.rhyme_scheme import form_report
 
 
-class TrochaicTetrameterParams(BaseModel):
+class TrochaicTetrameterParams(LicenceParams):
     pass
 
 
@@ -19,6 +17,8 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "trochaic_tetrameter"
+
+    checker_version = 2
     rules = ("wrong_line_length", "wrong_stress")
     local_scope = "line"
 
@@ -31,6 +31,7 @@ class TrochaicTetrameter(BaseProcedure[TrochaicTetrameterParams]):
             text,
             pack,
             metre="10" * 4,
+            licences=params.licences(),
         )
 
         return self._report(

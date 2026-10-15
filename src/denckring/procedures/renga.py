@@ -41,6 +41,8 @@ class Renga(BaseProcedure[RengaParams]):
     """
 
     id = "renga"
+
+    checker_version = 2
     rules = ("too_few_links", "wrong_stanza_shape", "wrong_syllable_count")
 
     @classmethod

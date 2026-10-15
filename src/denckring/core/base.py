@@ -18,7 +18,7 @@ from denckring.core import catalogue
 from denckring.core.counting import Counting
 from denckring.core.errors import DegenerateOutput, InvalidParams, MissingCapability
 from denckring.core.fields import param, roles
-from denckring.core.prosody import UnknownRhyme
+from denckring.core.prosody import Licences, UnknownRhyme
 from denckring.core.protocol import (
     Candidate,
     Evidence,
@@ -107,14 +107,23 @@ class RhymeParams(BaseModel):
         description=(
             "What a line ending absent from the pronouncing dictionary means: "
             "leave the pair unscored (undecidable), let it satisfy the scheme "
-            "(free), or fail it (strict)."
+            "(free), or fail it (strict). "
+            "A word repeated as its own rhyme is identical_rhyme under every setting of "
+            "this parameter, unless the row's allow_identical is set."
         ),
         json_schema_extra=param("policy"),
     )
 
 
 class MetreParams(BaseModel):
-    """Mixed into every procedure that scans a fixed metre.
+    """Whether a line may close feminine, for a row that counts a fixed metre.
+
+    Taken on its own by `alexandrine`, and through `ScansionParams` by eleven
+    rows. Of the other rows that scan stress, `trochaic_tetrameter` takes
+    `LicenceParams` only, its line already closing on an unstressed syllable, and the
+    five classical rows (`alcaic_stanza`, `sapphic_stanza`, `dactylic_hexameter`,
+    `elegiac_couplet`, `double_dactyl`) take neither, their patterns already carrying
+    their own substitutions (ADR 0065).
 
     Whether a line may close on an unstressed syllable is a property of a verse
     tradition, not of a library — German blank verse and the alexandriner take the
@@ -131,6 +140,74 @@ class MetreParams(BaseModel):
         ),
         json_schema_extra=param("leniency"),
     )
+
+
+class LicenceParams(BaseModel):
+    """The metrical licences verse takes, for a row that scans a line's stress.
+
+    Four standard licences of English accentual-syllabic verse, each its own switch
+    and each off, so a caller states which their text takes and 0.5.0's verdicts
+    stand (ADR 0065). Taken alone by `trochaic_tetrameter`, whose lines close on an
+    unstressed syllable already, so `feminine_ending` would describe a dactylic close
+    no one asked for; every other row that takes them takes `ScansionParams`.
+
+    Not on `MetreParams` itself, because `alexandrine` mixes that in and counts
+    syllables without scanning stress: three of the four would do nothing there,
+    and a parameter that does nothing describes a checker that is not there.
+    """
+
+    initial_inversion: bool = Field(
+        default=False,
+        description=(
+            "Whether a line may open on a reversed foot, its first two syllables in the "
+            "other order ('Either the' opening an iambic line). Off, they must scan as "
+            "the metre gives them."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    secondary_stress: bool = Field(
+        default=False,
+        description=(
+            "Whether an unstressed syllable of a word of three or more, not next to its "
+            "main stress, may take a beat ('disapproves' as DIS-ap-PROVES). English only. "
+            "Off, a word scans only as the pronouncing dictionary stresses it."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    stress_shift: bool = Field(
+        default=False,
+        description=(
+            "Whether a closed list of two-syllable prepositions and adverbs ('without', "
+            "'upon', 'into') may be stressed on either syllable. English only. Off, they "
+            "take the dictionary's stress."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+    diaeresis: bool = Field(
+        default=False,
+        description=(
+            "Whether a glide the dictionary runs into the next vowel may be sounded as an "
+            "unstressed syllable of its own ('superfluous' as four, 'ambrosial' as four). "
+            "English only. Off, a word has the dictionary's syllables."
+        ),
+        json_schema_extra=param("leniency"),
+    )
+
+    def licences(self) -> Licences:
+        return Licences(
+            initial_inversion=self.initial_inversion,
+            secondary_stress=self.secondary_stress,
+            stress_shift=self.stress_shift,
+            diaeresis=self.diaeresis,
+        )
+
+
+class ScansionParams(LicenceParams, MetreParams):
+    """`MetreParams` and the four licences, for a row whose lines may close feminine.
+
+    `LicenceParams` is listed first so that pydantic, which collects fields from the
+    bases in reverse order, keeps `feminine_ending` first in `params_schema()`.
+    """
 
 
 class SourceParams(BaseModel):

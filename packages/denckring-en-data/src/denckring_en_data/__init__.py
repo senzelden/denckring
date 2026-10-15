@@ -47,7 +47,7 @@ FREQUENCIES_PATH = Path(str(files("denckring_en_data") / "data" / "frequencies.t
 #: SCOWL's bands for `words()`, never read by a checker (ADR 0051).
 EXCLUSIONS_PATH = Path(str(files("denckring_en_data") / "data" / "everyday_exclusions.txt"))
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 
 @lru_cache(maxsize=1)
@@ -57,6 +57,10 @@ def variants() -> dict[str, list[list[str]]]:
     Variants are written `word(2)`, `word(3)` and so on. They matter: Shakespeare
     needs the three-syllable `tem-per-ate`, which CMUdict lists second because the
     compressed modern form comes first.
+
+    CMUdict ends 22 lines with a comment (`aalto AA1 L T OW2 # name, finnish`,
+    `hiv EY1 CH AY1 V IY1 # abbrev`). It is cut at the `#`, or its words would be
+    read as phones: they entered `aalto`'s rhyme key and `hiv`'s phonemes.
     """
     entries: dict[str, list[list[str]]] = {}
     for line in DICTIONARY_PATH.read_text(encoding="utf-8").splitlines():
@@ -64,7 +68,7 @@ def variants() -> dict[str, list[list[str]]]:
         if not rest:
             continue
         word = head.split("(")[0].lower()
-        entries.setdefault(word, []).append(rest.split())
+        entries.setdefault(word, []).append(rest.partition("#")[0].split())
     return entries
 
 
@@ -427,12 +431,21 @@ def _stress_of(phones: list[str]) -> str:
 
 
 def _rhyme_of(phones: list[str]) -> str:
+    """Phonemes from the last primary-stressed vowel, every later vowel read unstressed.
+
+    Secondary stress does not key a rhyme (ADR 0057), and that holds after the rhyme
+    vowel as well as before it: CMUdict ends `willow` on `OW2` and `pillow` on `OW0`,
+    and no reader hears the difference at a line's end. So a later `2` is folded to `0`.
+    The rhyme vowel keeps its own digit, which a word with no primary stress takes from
+    its last vowel. A later `1` cannot occur, since the key starts at the last one.
+    """
     primary = [i for i, p in enumerate(phones) if p.endswith("1")]
     if not primary:
         primary = [i for i, p in enumerate(phones) if p[-1].isdigit()]
     if not primary:
         return " ".join(phones)
-    return " ".join(phones[primary[-1] :])
+    vowel, *rest = phones[primary[-1] :]
+    return " ".join([vowel, *(p[:-1] + "0" if p.endswith("2") else p for p in rest)])
 
 
 def pack() -> EnglishDataPack:

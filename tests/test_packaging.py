@@ -147,7 +147,21 @@ ROOT = Path(__file__).resolve().parent.parent
 #: 0062, the evidence-gap registry and new golden cases) is expected to spend some of that
 #: headroom. The margin is now the narrower half, so the next raise must re-measure the
 #: catch figure first, not just the clean build.
-MAX_SDIST_BYTES = 1_250_000
+#:
+#: **Raised to 1,330,000 on 2026-10-15, by ruling during the maintainer's absence, in the
+#: same direction and for the same reason.** The pre-release branch for 0.6.0 spent the
+#: headroom on code, tests and ADRs (the metre licences and ADR 0065, the
+#: identical-rhyme and spelling fixes, ADR 0062's amendments and the new golden cases).
+#: No data file entered: `/packages` stays excluded. The catch figure was re-measured
+#: first, as the paragraph above asks, from `git archive HEAD` at 5dc5602 with the file
+#: copied under `src/denckring/data/`:
+#:
+#:   - clean build from `HEAD`:                                              1,271,485
+#:   - with `nouns.txt.gz` re-included:                                      1,402,011
+#:
+#: The safe window is `(1,271,485, 1,402,011)`. **1,330,000** sits in it with 58,515 of
+#: headroom and 72,011 of margin under the catch figure.
+MAX_SDIST_BYTES = 1_330_000
 
 
 def _export_head(tmp_path_factory: pytest.TempPathFactory) -> Path | None:

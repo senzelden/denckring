@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import itertools
+import re
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Literal, NamedTuple
 
 from denckring.core.errors import MissingCapability
@@ -23,6 +25,223 @@ MAX_COMBINATIONS = 4096
 #: What a line ending the pronouncing dictionary does not carry means for a
 #: rhyme. See `scheme_violations` for why this is a parameter and not a constant.
 UnknownRhyme = Literal["undecidable", "free", "strict"]
+
+
+@dataclass(frozen=True)
+class Licences:
+    """The metrical licences a scan may take, each off unless asked for (ADR 0065).
+
+    One object rather than four keyword arguments, because the same four travel
+    together from a row's params through `form_report` or `stanza_violations` and
+    `line_metre` to `metre_violations`, and a fifth licence should not mean editing
+    every signature on the way. A dataclass and not a `NamedTuple`: a tuple of four
+    is truthy whatever it holds, and "is any licence on" is the question asked.
+
+    Only `initial_inversion` reads no dictionary, so only it applies in every
+    language. The other three read CMUdict's stress or phones, or English
+    spelling, and are stated for English alone: in another language they admit
+    nothing (ADR 0065).
+    """
+
+    initial_inversion: bool = False
+    secondary_stress: bool = False
+    stress_shift: bool = False
+    diaeresis: bool = False
+
+    @property
+    def word_level(self) -> bool:
+        """Whether any licence adds readings of a word, not of the line's pattern."""
+        return self.secondary_stress or self.stress_shift or self.diaeresis
+
+    @property
+    def active(self) -> bool:
+        return self.initial_inversion or self.word_level
+
+
+#: The scan with every licence off: the reading every row took before ADR 0065.
+NO_LICENCES = Licences()
+
+#: Disyllables whose stress English verse moves to fit the line, read `10` or `01`
+#: under `stress_shift` whatever the dictionary says (ADR 0065). Closed and
+#: editorial: prepositions and adverbs that verse stresses on either syllable
+#: (Milton's "And post o're Land and Ocean *with*out rest"), each checked to be a disyllable in
+#: CMUdict. `whereon` was proposed and left out, because CMUdict does not carry it
+#: and an unknown word already takes any stress (`word_stress`).
+SHIFTABLE = frozenset(
+    {
+        "without",
+        "within",
+        "upon",
+        "into",
+        "unto",
+        "beyond",
+        "before",
+        "toward",
+        "towards",
+        "across",
+        "among",
+        "beneath",
+        "below",
+        "above",
+        "about",
+        "against",
+        "along",
+        "around",
+        "behind",
+        "between",
+        "despite",
+        "throughout",
+        "therein",
+        "thereon",
+        "wherein",
+    }
+)
+
+#: The endings whose last two vowel letters verse may sound apart (glo-ri-ous is
+#: three in the dictionary already; re-li-gi-ous is the licence). Plural `-s` on
+#: the two noun endings, so `Christians` reads as `Christian` does.
+_DIAERESIS_ENDING = re.compile(r"(?:ious|uous|ials?|ians?)$")
+_VOWEL_LETTERS = re.compile(r"[aeiouy]+")
+_GLIDES = frozenset({"W", "Y"})
+#: After `k` or `g` a glide belongs to the consonant, as the rounding of `qu` and
+#: `gu` (`equal`, `language`) or the `y` of a `cu` or `gu` (`regular`, `figure`).
+_VELARS = frozenset({"K", "G"})
+#: `Y` before these is the vowel `u` itself (`value`, `continue`, `museum`).
+_U_VOWELS = frozenset({"UW", "UH"})
+#: The glide must be written as a vowel letter: `i` or `u` before another vowel
+#: letter somewhere in the word. `forward`, `someone` and `railway` sound a `W`
+#: after a consonant where no vowel was ever written, and verse never splits them.
+_SPELLED_HIATUS = re.compile(r"[iu][aeiou]")
+
+
+def _letters(word: str) -> str:
+    return "".join(ch for ch in word.casefold() if ch.isalpha())
+
+
+def _secondary_stresses(form: str) -> list[str]:
+    """`001` as `101`: an unstressed syllable away from the primary takes a beat.
+
+    Words of three syllables or more only, and a syllable next to a `1` never,
+    since a beat beside the word's own stress is a clash no reader makes. Any set
+    of such syllables may be promoted together, as long as no two are adjacent.
+    """
+    if len(form) < 3:
+        return []
+    eligible = [
+        i
+        for i, mark in enumerate(form)
+        if mark == "0" and form[i - 1 : i] != "1" and form[i + 1 : i + 2] != "1"
+    ]
+    found: list[str] = []
+    for size in range(1, len(eligible) + 1):
+        for chosen in itertools.combinations(eligible, size):
+            if any(b - a == 1 for a, b in itertools.pairwise(chosen)):
+                continue
+            found.append("".join("1" if i in chosen else m for i, m in enumerate(form)))
+    return found
+
+
+def _diaereses(word: str, pack: LanguagePack, forms: Sequence[str]) -> list[str]:
+    """One syllable more, unstressed, where verse sounds a glide as a vowel.
+
+    Two rules, each adding one syllable:
+
+    - phones: in the dictionary's first pronunciation, a `W` or `Y` with a
+      consonant other than `K` or `G` before it and a vowel not carrying primary
+      stress (`0` or `2`, and for `Y` not `UW` or `UH`) after it, in a word that
+      spells an `i` or `u` before another vowel letter, is read as a syllable of
+      its own: `million`, `M IH1 L Y AH0 N`, is `10?` as well as `10`.
+    - spelling: a word ending `-ious`, `-uous`, `-ial(s)` or `-ian(s)`, none of
+      whose dictionary forms has as many syllables as the vowel-letter groups
+      before the ending plus two, gains one on each form that has one fewer and
+      does not end on a stress: `ambrosial`, `010`, is also `010?`.
+
+    The new syllable is unstressed and the vowel after it, split from its glide,
+    is free (`?`), as a monosyllable is. Kept at its dictionary mark, the new `0`
+    nearly always stands next to another and fits no iambic or trochaic line:
+    measured on Paradise Lost (ADR 0065), that reading rescued no line and this one
+    rescues ten, each a diaeresis Milton's metre asks for (among them `Celestial`,
+    `Ambrosial`, `impetuous`, `Union`, `Religious`).
+
+    The phones rule reads only the first pronunciation, because `phonemes` is
+    the pack's one view of a word's phones; the stress it inserts into is that
+    pronunciation's own (`stress_pattern`).
+    """
+    found: list[str] = []
+    letters = _letters(word)
+    if PHONEMES in pack.capabilities:
+        phones = pack.phonemes(word)
+        first = pack.stress_pattern(word)
+        vowels_before = 0
+        for i, phone in enumerate(phones):
+            if pack.is_vowel_phoneme(phone):
+                vowels_before += 1
+                continue
+            if (
+                phone in _GLIDES
+                and 0 < i < len(phones) - 1
+                and not pack.is_vowel_phoneme(phones[i - 1])
+                and phones[i - 1] not in _VELARS
+                and phones[i + 1][-1:] in ("0", "2")
+                and not (phone == "Y" and phones[i + 1][:-1] in _U_VOWELS)
+                and _SPELLED_HIATUS.search(letters)
+            ):
+                found.append(first[:vowels_before] + "0" + FREE + first[vowels_before + 1 :])
+    ending = _DIAERESIS_ENDING.search(letters)
+    spelled = len(_VOWEL_LETTERS.findall(letters[: ending.start()])) + 2 if ending else 0
+    # Only where the dictionary gives fewer: `trial` is listed as two syllables as
+    # well as one, so its one-syllable form is not the dictionary's last word.
+    if ending is not None and all(len(form) != spelled for form in forms):
+        found += [
+            form[:-1] + "0" + FREE
+            for form in forms
+            if len(form) == spelled - 1 and not form.endswith("1")
+        ]
+    return found
+
+
+def licensed_forms(
+    word: str, pack: LanguagePack, forms: Sequence[str], licences: Licences
+) -> list[tuple[str, str]]:
+    """The readings each word-level licence adds, with the licence that adds it.
+
+    Derived from the dictionary's forms only, never from another licence's, so a
+    switch admits its own licence and nothing two of them would make together.
+    A form the dictionary already lists, or an earlier licence already added, is
+    not repeated. English only (`Licences`).
+    """
+    if pack.lang != "en":
+        return []
+    added: list[tuple[str, str]] = []
+    seen = set(forms)
+
+    def offer(candidates: Sequence[str], licence: str) -> None:
+        for form in candidates:
+            if form not in seen:
+                seen.add(form)
+                added.append((form, licence))
+
+    if licences.secondary_stress:
+        for form in forms:
+            offer(_secondary_stresses(form), "secondary_stress")
+    if licences.stress_shift and _letters(word) in SHIFTABLE:
+        offer(["10", "01"], "stress_shift")
+    if licences.diaeresis:
+        offer(_diaereses(word, pack, forms), "diaeresis")
+    return added
+
+
+def inverted(pattern: str) -> str | None:
+    """The pattern with its first two positions swapped, if they differ.
+
+    `initial_inversion`: the first foot reversed, whatever the metre. In an iambic
+    line that is the commonest licence in English verse, a trochee for the first
+    iamb ("*Ei*ther the"); in a trochaic line, an iamb for the first trochee.
+    Line-initial only, and never on an anceps (`?`), which already takes either
+    (ADR 0065).
+    """
+    head = pattern[:2]
+    return head[::-1] + pattern[2:] if head in ("01", "10") else None
 
 
 class SchemeResult(NamedTuple):
@@ -121,13 +340,36 @@ class MetreResult(NamedTuple):
     evidence: tuple[Evidence, ...] = ()
 
 
-def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -> MetreResult:
+def _read_as(form: str, licences: Sequence[str]) -> str:
+    """A form as evidence shows it, naming any licence it was read through.
+
+    In the value rather than in `basis`: the basis says where the word's own
+    readings came from, which a licence does not change, and a new basis would
+    widen a closed set every consumer of `Evidence` matches on (ADR 0065).
+    """
+    return f"{form} ({', '.join(licences)})" if licences else form
+
+
+def metre_violations(
+    line: str,
+    pack: LanguagePack,
+    pattern: str,
+    offset: int,
+    *,
+    licences: Licences = NO_LICENCES,
+    line_licence: str | None = None,
+) -> MetreResult:
     """Check a line against a stress pattern, treating `?` as satisfiable.
 
     Because each free syllable is independent of every other, this is a linear
     scan rather than a search: a fixed syllable landing on the wrong beat is the
     only way to fail. The violation names the word rather than the syllable
     index, because the word is what a writer can act on.
+
+    `licences` adds the readings its word-level licences allow after each word's
+    own, so the scan reaches for one only once the dictionary's are exhausted.
+    `line_licence` names the licence that made `pattern` (`initial_inversion`),
+    so the evidence for the words on the reversed foot can say so.
     """
     # `word_spans` rather than `tokenize`, which is defined as this without the
     # offsets: the evidence has to be able to point at the word it is about.
@@ -136,12 +378,23 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
     words: list[tuple[str, list[str]]] = []
     estimated = 0
     evidence: list[Evidence] = []
+    #: Per word, the licence each added form came from; the dictionary's are absent.
+    sources: list[dict[str, str]] = []
     for at, word in spans:
         forms, exact = word_stress(word, pack)
         if not exact:
             estimated += 1
-        combinations *= max(len(forms), 1)
-        tried = forms if combinations <= MAX_COMBINATIONS else forms[:1]
+        # A word the dictionary lacks already takes any stress, so the two stress
+        # licences have no reading of it to widen. `diaeresis` adds a syllable, not
+        # a stress, so that reason does not cover it: it is withheld here as a scope
+        # choice (ADR 0065), because both its rules start from the dictionary's
+        # forms. An unknown word keeps its heuristic syllable count.
+        added = licensed_forms(word, pack, forms, licences) if exact else []
+        combinations *= max(len(forms) + len(added), 1)
+        capped = combinations > MAX_COMBINATIONS
+        tried = forms[:1] if capped else forms + [form for form, _ in added]
+        source = {} if capped else dict(added)
+        listed = len([form for form in tried if form not in source])
         evidence.append(
             Evidence(
                 subject=word,
@@ -149,24 +402,34 @@ def metre_violations(line: str, pack: LanguagePack, pattern: str, offset: int) -
                 # Every form the scan could take, first first. A fitted line replaces
                 # it below with the one form the scan read; a failed line keeps them
                 # all, since the violations name the first and the scan tried the rest
-                # (ADR 0054).
-                value="/".join(tried),
+                # (ADR 0054). A licensed form says which licence offered it.
+                value="/".join(
+                    _read_as(form, [source[form]] if form in source else []) for form in tried
+                ),
                 # `ambiguous` when the scan was free to take another listed form,
-                # and not when the cap held it to the first (ADR 0054).
-                basis="estimated" if not exact else "ambiguous" if len(tried) > 1 else "dictionary",
+                # and not when the cap held it to the first (ADR 0054). Counted over
+                # the dictionary's forms: a licence's are not a listed reading.
+                basis="estimated" if not exact else "ambiguous" if listed > 1 else "dictionary",
             )
         )
         words.append((word, tried))
+        sources.append(source)
 
     fitted = _scan(words, pattern, 0, 0)
     if fitted is not None:
         # The stress the verdict rests on, as `MetreResult` promises: `every` as `10`
         # in a line that scans only on that reading, not its first form `100`.
-        read = tuple(
-            entry.model_copy(update={"value": form})
-            for entry, form in zip(evidence, fitted, strict=True)
-        )
-        return MetreResult([], len(words), max(len(words), 1), estimated, read)
+        read: list[Evidence] = []
+        position = 0
+        for entry, form, source in zip(evidence, fitted, sources, strict=True):
+            named = [source[form]] if form in source else []
+            # The reversed foot is the line's first two syllables; every word
+            # with a syllable on it was read against the inverted pattern.
+            if line_licence is not None and position < 2:
+                named.append(line_licence)
+            position += len(form)
+            read.append(entry.model_copy(update={"value": _read_as(form, named)}))
+        return MetreResult([], len(words), max(len(words), 1), estimated, tuple(read))
 
     violations: list[Violation] = []
     # No combination fits. Report against the first pronunciation of each word,
@@ -223,7 +486,14 @@ def with_feminine(pattern: str, allowed: bool) -> list[str]:
     return [pattern, pattern + "0"] if allowed else [pattern]
 
 
-def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: int) -> MetreResult:
+def line_metre(
+    line: str,
+    pack: LanguagePack,
+    options: Sequence[str],
+    offset: int,
+    *,
+    licences: Licences = NO_LICENCES,
+) -> MetreResult:
     """Scan a line against several acceptable readings, reporting the closest.
 
     A substitutable foot makes a metre a set rather than a single pattern, so
@@ -241,6 +511,10 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
     covers a substitutable metre's whole spread, not just two. A single option
     leaves the message untouched — ADR 0040 D6 requires the unwidened text to
     stay byte-identical.
+
+    Licences are a second pass, run only when the dictionary's readings fit no
+    option, so a line that scans without one is never reported as needing one,
+    and with every licence off the scan is the one it always was (ADR 0065).
     """
     best: MetreResult | None = None
     for pattern in options:
@@ -251,6 +525,24 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
             best = result
     if best is None:
         raise ValueError("line_metre needs at least one pattern")
+    licensed: list[tuple[str, str | None]] = []
+    if licences.word_level:
+        licensed += [(pattern, None) for pattern in options]
+    if licences.initial_inversion:
+        licensed += [
+            (reversed_, "initial_inversion")
+            for pattern in options
+            if (reversed_ := inverted(pattern)) is not None
+        ]
+    for pattern, line_licence in licensed:
+        result = metre_violations(
+            line, pack, pattern, offset, licences=licences, line_licence=line_licence
+        )
+        if not result.violations:
+            return result
+        # Strictly better only, so a tie keeps the dictionary's own reading.
+        if result.good > best.good:
+            best = result
     if len(best.violations) == 1 and best.violations[0].rule == "wrong_line_length":
         lengths = sorted({len(pattern) for pattern in options})
         if len(lengths) > 1:
@@ -262,7 +554,11 @@ def line_metre(line: str, pack: LanguagePack, options: Sequence[str], offset: in
 
 
 def stanza_violations(
-    text: str, pack: LanguagePack, patterns: Sequence[Sequence[str]]
+    text: str,
+    pack: LanguagePack,
+    patterns: Sequence[Sequence[str]],
+    *,
+    licences: Licences = NO_LICENCES,
 ) -> MetreResult:
     """Check a stanza whose lines each have their own metre.
 
@@ -292,7 +588,7 @@ def stanza_violations(
     estimated = 0
     evidence: list[Evidence] = []
     for (offset, line), options in zip(lines, patterns, strict=True):
-        result = line_metre(line, pack, options, offset)
+        result = line_metre(line, pack, options, offset, licences=licences)
         violations += result.violations
         good += result.good
         total += result.total
@@ -431,6 +727,12 @@ def scheme_violations(
       takes for an unscannable word;
     - `strict` fails the pair, naming the word the dictionary lacks.
 
+    None of the three reaches a wanted pair ending on the same word twice: that is
+    `identical_rhyme` whatever the dictionary carries, because identity is a fact
+    about spelling, not pronunciation. The exception is a row's `allow_identical`:
+    with it set, such a pair is read like any other, so an unknown word repeated is
+    left to these three readings.
+
     Under `undecidable` a text whose every pair is unknown would score nothing
     over nothing, which `_report` reads as vacuously satisfied. That case is
     reported as a single `rhyme_undecidable` violation instead: a partial
@@ -451,10 +753,39 @@ def scheme_violations(
         )
         return SchemeResult(violations, 0, 1, estimated, rhyme_evidence(keys))
 
+    # The spelling each ending is compared on to decide whether two are the
+    # same word. In French it is read past any leading elided proclitic, or
+    # `l'amour` and `amour` — the same rhyme word — read as two different ones:
+    # `identical_rhyme` exists to catch French rime riche's commonest
+    # orthographic shape, and a `l'` in front of it defeated the check that
+    # `hemeling`'s own `allow_identical` names it for (ADR 0036). Only in French:
+    # an English apostrophe elides inside or at the end of a word, and splitting
+    # there made Shakespeare's `dimm'd` and `vntrim'd` the same word `d`.
+    forms = [
+        (split_elision(word)[1] if pack.lang == "fr" else word).casefold() for _, word, _, _ in keys
+    ]
     checks = 0
     matched = 0
     for i in range(len(keys)):
         for j in range(i + 1, len(keys)):
+            should_rhyme = letters[i] == letters[j]
+            identical = forms[i] == forms[j]
+            # Identity is read off the spelling, so it is decided before the
+            # dictionary is consulted: a word the dictionary lacks rhymes with
+            # itself no better than one it carries. Tested after the unknown-word
+            # branch, Lear's limerick ending twice on "Ryde" passed while his
+            # "beard" one failed.
+            if should_rhyme and identical and not allow_identical:
+                checks += 1
+                violations.append(
+                    Violation(
+                        rule="identical_rhyme",
+                        offset=keys[j][0],
+                        found=keys[j][1],
+                        expected=f"a word other than {keys[i][1]!r}",
+                    )
+                )
+                continue
             if not (keys[i][3] and keys[j][3]):
                 if unknown_rhyme == "undecidable":
                     continue
@@ -473,28 +804,10 @@ def scheme_violations(
                     )
                 continue
             checks += 1
-            should_rhyme = letters[i] == letters[j]
             # A wanted rhyme needs one pairing of readings to match. An unwanted one
             # fails when every pairing does, or the key sets are the same (ADR 0057).
             does_rhyme = (may_rhyme if should_rhyme else must_rhyme)(keys[i][2], keys[j][2])
-            # Compared past any leading elided proclitic, or `l'amour` and
-            # `amour` — the same rhyme word — read as two different ones:
-            # `identical_rhyme` exists to catch French rime riche's commonest
-            # orthographic shape, and a `l'` in front of it defeated the
-            # check that `hemeling`'s own `allow_identical` names it for.
-            identical = (
-                split_elision(keys[i][1])[1].casefold() == split_elision(keys[j][1])[1].casefold()
-            )
-            if should_rhyme and identical and not allow_identical:
-                violations.append(
-                    Violation(
-                        rule="identical_rhyme",
-                        offset=keys[j][0],
-                        found=keys[j][1],
-                        expected=f"a word other than {keys[i][1]!r}",
-                    )
-                )
-            elif should_rhyme and not does_rhyme:
+            if should_rhyme and not does_rhyme:
                 violations.append(
                     Violation(
                         rule="does_not_rhyme",

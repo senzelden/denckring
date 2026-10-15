@@ -69,6 +69,17 @@ either, for a different reason than `noun_index`'s: it only ever compares one sp
 segment against another split the same way, so even a genuine apostrophe-word compared
 with itself still comes out correctly identical.
 
+**Correction, 2026-10-14.** The premise above, "no English or German word carries an
+apostrophe", is false. English verse elides inside a word (`dimm'd`, `ow'st`), and
+splitting there leaves only the ending, so `dimm'd` and `vntrim'd` compare as the same
+word `d`. The safety argument covers a word compared with itself, not two words that
+share a tail. It cost nothing in 0.5.0 only because `identical_rhyme` was never reached
+for a word without a rhyme key, and the English contractions probed (`dimm'd`,
+`vntrim'd`, `o'er`, `e'er`, `we've`, `I've`) have none. Once identity was decided before
+the dictionary (CHANGELOG `[Unreleased]`, Lear's "Ryde"), `identical_rhyme` reads past an
+elision in French only. `n_plus_7` still splits in every language; that cost is
+unmeasured.
+
 **Also fixed the same day: `kangaroo_word`'s own lookup, a different root cause under the
 same MCP sweep finding.** `synonym: "école"` failed `not_a_word` under default
 `fold_diacritics`, because `is_word` is not fold-aware — French keeps its accents on

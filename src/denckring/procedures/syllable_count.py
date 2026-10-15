@@ -194,6 +194,8 @@ class SyllableCount(BaseProcedure[SyllableCountParams]):
     """The general case the fixed syllabic forms delegate to."""
 
     id = "syllable_count"
+
+    checker_version = 2
     rules = ("extra_line", "missing_line", "wrong_syllable_count")
 
     @classmethod

@@ -170,7 +170,9 @@ def test_the_golden_corpus_passes_each_kind_what_it_says() -> None:
     for case in golden_cases(runnable=False):
         declared = kinds(PROCEDURES[case.procedure].params_model())
         for name, value in case.params.items():
-            if name in declared:
+            # An explicit null is the field unset (`ballade`'s `metre: null`), which the
+            # field's type admits and `check` validates; a kind describes the string.
+            if name in declared and value is not None:
                 seen.add(declared[name])
                 if not _fits(declared[name], value, case.lang):
                     wrong.append(f"{case.procedure}/{case.name}: {name}={value!r}")

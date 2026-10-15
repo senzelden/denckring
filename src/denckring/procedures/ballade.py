@@ -16,11 +16,23 @@ other line that happens to share its word. Counting the legitimate refrain-refra
 pairs independently and dropping that many matching `identical_rhyme` violations
 per offset sidesteps the ambiguity: any violation left over at a refrain's offset
 is a genuine duplicate outside the refrain, not a refrain pair, and stays reported.
+
+The line is iambic tetrameter unless `metre` says otherwise. White's *Ballades and
+Rondeaus* (1887) gives the strict rule, the refrain's length governing every line's,
+and calls variations from it "perfectly allowable"; screened at the default, 76 of the
+77 poems his anthology prints in 8-8-8-4 stanzas are rejected (the screen is stated as
+a rule in the `tomson-ballade-of-asphodel` golden case). `metre` takes
+the name and meaning `sonnet` already gives it — the stress pattern every line is
+scanned against, so its length is the syllable count — and `None` drops the scan,
+leaving the line count, rhyme scheme and refrain.
 """
 
 from __future__ import annotations
 
-from denckring.core.base import BaseProcedure, RhymeParams
+from pydantic import Field
+
+from denckring.core.base import BaseProcedure, RhymeParams, ScansionParams
+from denckring.core.fields import param
 from denckring.core.prosody import repeat_to, rhyme_keys, scheme_violations
 from denckring.core.protocol import LanguagePack, Report, Violation
 from denckring.core.registry import register
@@ -68,8 +80,22 @@ def _exempt_refrain_identicals(
     return kept, exempted
 
 
-class BalladeParams(RhymeParams):
-    pass
+class BalladeParams(RhymeParams, ScansionParams):
+    # Defaults to the tetrameter the row scanned before the field existed, so a
+    # caller who never sets it keeps every verdict (ADR 0061: the parameter needs no bump
+    # of its own).
+    metre: str | None = Field(
+        default=repeat_to("01", 4),
+        pattern=r"^[01]+$",
+        description=(
+            "Stress pattern every line is scanned against, 0 unstressed and 1 stressed; "
+            "its length is the syllable count. 01010101 is iambic tetrameter, "
+            "0101010101 pentameter. Unset (null), no line is scanned for length or "
+            "stress, and only the line count, rhyme scheme and refrain are checked; "
+            "feminine_ending and the four licences then do nothing."
+        ),
+        json_schema_extra=param("task", "metre", examples=["01010101", "0101010101"]),
+    )
 
 
 @register
@@ -77,6 +103,7 @@ class Ballade(BaseProcedure[BalladeParams]):
     """Twenty-eight lines, four of them the same line."""
 
     id = "ballade"
+    checker_version = 2
     rules = (
         "broken_refrain",
         "does_not_rhyme",
@@ -97,7 +124,9 @@ class Ballade(BaseProcedure[BalladeParams]):
         result = form_report(
             text,
             pack,
-            metre=repeat_to("01", 4),
+            metre=params.metre,
+            feminine_ending=params.feminine_ending,
+            licences=params.licences(),
             refrains=REFRAINS,
             lines=LINES,
         )

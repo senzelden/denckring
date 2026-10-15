@@ -343,19 +343,18 @@ def split_elision(word: str) -> tuple[str, str]:
     tries the whole form against its table first, for exactly that reason,
     before falling back the same way this function always does).
 
-    Two callers rely on the stronger fact that makes always-splitting safe
-    for THEM specifically, each checked against its own table: `n_plus_7`'s
-    noun list carries no apostrophe-bearing entry at all, so an apostrophe in
-    a word handed to `noun_index` is always an elision boundary; `identical_rhyme`
-    (`core/prosody.py`) only ever compares the segment split here against
-    another segment split the same way, so a genuine apostrophe-word
-    compared with itself still comes out identical. Neither caller needs the
-    try-whole-first step `_table_entry` needs, because neither is looking a
-    word up in a table that itself holds apostrophe-bearing entries.
+    Two callers split without that try-whole-first step, each for its own
+    reason. `identical_rhyme` (`core/prosody.py`) splits only in French: there
+    a shared tail is the same rhyme word (`l'amour`, `amour`), and a genuine
+    apostrophe-word compared with itself still comes out identical. Outside
+    French a shared tail is not the same word: English verse elides inside a
+    word, and splitting `dimm'd` and `vntrim'd` leaves `d` for both. `n_plus_7`
+    relies on its noun list carrying no apostrophe-bearing entry at all, so a
+    word with an apostrophe can only match by its tail, and it calls this in
+    every language; what that costs an English contraction is unmeasured.
 
     Splits at the LAST mark, the same as `_table_entry`, for a chained
-    elision. Language-blind: no English or German word carries an
-    apostrophe, so this is a silent no-op there.
+    elision. Language-blind: the language decision belongs to the caller.
     """
     for mark in _ELISION_MARKS:
         if mark in word:

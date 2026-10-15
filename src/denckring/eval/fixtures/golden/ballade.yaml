@@ -167,3 +167,197 @@ cases:
       ein Kind erwacht in seinem Traum
     params: {}
     satisfied: true
+  - name: tomson-ballade-of-asphodel
+    provenance: external
+    source: >-
+      Graham R. Tomson (Rosamund Marriott Watson), "Ballade of Asphodel", in Gleeson White
+      (ed.), Ballades and Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter
+      Scott, 1887), p. 68. Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
+      script: indentation, the envoy heading and the signature removed, and the Greek
+      epigraph under the title dropped, PG's italic underscores dropped, dashes as PG prints
+      them. Checked word for word against the page image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n151. Rosamund Marriott Watson
+      died 1911, White 1898. The screen, as a rule: in the PG text between its START and END
+      lines, a title is a line beginning in column 0 that contains an ASCII capital and no
+      lower-case letter, and starts a poem; within a poem a blank line ends a stanza; a line
+      indented 12 or more spaces (envoy heading, signature, centred dedication), any other
+      non-blank line in column 0, and a line beginning '~' (a Greek epigraph) are dropped
+      without ending a stanza; every other line is verse; a poem is screened when its verse
+      falls in stanzas of exactly 8, 8, 8 and 4 lines. It selects 77. Selected: re-measured
+      2026-10-14, the checker rejects 76 of the 77 poems the screen above selects at the
+      default metre, 77 at pentameter (0101010101), 76 at trimeter (010101), and 61 with
+      metre unset, all 61 on rhyme or refrain. The only one of the 77 that passes at the
+      default metre; it prints 'too wel', as the page image confirms.
+    text: |-
+      Now who will thread the winding way,
+      Afar from fervid summer heat,
+      Beyond the sunshafts of the day,
+      Beyond the blast of winter sleet?
+      In the green twilight, dimly sweet,
+      Of poplar shades, the shadows dwell,
+      Who found erewhile a fair retreat
+      Along the mead of Asphodel.
+      There death and birth are one, they say;
+      Those lowlands bear no yellow wheat;
+      No sound doth rise of mortal fray,
+      Of lowing herds, of flocks that bleat:
+      Nor wind nor rain doth blow nor beat;
+      Nor shrieketh sword, nor tolleth bell;
+      But lovers one another greet
+      Along the mead of Asphodel.
+      I would that there my soul might stray;
+      I would my phantom, fair and fleet,
+      Might cleave the burden of the clay,
+      Might leave the murmur of the street,
+      Nor with half-hearted prayer entreat
+      The half-believed-in Gods; too wel
+      I know the name I shall repeat
+      Along the mead of Asphodel.
+      Queen Proserpine, at whose white feet
+      In life my love I may not tell,
+      Wilt give me welcome when we meet
+      Along the mead of Asphodel?
+    params: {}
+    satisfied: true
+  - name: adams-where-are-the-pipes-of-pan
+    provenance: external
+    source: >-
+      Oscar Fay Adams, "Where Are the Pipes of Pan?", in Gleeson White (ed.), Ballades and
+      Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p. 3.
+      Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n86. Oscar Fay Adams died 1919,
+      White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the 77 poems
+      the screen stated in tomson-ballade-of-asphodel selects at the default metre, 77 at
+      pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all 61 on
+      rhyme or refrain. Checked with metre 010101: its lines are trimeter, and it is the one
+      poem of the 77 that passes at that length.
+    text: |-
+      In these prosaic days
+      Of politics and trade,
+      Where seldom fancy lays
+      Her touch on man or maid,
+      The sounds are fled that strayed
+      Along sweet streams that ran;
+      Of song the world's afraid;
+      Where are the Pipes of Pan?
+      Within the busy maze
+      Wherein our feet are stayed,
+      There roam no gleesome fays
+      Like those which once repaid
+      His sight who first essayed
+      The stream of song to span,
+      Those spirits are all laid.
+      Where are the Pipes of Pan?
+      Dry now the poet's bays;
+      Of song-robes disarrayed
+      He hears not now the praise
+      Which erst those won who played
+      On pipes of rushes made,
+      Before dull days began
+      And love of song decayed.
+      Where are the Pipes of Pan?
+      Prince, all our pleasures fade;
+      Vain all the toils of man;
+      And fancy cries dismayed,
+      Where are the Pipes of Pan?
+    params: {metre: "010101"}
+    satisfied: true
+  - name: matthews-ballade-of-tobacco
+    provenance: external
+    source: >-
+      Brander Matthews, "The Ballade of Tobacco", in Gleeson White (ed.), Ballades and
+      Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p.
+      37. Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n120. Brander Matthews died
+      1929, White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the 77
+      poems the screen stated in tomson-ballade-of-asphodel selects at the default metre, 77
+      at pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all 61
+      on rhyme or refrain. Checked with metre unset: at the default it fails on one
+      seven-syllable line and the stress of 'delicate' and 'Smokers'.
+    text: |-
+      When verdant youth sees life afar,
+      And first sets out wild oats to sow,
+      He puffs a stiff and stark cigar,
+      And quaffs champagne of Mumm & Co.
+      He likes not smoking yet; but though
+      Tobacco makes him sick indeed,
+      Cigars and wine he can't forego:--
+      A slave is each man to the weed.
+      In time his tastes more dainty are,
+      And delicate. Become a beau,
+      From out the country of the Czar
+      He brings his cigarettes, and lo!
+      He sips the vintage of Bordeaux.
+      Thus keener relish shall succeed
+      The baser liking we outgrow:--
+      A slave is each man to the weed.
+      When age and his own lucky star
+      To him perfected wisdom show,
+      The schooner glides across the bar,
+      And beer for him shall freely flow,
+      A pipe with genial warmth shall glow;
+      To which he turns in direst need,
+      To seek in smoke surcease of woe:--
+      A slave is each man to the weed.
+      Smokers! who doubt or con or pro,
+      And ye who dare to drink, take heed!
+      And see in smoke a friendly foe:--
+      A slave is each man to the weed.
+    params: {metre: null}
+    satisfied: true
+  - name: sherman-ballade-of-rhyme
+    provenance: external
+    source: >-
+      Frank Dempster Sherman, "Ballade of Rhyme", in Gleeson White (ed.), Ballades and
+      Rondeaus, Chants Royal, Sestinas, Villanelles, &c. (London: Walter Scott, 1887), p.
+      64. Project Gutenberg ebook #45736,
+      https://www.gutenberg.org/cache/epub/45736/pg45736.txt, extracted 2026-10-14 by
+      script: indentation, the envoy heading and the signature removed, PG's italic
+      underscores dropped, dashes as PG prints them. Checked word for word against the page
+      image of the 1887 printing,
+      https://archive.org/details/balladesrondeau00whit/page/n147. Frank Dempster Sherman
+      died 1916, White 1898. Selected: re-measured 2026-10-14, the checker rejects 76 of the
+      77 poems the screen stated in tomson-ballade-of-asphodel selects at the default metre,
+      77 at pentameter (0101010101), 76 at trimeter (010101), and 61 with metre unset, all
+      61 on rhyme or refrain. Checked with metre unset: at the default it fails on one
+      seven-syllable line and on 'Willing' and 'Reader' opening a line on a stress.
+    text: |-
+      When blossoms born of balmy spring
+      Breathe fragrance in the pleasant shade
+      Of branches where the blue-birds sing,
+      Their hearts with music overweighed;
+      When brooks go babbling through the glade,
+      And over rocks the grasses climb
+      To greet the sunshine, half-afraid,-
+      How easy 'tis to write a rhyme!
+      When invitations are a-wing
+      For gay Terpsichore's parade;
+      When dreamy waltzes stir the string
+      And jewels flash on rich brocade,
+      Where Paris dresses are displayed,
+      And slippered feet keep careful time;-
+      In winter, when the roses fade,
+      How easy 'tis to write a rhyme!
+      When by your side, with graceful swing,
+      Some fair-faced, gentle girl has strayed,
+      Willing and glad to have you bring
+      Your claims for love and get them paid
+      In kisses, smiles, and words that aid
+      The bells of bliss to better chime;-
+      When Cupid's rules are first obeyed,
+      How easy 'tis to write a rhyme!
+      Reader, forgive me, man or maid,
+      Against Calliope this crime;
+      And let this brief ballade persuade
+      How easy 'tis to write a rhyme!
+    params: {metre: null}
+    satisfied: true

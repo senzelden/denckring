@@ -17,6 +17,7 @@ class Triolet(BaseProcedure[TrioletParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "triolet"
+    checker_version = 2
     rules = (
         "broken_refrain",
         "does_not_rhyme",

@@ -1,6 +1,9 @@
 """Three stanzas that differ only in length, scheme and metre."""
 
-from denckring import check
+import pytest
+
+from denckring import check, prompt_hint
+from denckring.core.errors import InvalidParams, UnsetHintParameter
 
 OTTAVA = """the cat can see the moon above the tree
 the dog will run across the field today
@@ -100,3 +103,62 @@ def test_ballade_rejects_an_accidental_rhyme_reuse() -> None:
     report = check("ballade", "\n".join(reused))
     assert report.satisfied is False
     assert any(v.rule == "identical_rhyme" for v in report.violations)
+
+
+#: The same ballade with two syllables in front of every line, refrain included:
+#: iambic pentameter, the length White (1887) says real ballades also take.
+BALLADE_PENTAMETER = ["and so " + line for line in BALLADE_LINES]
+
+
+def test_ballade_default_metre_is_the_tetrameter_it_always_checked() -> None:
+    """`metre` at its default judges exactly as the row did before it existed."""
+    for lines in (BALLADE_LINES, BALLADE_PENTAMETER):
+        text = "\n".join(lines)
+        assert check("ballade", text) == check("ballade", text, metre="01" * 4)
+
+
+def test_ballade_metre_names_the_line_the_checker_scans() -> None:
+    """A pentameter ballade fails the default on length, and passes `metre` of ten."""
+    text = "\n".join(BALLADE_PENTAMETER)
+    default = check("ballade", text)
+    assert default.satisfied is False
+    assert {v.rule for v in default.violations} == {"wrong_line_length"}
+    assert check("ballade", text, metre="01" * 5).satisfied is True
+    tetrameter = check("ballade", "\n".join(BALLADE_LINES), metre="01" * 5)
+    assert {v.rule for v in tetrameter.violations} == {"wrong_line_length"}
+
+
+def test_ballade_without_a_metre_still_checks_rhyme_and_refrain() -> None:
+    """`metre=None` drops the line scan alone; line count, rhyme and refrain stand."""
+    assert check("ballade", "\n".join(BALLADE_PENTAMETER), metre=None).satisfied is True
+    short = check("ballade", "\n".join(BALLADE_PENTAMETER[:27]), metre=None)
+    assert {v.rule for v in short.violations} == {"wrong_line_count"}
+    broken = [*BALLADE_PENTAMETER[:27], "and so until the southern wind has blown"]
+    assert {v.rule for v in check("ballade", "\n".join(broken), metre=None).violations} == {
+        "broken_refrain"
+    }
+    reused = list(BALLADE_PENTAMETER)
+    reused[24] = "and so the men will come at dusk to play"
+    rules = {v.rule for v in check("ballade", "\n".join(reused), metre=None).violations}
+    assert rules == {"identical_rhyme"}
+
+
+@pytest.mark.parametrize("metre", ["", "0101x101", "iambic"])
+def test_ballade_refuses_a_metre_that_is_not_a_stress_pattern(metre: str) -> None:
+    with pytest.raises(InvalidParams):
+        check("ballade", "\n".join(BALLADE_LINES), metre=metre)
+
+
+def test_ballade_hint_states_the_metre_it_will_be_judged_on() -> None:
+    """The hint asks for the pattern set, never for the tetrameter regardless."""
+    pentameter = prompt_hint("ballade", metre="01" * 5)
+    assert "0101010101" in pentameter
+    assert "tetrameter" not in pentameter and "eight syllables" not in pentameter
+    assert "01010101" in prompt_hint("ballade")
+
+
+def test_ballade_hint_without_a_metre_is_refused_rather_than_invented() -> None:
+    """`metre=None` leaves no line to ask for, so the hint names the gap."""
+    with pytest.raises(UnsetHintParameter) as raised:
+        prompt_hint("ballade", metre=None)
+    assert "metre" in str(raised.value)

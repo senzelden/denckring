@@ -42,6 +42,7 @@ class Rondeau(BaseProcedure[RondeauParams]):
     """Two rhymes across thirteen lines, plus two unrhymed rentrements."""
 
     id = "rondeau"
+    checker_version = 2
     rules = (
         "broken_rentrement",
         "does_not_rhyme",

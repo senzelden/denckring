@@ -17,6 +17,7 @@ class Villanelle(BaseProcedure[VillanelleParams]):
     """Assembled from the shared rhyme, metre and refrain checks."""
 
     id = "villanelle"
+    checker_version = 2
     rules = (
         "broken_refrain",
         "does_not_rhyme",

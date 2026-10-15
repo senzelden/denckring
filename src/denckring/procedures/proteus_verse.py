@@ -193,6 +193,8 @@ class ProteusVerse(ConstructiveProcedure[ProteusVerseParams, ProteusVerseApplyPa
     """
 
     id = "proteus_verse"
+
+    checker_version = 2
     rules = ("does_not_scan", "too_few_variants", "wrong_line_count")
 
     @classmethod

@@ -10,7 +10,7 @@
 
 alcaic_stanza:
   reason: none_found
-  note: "Public-domain sourcing pass (2026-10-12): all four stanzas of Tennyson's 'Milton' (Enoch Arden, &c., Project Gutenberg ebook #1358), headed 'In quantity' and 'Alcaics', are rejected. The poem is quantitative and the checker scans stress; it also miscounts 'Abdiel', 'armouries' and 'ambrosial'. Checker findings, pending a maintainer ruling."
+  note: "Public-domain sourcing pass (2026-10-12): all four stanzas of Tennyson's 'Milton' (Enoch Arden, &c., Project Gutenberg ebook #1358), headed 'In quantity' and 'Alcaics', are rejected. Ruled 2026-10-14: the row reads alcaics accentually, by stress, and its definition says so; 'Milton' is quantitative and falls outside it. Re-measured 2026-10-14, every stanza breaks the stress pattern, and three lines are also a syllable short: the poem needs 'Abdiel' as three syllables and 'ambrosial' as four, which the checker reads as two and three, and the ruling keeps those readings (poetic licence); the third, 'Starr'd from Jehovah's gorgeous armouries', counts ten for eleven: 'armouries' is not in the dictionary and the spelling heuristic gives it three, as CMUdict gives 'armories', and the line needs it or 'gorgeous' a syllable longer. Nothing pending; no public-domain accentual alcaic has been found."
 alphabetical_sentence:
   reason: none_found
   note: "Not in research batches 1-3; catalogue cites Word Ways (1968 onwards); not searched in batch 4 (2026-10-13)."
@@ -29,9 +29,6 @@ arca_musarithmica:
 assonance_constraint:
   reason: none_found
   note: "Batch 3: no assonance-bound unit in a supported language verified against a named pre-1929 edition (the native exemplar is the Old French laisse). Not searched in batch 4 (2026-10-13)."
-ballade:
-  reason: none_found
-  note: "Batch 2 proposed two French Villon ballades; neither landed as a ballade case. Public-domain sourcing pass (2026-10-12): all 67 ballades of 28 lines in Gleeson White's Ballades and Rondeaus (1887) are rejected, mostly for lines that are not octosyllables, a length White says real ballades vary; the nearest is rejected only because 'erewhile' is counted as three syllables. Checker findings, pending a maintainer ruling."
 beau_present:
   reason: after_cutoff
   note: "Catalogue source: Georges Perec and Jacques Roubaud, in Oulipo, Atlas de littérature potentielle (1981)."
@@ -55,7 +52,7 @@ column_reading:
   note: "Catalogue cites only Oulipo, Atlas de littérature potentielle (1981), as a reference; no search for an instance inside the public-domain cutoff has been made."
 consonantal_lipogram:
   reason: none_found
-  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981). Batch 4 (2026-10-13) located but did not read: an English lead, a poem without s by George Wakeman, 'Tormenting the Alphabet' ('Torturing the Alphabet' in the magazine's own 1870 obituary), The Galaxy (1866), known only secondhand; and German R-lipograms by Burmann (1788, 1796) and Rittler (1815, 1820), whose Fraktur scans were not opened."
+  note: "Not in research batches 1-3; catalogue cites Oulipo, Atlas de littérature potentielle (1981). Every lead batch 4 (2026-10-13) located bans a single letter, so none would evidence the group form even if landed. The anonymous song without s quoted in George Wakeman, 'Tormenting the Alphabet', The Galaxy (1866), was extracted on 2026-10-14 and is a lipogram case. The German R-lipograms were sought on 2026-10-14. Gottlob Wilhelm Burmann's Gedichte ohne den Buchstaben R. (Berlin: Kunze, 1788), GDZ Göttingen PPN637703200, is scanned without a text layer and did not land. Two did land, as lipogram cases (lang de, forbidden r), under ADR 0062's 2026-10-14 exception for hand-corrected OCR of these two texts only: 'I. An Gott' (pp. 1-2) from his Einige Gedichte ohne den Buchstaben R (Berlin: Decker, 1796), a different text, SBB Berlin PPN663105609, whose OCR differs from the page images in 17 places in the verse; and the first four paragraphs of Franz Rittler's Die Zwillinge, a novel without R, 3rd ed. (Wien: Härter, 1820), pp. 17-18, ÖNB 106CFAF7, whose OCR needed 27 corrections there and invents r's the print lacks. Each case's source lists its corrections. No scan of Rittler's 1815 second edition was found on archive.org (title and creator search), de.wikisource or the open web, and Google Books (API quota exceeded) and MDZ's own search were not checked. Each bans r alone, so they evidence lipogram in German, not this row."
 definitional_expansion:
   reason: after_cutoff
   note: "Catalogue source: Marcel Bénabou and Georges Perec, littérature définitionnelle (1966)."
@@ -146,9 +143,6 @@ pasigraphy:
 perverb:
   reason: after_cutoff
   note: "Catalogue source: Harry Mathews, in Oulipo, Atlas de littérature potentielle (1981)."
-petrarchan_sonnet:
-  reason: none_found
-  note: "Public-domain sourcing pass (2026-10-12): every fourteen-line poem screened from Milton (Beeching's edition) and Wordsworth (Poems in Two Volumes, 1807) is rejected, on a mix of real metrical and rhyme variation and checker misreadings ('therewith' counted as three syllables, 'disapproves' and 'without' stressed against the line). Checker findings, pending a maintainer ruling."
 poesie_automat:
   reason: after_cutoff
   note: "Catalogue source: Hans Magnus Enzensberger, Einladung zu einem Poesie-Automaten (conceived 1974)."

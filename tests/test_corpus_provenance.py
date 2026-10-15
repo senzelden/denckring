@@ -57,8 +57,17 @@ _SRC_ROOT = Path(__file__).resolve().parents[1] / "src" / "denckring"
 #: sourcing pass for the classical verse forms landed thirteen cases, and to 102 when four
 #: of Hilton's chronograms (1882) landed. Raised to 118 on 2026-10-13, when Bombaugh's 1890
 #: chronogram and fifteen cases from his telestich, acrostic, double acrostic, univocalic
-#: and lipogram texts landed.
-EXTERNAL_FLOOR = 118
+#: and lipogram texts landed. Raised to 119 on 2026-10-14, when Lear's "Ryde" limerick
+#: landed with the identical-rhyme fix it witnesses, and to 120 when a Don Juan stanza
+#: landed with `ottava_rima`'s new feminine_ending. Raised to 124 when four ballades from
+#: Gleeson White's anthology (1887) landed with `ballade`'s new `metre`, and to 125 when
+#: the anonymous s-less song quoted in The Galaxy (1866) landed as a `lipogram` case.
+#: Raised to 126 when Milton's "When I consider" landed as `petrarchan_sonnet`'s first
+#: external case, with the metrical licences of ADR 0065. Raised to 129 on 2026-10-15,
+#: when three Lear limericks landed with `limerick`'s new `allow_identical`, and to 131
+#: the same day, when Burmann's "An Gott" (1796) and the opening of Rittler's Die
+#: Zwillinge (1820) landed as `lipogram` cases under ADR 0062's 2026-10-14 exception.
+EXTERNAL_FLOOR = 131
 
 #: The same floor as a share of the corpus (ADR 0062), so that adding constructed cases
 #: faster than external ones shows up. 85 of 687 on 2026-10-12, rounded down to three
@@ -67,8 +76,13 @@ EXTERNAL_FLOOR = 118
 #: ADR 0063 declares German on twenty letter rules and every one of the eighteen German
 #: cases it needed is constructed. The fall is the cost that ADR records, not drift.
 #: Raised to 118 of 739 (0.159) when the Bombaugh 1890 cases landed, above the 0.144 the
-#: dip had given up.
-EXTERNAL_SHARE_FLOOR = 0.159
+#: dip had given up. Raised to 119 of 740 (0.160) with Lear's "Ryde" limerick, and to
+#: 120 of 741 (0.161) with the Don Juan stanza, and to 124 of 745 (0.166) with White's
+#: four ballades, and to 125 of 746 (0.167) with the Galaxy's s-less song, and to 126
+#: of 747 (0.168) with Milton's "When I consider" (2026-10-14), and to 129 of 750 (0.172)
+#: with three Lear limericks under `allow_identical` (2026-10-15), and to 131 of 752
+#: (0.174) with the Burmann and Rittler R-lipograms (2026-10-15).
+EXTERNAL_SHARE_FLOOR = 0.174
 
 #: Per-row external counts, a ratchet: a row may gain external cases, never lose one
 #: (ADR 0062). Rewritten by hand when a row gains one, in the same commit.

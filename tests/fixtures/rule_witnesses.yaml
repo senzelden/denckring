@@ -7,6 +7,11 @@
 #
 # An entry here whose rule a golden case comes to emit is stale, and the test
 # says so: delete it.
+#
+# A `rhyme_undecidable` witness ends each line on a different nonsense word
+# (`zxqvkb`, `zxqvkc`, ...). Digits will not do: the tokeniser drops them, so
+# `zxqvk0` and `zxqvk1` are the same word and the pair is `identical_rhyme`,
+# which is decided by spelling before the dictionary is asked.
 witnesses:
 - procedure: acrostic
   rule: extra_unit
@@ -164,34 +169,34 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    a cat can climb a tall old zxqvk0
-    the dog will run and play all zxqvk1
-    the kestrel flies out to the zxqvk2
-    the sun will shine and light the zxqvk3
-    the sky will clear by first of zxqvk4
-    the wall was built of gray old zxqvk5
-    the birds will call what they all zxqvk6
-    until the northern wind has zxqvk7
-    the clock will chime at half past zxqvk8
-    the boys will laugh and run to zxqvk9
-    a fish will leap and swim so zxqvk10
-    the guests will come and wish to zxqvk11
-    the storm clouds turn both dark and zxqvk12
-    the barn stood dark and stayed zxqvk13
-    the goats will roam and love to zxqvk14
-    until the northern wind has zxqvk15
-    he holds the door shut with a zxqvk16
-    the trees will bend then start to zxqvk17
-    the priest will grant the poor his zxqvk18
-    the child will shape the wet soft zxqvk19
-    the light comes down in one long zxqvk20
-    the truth at last to all was zxqvk21
-    the hens will rest then soon they zxqvk22
-    until the northern wind has zxqvk23
-    the men will come at dusk to zxqvk24
-    the corn stood tall for it had zxqvk25
-    the ships will sail out past the zxqvk26
-    until the northern wind has zxqvk27
+    a cat can climb a tall old zxqvkb
+    the dog will run and play all zxqvkc
+    the kestrel flies out to the zxqvkd
+    the sun will shine and light the zxqvkf
+    the sky will clear by first of zxqvkg
+    the wall was built of gray old zxqvkh
+    the birds will call what they all zxqvkj
+    until the northern wind has zxqvkk
+    the clock will chime at half past zxqvkl
+    the boys will laugh and run to zxqvkm
+    a fish will leap and swim so zxqvkn
+    the guests will come and wish to zxqvkp
+    the storm clouds turn both dark and zxqvkr
+    the barn stood dark and stayed zxqvkt
+    the goats will roam and love to zxqvkw
+    until the northern wind has zxqvkx
+    he holds the door shut with a zxqvkz
+    the trees will bend then start to zxqvkbc
+    the priest will grant the poor his zxqvkcc
+    the child will shape the wet soft zxqvkdc
+    the light comes down in one long zxqvkfc
+    the truth at last to all was zxqvkgc
+    the hens will rest then soon they zxqvkhc
+    until the northern wind has zxqvkjc
+    the men will come at dusk to zxqvkkc
+    the corn stood tall for it had zxqvklc
+    the ships will sail out past the zxqvkmc
+    until the northern wind has zxqvknc
 - procedure: ballade
   rule: unknown_rhyme
   lang: en
@@ -417,10 +422,10 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    sir humphry zxqvk0
-    abominated zxqvk1
-    he mixed his chemicals every zxqvk2
-    and left the lab in the pale zxqvk3
+    sir humphry zxqvkb
+    abominated zxqvkc
+    he mixed his chemicals every zxqvkd
+    and left the lab in the pale zxqvkf
 - procedure: clerihew
   rule: unknown_rhyme
   lang: en
@@ -482,17 +487,17 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the fish will swim beneath the frozen zxqvk0
-    the cat can see the moon above the zxqvk1
-    the dog will run across the field zxqvk2
-    the deer will wake before the morning zxqvk3
-    a kestrel flies around the house at zxqvk4
-    the sun will set behind the hill in zxqvk5
-    the moon will rise and fill the sky with zxqvk6
-    the boat will drift below the open zxqvk7
-    the wind will move the grass and blow zxqvk8
-    the stars will burn until the end of zxqvk9
-    the birds will sing before the break of zxqvk10
+    the fish will swim beneath the frozen zxqvkb
+    the cat can see the moon above the zxqvkc
+    the dog will run across the field zxqvkd
+    the deer will wake before the morning zxqvkf
+    a kestrel flies around the house at zxqvkg
+    the sun will set behind the hill in zxqvkh
+    the moon will rise and fill the sky with zxqvkj
+    the boat will drift below the open zxqvkk
+    the wind will move the grass and blow zxqvkl
+    the stars will burn until the end of zxqvkm
+    the birds will sing before the break of zxqvkn
 - procedure: curtal_sonnet
   rule: unknown_rhyme
   lang: en
@@ -661,10 +666,10 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the summer evening settles by the zxqvk0
-    beside the quiet zxqvk1
-    and the swallow calls the zxqvk2
-    and the river hums zxqvk3
+    the summer evening settles by the zxqvkb
+    beside the quiet zxqvkc
+    and the swallow calls the zxqvkd
+    and the river hums zxqvkf
 - procedure: englyn
   rule: unknown_rhyme
   lang: en
@@ -1008,11 +1013,11 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    there was an old man with a zxqvk0
-    who said it is just as i zxqvk1
-    two owls and a zxqvk2
-    four larks and a zxqvk3
-    have all built their nests in my zxqvk4
+    there was an old man with a zxqvkb
+    who said it is just as i zxqvkc
+    two owls and a zxqvkd
+    four larks and a zxqvkf
+    have all built their nests in my zxqvkg
 - procedure: limerick
   rule: unknown_rhyme
   lang: en
@@ -1173,14 +1178,14 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a kestrel flies around the house at zxqvk2
-    the sun will set behind the hill in zxqvk3
-    the owl will call across the dark at zxqvk4
-    the fox will hide beneath the fallen zxqvk5
-    the mice will creep beside the ancient zxqvk6
-    the birds will sing before the day has zxqvk7
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a kestrel flies around the house at zxqvkd
+    the sun will set behind the hill in zxqvkf
+    the owl will call across the dark at zxqvkg
+    the fox will hide beneath the fallen zxqvkh
+    the mice will creep beside the ancient zxqvkj
+    the birds will sing before the day has zxqvkk
 - procedure: ottava_rima
   rule: unknown_rhyme
   lang: en
@@ -1327,20 +1332,20 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    the sun will set behind the hill in zxqvk2
-    a bird can fly around the house at zxqvk3
-    the boat will drift below the open zxqvk4
-    the wind will move the grass and blow zxqvk5
-    the light will fade before the end of zxqvk6
-    the child will run across the field so zxqvk7
-    the fox will hide beneath the fallen zxqvk8
-    the fish will swim beneath the frozen zxqvk9
-    the moon will rise and fill the sky with zxqvk10
-    the owl will call across the dark zxqvk11
-    the deer will wake before the morning zxqvk12
-    the stars will burn until the end of zxqvk13
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    the sun will set behind the hill in zxqvkd
+    a bird can fly around the house at zxqvkf
+    the boat will drift below the open zxqvkg
+    the wind will move the grass and blow zxqvkh
+    the light will fade before the end of zxqvkj
+    the child will run across the field so zxqvkk
+    the fox will hide beneath the fallen zxqvkl
+    the fish will swim beneath the frozen zxqvkm
+    the moon will rise and fill the sky with zxqvkn
+    the owl will call across the dark zxqvkp
+    the deer will wake before the morning zxqvkr
+    the stars will burn until the end of zxqvkt
 - procedure: petrarchan_sonnet
   rule: unknown_rhyme
   lang: en
@@ -1466,13 +1471,13 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a bird can fly around the house at zxqvk2
-    the sun will set behind the hill in zxqvk3
-    the birds will sing before the break of zxqvk4
-    the fox will hide beneath the fallen zxqvk5
-    the owl will call across the dark zxqvk6
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a bird can fly around the house at zxqvkd
+    the sun will set behind the hill in zxqvkf
+    the birds will sing before the break of zxqvkg
+    the fox will hide beneath the fallen zxqvkh
+    the owl will call across the dark zxqvkj
 - procedure: rhyme_royal
   rule: unknown_rhyme
   lang: en
@@ -1585,21 +1590,21 @@ witnesses:
   params:
     rentrement_words: 3
   text: |-
-    the summer holds the zxqvk0
-    the tiles lie warm upon the zxqvk1
-    a single swallow crosses zxqvk2
-    no one can say the reason zxqvk3
-    the garden waits for something zxqvk4
-    the bread is kept inside the zxqvk5
-    the boats are drawn along the zxqvk6
-    a distant gull begins to zxqvk7
-    the summer zxqvk8
-    the thunder starts its far off zxqvk9
-    the candle burns an hour zxqvk10
-    the wind goes past with one long zxqvk11
-    the truth is not one to zxqvk12
-    the harvest time will soon zxqvk13
-    the summer zxqvk14
+    the summer holds the zxqvkb
+    the tiles lie warm upon the zxqvkc
+    a single swallow crosses zxqvkd
+    no one can say the reason zxqvkf
+    the garden waits for something zxqvkg
+    the bread is kept inside the zxqvkh
+    the boats are drawn along the zxqvkj
+    a distant gull begins to zxqvkk
+    the summer zxqvkl
+    the thunder starts its far off zxqvkm
+    the candle burns an hour zxqvkn
+    the wind goes past with one long zxqvkp
+    the truth is not one to zxqvkr
+    the harvest time will soon zxqvkt
+    the summer zxqvkw
 - procedure: rondeau
   rule: unknown_rhyme
   lang: en
@@ -1759,20 +1764,20 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a bird can fly around the house at zxqvk2
-    the sun will set behind the hill in zxqvk3
-    the fox will hide beneath the fallen zxqvk4
-    the fish will swim beneath the frozen zxqvk5
-    the owl will call across the dark zxqvk6
-    the deer will wake before the morning zxqvk7
-    the moon will rise and fill the sky with zxqvk8
-    the horse will stand beside the gate so zxqvk9
-    the stars will burn until the end of zxqvk10
-    the mouse will hide behind the open zxqvk11
-    the clock will mark the passing of the zxqvk12
-    the bell will ring and slowly start to zxqvk13
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a bird can fly around the house at zxqvkd
+    the sun will set behind the hill in zxqvkf
+    the fox will hide beneath the fallen zxqvkg
+    the fish will swim beneath the frozen zxqvkh
+    the owl will call across the dark zxqvkj
+    the deer will wake before the morning zxqvkk
+    the moon will rise and fill the sky with zxqvkl
+    the horse will stand beside the gate so zxqvkm
+    the stars will burn until the end of zxqvkn
+    the mouse will hide behind the open zxqvkp
+    the clock will mark the passing of the zxqvkr
+    the bell will ring and slowly start to zxqvkt
 - procedure: shakespearean_sonnet
   rule: unknown_rhyme
   lang: en
@@ -1847,20 +1852,20 @@ witnesses:
     scheme: ABABCDCDEFEFGG
     metre: '0101010101'
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a kestrel flies around the house at zxqvk2
-    the sun will set behind the hill in zxqvk3
-    the fox will hide beneath the fallen zxqvk4
-    the fish will swim beneath the frozen zxqvk5
-    the owl will call across the dark zxqvk6
-    the deer will wake before the morning zxqvk7
-    the moon will rise and fill the sky with zxqvk8
-    the horse will stand beside the gate so zxqvk9
-    the stars will burn until the end of zxqvk10
-    the mouse will hide behind the open zxqvk11
-    the clock will mark the passing of the zxqvk12
-    the bell will ring and slowly start to zxqvk13
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a kestrel flies around the house at zxqvkd
+    the sun will set behind the hill in zxqvkf
+    the fox will hide beneath the fallen zxqvkg
+    the fish will swim beneath the frozen zxqvkh
+    the owl will call across the dark zxqvkj
+    the deer will wake before the morning zxqvkk
+    the moon will rise and fill the sky with zxqvkl
+    the horse will stand beside the gate so zxqvkm
+    the stars will burn until the end of zxqvkn
+    the mouse will hide behind the open zxqvkp
+    the clock will mark the passing of the zxqvkr
+    the bell will ring and slowly start to zxqvkt
 - procedure: sonnet
   rule: unknown_rhyme
   lang: en
@@ -1944,15 +1949,15 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a kestrel flies around the house at zxqvk2
-    the sun will set behind the hill in zxqvk3
-    the birds will sing before the break of zxqvk4
-    the fox will hide beneath the fallen zxqvk5
-    the mice will creep beside the ancient zxqvk6
-    the owl will call across the dark zxqvk7
-    and now the birds will sing before the day has zxqvk8
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a kestrel flies around the house at zxqvkd
+    the sun will set behind the hill in zxqvkf
+    the birds will sing before the break of zxqvkg
+    the fox will hide beneath the fallen zxqvkh
+    the mice will creep beside the ancient zxqvkj
+    the owl will call across the dark zxqvkk
+    and now the birds will sing before the day has zxqvkl
 - procedure: spenserian_stanza
   rule: unknown_rhyme
   lang: en
@@ -2149,14 +2154,14 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a bird can fly around the house at zxqvk2
-    the cat can see the moon above the zxqvk3
-    the cat can see the moon above the zxqvk4
-    the sun will set behind the hill in zxqvk5
-    the cat can see the moon above the zxqvk6
-    the dog will run across the field zxqvk7
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a bird can fly around the house at zxqvkd
+    the cat can see the moon above the zxqvkf
+    the cat can see the moon above the zxqvkg
+    the sun will set behind the hill in zxqvkh
+    the cat can see the moon above the zxqvkj
+    the dog will run across the field zxqvkk
 - procedure: triolet
   rule: unknown_rhyme
   lang: en
@@ -2220,25 +2225,25 @@ witnesses:
   lang: en
   params: {}
   text: |-
-    the cat can see the moon above the zxqvk0
-    the dog will run across the field zxqvk1
-    a bird can fly around the house at zxqvk2
-    the cat can see the moon above the zxqvk3
-    the sun will set behind the hill in zxqvk4
-    the cat can see the moon above the zxqvk5
-    the cat can see the moon above the zxqvk6
-    the dog will run across the field zxqvk7
-    a bird can fly around the house at zxqvk8
-    the cat can see the moon above the zxqvk9
-    the sun will set behind the hill in zxqvk10
-    the cat can see the moon above the zxqvk11
-    the cat can see the moon above the zxqvk12
-    the dog will run across the field zxqvk13
-    a bird can fly around the house at zxqvk14
-    the cat can see the moon above the zxqvk15
-    the sun will set behind the hill in zxqvk16
-    the cat can see the moon above the zxqvk17
-    a bird can fly around the house at zxqvk18
+    the cat can see the moon above the zxqvkb
+    the dog will run across the field zxqvkc
+    a bird can fly around the house at zxqvkd
+    the cat can see the moon above the zxqvkf
+    the sun will set behind the hill in zxqvkg
+    the cat can see the moon above the zxqvkh
+    the cat can see the moon above the zxqvkj
+    the dog will run across the field zxqvkk
+    a bird can fly around the house at zxqvkl
+    the cat can see the moon above the zxqvkm
+    the sun will set behind the hill in zxqvkn
+    the cat can see the moon above the zxqvkp
+    the cat can see the moon above the zxqvkr
+    the dog will run across the field zxqvkt
+    a bird can fly around the house at zxqvkw
+    the cat can see the moon above the zxqvkx
+    the sun will set behind the hill in zxqvkz
+    the cat can see the moon above the zxqvkbc
+    a bird can fly around the house at zxqvkcc
 - procedure: villanelle
   rule: unknown_rhyme
   lang: en

@@ -21,6 +21,8 @@ class Haiku(BaseProcedure[HaikuParams]):
     """Checks the syllable pattern only; subject and season are not code's business."""
 
     id = "haiku"
+
+    checker_version = 2
     rules = ("extra_line", "missing_line", "wrong_syllable_count")
 
     @classmethod

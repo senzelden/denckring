@@ -26,6 +26,7 @@ class Clerihew(BaseProcedure[ClerihewParams]):
     """Rhyme and line count only."""
 
     id = "clerihew"
+    checker_version = 2
     rules = (
         "does_not_rhyme",
         "identical_rhyme",
